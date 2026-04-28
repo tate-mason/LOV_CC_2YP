@@ -1,0 +1,522 @@
+% ============================================================
+% UGA-Themed Beamer Presentation
+% Literature Review: Love of Variety
+%
+% Compile with:
+%   pdflatex literature_pres.tex
+% ============================================================
+
+\documentclass[aspectratio=169,professionalfonts]{beamer}
+
+% ---------- COLORS ----------
+\usepackage{xcolor}
+\definecolor{UGARed}{HTML}{BA0C2F}
+\definecolor{UGABlack}{HTML}{000000}
+\definecolor{UGAGray}{HTML}{8A8D8F}
+
+% ---------- THEME ----------
+\usetheme{default}
+\useinnertheme{circles}
+\useoutertheme[subsection=false]{miniframes}
+\usefonttheme{professionalfonts}
+\setbeamertemplate{navigation symbols}{}
+
+% Head/foot colors
+\setbeamercolor{subsection in head/foot}{fg=white, bg=UGARed}
+\setbeamercolor{headline}{fg=white, bg=UGARed}
+\setbeamercolor{section in head/foot}{fg=white, bg=UGARed}
+\setbeamercolor{section in head/foot shaded}{fg=white, bg=white}
+\setbeamercolor{footline}{bg=UGABlack, fg=white}
+\setbeamercolor{frametitle}{fg=UGABlack}
+\setbeamercolor{title}{fg=UGABlack}
+\setbeamercolor{normal text}{fg=UGABlack}
+\setbeamercolor{structure}{fg=UGARed}
+
+% Headline
+\setbeamertemplate{headline}{
+  \begin{beamercolorbox}[wd=\paperwidth,ht=2.5ex,dp=1.125ex]{headline}
+    \insertsectionnavigationhorizontal{\paperwidth}{}{}
+  \end{beamercolorbox}
+}
+
+% Footline
+\setbeamertemplate{footline}{%
+  \leavevmode%
+  \hbox{%
+    \begin{beamercolorbox}[wd=\paperwidth,ht=2.5ex,dp=1ex,leftskip=1em,rightskip=1em]{footline}%
+      \ifnum\theframenumber=0\relax\else%
+        \insertshortauthor{} \hfill \insertframenumber/\inserttotalframenumber%
+      \fi%
+    \end{beamercolorbox}}%
+}
+
+% ---------- PACKAGES ----------
+\usepackage{appendixnumberbeamer}
+\usepackage{amsmath, amssymb, mathtools}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{hyperref}
+\usepackage{tcolorbox}
+
+% ---------- METADATA ----------
+\title[Love of Variety: Lit.\ Review]{Literature Review: Love of Variety}
+\author[Tate Mason]{Tate Mason}
+\institute[UGA]{John Munro Godfrey Sr.\ Dept.\ of Economics \\ University of Georgia}
+\date{April 2026}
+
+% ---------- AUTO-AGENDA ----------
+\AtBeginSection[]{
+  \begin{frame}[noframenumbering]{Roadmap}
+    \tableofcontents[currentsection]
+  \end{frame}
+}
+
+% ---------- MACROS ----------
+\newcommand{\hl}[1]{\textbf{\textcolor{UGARed}{#1}}}
+\hypersetup{colorlinks=true, linkcolor=UGARed, urlcolor=UGARed}
+
+% ============================================================
+\begin{document}
+
+% ------------------------------------------------------------
+% Title
+% ------------------------------------------------------------
+\begin{frame}[noframenumbering]
+  \titlepage
+\end{frame}
+
+% ============================================================
+\section{Motivation}
+% ============================================================
+
+\begin{frame}{Motivation}
+  \begin{columns}[T]
+    \begin{column}{0.55\textwidth}
+      \hl{The problem with standard logit:}
+      \begin{itemize}
+        \item A new product always raises utility via a fresh $\varepsilon$ draw
+        \item No actual parameter for variety-seeking
+        \item Consumers seem to prefer goods that are \emph{novel but familiar}
+      \end{itemize}
+      \vspace{6pt}
+      \hl{This project models:}
+      \begin{itemize}
+        \item How deviation from a consumer's \emph{experienced mean} affects utility
+        \item How advertising interacts with variety 
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.42\textwidth}
+      \begin{tcolorbox}[colback=red!5!white, colframe=UGARed, title=\textbf{Three Literatures}]
+        \begin{enumerate}
+          \item Variety-seeking \& habit formation
+          \item Dyanmic discrete-choice demand estimation
+          \item Dynamic advertising
+        \end{enumerate}
+      \end{tcolorbox}
+      \vspace{1pt}
+      \begin{tcolorbox}[colback=red!5!white, colframe=UGARed, title=\textbf{Data}]
+        Nielsen-Kilts Homescan and Marketscan scanner data 
+      \end{tcolorbox}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ============================================================
+\section{Variety-Seeking \& Habit Formation}
+% ============================================================
+
+\begin{frame}{Dixit \& Stiglitz (1977): Love of Variety}
+  \begin{tcolorbox}[colback=red!5!white, colframe=UGARed, title=\textbf{Citation}]
+    Dixit, A. K. and Stiglitz, J. E. (1977). Monopolistic competition and optimum
+    product diversity. \textit{American Economic Review}, 67(3), 297--308.
+  \end{tcolorbox}
+  \vspace{6pt}
+  \begin{columns}[T]
+    \begin{column}{0.55\textwidth}
+      \hl{What they do:}
+      \begin{itemize}
+        \item Model preferences over a continuum of differentiated products
+        \item Show consumers prefer greater variety under monopolistic competition
+        \item Derive optimal product diversity conditions
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.42\textwidth}
+      \hl{Relevance:} The canonical ``love of variety'' framework
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{McAllister \& Pessemier (1982): Variety-Seeking Review}
+  \begin{tcolorbox}[colback=red!5!white, colframe=UGARed, title=\textbf{Citation}]
+    McAllister, I. and Pessemier, E. A. (1982). Variety seeking behavior: An
+    interdisciplinary review. \textit{Journal of Consumer Research}, 9(3), 311--322.
+  \end{tcolorbox}
+  \vspace{6pt}
+  \begin{columns}[T]
+    \begin{column}{0.55\textwidth}
+      \hl{What they do:}
+      \begin{itemize}
+        \item Comprehensive review of variety-seeking literature through early 1980s
+        \item Synthesize psychological, sociological, and economic perspectives
+        \item Catalog empirical patterns in variety-seeking behavior
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.42\textwidth}
+      \hl{Relevance:} Foundational reference for understanding motivations behind
+      variety-seeking; useful for grounding the model's behavioral assumptions
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Becker \& Murphy (1988): Rational Addiction}
+  \begin{tcolorbox}[colback=red!5!white, colframe=UGARed, title=\textbf{Citation}]
+    Becker, G. S. and Murphy, K. M. (1988). A theory of rational addiction.
+    \textit{Journal of Political Economy}, 96(4), 675--700.
+  \end{tcolorbox}
+  \vspace{6pt}
+  \begin{columns}[T]
+    \begin{column}{0.55\textwidth}
+      \hl{What they do:}
+      \begin{itemize}
+        \item Model addictive consumption as rational forward-looking behavior
+        \item Past consumption raises the marginal utility of current consumption
+        \item Embed habit stock dynamics into utility maximization
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.42\textwidth}
+      \hl{Relevance:} Habit-stock approach maps onto the experienced-mean state variable
+      $\bar{X}_{it}$; provides microfoundations for why $\bar{X}_{it}$ is welfare-relevant
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Bronnenberg, Dub\'e \& Gentzkow (2021): Brand Preferences}
+  \begin{tcolorbox}[colback=red!5!white, colframe=UGARed, title=\textbf{Citation}]
+    Bronnenberg, B. J., Dub\'e, J.-P., and Gentzkow, M. (2021). Millenials and the Take-off of Craft Brands: Preference Formation in the U.S. Beer Industry. \\
+    \textit{Working Paper}.
+  \end{tcolorbox}
+  \vspace{6pt}
+  \begin{columns}[T]
+    \begin{column}{0.55\textwidth}
+      \hl{What they do:}
+      \begin{itemize}
+        \item Use consumer migration across markets as identification strategy
+        \item Examine craft beer industry; find strong persistence in brand preferences
+        \item Construct a ``capital stock'' measure to track consumption history
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.42\textwidth}
+      \hl{Relevance:} Capital stock $\approx$ this project's $\bar{X}_{it}$; inspires
+      the ``prior mean'' initialization in simulations. Key empirical motivation for persistence
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ============================================================
+\section{Discrete-Choice Demand Estimation}
+% ============================================================
+
+\begin{frame}{McFadden (1974): Conditional Logit}
+  \begin{tcolorbox}[colback=red!5!white, colframe=UGARed, title=\textbf{Citation}]
+    McFadden, D. (1974). Conditional logit analysis of qualitative choice behavior.
+    In Zarembka, P. (ed.), \textit{Frontiers in Econometrics}. Academic Press.
+  \end{tcolorbox}
+  \vspace{6pt}
+  \begin{columns}[T]
+    \begin{column}{0.55\textwidth}
+      \hl{What they do:}
+      \begin{itemize}
+        \item Derive the multinomial logit from random utility maximization
+        \item Show IIA property and its implications
+        \item Establish the statistical framework for discrete choice
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.42\textwidth}
+      \hl{Relevance:} The MNL is the baseline for this project's choice probabilities.
+      The $\varepsilon_{ijt} \sim \text{Gumbel}$ assumption driving $P_{ijt}$ comes
+      directly from this framework
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Berry, Levinsohn \& Pakes (1995): BLP}
+  \begin{tcolorbox}[colback=red!5!white, colframe=UGARed, title=\textbf{Citation}]
+    Berry, S., Levinsohn, J., and Pakes, A. (1995). Automobile prices in market
+    equilibrium. \textit{Econometrica}, 63(4), 841--890.
+  \end{tcolorbox}
+  \vspace{6pt}
+  \begin{columns}[T]
+    \begin{column}{0.55\textwidth}
+      \hl{What they do:}
+      \begin{itemize}
+        \item Introduce random-coefficients logit for differentiated products
+        \item Solve the market-share inversion problem via contraction mapping
+        \item Provide IV strategy to handle price endogeneity
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.42\textwidth}
+      \hl{Relevance:} The estimation framework for this project. BLP instruments will
+      identify preferences for sameness and variety from observed market shares; random coefficients
+      accommodate heterogeneity in variety preferences
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Nevo (2001): BLP Applied to Cereal}
+  \begin{tcolorbox}[colback=red!5!white, colframe=UGARed, title=\textbf{Citation}]
+    Nevo, A. (2001). Measuring market power in the ready-to-eat cereal industry.
+    \textit{Econometrica}, 69(2), 307--342.
+  \end{tcolorbox}
+  \vspace{6pt}
+  \begin{columns}[T]
+    \begin{column}{0.55\textwidth}
+      \hl{What they do:}
+      \begin{itemize}
+        \item Apply BLP to the ready-to-eat cereal industry
+        \item Carefully construct instruments; demonstrate identification
+        \item Recover markups and market power estimates
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.42\textwidth}
+      \hl{Relevance:} Practical implementation guide for BLP; cereal is a close cousin
+      to the CPG scanner data setting. Blueprint for the estimation phase of this project
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Conlon \& Gortmaker (2020): PyBLP Best Practices}
+  \begin{tcolorbox}[colback=red!5!white, colframe=UGARed, title=\textbf{Citation}]
+    Conlon, C. and Gortmaker, J. (2020). Best practices for differentiated products demand
+    estimation with PyBLP. \textit{RAND Journal of Economics}, 51(4), 1108--1161.
+  \end{tcolorbox}
+  \vspace{6pt}
+  \begin{columns}[T]
+    \begin{column}{0.55\textwidth}
+      \hl{What they do:}
+      \begin{itemize}
+        \item Provide numerical best practices for BLP-style estimators
+        \item Document common pitfalls (integration rules, convergence tolerance)
+        \item Release PyBLP, an open-source Python implementation
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.42\textwidth}
+      \hl{Relevance:} Directly relevant for the structural estimation phase. PyBLP will
+      be the estimation engine; this paper gives guidance on numerical implementation choices
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Wei \& Jiang (2024): Neural Network Estimation}
+  \begin{tcolorbox}[colback=red!5!white, colframe=UGARed, title=\textbf{Citation}]
+    Wei, Y. and Jiang, Z. (2024). Estimating parameters of structural models using
+    neural networks. \textit{Marketing Science}, 44(1), 102--128.
+  \end{tcolorbox}
+  \vspace{6pt}
+  \begin{columns}[T]
+    \begin{column}{0.55\textwidth}
+      \hl{What they do:}
+      \begin{itemize}
+        \item Implement neural networks as a flexible moment-matching estimator
+        \item Demonstrate efficiency gains over classical GMM in structural models
+        \item Show improved accuracy given correct moment selection
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.42\textwidth}
+      \hl{Relevance:} Potential computational shortcut for estimating the dynamic model
+      on Nielsen-Kilts data; ties into Song (2025) as a practical implementation strategy
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ============================================================
+\section{Dynamic Advertising}
+% ============================================================
+
+\begin{frame}{Nerlove \& Arrow (1962): Goodwill}
+  \begin{tcolorbox}[colback=red!5!white, colframe=UGARed, title=\textbf{Citation}]
+    Nerlove, M. and Arrow, K. J. (1962). Optimal advertising policy under dynamic
+    conditions. \textit{Economica}, 29(114), 129--142.
+  \end{tcolorbox}
+  \vspace{6pt}
+  \begin{columns}[T]
+    \begin{column}{0.55\textwidth}
+      \hl{What they do:}
+      \begin{itemize}
+        \item Model advertising as a stock of ``goodwill'' that depreciates over time
+        \item Derive the firm's optimal advertising path as a dynamic control problem
+        \item Show advertising investment trades off current cost vs.\ future demand
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.42\textwidth}
+      \hl{Relevance:} Theoretical foundation for the firm's dynamic advertising problem.
+      The goodwill stock maps onto consumer familiarity, linking naturally to the
+      habit formation side
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Erdem \& Keane (1996): Advertising as Learning}
+  \begin{tcolorbox}[colback=red!5!white, colframe=UGARed, title=\textbf{Citation}]
+    Erdem, T. and Keane, M. P. (1996). Decision-making under uncertainty: Capturing
+    dynamic brand choice processes in turbulent consumer goods markets.
+    \textit{Marketing Science}, 15(1), 1--20.
+  \end{tcolorbox}
+  \vspace{6pt}
+  \begin{columns}[T]
+    \begin{column}{0.55\textwidth}
+      \hl{What they do:}
+      \begin{itemize}
+        \item Model advertising as a signal that updates consumer beliefs about quality
+        \item Consumers Bayesian-update perceptions from ad exposure
+        \item Estimate dynamic brand choice model on detergent data
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.42\textwidth}
+      \hl{Relevance:} Estimation procedure and ``perceptions formed via advertising'' are
+      directly relevant. This project \emph{flips} the direction: consumer choices inform
+      firm advertising strategy
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Dub\'e, Hitsch \& Rossi (2005): Adverising Timing}
+  \begin{tcolorbox}[colback=red!5!white, colframe=UGARed, title=\textbf{Citation}]
+    Dub\'e, J.-P., Hitsch, G. J., and Rossi, P. E. (2005).  An Empirical Model of Adverising Dynamics.
+    \textit{Quantitative Marketing and Economics}, 3, 107-144.
+  \end{tcolorbox}
+  \vspace{6pt}
+  \begin{columns}[T]
+    \begin{column}{0.55\textwidth}
+      \hl{What they do:}
+      \begin{itemize}
+        \item Utilize goodwill stock with distributed lag to model advertising as investment process
+        \item Solve for Markov perfect equilibrium in a dynamic oligopoly game
+        \item Using frozen entree data, find that their model overpredicts advertising persistence
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.42\textwidth}
+      \hl{Relevance:} Update on the Nerlove-Arrow framework; the distributed lag structure informs the specification of the firm's advertising cost function. 
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Bergemann \& Bonatti (2011): Optimal Targeting}
+  \begin{tcolorbox}[colback=red!5!white, colframe=UGARed, title=\textbf{Citation}]
+    Bergemann, D. and Bonatti, A. (2011). Targeting in advertising markets: Implications
+    for offline vs.\ online media. \textit{RAND Journal of Economics}, 42(3), 417--443.
+  \end{tcolorbox}
+  \vspace{6pt}
+  \begin{columns}[T]
+    \begin{column}{0.55\textwidth}
+      \hl{What they do:}
+      \begin{itemize}
+        \item Model optimal targeting in a static advertising market
+        \item Firm chooses which consumer segments to target and how intensively
+        \item Compare offline (coarse) vs.\ online (fine) targeting technologies
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.42\textwidth}
+      \hl{Relevance:} Starting point for the dynamic targeting extension. This project
+      extends to a dynamic setting where targeting depends on the consumer's $\bar{X}_{it}$
+      state
+    \end{column}
+  \end{columns}
+\end{frame}
+\begin{frame}{Hosanagar, Fleder, Lee \& Buja (2014): Recommender Systems}
+  \begin{tcolorbox}[colback=red!5!white, colframe=UGARed, title=\textbf{Citation}]
+    Hosanagar, K., Fleder, D., Lee, D., and Buja, A. (2014). Will the global village
+    fracture into tribes? Recommender systems and their effects on consumer fragmentation.
+    \textit{Management Science}, 60(4), 805--823.
+  \end{tcolorbox}
+  \vspace{6pt}
+  \begin{columns}[T]
+    \begin{column}{0.55\textwidth}
+      \hl{What they do:}
+      \begin{itemize}
+        \item Ask whether algorithmic recommendations fragment or homogenize consumption
+        \item Construct attribute-distance measures across product pairs
+        \item Find recommendations \emph{homogenize} consumption despite personalization
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.42\textwidth}
+      \hl{Relevance:} Attribute distance measures are repurposed here on the \emph{firm}
+      side to determine when and whom to advertise to; homogenization result informs
+      expected equilibrium outcomes
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Song (2025): Personalization Field Experiment}
+  \begin{tcolorbox}[colback=red!5!white, colframe=UGARed, title=\textbf{Citation}]
+    Song, Yu. (2025). Optimizing multi-stage personalization in the customer journey.
+    \textit{Working Paper}.
+  \end{tcolorbox}
+  \vspace{6pt}
+  \begin{columns}[T]
+    \begin{column}{0.55\textwidth}
+      \hl{What they do:}
+      \begin{itemize}
+        \item Partner with a major e-tailer for a randomized field experiment
+        \item Vary personalization intensity across stages of the consumer search journey
+        \item Identify causal effect of personalization on consumption patterns
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.42\textwidth}
+      \hl{Relevance:} Practical implementation of Wei \& Jiang (2024) neural methods in
+      a live commercial setting; provides external validity for the structural model's
+      policy predictions
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ============================================================
+\section{Summary}
+% ============================================================
+
+\begin{frame}{How the Papers Fit Together}
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \hl{Consumer side}
+      \begin{itemize}\small
+        \item Pollak (1970): habit formation microfoundations
+        \item Dixit-Stiglitz (1977): love of variety
+        \item McAllister-Pessemier (1982): behavioral evidence
+        \item Becker-Murphy (1988): rational addiction stock
+        \item Bronnenberg et al.\ (2012): empirical persistence
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \hl{Firm / advertising side}
+      \begin{itemize}\small
+        \item Nerlove-Arrow (1962): goodwill dynamics
+        \item Erdem-Keane (1996): learning from ads
+        \item Dube et al.\ (2005): ad timing and persistence
+        \item Bergemann-Bonatti (2011): optimal targeting
+        \item Hosanagar et al.\ (2014): fragmentation vs.\ homogenization
+        \item Song (2025): field experiment, neural estimation
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Contribution of This Paper}
+  \begin{tcolorbox}[colback=red!5!white, colframe=UGARed, title=\textbf{Where This Project Sits}]
+    We connect the love-of-variety / habit-formation demand literature to the dynamic
+    targeting literature by making $\bar{X}_{it}$ the \hl{sufficient statistic} for both
+    consumer switching behavior and firm advertising decisions.
+  \end{tcolorbox}
+  \vspace{8pt}
+  \begin{enumerate}
+    \item \hl{Novel mechanism:} Utility depends on deviation from experienced mean ---
+          nests Pollak and Dixit-Stiglitz in a single dynamic framework
+    \vspace{4pt}
+    \item \hl{Dynamic targeting:} Extends Bergemann-Bonatti to a setting where the firm's
+          optimal ad policy is a function of the consumer's history
+    \vspace{4pt}
+    \item \hl{Estimation:} Bring the model to Nielsen scanner data using BLP/PyBLP
+          with potential neural-network moments
+  \end{enumerate}
+\end{frame}
+
+\end{document}

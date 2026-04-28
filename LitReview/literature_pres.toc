@@ -1,0 +1,5 @@
+\beamer@sectionintoc {1}{Motivation}{2}{0}{1}
+\beamer@sectionintoc {2}{Variety-Seeking \& Habit Formation}{4}{0}{2}
+\beamer@sectionintoc {3}{Discrete-Choice Demand Estimation}{9}{0}{3}
+\beamer@sectionintoc {4}{Dynamic Advertising}{15}{0}{4}
+\beamer@sectionintoc {5}{Summary}{22}{0}{5}

@@ -1,0 +1,18 @@
+\ifx\undefined\bysame
+\newcommand{\bysame}{\leavevmode\hbox to\leftmargin{\hrulefill\,\,}}
+\fi
+\begin{thebibliography}{xx}
+
+\harvarditem[Chintagunta]{Chintagunta}{1999}{chintagunta_variety_1999}
+{\bf Chintagunta, Pradeep~K.}, ``Variety {Seeking}, {Purchase} {Timing}, and the “{Lightning} {Bolt}” {Brand} {Choice} {Model},'' {\it Management Science}, April 1999, {\it 45} (4), 486--498.
+
+\harvarditem[Erdem and Keane]{Erdem and Keane}{1996}{erdem_decision-making_1996}
+{\bf Erdem, Tülin and Michael~P. Keane}, ``Decision-{Making} {Under} {Uncertainty}: {Capturing} {Dynamic} {Brand} {Choice} {Processes} in {Turbulent} {Consumer} {Goods} {Markets},'' {\it Marketing Science}, February 1996, {\it 15} (1), 1--20.
+
+\harvarditem[Lattin]{Lattin}{1987}{lattin_model_1987}
+{\bf Lattin, James~M.}, ``A {Model} of {Balanced} {Choice} {Behavior},'' {\it Marketing Science}, February 1987, {\it 6} (1), 48--65.
+
+\harvarditem[Nelson]{Nelson}{1970}{nelson_information_1970}
+{\bf Nelson, Phillip}, ``Information and {Consumer} {Behavior},'' {\it Journal of Political Economy}, March 1970, {\it 78} (2), 311--329.
+
+\end{thebibliography}

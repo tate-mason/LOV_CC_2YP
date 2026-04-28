@@ -1,0 +1,5 @@
+\beamer@sectionintoc {1}{Motivation}{2}{0}{1}
+\beamer@sectionintoc {2}{Model}{7}{0}{2}
+\beamer@sectionintoc {3}{Simulation Design}{10}{0}{3}
+\beamer@sectionintoc {4}{Results: Consumer Behavior}{12}{0}{4}
+\beamer@sectionintoc {5}{Next Steps}{16}{0}{5}

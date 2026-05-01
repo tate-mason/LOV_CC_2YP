@@ -1,4 +1,4 @@
-PWD /Users/tate/SchoolWork/Y2S2/IO/LOV_CC/Proposal
+PWD /Users/tate/LOV_CC_2YP/Proposal
 INPUT /usr/local/texlive/2026/texmf.cnf
 INPUT /usr/local/texlive/2026/texmf-dist/web2c/texmf.cnf
 INPUT /usr/local/texlive/2026/texmf-var/web2c/pdftex/pdflatex.fmt
@@ -183,9 +183,6 @@ INPUT /usr/local/texlive/2026/texmf-dist/fonts/tfm/public/amsfonts/symbols/msam7
 INPUT /usr/local/texlive/2026/texmf-dist/fonts/tfm/public/amsfonts/symbols/msbm10.tfm
 INPUT /usr/local/texlive/2026/texmf-dist/fonts/tfm/public/amsfonts/symbols/msbm10.tfm
 INPUT /usr/local/texlive/2026/texmf-dist/fonts/tfm/public/amsfonts/symbols/msbm7.tfm
-INPUT ../Output/Tables/tab_lov_0.tex
-INPUT ../Output/Tables/tab_lov_0.tex
-INPUT ../Output/Tables/tab_lov_0.tex
 INPUT ./proposal_d1.bbl
 INPUT ./proposal_d1.bbl
 INPUT proposal_d1.bbl

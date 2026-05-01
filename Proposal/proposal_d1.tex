@@ -35,7 +35,7 @@
 \maketitle
 
 \begin{abstract}
-This paper develops a dynamic discrete choice model of consumer demand that incorporates a love of variety and strategic advertising by firms. The model is estimated using scanner data, and counterfactual analyses are conducted to evaluate the effects of different market structures on consumer welfare and market outcomes. The paper contributes to the literature on advertising and consumer behavior, by providing empirical evidence on the effects of strategic advertising in a dynamic demand setting. The findings of this paper have important implications for policymakers and firms, as they highlight the potential benefits and drawbacks of targeted advertising in markets when accounting for consumers' preference for variety.
+This paper develops a dynamic discrete choice model of consumer demand that incorporates a love of variety and strategic advertising by firms. The model is estimated using scanner data, and counterfactual analyses are conducted to evaluate the effects of different market structures on consumer welfare and market outcomes.
 \end{abstract}
 
 \noindent\textbf{Keywords:} discrete choice, love of variety, habit formation,
@@ -59,21 +59,16 @@ The primary contribution of this paper is wedding the love of variety and target
 \section{Related Literature}
 %============================================================%
 
-    \subsection{Discrete Choice Demand Estimation}
-
-    \subsection{Variety-Seeking and State Dependence}
     The variety-seeking and state dependence literature has been primarily focused on understanding the dynamics of consumer preferences and demand over time. From \cite{lattin_model_1987}, who developed an empirical structural model of state dependence in consumer choice, to \citet{erdem_decision-making_1996}, who iterated the model to allow for consumer learning. \cite{chintagunta_variety_1999} is the most closely related paper, as he develops a model of variety-seeking behavior which is both tractible and flexible, and uses Nielsen data to estimate the model. However, this paper only looks at demand, leaving me a niche to explore the interplay between variety-seeking and strategic advertising.
 
-
-    \subsection{Advertising and Dynamic Demand}
-    \citet{nelson_information_1970} is one of the earliest related papers, as he develops a model of advertising as a signal of product quality.
+    \citet{nelson_information_1970} is one of the earliest related papers, as he develops a model of advertising as a signal of product quality. \cite{zielnicki_value_2025} uses the personalized recommendation systems common in online markets to understand the effects of increased personalization on consumer welfare. This paper is interesting when considering potential counterfactuals where we tune the ability of firms to target to different levels. \cite{shin_targeted_nodate} is the most closely related paper, as he develops a model of targeted advertising in which firms compete to lure consumers via advertising. However, this paper does not incorporate a love of variety preference, and thus serves as a useful complement to my paper.
 
 %============================================================%
 \section{Model}
 %============================================================%
 
     \subsection{Environment}
-    There is a continuum of consumers $i\in\mathcal{I}$ who shop for $t\in\mathcal{T}$ periods. Each period $t$, they can make one purchase from a market. The market is made up of a continuum of firms $f\in\mathcal{F}$ in which one firm $f^*$ acts as both the market and a producer. $f^*$ will be the primary player, strategically advertising to consumer $i$ based on inferences about their type. $f^*$ will see all other $f\in\mathcal{F}$ as a competitor, denoted $\bar{f}$. The consumer is only concerned with maximizing their utility, while the firm wants to maximize profits.
+    There is a continuum of consumers $i\in\mathcal{I}$ who shop for $t\in\mathcal{T}$ periods. Each period $t$, they can make one purchase from a market. The market is made up of a continuum of firms $f\in\mathcal{F}$ in which one firm $f^*$ acts as both the market and a producer. $f^*$ will be the primary player, strategically advertising to consumer $i$ based on inferences about their type. $f^*$ will see all other $f\in\mathcal{F}$ as a competitor, denoted $\bar{f}$.
 
 
     \subsection{Consumer's Problem}
@@ -114,15 +109,6 @@ The primary contribution of this paper is wedding the love of variety and target
 
     Most of the strategic dynamics will come from $f^*$, but the presence of $\bar{f}$ is important for identification and estimation.
 
-    \subsection{Equilibrium}
-    In equilibrium, consumers maximize utility via their consumption choices, and the firm maximized profits via advertising choices. The equilibrium concept is a Markov Perfect Equilibrium, in which the firm's advertising strategy is a function of the state variable $\lambda_t$, and the consumers' choice probabilities are consistent with their utility maximization given the advertising strategy. The equilibrium conditions can be expressed as follows:
-    \begin{alignat*}{1}
-      P_{ijt}^* &= \frac{\exp{U_{ijt}}}{\sum_k\exp{U_{ikt}}} \\
-      a_{it}^* &= \arg\max_{a_{it}} \{\pi_{jt} + \mu \mathbb{E}[V(a_{it+1} | \lambda_{t+1})]\}
-    \end{alignat*}
-
-    where $P_{ijt}^*$ is the choice probability of consumer $i$ choosing the optimal product $j$ at time $t$, and $a_{it}^*$ is the optimal advertising strategy for firm $f^*$ given the state variable $\lambda_t$.
-
 %============================================================%
 \section{Estimation}
 %============================================================%
@@ -148,7 +134,7 @@ The primary contribution of this paper is wedding the love of variety and target
 
     \subsection{CCP Approach}
 
-      To solve the dynamic programming problem of the firm, I will use a Conditional Choice Probability (CCP) approach. This approach allows me to estimate the value function and the optimal advertising strategy without having to solve the full dynamic programming problem. Instead, I will estimate the CCPs directly from the data, and then use these estimates to recover the value function and the optimal advertising strategy. This approach is computationally efficient and can handle the high-dimensional state space that arises from the consumer's past consumption history and the firm's strategic advertising decisions.
+      To solve the dynamic programming problem of the firm, I will use a Conditional Choice Probability (CCP) approach. This approach allows me to estimate the value function and the optimal advertising strategy without having to solve the full dynamic programming problem. Instead, I will estimate the CCPs directly from the data, and then use these estimates to recover the value function and the optimal advertising strategy. This approach is computationally efficient and can handle the high-dimensional state space that arises from the consumer's past consumption history and the firm's strategic advertising decisions. CCP estimation is useful in this context because it allows me to estimate the model with lower state-space dimensionality, which is important given the complexity of the model and the presence of unobserved heterogeneity across consumers.
 
 %============================================================%
 \section{Monte Carlo Simulation}
@@ -165,9 +151,7 @@ The primary contribution of this paper is wedding the love of variety and target
 
     In this specification, I set $\gamma_i = 0$, which means that the consumer does not have a love of variety. This allows me to evaluate how the model behaves in the absence of variety-seeking behavior, and to establish a baseline for comparison with the other specifications. This is the specification which most closely resembles the standard logit model, and I find that the consumer has a flat consumption pattern, with no preference for variety.
 
-    \input{../Output/Tables/tab_lov_0.tex}
-
-    We see that almost all mass is on product 5, which has the highest characteristic value. This is consistent with the standard logit model, in which consumers always choose the product with the highest utility. The majority of the remaining mass in on product 4, which has the second highest characteristic value, a case which is created by the Gumbel error term. The consumer has no preference for variety, and thus does not switch between products over time.
+    Under this specification, as is expected, almost all mass is on product 5, which has the highest characteristic value. This is consistent with the standard logit model, in which consumers always choose the product with the highest utility. The majority of the remaining mass in on product 4, which has the second highest characteristic value, a case which is created by the Gumbel error term. The consumer has no preference for variety, and thus does not switch between products over time.
 
     \subsection{Fixed Mean Specification}
     First, I use a fixed mean specification for $\theta_{it}$, in which the consumer's past consumption is summarized by a fixed mean of past product characteristics. This allows me to evaluate how the love of variety affects consumer choices and welfare when the consumer's preferences are influenced by a simple summary of their past consumption. I find a flat consumption pattern in which the consumer mostly picks the two polar products.
@@ -203,18 +187,18 @@ The primary contribution of this paper is wedding the love of variety and target
 
     \subsection{Counterfactual 1}
 
-    In my first idea, I want to evaluate the effects of a restriction on the strategic firm's ability to target based on competitors' purchase information. This could be motivated by a policy that restricts the use of data to consolidate market power. In this counterfactual, I will simulate the model under the assumption that strategic firm $f^*$ now maximizes like the non-strategic firms $\bar{f}$, and does not have access to consumer history or preferences. This will allow me to evaluate the effects of strategic advertising on consumer welfare and market outcomes, and to understand the implications of such a policy.
+    In my first idea, I want to evaluate the effects of a restriction on the strategic firm's ability to target based on competitors' purchase information. This could be motivated by a policy that restricts the use of data to consolidate market power. In this counterfactual, I will simulate the model under the assumption that strategic firm $f^*$ now maximizes like the non-strategic firms $\bar{f}$, and does not have access to consumer history or preferences. This will allow me to evaluate the effects of strategic advertising on consumer welfare and market outcomes, and to understand the implications of such a policy. Here, I expect to find less effective advertising, which will lead to lower consumer welfare as there will be less influence over consumption paths.
 
     \subsection{Counterfactual 2}
 
-    Secondly, I am interested in pivoting to a more consumer welfare focused counterfactual, in which I evaluate the effects of product entry on consumer welfare under different levels of $\gamma$. This will allow me to understand how a love of variety affects consumer welfare in the face of new product entry, and to evaluate the potential benefits and drawbacks of a love of variety for consumers in dynamic markets. Specifically, I want to understand how consumer welfare is impacted by both perfect and imperfect information about the distribution of $\gamma$ when introducting a new product.
+    Secondly, I am interested in pivoting to a more consumer welfare focused counterfactual, in which I evaluate the effects of product entry on consumer welfare under different levels of $\gamma$. This will allow me to understand how a love of variety affects consumer welfare in the face of new product entry, and to evaluate the potential benefits and drawbacks of a love of variety for consumers in dynamic markets. Specifically, I want to understand how consumer welfare is impacted by both perfect and obscured information about the distribution of $\gamma$ when introducting a new product. I expect to find that a love of variety can lead to higher consumer welfare in the face of new product entry, as it allows consumers to derive more utility from a wider range of products. However, if consumers have obscured information about the distribution of $\gamma$, they may not be able to fully realize the benefits of new product entry, which could lead to lower consumer welfare.
 
 
 %============================================================%
 \section{Conclusion}
 %============================================================%
 
-In closing, this paper develops a dynamic discrete choice model of consumer demand that incorporates a love of variety and strategic advertising by firms. The model is estimated using scanner data, and counterfactual analyses are conducted to evaluate the effects of different market structures on consumer welfare and market outcomes. The paper contributes to the literature on  advertising and consumer behavior, by providing empirical evidence on the effects of strategic advertising in a dynamic demand setting. The findings of this paper have important implications for policymakers and firms, as they highlight the potential benefits and drawbacks of targeted advertising in markets when accounting for consumers' preference for variety. Future research could extend this model to incorporate additional features, such as consumer learning, network effects, or multi-product firms, to further understand the dynamics of consumer demand and firm behavior in these markets.
+In closing, this paper develops a dynamic discrete choice model of consumer demand that incorporates a love of variety and strategic advertising by firms. The model is estimated using scanner data, and counterfactual analyses are conducted to evaluate the effects of different market structures on consumer welfare and market outcomes. The paper contributes to the literature on  advertising and consumer behavior, by providing empirical evidence on the effects of strategic advertising in a dynamic demand setting. The findings of this paper have important implications for policymakers and firms, as they highlight the potential benefits and drawbacks of targeted advertising in markets when accounting for consumers' preference for variety.
 
 %============================================================%
 \newpage

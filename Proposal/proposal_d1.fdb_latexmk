@@ -1,14 +1,13 @@
 # Fdb version 4
-["bibtex proposal_d1"] 1777221630.40522 "proposal_d1.aux" "proposal_d1.bbl" "proposal_d1" 1777221631.33991 0
-  "./lov_lit.bib" 1777221394.85966 36853 e962c4c69b5dc71c30864af9025e8433 ""
+["bibtex proposal_d1"] 1777653805.12842 "proposal_d1.aux" "proposal_d1.bbl" "proposal_d1" 1777653805.98272 0
+  "./lov_lit.bib" 1777299431.76651 36853 e962c4c69b5dc71c30864af9025e8433 ""
   "/usr/local/texlive/2026/texmf-dist/bibtex/bst/economic/aer.bst" 1389482635 26812 2ae6e48450a8c17a93d98067b7084a7a ""
-  "proposal_d1.aux" 1777221631.10437 3721 380028aee85c7696d81ea5dc84c4cbc4 "pdflatex"
+  "proposal_d1.aux" 1777653805.77583 3433 efa38679f1bb1edd1403d10604c20f14 "pdflatex"
   (generated)
   "proposal_d1.bbl"
   "proposal_d1.blg"
   (rewritten before read)
-["pdflatex"] 1777221630.49495 "proposal_d1.tex" "proposal_d1.pdf" "proposal_d1" 1777221631.34004 0
-  "../Output/Tables/tab_lov_0.tex" 1777221617.43555 336 cd231b4faf438f24a7b21f1b7fb42ae4 ""
+["pdflatex"] 1777653805.21231 "proposal_d1.tex" "proposal_d1.pdf" "proposal_d1" 1777653805.98284 0
   "/usr/local/texlive/2026/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/usr/local/texlive/2026/texmf-dist/fonts/tfm/public/amsfonts/cmextra/cmex7.tfm" 1246382020 1004 54797486969f23fa377b128694d548df ""
   "/usr/local/texlive/2026/texmf-dist/fonts/tfm/public/amsfonts/cmextra/cmex8.tfm" 1246382020 988 bdf658c3bfc2d96d3c8b02cfc1c94c20 ""
@@ -104,13 +103,13 @@
   "/usr/local/texlive/2026/texmf-dist/tex/latex/tools/calc.sty" 1748806692 10374 2ffd4f27c7f90b8a300608069537743c ""
   "/usr/local/texlive/2026/texmf-dist/tex/latex/url/url.sty" 1388531844 12796 8edb7d69a20b857904dd0ea757c14ec9 ""
   "/usr/local/texlive/2026/texmf-dist/web2c/texmf.cnf" 1770478701 43630 e9fa012910491fe5ae08a72c3c2997a7 ""
-  "/usr/local/texlive/2026/texmf-var/fonts/map/pdftex/updmap/pdftex.map" 1774016311 5541377 04880c840ca220163a28f1a3af0ee662 ""
+  "/usr/local/texlive/2026/texmf-var/fonts/map/pdftex/updmap/pdftex.map" 1773939083 5541377 04880c840ca220163a28f1a3af0ee662 ""
   "/usr/local/texlive/2026/texmf-var/web2c/pdftex/pdflatex.fmt" 1772409757 3636768 9f94d239f422c02416e379a36a852ffd ""
   "/usr/local/texlive/2026/texmf.cnf" 1772409725 577 648cd9f92f9c0eac486f4c71c85cfbbe ""
-  "proposal_d1.aux" 1777221631.10437 3721 380028aee85c7696d81ea5dc84c4cbc4 "pdflatex"
-  "proposal_d1.bbl" 1777221630.49291 1128 8faf8a559203d06644a76750cd100bc9 "bibtex proposal_d1"
-  "proposal_d1.out" 1777221631.10534 3557 875407a229ca69678f5989c94dc8ce32 "pdflatex"
-  "proposal_d1.tex" 1777221623.00005 20506 910b582f18f372f75e6259aba4f474b2 ""
+  "proposal_d1.aux" 1777653805.77583 3433 efa38679f1bb1edd1403d10604c20f14 "pdflatex"
+  "proposal_d1.bbl" 1777653805.21051 1581 8713bfe051d320b91d9f7dbc756c6543 "bibtex proposal_d1"
+  "proposal_d1.out" 1777653805.77691 2748 86f87139e94b7301bdc5b3b69d478ce4 "pdflatex"
+  "proposal_d1.tex" 1777653802.60073 20065 5bedf4b193a79e8702193e9b149721bd ""
   (generated)
   "proposal_d1.aux"
   "proposal_d1.log"

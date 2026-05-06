@@ -114,9 +114,9 @@ prod_spaces1 = np.zeros((M, J))
 prod_spaces2 = np.zeros((M, J))
 
 for m in range(M):
-    prod_space1 = rng.uniform(0, 20, size=J)
-    prod_spaces1[m] = prod_space1
-    prod_space2 = rng.uniform(0, 20, size=J)
+    prod_space1 = rng.uniform(0, 10, size=J)
+    prod_spaces1[m] = prod_space1[]
+    prod_space2 = rng.uniform(0, 10, size=J)
     prod_spaces2[m] = prod_space2
     for g_idx, g in enumerate(gamma):
         prob_S = ccp_iv_base(S, T, T_prior, J, prod_space1, prod_space2, beta, g).prob_S

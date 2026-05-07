@@ -120,7 +120,7 @@ for m in range(M):
     prod_spaces2[m] = prod_space2
     for g_idx, g in enumerate(gamma):
         prob_S = ccp_iv_base(S, T, T_prior, J, prod_space1, prod_space2, beta, g).prob_S
-        CCP_M[m, g_idx] = prob_S.mean(axis=0).mean(axis=0)
+        CCP_M[m, g_idx] = prob_S.mean(axis=0)
         X_bar = ccp_iv_base(S, T, T_prior, J, prod_space1, prod_space2, beta, g).x_bar_S.mean(axis=0)
 
 # Naive Regressions

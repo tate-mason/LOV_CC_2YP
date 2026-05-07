@@ -233,3 +233,5 @@ for x in [0, 1, 3, 5, 6]:
         plt.tight_layout()
         plt.savefig(f'../Output/Plots/LOV_Utility_Intro_{g}_prod{x}.pdf')
         plt.show()
+
+cons_res = ccp_iv_base(S=1000, T=100, T_prior=5, J=5, beta=2, gamma=6)

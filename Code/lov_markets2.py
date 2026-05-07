@@ -86,8 +86,8 @@ S = 1000 # simulations
 
 rng = np.random.default_rng(seed=219) # seed for reproducibility
 
-#beta = [0.5, 2] # preference for product traits 
-beta_pairs = [(2, 0)] # creates each permutation of pairings of beta
+beta = [0.5, 2] # preference for product traits 
+beta_pairs = list(iproduct(beta, repeat=2)) # all combinations of beta for the two characteristics
 gamma = np.array([0, 6, 9, 12]) # preference for variety
 
 product_space = np.column_stack([
@@ -233,34 +233,37 @@ IV_Table.align["Inclusive Value"] = "r"
 
 for g in gamma:
     for b in beta_pairs:
+        b1, b2 = b  # unpack
         res = consumer_choice_prob(S, T, T_prior, J, product_space, M, b, g)
+        
         fig, ax = plt.subplots(figsize=(10,6))
         for j in range(J):
             sns.lineplot(x=np.arange(T), y=res.utility[:,j], label=f'Product {j+1}', ax=ax)
-        ax.set_title(f'Utility over Time for Gamma={g} and Beta Pair={b}')
+        ax.set_title(f'Utility over Time for Gamma={g}, Beta=({b1}, {b2})')
         ax.set_xlabel('Time')
         ax.set_ylabel('Utility')
         ax.legend()
-        plt.savefig(f'../Output/Plots/utility_gamma_{g}_beta2.pdf')
+        plt.savefig(f'../Output/Plots/utility_gamma_{g}_beta_{b1}_{b2}.pdf')
         plt.close()
         
         fig, ax = plt.subplots(figsize=(10,6))
         sns.lineplot(x=np.arange(T), y=res.inclusive_value, label='Inclusive Value', ax=ax)
-        ax.set_title(f'Inclusive Value over Time for Gamma={g} and Beta Pair={b}')
+        ax.set_title(f'Inclusive Value over Time for Gamma={g}, Beta=({b1}, {b2})')
         ax.set_xlabel('Time')
         ax.set_ylabel('Inclusive Value')
         ax.legend()
-        plt.savefig(f'../Output/Plots/inclusive_value_gamma_{g}_beta_.pdf')
+        plt.savefig(f'../Output/Plots/inclusive_value_gamma_{g}_beta_{b1}_{b2}.pdf')
         plt.close()
-
         IV_Table.add_row([f"{g}", f"{b}", f"{res.inclusive_value[-1]:.2f}"])
 
 print(IV_Table)
 save_tex_table(IV_Table.get_latex_string(), 'inclusive_value_table')
 # === Regressions === #
 
-CCP_M = np.zeros((M, len(gamma), T, J))
-theta_M = np.zeros((M, len(gamma), T, 2))
+# === Regressions === #
+
+CCP_M = np.zeros((M, len(gamma), len(beta_pairs), T, J))
+theta_M = np.zeros((M, len(gamma), len(beta_pairs), T, 2))
 prod_spaces = np.zeros((M, J, 2))
 
 for m in range(M):
@@ -269,66 +272,103 @@ for m in range(M):
         rng.uniform(0,10,size=J)
     ])
     for g_idx, g in enumerate(gamma):
-        res = consumer_choice_prob(S, T, T_prior, J, prod_spaces[m], M, (2,0), g)
-        CCP_M[m, g_idx] = res.prob_choose
-        theta_M[m, g_idx,:, 0] = res.x1_bar_path
-        theta_M[m, g_idx,:, 1] = res.x2_bar_path
+        for b_idx, b in enumerate(beta_pairs):
+            res = consumer_choice_prob(S, T, T_prior, J, prod_spaces[m], M, b, g)
+            CCP_M[m, g_idx, b_idx] = res.prob_choose
+            theta_M[m, g_idx, b_idx, :, 0] = res.x1_bar_path
+            theta_M[m, g_idx, b_idx, :, 1] = res.x2_bar_path
 
-diff_14 = np.log(CCP_M[:,0,:,1]) - np.log(CCP_M[:,0,:,3])
-diff_14 = diff_14.reshape(M*T)
-x1_diff = np.repeat(prod_spaces[:,1,0] - prod_spaces[:,3,0], T)
-x2_diff = np.repeat(prod_spaces[:,1,0] - prod_spaces[:,3,0], T)
-X = sm.add_constant(x1_diff)
-print(f"γ = {gamma[0]}, β = 2")
-print(sm.OLS(diff_14, X).fit().summary())
-
-
-for g_idx, g in enumerate(gamma):
-    diff_14 = np.log(CCP_M[:,g_idx,:,1]) - np.log(CCP_M[:,g_idx,:,3])
-    diff_14 = diff_14.reshape(M*T)
-    x1_diff = np.repeat(prod_spaces[:,1,0] - prod_spaces[:,3,0], T)
-    x2_diff = np.repeat(prod_spaces[:,1,0] - prod_spaces[:,3,0], T)
-    xi_prod2 = np.sqrt((prod_spaces[:,1,0][:,None] - theta_M[:,g_idx,:,0])**2 + 
-                    (prod_spaces[:,1,1][:,None] - theta_M[:,g_idx,:,1])**2)
-    xi_prod4 = np.sqrt((prod_spaces[:,3,0][:,None] - theta_M[:,g_idx,:,0])**2 + 
-                    (prod_spaces[:,3,1][:,None] - theta_M[:,g_idx,:,1])**2)
-    xi_diff = np.log(1 + xi_prod2**2) - np.log(1 + xi_prod4**2)
-    xi_diff = xi_diff.flatten()
-    print(f"Correlation x1_diff and xi_diff: {np.corrcoef(x1_diff, xi_diff)[0,1]:.4f}")
-    X = sm.add_constant(np.column_stack([x1_diff, xi_diff]))
-    print(f"γ = {g}, β = 2")
+# Baseline OLS (gamma=0, first beta pair)
+for b_idx, b in enumerate(beta_pairs):
+    diff_14 = (np.log(CCP_M[:, 0, b_idx, :, 1]) - np.log(CCP_M[:, 0, b_idx, :, 3])).reshape(M * T)
+    x1_diff = np.repeat(prod_spaces[:, 1, 0] - prod_spaces[:, 3, 0], T)
+    x2_diff = np.repeat(prod_spaces[:, 1, 1] - prod_spaces[:, 3, 1], T)
+    X = sm.add_constant(np.column_stack([x1_diff, x2_diff]))
+    print(f"γ = {gamma[0]}, β = {beta_pairs[0]}")
     print(sm.OLS(diff_14, X).fit().summary())
-    save_tex_table(sm.OLS(diff_14, X).fit().summary().as_latex(), f'regression_gamma_{g}_beta_2')
+    save_tex_table(sm.OLS(diff_14, X).fit().summary().as_latex(), f'regression_baseline_beta_{b[0]}_{b[1]}')
+
+# Full OLS loop
+for g_idx, g in enumerate(gamma):
+    for b_idx, b in enumerate(beta_pairs):
+        diff_14 = (np.log(CCP_M[:, g_idx, b_idx, :, 1]) -
+                   np.log(CCP_M[:, g_idx, b_idx, :, 3])).reshape(M * T)
+        x1_diff = np.repeat(prod_spaces[:, 1, 0] - prod_spaces[:, 3, 0], T)
+        x2_diff = np.repeat(prod_spaces[:, 1, 1] - prod_spaces[:, 3, 1], T)
+        xi_prod2 = np.sqrt(
+            (prod_spaces[:, 1, 0][:, None] - theta_M[:, g_idx, b_idx, :, 0])**2 +
+            (prod_spaces[:, 1, 1][:, None] - theta_M[:, g_idx, b_idx, :, 1])**2
+        )
+        xi_prod4 = np.sqrt(
+            (prod_spaces[:, 3, 0][:, None] - theta_M[:, g_idx, b_idx, :, 0])**2 +
+            (prod_spaces[:, 3, 1][:, None] - theta_M[:, g_idx, b_idx, :, 1])**2
+        )
+        xi_diff = (np.log(1 + xi_prod2**2) - np.log(1 + xi_prod4**2)).flatten()
+        print(f"Correlation x1_diff and xi_diff: {np.corrcoef(x1_diff, xi_diff)[0,1]:.4f}")
+        X = sm.add_constant(np.column_stack([x1_diff, x2_diff, xi_diff]))
+        print(f"γ = {g}, β = {b}")
+        print(sm.OLS(diff_14, X).fit().summary())
+        save_tex_table(sm.OLS(diff_14, X).fit().summary().as_latex(),
+                       f'regression_gamma_{g}_beta_{b[0]}_{b[1]}')
 
 # === NLLS === #
 
 from scipy.optimize import least_squares
+from scipy.stats import t as t_dist
 
+B = 500
 
 for g_idx, g in enumerate(gamma):
-    diff_14 = np.log(CCP_M[:,g_idx,:,1]) - np.log(CCP_M[:,g_idx,:,3])
-    diff_14 = diff_14.reshape(M*T)
-    x1_diff = np.repeat(prod_spaces[:,1,0] - prod_spaces[:,3,0], T)
-    x2_diff = np.repeat(prod_spaces[:,1,1] - prod_spaces[:,3,1], T)
-    xi_prod2 = np.sqrt((prod_spaces[:,1,0][:,None] - theta_M[:,g_idx,:,0])**2 + 
-                    (prod_spaces[:,1,1][:,None] - theta_M[:,g_idx,:,1])**2)
-    xi_prod4 = np.sqrt((prod_spaces[:,3,0][:,None] - theta_M[:,g_idx,:,0])**2 + 
-                    (prod_spaces[:,3,1][:,None] - theta_M[:,g_idx,:,1])**2)
-    xi_diff = np.log(1 + xi_prod2**2) - np.log(1 + xi_prod4**2)
-    xi_diff = xi_diff.flatten()
-    X = np.column_stack([x1_diff, xi_diff])
-    
-    def residuals(params):
-        beta_hat, gamma_hat = params
-        U = beta_hat * prod_spaces[:, :, 0][:, None, :] + \
-            gamma_hat * np.log(1 + ((prod_spaces[:, :, 0][:, None, :] - theta_M[:, g_idx, :, 0][:, :, None])**2 +
-                                    (prod_spaces[:, :, 1][:, None, :] - theta_M[:, g_idx, :, 1][:, :, None])**2))
-        IV = logsumexp(U, axis=2)  # shape (M, T)
-        log_prob = U - IV[:, :, None]  # shape (M, T, J)
-        predicted_diff = log_prob[:, :, 1] - log_prob[:, :, 3]  # products 2 and 4
-        predicted_diff = predicted_diff.flatten()
-        return diff_14 - predicted_diff
-    result = least_squares(residuals, np.array([1.0,3.0]))
-    print(f"γ={g}, β=2 → estimated: {result.x}")
-    print(f"γ, β Std. Errors: {np.sqrt(np.diag(result.jac.T @ result.jac))}")
-    save_tex_table(f"Estimated Parameters: {result.x}, Std. Errors: {np.sqrt(np.diag(result.jac.T @ result.jac))}", f'nlls_gamma_{g}_beta_2')
+    for b_idx, b in enumerate(beta_pairs):
+        diff_14 = (np.log(CCP_M[:, g_idx, b_idx, :, 1]) -
+                   np.log(CCP_M[:, g_idx, b_idx, :, 3])).reshape(M * T)
+
+        def residuals(params, diff, theta_boot, ps_boot):
+            beta_hat, gamma_hat = params
+            U = beta_hat * ps_boot[:, :, 0][:, None, :] + \
+                gamma_hat * np.log(1 + (
+                    (ps_boot[:, :, 0][:, None, :] - theta_boot[:, g_idx, b_idx, :, 0][:, :, None])**2 +
+                    (ps_boot[:, :, 1][:, None, :] - theta_boot[:, g_idx, b_idx, :, 1][:, :, None])**2
+                ))
+            IV = logsumexp(U, axis=2)
+            log_prob = U - IV[:, :, None]
+            return diff - (log_prob[:, :, 1] - log_prob[:, :, 3]).flatten()
+
+        result = least_squares(residuals, np.array([1.0, 1.0]),
+                               args=(diff_14, theta_M, prod_spaces))
+
+        boot_estimates = np.zeros((B, 2))
+        for boot in range(B):
+            market_idx = rng.choice(M, size=M, replace=True)
+            ccp_boot   = CCP_M[market_idx]
+            theta_boot = theta_M[market_idx]
+            ps_boot    = prod_spaces[market_idx]
+
+            diff_boot = (np.log(ccp_boot[:, g_idx, b_idx, :, 1]) -
+                         np.log(ccp_boot[:, g_idx, b_idx, :, 3])).reshape(M * T)
+
+            def residuals_boot(params):
+                beta_hat, gamma_hat = params
+                U = beta_hat * ps_boot[:, :, 0][:, None, :] + \
+                    gamma_hat * np.log(1 + (
+                        (ps_boot[:, :, 0][:, None, :] - theta_boot[:, g_idx, b_idx, :, 0][:, :, None])**2 +
+                        (ps_boot[:, :, 1][:, None, :] - theta_boot[:, g_idx, b_idx, :, 1][:, :, None])**2
+                    ))
+                IV = logsumexp(U, axis=2)
+                log_prob = U - IV[:, :, None]
+                return diff_boot - (log_prob[:, :, 1] - log_prob[:, :, 3]).flatten()
+
+            boot_estimates[boot] = least_squares(residuals_boot, result.x).x
+
+        se_boot = boot_estimates.std(axis=0)
+        t_stats = result.x / se_boot
+        p_vals  = 2 * (1 - t_dist.cdf(np.abs(t_stats), df=M - 2))
+
+        print(f"\nγ={g}, β={b}")
+        print(f"  β_hat = {result.x[0]:.4f}  SE = {se_boot[0]:.4f}  t = {t_stats[0]:.3f}  p = {p_vals[0]:.3f}")
+        print(f"  γ_hat = {result.x[1]:.4f}  SE = {se_boot[1]:.4f}  t = {t_stats[1]:.3f}  p = {p_vals[1]:.3f}")
+
+        save_tex_table(
+            f"Estimated Parameters: {result.x}, Bootstrap SE: {se_boot}, t-stats: {t_stats}, p-values: {p_vals}",
+            f'nlls_boot_gamma_{g}_beta_{b[0]}_{b[1]}'
+        )

@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.3.1)  8 MAY 2026 12:30
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.3.1)  8 MAY 2026 13:53
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -455,7 +455,7 @@ Overfull \hbox (3.08315pt too wide) in paragraph at lines 44--44
 []\OT1/cmr/bx/n/14.4 Regression Re-sults on Log Dif-fer-ence in Shares 
  []
 
-(../../Output/Tables/naive_regression_summary_gamma_0.tex) (../../Output/Tables/naive_regression_summary_gamma_6.tex) (../../Output/Tables/naive_regression_summary_gamma_9.tex) (../../Output/Tables/naive_regression_summary_gamma_12.tex) (../../Output/Tables/regression_summary_gamma_6.tex) (../../Output/Tables/regression_summary_gamma_9.tex) (../../Output/Tables/regression_summary_gamma_12.tex) [21 <../../Output/Plots/Markets_10/utility_gamma_9.pdf> <../../Output/Plots/Markets_10/utility_gamma_12.pdf>] [22] [23] (./Prog_Report.aux)
+(../../Output/Tables/naive_regression_summary_gamma_0.tex) (../../Output/Tables/naive_regression_summary_gamma_6.tex) (../../Output/Tables/naive_regression_summary_gamma_9.tex) (../../Output/Tables/naive_regression_summary_gamma_12.tex) (../../Output/Tables/regression_summary_gamma_6.tex) (../../Output/Tables/regression_summary_gamma_9.tex) (../../Output/Tables/regression_summary_gamma_12.tex) [21 <../../Output/Plots/Markets_10/utility_gamma_9.pdf> <../../Output/Plots/Markets_10/utility_gamma_12.pdf>] [22] (./Prog_Report.aux)
  ***********
 LaTeX2e <2025-11-01>
 L3 programming layer <2026-01-19>
@@ -464,16 +464,16 @@ L3 programming layer <2026-01-19>
 Here is how much of TeX's memory you used:
  7778 strings out of 467525
  162151 string characters out of 5418983
- 535534 words of memory out of 5000000
+ 525534 words of memory out of 5000000
  36602 multiletter control sequences out of 15000+600000
  629115 words of font info for 45 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  57i,11n,65p,597b,309s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/cm-super/sfrm1000.pfb>
-Output written on Prog_Report.pdf (23 pages, 760713 bytes).
+Output written on Prog_Report.pdf (22 pages, 759780 bytes).
 PDF statistics:
- 2109 PDF objects out of 2487 (max. 8388607)
- 437 compressed objects within 5 object streams
+ 2106 PDF objects out of 2487 (max. 8388607)
+ 435 compressed objects within 5 object streams
  0 named destinations out of 1000 (max. 500000)
  201 words of extra memory for PDF output out of 10000 (max. 10000000)
 

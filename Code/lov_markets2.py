@@ -189,83 +189,77 @@ def save_tex_table(rows, headers, title, filename, caption=""):
     with open(f'../Output/Tables/{filename}.tex', 'w') as f:
         f.write("\n".join(lines))
 # no LOV
+# =============================================================================
+# Regressions
+# =============================================================================
+
+print("\n" + "="*60)
+print(f"Regressions [true β={beta}]")
+print("="*60)
+
+# --- Naive OLS (no LOV) ---
 for g_idx, g in enumerate(gamma):
-    summ_tab_naive = PrettyTable()
-    summ_tab_naive.title = fr"Naive OLS (No LOV) (True $\beta$={beta}, True $\gamma$={g})"
-    summ_tab_naive.field_names = ["j", r"$\hat{\beta}$", r"SE($\hat{\beta}$)", "R2"]
-
-    rows = []
-
-    for j in range(1, J+1):
-        dep, x1v = [], []
-        for m in range(M):
-            s0   = CCP_M[m, g_idx, :, 0]
+    dep, x1v = [], []
+    for m in range(M):
+        s0 = CCP_M[m, g_idx, :, 0]
+        for j in range(1, J+1):
             s_j  = CCP_M[m, g_idx, :, j]
             x1_j = product_spaces[m, j-1]
             dep.append(np.log(s_j) - np.log(s0))
             x1v.append(np.full(T, x1_j))
 
-        dep = np.concatenate(dep)
-        x1v = np.concatenate(x1v)
-        results_naive = sm.OLS(dep, sm.add_constant(x1v)).fit()
-        summ_tab_naive.add_row([
-            j,
-            f"{results_naive.params[1]:.4f}",
-            f"{results_naive.bse[1]:.4f}",
-            f"{results_naive.rsquared:.4f}"
-        ])
+    dep = np.concatenate(dep)
+    x1v = np.concatenate(x1v)
+    results_naive = sm.OLS(dep, sm.add_constant(x1v)).fit()
 
-        rows.append([j, f"{results_naive.params[1]:.4f}", f"{results_naive.bse[1]:.4f}", f"{results_naive.rsquared:.4f}"])
+    summ_tab_naive = PrettyTable()
+    summ_tab_naive.title = fr"Naive OLS (No LOV) — True β={beta}, True γ={g}"
+    summ_tab_naive.field_names = [r"β_hat", r"SE(β_hat)", "R2"]
+    summ_tab_naive.add_row([
+        f"{results_naive.params[1]:.4f}",
+        f"{results_naive.bse[1]:.4f}",
+        f"{results_naive.rsquared:.4f}",
+    ])
     print(f"\n{summ_tab_naive}")
     save_tex_table(
-        rows,
-        headers=["$j$", r"$\hat{\beta}$", r"SE($\hat{\beta}$)", "$R^2$"],
+        [[f"{results_naive.params[1]:.4f}", f"{results_naive.bse[1]:.4f}", f"{results_naive.rsquared:.4f}"]],
+        headers=[r"$\hat{\beta}$", r"SE($\hat{\beta}$)", "$R^2$"],
         title=f"Naive OLS",
         filename=f'naive_regression_summary_gamma_{g}',
     )
 
-
-for g_idx,g in enumerate(gamma):
-    print(f"\n{'='*60}\nγ={g}\n{'='*60}")
-
-    summ_tab = PrettyTable()
-    summ_tab.title = fr"OLS - $\gamma$={g} (True $\beta$={beta}, True $\gamma$={g})"
-    summ_tab.field_names = ["j", r"$\hat{\beta}$", r"\hat{\gamma}", r"SE($\hat{\beta}$)", r"SE($\hat{\gamma}$)", "R2"]
-
-    rows = []
-    for j in range(1, J+1):
-        dep, x1v, xiv = [], [], []
-        for m in range(M):
-            s0 = CCP_M[m, g_idx, :, 0]  # outside option share
-            s_j = CCP_M[m, g_idx, :, j]  # share of product j
-            x1_j = product_spaces[m, j-1]  # characteristic of product j in market m
-            xi_jt = np.sqrt((x1_j - theta_M[m, g_idx])**2)  # distance from history
-
+# --- OLS with LOV ---
+for g_idx, g in enumerate(gamma):
+    dep, x1v, xiv = [], [], []
+    for m in range(M):
+        s0 = CCP_M[m, g_idx, :, 0]
+        for j in range(1, J+1):
+            s_j   = CCP_M[m, g_idx, :, j]
+            x1_j  = product_spaces[m, j-1]
+            xi_jt = np.sqrt((x1_j - theta_M[m, g_idx])**2)
             dep.append(np.log(s_j) - np.log(s0))
             x1v.append(np.full(T, x1_j))
             xiv.append(np.log(1 + xi_jt**2))
 
-        dep = np.concatenate(dep)
-        x1v = np.concatenate(x1v)
-        xiv = np.concatenate(xiv)
+    dep = np.concatenate(dep)
+    x1v = np.concatenate(x1v)
+    xiv = np.concatenate(xiv)
+    results = sm.OLS(dep, sm.add_constant(np.column_stack([x1v, xiv]))).fit()
 
-        results = sm.OLS(dep, sm.add_constant(np.column_stack([x1v, xiv]))).fit()
-
-        summ_tab.add_row([
-            j,
-            f"{results.params[1]:.4f}",
-            f"{results.params[2]:.4f}",
-            f"{results.bse[1]:.4f}",
-            f"{results.bse[2]:.4f}",
-            f"{results.rsquared:.4f}"
-        ])
-        rows.append([j, f"{results.params[1]:.4f}", f"{results.params[2]:.4f}", f"{results.bse[1]:.4f}", f"{results.bse[2]:.4f}", f"{results.rsquared:.4f}"])
-
+    summ_tab = PrettyTable()
+    summ_tab.title = fr"OLS with LOV — True β={beta}, True γ={g}"
+    summ_tab.field_names = [r"β_hat", r"γ_hat", r"SE(β_hat)", r"SE(γ_hat)", "R2"]
+    summ_tab.add_row([
+        f"{results.params[1]:.4f}",
+        f"{results.params[2]:.4f}",
+        f"{results.bse[1]:.4f}",
+        f"{results.bse[2]:.4f}",
+        f"{results.rsquared:.4f}",
+    ])
     print(f"\n{summ_tab}")
     save_tex_table(
-        rows,
-        headers=["$j$", r"$\hat{\beta}$", r"$\hat{\gamma}$", r"SE($\hat{\beta}$)", r"SE($\hat{\gamma}$)", "$R^2$"],
-        title=f"OLS Regression Summary for γ={g}",
+        [[f"{results.params[1]:.4f}", f"{results.params[2]:.4f}", f"{results.bse[1]:.4f}", f"{results.bse[2]:.4f}", f"{results.rsquared:.4f}"]],
+        headers=[r"$\hat{\beta}$", r"$\hat{\gamma}$", r"SE($\hat{\beta}$)", r"SE($\hat{\gamma}$)", "$R^2$"],
+        title=f"OLS with LOV — γ={g}",
         filename=f'regression_summary_gamma_{g}',
     )
-

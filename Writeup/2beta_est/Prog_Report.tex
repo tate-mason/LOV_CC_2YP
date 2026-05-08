@@ -18,12 +18,6 @@ Setting out to see how to incorporate preference heterogeneity over the product'
 
 This allows for $\beta$ to vary with the specific characteristics the product holds rather than just a beta for the overall bundle. Variety now takes the euclidean distance of each characteristic of the product's bundle from the amount the consumer has already consumed in the past, allowing for a more nuanced measure of variety that captures the idea that consumers may want to try products that have some different characteristics from their past consumption, but not necessarily products that are completely different from what they have already consumed.
 
-\begin{table}[ht]
-  \centering
-  \input{../../Output/Tables/product_characteristics.tex}
-  \caption{Product characteristics}
-\end{table}
-
 Results reported:
     \begin{itemize}
         \item Utility graphs
@@ -37,38 +31,36 @@ The regression results make it seem as if $\gamma$ is not meaningfully accountin
 
 \section{Utility Graphs}
 
-\foreach \g in {0, 6, 9, 12}{
-  \foreach \bone/\btwo in {2/0.5, 0.5/2, 0.5/0.5, 2/2}{
+\foreach \m in {1,2,3,4,5,6,7,8,9,10}{
+  \foreach \g in {0,6,9,12}{
     \begin{figure}[H]
       \centering
-      \includegraphics[width=0.8\textwidth]{../../Output/Plots/utility_gamma_\g_beta_\bone_\btwo.pdf}
-      \caption{Utility graph for $\gamma = \g$, $\beta_1 = \bone$, $\beta_2 = \btwo$}
+      \includegraphics[width=0.8\textwidth]{../../Output/Plots/Markets_\m/utility_gamma_\g.pdf}
+      \caption{Utility graph for Market \m $\gamma = \g$, $\beta_1 = 2$}
     \end{figure}
   }
 }
 
 \section{Regression Results on Log Difference in Shares}
 
-\foreach \bone/\btwo in {2/0.5, 0.5/2, 0.5/0.5, 2/2}{
+\foreach \g in {0,6,9,12}{
   \begin{table}[ht]
     \centering
     \input{
-    ../../Output/Tables/regression_baseline_beta_\bone_\btwo.tex
+    ../../Output/Tables/naive_regression_summary_gamma_\g.tex
     }
-    \caption{Regression results for $y = \sum_j^2\beta_jX_j + \varepsilon_j$ with $\beta_1 = \bone$, $\beta_2 = \btwo$}
+    \caption{Regression results for $y = \sum_j^2\beta_jX_j + \varepsilon_j$ with $\beta = 2$, True $\gamma = \g$}
   \end{table}
 }
 
 \foreach \g in {6, 9, 12}{
-  \foreach \bone/\btwo in {2/0.5, 0.5/2, 0.5/0.5, 2/2}{
   \begin{table}[ht]
     \centering
     \input{
-    ../../Output/Tables/regression_gamma_\g_beta_\bone_\btwo.tex
+    ../../Output/Tables/regression_summary_gamma_\g.tex
     }
-    \caption{$y = \sum_j^2\beta_jX_j + \gamma\log(1 + \Xi^2)$ with $\gamma = \g$, $\beta_1 = \bone$, $\beta_2 = \btwo$}
+    \caption{$y = \sum_j^2\beta_jX_j + \gamma\log(1 + \Xi^2)$ with $\gamma = \g$, $\beta=2$}
   \end{table}
-  }
 }
 
 

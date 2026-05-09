@@ -61,8 +61,8 @@ def consumer_choice_prob(S, T, T_prior, J, x1, beta, gamma):
         x_bar_prior   = 0.0
         for t in range(T_prior):
             Xi_h      = x1 - x_bar_prior
-            U_in      = beta * x1 + gamma * np.log(1 + Xi_h**2) + rng.gumbel(0, 1, J)
-            U_out     = rng.gumbel(0, 1)
+            U_in      = 1 + beta * x1 + gamma * np.log(1 + Xi_h**2) + rng.gumbel(0, 1, J)
+            U_out     = 1 + rng.gumbel(0, 1)
             ch        = np.argmax(np.concatenate([[U_out], U_in]))
             if ch > 0:
                 prior_choices[t] = x1[ch - 1]
@@ -81,9 +81,9 @@ def consumer_choice_prob(S, T, T_prior, J, x1, beta, gamma):
             if t > 0:
                 x_bar_t[t] = np.mean(x_chosen[:t])
 
-            Xi_t  = x1 - x_bar_t[t]
-            U_in  = beta * x1 + gamma * np.log(1 + Xi_t**2) + eps[t, 1:]
-            U_out = eps[t, 0]
+            Xi_t  = np.sqrt((x1 - x_bar_t[t])**2)
+            U_in  = 1 + beta * x1 + gamma * np.log(1 + Xi_t**2) + eps[t, 1:]
+            U_out = 1 + eps[t, 0]
             U_all = np.concatenate([[U_out], U_in])
             V[t]  = U_all
 
@@ -115,7 +115,7 @@ def consumer_choice_prob(S, T, T_prior, J, x1, beta, gamma):
 # Product characteristics
 # =============================================================================
 
-product_spaces = rng.uniform(0, 10, size=(M,J)) # each market has its own product space
+product_spaces = rng.uniform(0, 100, size=(M,J)) # each market has its own product space
 
 # =============================================================================
 # Utility, IV, and outside option share paths for each market x gamma pair
@@ -214,16 +214,17 @@ for g_idx, g in enumerate(gamma):
 
     summ_tab_naive = PrettyTable()
     summ_tab_naive.title = fr"Naive OLS (No LOV) — True β={beta}, True γ={g}"
-    summ_tab_naive.field_names = [r"β_hat", r"SE(β_hat)", "R2"]
+    summ_tab_naive.field_names = [r"Constant", r"β_hat", r"SE(β_hat)", "R2"]
     summ_tab_naive.add_row([
+        f"{results_naive.params[0]:.4f}",
         f"{results_naive.params[1]:.4f}",
         f"{results_naive.bse[1]:.4f}",
         f"{results_naive.rsquared:.4f}",
     ])
     print(f"\n{summ_tab_naive}")
     save_tex_table(
-        [[f"{results_naive.params[1]:.4f}", f"{results_naive.bse[1]:.4f}", f"{results_naive.rsquared:.4f}"]],
-        headers=[r"$\hat{\beta}$", r"SE($\hat{\beta}$)", "$R^2$"],
+        [[f"{results_naive.params[0]:.4f}", f"{results_naive.params[1]:.4f}", f"{results_naive.bse[1]:.4f}", f"{results_naive.rsquared:.4f}"]],
+        headers=[r"Constant", r"$\hat{\beta}$", r"SE($\hat{\beta}$)", "$R^2$"],
         title=f"Naive OLS",
         filename=f'naive_regression_summary_gamma_{g}',
     )
@@ -248,8 +249,9 @@ for g_idx, g in enumerate(gamma):
 
     summ_tab = PrettyTable()
     summ_tab.title = fr"OLS with LOV — True β={beta}, True γ={g}"
-    summ_tab.field_names = [r"β_hat", r"γ_hat", r"SE(β_hat)", r"SE(γ_hat)", "R2"]
+    summ_tab.field_names = [r"Constant", r"β_hat", r"γ_hat", r"SE(β_hat)", r"SE(γ_hat)", "R2"]
     summ_tab.add_row([
+        f"{results.params[0]:.4f}",
         f"{results.params[1]:.4f}",
         f"{results.params[2]:.4f}",
         f"{results.bse[1]:.4f}",
@@ -258,8 +260,10 @@ for g_idx, g in enumerate(gamma):
     ])
     print(f"\n{summ_tab}")
     save_tex_table(
-        [[f"{results.params[1]:.4f}", f"{results.params[2]:.4f}", f"{results.bse[1]:.4f}", f"{results.bse[2]:.4f}", f"{results.rsquared:.4f}"]],
-        headers=[r"$\hat{\beta}$", r"$\hat{\gamma}$", r"SE($\hat{\beta}$)", r"SE($\hat{\gamma}$)", "$R^2$"],
+        [[f"{results.params[0]:.4f}", f"{results.params[1]:.4f}", f"{results.params[2]:.4f}", f"{results.bse[1]:.4f}", f"{results.bse[2]:.4f}", f"{results.rsquared:.4f}"]],
+        headers=[r"Constant", r"$\hat{\beta}$", r"$\hat{\gamma}$", r"SE($\hat{\beta}$)", r"SE($\hat{\gamma}$)", "$R^2$"],
         title=f"OLS with LOV — γ={g}",
         filename=f'regression_summary_gamma_{g}',
     )
+
+

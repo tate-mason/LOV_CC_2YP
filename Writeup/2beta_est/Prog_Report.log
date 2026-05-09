@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.3.1)  8 MAY 2026 13:53
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.3.1)  8 MAY 2026 15:36
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -229,251 +229,32 @@ Package: epstopdf-base 2020-01-24 v2.11 Base part for package epstopdf
 Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 485.
  (/usr/local/texlive/2026/texmf-dist/tex/latex/latexconfig/epstopdf-sys.cfg
 File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Live
-)) [1
-
-{/usr/local/texlive/2026/texmf-var/fonts/map/pdftex/updmap/pdftex.map}{/usr/local/texlive/2026/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc}]
-<../../Output/Plots/Markets_1/utility_gamma_0.pdf, id=13, 722.7pt x 433.62pt>
-File: ../../Output/Plots/Markets_1/utility_gamma_0.pdf Graphic file (type pdf)
-<use ../../Output/Plots/Markets_1/utility_gamma_0.pdf>
-Package pdftex.def Info: ../../Output/Plots/Markets_1/utility_gamma_0.pdf  used on input line 42.
-(pdftex.def)             Requested size: 276.00105pt x 165.59775pt.
-<../../Output/Plots/Markets_1/utility_gamma_6.pdf, id=14, 722.7pt x 433.62pt>
-File: ../../Output/Plots/Markets_1/utility_gamma_6.pdf Graphic file (type pdf)
-<use ../../Output/Plots/Markets_1/utility_gamma_6.pdf>
-Package pdftex.def Info: ../../Output/Plots/Markets_1/utility_gamma_6.pdf  used on input line 42.
-(pdftex.def)             Requested size: 276.00105pt x 165.59775pt.
-<../../Output/Plots/Markets_1/utility_gamma_9.pdf, id=15, 722.7pt x 433.62pt>
-File: ../../Output/Plots/Markets_1/utility_gamma_9.pdf Graphic file (type pdf)
-<use ../../Output/Plots/Markets_1/utility_gamma_9.pdf>
-Package pdftex.def Info: ../../Output/Plots/Markets_1/utility_gamma_9.pdf  used on input line 42.
-(pdftex.def)             Requested size: 276.00105pt x 165.59775pt.
-<../../Output/Plots/Markets_1/utility_gamma_12.pdf, id=16, 722.7pt x 433.62pt>
-File: ../../Output/Plots/Markets_1/utility_gamma_12.pdf Graphic file (type pdf)
-<use ../../Output/Plots/Markets_1/utility_gamma_12.pdf>
-Package pdftex.def Info: ../../Output/Plots/Markets_1/utility_gamma_12.pdf  used on input line 42.
-(pdftex.def)             Requested size: 276.00105pt x 165.59775pt.
- [2 <../../Output/Plots/Markets_1/utility_gamma_0.pdf> <../../Output/Plots/Markets_1/utility_gamma_6.pdf>]
-<../../Output/Plots/Markets_2/utility_gamma_0.pdf, id=118, 722.7pt x 433.62pt>
-File: ../../Output/Plots/Markets_2/utility_gamma_0.pdf Graphic file (type pdf)
-<use ../../Output/Plots/Markets_2/utility_gamma_0.pdf>
-Package pdftex.def Info: ../../Output/Plots/Markets_2/utility_gamma_0.pdf  used on input line 42.
-(pdftex.def)             Requested size: 276.00105pt x 165.59775pt.
-<../../Output/Plots/Markets_2/utility_gamma_6.pdf, id=119, 722.7pt x 433.62pt>
-File: ../../Output/Plots/Markets_2/utility_gamma_6.pdf Graphic file (type pdf)
-<use ../../Output/Plots/Markets_2/utility_gamma_6.pdf>
-Package pdftex.def Info: ../../Output/Plots/Markets_2/utility_gamma_6.pdf  used on input line 42.
-(pdftex.def)             Requested size: 276.00105pt x 165.59775pt.
- [3 <../../Output/Plots/Markets_1/utility_gamma_9.pdf> <../../Output/Plots/Markets_1/utility_gamma_12.pdf>]
-<../../Output/Plots/Markets_2/utility_gamma_9.pdf, id=220, 722.7pt x 433.62pt>
-File: ../../Output/Plots/Markets_2/utility_gamma_9.pdf Graphic file (type pdf)
-<use ../../Output/Plots/Markets_2/utility_gamma_9.pdf>
-Package pdftex.def Info: ../../Output/Plots/Markets_2/utility_gamma_9.pdf  used on input line 42.
-(pdftex.def)             Requested size: 276.00105pt x 165.59775pt.
-<../../Output/Plots/Markets_2/utility_gamma_12.pdf, id=221, 722.7pt x 433.62pt>
-File: ../../Output/Plots/Markets_2/utility_gamma_12.pdf Graphic file (type pdf)
-<use ../../Output/Plots/Markets_2/utility_gamma_12.pdf>
-Package pdftex.def Info: ../../Output/Plots/Markets_2/utility_gamma_12.pdf  used on input line 42.
-(pdftex.def)             Requested size: 276.00105pt x 165.59775pt.
- [4 <../../Output/Plots/Markets_2/utility_gamma_0.pdf> <../../Output/Plots/Markets_2/utility_gamma_6.pdf>]
-<../../Output/Plots/Markets_3/utility_gamma_0.pdf, id=321, 722.7pt x 433.62pt>
-File: ../../Output/Plots/Markets_3/utility_gamma_0.pdf Graphic file (type pdf)
-<use ../../Output/Plots/Markets_3/utility_gamma_0.pdf>
-Package pdftex.def Info: ../../Output/Plots/Markets_3/utility_gamma_0.pdf  used on input line 42.
-(pdftex.def)             Requested size: 276.00105pt x 165.59775pt.
-<../../Output/Plots/Markets_3/utility_gamma_6.pdf, id=322, 722.7pt x 433.62pt>
-File: ../../Output/Plots/Markets_3/utility_gamma_6.pdf Graphic file (type pdf)
-<use ../../Output/Plots/Markets_3/utility_gamma_6.pdf>
-Package pdftex.def Info: ../../Output/Plots/Markets_3/utility_gamma_6.pdf  used on input line 42.
-(pdftex.def)             Requested size: 276.00105pt x 165.59775pt.
- [5 <../../Output/Plots/Markets_2/utility_gamma_9.pdf> <../../Output/Plots/Markets_2/utility_gamma_12.pdf>]
-<../../Output/Plots/Markets_3/utility_gamma_9.pdf, id=423, 722.7pt x 433.62pt>
-File: ../../Output/Plots/Markets_3/utility_gamma_9.pdf Graphic file (type pdf)
-<use ../../Output/Plots/Markets_3/utility_gamma_9.pdf>
-Package pdftex.def Info: ../../Output/Plots/Markets_3/utility_gamma_9.pdf  used on input line 42.
-(pdftex.def)             Requested size: 276.00105pt x 165.59775pt.
-<../../Output/Plots/Markets_3/utility_gamma_12.pdf, id=424, 722.7pt x 433.62pt>
-File: ../../Output/Plots/Markets_3/utility_gamma_12.pdf Graphic file (type pdf)
-<use ../../Output/Plots/Markets_3/utility_gamma_12.pdf>
-Package pdftex.def Info: ../../Output/Plots/Markets_3/utility_gamma_12.pdf  used on input line 42.
-(pdftex.def)             Requested size: 276.00105pt x 165.59775pt.
- [6 <../../Output/Plots/Markets_3/utility_gamma_0.pdf> <../../Output/Plots/Markets_3/utility_gamma_6.pdf>]
-<../../Output/Plots/Markets_4/utility_gamma_0.pdf, id=527, 722.7pt x 433.62pt>
-File: ../../Output/Plots/Markets_4/utility_gamma_0.pdf Graphic file (type pdf)
-<use ../../Output/Plots/Markets_4/utility_gamma_0.pdf>
-Package pdftex.def Info: ../../Output/Plots/Markets_4/utility_gamma_0.pdf  used on input line 42.
-(pdftex.def)             Requested size: 276.00105pt x 165.59775pt.
-<../../Output/Plots/Markets_4/utility_gamma_6.pdf, id=528, 722.7pt x 433.62pt>
-File: ../../Output/Plots/Markets_4/utility_gamma_6.pdf Graphic file (type pdf)
-<use ../../Output/Plots/Markets_4/utility_gamma_6.pdf>
-Package pdftex.def Info: ../../Output/Plots/Markets_4/utility_gamma_6.pdf  used on input line 42.
-(pdftex.def)             Requested size: 276.00105pt x 165.59775pt.
- [7 <../../Output/Plots/Markets_3/utility_gamma_9.pdf> <../../Output/Plots/Markets_3/utility_gamma_12.pdf>]
-<../../Output/Plots/Markets_4/utility_gamma_9.pdf, id=630, 722.7pt x 433.62pt>
-File: ../../Output/Plots/Markets_4/utility_gamma_9.pdf Graphic file (type pdf)
-<use ../../Output/Plots/Markets_4/utility_gamma_9.pdf>
-Package pdftex.def Info: ../../Output/Plots/Markets_4/utility_gamma_9.pdf  used on input line 42.
-(pdftex.def)             Requested size: 276.00105pt x 165.59775pt.
-<../../Output/Plots/Markets_4/utility_gamma_12.pdf, id=631, 722.7pt x 433.62pt>
-File: ../../Output/Plots/Markets_4/utility_gamma_12.pdf Graphic file (type pdf)
-<use ../../Output/Plots/Markets_4/utility_gamma_12.pdf>
-Package pdftex.def Info: ../../Output/Plots/Markets_4/utility_gamma_12.pdf  used on input line 42.
-(pdftex.def)             Requested size: 276.00105pt x 165.59775pt.
- [8 <../../Output/Plots/Markets_4/utility_gamma_0.pdf> <../../Output/Plots/Markets_4/utility_gamma_6.pdf>]
-<../../Output/Plots/Markets_5/utility_gamma_0.pdf, id=731, 722.7pt x 433.62pt>
-File: ../../Output/Plots/Markets_5/utility_gamma_0.pdf Graphic file (type pdf)
-<use ../../Output/Plots/Markets_5/utility_gamma_0.pdf>
-Package pdftex.def Info: ../../Output/Plots/Markets_5/utility_gamma_0.pdf  used on input line 42.
-(pdftex.def)             Requested size: 276.00105pt x 165.59775pt.
-<../../Output/Plots/Markets_5/utility_gamma_6.pdf, id=732, 722.7pt x 433.62pt>
-File: ../../Output/Plots/Markets_5/utility_gamma_6.pdf Graphic file (type pdf)
-<use ../../Output/Plots/Markets_5/utility_gamma_6.pdf>
-Package pdftex.def Info: ../../Output/Plots/Markets_5/utility_gamma_6.pdf  used on input line 42.
-(pdftex.def)             Requested size: 276.00105pt x 165.59775pt.
- [9 <../../Output/Plots/Markets_4/utility_gamma_9.pdf> <../../Output/Plots/Markets_4/utility_gamma_12.pdf>]
-<../../Output/Plots/Markets_5/utility_gamma_9.pdf, id=834, 722.7pt x 433.62pt>
-File: ../../Output/Plots/Markets_5/utility_gamma_9.pdf Graphic file (type pdf)
-<use ../../Output/Plots/Markets_5/utility_gamma_9.pdf>
-Package pdftex.def Info: ../../Output/Plots/Markets_5/utility_gamma_9.pdf  used on input line 42.
-(pdftex.def)             Requested size: 276.00105pt x 165.59775pt.
-<../../Output/Plots/Markets_5/utility_gamma_12.pdf, id=835, 722.7pt x 433.62pt>
-File: ../../Output/Plots/Markets_5/utility_gamma_12.pdf Graphic file (type pdf)
-<use ../../Output/Plots/Markets_5/utility_gamma_12.pdf>
-Package pdftex.def Info: ../../Output/Plots/Markets_5/utility_gamma_12.pdf  used on input line 42.
-(pdftex.def)             Requested size: 276.00105pt x 165.59775pt.
- [10 <../../Output/Plots/Markets_5/utility_gamma_0.pdf> <../../Output/Plots/Markets_5/utility_gamma_6.pdf>]
-<../../Output/Plots/Markets_6/utility_gamma_0.pdf, id=936, 722.7pt x 433.62pt>
-File: ../../Output/Plots/Markets_6/utility_gamma_0.pdf Graphic file (type pdf)
-<use ../../Output/Plots/Markets_6/utility_gamma_0.pdf>
-Package pdftex.def Info: ../../Output/Plots/Markets_6/utility_gamma_0.pdf  used on input line 42.
-(pdftex.def)             Requested size: 276.00105pt x 165.59775pt.
-<../../Output/Plots/Markets_6/utility_gamma_6.pdf, id=937, 722.7pt x 433.62pt>
-File: ../../Output/Plots/Markets_6/utility_gamma_6.pdf Graphic file (type pdf)
-<use ../../Output/Plots/Markets_6/utility_gamma_6.pdf>
-Package pdftex.def Info: ../../Output/Plots/Markets_6/utility_gamma_6.pdf  used on input line 42.
-(pdftex.def)             Requested size: 276.00105pt x 165.59775pt.
- [11 <../../Output/Plots/Markets_5/utility_gamma_9.pdf> <../../Output/Plots/Markets_5/utility_gamma_12.pdf>]
-<../../Output/Plots/Markets_6/utility_gamma_9.pdf, id=1039, 722.7pt x 433.62pt>
-File: ../../Output/Plots/Markets_6/utility_gamma_9.pdf Graphic file (type pdf)
-<use ../../Output/Plots/Markets_6/utility_gamma_9.pdf>
-Package pdftex.def Info: ../../Output/Plots/Markets_6/utility_gamma_9.pdf  used on input line 42.
-(pdftex.def)             Requested size: 276.00105pt x 165.59775pt.
-<../../Output/Plots/Markets_6/utility_gamma_12.pdf, id=1040, 722.7pt x 433.62pt>
-File: ../../Output/Plots/Markets_6/utility_gamma_12.pdf Graphic file (type pdf)
-<use ../../Output/Plots/Markets_6/utility_gamma_12.pdf>
-Package pdftex.def Info: ../../Output/Plots/Markets_6/utility_gamma_12.pdf  used on input line 42.
-(pdftex.def)             Requested size: 276.00105pt x 165.59775pt.
- [12 <../../Output/Plots/Markets_6/utility_gamma_0.pdf> <../../Output/Plots/Markets_6/utility_gamma_6.pdf>]
-<../../Output/Plots/Markets_7/utility_gamma_0.pdf, id=1140, 722.7pt x 433.62pt>
-File: ../../Output/Plots/Markets_7/utility_gamma_0.pdf Graphic file (type pdf)
-<use ../../Output/Plots/Markets_7/utility_gamma_0.pdf>
-Package pdftex.def Info: ../../Output/Plots/Markets_7/utility_gamma_0.pdf  used on input line 42.
-(pdftex.def)             Requested size: 276.00105pt x 165.59775pt.
-<../../Output/Plots/Markets_7/utility_gamma_6.pdf, id=1141, 722.7pt x 433.62pt>
-File: ../../Output/Plots/Markets_7/utility_gamma_6.pdf Graphic file (type pdf)
-<use ../../Output/Plots/Markets_7/utility_gamma_6.pdf>
-Package pdftex.def Info: ../../Output/Plots/Markets_7/utility_gamma_6.pdf  used on input line 42.
-(pdftex.def)             Requested size: 276.00105pt x 165.59775pt.
- [13 <../../Output/Plots/Markets_6/utility_gamma_9.pdf> <../../Output/Plots/Markets_6/utility_gamma_12.pdf>]
-<../../Output/Plots/Markets_7/utility_gamma_9.pdf, id=1244, 722.7pt x 433.62pt>
-File: ../../Output/Plots/Markets_7/utility_gamma_9.pdf Graphic file (type pdf)
-<use ../../Output/Plots/Markets_7/utility_gamma_9.pdf>
-Package pdftex.def Info: ../../Output/Plots/Markets_7/utility_gamma_9.pdf  used on input line 42.
-(pdftex.def)             Requested size: 276.00105pt x 165.59775pt.
-<../../Output/Plots/Markets_7/utility_gamma_12.pdf, id=1245, 722.7pt x 433.62pt>
-File: ../../Output/Plots/Markets_7/utility_gamma_12.pdf Graphic file (type pdf)
-<use ../../Output/Plots/Markets_7/utility_gamma_12.pdf>
-Package pdftex.def Info: ../../Output/Plots/Markets_7/utility_gamma_12.pdf  used on input line 42.
-(pdftex.def)             Requested size: 276.00105pt x 165.59775pt.
- [14 <../../Output/Plots/Markets_7/utility_gamma_0.pdf> <../../Output/Plots/Markets_7/utility_gamma_6.pdf>]
-<../../Output/Plots/Markets_8/utility_gamma_0.pdf, id=1347, 722.7pt x 433.62pt>
-File: ../../Output/Plots/Markets_8/utility_gamma_0.pdf Graphic file (type pdf)
-<use ../../Output/Plots/Markets_8/utility_gamma_0.pdf>
-Package pdftex.def Info: ../../Output/Plots/Markets_8/utility_gamma_0.pdf  used on input line 42.
-(pdftex.def)             Requested size: 276.00105pt x 165.59775pt.
-<../../Output/Plots/Markets_8/utility_gamma_6.pdf, id=1348, 722.7pt x 433.62pt>
-File: ../../Output/Plots/Markets_8/utility_gamma_6.pdf Graphic file (type pdf)
-<use ../../Output/Plots/Markets_8/utility_gamma_6.pdf>
-Package pdftex.def Info: ../../Output/Plots/Markets_8/utility_gamma_6.pdf  used on input line 42.
-(pdftex.def)             Requested size: 276.00105pt x 165.59775pt.
- [15 <../../Output/Plots/Markets_7/utility_gamma_9.pdf> <../../Output/Plots/Markets_7/utility_gamma_12.pdf>]
-<../../Output/Plots/Markets_8/utility_gamma_9.pdf, id=1451, 722.7pt x 433.62pt>
-File: ../../Output/Plots/Markets_8/utility_gamma_9.pdf Graphic file (type pdf)
-<use ../../Output/Plots/Markets_8/utility_gamma_9.pdf>
-Package pdftex.def Info: ../../Output/Plots/Markets_8/utility_gamma_9.pdf  used on input line 42.
-(pdftex.def)             Requested size: 276.00105pt x 165.59775pt.
-<../../Output/Plots/Markets_8/utility_gamma_12.pdf, id=1452, 722.7pt x 433.62pt>
-File: ../../Output/Plots/Markets_8/utility_gamma_12.pdf Graphic file (type pdf)
-<use ../../Output/Plots/Markets_8/utility_gamma_12.pdf>
-Package pdftex.def Info: ../../Output/Plots/Markets_8/utility_gamma_12.pdf  used on input line 42.
-(pdftex.def)             Requested size: 276.00105pt x 165.59775pt.
- [16 <../../Output/Plots/Markets_8/utility_gamma_0.pdf> <../../Output/Plots/Markets_8/utility_gamma_6.pdf>]
-<../../Output/Plots/Markets_9/utility_gamma_0.pdf, id=1555, 722.7pt x 433.62pt>
-File: ../../Output/Plots/Markets_9/utility_gamma_0.pdf Graphic file (type pdf)
-<use ../../Output/Plots/Markets_9/utility_gamma_0.pdf>
-Package pdftex.def Info: ../../Output/Plots/Markets_9/utility_gamma_0.pdf  used on input line 42.
-(pdftex.def)             Requested size: 276.00105pt x 165.59775pt.
-<../../Output/Plots/Markets_9/utility_gamma_6.pdf, id=1556, 722.7pt x 433.62pt>
-File: ../../Output/Plots/Markets_9/utility_gamma_6.pdf Graphic file (type pdf)
-<use ../../Output/Plots/Markets_9/utility_gamma_6.pdf>
-Package pdftex.def Info: ../../Output/Plots/Markets_9/utility_gamma_6.pdf  used on input line 42.
-(pdftex.def)             Requested size: 276.00105pt x 165.59775pt.
- [17 <../../Output/Plots/Markets_8/utility_gamma_9.pdf> <../../Output/Plots/Markets_8/utility_gamma_12.pdf>]
-<../../Output/Plots/Markets_9/utility_gamma_9.pdf, id=1658, 722.7pt x 433.62pt>
-File: ../../Output/Plots/Markets_9/utility_gamma_9.pdf Graphic file (type pdf)
-<use ../../Output/Plots/Markets_9/utility_gamma_9.pdf>
-Package pdftex.def Info: ../../Output/Plots/Markets_9/utility_gamma_9.pdf  used on input line 42.
-(pdftex.def)             Requested size: 276.00105pt x 165.59775pt.
-<../../Output/Plots/Markets_9/utility_gamma_12.pdf, id=1659, 722.7pt x 433.62pt>
-File: ../../Output/Plots/Markets_9/utility_gamma_12.pdf Graphic file (type pdf)
-<use ../../Output/Plots/Markets_9/utility_gamma_12.pdf>
-Package pdftex.def Info: ../../Output/Plots/Markets_9/utility_gamma_12.pdf  used on input line 42.
-(pdftex.def)             Requested size: 276.00105pt x 165.59775pt.
- [18 <../../Output/Plots/Markets_9/utility_gamma_0.pdf> <../../Output/Plots/Markets_9/utility_gamma_6.pdf>]
-<../../Output/Plots/Markets_10/utility_gamma_0.pdf, id=1761, 722.7pt x 433.62pt>
-File: ../../Output/Plots/Markets_10/utility_gamma_0.pdf Graphic file (type pdf)
-<use ../../Output/Plots/Markets_10/utility_gamma_0.pdf>
-Package pdftex.def Info: ../../Output/Plots/Markets_10/utility_gamma_0.pdf  used on input line 42.
-(pdftex.def)             Requested size: 276.00105pt x 165.59775pt.
-<../../Output/Plots/Markets_10/utility_gamma_6.pdf, id=1762, 722.7pt x 433.62pt>
-File: ../../Output/Plots/Markets_10/utility_gamma_6.pdf Graphic file (type pdf)
-<use ../../Output/Plots/Markets_10/utility_gamma_6.pdf>
-Package pdftex.def Info: ../../Output/Plots/Markets_10/utility_gamma_6.pdf  used on input line 42.
-(pdftex.def)             Requested size: 276.00105pt x 165.59775pt.
- [19 <../../Output/Plots/Markets_9/utility_gamma_9.pdf> <../../Output/Plots/Markets_9/utility_gamma_12.pdf>]
-<../../Output/Plots/Markets_10/utility_gamma_9.pdf, id=1865, 722.7pt x 433.62pt>
-File: ../../Output/Plots/Markets_10/utility_gamma_9.pdf Graphic file (type pdf)
-<use ../../Output/Plots/Markets_10/utility_gamma_9.pdf>
-Package pdftex.def Info: ../../Output/Plots/Markets_10/utility_gamma_9.pdf  used on input line 42.
-(pdftex.def)             Requested size: 276.00105pt x 165.59775pt.
-<../../Output/Plots/Markets_10/utility_gamma_12.pdf, id=1866, 722.7pt x 433.62pt>
-File: ../../Output/Plots/Markets_10/utility_gamma_12.pdf Graphic file (type pdf)
-<use ../../Output/Plots/Markets_10/utility_gamma_12.pdf>
-Package pdftex.def Info: ../../Output/Plots/Markets_10/utility_gamma_12.pdf  used on input line 42.
-(pdftex.def)             Requested size: 276.00105pt x 165.59775pt.
- [20 <../../Output/Plots/Markets_10/utility_gamma_0.pdf> <../../Output/Plots/Markets_10/utility_gamma_6.pdf>]
-Overfull \hbox (3.08315pt too wide) in paragraph at lines 44--44
+))
+Overfull \hbox (3.08315pt too wide) in paragraph at lines 21--21
 []\OT1/cmr/bx/n/14.4 Regression Re-sults on Log Dif-fer-ence in Shares 
  []
 
-(../../Output/Tables/naive_regression_summary_gamma_0.tex) (../../Output/Tables/naive_regression_summary_gamma_6.tex) (../../Output/Tables/naive_regression_summary_gamma_9.tex) (../../Output/Tables/naive_regression_summary_gamma_12.tex) (../../Output/Tables/regression_summary_gamma_6.tex) (../../Output/Tables/regression_summary_gamma_9.tex) (../../Output/Tables/regression_summary_gamma_12.tex) [21 <../../Output/Plots/Markets_10/utility_gamma_9.pdf> <../../Output/Plots/Markets_10/utility_gamma_12.pdf>] [22] (./Prog_Report.aux)
+(../../Output/Tables/naive_regression_summary_gamma_0.tex) (../../Output/Tables/naive_regression_summary_gamma_6.tex) (../../Output/Tables/naive_regression_summary_gamma_9.tex) (../../Output/Tables/naive_regression_summary_gamma_12.tex) (../../Output/Tables/regression_summary_gamma_6.tex) (../../Output/Tables/regression_summary_gamma_9.tex) (../../Output/Tables/regression_summary_gamma_12.tex) [1
+
+{/usr/local/texlive/2026/texmf-var/fonts/map/pdftex/updmap/pdftex.map}] [2] (./Prog_Report.aux)
  ***********
 LaTeX2e <2025-11-01>
 L3 programming layer <2026-01-19>
  ***********
  ) 
 Here is how much of TeX's memory you used:
- 7778 strings out of 467525
- 162151 string characters out of 5418983
- 525534 words of memory out of 5000000
- 36602 multiletter control sequences out of 15000+600000
- 629115 words of font info for 45 fonts, out of 8000000 for 9000
+ 7488 strings out of 467525
+ 145542 string characters out of 5418983
+ 529532 words of memory out of 5000000
+ 36314 multiletter control sequences out of 15000+600000
+ 628780 words of font info for 44 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 57i,11n,65p,597b,309s stack positions out of 10000i,1000n,20000p,200000b,200000s
-</usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/cm-super/sfrm1000.pfb>
-Output written on Prog_Report.pdf (22 pages, 759780 bytes).
+ 57i,11n,65p,596b,282s stack positions out of 10000i,1000n,20000p,200000b,200000s
+</usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb>
+Output written on Prog_Report.pdf (2 pages, 79490 bytes).
 PDF statistics:
- 2106 PDF objects out of 2487 (max. 8388607)
- 435 compressed objects within 5 object streams
+ 46 PDF objects out of 1000 (max. 8388607)
+ 27 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
- 201 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 1 words of extra memory for PDF output out of 10000 (max. 10000000)
 

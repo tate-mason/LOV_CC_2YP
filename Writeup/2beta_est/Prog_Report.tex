@@ -18,29 +18,6 @@ Setting out to see how to incorporate preference heterogeneity over the product'
 
 This allows for $\beta$ to vary with the specific characteristics the product holds rather than just a beta for the overall bundle. Variety now takes the euclidean distance of each characteristic of the product's bundle from the amount the consumer has already consumed in the past, allowing for a more nuanced measure of variety that captures the idea that consumers may want to try products that have some different characteristics from their past consumption, but not necessarily products that are completely different from what they have already consumed.
 
-Results reported:
-    \begin{itemize}
-        \item Utility graphs
-        \item Regression results on log difference in shares
-        \item Inclusive value tables
-    \end{itemize}
-
-The regression results make it seem as if $\gamma$ is not meaningfully accounting for anything missing from the naive baseline regression. The coefficients on the characteristics are not very different across the baseline and LOV regressions, and the coefficient on the variety term is still pretty far from the true value. I wonder if this is a data issue, where maybe I need more variation in $\Xi$ to be able to identify the $\gamma$ coefficient. I will try to generate some data with more variation in $\Xi$ by upping to 5 consumers, and see if that helps.
-
-\newpage
-
-\section{Utility Graphs}
-
-\foreach \m in {1,2,3,4,5,6,7,8,9,10}{
-  \foreach \g in {0,6,9,12}{
-    \begin{figure}[H]
-      \centering
-      \includegraphics[width=0.8\textwidth]{../../Output/Plots/Markets_\m/utility_gamma_\g.pdf}
-      \caption{Utility graph for Market \m $\gamma = \g$, $\beta_1 = 2$}
-    \end{figure}
-  }
-}
-
 \section{Regression Results on Log Difference in Shares}
 
 \foreach \g in {0,6,9,12}{

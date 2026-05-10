@@ -1,9 +1,9 @@
 # Fdb version 4
-["pdflatex"] 1778367271.34484 "Prog_Report.tex" "Prog_Report.pdf" "Prog_Report" 1778367271.90605 0
-  "../../Output/Tables/naive_regression_summary_gamma_0.tex" 1778272828.9807 158 d47bdf2f4d4016ed4e8bcdd1467e84c1 ""
-  "../../Output/Tables/naive_regression_summary_gamma_12.tex" 1778272828.98298 160 b8b6e7d67abba15c18585da99e61a22d ""
-  "../../Output/Tables/naive_regression_summary_gamma_6.tex" 1778272828.98156 159 9d29b6089fd3f41a759e0e6451776612 ""
-  "../../Output/Tables/naive_regression_summary_gamma_9.tex" 1778272828.98229 159 8076a6cfa45c7a4c4d237049a993f6e5 ""
+["pdflatex"] 1778432519.18312 "Prog_Report.tex" "Prog_Report.pdf" "Prog_Report" 1778432519.82477 2
+  "../../Output/Tables/naive_regression_summary_gamma_0.tex" 1778432480.9104 200 b95a93e7c13069a449223f05142d9c24 ""
+  "../../Output/Tables/naive_regression_summary_gamma_12.tex" 1778432480.92058 200 310ce829776b4d02967381dba5245da2 ""
+  "../../Output/Tables/naive_regression_summary_gamma_6.tex" 1778432480.91399 200 dc8e2d2380db298f09711fa4694aacf8 ""
+  "../../Output/Tables/naive_regression_summary_gamma_9.tex" 1778432480.9175 200 d2afbe406b9401e1181b5af72828f233 ""
   "../../Output/Tables/regression_summary_gamma_12.tex" 1778272828.98707 218 ef048e76017caef0a92d513378d66ce4 ""
   "../../Output/Tables/regression_summary_gamma_6.tex" 1778272828.98506 217 ec7a06f47c4cfe9db5f2f692f981d89b ""
   "../../Output/Tables/regression_summary_gamma_9.tex" 1778272828.98607 217 b6c697a12915a99886a82d8e572fe7d8 ""
@@ -67,8 +67,8 @@
   "/usr/local/texlive/2026/texmf-var/fonts/map/pdftex/updmap/pdftex.map" 1773939083 5541377 04880c840ca220163a28f1a3af0ee662 ""
   "/usr/local/texlive/2026/texmf-var/web2c/pdftex/pdflatex.fmt" 1772409757 3636768 9f94d239f422c02416e379a36a852ffd ""
   "/usr/local/texlive/2026/texmf.cnf" 1772409725 577 648cd9f92f9c0eac486f4c71c85cfbbe ""
-  "Prog_Report.aux" 1778367271.86165 1476 1427ebef9a0ebf89a7b8551b6e18f08b "pdflatex"
-  "Prog_Report.tex" 1778367269.74624 1731 7b1fd609a9ff546aa66e491a90dad96d ""
+  "Prog_Report.aux" 1778432519.75634 1504 7028f12da8e1f6ba916fde4ce3f99e53 "pdflatex"
+  "Prog_Report.tex" 1778432518.80321 1738 8a671dd0de946d43780654ec07090c3e ""
   (generated)
   "Prog_Report.aux"
   "Prog_Report.log"

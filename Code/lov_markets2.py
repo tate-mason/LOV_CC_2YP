@@ -60,7 +60,7 @@ def consumer_choice_prob(S, T, T_prior, J, x1, beta, gamma):
         prior_choices = np.zeros(T_prior)
         x_bar_prior   = 0.0
         for t in range(T_prior):
-            Xi_h      = x1 - x_bar_prior
+            Xi_h      = np.sqrt((x1 - x_bar_prior)**2)
             U_in      = 1 + beta * x1 + gamma * np.log(1 + Xi_h**2) + rng.gumbel(0, 1, J)
             U_out     = 1 + rng.gumbel(0, 1)
             ch        = np.argmax(np.concatenate([[U_out], U_in]))

@@ -1,0 +1,202 @@
+\documentclass[12pt]{article}
+
+%--- Packages ---%
+\usepackage[margin=1in]{geometry}
+\usepackage{setspace}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{natbib}
+\usepackage{hyperref}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{float}
+\usepackage{authblk}
+\usepackage{mathtools} % in preamble
+
+\onehalfspacing
+\bibliographystyle{aer}
+
+%--- Theorem Environments ---%
+\newtheorem{assumption}{Assumption}
+\newtheorem{proposition}{Proposition}
+\newtheorem{lemma}{Lemma}
+
+%--- Title ---%
+\title{\textbf{Love of Variety and Strategic Advertising:\\
+               Evidence from Scanner Data}}
+
+\author[1]{Tate Mason}
+\affil[1]{John Munro Godfrey Sr. Department of Economics, University of Georgia}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+This paper develops a dynamic discrete choice model of consumer demand that incorporates a love of variety and strategic advertising by firms. The model is estimated using scanner data, and counterfactual analyses are conducted to evaluate the effects of different market structures on consumer welfare and market outcomes.
+\end{abstract}
+
+\noindent\textbf{Keywords:} discrete choice, love of variety, habit formation,
+                             structural estimation, advertising, demand estimation
+
+\newpage
+
+%============================================================%
+\section{Introduction}
+%============================================================%
+
+In the baseline logit model, a consumer is perceived as having a fixed preference for each product, and the utility from consuming a product is independent of past consumption. Further, it is assumed that, ex ante, a new good is always a utility boosting event, by the error term's property of being identically and independently distributed. However, in many markets, consumers may have a love of variety, or a desire to consume different products over time. This can be due to factors such as boredom, satiation, or a preference for novelty. In such cases, the utility from consuming a product may depend on past consumption, and the introduction of a new good may not always lead to an increase in utility.
+
+This paper develops a dynamic discrete choice model of consumer demand that incorporates a love of variety, and estimates the model using scanner data. The model allows for both forward-looking and myopic consumers, and includes a state variable that captures the mean consumption of each product characteristic within a product's bundle of characteristics. The model also incorporates strategic advertising by firms, which can influence consumer preferences and demand.
+
+This idea is motivated by the idea that there are markets which see firms both acting as the host of the market as well as a participant in it. For example, in the grocery market, a firm like Kroger is both a retailer that hosts other firms' products, as well as a producer of its own goods. This may present a market power dynamic where the player with a dual role may have more access to consumer histories and preferences, allowing for more effective advertising via targeting. This paper seeks to understand the implications of this dynamic for consumer welfare and market outcomes. This will be accomplished by estimating the model using scanner data, and conducting counterfactual analyses to evaluate the effects of different market structures.
+
+The primary contribution of this paper is wedding the love of variety and targeted advertising literatures, which have largely been separate, taking the other as given. Further, the firm side dynamics have been largely theoretical, and this paper seeks to provide empirical understanding of the effects of strategic advertising in a dynamic demand setting. Finally, the paper contributes to the broader literature on dynamic discrete choice models, by developing a model that incorporates both forward-looking and myopic consumers, and by providing an estimation strategy that can be applied to other settings.
+
+%============================================================%
+\section{Related Literature}
+%============================================================%
+
+    The variety-seeking and state dependence literature has been primarily focused on understanding the dynamics of consumer preferences and demand over time. From \cite{lattin_model_1987}, who developed an empirical structural model of state dependence in consumer choice, to \citet{erdem_decision-making_1996}, who iterated the model to allow for consumer learning. \cite{chintagunta_variety_1999} is the most closely related paper, as he develops a model of variety-seeking behavior which is both tractible and flexible, and uses Nielsen data to estimate the model. The model is very similar in the variety seeking component, however I iterate by allowing preferences for quality to be over multiple characteristics in a product, thus allowing for more complex consumer preferences and a more realistic representation of consumer behavior. Further, I incorporate strategic advertising by firms, which is not present in \cite{chintagunta_variety_1999}.
+
+    \citet{nelson_information_1970} is one of the earliest related papers, as he develops a model of advertising as a signal of product quality. \cite{zielnicki_value_2025} uses the personalized recommendation systems common in online markets to understand the effects of increased personalization on consumer welfare. This paper is interesting when considering potential counterfactuals where we tune the ability of firms to target to different levels. \cite{shin_targeted_nodate} is the most closely related paper, as he develops a model of targeted advertising in which firms compete to lure consumers via advertising. However, this paper does not incorporate a love of variety preference, and thus serves as a useful complement to my paper.
+
+%============================================================%
+\section{Model}
+%============================================================%
+
+    \subsection{Environment}
+    There is a continuum of consumers $i\in\mathcal{I}$ who shop for $t\in\mathcal{T}$ periods. Each period $t$, they can make one purchase from a market. The market is made up of a continuum of firms $f\in\mathcal{F}$ in which one firm $f^*$ acts as both the market and a producer. $f^*$ will be the primary player, strategically advertising to consumer $i$ based on inferences about their type. $f^*$ will see all other $f\in\mathcal{F}$ as a competitor, denoted $\bar{f}$.
+
+
+    \subsection{Consumer's Problem}
+    The consumer's problem is to choose a product from the market each period to maximize utility. The utility from consumption of product $j$ in period $t$ is given by the following equation:
+
+    \begin{alignat*}{1}
+      U_{ijt} &= \sum_{j=1}^J\beta_{ij} X_{jt} + \gamma_i \log(1 + \Xi_{ijt}^2) \\
+           &+ \alpha_i p_{jt}(1 - a_{it}) + \xi_j + \varepsilon_{ijt} \\
+    \shortintertext{subject to}
+       \Xi_i &= \sqrt{(\sum_{j=1}^J(X_{jt}-\theta_{it})^2)} \\
+       \theta_{it} &= \{f(X_{js})\}_{s<t} \\
+       \gamma_i &\sim \mathcal{N}(0, 1)\\ \varepsilon_{ijt} &\sim \text{T1EV}(0,1)
+    \end{alignat*}
+
+    where $\beta_{ij}$ is the consumer's preference for product characteristic $X_{jt}$, $\gamma_i$ is the consumer's love of variety parameter, $\alpha_i$ is the consumer's price sensitivity, $p_{jt}$ is the price of product $j$ in period $t$, $a_{it}$ is the advertising exposure for consumer $i$ in period $t$, $\xi_j$ is an unobserved product characteristic, and $\varepsilon_{ijt}$ is an idiosyncratic shock to utility. The term $\Xi_{ijt}$ captures the consumer's love of variety, and is a function of the distance between the product characteristics $X_{jt}$ and the consumer's past consumption history $\theta_{it}$. 
+
+    The choice probability of consumer $i$ choosing product $j$ in time $t$ is as follows:
+    \begin{alignat*}{1}
+      P_{ijt} = \frac{\exp{U_{ijt}}}{\sum_k\exp{U_{ikt}}}
+    \end{alignat*}
+
+    Currently, I am working under a static specification for the consumer, in which they do not strategically consider the future when making their consumption decisions. However, this extension should not be difficult to implement in future versions of the paper.
+
+    \subsection{Firm's Problem}
+
+    The firm $f^*$ chooses advertising $a_{it}$ to maximize profits. The firm's problem is as follows:
+    \begin{alignat*}{1}
+      V(a_{it} | \lambda_t) &= \max_{a_{it}} \{\pi_{jt} + \mu \mathbb{E}[V(a_{it+1} | \lambda_{t+1})]\} \\
+      \pi_{jt} &= s(p_{jt}, a_{it})(p_{jt} - mc_{jt}) - c(a_{it}) \\
+      \lambda_t &\sim \mathcal{N}(\frac{1}{N}\sum_i \theta_{it}, \sigma^2_\lambda)
+    \end{alignat*}
+
+      where $V(a_{it} | \lambda_t)$ is the value function of advertising, $\pi_{jt}$ is the profit from selling product $j$ in period $t$, $\mu$ is the discount factor, $s(p_{jt}, a_{it})$ is the market share of product $j$ in period $t$ as a function of price and advertising, $mc_{jt}$ is the marginal cost of producing product $j$ in period $t$, and $c(a_{it})$ is the cost of advertising. The state variable $\lambda_t$ captures the firm's beliefs about consumer preferences based on their past consumption history. The firm uses this information to set prices and target its advertising to consumers who are more likely to respond positively to it, creating a perfect price discrimination dynamic for the strategic firm $f^*$. 
+
+    Other firms $\bar{f}$ are not strategic and do not advertise, but they do compete in the market, affecting the consumer's choice probabilities and thus the profits of $f^*$. Their problem is as follows:
+    \begin{alignat*}{1}
+      \pi_{jt} &= s(p_{jt})(p_{jt} - mc_{jt})
+    \end{alignat*}
+
+    Most of the strategic dynamics will come from $f^*$, but the presence of $\bar{f}$ is important for identification and estimation.
+
+%============================================================%
+\section{Estimation}
+%============================================================%
+
+    \subsection{Data}
+    To estimate the model, I am in the process of acquiring Nielsen's homescan and marketscan data. This data combination will provide detailed information on consumer purchases, such as products bought, prices paid, and quantities purchased. Further, I am able to see deals/coupons which are used as well as any advertising in the form of feature displays. These are imperfect data points, as some advertising will be store-wide. This is something I am still toying with. The data has a panel structure, which allows me to implement these dynamics. The data also includes information on product characteristics, which will be important for estimating the utility function. 
+
+    \subsection{Identification of Random Coefficients}
+
+    I plan to identify the random coefficients $\beta_i$, $\gamma_i$, and $\alpha_i$ using variation in product characteristics, prices, and advertising across consumers and over time. The presence of the strategic firm $f^*$ and its advertising will provide additional variation that can help identify the effects of advertising on consumer preferences and demand. I will also leverage the panel structure of the data to control for unobserved heterogeneity across consumers.
+
+    Specifically, for the $\gamma_i$ coefficient, I will use variation in consumption over time. This includes mean number of products chosen, variance of products chosen, and number of times a conusmer switches between products. For the $\alpha_i$ coefficient, I will use variation in prices and income across consumers. For $\beta_i$, I will use variation in product characteristics and consumer demographics. The presence of the strategic firm $f^*$ and its advertising will provide additional variation that can help identify the effects of advertising on consumer preferences and demand. I will also leverage the panel structure of the data to control for unobserved heterogeneity across consumers.
+
+    \subsection{GMM Objective and Moment Conditions}
+
+      I will use a GMM estimation strategy to estimate the parameters of the model. The moment conditions will be derived from the first-order conditions of the consumer's utility maximization problem and the firm's profit maximization problem. Specifically, I will use the following moment conditions:
+      \begin{alignat*}{1}
+        \mathbb{E}[P_{ijt} - \frac{\exp{U_{ijt}}}{\sum_k\exp{U_{ikt}}}] &= 0 \\
+        \mathbb{E}[a_{it} - \arg\max_{a_{it}} \{\pi_{jt} + \mu \mathbb{E}[V(a_{it+1} | \lambda_{t+1})]\}] &= 0
+      \end{alignat*}
+
+        These moment conditions ensure that the estimated parameters are consistent with the observed choice probabilities and advertising strategies in the data.
+
+%============================================================%
+\section{Monte Carlo Simulation}
+%============================================================%
+
+    \subsection{Design}
+    To get a better understanding of the model, I conduct Monte Carlo simulations. I simulate data from the model under different parameter values for a singular consumer and no firm. This allows me to understand the dynamics of the model and the impact of the love of variety on choice probabilities. I simulate the model for 100 periods across 1000 simulations, and evaluate the effect of different levels of $\gamma_i$ on the choice probabilities. I also evaluate how $\gamma_i$ effects consumer welfare in the case of product entry.
+
+    \subsection{Base Specification}
+
+    \begin{equation}
+      U_{ijt} = \sum_{j}^J\beta_{ij} X_{jt} + \varepsilon_{ijt}
+    \end{equation}
+
+    In this specification, I set $\gamma_i = 0$, which means that the consumer does not have a love of variety. This allows me to evaluate how the model behaves in the absence of variety-seeking behavior, and to establish a baseline for comparison with the other specifications. This is the specification which most closely resembles the standard logit model, and I find that the consumer has a flat consumption pattern, with no preference for variety.
+
+    Under this specification, as is expected, almost all mass is on product 5, which has the highest characteristic value. This is consistent with the standard logit model, in which consumers always choose the product with the highest utility. The majority of the remaining mass in on product 4, which has the second highest characteristic value, a case which is created by the Gumbel error term. Any switching between products is purely driven by the error term, as we would generally expect that a consumer would only choose product 5.
+
+    \subsection{Prior Mean Specification}
+    In this specification, I simulate a "history" for the consumer, and use the mean of that history to infer the initial $\theta_{i0}$. This allows me to evaluate how the love of variety affects consumer choices and welfare when the consumer's preferences are influenced by a more complex summary of their past consumption. I find that the consumer has a more varied consumption pattern, and is more likely to switch between products for the first 20 periods before settling into a pattern of mostly picking the two polar products.
+
+    \begin{table}[h]
+    \centering
+    \caption{Conditional Choice Probabilities by $\gamma$}
+    \begin{tabular}{lccc}
+    \hline\hline
+    & $\gamma = 6$ & $\gamma = 9$ & $\gamma = 12$ \\
+    \hline
+    Product 1       & 0.3313  & 0.3971  & 0.4234  \\
+    Product 2       & 0.0551  & 0.0081  & 0.0009  \\
+    Product 3       & 0.0027  & 0.0000  & 0.0000  \\
+    Product 4       & 0.0023  & 0.0002  & 0.0000  \\
+    Product 5       & 0.6086  & 0.5946  & 0.5756  \\
+    \hline
+    Inclusive Value & 17.4522 & 22.4506 & 27.5139 \\
+    IV at $t=50$    & 16.3861 & 21.5165 & 27.6856 \\
+    \hline\hline
+    \end{tabular}
+    \end{table}
+
+    As $\gamma$ increases, the consumer's preference for variety increases, and thus they are more likely to switch between products over time. This is reflected in the choice probabilities, which show that as $\gamma$ increases, the consumer is more likely to choose product 1, which has the lowest characteristic value, and less likely to choose product 5, which has the highest characteristic value. The consumer's love of variety leads them to seek out different products over time, even if those products have lower utility than their previous choices. We also see that the inclusive value increases as $\gamma$ increases, which indicates that the consumer's overall utility from the available products increases as their preference for variety increases. This is consistent with the idea that a love of variety can lead to higher consumer welfare, as it allows consumers to derive more utility from a wider range of products.
+
+
+%============================================================%
+\section{Counterfactuals}
+%============================================================%
+
+    \subsection{Counterfactual 1}
+
+    In my first idea, I want to evaluate the effects of a restriction on the strategic firm's ability to target based on competitors' purchase information. This could be motivated by a policy that restricts the use of data to consolidate market power. In this counterfactual, I will simulate the model under the assumption that strategic firm $f^*$ now maximizes like the non-strategic firms $\bar{f}$, and does not have access to consumer history or preferences. This will allow me to evaluate the effects of strategic advertising on consumer welfare and market outcomes, and to understand the implications of such a policy. Here, I expect to find less effective advertising, which will lead to lower consumer welfare as there will be less influence over consumption paths.
+
+    \subsection{Counterfactual 2}
+
+    Secondly, I am interested in pivoting to a more consumer welfare focused counterfactual, in which I evaluate the effects of product entry on consumer welfare under different levels of $\gamma$. This will allow me to understand how a love of variety affects consumer welfare in the face of new product entry, and to evaluate the potential benefits and drawbacks of a love of variety for consumers in dynamic markets. Specifically, I want to understand how consumer welfare is impacted by both perfect and obscured information about the distribution of $\gamma$ when introducting a new product. I expect to find that a love of variety can lead to higher consumer welfare in the face of new product entry, as it allows consumers to derive more utility from a wider range of products. However, if consumers do not know their own $\gamma$ or the distribution of $\gamma$ in the market, they may not be able to fully realize the benefits of a love of variety, which could lead to lower consumer welfare.
+
+
+%============================================================%
+\section{Conclusion}
+%============================================================%
+
+In closing, this paper develops a dynamic discrete choice model of consumer demand that incorporates a love of variety and strategic advertising by firms. The model is estimated using scanner data, and counterfactual analyses are conducted to evaluate the effects of different market structures on consumer welfare and market outcomes. The paper contributes to the literature on  advertising and consumer behavior, by providing empirical evidence on the effects of strategic advertising in a dynamic demand setting. The findings of this paper have important implications for policymakers and firms, as they highlight the potential benefits and drawbacks of targeted advertising in markets when accounting for consumers' preference for variety.
+
+%============================================================%
+\newpage
+
+\bibliography{lov_lit.bib}
+
+\end{document}

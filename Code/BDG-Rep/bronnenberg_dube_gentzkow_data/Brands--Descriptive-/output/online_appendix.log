@@ -1,0 +1,1789 @@
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  D:\SVN\trunk\analysis\Brands (Descriptive)\code\..\output\online_appendix.log
+  log type:  text
+ opened on:  21 Jun 2011, 06:38:07
+
+. set linesize 255
+
+. 
+. **********************************************************
+. * PRELIMINARIES
+. **********************************************************
+. version 11
+
+. clear all
+
+. set mem 500m
+
+Current memory allocation
+
+                    current                                 memory usage
+    settable          value     description                 (1M = 1024k)
+    --------------------------------------------------------------------
+    set maxvar         5000     max. variables allowed           1.947M
+    set memory          500M    max. data space                500.000M
+    set matsize         400     max. RHS vars in models          1.254M
+                                                            -----------
+                                                               503.201M
+
+. set matsize 5000
+
+Current memory allocation
+
+                    current                                 memory usage
+    settable          value     description                 (1M = 1024k)
+    --------------------------------------------------------------------
+    set maxvar         5000     max. variables allowed           1.947M
+    set memory          500M    max. data space                500.000M
+    set matsize        5000     max. RHS vars in models        191.154M
+                                                            -----------
+                                                               693.102M
+
+. set more off
+
+. set seed 04271975
+
+. set sortseed 04271975
+
+. adopath + ..\external
+  [1]  (UPDATES)   "C:\Program Files (x86)\Stata11\ado\updates/"
+  [2]  (BASE)      "C:\Program Files (x86)\Stata11\ado\base/"
+  [3]  (SITE)      "C:\Program Files (x86)\Stata11\ado\site/"
+  [4]              "."
+  [5]  (PERSONAL)  "c:\ado\personal/"
+  [6]  (PLUS)      "Z:\ado\plus/"
+  [7]  (OLDPLACE)  "c:\ado/"
+  [8]              "..\external"
+
+. 
+. cap erase ..\output\online_appendix_tables.txt
+
+. 
+. 
+. *****************************************************************
+. * Estimates for subsample of state-modules for which CCA data
+. * confirms past-present gap in shares was small (R2, point 8)
+. *****************************************************************
+. 
+. tempfile temp
+
+. insheet using ../external/rel_shares.csv
+(5 vars, 442 obs)
+
+. keep if ps_hs<. & ps_cca<.
+(117 observations deleted)
+
+. gen absdif = abs(ps_hs-ps_cca)
+
+. save `temp', replace
+(note: file C:\Windows\TEMP\ST_01000002.tmp not found)
+file C:\Windows\TEMP\ST_01000002.tmp saved
+
+. 
+. u ..\temp\purch_mig, clear
+
+. mmerge hhld_id using ..\temp\hh_mig, type(n:1) unm(master) ukeep(state_born state_curr years years_cat age_move age_move_cat)
+
+-------------------------------------------------------------------------------
+merge specs          |
+       matching type | n:1
+  mv's on match vars | none
+  unmatched obs from | master
+---------------------+---------------------------------------------------------
+  master        file | ..\temp\purch_mig.dta
+                 obs | 528972
+                vars |     16
+          match vars | hhld_id  (not a key)
+  -------------------+---------------------------------------------------------
+  using         file | ..\temp\hh_mig.dta
+                 obs |  10412
+                vars |      7  (selection via udrop/ukeep)
+          match vars | hhld_id  (key)
+---------------------+---------------------------------------------------------
+variable hhld_id does not uniquely identify observations in the master data
+result          file | ..\temp\purch_mig.dta
+                 obs | 528972
+                vars |     24  (including _merge)
+         ------------+---------------------------------------------------------
+              _merge | 528972  obs both in master and using data      (code==3)
+-------------------------------------------------------------------------------
+
+. 
+. * keep only state-modules that exist in CCA
+. mmerge state_born module using `temp', type(n:1) unm(none) umatch(state module) ukeep(absdif) urename(absdif absdif_born)
+
+-------------------------------------------------------------------------------
+merge specs          |
+       matching type | n:1
+  mv's on match vars | none
+  unmatched obs from | none
+---------------------+---------------------------------------------------------
+  master        file | ..\temp\purch_mig.dta
+                 obs | 528972
+                vars |     22
+          match vars | state_born module  (not a key)
+  -------------------+---------------------------------------------------------
+  using         file | C:\Windows\TEMP\ST_01000002.tmp
+                 obs |    325
+                vars |      3  (selection via udrop/ukeep)
+          match vars | state module  (key)
+---------------------+---------------------------------------------------------
+variables state_born module do not uniquely identify observations in the master data
+result          file | ..\temp\purch_mig.dta
+                 obs |  27507
+                vars |     25  (including _merge)
+         ------------+---------------------------------------------------------
+              _merge |  27507  obs both in master and using data      (code==3)
+-------------------------------------------------------------------------------
+
+. mmerge state_curr module using `temp', type(n:1) unm(none) umatch(state module) ukeep(absdif) urename(absdif absdif_curr)
+
+-------------------------------------------------------------------------------
+merge specs          |
+       matching type | n:1
+  mv's on match vars | none
+  unmatched obs from | none
+---------------------+---------------------------------------------------------
+  master        file | ..\temp\purch_mig.dta
+                 obs |  27507
+                vars |     23
+          match vars | state_curr module  (not a key)
+  -------------------+---------------------------------------------------------
+  using         file | C:\Windows\TEMP\ST_01000002.tmp
+                 obs |    325
+                vars |      3  (selection via udrop/ukeep)
+          match vars | state module  (key)
+---------------------+---------------------------------------------------------
+variables state_curr module do not uniquely identify observations in the master data
+result          file | ..\temp\purch_mig.dta
+                 obs |  11344
+                vars |     26  (including _merge)
+         ------------+---------------------------------------------------------
+              _merge |  11344  obs both in master and using data      (code==3)
+-------------------------------------------------------------------------------
+
+. gen decades = years/10
+
+. gen decades2 = decades^2
+
+. drop if betahat == . 
+(0 observations deleted)
+
+. 
+. reg betahatnd decades decades2 [aw=sqdifnd], cluster(module)
+(sum of wgt is   3.0772e+02)
+
+Linear regression                                      Number of obs =   11344
+                                                       F(  2,    23) =    5.72
+                                                       Prob > F      =  0.0096
+                                                       R-squared     =  0.0014
+                                                       Root MSE      =  2.5127
+
+                                (Std. Err. adjusted for 24 clusters in module)
+------------------------------------------------------------------------------
+             |               Robust
+   betahatnd |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+     decades |    .053072   .0570078     0.93   0.362    -.0648575    .1710015
+    decades2 |   .0001052   .0080878     0.01   0.990    -.0166258    .0168362
+       _cons |    .721291   .0983916     7.33   0.000     .5177524    .9248296
+------------------------------------------------------------------------------
+
+. test (_cons=.624) (decades=.098) (decades2=-.009)
+
+ ( 1)  _cons = .624
+ ( 2)  decades = .098
+ ( 3)  decades2 = -.009
+
+       F(  3,    23) =    3.79
+            Prob > F =    0.0241
+
+. 
+. reg betahatnd decades decades2 [aw=sqdifnd] if absdif_born<.2 & absdif_curr<.2, cluster(module)
+(sum of wgt is   6.4160e+01)
+
+Linear regression                                      Number of obs =    3519
+                                                       F(  2,    18) =    3.86
+                                                       Prob > F      =  0.0402
+                                                       R-squared     =  0.0009
+                                                       Root MSE      =  3.0095
+
+                                (Std. Err. adjusted for 19 clusters in module)
+------------------------------------------------------------------------------
+             |               Robust
+   betahatnd |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+     decades |   -.068856   .1046593    -0.66   0.519    -.2887371    .1510251
+    decades2 |   .0177735   .0135122     1.32   0.205    -.0106146    .0461617
+       _cons |   .8642127   .1840061     4.70   0.000     .4776303    1.250795
+------------------------------------------------------------------------------
+
+. test (_cons=.624) (decades=.098) (decades2=-.009)
+
+ ( 1)  _cons = .624
+ ( 2)  decades = .098
+ ( 3)  decades2 = -.009
+
+       F(  3,    18) =    3.46
+            Prob > F =    0.0383
+
+. 
+. reg betahatnd decades decades2 [aw=sqdifnd] if absdif_born<.1 & absdif_curr<.1, cluster(module)
+(sum of wgt is   1.3122e+01)
+
+Linear regression                                      Number of obs =     888
+                                                       F(  2,    13) =    1.02
+                                                       Prob > F      =  0.3862
+                                                       R-squared     =  0.0025
+                                                       Root MSE      =  3.3491
+
+                                (Std. Err. adjusted for 14 clusters in module)
+------------------------------------------------------------------------------
+             |               Robust
+   betahatnd |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+     decades |   .1056627   .1945851     0.54   0.596    -.3147129    .5260383
+    decades2 |  -.0009403    .022288    -0.04   0.967    -.0490906    .0472099
+       _cons |   .6236927   .4661792     1.34   0.204    -.3834262    1.630812
+------------------------------------------------------------------------------
+
+. test (_cons=.624) (decades=.098) (decades2=-.009) 
+
+ ( 1)  _cons = .624
+ ( 2)  decades = .098
+ ( 3)  decades2 = -.009
+
+       F(  3,    13) =    1.06
+            Prob > F =    0.4011
+
+. 
+. 
+. *****************************************************************
+. * Alternative years & ages figures with 
+. * non-parametric controls (R1, point 4)
+. *****************************************************************
+. 
+. u ..\temp\purch_mig, clear
+
+. mmerge hhld_id using ..\temp\hh_mig, type(n:1) unm(master) ukeep(years_cat age_move_cat age_move years age)
+
+-------------------------------------------------------------------------------
+merge specs          |
+       matching type | n:1
+  mv's on match vars | none
+  unmatched obs from | master
+---------------------+---------------------------------------------------------
+  master        file | ..\temp\purch_mig.dta
+                 obs | 528972
+                vars |     16
+          match vars | hhld_id  (not a key)
+  -------------------+---------------------------------------------------------
+  using         file | ..\temp\hh_mig.dta
+                 obs |  10412
+                vars |      6  (selection via udrop/ukeep)
+          match vars | hhld_id  (key)
+---------------------+---------------------------------------------------------
+variable hhld_id does not uniquely identify observations in the master data
+result          file | ..\temp\purch_mig.dta
+                 obs | 528972
+                vars |     23  (including _merge)
+         ------------+---------------------------------------------------------
+              _merge | 528972  obs both in master and using data      (code==3)
+-------------------------------------------------------------------------------
+
+. quietly tab years_cat, gen(zyears)
+
+. quietly tab age_move_cat, gen(zagemove)
+
+. 
+. reg betahatnd zyears1-zyears13 zagemove2-zagemove13 [aw=sqdifnd], cluster(module) nocons
+(sum of wgt is   1.4467e+04)
+
+Linear regression                                      Number of obs =  528689
+                                                       F( 25,   237) =  539.18
+                                                       Prob > F      =  0.0000
+                                                       R-squared     =  0.0940
+                                                       Root MSE      =  2.4978
+
+                               (Std. Err. adjusted for 238 clusters in module)
+------------------------------------------------------------------------------
+             |               Robust
+   betahatnd |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+     zyears1 |   .6872417   .0266286    25.81   0.000     .6347827    .7397008
+     zyears2 |   .7697226   .0241189    31.91   0.000     .7222078    .8172373
+     zyears3 |   .8144766   .0238644    34.13   0.000     .7674631      .86149
+     zyears4 |   .8199376   .0244713    33.51   0.000     .7717286    .8681467
+     zyears5 |   .8301914   .0207573    40.00   0.000     .7892991    .8710837
+     zyears6 |   .8543271   .0192883    44.29   0.000     .8163287    .8923256
+     zyears7 |   .8733531   .0189702    46.04   0.000     .8359813    .9107248
+     zyears8 |   .8765146   .0174569    50.21   0.000     .8421241    .9109051
+     zyears9 |   .8800104   .0175804    50.06   0.000     .8453767    .9146441
+    zyears10 |    .894309   .0164164    54.48   0.000     .8619683    .9266498
+    zyears11 |   .8908036   .0188309    47.31   0.000     .8537064    .9279009
+    zyears12 |   .8576709   .0242985    35.30   0.000     .8098023    .9055395
+    zyears13 |   .9366673   .0173926    53.85   0.000     .9024034    .9709311
+   zagemove2 |   .0267769   .0138293     1.94   0.054    -.0004672     .054021
+   zagemove3 |  -.0242666   .0163017    -1.49   0.138    -.0563813    .0078481
+   zagemove4 |   .0036386   .0143241     0.25   0.800    -.0245802    .0318574
+   zagemove5 |   -.028068   .0157806    -1.78   0.077    -.0591562    .0030202
+   zagemove6 |   -.041404   .0185428    -2.23   0.026    -.0779337   -.0048743
+   zagemove7 |  -.0690224   .0206233    -3.35   0.001    -.1096509    -.028394
+   zagemove8 |  -.0980655   .0265513    -3.69   0.000    -.1503722   -.0457588
+   zagemove9 |  -.0523641   .0238758    -2.19   0.029    -.0993999   -.0053283
+  zagemove10 |  -.0438619   .0295989    -1.48   0.140    -.1021726    .0144487
+  zagemove11 |  -.1334161   .0313382    -4.26   0.000    -.1951531   -.0716791
+  zagemove12 |  -.1087488    .038911    -2.79   0.006    -.1854044   -.0320931
+  zagemove13 |  -.0949145   .0417363    -2.27   0.024    -.1771361    -.012693
+------------------------------------------------------------------------------
+
+. 
+. local xlab "0-4 5-9 10-14 15-19 20-24 25-29 30-34 35-39 40-44 45-49 50-54 55-59 60+" 
+
+. local options "ylabel(0(.1)1) yline(0 1, lpattern(dash)) yscale(range(-.1 1.1)) ytitle(Relative Share ({&beta} {subscript:ij})) xtitle(Years Since Move) label(`xlab')"
+
+. plotcoeffs zyears1-zyears13, `options'
+
+. graph export ..\output\reply\years_none_alt.eps, as(eps) replace
+(note: file ..\output\reply\years_none_alt.eps not found)
+(file ..\output\reply\years_none_alt.eps written in EPS format)
+
+. 
+. local xlab "5-9 10-14 15-19 20-24 25-29 30-34 35-39 40-44 45-49 50-54 55-59 60+" 
+
+. local options "ylabel(-0.5(.1)0.5) yscale(range(-.6 .6)) ytitle(Relative Share ({&beta} {subscript:ij})) xtitle(Age at Move) label(`xlab')"
+
+. plotcoeffs zagemove2-zagemove13 , `options'
+
+. graph export ..\output\reply\agemove_none_alt.eps, as(eps) replace
+(note: file ..\output\reply\agemove_none_alt.eps not found)
+(file ..\output\reply\agemove_none_alt.eps written in EPS format)
+
+. 
+. *****************************************************************
+. * SAMPLE SPLITS
+. *  - Demographics (R1, point 7)
+. *  - Difference between origin & destination state (R1, point 11)
+. *  - Impact of secondary household member (R2, point 1)
+. *****************************************************************
+. 
+. * Save HH characteristics
+. u ..\external\survey.dta, clear
+
+. 
+. * define_secondary_is_migrant {
+.     egen numinhh = total(1), by(hhld_id)
+
+.     keep if numinhh<=2
+(13870 observations deleted)
+
+.     egen nummig = total(state_born~=state_curr), by(hhld_id)
+
+.     egen primmig = total(keeper & state_born~=state_curr), by(hhld_id)
+
+.     gen secmig = nummig-primmig>0
+
+.     egen born_curr_code = group(state_born state_curr)
+(3187 missing values generated)
+
+.     qui unique born_curr_code, by(hhld_id) gen(temp)
+
+.     egen num_born_curr_code = max(temp), by(hhld_id)
+
+.     
+.     gen secondary_is_migrant = 0 if numinhh==2 & primmig==1 & secmig==0
+(60619 missing values generated)
+
+.     replace secondary_is_migrant = 1 if nummig==2 & num_born_curr_code==1
+(4666 real changes made)
+
+.     local secondary_is_migrant_lab0 "Secondary HH member is non-migrant"
+
+.     local secondary_is_migrant_lab1 "Secondary HH member is migrant"
+
+. * }
+. 
+. gen education_college_plus = educ>=6 if keeper
+(22853 missing values generated)
+
+. local education_college_plus_lab0 "Primary HH member less than college degree"
+
+. local education_college_plus_lab1 "Primary HH member college degree or more"
+
+. 
+. gen income_over_median = inc>55000 if keeper
+(22853 missing values generated)
+
+. local income_over_median_lab0 "HH income $55,000 or below"
+
+. local income_over_median_lab1 "HH income over $55,000"
+
+. 
+. local male_lab0 "Primary HH member is female"
+
+. local male_lab1 "Primary HH member is male"
+
+. 
+. local survey_chars "secondary_is_migrant education_college_plus income_over_median male"
+
+. 
+. keep if keeper
+(22853 observations deleted)
+
+. keep hhld_id `survey_chars'
+
+. tempfile temp_hh
+
+. save `temp_hh', replace
+(note: file C:\Windows\TEMP\ST_0100000h.tmp not found)
+file C:\Windows\TEMP\ST_0100000h.tmp saved
+
+. 
+. * Save module characteristics
+. use ..\temp\stddev, clear
+
+. sum sdstateshare, det
+
+                       (sd) stateshare
+-------------------------------------------------------------
+      Percentiles      Smallest
+ 1%     .0424506       .0201503
+ 5%     .0594716       .0378876
+10%     .0683202       .0424506       Obs                 238
+25%     .0897682       .0492132       Sum of Wgt.         238
+
+50%     .1333176                      Mean           .1477199
+                        Largest       Std. Dev.      .0738219
+75%     .1813601       .3622617
+90%     .2594042       .3635865       Variance       .0054497
+95%     .3118978       .3713808       Skewness       1.065533
+99%     .3635865       .3809043       Kurtosis       3.850339
+
+. gen sdstateshare_over_median = sdstateshare>r(p50)
+
+. local sdstateshare_over_median_lab0 "Cross-state variation below median"
+
+. local sdstateshare_over_median_lab1 "Cross-state variation above median"
+
+. 
+. tempfile temp_mod
+
+. save `temp_mod', replace
+(note: file C:\Windows\TEMP\ST_0100000i.tmp not found)
+file C:\Windows\TEMP\ST_0100000i.tmp saved
+
+. 
+. * Save HH-module characteristics
+. use ..\temp\purch_mig, clear
+
+. sum sqdifnd, det
+
+                           sqdifnd
+-------------------------------------------------------------
+      Percentiles      Smallest
+ 1%     1.04e-06       1.00e-10
+ 5%     .0000352       1.00e-10
+10%     .0001525       1.00e-10       Obs              528689
+25%     .0011029       1.00e-10       Sum of Wgt.      528689
+
+50%     .0056085                      Mean           .0273642
+                        Largest       Std. Dev.       .070464
+75%     .0209931              1
+90%     .0652343              1       Variance       .0049652
+95%     .1246372              1       Skewness       5.929155
+99%      .371149              1       Kurtosis       49.46557
+
+. gen sqdif_over_median = sqdifnd>r(p50)
+
+. local sqdif_over_median_lab0 "Difference below median"
+
+. local sqdif_over_median_lab1 "Difference above median"
+
+. 
+. tempfile temp_hhmod
+
+. save `temp_hhmod', replace
+(note: file C:\Windows\TEMP\ST_0100000j.tmp not found)
+file C:\Windows\TEMP\ST_0100000j.tmp saved
+
+. 
+. * Analysis
+. u ..\temp\purch_mig, clear
+
+. mmerge hhld_id using ..\temp\hh_mig, type(n:1) unm(master) ukeep(years_cat age_move_cat age_move years age)
+
+-------------------------------------------------------------------------------
+merge specs          |
+       matching type | n:1
+  mv's on match vars | none
+  unmatched obs from | master
+---------------------+---------------------------------------------------------
+  master        file | ..\temp\purch_mig.dta
+                 obs | 528972
+                vars |     16
+          match vars | hhld_id  (not a key)
+  -------------------+---------------------------------------------------------
+  using         file | ..\temp\hh_mig.dta
+                 obs |  10412
+                vars |      6  (selection via udrop/ukeep)
+          match vars | hhld_id  (key)
+---------------------+---------------------------------------------------------
+variable hhld_id does not uniquely identify observations in the master data
+result          file | ..\temp\purch_mig.dta
+                 obs | 528972
+                vars |     23  (including _merge)
+         ------------+---------------------------------------------------------
+              _merge | 528972  obs both in master and using data      (code==3)
+-------------------------------------------------------------------------------
+
+. mmerge hhld_id using `temp_hh', type(n:1) unm(master) ukeep(`survey_chars')
+
+-------------------------------------------------------------------------------
+merge specs          |
+       matching type | n:1
+  mv's on match vars | none
+  unmatched obs from | master
+---------------------+---------------------------------------------------------
+  master        file | ..\temp\purch_mig.dta
+                 obs | 528972
+                vars |     21
+          match vars | hhld_id  (not a key)
+  -------------------+---------------------------------------------------------
+  using         file | C:\Windows\TEMP\ST_0100000h.tmp
+                 obs |  43354
+                vars |      5  (selection via udrop/ukeep)
+          match vars | hhld_id  (key)
+---------------------+---------------------------------------------------------
+variable hhld_id does not uniquely identify observations in the master data
+result          file | ..\temp\purch_mig.dta
+                 obs | 528972
+                vars |     27  (including _merge)
+         ------------+---------------------------------------------------------
+              _merge |  51116  obs only in master data                (code==1)
+                     | 477856  obs both in master and using data      (code==3)
+-------------------------------------------------------------------------------
+
+. mmerge hhld_id module using `temp_hhmod', type(n:1) unm(master) ukeep(sqdif_over_median)
+
+-------------------------------------------------------------------------------
+merge specs          |
+       matching type | n:1
+  mv's on match vars | none
+  unmatched obs from | master
+---------------------+---------------------------------------------------------
+  master        file | ..\temp\purch_mig.dta
+                 obs | 528972
+                vars |     25
+          match vars | hhld_id module  (key)
+  -------------------+---------------------------------------------------------
+  using         file | C:\Windows\TEMP\ST_0100000j.tmp
+                 obs | 528972
+                vars |      3  (selection via udrop/ukeep)
+          match vars | hhld_id module  (key)
+---------------------+---------------------------------------------------------
+result          file | ..\temp\purch_mig.dta
+                 obs | 528972
+                vars |     28  (including _merge)
+         ------------+---------------------------------------------------------
+              _merge | 528972  obs both in master and using data      (code==3)
+-------------------------------------------------------------------------------
+
+. mmerge module using `temp_mod', type(n:1) unm(master) ukeep(sdstateshare_over_median)
+
+-------------------------------------------------------------------------------
+merge specs          |
+       matching type | n:1
+  mv's on match vars | none
+  unmatched obs from | master
+---------------------+---------------------------------------------------------
+  master        file | ..\temp\purch_mig.dta
+                 obs | 528972
+                vars |     26
+          match vars | module  (not a key)
+  -------------------+---------------------------------------------------------
+  using         file | C:\Windows\TEMP\ST_0100000i.tmp
+                 obs |    238
+                vars |      2  (selection via udrop/ukeep)
+          match vars | module  (key)
+---------------------+---------------------------------------------------------
+variable module does not uniquely identify observations in the master data
+result          file | ..\temp\purch_mig.dta
+                 obs | 528972
+                vars |     29  (including _merge)
+         ------------+---------------------------------------------------------
+              _merge | 528972  obs both in master and using data      (code==3)
+-------------------------------------------------------------------------------
+
+. 
+. gen years_bin = 1 if years<=15
+(366823 missing values generated)
+
+. replace years_bin = 2 if years>15 & years<=30
+(144199 real changes made)
+
+. replace years_bin = 3 if years>30 & years<=45
+(134080 real changes made)
+
+. replace years_bin = 4 if years>45
+(88544 real changes made)
+
+. 
+. local options "ylabel(0(.1)1) yline(0 1, lpattern(dash)) yscale(range(-.1 1.1)) ytitle(Relative Share ({&beta} {subscript:ij})) xtitle(Years Since Move)"
+
+.     
+. foreach VAR in `survey_chars' sqdif_over_median sdstateshare_over_median {
+  2. 
+.     preserve    
+  3.     drop if `VAR'==.
+  4.     
+.     * Table
+.     foreach BIN of numlist 1/4 {
+  5.         qui reg betahatnd ibn.`VAR' [w=sqdifnd] if years_bin==`BIN', nocons
+  6.         test 0.`VAR' = 1.`VAR'
+  7.         matrix TABLE = (nullmat(TABLE) \ ((_b[0.`VAR'] \ _se[0.`VAR']) , (_b[1.`VAR'] \ _se[1.`VAR']) , (r(p) \ . )))
+  8.     }
+  9.     matrix_to_txt, saving(..\output\online_appendix_tables.txt) mat(TABLE) format(%20.6f) title(<tab:`VAR'>) append
+ 10.     cap matrix drop TABLE
+ 11.         
+.     * Figure
+.     collapse (mean) betahatnd [w=sqdifnd], by(years_cat `VAR')
+ 12.     twoway scatter betahatnd years_cat if `VAR'==0, msize(small) || /// 
+>        scatter betahatnd years_cat if `VAR'==1, msize(small) `options' ///
+>        legend(label(1 "``VAR'_lab0'") ///
+>        label(2 "``VAR'_lab1'") cols(1)) ///
+>            xlabel(0 "0-4" 5 "5-9" 10 "10-14" 15 "15-19" 20 "20-24" 25 "25-29" 30 "30-34" 35 "35-39" 40 "40-44" 45 "45-49" 50 "50-54" 55 "55-59" 60 "60+", angle(90))
+ 13.            graph export ..\output\figures\\`VAR'.eps, as(eps) replace
+ 14.     
+.     restore
+ 15. }
+(364199 observations deleted)
+
+ ( 1)  0bn.secondary_is_migrant - 1.secondary_is_migrant = 0
+
+       F(  1, 51934) =   19.61
+            Prob > F =    0.0000
+
+ ( 1)  0bn.secondary_is_migrant - 1.secondary_is_migrant = 0
+
+       F(  1, 45585) =   23.82
+            Prob > F =    0.0000
+
+ ( 1)  0bn.secondary_is_migrant - 1.secondary_is_migrant = 0
+
+       F(  1, 40169) =    5.16
+            Prob > F =    0.0231
+
+ ( 1)  0bn.secondary_is_migrant - 1.secondary_is_migrant = 0
+
+       F(  1, 26995) =    0.01
+            Prob > F =    0.9037
+(note: file ..\output\online_appendix_tables.txt not found)
+(analytic weights assumed)
+(note: file ..\output\figures\secondary_is_migrant.eps not found)
+(file ..\output\figures\secondary_is_migrant.eps written in EPS format)
+(51116 observations deleted)
+
+ ( 1)  0bn.education_college_plus - 1.education_college_plus = 0
+
+       F(  1,149773) =    2.75
+            Prob > F =    0.0970
+
+ ( 1)  0bn.education_college_plus - 1.education_college_plus = 0
+
+       F(  1,129097) =    0.74
+            Prob > F =    0.3902
+
+ ( 1)  0bn.education_college_plus - 1.education_college_plus = 0
+
+       F(  1,119734) =    0.68
+            Prob > F =    0.4098
+
+ ( 1)  0bn.education_college_plus - 1.education_college_plus = 0
+
+       F(  1, 78985) =    0.24
+            Prob > F =    0.6275
+(analytic weights assumed)
+(note: file ..\output\figures\education_college_plus.eps not found)
+(file ..\output\figures\education_college_plus.eps written in EPS format)
+(51116 observations deleted)
+
+ ( 1)  0bn.income_over_median - 1.income_over_median = 0
+
+       F(  1,149773) =    2.71
+            Prob > F =    0.0994
+
+ ( 1)  0bn.income_over_median - 1.income_over_median = 0
+
+       F(  1,129097) =    9.18
+            Prob > F =    0.0025
+
+ ( 1)  0bn.income_over_median - 1.income_over_median = 0
+
+       F(  1,119734) =    5.05
+            Prob > F =    0.0246
+
+ ( 1)  0bn.income_over_median - 1.income_over_median = 0
+
+       F(  1, 78985) =    2.16
+            Prob > F =    0.1421
+(analytic weights assumed)
+(note: file ..\output\figures\income_over_median.eps not found)
+(file ..\output\figures\income_over_median.eps written in EPS format)
+(51116 observations deleted)
+
+ ( 1)  0bn.male - 1.male = 0
+
+       F(  1,149773) =    0.38
+            Prob > F =    0.5353
+
+ ( 1)  0bn.male - 1.male = 0
+
+       F(  1,129097) =    0.07
+            Prob > F =    0.7864
+
+ ( 1)  0bn.male - 1.male = 0
+
+       F(  1,119734) =    0.17
+            Prob > F =    0.6764
+
+ ( 1)  0bn.male - 1.male = 0
+
+       F(  1, 78985) =    0.64
+            Prob > F =    0.4233
+(analytic weights assumed)
+(note: file ..\output\figures\male.eps not found)
+(file ..\output\figures\male.eps written in EPS format)
+(0 observations deleted)
+
+ ( 1)  0bn.sqdif_over_median - 1.sqdif_over_median = 0
+
+       F(  1,162057) =    5.14
+            Prob > F =    0.0234
+
+ ( 1)  0bn.sqdif_over_median - 1.sqdif_over_median = 0
+
+       F(  1,144114) =    8.67
+            Prob > F =    0.0032
+
+ ( 1)  0bn.sqdif_over_median - 1.sqdif_over_median = 0
+
+       F(  1,134015) =    9.46
+            Prob > F =    0.0021
+
+ ( 1)  0bn.sqdif_over_median - 1.sqdif_over_median = 0
+
+       F(  1, 88495) =    4.61
+            Prob > F =    0.0318
+(analytic weights assumed)
+(note: file ..\output\figures\sqdif_over_median.eps not found)
+(file ..\output\figures\sqdif_over_median.eps written in EPS format)
+(0 observations deleted)
+
+ ( 1)  0bn.sdstateshare_over_median - 1.sdstateshare_over_median = 0
+
+       F(  1,162057) =  111.51
+            Prob > F =    0.0000
+
+ ( 1)  0bn.sdstateshare_over_median - 1.sdstateshare_over_median = 0
+
+       F(  1,144114) =   56.19
+            Prob > F =    0.0000
+
+ ( 1)  0bn.sdstateshare_over_median - 1.sdstateshare_over_median = 0
+
+       F(  1,134015) =   48.69
+            Prob > F =    0.0000
+
+ ( 1)  0bn.sdstateshare_over_median - 1.sdstateshare_over_median = 0
+
+       F(  1, 88495) =   11.23
+            Prob > F =    0.0008
+(analytic weights assumed)
+(note: file ..\output\figures\sdstateshare_over_median.eps not found)
+(file ..\output\figures\sdstateshare_over_median.eps written in EPS format)
+
+. 
+. 
+. *****************************************************************
+. * Placebo version of Table 4 (R2, point 7)
+. *****************************************************************
+. cap program drop addtotable_bp
+
+. program addtotable_bp
+  1.         local r2 = e(r2)
+  2.         local N = e(N)
+  3.         local prs = e(N_clust)
+  4.         nlcom (par1: _b[years_treated]) (par2: _b[treat_in_b]) (par3: _b[years_untreated]) (par4: _b[not_treat_in_b]), post
+  5.         matrix TABLE = (nullmat(TABLE) , (_b[par1] \ _se[par1] \ _b[par2] \ _se[par2] \ _b[par3] \ _se[par3] \ _b[par4] \ _se[par4] \ `prs' \ `N'))
+  6. end
+
+. 
+. * generate random version of yearlaunch
+. u ..\temp\purch_mig_bp, clear
+
+. keep pairid launch_year1 launch_year2
+
+. duplicates drop
+
+Duplicates in terms of all variables
+
+(86826 observations deleted)
+
+. gen yearlaunch = min(launch_year1, launch_year2)
+
+. gen urv = runiform()
+
+. qui sum yearlaunch
+
+. gen yearlaunch_rand = floor(r(min) + urv*(r(max) - r(min)))
+
+. tempfile temp_rand
+
+. save `temp_rand', replace
+(note: file C:\Windows\TEMP\ST_01000016.tmp not found)
+file C:\Windows\TEMP\ST_01000016.tmp saved
+
+. 
+. u ..\temp\purch_mig_bp, clear
+
+. mmerge hhld_id using ..\temp\hh_mig, type(n:1) unm(master) ukeep(years)
+
+-------------------------------------------------------------------------------
+merge specs          |
+       matching type | n:1
+  mv's on match vars | none
+  unmatched obs from | master
+---------------------+---------------------------------------------------------
+  master        file | ..\temp\purch_mig_bp.dta
+                 obs |  86879
+                vars |     21
+          match vars | hhld_id  (not a key)
+  -------------------+---------------------------------------------------------
+  using         file | ..\temp\hh_mig.dta
+                 obs |  10412
+                vars |      2  (selection via udrop/ukeep)
+          match vars | hhld_id  (key)
+---------------------+---------------------------------------------------------
+variable hhld_id does not uniquely identify observations in the master data
+result          file | ..\temp\purch_mig_bp.dta
+                 obs |  86879
+                vars |     24  (including _merge)
+         ------------+---------------------------------------------------------
+              _merge |  86879  obs both in master and using data      (code==3)
+-------------------------------------------------------------------------------
+
+. mmerge pairid using `temp_rand', type(n:1) unm(master) ukeep(yearlaunch_rand)
+
+-------------------------------------------------------------------------------
+merge specs          |
+       matching type | n:1
+  mv's on match vars | none
+  unmatched obs from | master
+---------------------+---------------------------------------------------------
+  master        file | ..\temp\purch_mig_bp.dta
+                 obs |  86879
+                vars |     22
+          match vars | pairid  (not a key)
+  -------------------+---------------------------------------------------------
+  using         file | C:\Windows\TEMP\ST_01000016.tmp
+                 obs |     53
+                vars |      2  (selection via udrop/ukeep)
+          match vars | pairid  (key)
+---------------------+---------------------------------------------------------
+variable pairid does not uniquely identify observations in the master data
+result          file | ..\temp\purch_mig_bp.dta
+                 obs |  86879
+                vars |     25  (including _merge)
+         ------------+---------------------------------------------------------
+              _merge |  86879  obs both in master and using data      (code==3)
+-------------------------------------------------------------------------------
+
+. 
+. * generate bunch of variables plus weights
+. gen yearumbrella = min(umbrella_year1, umbrella_year2)  
+
+. gen years_since_launch = 2007-yearlaunch_rand
+
+. gen years_b = years_since_launch - years
+
+. gen treat_in_b = years_b>0
+
+. gen not_treat_in_b = 1-treat_in_b
+
+. gen years_untreated = not_treat_in_b*years 
+
+. gen years_treated = treat_in_b*years 
+
+. gen w1 = totpurch*sqdif/(pairshare*(1-pairshare))
+(163 missing values generated)
+
+. gen w1nd = totpurch*sqdifnd/(pairshare*(1-pairshare))
+(163 missing values generated)
+
+. 
+. * data screen drop if betahat == .
+. drop if betahat == . 
+(74 observations deleted)
+
+. 
+. * all pairs (yearlaunch_rand>=1955)
+. reg betahatnd treat_in_b years_treated not_treat_in_b years_untreated [aw=sqdifnd] , cluster(pairid) nocons
+(sum of wgt is   2.4278e+03)
+
+Linear regression                                      Number of obs =   86805
+                                                       F(  4,    51) =  663.76
+                                                       Prob > F      =  0.0000
+                                                       R-squared     =  0.1116
+                                                       Root MSE      =  2.3256
+
+                                (Std. Err. adjusted for 52 clusters in pairid)
+------------------------------------------------------------------------------
+             |               Robust
+   betahatnd |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+  treat_in_b |   .6704649    .052574    12.75   0.000     .5649183    .7760115
+years_trea~d |   .0067566    .001057     6.39   0.000     .0046345    .0088787
+not_treat_~b |   .7510047   .0607996    12.35   0.000     .6289445    .8730649
+years_untr~d |   .0028504   .0012702     2.24   0.029     .0003004    .0054004
+------------------------------------------------------------------------------
+
+. addtotable_bp
+
+        par1:  _b[years_treated]
+        par2:  _b[treat_in_b]
+        par3:  _b[years_untreated]
+        par4:  _b[not_treat_in_b]
+
+------------------------------------------------------------------------------
+   betahatnd |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+        par1 |   .0067566    .001057     6.39   0.000     .0046345    .0088787
+        par2 |   .6704649    .052574    12.75   0.000     .5649183    .7760115
+        par3 |   .0028504   .0012702     2.24   0.029     .0003004    .0054004
+        par4 |   .7510047   .0607996    12.35   0.000     .6289445    .8730649
+------------------------------------------------------------------------------
+
+. 
+. * post-1975
+. reg betahatnd treat_in_b years_treated not_treat_in_b years_untreated [aw=sqdifnd] if yearlaunch_rand>=1975, cluster(pairid) nocons
+(sum of wgt is   9.2542e+02)
+
+Linear regression                                      Number of obs =   41695
+                                                       F(  4,    24) =  775.67
+                                                       Prob > F      =  0.0000
+                                                       R-squared     =  0.0817
+                                                       Root MSE      =  2.6181
+
+                                (Std. Err. adjusted for 25 clusters in pairid)
+------------------------------------------------------------------------------
+             |               Robust
+   betahatnd |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+  treat_in_b |   .5873232   .0550704    10.66   0.000     .4736635    .7009829
+years_trea~d |   .0091686   .0020106     4.56   0.000      .005019    .0133182
+not_treat_~b |   .7119667    .068498    10.39   0.000     .5705937    .8533398
+years_untr~d |   .0033759   .0014948     2.26   0.033     .0002909    .0064609
+------------------------------------------------------------------------------
+
+. addtotable_bp
+
+        par1:  _b[years_treated]
+        par2:  _b[treat_in_b]
+        par3:  _b[years_untreated]
+        par4:  _b[not_treat_in_b]
+
+------------------------------------------------------------------------------
+   betahatnd |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+        par1 |   .0091686   .0020106     4.56   0.000      .005019    .0133182
+        par2 |   .5873232   .0550704    10.66   0.000     .4736635    .7009829
+        par3 |   .0033759   .0014948     2.26   0.033     .0002909    .0064609
+        par4 |   .7119667    .068498    10.39   0.000     .5705937    .8533398
+------------------------------------------------------------------------------
+
+. 
+. * post-1985
+. reg betahatnd treat_in_b years_treated not_treat_in_b years_untreated [aw=sqdifnd] if yearlaunch_rand>=1985, cluster(pairid) nocons
+(sum of wgt is   3.2155e+02)
+
+Linear regression                                      Number of obs =   20143
+                                                       F(  4,    12) =  139.22
+                                                       Prob > F      =  0.0000
+                                                       R-squared     =  0.0553
+                                                       Root MSE      =  3.0957
+
+                                (Std. Err. adjusted for 13 clusters in pairid)
+------------------------------------------------------------------------------
+             |               Robust
+   betahatnd |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+  treat_in_b |   .5357945   .0623545     8.59   0.000     .3999356    .6716534
+years_trea~d |   .0134355   .0064402     2.09   0.059    -.0005965    .0274675
+not_treat_~b |   .5745624   .0817539     7.03   0.000      .396436    .7526887
+years_untr~d |   .0060228   .0017117     3.52   0.004     .0022933    .0097524
+------------------------------------------------------------------------------
+
+. addtotable_bp
+
+        par1:  _b[years_treated]
+        par2:  _b[treat_in_b]
+        par3:  _b[years_untreated]
+        par4:  _b[not_treat_in_b]
+
+------------------------------------------------------------------------------
+   betahatnd |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+        par1 |   .0134355   .0064402     2.09   0.059    -.0005965    .0274675
+        par2 |   .5357945   .0623545     8.59   0.000     .3999356    .6716534
+        par3 |   .0060228   .0017117     3.52   0.004     .0022933    .0097524
+        par4 |   .5745624   .0817539     7.03   0.000      .396436    .7526887
+------------------------------------------------------------------------------
+
+. 
+. matrix_to_txt, saving(..\output\online_appendix_tables.txt) mat(TABLE) format(%20.6f) title(<tab:Years_bp_placebo>) append
+
+. 
+. *****************************************************************
+. * FGLS VERSION OF DESCRIPTIVE MODEL (<Tab:Years>)
+. *****************************************************************
+. u ..\temp\purch_mig, clear
+
+. mmerge hhld_id using ..\temp\hh_mig, type(n:1) unm(master) ukeep(years years_cat age_move age_move_cat)
+
+-------------------------------------------------------------------------------
+merge specs          |
+       matching type | n:1
+  mv's on match vars | none
+  unmatched obs from | master
+---------------------+---------------------------------------------------------
+  master        file | ..\temp\purch_mig.dta
+                 obs | 528972
+                vars |     16
+          match vars | hhld_id  (not a key)
+  -------------------+---------------------------------------------------------
+  using         file | ..\temp\hh_mig.dta
+                 obs |  10412
+                vars |      5  (selection via udrop/ukeep)
+          match vars | hhld_id  (key)
+---------------------+---------------------------------------------------------
+variable hhld_id does not uniquely identify observations in the master data
+result          file | ..\temp\purch_mig.dta
+                 obs | 528972
+                vars |     22  (including _merge)
+         ------------+---------------------------------------------------------
+              _merge | 528972  obs both in master and using data      (code==3)
+-------------------------------------------------------------------------------
+
+. cap matrix drop TABLE
+
+. gen decades = years/10
+
+. gen decades2 = decades^2
+
+. egen avgshare = mean(share), by(module)
+
+. gen sampling_variance = avgshare*(1-avgshare)/totpurch
+
+. drop if betahat == . 
+(351 observations deleted)
+
+. gen age_move_10 = age_move/10
+
+. 
+. * decades only
+. reg betahatnd decades decades2 [aw=sqdifnd], cluster(module)
+(sum of wgt is   1.4467e+04)
+
+Linear regression                                      Number of obs =  528621
+                                                       F(  2,   237) =   69.11
+                                                       Prob > F      =  0.0000
+                                                       R-squared     =  0.0011
+                                                       Root MSE      =  2.4978
+
+                               (Std. Err. adjusted for 238 clusters in module)
+------------------------------------------------------------------------------
+             |               Robust
+   betahatnd |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+     decades |   .0979076    .008868    11.04   0.000     .0804374    .1153778
+    decades2 |  -.0086005   .0011543    -7.45   0.000    -.0108745   -.0063265
+       _cons |   .6239428   .0285451    21.86   0.000     .5677083    .6801774
+------------------------------------------------------------------------------
+
+. predict e, resid
+
+. gen e2 = e^2
+
+. reg e2 sampling_variance
+
+      Source |       SS       df       MS              Number of obs =  528621
+-------------+------------------------------           F(  1,528619) =    4.68
+       Model |  2.1720e+15     1  2.1720e+15           Prob > F      =  0.0305
+    Residual |  2.4520e+20528619  4.6386e+14           R-squared     =  0.0000
+-------------+------------------------------           Adj R-squared =  0.0000
+       Total |  2.4521e+20528620  4.6386e+14           Root MSE      =  2.2e+07
+
+------------------------------------------------------------------------------
+          e2 |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+sampling_v~e |   740300.9   342112.8     2.16   0.030     69770.61     1410831
+       _cons |   215350.7   52163.39     4.13   0.000     113112.1    317589.3
+------------------------------------------------------------------------------
+
+. predict e2hat
+(option xb assumed; fitted values)
+
+. reg betahatnd decades decades2 [aw=sqdifnd/e2hat], cluster(module)
+(sum of wgt is   4.8230e-02)
+
+Linear regression                                      Number of obs =  528621
+                                                       F(  2,   237) =   68.25
+                                                       Prob > F      =  0.0000
+                                                       R-squared     =  0.0013
+                                                       Root MSE      =  2.4556
+
+                               (Std. Err. adjusted for 238 clusters in module)
+------------------------------------------------------------------------------
+             |               Robust
+   betahatnd |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+     decades |   .1011071   .0090581    11.16   0.000     .0832625    .1189516
+    decades2 |  -.0088706   .0011454    -7.74   0.000    -.0111271   -.0066141
+       _cons |   .6226203   .0303015    20.55   0.000     .5629256     .682315
+------------------------------------------------------------------------------
+
+. local N = e(N)
+
+. local mod = e(N_clust)
+
+. matrix TABLE = (nullmat(TABLE) , (_b[decades] \ _se[decades] \ _b[decades2] \ _se[decades2] \ . \ . \ _b[_cons] \ _se[_cons] \ `mod' \ `N'))
+
+. drop e e2 e2hat
+
+. 
+. * decades & age move
+. reg betahatnd decades decades2 age_move_10 [aw=sqdifnd], cluster(module)
+(sum of wgt is   1.4467e+04)
+
+Linear regression                                      Number of obs =  528621
+                                                       F(  3,   237) =   46.26
+                                                       Prob > F      =  0.0000
+                                                       R-squared     =  0.0012
+                                                       Root MSE      =  2.4977
+
+                               (Std. Err. adjusted for 238 clusters in module)
+------------------------------------------------------------------------------
+             |               Robust
+   betahatnd |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+     decades |   .0792485   .0092838     8.54   0.000     .0609593    .0975378
+    decades2 |  -.0075107   .0011952    -6.28   0.000    -.0098653   -.0051562
+ age_move_10 |  -.0181193   .0054543    -3.32   0.001    -.0288643   -.0073743
+       _cons |   .7053444   .0260929    27.03   0.000     .6539407    .7567481
+------------------------------------------------------------------------------
+
+. predict e, resid
+
+. gen e2 = e^2
+
+. reg e2 sampling_variance
+
+      Source |       SS       df       MS              Number of obs =  528621
+-------------+------------------------------           F(  1,528619) =    4.68
+       Model |  2.1720e+15     1  2.1720e+15           Prob > F      =  0.0305
+    Residual |  2.4520e+20528619  4.6386e+14           R-squared     =  0.0000
+-------------+------------------------------           Adj R-squared =  0.0000
+       Total |  2.4521e+20528620  4.6386e+14           Root MSE      =  2.2e+07
+
+------------------------------------------------------------------------------
+          e2 |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+sampling_v~e |   740301.2   342112.7     2.16   0.030     69771.05     1410831
+       _cons |   215350.6   52163.38     4.13   0.000       113112    317589.2
+------------------------------------------------------------------------------
+
+. predict e2hat
+(option xb assumed; fitted values)
+
+. reg betahatnd decades decades2 age_move_10 [aw=sqdifnd/e2hat], cluster(module)
+(sum of wgt is   4.8230e-02)
+
+Linear regression                                      Number of obs =  528621
+                                                       F(  3,   237) =   45.76
+                                                       Prob > F      =  0.0000
+                                                       R-squared     =  0.0013
+                                                       Root MSE      =  2.4555
+
+                               (Std. Err. adjusted for 238 clusters in module)
+------------------------------------------------------------------------------
+             |               Robust
+   betahatnd |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+     decades |   .0814833    .009474     8.60   0.000     .0628193    .1001473
+    decades2 |  -.0077234   .0011957    -6.46   0.000    -.0100789   -.0053678
+ age_move_10 |  -.0190012   .0056273    -3.38   0.001    -.0300871   -.0079153
+       _cons |   .7081936   .0270326    26.20   0.000     .6549387    .7614485
+------------------------------------------------------------------------------
+
+. local N = e(N)
+
+. local mod = e(N_clust)
+
+. matrix TABLE = (nullmat(TABLE) , (_b[decades] \ _se[decades] \ _b[decades2] \ _se[decades2] \ _b[age_move_10] \ _se[age_move_10] \ _b[_cons] \ _se[_cons] \ `mod' \ `N'))
+
+. drop e e2 e2hat
+
+. 
+. * dummies for age_move
+. gen age_move_temp = max(age_move,0)
+
+. reg betahatnd decades decades2 i.age_move_temp  [aw=sqdifnd], cluster(module)
+(sum of wgt is   1.4467e+04)
+
+Linear regression                                      Number of obs =  528621
+                                                       F( 79,   237) =    9.94
+                                                       Prob > F      =  0.0000
+                                                       R-squared     =  0.0015
+                                                       Root MSE      =  2.4975
+
+                               (Std. Err. adjusted for 238 clusters in module)
+------------------------------------------------------------------------------
+             |               Robust
+   betahatnd |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+     decades |   .0747797    .009941     7.52   0.000     .0551956    .0943638
+    decades2 |  -.0068472   .0013082    -5.23   0.000    -.0094243   -.0042701
+             |
+age_move_t~p |
+          1  |   .0357693   .0219202     1.63   0.104    -.0074141    .0789526
+          2  |   .0138166   .0200827     0.69   0.492    -.0257468    .0533799
+          3  |   .0352347   .0240494     1.47   0.144    -.0121431    .0826126
+          4  |  -.0281403   .0272787    -1.03   0.303    -.0818799    .0255993
+          5  |  -.0011069   .0248201    -0.04   0.964    -.0500031    .0477893
+          6  |   .0556227   .0325367     1.71   0.089    -.0084753    .1197207
+          7  |   .0599719   .0293236     2.05   0.042     .0022037    .1177401
+          8  |   .0224598   .0319993     0.70   0.483    -.0405795    .0854991
+          9  |   .0609872   .0308054     1.98   0.049     .0002998    .1216747
+         10  |   .0408824   .0338987     1.21   0.229    -.0258989    .1076638
+         11  |  -.0678141   .0325855    -2.08   0.038    -.1320084   -.0036198
+         12  |   .0239238   .0303477     0.79   0.431    -.0358619    .0837095
+         13  |  -.0159244   .0354131    -0.45   0.653     -.085689    .0538402
+         14  |  -.0424008   .0413705    -1.02   0.306    -.1239017    .0391001
+         15  |   .0797475   .0328142     2.43   0.016     .0151028    .1443921
+         16  |   .0470068   .0269123     1.75   0.082    -.0060112    .1000248
+         17  |   .0156876   .0249838     0.63   0.531    -.0335311    .0649063
+         18  |  -.0004149   .0241086    -0.02   0.986    -.0479093    .0470795
+         19  |   .0094933   .0249186     0.38   0.704     -.039597    .0585836
+         20  |   .0014798   .0239701     0.06   0.951    -.0457419    .0487015
+         21  |   -.044137   .0230802    -1.91   0.057    -.0896056    .0013316
+         22  |  -.0057213   .0247894    -0.23   0.818     -.054557    .0431143
+         23  |   .0031547   .0266461     0.12   0.906    -.0493387    .0556481
+         24  |   .0068908   .0291814     0.24   0.814    -.0505973     .064379
+         25  |  -.0267417   .0307783    -0.87   0.386    -.0873757    .0338924
+         26  |  -.0043607   .0253457    -0.17   0.864    -.0542923    .0455709
+         27  |  -.0310736    .029895    -1.04   0.300    -.0899675    .0278202
+         28  |   -.016716   .0322545    -0.52   0.605    -.0802581    .0468261
+         29  |  -.0355646   .0339362    -1.05   0.296    -.1024197    .0312905
+         30  |  -.0029689   .0326008    -0.09   0.928    -.0671934    .0612555
+         31  |  -.0609481   .0334787    -1.82   0.070    -.1269018    .0050057
+         32  |  -.0808285    .034958    -2.31   0.022    -.1496967   -.0119604
+         33  |  -.0084495   .0313788    -0.27   0.788    -.0702666    .0533676
+         34  |  -.0900834   .0401538    -2.24   0.026    -.1691874   -.0109794
+         35  |  -.0500693   .0445795    -1.12   0.263     -.137892    .0377535
+         36  |  -.1014902   .0447849    -2.27   0.024    -.1897175   -.0132629
+         37  |  -.0379075    .041146    -0.92   0.358     -.118966     .043151
+         38  |  -.0533231   .0368881    -1.45   0.150    -.1259935    .0193474
+         39  |  -.1307656    .040119    -3.26   0.001     -.209801   -.0517303
+         40  |   .0427286   .0326764     1.31   0.192    -.0216447    .1071018
+         41  |  -.0713455   .0420023    -1.70   0.091     -.154091       .0114
+         42  |  -.0596578   .0462801    -1.29   0.199    -.1508308    .0315151
+         43  |  -.0586935   .0425288    -1.38   0.169    -.1424763    .0250893
+         44  |  -.0137951   .0406366    -0.34   0.735    -.0938501    .0662599
+         45  |  -.0350207   .0473437    -0.74   0.460    -.1282889    .0582475
+         46  |  -.0404731   .0472366    -0.86   0.392    -.1335304    .0525843
+         47  |   .0228352   .0497726     0.46   0.647     -.075218    .1208885
+         48  |   .0238245   .0441988     0.54   0.590    -.0632482    .1108972
+         49  |  -.0516968   .0638488    -0.81   0.419    -.1774805    .0740868
+         50  |  -.0667906    .052292    -1.28   0.203     -.169807    .0362259
+         51  |   -.225913   .0541337    -4.17   0.000    -.3325577   -.1192683
+         52  |  -.0631745   .0458733    -1.38   0.170    -.1535459     .027197
+         53  |  -.0530629   .0579546    -0.92   0.361    -.1672349    .0611092
+         54  |  -.1647188   .0491944    -3.35   0.001    -.2616329   -.0678046
+         55  |   -.089485   .0504236    -1.77   0.077    -.1888208    .0098508
+         56  |  -.1212714   .0511113    -2.37   0.018    -.2219618    -.020581
+         57  |  -.1397601   .0581982    -2.40   0.017     -.254412   -.0251083
+         58  |  -.0571175    .090293    -0.63   0.528    -.2349969    .1207619
+         59  |  -.0278562   .0571405    -0.49   0.626    -.1404243    .0847118
+         60  |  -.0413002   .0656845    -0.63   0.530    -.1707003    .0880999
+         61  |   -.157685   .0821916    -1.92   0.056    -.3196045    .0042345
+         62  |  -.1401909   .0824051    -1.70   0.090     -.302531    .0221492
+         63  |  -.1780353   .0930957    -1.91   0.057    -.3614362    .0053655
+         64  |   -.202917    .081265    -2.50   0.013     -.363011    -.042823
+         65  |    .057252   .0761368     0.75   0.453    -.0927393    .2072432
+         66  |   .0538213   .1030573     0.52   0.602     -.149204    .2568467
+         67  |  -.0921706   .1299776    -0.71   0.479    -.3482295    .1638884
+         68  |  -.3348451   .1214054    -2.76   0.006    -.5740167   -.0956734
+         69  |    .135375    .123489     1.10   0.274    -.1079012    .3786512
+         70  |  -.0789276   .1383177    -0.57   0.569    -.3514167    .1935615
+         71  |   .1321717   .1259936     1.05   0.295    -.1160386    .3803821
+         72  |   .1696877   .1408569     1.20   0.230    -.1078039    .4471792
+         73  |  -.1062853   .4654903    -0.23   0.820    -1.023312    .8107418
+         75  |  -.9475803   .7159445    -1.32   0.187    -2.358008    .4628476
+         76  |  -.2052208   .1762244    -1.16   0.245     -.552387    .1419454
+         78  |   .2093497    .220762     0.95   0.344    -.2255568    .6442563
+         79  |   .3350283   .5276804     0.63   0.526    -.7045148    1.374571
+             |
+       _cons |   .6852258   .0295166    23.21   0.000     .6270774    .7433743
+------------------------------------------------------------------------------
+
+. predict e, resid
+
+. gen e2 = e^2
+
+. reg e2 sampling_variance
+
+      Source |       SS       df       MS              Number of obs =  528621
+-------------+------------------------------           F(  1,528619) =    4.68
+       Model |  2.1720e+15     1  2.1720e+15           Prob > F      =  0.0305
+    Residual |  2.4520e+20528619  4.6386e+14           R-squared     =  0.0000
+-------------+------------------------------           Adj R-squared =  0.0000
+       Total |  2.4521e+20528620  4.6386e+14           Root MSE      =  2.2e+07
+
+------------------------------------------------------------------------------
+          e2 |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+sampling_v~e |   740302.6   342112.6     2.16   0.030     69772.59     1410833
+       _cons |   215350.4   52163.37     4.13   0.000     113111.8    317588.9
+------------------------------------------------------------------------------
+
+. predict e2hat
+(option xb assumed; fitted values)
+
+. reg betahatnd decades decades2 i.age_move_temp [aw=sqdifnd/e2hat], cluster(module)
+(sum of wgt is   4.8230e-02)
+
+Linear regression                                      Number of obs =  528621
+                                                       F( 79,   237) =    9.38
+                                                       Prob > F      =  0.0000
+                                                       R-squared     =  0.0016
+                                                       Root MSE      =  2.4553
+
+                               (Std. Err. adjusted for 238 clusters in module)
+------------------------------------------------------------------------------
+             |               Robust
+   betahatnd |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+     decades |   .0775326   .0101393     7.65   0.000     .0575579    .0975073
+    decades2 |  -.0071843   .0012941    -5.55   0.000    -.0097336   -.0046349
+             |
+age_move_t~p |
+          1  |   .0326275   .0216389     1.51   0.133    -.0100017    .0752567
+          2  |   .0107756   .0199767     0.54   0.590     -.028579    .0501302
+          3  |   .0320245   .0237607     1.35   0.179    -.0147846    .0788336
+          4  |  -.0193945   .0272026    -0.71   0.477    -.0729842    .0341952
+          5  |  -.0121192   .0245891    -0.49   0.623    -.0605603    .0363218
+          6  |   .0480106   .0335784     1.43   0.154    -.0181397    .1141609
+          7  |   .0486744   .0277678     1.75   0.081    -.0060288    .1033776
+          8  |   .0180518   .0314838     0.57   0.567    -.0439721    .0800756
+          9  |    .058754   .0293375     2.00   0.046     .0009585    .1165496
+         10  |   .0387014   .0336315     1.15   0.251    -.0275534    .1049562
+         11  |  -.0657526   .0326385    -2.01   0.045    -.1300511    -.001454
+         12  |   .0194632   .0303142     0.64   0.521    -.0402565    .0791828
+         13  |  -.0221783    .035091    -0.63   0.528    -.0913084    .0469517
+         14  |  -.0414334   .0397234    -1.04   0.298    -.1196896    .0368227
+         15  |   .0748717   .0323264     2.32   0.021     .0111879    .1385554
+         16  |   .0338461   .0263852     1.28   0.201    -.0181333    .0858256
+         17  |    .012225   .0245659     0.50   0.619    -.0361705    .0606205
+         18  |  -.0042811   .0242318    -0.18   0.860    -.0520183    .0434561
+         19  |  -.0037631   .0244645    -0.15   0.878    -.0519587    .0444326
+         20  |   -.007398   .0242333    -0.31   0.760    -.0551383    .0403422
+         21  |  -.0485656   .0244265    -1.99   0.048    -.0966865   -.0004448
+         22  |  -.0111033   .0248373    -0.45   0.655    -.0600334    .0378267
+         23  |  -.0100291   .0267826    -0.37   0.708    -.0627915    .0427332
+         24  |  -.0069055   .0298283    -0.23   0.817     -.065668     .051857
+         25  |  -.0319241   .0320589    -1.00   0.320    -.0950809    .0312327
+         26  |  -.0084513   .0253211    -0.33   0.739    -.0583344    .0414319
+         27  |  -.0389327   .0297458    -1.31   0.192    -.0975325    .0196672
+         28  |   -.022733   .0324544    -0.70   0.484     -.086669     .041203
+         29  |  -.0435963   .0357223    -1.22   0.224    -.1139701    .0267775
+         30  |  -.0086397   .0324287    -0.27   0.790    -.0725251    .0552456
+         31  |  -.0715346   .0335638    -2.13   0.034    -.1376561    -.005413
+         32  |  -.0909814   .0362461    -2.51   0.013    -.1623871   -.0195758
+         33  |  -.0133765   .0303665    -0.44   0.660    -.0731993    .0464463
+         34  |  -.1013197   .0387179    -2.62   0.009     -.177595   -.0250445
+         35  |  -.0650087   .0441095    -1.47   0.142    -.1519054     .021888
+         36  |  -.0972696   .0457703    -2.13   0.035    -.1874382   -.0071011
+         37  |   -.043543   .0417234    -1.04   0.298    -.1257391     .038653
+         38  |  -.0615548    .038547    -1.60   0.112    -.1374934    .0143837
+         39  |  -.1288235    .041359    -3.11   0.002    -.2103017   -.0473453
+         40  |    .039302   .0327064     1.20   0.231    -.0251304    .1037344
+         41  |  -.0920223   .0436455    -2.11   0.036    -.1780049   -.0060397
+         42  |  -.0668734   .0447914    -1.49   0.137    -.1551134    .0213667
+         43  |  -.0720189   .0425357    -1.69   0.092    -.1558154    .0117775
+         44  |  -.0162244   .0400397    -0.41   0.686    -.0951036    .0626548
+         45  |  -.0419954   .0493211    -0.85   0.395    -.1391591    .0551682
+         46  |  -.0485953   .0457343    -1.06   0.289     -.138693    .0415024
+         47  |   .0196779   .0515052     0.38   0.703    -.0817886    .1211443
+         48  |  -.0064216   .0443242    -0.14   0.885    -.0937413    .0808981
+         49  |  -.0444146   .0642491    -0.69   0.490    -.1709868    .0821575
+         50  |  -.0830463   .0515279    -1.61   0.108    -.1845575    .0184649
+         51  |  -.2398983   .0524933    -4.57   0.000    -.3433114   -.1364852
+         52  |  -.0728714   .0440703    -1.65   0.100    -.1596909     .013948
+         53  |  -.0576089   .0588267    -0.98   0.328    -.1734988    .0582811
+         54  |  -.1743427   .0490939    -3.55   0.000    -.2710588   -.0776267
+         55  |  -.0899076   .0522613    -1.72   0.087    -.1928637    .0130485
+         56  |  -.1314763   .0507223    -2.59   0.010    -.2314004   -.0315521
+         57  |  -.1436868   .0593064    -2.42   0.016    -.2605219   -.0268517
+         58  |  -.0564013   .0933048    -0.60   0.546     -.240214    .1274113
+         59  |  -.0269478   .0579135    -0.47   0.642    -.1410388    .0871431
+         60  |  -.0568273   .0646803    -0.88   0.381     -.184249    .0705944
+         61  |  -.1571935   .0797663    -1.97   0.050    -.3143351   -.0000519
+         62  |  -.1572866   .0847813    -1.86   0.065    -.3243078    .0097346
+         63  |  -.1748454   .0995535    -1.76   0.080    -.3709681    .0212774
+         64  |  -.2025419   .0803742    -2.52   0.012    -.3608809   -.0442028
+         65  |   .0542706   .0758664     0.72   0.475    -.0951881    .2037293
+         66  |   .0435843    .102579     0.42   0.671    -.1584987    .2456674
+         67  |  -.1008485   .1275941    -0.79   0.430     -.352212     .150515
+         68  |  -.2904725   .1222567    -2.38   0.018    -.5313211   -.0496239
+         69  |   .1124645   .1213557     0.93   0.355    -.1266091    .3515381
+         70  |  -.1173074   .1426685    -0.82   0.412    -.3983678    .1637529
+         71  |   .1200103   .1163022     1.03   0.303    -.1091078    .3491285
+         72  |   .1686769   .1308883     1.29   0.199    -.0891762    .4265301
+         73  |  -.0130283   .4314926    -0.03   0.976    -.8630791    .8370225
+         75  |  -.7237121   .7098462    -1.02   0.309    -2.122126     .674702
+         76  |  -.2158548   .1809936    -1.19   0.234    -.5724165    .1407069
+         78  |    .196136   .2152509     0.91   0.363    -.2279134    .6201854
+         79  |   .5629628   .5020554     1.12   0.263    -.4260985    1.552024
+             |
+       _cons |   .6919262    .030215    22.90   0.000      .632402    .7514504
+------------------------------------------------------------------------------
+
+. local N = e(N)
+
+. local mod = e(N_clust)
+
+. matrix TABLE = (nullmat(TABLE) , (_b[decades] \ _se[decades] \ _b[decades2] \ _se[decades2] \ . \ . \ . \ . \ `mod' \ `N'))
+
+. drop e e2 e2hat
+
+. 
+. * dummies for years
+. reg betahatnd age_move_10 i.years  [aw=sqdifnd], cluster(module)
+(sum of wgt is   1.4467e+04)
+
+Linear regression                                      Number of obs =  528621
+                                                       F( 85,   237) =    8.67
+                                                       Prob > F      =  0.0000
+                                                       R-squared     =  0.0016
+                                                       Root MSE      =  2.4974
+
+                               (Std. Err. adjusted for 238 clusters in module)
+------------------------------------------------------------------------------
+             |               Robust
+   betahatnd |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+ age_move_10 |  -.0190061   .0054179    -3.51   0.001    -.0296795   -.0083327
+             |
+       years |
+          1  |   .1638455   .0442135     3.71   0.000     .0767439    .2509471
+          2  |   .2456008   .0352931     6.96   0.000     .1760724    .3151291
+          3  |   .2622178   .0415946     6.30   0.000     .1802754    .3441601
+          4  |    .251577   .0367136     6.85   0.000     .1792504    .3239036
+          5  |   .2814416   .0378095     7.44   0.000     .2069559    .3559273
+          6  |   .2659433   .0413718     6.43   0.000     .1844398    .3474467
+          7  |   .2978103   .0444063     6.71   0.000     .2103288    .3852917
+          8  |   .3063906    .040496     7.57   0.000     .2266125    .3861688
+          9  |   .3100964    .040316     7.69   0.000     .2306729    .3895198
+         10  |   .3119278   .0413592     7.54   0.000     .2304493    .3934064
+         11  |   .3690335   .0395721     9.33   0.000     .2910756    .4469915
+         12  |    .342318   .0373765     9.16   0.000     .2686855    .4159505
+         13  |     .35403   .0433654     8.16   0.000     .2685991    .4394609
+         14  |   .3235439   .0388695     8.32   0.000     .2469701    .4001177
+         15  |   .2881552   .0430505     6.69   0.000     .2033446    .3729658
+         16  |   .3272026   .0454338     7.20   0.000     .2376969    .4167083
+         17  |   .3772569   .0410323     9.19   0.000     .2964222    .4580916
+         18  |   .3489069    .040863     8.54   0.000     .2684058    .4294079
+         19  |   .3789914   .0397462     9.54   0.000     .3006904    .4572923
+         20  |   .3899811   .0403837     9.66   0.000     .3104242    .4695379
+         21  |   .2824381   .0500394     5.64   0.000     .1838593    .3810168
+         22  |   .3680668   .0399703     9.21   0.000     .2893243    .4468093
+         23  |    .382714   .0481011     7.96   0.000     .2879536    .4774744
+         24  |   .3361879   .0416943     8.06   0.000     .2540491    .4183267
+         25  |   .3754816   .0440972     8.51   0.000     .2886091     .462354
+         26  |   .4105487    .046601     8.81   0.000     .3187437    .5023537
+         27  |   .3777238   .0526933     7.17   0.000     .2739167     .481531
+         28  |    .367944   .0420322     8.75   0.000     .2851396    .4507483
+         29  |   .3877544   .0449318     8.63   0.000     .2992377    .4762711
+         30  |   .3983826   .0425222     9.37   0.000     .3146128    .4821525
+         31  |   .4358501   .0428394    10.17   0.000     .3514554    .5202448
+         32  |    .400449   .0437086     9.16   0.000     .3143419    .4865561
+         33  |   .3745037   .0411355     9.10   0.000     .2934657    .4555416
+         34  |   .4003588   .0479238     8.35   0.000     .3059478    .4947698
+         35  |   .3571687    .041975     8.51   0.000      .274477    .4398605
+         36  |   .3990245   .0437307     9.12   0.000      .312874     .485175
+         37  |   .4786902   .0442266    10.82   0.000     .3915627    .5658177
+         38  |   .4163899   .0393138    10.59   0.000     .3389407    .4938391
+         39  |   .3936354   .0473624     8.31   0.000     .3003302    .4869406
+         40  |   .3820083   .0410796     9.30   0.000     .3010804    .4629361
+         41  |   .3972313   .0454543     8.74   0.000     .3076851    .4867775
+         42  |    .358407   .0425936     8.41   0.000     .2744965    .4423175
+         43  |   .4819532   .0421903    11.42   0.000     .3988373    .5650692
+         44  |   .4418401   .0443442     9.96   0.000     .3544809    .5291992
+         45  |   .3913999   .0437903     8.94   0.000     .3051319    .4776679
+         46  |   .3870723   .0460128     8.41   0.000     .2964259    .4777187
+         47  |   .4399026    .048992     8.98   0.000     .3433871     .536418
+         48  |   .4855326   .0464177    10.46   0.000     .3940886    .5769765
+         49  |   .4185571   .0493554     8.48   0.000     .3213257    .5157885
+         50  |   .3763613   .0432871     8.69   0.000     .2910847    .4616378
+         51  |   .4718711   .0492516     9.58   0.000     .3748444    .5688979
+         52  |   .4038379   .0490195     8.24   0.000     .3072682    .5004076
+         53  |   .4645254   .0523288     8.88   0.000     .3614364    .5676145
+         54  |   .4133745   .0573685     7.21   0.000     .3003572    .5263918
+         55  |   .4194693   .0524476     8.00   0.000     .3161463    .5227923
+         56  |   .3537352   .0497395     7.11   0.000     .2557472    .4517231
+         57  |   .4453477   .0579494     7.69   0.000      .331186    .5595093
+         58  |   .3880617   .0569554     6.81   0.000     .2758582    .5002653
+         59  |   .3357633     .07062     4.75   0.000     .1966403    .4748863
+         60  |     .45944   .0638778     7.19   0.000     .3335993    .5852807
+         61  |   .4822401    .054364     8.87   0.000     .3751417    .5893385
+         62  |   .4266623   .0673578     6.33   0.000     .2939659    .5593588
+         63  |   .4300857   .0648059     6.64   0.000     .3024164    .5577549
+         64  |    .445327    .078963     5.64   0.000     .2897679     .600886
+         65  |   .3534574   .0727348     4.86   0.000     .2101681    .4967467
+         66  |   .6467244   .0689764     9.38   0.000     .5108392    .7826096
+         67  |   .5682937   .1019179     5.58   0.000     .3675131    .7690744
+         68  |   .5783304   .1087361     5.32   0.000     .3641176    .7925432
+         69  |   .4657424    .103099     4.52   0.000     .2626349    .6688498
+         70  |   .3097824   .1070971     2.89   0.004     .0987985    .5207663
+         71  |   .3637818   .1408693     2.58   0.010      .086266    .6412977
+         72  |   .4899847   .1196856     4.09   0.000     .2542012    .7257682
+         73  |   .2502001   .1545407     1.62   0.107    -.0542487    .5546489
+         74  |   .4451377    .176134     2.53   0.012     .0981495    .7921259
+         75  |   .5716904    .115926     4.93   0.000     .3433134    .8000674
+         76  |   .5369896   .1823046     2.95   0.004     .1778452     .896134
+         77  |   .9370374   .3262852     2.87   0.004     .2942476    1.579827
+         78  |   .5809017   .1966716     2.95   0.003     .1934539    .9683495
+         79  |   .6133661   .1295698     4.73   0.000     .3581105    .8686217
+         80  |   .4492104   .2742165     1.64   0.103    -.0910027    .9894234
+         81  |   1.111481   .2784305     3.99   0.000     .5629661    1.659995
+         82  |   .0484362   .2304925     0.21   0.834    -.4056396     .502512
+         83  |   .6979864   .3411476     2.05   0.042     .0259176    1.370055
+         88  |   .1156568   .5960552     0.19   0.846    -1.058586      1.2899
+             |
+       _cons |   .4844897   .0386305    12.54   0.000     .4083867    .5605926
+------------------------------------------------------------------------------
+
+. predict e, resid
+
+. gen e2 = e^2
+
+. reg e2 sampling_variance
+
+      Source |       SS       df       MS              Number of obs =  528621
+-------------+------------------------------           F(  1,528619) =    4.68
+       Model |  2.1720e+15     1  2.1720e+15           Prob > F      =  0.0305
+    Residual |  2.4520e+20528619  4.6386e+14           R-squared     =  0.0000
+-------------+------------------------------           Adj R-squared =  0.0000
+       Total |  2.4521e+20528620  4.6386e+14           Root MSE      =  2.2e+07
+
+------------------------------------------------------------------------------
+          e2 |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+sampling_v~e |   740301.2   342112.7     2.16   0.030        69771     1410831
+       _cons |   215350.6   52163.38     4.13   0.000       113112    317589.1
+------------------------------------------------------------------------------
+
+. predict e2hat
+(option xb assumed; fitted values)
+
+. reg betahatnd age_move_10 i.years [aw=sqdifnd/e2hat], cluster(module)
+(sum of wgt is   4.8230e-02)
+
+Linear regression                                      Number of obs =  528621
+                                                       F( 85,   237) =    9.01
+                                                       Prob > F      =  0.0000
+                                                       R-squared     =  0.0017
+                                                       Root MSE      =  2.4552
+
+                               (Std. Err. adjusted for 238 clusters in module)
+------------------------------------------------------------------------------
+             |               Robust
+   betahatnd |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+ age_move_10 |  -.0198037   .0055898    -3.54   0.000    -.0308158   -.0087916
+             |
+       years |
+          1  |   .1586362    .043952     3.61   0.000     .0720496    .2452227
+          2  |   .2642121   .0343695     7.69   0.000     .1965033    .3319209
+          3  |   .2667173   .0382089     6.98   0.000     .1914447    .3419898
+          4  |    .259444    .034346     7.55   0.000     .1917815    .3271065
+          5  |   .2836053   .0351102     8.08   0.000     .2144374    .3527731
+          6  |   .2705765   .0396061     6.83   0.000     .1925516    .3486014
+          7  |   .3047709   .0418129     7.29   0.000     .2223984    .3871434
+          8  |   .3191447   .0389441     8.19   0.000     .2424239    .3958655
+          9  |   .3189001   .0384412     8.30   0.000     .2431699    .3946302
+         10  |   .3212019   .0387039     8.30   0.000     .2449543    .3974495
+         11  |   .3725372   .0384079     9.70   0.000     .2968727    .4482018
+         12  |   .3484519   .0360878     9.66   0.000     .2773581    .4195457
+         13  |   .3522976   .0402562     8.75   0.000      .272992    .4316032
+         14  |   .3328316   .0372767     8.93   0.000     .2593956    .4062675
+         15  |   .2946788     .04137     7.12   0.000     .2131789    .3761787
+         16  |   .3322596   .0423149     7.85   0.000     .2488983    .4156209
+         17  |   .3767657   .0398547     9.45   0.000     .2982509    .4552804
+         18  |   .3492127   .0380449     9.18   0.000     .2742633     .424162
+         19  |   .3937541   .0382476    10.29   0.000     .3184053    .4691028
+         20  |   .4007909   .0387868    10.33   0.000     .3243799    .4772019
+         21  |   .2810097   .0471121     5.96   0.000     .1881978    .3738217
+         22  |    .376811     .03819     9.87   0.000     .3015759    .4520462
+         23  |   .3885331   .0457277     8.50   0.000     .2984484    .4786177
+         24  |    .338429   .0399661     8.47   0.000     .2596949    .4171631
+         25  |   .3791978   .0418368     9.06   0.000     .2967784    .4616173
+         26  |   .4214075   .0434502     9.70   0.000     .3358096    .5070054
+         27  |   .3759799   .0512181     7.34   0.000      .275079    .4768809
+         28  |   .3765797   .0402078     9.37   0.000     .2973693    .4557901
+         29  |   .3984819   .0430752     9.25   0.000     .3136226    .4833411
+         30  |    .412359   .0414373     9.95   0.000     .3307265    .4939915
+         31  |    .441775   .0403956    10.94   0.000     .3621947    .5213552
+         32  |   .4121631   .0419705     9.82   0.000     .3294802     .494846
+         33  |   .3780672    .040064     9.44   0.000     .2991402    .4569943
+         34  |    .414086   .0470134     8.81   0.000     .3214685    .5067036
+         35  |   .3639285   .0416697     8.73   0.000     .2818382    .4460188
+         36  |   .4048386   .0409077     9.90   0.000     .3242495    .4854278
+         37  |    .499753   .0409563    12.20   0.000     .4190682    .5804378
+         38  |   .4229379   .0377915    11.19   0.000     .3484877    .4973881
+         39  |   .4022997   .0451606     8.91   0.000     .3133322    .4912672
+         40  |   .3869995   .0403979     9.58   0.000     .3074146    .4665843
+         41  |   .4174688   .0438937     9.51   0.000     .3309971    .5039405
+         42  |   .3760306    .039839     9.44   0.000     .2975469    .4545144
+         43  |   .4986157   .0399543    12.48   0.000     .4199047    .5773267
+         44  |   .4558377   .0418002    10.91   0.000     .3734904     .538185
+         45  |   .3942022   .0440281     8.95   0.000     .3074657    .4809387
+         46  |   .4031653   .0433613     9.30   0.000     .3177426    .4885881
+         47  |   .4540123   .0467002     9.72   0.000     .3620118    .5460128
+         48  |   .5031674     .04369    11.52   0.000     .4170971    .5892377
+         49  |   .4449489   .0472743     9.41   0.000     .3518175    .5380804
+         50  |   .4014782   .0405098     9.91   0.000     .3216729    .4812834
+         51  |   .4719757   .0481021     9.81   0.000     .3772133     .566738
+         52  |   .4189093   .0478733     8.75   0.000     .3245978    .5132209
+         53  |   .4566734   .0499092     9.15   0.000     .3583511    .5549957
+         54  |   .4288159   .0571683     7.50   0.000     .3161929    .5414388
+         55  |   .4259158   .0515369     8.26   0.000     .3243869    .5274448
+         56  |   .3667249   .0495438     7.40   0.000     .2691225    .4643274
+         57  |    .452933   .0544764     8.31   0.000     .3456131    .5602529
+         58  |   .4026204    .054432     7.40   0.000     .2953881    .5098528
+         59  |   .3429981   .0697795     4.92   0.000     .2055308    .4804655
+         60  |   .4716269   .0625073     7.55   0.000     .3484859    .5947679
+         61  |   .4864865   .0529509     9.19   0.000     .3821719     .590801
+         62  |    .439938   .0672459     6.54   0.000      .307462     .572414
+         63  |   .4357145   .0625058     6.97   0.000     .3125765    .5588525
+         64  |   .4531268   .0798772     5.67   0.000     .2957669    .6104867
+         65  |   .3413614   .0721948     4.73   0.000     .1991359     .483587
+         66  |   .6305544   .0674139     9.35   0.000     .4977473    .7633614
+         67  |   .5547477   .1016685     5.46   0.000     .3544583    .7550371
+         68  |   .5908798   .1056618     5.59   0.000     .3827235    .7990362
+         69  |   .4563289   .1022175     4.46   0.000     .2549581    .6576998
+         70  |   .3267847   .1090467     3.00   0.003     .1119601    .5416093
+         71  |   .3793108    .138041     2.75   0.006     .1073666    .6512549
+         72  |   .5383382   .1132385     4.75   0.000     .3152556    .7614208
+         73  |   .2400324   .1558852     1.54   0.125    -.0670652      .54713
+         74  |   .4517036   .1695836     2.66   0.008     .1176197    .7857874
+         75  |   .6041076    .110973     5.44   0.000     .3854882     .822727
+         76  |   .4866797   .1863011     2.61   0.010     .1196621    .8536973
+         77  |   .8577439   .3386058     2.53   0.012     .1906823    1.524806
+         78  |   .5859683   .1809111     3.24   0.001     .2295691    .9423675
+         79  |    .599107   .1273485     4.70   0.000     .3482274    .8499867
+         80  |   .5167698    .282944     1.83   0.069    -.0406367    1.074176
+         81  |   1.071433   .2815208     3.81   0.000     .5168303    1.626036
+         82  |   .0031024   .2330723     0.01   0.989    -.4560556    .4622604
+         83  |   .6636281   .3492832     1.90   0.059    -.0244683    1.351724
+         88  |   .0213718   .5915957     0.04   0.971    -1.144086     1.18683
+             |
+       _cons |   .4825836   .0370637    13.02   0.000     .4095672       .5556
+------------------------------------------------------------------------------
+
+. local N = e(N)
+
+. local mod = e(N_clust)
+
+. matrix TABLE = (nullmat(TABLE) , (. \ . \ . \ . \ _b[age_move_10] \ _se[age_move_10] \ . \ . \ `mod' \ `N'))
+
+. drop e e2 e2hat
+
+. 
+. * only those moving after age 25
+. reg betahatnd decades decades2 age_move_10 [aw=sqdifnd] if age_move>=25, cluster(module)
+(sum of wgt is   6.1336e+03)
+
+Linear regression                                      Number of obs =  212957
+                                                       F(  3,   237) =   30.26
+                                                       Prob > F      =  0.0000
+                                                       R-squared     =  0.0008
+                                                       Root MSE      =  2.4489
+
+                               (Std. Err. adjusted for 238 clusters in module)
+------------------------------------------------------------------------------
+             |               Robust
+   betahatnd |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+     decades |   .0924721   .0162988     5.67   0.000      .060363    .1245812
+    decades2 |  -.0095811    .003675    -2.61   0.010     -.016821   -.0023413
+ age_move_10 |  -.0130131   .0080396    -1.62   0.107    -.0288513    .0028252
+       _cons |   .6683844   .0369044    18.11   0.000     .5956818     .741087
+------------------------------------------------------------------------------
+
+. predict e, resid
+
+. gen e2 = e^2
+
+. reg e2 sampling_variance
+
+      Source |       SS       df       MS              Number of obs =  528621
+-------------+------------------------------           F(  1,528619) =    4.68
+       Model |  2.1720e+15     1  2.1720e+15           Prob > F      =  0.0305
+    Residual |  2.4520e+20528619  4.6386e+14           R-squared     =  0.0000
+-------------+------------------------------           Adj R-squared =  0.0000
+       Total |  2.4521e+20528620  4.6386e+14           Root MSE      =  2.2e+07
+
+------------------------------------------------------------------------------
+          e2 |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+sampling_v~e |   740300.7   342112.7     2.16   0.030     69770.69     1410831
+       _cons |   215350.6   52163.38     4.13   0.000       113112    317589.2
+------------------------------------------------------------------------------
+
+. predict e2hat
+(option xb assumed; fitted values)
+
+. reg betahatnd decades decades2 age_move_10 [aw=sqdifnd/e2hat] if age_move>=25, cluster(module)
+(sum of wgt is   2.0459e-02)
+
+Linear regression                                      Number of obs =  212957
+                                                       F(  3,   237) =   30.74
+                                                       Prob > F      =  0.0000
+                                                       R-squared     =  0.0009
+                                                       Root MSE      =  2.4082
+
+                               (Std. Err. adjusted for 238 clusters in module)
+------------------------------------------------------------------------------
+             |               Robust
+   betahatnd |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+     decades |   .0925729   .0163614     5.66   0.000     .0603405    .1248052
+    decades2 |  -.0092226   .0036401    -2.53   0.012    -.0163937   -.0020515
+ age_move_10 |  -.0130905   .0082346    -1.59   0.113    -.0293128    .0031318
+       _cons |   .6697586   .0373546    17.93   0.000     .5961692     .743348
+------------------------------------------------------------------------------
+
+. local N = e(N)
+
+. local mod = e(N_clust)
+
+. matrix TABLE = (nullmat(TABLE) , (_b[decades] \ _se[decades] \ _b[decades2] \ _se[decades2] \ _b[age_move_10] \ _se[age_move_10] \ _b[_cons] \ _se[_cons] \ `mod' \ `N'))
+
+. 
+. matrix_to_txt, saving(..\output\online_appendix_tables.txt) mat(TABLE) format(%20.6f) title(<tab:YearsFGLS>) append
+
+. cap matrix drop TABLE
+
+. cap log close

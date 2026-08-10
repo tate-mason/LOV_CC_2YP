@@ -1,0 +1,6 @@
+Panel:
+
+['trip_code_uc', 'household_code', 'purchase_date', 'retailer_code', 'store_code_uc', 'panel_year_x', 'store_zip3', 'total_spent', 'method_of_payment_cd', 'upc', 'upc_ver_uc_x', 'quantity', 'total_price_paid', 'coupon_value', 'deal_flag_uc', 'panel_year_y', 'projection_factor', 'household_income', 'household_size', 'household_composition', 'age_and_presence_of_children', 'marital_status', 'race', 'fips_state_cd', 'upc_ver_uc_y', 'panel_year', 'flavor_code', 'type_code', 'product_code', 'variety_code', 'common_consumer_name_code']
+
+Retail:
+['store_code_uc', 'upc', 'week_end', 'units', 'prmult', 'price', 'feature', 'display', 'upc_right', 'week_end_right', 'units_right', 'prmult_right', 'price_right', 'feature_right', 'display_right', 'year', 'parent_code', 'retailer_code', 'channel_code', 'store_zip3', 'fips_state_code', 'fips_state_descr', 'fips_county_code', 'fips_county_descr', 'dma_code', 'dma_descr', 'upc_ver_uc', 'panel_year', 'upc_ver_uc_right', 'upc_descr', 'product_module_code', 'product_module_descr', 'product_group_code', 'product_group_descr', 'department_code', 'department_descr', 'brand_code_uc', 'brand_descr', 'multi', 'size1_code_uc', 'size1_amount', 'size1_units', 'dataset_found_uc', 'size1_change_flag_uc']

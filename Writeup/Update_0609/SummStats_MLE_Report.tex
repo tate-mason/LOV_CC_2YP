@@ -1,0 +1,138 @@
+\documentclass[11pt]{article}
+
+% ── Packages ────────────────────────────────────────────────
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{natbib}
+\usepackage{setspace}
+\usepackage{microtype}
+\usepackage{enumitem}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{xcolor}
+\usepackage{float}
+% code packages
+\usepackage{listings}
+\usepackage{inconsolata}
+\lstset{basicstyle=\ttfamily\footnotesize,breaklines=true}
+\usepackage{csvsimple}
+\usepackage{booktabs}
+
+% ── Hyperref setup ──────────────────────────────────────────
+\hypersetup{
+    colorlinks = true,
+    linkcolor  = black,
+    citecolor  = black,
+    urlcolor   = blue
+}
+
+% ── Theorem environments ────────────────────────────────────
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}{Proposition}
+\newtheorem{lemma}{Lemma}
+\newtheorem{corollary}{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+\newtheorem{assumption}{Assumption}
+\theoremstyle{remark}
+\newtheorem{remark}{Remark}
+
+% ── Spacing ─────────────────────────────────────────────────
+\onehalfspacing
+
+% ── Title block ─────────────────────────────────────────────
+\title{Love of Variety: MLE Test and Basic Summary Stats}
+\author{Tate Mason}
+\date{\today}
+
+% ============================================================
+\begin{document}
+\maketitle
+\thispagestyle{empty}
+
+\section{Overview}
+
+Here, I am just going to give an overview of the MLE procedure requested instead of OLS market shares. MLE returned better estimates for all cases but $\gamma_i=0$, which makes sense given the LOV specification is overfitted. I've also made some progress on the data front, and will give some summary stats around the initial sample I have chosen. Any questions can be asked over email until next in person meeting, hopefully next Tuesday. Further, my main goals in the meantime are to continue to play in the data to understand what exactly I can get out of it. This includes looking more heavily into product characteristic space, product vs brand (discussed briefly in report of stats), as well as how pricing plays into this.
+
+\section{MLE}
+
+This section will be brief, as I am just planning to report estimates. This exercise was mainly to act as a sanity check, making sure the model behaved as we would expect. We do, in fact, see that accounting for love of variety leads to better estimates of $\beta_1, \beta_2$. Below, I will describe the simulation environment:
+  \begin{enumerate}
+    \item Simulations = 500
+    \item Time periods per simulation = 100
+    \item Markets = 10
+    \item Product space $\sim U(0,10)$
+    \item $\gamma_i \in \{0, 6, 9, 12\}$
+    \item $\beta_1 = 0.5$, $\beta_2 = 2$
+    \item $\varepsilon\sim\text{Gumbel}(0,1)$
+  \end{enumerate}
+
+With that, the estimates are as follows:
+
+\begin{table}[htbp]
+    \centering
+    \caption{Estimates}
+    \label{tab:estimates}
+    \begin{tabular}{lccc}
+        \toprule
+         & $\beta_1$ & $\beta_2$ & $\gamma$ \\
+        \midrule
+        \multicolumn{3}{l}{\textit{No LOV }} \\[0.5em]
+        $\gamma=0$  & 0.684 & 2.780 & --\\
+        $\gamma=6$  & 0.2154 & 0.5902 & --\\
+        $\gamma=9$  & 0.167 & 0.447 & --\\
+        $\gamma=12$ & 0.000 & 0.000 & --\\[0.5em]
+        \multicolumn{3}{l}{\textit{LOV }} \\[0.5em]
+        $\gamma=0$  & 0.683 & 2.787 & 0.011 \\
+        $\gamma=6$  & 0.501 & 2.005 & 6.015 \\
+        $\gamma=9$  & 0.501 & 2.005 & 9.001 \\
+        $\gamma=12$ & 0.500 & 2.000 & 12.002\\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+The main thing to note is that as $\gamma$ gets larger, the estimates get more precise, exactly what we want to see. This is proof of concept that this is worth pursuit as a methods project alone. These estimates are more precise than the prior OLS specification, implying that, as suggested, the market share measurement is a bit weird in the context applied.
+
+\section{Summary Stats}
+Below are some basic descriptives from the consumer panel:
+
+\begin{table}[htbp]
+    \centering
+    \caption{Descriptive Statistics}
+    \label{tab:desc_stats}
+    \begin{tabular}{lc}
+        \toprule
+        Statistic & Value \\
+        \midrule
+        \# Households               & 252 \\
+        Mean \# Times Observed      & 10.95 \\
+        Mean Income                 & \$19,400 \\
+        Median Income               & \$19,000 \\
+        \% White                    & 61\% \\
+        \% Black                    & 35\% \\
+        \% Hispanic                 & 3\% \\
+        \% Asian                    & 1\% \\
+        Variance in Purchases       & 0.41 \\
+        Variance in Quantity        & 0.18 \\
+        Mean Repeat Purchase Rate   & 63\% \\
+        W/in HH Brand Concentration & 26\%
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+I chose Atlanta as the market, though I hope to eventually pick one market from each region in the data, seeing if anything differs by region. This is subset to yogurt purchasers. I also cut it to single person households to avoid any "variety" being the effect of having children. I see 252 households an average of almost 11 times each. The two main statistics are at the bottom of the table. Mean repeat purchase rate is the amount that households buy the same good two periods in a row. On average this occurs 63\% of the time,  which allows a decently large window for variety purchasing. Next in my to do list is to expand this to try to get at "one-off purchasing", where the household deviates for one period and then returns to their normal consumption path. The next statistic shows the mean concentration of a specific brand within a household, that is how dominant is a specific brand in that unit's consumption. On average, this is a little over a quarter of their yogurt consumption, implying there is variability by brand.
+
+What should be glaringly obvious is my use of brand instead of product. I have been having trouble understanding the best way to classify products. The UPC codes are too granular, unique to each individual variety of a product. That is, a 12 oz. and an 8 oz. Diet Coke will have different UPC's, but they are both Diet Coke. If anything, the measures I have gotten understate the willingness to consume other products as the brand is aggregated up. Any advice here would be great. I am actively working on this, but think I may have to do some sort of grouping by a few codes to create classifications myself.
+
+Nonetheless, I think that the repeat purchase rate statistic is promising for this kind of question, lending credence to the idea that, at least in yogurt, there is some amount of switching consumption between periods.
+
+\section{Conclusion}
+
+I presented MLE results and descriptives in this report. The MLE results just confirm the model is working as expected. Not exactly sure how to continue down the simulation road, especially as the data requires so much legwork. My goal is to be estimating by mid July. Hopefully this is not too ambitious, but it feels about right in terms of a realistic timeline for having a polished first draft ready for Sept. 1. 
+
+Please send over any thoughts you may have. Having a lot of fun working on this but want to make sure I am doing it right.
+
+\end{document}

@@ -1,0 +1,397 @@
+Defaulting to user installation because normal site-packages is not writeable
+Requirement already satisfied: numpy in /home/dtm63837/.local/lib/python3.12/site-packages (from -r /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/shell_files/requirements.txt (line 2)) (2.4.6)
+Requirement already satisfied: pandas in /home/dtm63837/.local/lib/python3.12/site-packages (from -r /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/shell_files/requirements.txt (line 3)) (3.0.3)
+Requirement already satisfied: polars in /home/dtm63837/.local/lib/python3.12/site-packages (from -r /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/shell_files/requirements.txt (line 4)) (1.40.1)
+Requirement already satisfied: pyarrow in /home/dtm63837/.local/lib/python3.12/site-packages (from -r /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/shell_files/requirements.txt (line 5)) (24.0.0)
+Requirement already satisfied: scipy in /home/dtm63837/.local/lib/python3.12/site-packages (from -r /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/shell_files/requirements.txt (line 8)) (1.15.3)
+Requirement already satisfied: statsmodels in /home/dtm63837/.local/lib/python3.12/site-packages (from -r /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/shell_files/requirements.txt (line 9)) (0.14.6)
+Requirement already satisfied: linearmodels in /home/dtm63837/.local/lib/python3.12/site-packages (from -r /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/shell_files/requirements.txt (line 10)) (7.0)
+Requirement already satisfied: pyblp in /home/dtm63837/.local/lib/python3.12/site-packages (from -r /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/shell_files/requirements.txt (line 11)) (1.2.0)
+Requirement already satisfied: pylogit in /home/dtm63837/.local/lib/python3.12/site-packages (from -r /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/shell_files/requirements.txt (line 12)) (1.0.1)
+Requirement already satisfied: larch in /home/dtm63837/.local/lib/python3.12/site-packages (from -r /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/shell_files/requirements.txt (line 13)) (6.0.46)
+Requirement already satisfied: autograd in /home/dtm63837/.local/lib/python3.12/site-packages (from -r /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/shell_files/requirements.txt (line 16)) (1.9.1)
+Requirement already satisfied: numdifftools in /home/dtm63837/.local/lib/python3.12/site-packages (from -r /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/shell_files/requirements.txt (line 17)) (0.9.42)
+Requirement already satisfied: matplotlib in /home/dtm63837/.local/lib/python3.12/site-packages (from -r /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/shell_files/requirements.txt (line 20)) (3.10.9)
+Requirement already satisfied: seaborn in /home/dtm63837/.local/lib/python3.12/site-packages (from -r /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/shell_files/requirements.txt (line 21)) (0.13.2)
+Requirement already satisfied: tqdm in /home/dtm63837/.local/lib/python3.12/site-packages (from -r /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/shell_files/requirements.txt (line 24)) (4.68.4)
+Requirement already satisfied: rich in /home/dtm63837/.local/lib/python3.12/site-packages (from -r /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/shell_files/requirements.txt (line 25)) (15.0.0)
+Requirement already satisfied: python-dateutil>=2.8.2 in /home/dtm63837/.local/lib/python3.12/site-packages (from pandas->-r /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/shell_files/requirements.txt (line 3)) (2.9.0.post0)
+Requirement already satisfied: polars-runtime-32==1.40.1 in /home/dtm63837/.local/lib/python3.12/site-packages (from polars->-r /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/shell_files/requirements.txt (line 4)) (1.40.1)
+Requirement already satisfied: patsy>=0.5.6 in /home/dtm63837/.local/lib/python3.12/site-packages (from statsmodels->-r /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/shell_files/requirements.txt (line 9)) (1.0.2)
+Requirement already satisfied: packaging>=21.3 in /home/dtm63837/.local/lib/python3.12/site-packages (from statsmodels->-r /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/shell_files/requirements.txt (line 9)) (26.2)
+Requirement already satisfied: mypy_extensions>=0.4 in /home/dtm63837/.local/lib/python3.12/site-packages (from linearmodels->-r /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/shell_files/requirements.txt (line 10)) (1.1.0)
+Requirement already satisfied: pyhdfe>=0.1 in /home/dtm63837/.local/lib/python3.12/site-packages (from linearmodels->-r /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/shell_files/requirements.txt (line 10)) (0.2.0)
+Requirement already satisfied: formulaic>=1.2.1 in /home/dtm63837/.local/lib/python3.12/site-packages (from linearmodels->-r /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/shell_files/requirements.txt (line 10)) (1.2.2)
+Requirement already satisfied: sympy>=1.1.0 in /home/dtm63837/.local/lib/python3.12/site-packages (from pyblp->-r /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/shell_files/requirements.txt (line 11)) (1.14.0)
+Requirement already satisfied: future>=0.16 in /home/dtm63837/.local/lib/python3.12/site-packages (from pylogit->-r /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/shell_files/requirements.txt (line 12)) (1.0.0)
+Requirement already satisfied: xarray in /home/dtm63837/.local/lib/python3.12/site-packages (from larch->-r /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/shell_files/requirements.txt (line 13)) (2026.4.0)
+Requirement already satisfied: numba>=0.60.0 in /home/dtm63837/.local/lib/python3.12/site-packages (from larch->-r /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/shell_files/requirements.txt (line 13)) (0.66.0)
+Requirement already satisfied: numexpr in /home/dtm63837/.local/lib/python3.12/site-packages (from larch->-r /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/shell_files/requirements.txt (line 13)) (2.14.1)
+Requirement already satisfied: filelock in /home/dtm63837/.local/lib/python3.12/site-packages (from larch->-r /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/shell_files/requirements.txt (line 13)) (3.29.7)
+Requirement already satisfied: dask in /home/dtm63837/.local/lib/python3.12/site-packages (from larch->-r /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/shell_files/requirements.txt (line 13)) (2026.7.0)
+Requirement already satisfied: networkx in /home/dtm63837/.local/lib/python3.12/site-packages (from larch->-r /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/shell_files/requirements.txt (line 13)) (3.6.1)
+Requirement already satisfied: addicty in /home/dtm63837/.local/lib/python3.12/site-packages (from larch->-r /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/shell_files/requirements.txt (line 13)) (2023.9.3)
+Requirement already satisfied: xmle>=0.1.25 in /home/dtm63837/.local/lib/python3.12/site-packages (from larch->-r /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/shell_files/requirements.txt (line 13)) (0.1.27)
+Requirement already satisfied: sparse in /home/dtm63837/.local/lib/python3.12/site-packages (from larch->-r /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/shell_files/requirements.txt (line 13)) (0.19.0)
+Requirement already satisfied: Jinja2 in /home/dtm63837/.local/lib/python3.12/site-packages (from larch->-r /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/shell_files/requirements.txt (line 13)) (3.1.6)
+Requirement already satisfied: sharrow>=2.15 in /home/dtm63837/.local/lib/python3.12/site-packages (from larch->-r /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/shell_files/requirements.txt (line 13)) (2.15.0)
+Requirement already satisfied: contourpy>=1.0.1 in /home/dtm63837/.local/lib/python3.12/site-packages (from matplotlib->-r /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/shell_files/requirements.txt (line 20)) (1.3.3)
+Requirement already satisfied: cycler>=0.10 in /home/dtm63837/.local/lib/python3.12/site-packages (from matplotlib->-r /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/shell_files/requirements.txt (line 20)) (0.12.1)
+Requirement already satisfied: fonttools>=4.22.0 in /home/dtm63837/.local/lib/python3.12/site-packages (from matplotlib->-r /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/shell_files/requirements.txt (line 20)) (4.63.0)
+Requirement already satisfied: kiwisolver>=1.3.1 in /home/dtm63837/.local/lib/python3.12/site-packages (from matplotlib->-r /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/shell_files/requirements.txt (line 20)) (1.5.0)
+Requirement already satisfied: pillow>=8 in /home/dtm63837/.local/lib/python3.12/site-packages (from matplotlib->-r /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/shell_files/requirements.txt (line 20)) (12.2.0)
+Requirement already satisfied: pyparsing>=3 in /home/dtm63837/.local/lib/python3.12/site-packages (from matplotlib->-r /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/shell_files/requirements.txt (line 20)) (3.3.2)
+Requirement already satisfied: markdown-it-py>=2.2.0 in /home/dtm63837/.local/lib/python3.12/site-packages (from rich->-r /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/shell_files/requirements.txt (line 25)) (4.2.0)
+Requirement already satisfied: pygments<3.0.0,>=2.13.0 in /home/dtm63837/.local/lib/python3.12/site-packages (from rich->-r /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/shell_files/requirements.txt (line 25)) (2.20.0)
+Requirement already satisfied: interface-meta>=1.2.0 in /home/dtm63837/.local/lib/python3.12/site-packages (from formulaic>=1.2.1->linearmodels->-r /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/shell_files/requirements.txt (line 10)) (2.0.1)
+Requirement already satisfied: narwhals>=1.17 in /home/dtm63837/.local/lib/python3.12/site-packages (from formulaic>=1.2.1->linearmodels->-r /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/shell_files/requirements.txt (line 10)) (2.23.0)
+Requirement already satisfied: typing-extensions>=4.2.0 in /apps/eb/Python/3.12.3-GCCcore-13.3.0/lib/python3.12/site-packages (from formulaic>=1.2.1->linearmodels->-r /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/shell_files/requirements.txt (line 10)) (4.11.0)
+Requirement already satisfied: wrapt>=1.0 in /home/dtm63837/.local/lib/python3.12/site-packages (from formulaic>=1.2.1->linearmodels->-r /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/shell_files/requirements.txt (line 10)) (2.2.2)
+Requirement already satisfied: mdurl~=0.1 in /home/dtm63837/.local/lib/python3.12/site-packages (from markdown-it-py>=2.2.0->rich->-r /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/shell_files/requirements.txt (line 25)) (0.1.2)
+Requirement already satisfied: llvmlite<0.49,>=0.48.0dev0 in /home/dtm63837/.local/lib/python3.12/site-packages (from numba>=0.60.0->larch->-r /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/shell_files/requirements.txt (line 13)) (0.48.0)
+Requirement already satisfied: six>=1.5 in /home/dtm63837/.local/lib/python3.12/site-packages (from python-dateutil>=2.8.2->pandas->-r /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/shell_files/requirements.txt (line 3)) (1.17.0)
+Requirement already satisfied: mpmath<1.4,>=1.1.0 in /home/dtm63837/.local/lib/python3.12/site-packages (from sympy>=1.1.0->pyblp->-r /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/shell_files/requirements.txt (line 11)) (1.3.0)
+Requirement already satisfied: pyyaml in /home/dtm63837/.local/lib/python3.12/site-packages (from addicty->larch->-r /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/shell_files/requirements.txt (line 13)) (6.0.3)
+Requirement already satisfied: yamllint in /home/dtm63837/.local/lib/python3.12/site-packages (from addicty->larch->-r /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/shell_files/requirements.txt (line 13)) (1.38.0)
+Requirement already satisfied: click>=8.1 in /home/dtm63837/.local/lib/python3.12/site-packages (from dask->larch->-r /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/shell_files/requirements.txt (line 13)) (8.4.2)
+Requirement already satisfied: cloudpickle>=3.0.0 in /home/dtm63837/.local/lib/python3.12/site-packages (from dask->larch->-r /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/shell_files/requirements.txt (line 13)) (3.1.2)
+Requirement already satisfied: fsspec>=2021.09.0 in /home/dtm63837/.local/lib/python3.12/site-packages (from dask->larch->-r /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/shell_files/requirements.txt (line 13)) (2026.6.0)
+Requirement already satisfied: partd>=1.4.0 in /home/dtm63837/.local/lib/python3.12/site-packages (from dask->larch->-r /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/shell_files/requirements.txt (line 13)) (1.4.2)
+Requirement already satisfied: toolz>=0.12.0 in /home/dtm63837/.local/lib/python3.12/site-packages (from dask->larch->-r /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/shell_files/requirements.txt (line 13)) (1.1.0)
+Requirement already satisfied: MarkupSafe>=2.0 in /home/dtm63837/.local/lib/python3.12/site-packages (from Jinja2->larch->-r /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/shell_files/requirements.txt (line 13)) (3.0.3)
+Requirement already satisfied: locket in /home/dtm63837/.local/lib/python3.12/site-packages (from partd>=1.4.0->dask->larch->-r /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/shell_files/requirements.txt (line 13)) (1.0.0)
+Requirement already satisfied: pathspec>=1.0.0 in /home/dtm63837/.local/lib/python3.12/site-packages (from yamllint->addicty->larch->-r /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/shell_files/requirements.txt (line 13)) (1.1.1)
+
+[notice] A new release of pip is available: 24.0 -> 26.1.2
+[notice] To update, run: pip install --upgrade pip
+deal_flag_uc
+0    13979854
+1     5616514
+Name: count, dtype: Int64
+<IntegerArray>
+[0, 1]
+Length: 2, dtype: Int64
+Int64
+Int64
+yogurt_purchase
+0    344587
+1    105152
+Name: count, dtype: int64
+[0 1]
+1
+0
+Number of households:    15440
+ Number of times seen:    15.760103626943005
+ Yogurt purchases:        1.848222211263438
+ Mean household income:   16.277356422280477
+ Median household income: 16.0
+ Racial Makeup of Sample: race
+1    12583
+2     2052
+3      249
+4      556
+Name: household_code, dtype: int64
+ Percent Taking Outside Option: 0.4097927441740235
+
+Flavors: flavor_code
+139                   [N             APPLE PIE, APPLE PIE]
+236                                             [ASSORTED]
+275                                                [BACON]
+515      [BLACK CHERRY, N             BLACK CHERRY, N Y...
+529                                     [BLACK FOREST CAK]
+547                                           [BLACKBERRY]
+613                                     [BOSTON CREAM PIE]
+620                                          [BOYSENBERRY]
+846                                           [CAPPUCCINO]
+854                                              [CARAMEL]
+856                                        [CARAMEL APPLE]
+904                                          [CARROT CAKE]
+1143                                              [CHERRY]
+1154     [CHERRY & VANILLA, N             CHERRY & VANI...
+1169                                    [CHERRY CHEESECAK]
+1174                        [ICK & CREAMY  CHERRY COBBLER]
+1216                                      [CHERRY VANILLA]
+1394                                           [CHOCOLATE]
+1409                                      [CHOCOLATE CHIP]
+1664                                             [COCONUT]
+1677                                              [COFFEE]
+2085                                         [DARK CHERRY]
+2090                                    [DARK SWEET CHERR]
+2178                                         [DUTCH APPLE]
+2180                                     [DUTCH APPLE PIE]
+2213                                             [EGG NOG]
+2282                                                 [FIG]
+2375        [FRENCH VANILLA, ICK & CREAMY  FRENCH VANILLA]
+2689                                               [GUAVA]
+2717                                    [HAWAIIAN DELIGHT]
+2820                          [HONEY, ANICS         HONEY]
+2924                                         [HUCKLEBERRY]
+3060                                         [JUST PEACHY]
+3075                    [KEY LIME, N YO-LITE     KEY LIME]
+3076                                                   [N]
+3107     [LEMON, N             LEMON, N YO-LITE     LEMON]
+3122                                     [LEMON CREAM PIE]
+3152                                          [LEMON/LIME]
+3179                                                [LIME]
+3191                                               [LIVER]
+3270                                     [MANDARIN ORANGE]
+3273                                               [MANGO]
+3279                                               [MAPLE]
+3287                                    [MARASCHINO CHERR]
+3298                                         [MARIONBERRY]
+3465                                         [MIXED BERRY]
+3733                                [N YO-LITE     ORANGE]
+3745            [ORANGE CREAM, N             ORANGE CREAM]
+3765                                    [ORANGE PASSION F]
+3773                                        [ORANGE TANGO]
+3861                                              [PAPAYA]
+3943     [PEACH, N             PEACH, N YO-LITE     PEA...
+3956                         [N             PEACH COBBLER]
+3985      [CREAMY        PEACHES N CREAM, PEACHES N CREAM]
+4111     [PINA COLADA, N             PINA COLADA, ONSIN...
+4114                                           [PINEAPPLE]
+4116                                    [PINEAPPLE & COCO]
+4167     [PLAIN, ARMS          PLAIN, N             PLA...
+4186                                         [POMEGRANATE]
+4251                                               [PRUNE]
+4383                                          [RED CHERRY]
+4899                                   [N - IC        STR]
+5537     [VANILLA, CREAMY        VANILLA, N YO-LITE    ...
+5539            [VANILLA BEAN, ARMS          VANILLA BEAN]
+5651                                         [VERY CHERRY]
+5658                                        [VERY VANILLA]
+6061        [ICK & CREAMY  LEMON MERINGUE, LEMON MERINGUE]
+6188                                    [CHOCOLATE MOUSSE]
+6196                                        [ORANGE CREME]
+6352     [RBY, N YO-LITE     RBY, ONSIN SELECT  RBY, RM...
+6370                                    [COCONUT CREAM PI]
+6387          [APRICOT MANGO, M             APRICOT MANGO]
+6416                                    [CHOCOLATE PUDDIN]
+6570                                       [APPLE & SPICE]
+6912                      [RED RBY, N             RED RBY]
+7005                                    [PINEAPPLE PASSIO]
+9824                                        [HONEY ALMOND]
+10474                                   [PINEAPPLE UPSIDE]
+10625                                     [PEACH SMOOTHIE]
+10808                                      [PEACH PARFAIT]
+11214                                                 [BN]
+11216                                           [BN SPLIT]
+12137                                        [PEACH MANGO]
+13314                                   [CHERRIES JUBILEE]
+13365                                       [ORANGE DREAM]
+15610    [N             FRENCH VANILLA B, N YO-LITE    ...
+16007    [ST, ICK & CREAMY  ST, N             ST, N YO-...
+16102    [ST & BN, CREAMY        ST & BN, N YO-LITE    ...
+16180           [N             ST & VANILLA, ST & VANILLA]
+16182                                   [ST & MIXED BERRY]
+16188                                            [WILD ST]
+16194                                          [ST COLADA]
+16199                                         [ST & PEACH]
+16200                                       [ST & ST & BN]
+16215                                              [ST BN]
+16805                                       [ST FRUIT CUP]
+17110                                         [ST/GRANOLA]
+17159    [BB, N YO-LITE     BB, ANICS         BB, N    ...
+17450                                            [ST & BB]
+17460                                       [ST & BN & BB]
+17793                        [N YO-LITE     BB CHEESECAKE]
+17849                                       [BN CREAM PIE]
+18083    [N             ST CHEESECAKE, ST CHEESECAKE, N...
+18889                                       [CRANBERRY/GP]
+19003                                     [PEACH PARADISE]
+19061                                          [ST & KIWI]
+20888                                           [BN CREAM]
+20988                                   [AMARETTO CHEESEC]
+21071                                                [L-C]
+21314                                           [BN CREME]
+21496                                           [ST CREAM]
+21502                                          [STRAWBABY]
+22162                                      [LEMON SQUEEZE]
+22916                                        [LEMON BURST]
+22951                                       [CINNAMON BUN]
+23048                                                [P-B]
+23344                                           [PLAIN/ST]
+23346                                        [PLAIN/PEACH]
+23669                                          [BN FOSTER]
+23721                                           [PLAIN/BB]
+25470                                    [WHITE CHOCOLATE]
+26050                                   [CHERRY & VANILLA]
+26397                                   [PINA COLADA SMOO]
+26557                                         [MANGO LIME]
+29446                                           [BB PATCH]
+29787                                     [DULCE DE LECHE]
+30476                                   [CHOCOLATE UNDERG]
+30581                                           [ST MANGO]
+30615                                    [WHITE CHOCOLATE]
+30616                                   [HONEY ALMOND CRE]
+30744                           [N YO-LITE     ST VANILLA]
+32061                                      [MAPLE VANILLA]
+32094                                      [BARTLETT PEAR]
+32300                                    [ST & BB & PEACH]
+32468                                   [ST ORANGE SUNRIS]
+33470                                    [NATURAL VANILLA]
+35711                                   [BB & VANILLA & S]
+35764                                              [CTCDY]
+36588    [BLACKBERRY HARVE, CREAMY        BLACKBERRY HA...
+36741                        [ICK & CREAMY  CINNAMON ROLL]
+38311                                    [NORTHWEST BERRY]
+40119                                      [MANGO & GUAVA]
+40154                                               [STRB]
+40155                                      [STRB & BANANA]
+40157                                      [STRB SMOOTHIE]
+40158                                       [RBY SMOOTHIE]
+40160                                        [STRB BANANA]
+40237               [BN VANILLA, N             BN VANILLA]
+40712                                            [ST MIST]
+41632    [N YO-LITE     RBY & VANILLA, N             RB...
+41634                                        [RBY/GRANOLA]
+41650                                    [WHITE CHOCOLATE]
+41654       [RBY CHEESECAKE, N YO-LITE     RBY CHEESECAKE]
+41681                                         [RBY MOUSSE]
+41725                                   [COUNTRY ORANGE C]
+42386    [N             ST RHUBARB PIE, N YO-LITE     S...
+44329                                           [LEMON TW]
+44642                                     [APPLE TURNOVER]
+44782                                           [TP FRUIT]
+44791                                           [TP BLEND]
+44921                                    [PEACHES & CREME]
+45318                                   [WILD BERRY SMOOT]
+45574                                       [ST SHORTCAKE]
+46003                                   [STRB & BANANA SM]
+46431                                   [STRB BANANA SMOO]
+47838                           [N             CLEMENTINE]
+48255                                    [RED VELVET CAKE]
+48945                                   [WILD BERRY CRUMB]
+49154                                         [ST N CREAM]
+50901                                                [V-C]
+52338                                           [RBY RUSH]
+52605                                           [ST CRUSH]
+52953                                      [BB PATCH & ST]
+53585                                      [BB & RBY & ST]
+54015                                   [CHOCOLATE RBY MO]
+55159                                    [MX-BRY SMOOTHIE]
+55294                                   [STRB & CREAM SMO]
+55330                                               [ACAI]
+55512                                    [BB & PEACH & ST]
+55631                                      [ST & BN BURST]
+55633                                          [BB THRILL]
+55660                                     [ADIRONDACK RBY]
+57129                                   [VANILLA & ST & B]
+57428                                   [POMEGRANATE BERR]
+57501                                   [WILD BERRY BLEND]
+58461                                     [PRUNE SMOOTHIE]
+60109    [N             PEACH APRICOT VA, N YO-LITE    ...
+61082                                    [POMEGRANATE RBY]
+61487                                   [POMEGRANATE CHER]
+61643                                   [BLACKBERRY & CRE]
+62070                                   [CHERRY POMEGRANA]
+62273                                       [VANILLA/NBPC]
+62349                                   [ST & PEACH & VAN]
+62470                                         [BB/GRANOLA]
+62784                                        [PLAIN/HONEY]
+65921                                   [BLACKBERRY POMEG]
+66394                                   [ST/NESTLE CC PIE]
+66415                                   [STRB BLEND SMOOT]
+66438                                    [ST BN & VANILLA]
+66675                                   [CKNCR/NAB OREO C]
+66681                                   [VANILLA/NESTLE C]
+66682                                   [VANILLA/HRSH RES]
+66683                                       [VANILLA/M&MC]
+66684                                      [ST&BN/GRANOLA]
+66938                                   [VANILLA CINNAMON]
+67293                                   [POMEGRANATE MANG]
+67420                                   [POMEGRANATE & PA]
+67421                                    [ORANGE & GINGER]
+67972                                      [GOO BERRY PIE]
+68109                                            [BYP&BBP]
+68356                                   [PEACH MANGO PASS]
+68701                                   [PINA COLADA BLEN]
+68709                                    [STRB KIWI BLEND]
+68901                                   [PASSIONATE MANGO]
+69135                                   [ST PARFAIT/GRANO]
+69179                                   [BB PARFAIT/GRANO]
+70529                                     [PEACH & CEREAL]
+70544                                        [ST & CEREAL]
+70547                                   [VANILLA & CEREAL]
+70862                                   [MANGO GO SMOOTHI]
+71101                                     [ST POMEGRANATE]
+72000                                    [ST/CANDY PIECES]
+72284                                                [H-P]
+72285                                           [H-P & ST]
+72288                                      [BB & H-P & ST]
+72289                                      [ST & BB & H-P]
+72290                                           [ST & H-P]
+72292                                   [MT BB & H-P & ST]
+72317                                   [VANILLA CREME MO]
+72483                                   [ST & POMEGRANATE]
+72785                                   [BANANA BERRY BLE]
+72786                                   [PCH PSN FRT BLEN]
+73560          [KLP, ICK & CREAMY  KLP, CREAMY        KLP]
+73600                                         [BN PUDDING]
+74408                               [ICK & CREAMY  BB PIE]
+74707                                    [ST/NAB OREO CKE]
+75721                                    [BAKED APPLE PIE]
+75831                                   [PEACH SUPER SMOO]
+75898                                            [RBY LMD]
+76162                                   [CKNCR/NOCP & VAN]
+76646                                   [VANILLA BEAN & S]
+76690                                   [TRIPLE BERRY TOR]
+77771                                   [WILD MAINE BLUEB]
+77929                                           [BB CREAM]
+78030                                    [STRAWNANA SPLIT]
+78681                                       [RBY YUMBERRY]
+78857                                   [KLP & VERY VANIL]
+Name: flavor_descr, dtype: object
+Mean consecutive buys (plain v berry v other) by hh: flavor_3
+0    4.076682
+1    4.225450
+2    8.322825
+Name: consecutive_buys, dtype: float64
+Percent ever-switched: 0.38125767899028257
+Percent switching due to coupon: 0.14234334859823522
+Mean percentage return after switch: 0.9899139953088351
+Average time spent on any type: 8.962984474477828
+Time spent on switched to flavor: prev_flavor  flavor_3
+0.0          1           2.397823
+             2           2.823968
+1.0          0           2.114169
+             2           2.435861
+2.0          0           2.205240
+             1           2.410442
+Name: run_length, dtype: float64
+flavor_3          0       1       2
+prev_flavor                        
+0.0             0.0  8911.0  1744.0
+1.0          8794.0     0.0  1411.0
+2.0          1832.0  1379.0     0.0
+prev_flavor
+0.0    10655.0
+1.0    10205.0
+2.0     3211.0
+dtype: float64
+DescribeResult(
+    nobs=3,
+    minmax=(array([0., 0., 0.]), array([8794., 8911., 1744.])),
+    mean=array([3542.        , 3430.        , 1051.66666667]),
+    variance=array([21526684.        , 23006431.        ,   857224.33333333]),
+    skewness=array([ 0.58511411,  0.64192249, -0.6056002 ]),
+    kurtosis=array([-1.5, -1.5, -1.5])
+)
+DescribeResult(
+    nobs=3,
+    minmax=(array([0., 0., 0.]), array([0.86173444, 0.83632098, 0.16367902])),
+    mean=array([0.47742441, 0.4219274 , 0.10064819]),
+    variance=array([0.19214928, 0.17490076, 0.00775901]),
+    skewness=array([-0.37263342, -0.03308382, -0.64146828]),
+    kurtosis=array([-1.5, -1.5, -1.5])
+)
+flavor_3
+1    4909
+2    4028
+3    1126
+Name: count, dtype: int64
+flavor_3
+(0, 1)    2659
+(0, 2)     891
+(1, 2)     478
+Name: count, dtype: int64

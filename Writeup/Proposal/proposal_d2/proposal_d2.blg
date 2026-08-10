@@ -1,0 +1,52 @@
+This is BibTeX, Version 0.99e (TeX Live 2026)
+Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
+The top-level auxiliary file: proposal_d2.aux
+The style file: aer.bst
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Database file #1: ../lov_lit.bib
+Warning--empty journal in shin_targeted_nodate
+Warning--empty year in shin_targeted_nodate
+Warning--empty journal in zielnicki_value_2025
+You've used 6 entries,
+            2984 wiz_defined-function locations,
+            684 strings with 5231 characters,
+and the built_in function-call counts, 5090 in all, are:
+= -- 798
+> -- 291
+< -- 82
++ -- 95
+- -- 52
+* -- 330
+:= -- 1167
+add.period$ -- 6
+call.type$ -- 6
+change.case$ -- 42
+chr.to.int$ -- 6
+cite$ -- 9
+duplicate$ -- 64
+empty$ -- 146
+format.name$ -- 147
+if$ -- 1239
+int.to.chr$ -- 1
+int.to.str$ -- 0
+missing$ -- 6
+newline$ -- 24
+num.names$ -- 72
+pop$ -- 86
+preamble$ -- 1
+purify$ -- 48
+quote$ -- 0
+skip$ -- 0
+stack$ -- 0
+substring$ -- 155
+swap$ -- 20
+text.length$ -- 0
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 24
+warning$ -- 3
+while$ -- 68
+width$ -- 0
+write$ -- 102
+(There were 3 warnings)

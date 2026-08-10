@@ -1,0 +1,90 @@
+Int64
+Int64
+yogurt_purchase
+0    2966906
+1     131426
+Name: count, dtype: int64
+[0 1]
+1
+0
+Number of households:    15688
+ Number of times seen:            59.013258541560425
+ Yogurt purchases:                3.3466537049038667
+ Mean household income:           16.274176234180196
+ Median household income:         16.0
+ Racial Makeup of Sample:         race
+1    12779
+2     2082
+3      261
+4      566
+Name: household_code, dtype: int64
+ Percent Taking Outside Option:   0.48591782130763084
+
+Mean consecutive buys (plain v berry v other) by hh: flavor_3
+0    3.393857
+1    2.537888
+2    6.655333
+Name: flav_consecutive_buys, dtype: float64
+Percent ever-switched: 0.349133585984254
+Ever-switcher by size type: size_cat
+0    0.324203
+1    0.431216
+2    0.319911
+Name: household_code, dtype: Float64
+Percent switching due to coupon: 0.10493307302632418
+Mean percentage return after switch: 0.9977669741862216
+Average time spent on any type: 9.13409639015427
+Time spent on switched to flavor: prev_flavor  flavor_3
+0.0          1           1.997189
+             2           3.464770
+1.0          0           2.165445
+             2           3.006908
+2.0          0           2.182290
+             1           1.916180
+Name: run_length, dtype: float64
+flavor_3           0        1        2
+prev_flavor                           
+0.0              0.0  10673.0  27349.0
+1.0          10638.0      0.0   9120.0
+2.0          27385.0   9246.0      0.0
+prev_flavor
+0.0    38022.0
+1.0    19758.0
+2.0    36631.0
+dtype: float64
+DescribeResult(
+    nobs=3,
+    minmax=(array([0., 0., 0.]), array([27385., 10673., 27349.])),
+    mean=array([12674.33333333,  6639.66666667, 12156.33333333]),
+    variance=array([1.90594546e+08, 3.35729623e+07, 1.93906440e+08]),
+    skewness=array([ 0.26508035, -0.65916288,  0.38153519]),
+    kurtosis=array([-1.5, -1.5, -1.5])
+)
+DescribeResult(
+    nobs=3,
+    minmax=(array([0., 0., 0.]), array([0.74759084, 0.28070591, 0.71929409])),
+    mean=array([0.42866855, 0.17770502, 0.39362642]),
+    variance=array([0.1487562 , 0.02388448, 0.13280979]),
+    skewness=array([-0.4804194 , -0.68053183, -0.33067096]),
+    kurtosis=array([-1.5, -1.5, -1.5])
+)
+flavor_3
+2    6906
+3    5348
+1    2780
+Name: count, dtype: int64
+flavor_3
+1    15029
+2    11634
+3     1693
+Name: count, dtype: int64
+flavor_3
+(0, 2)    5848
+(1, 2)     659
+(0, 1)     399
+Name: count, dtype: int64
+flavor_3
+(0, 2)    8135
+(0, 1)    2769
+(1, 2)     730
+Name: count, dtype: int64

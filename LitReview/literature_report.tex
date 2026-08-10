@@ -1,0 +1,231 @@
+\documentclass[12pt]{article}
+
+%--- Packages ------------------------------------------------------------------
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{natbib}          % author-year citations: \citet, \citep
+\usepackage{hyperref}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{setspace}
+\usepackage{titlesec}
+\usepackage{xcolor}
+\usepackage{enumitem}
+
+%--- Hyperref setup ------------------------------------------------------------
+\hypersetup{
+    colorlinks = true,
+    linkcolor  = blue!70!black,
+    citecolor  = blue!70!black,
+    urlcolor   = blue!70!black
+}
+
+%--- Section formatting --------------------------------------------------------
+\titleformat{\section}{\large\bfseries}{\thesection.}{0.5em}{}[\titlerule]
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection.}{0.5em}{}
+
+%--- Spacing -------------------------------------------------------------------
+\setlength{\parskip}{6pt}
+\setlength{\parindent}{0pt}
+\onehalfspacing
+
+%--- Title block ---------------------------------------------------------------
+\title{%
+    \textbf{Literature Review: Love of Variety}\\[6pt]
+}
+\author{Tate Mason \\
+}
+\date{\today}
+
+%===============================================================================
+\begin{document}
+%===============================================================================
+
+\maketitle
+\thispagestyle{empty}
+
+\newpage
+
+%-------------------------------------------------------------------------------
+\section{Motivation and Overview}
+%-------------------------------------------------------------------------------
+
+In a traditional logit model, a new product is always beneficial for utility. This occurs via new epsilon draws for the products necessarily bolstering the utility of a consumer. However, how realistic is this? I posit that in actuality, consumers would prefer goods to be novel, but familiar. I attempt to model this, as well as how advertising can offset this penalty for goods which are too different.
+
+The primary purpose of this paper is to understand how sameness, and by the same token variety, influences consumer choice in a dynamic setting. This paper contributes to a few strands of literature. There is the IO literature which concerns itself with variety, and by extension habit formation, which I look to add to by showing how purchase history contributes to current period choices. I also add to advertising literature, attempting to model how a firm can use advertising influence consumer decisions in the presence of a taste for habit. Finally, I add to dynamic discrete-choice estimation by using neural network estimation on Nielsen-Kilts Homescan data (eventually).
+
+%-------------------------------------------------------------------------------
+\section{Variety-Seeking and Habit Formation}
+%-------------------------------------------------------------------------------
+
+\subsection{Classic Foundations}
+
+\cite{pollak1970habit} is a seminal paper which introduced the concept of habit formation into economics. They model consumer preferences as being influenced by past consumption, and show that under certain conditions, consumers will derive utility from consuming goods that they have consumed in the past. This paper provides a theoretical foundation for understanding how past consumption can influence current choices.
+
+\cite{dixit1977monopolistic} is a seminal paper which introduced the concept of love of variety into economics. They model consumer preferences as being over a continuum of differentiated products, and show that under certain conditions, consumers will prefer a greater variety of products. This paper provides a theoretical foundation for understanding why consumers might seek variety in their choices.
+
+\cite{mcallister1982variety} provides a comprehensive review of the variety-seeking behavior literature up to the early 1980s. They discuss various theories and empirical findings related to why consumers seek variety in their choices, including psychological, sociological, and economic perspectives. This paper will serve as a foundational reference for understanding the motivations behind variety-seeking behavior.
+
+\subsection{Contemporary Demand Evidence}
+
+\cite{bronnenberg2012brand} examines the craft beer industry, drawing upon trends in consumption which the authors believed may point to millennial consumers having different preferences to prior age cohorts. Their use of a capital stock, an idea similar to my difference from the mean, to analyze persistence of choices from period to another. I iterate on this by allowing persistance to show up as a benchmark which the current choice is measured against.
+
+
+%-------------------------------------------------------------------------------
+\section{Discrete-Choice Demand Estimation}
+%-------------------------------------------------------------------------------
+
+\subsection{BLP and Mixed Logit}
+
+\cite{berry1995automobile} is a seminal work which introduced estimation of discrete-choice demand models. These methods will be used for estimation of demand parameters, though with more complexity.
+
+\cite{nevo2001measuring} applies the BLP method to the ready-to-eat cereal industry, providing a practical example of how to implement these methods in a real-world setting. This paper will serve as a guide for the estimation phase of this project.
+
+\subsection{Dynamic Extensions}
+
+
+Recent work by \citet{conlon2020best} provides practical guidance on numerical
+implementation of BLP-style estimators, which will be directly relevant for the
+structural estimation phase.
+
+\cite{wei2024nne} implements neural network estimation into econometric models, potentially providing more computationally effecient estimation as well as improved accuracy, given the right moments are provided and training is done correctly.
+
+%-------------------------------------------------------------------------------
+\section{Dynamic Advertising}
+%-------------------------------------------------------------------------------
+
+\subsection{Dynamic Advertising}
+
+\cite{erdem1996brand} estimates a model which implements advertising as a learning mechanism for consumers. It is a relevant paper for its estimation procedure as well as its idea of perceptions formed via advertising. I want to flip this, and use consumer choice as informing firm advertising choices.
+
+\cite{dube2010state} models state dependence in consumer choice, which is relevant for my model of habit formation. They find that state dependence is a significant factor in consumer choice, which supports the idea that past consumption can influence current choices.
+
+\cite{bergemann2011targeting} models optimal advertising targeting in a static setting, where the firm can choose to target advertising to specific consumer segments. I want to extend this to a dynamic setting, where the firm can choose both who to target and how much to target them, given the consumer's purchase history and the current market structure.
+
+\subsection{Targeted and Personalized Advertising}
+
+\cite{nerlove1962advertising} is a seminal paper which introduced the concept of advertising as a dynamic process. They model advertising as a way for firms to build goodwill with consumers, which can influence future sales. This paper provides a theoretical foundation for understanding how advertising can influence consumer choices over time.
+
+\cite{hosanagar2014village} adds early targeted recommendations to the canonical demand question. They attempt to uncover if algorithmic influence leads to more fragmentation, pushing consumers into distinct boxes, or homogenization, making a more monolithic culture of consumption. They find the latter. Their measures of attribute distance are of interest here, where I would like to repurpose them on the firm side to determine how and when to advertise.
+
+\cite{song2025optimizing} conducts a field experiment, partnering with a major e-tail company to see how personalization in the consumer search journey impacts consumption patterns. This will serve as a practical implementation of methods in \cite{wei2024nne}.
+
+%-------------------------------------------------------------------------------
+%  Bibliography
+%-------------------------------------------------------------------------------
+\newpage
+\bibliographystyle{aer}   % or chicago, plainnat, etc.
+\bibliography{references} % point to your .bib file
+
+ \begin{thebibliography}{99}
+
+ \bibitem[Ackerberg(2001)]{ackerberg2001empirically}
+ Ackerberg, D.~A. (2001).
+ \newblock Empirically distinguishing informative and prestige effects of advertising.
+ \newblock \emph{RAND Journal of Economics}, 32(2), 316--333.
+
+ \bibitem[Becker and Murphy(1988)]{becker1988theory}
+ Becker, G.~S. and Murphy, K.~M. (1988).
+ \newblock A theory of rational addiction.
+ \newblock \emph{Journal of Political Economy}, 96(4), 675--700.
+
+ \bibitem[Bergemann and Bonatti(2011)]{bergemann2011targeting}
+ Bergemann, D. and Bonatti, A. (2011).
+ \newblock Targeting in advertising markets: Implications for offline vs. online media.
+ \newblock \emph{RAND Journal of Economics}, 42(3), 417--443.
+
+ \bibitem[Berry, Levinsohn, and Pakes(1995)]{berry1995automobile}
+ Berry, S., Levinsohn, J., and Pakes, A. (1995).
+ \newblock Automobile prices in market equilibrium.
+ \newblock \emph{Econometrica}, 63(4), 841--890.
+
+ \bibitem[Bronnenberg, Dubé, and Gentzkow(2012)]{bronnenberg2012brand}
+ Bronnenberg, B.~J., Dubé, J.-P., and Gentzkow, M. (2012).
+ \newblock The evolution of brand preferences: Evidence from consumer migration.
+ \newblock \emph{American Economic Review}, 102(6), 2472--2508.
+
+ \bibitem[Conlon and Gortmaker(2020)]{conlon2020best}
+ Conlon, C. and Gortmaker, J. (2020).
+ \newblock Best practices for differentiated products demand estimation with {PyBLP}.
+ \newblock \emph{RAND Journal of Economics}, 51(4), 1108--1161.
+
+ \bibitem[Dixit and Stiglitz(1977)]{dixit1977monopolistic}
+ Dixit, A.~K. and Stiglitz, J.~E. (1977).
+ \newblock Monopolistic competition and optimum product diversity.
+ \newblock \emph{American Economic Review}, 67(3), 297--308.
+
+ \bibitem[Doraszelski and Markovich(2010)]{doraszelski2010computable}
+ Doraszelski, U. and Markovich, S. (2010).
+ \newblock Advertising dynamics and competitive advantage.
+ \newblock \emph{RAND Journal of Economics}, 38(3), 557--592.
+
+ \bibitem[Dubé, Hitsch, and Rossi(2010)]{dube2010state}
+ Dubé, J.-P., Hitsch, G.~J., and Rossi, P.~E. (2010).
+ \newblock State dependence and alternative explanations for consumer inertia.
+ \newblock \emph{RAND Journal of Economics}, 41(3), 417--445.
+
+ \bibitem[Erdem and Keane(1996)]{erdem1996brand}
+ Erdem, T. and Keane, M.~P. (1996).
+ \newblock Decision-making under uncertainty: Capturing dynamic brand choice
+           processes in turbulent consumer goods markets.
+ \newblock \emph{Marketing Science}, 15(1), 1--20.
+
+ \bibitem[Goldfarb and Tucker(2011)]{goldfarb2011online}
+ Goldfarb, A. and Tucker, C.~E. (2011).
+ \newblock Online display advertising: Targeting and obtrusiveness.
+ \newblock \emph{Marketing Science}, 30(3), 389--404.
+
+ \bibitem[Hosanagar, Fleder, Lee, and Buja (2014)]{hosanagar2014village}
+ Hosanagar, K., Fleder, D., Lee, D., and Buja, A. (2014)
+ \newblock Will the Global Village Fracture Into Tribes? Recommender Systems and Their Effects on Consumer Fragmentation
+ \newblock \textit{Management Science}, 60(4), 805-823.
+
+ \bibitem[Johnson(2023)]{johnson2023}
+ Johnson, G. (2023).
+ \newblock The impact of privacy policy on the auction market for online display advertising.
+ \newblock \emph{Marketing Science}, 42(1), 1--21.
+
+ \bibitem[McFadden(1974)]{mcfadden1974conditional}
+ McFadden, D. (1974).
+ \newblock Conditional logit analysis of qualitative choice behavior.
+ \newblock In Zarembka, P. (ed.), \emph{Frontiers in Econometrics}. Academic Press.
+
+ \bibitem[McAllister and Pessemier(1982)]{mcallister1982variety}
+ McAllister, I. and Pessemier, E.~A. (1982).
+ \newblock Variety seeking behavior: An interdisciplinary review.
+ \newblock \emph{Journal of Consumer Research}, 9(3), 311--322.
+
+ \bibitem[Nerlove and Arrow(1962)]{nerlove1962advertising}
+ Nerlove, M. and Arrow, K.~J. (1962).
+ \newblock Optimal advertising policy under dynamic conditions.
+ \newblock \emph{Economica}, 29(114), 129--142.
+
+ \bibitem[Nevo(2001)]{nevo2001measuring}
+ Nevo, A. (2001).
+ \newblock Measuring market power in the ready-to-eat cereal industry.
+ \newblock \emph{Econometrica}, 69(2), 307--342.
+
+ \bibitem[Pollak(1970)]{pollak1970habit}
+ Pollak, R.~A. (1970).
+ \newblock Habit formation and dynamic demand functions.
+ \newblock \emph{Journal of Political Economy}, 78(4), 745--763.
+
+ \bibitem[Shum(2004)]{shum2004does}
+ Shum, M. (2004).
+ \newblock Does advertising overcome brand loyalty? Evidence from the breakfast-cereals market.
+ \newblock \emph{Journal of Economics \& Management Strategy}, 13(2), 241--272.
+
+ \bibitem[Song(2025)]{song2025optimizing}
+ Song, Yu. (2025).
+ \newblock Optimizing Multi-Stage Personalization in the Customer Journey.
+ \newblock \textit{Working Paper}
+
+ \bibitem[Wei and Jiang (2024)]{wei2024nne}
+ Wei, Y and Jiang, Z (2024).
+ \newblock Estimating Parameters of Structural Models Using Neural Networks.
+ \newblock \textit{Marketing Science}, 44(1), 102-128
+
+
+ \end{thebibliography}
+
+\end{document}

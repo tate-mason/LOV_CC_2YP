@@ -1,0 +1,542 @@
+% ============================================================
+% UGA-Themed Beamer Presentation
+% Love of Variety, Habit Formation, and Dynamic Advertising
+%
+% Compile with:
+%   pdflatex presentation.tex
+% ============================================================
+
+\documentclass[aspectratio=169,professionalfonts]{beamer}
+
+% ---------- COLORS ----------
+\usepackage{xcolor}
+\definecolor{UGARed}{HTML}{BA0C2F}
+\definecolor{UGABlack}{HTML}{000000}
+\definecolor{UGAGray}{HTML}{8A8D8F}
+
+% ---------- THEME ----------
+\usetheme{default}
+\useinnertheme{circles}
+\useoutertheme[subsection=false]{miniframes}
+\usefonttheme{professionalfonts}
+\setbeamertemplate{navigation symbols}{}
+
+% Head/foot colors
+\setbeamercolor{subsection in head/foot}{fg=white, bg=UGARed}
+\setbeamercolor{headline}{fg=white, bg=UGARed}
+\setbeamercolor{section in head/foot}{fg=white, bg=UGARed}
+\setbeamercolor{section in head/foot shaded}{fg=white, bg=white}
+\setbeamercolor{footline}{bg=UGABlack, fg=white}
+\setbeamercolor{frametitle}{fg=UGABlack}
+\setbeamercolor{title}{fg=UGABlack}
+\setbeamercolor{normal text}{fg=UGABlack}
+\setbeamercolor{structure}{fg=UGARed}
+
+% Headline
+\setbeamertemplate{headline}{
+  \begin{beamercolorbox}[wd=\paperwidth,ht=2.5ex,dp=1.125ex]{headline}
+    \insertsectionnavigationhorizontal{\paperwidth}{}{}
+  \end{beamercolorbox}
+}
+
+% Footline
+\setbeamertemplate{footline}{%
+  \leavevmode%
+  \hbox{%
+    \begin{beamercolorbox}[wd=\paperwidth,ht=2.5ex,dp=1ex,leftskip=1em,rightskip=1em]{footline}%
+      \ifnum\theframenumber=0\relax\else%
+        \insertshortauthor{} \hfill \insertframenumber/\inserttotalframenumber%
+      \fi%
+    \end{beamercolorbox}}%
+}
+
+% ---------- PACKAGES ----------
+\usepackage{appendixnumberbeamer}
+\usepackage{amsmath, amssymb, mathtools}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{tcolorbox}
+
+% ---------- METADATA ----------
+\title[Love of Variety \& Dynamic Advertising]{%
+    Love of Variety and Dynamic Advertising}
+\subtitle{}
+\author[T. Mason]{Tate Mason}
+\institute[UGA]{John Munro Godfrey Sr.\ Dept.\ of Economics \\ University of Georgia}
+\date{\today}
+
+% ---------- AUTO-AGENDA ----------
+\AtBeginSection[]{
+  \begin{frame}[noframenumbering]{Roadmap}
+    \tableofcontents[currentsection]
+  \end{frame}
+}
+
+% ---------- MACROS ----------
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\hl}[1]{\textbf{\textcolor{UGARed}{#1}}}
+\hypersetup{colorlinks=true, linkcolor=UGARed, urlcolor=UGARed}
+
+% ============================================================
+\begin{document}
+
+% ------------------------------------------------------------
+% Title
+% ------------------------------------------------------------
+\begin{frame}[noframenumbering]
+  \titlepage
+\end{frame}
+
+% ============================================================
+\section{Motivation}
+% ============================================================
+
+\begin{frame}{Motivation RETURN TO THIS}
+  \begin{itemize}
+    \item Amazon anti-trust scrutiny
+    \begin{itemize}
+      \item Amazon accounts for almost $40\%$ of US e-commerce sales (Statista, 2023)
+      \item Amazon's dual role as retailer and platform raises concerns about anti-competitive behavior
+      \item Can use own data and competitors' data to more effectively target ads and product introductions
+    \end{itemize}
+    \item Consumer agency over data (opt out)
+    \begin{itemize}
+      \item Apple iOS 14.5 update: $85\%$ opt-out rate upon rollout (Flurry Analytics, 2022)
+      \item Facebook ad revenue down \$13bn in 2022 due to app tracking transparency (ATT) policy
+    \end{itemize}
+  \end{itemize}
+  \begin{tcolorbox}[colback=red!5!white, colframe=UGARed, title=\textbf{Key Concern}]
+    Data obfuscation etc.
+  \end{tcolorbox}
+\end{frame}
+
+\begin{frame}{Why Does Variety Matter?}
+  \begin{tcolorbox}[colback=red!5!white, colframe=UGARed, title=\textbf{Research Question}]
+    How do consumer preferences for variety impact the firms' targeting strategy and what are the welfare implications of data privacy policies that limit ad targeting?
+  \end{tcolorbox}
+  \begin{itemize}
+    \item Understanding the role of variety-seeking is valuable for modeling consumer behavior and evaluating the impact its accounting has on estimates of consumer welfare.
+    \item Canonical logit models ignore consumer preferences for variety, which are potentially empirically important 
+    \item These preferences may shape consumer switching behavior, which in turn shapes firms' incentives to strategically target ads and introduce new products.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{What This Paper Does (So Far)}
+  \begin{enumerate}
+    \item \hl{Model:} Dynamic discrete choice model of consumer behavior with love of variety and strategic advertising by firms
+    \vspace{4pt}
+    \item \hl{Simulation:} Characterize consumer and firm behavior
+          across preference regimes and advertising
+          specifications
+    \vspace{4pt}
+    \item \hl{Estimation (coming):} Bring model to Nielsen scanner data
+          to recover structural parameters
+    \vspace{4pt}
+    \item \hl{Counterfactuals (coming):} Study advertising targeting policy and
+          welfare implications
+  \end{enumerate}
+  \vspace{6pt}
+  \textbf{Today's talk:} Consumer demand function + simulation results
+\end{frame}
+
+\begin{frame}{Literature Connections}
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \hl{Demand side}
+      \begin{itemize}
+        \item Lattin (1987): State dependence in consumer choice
+        \item Chintagunta (1999): Extension to panel data
+        \item Dub\'e, Hitsch, Rossi (2009): Habit formation and switching costs
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \hl{Advertising / firm side}
+      \begin{itemize}
+        \item Shaffer and Zhang (1995): Theoretical basis for ad targeting in a two-period model
+        \item Erdem \& Keane (1996): Learning dynamics
+        \item Zhang, Choi, Cheng (2025): Updated targeting game
+      \end{itemize}
+    \end{column}
+  \end{columns}
+
+  \vspace{1pt}
+  \begin{tcolorbox}[colback=red!5!white, colframe=UGARed, title=\textbf{Contribution}]
+    Unite the demand and supply side literatures by modeling consumer preferences for variety in a dynamic discrete choice framework with strategic advertising.
+  \end{tcolorbox}
+\end{frame}
+
+% ============================================================
+\section{Model}
+% ============================================================
+
+\begin{frame}{Consumer's Problem}
+  Consumer $i$ chooses product $j$ in period $t$ to maximize:
+  \begin{equation*}
+    U_{ijt} = \underbrace{\beta_{ij} X_{jt}}_{\text{characteristic component}}
+              + \underbrace{\gamma_i \log(1 + \Sigma_{ijt}^2)}_{\text{novelty component}}
+              - \underbrace{\alpha \, p_{jt} (1-a_{jt})}_{\text{ad-adjusted price}}
+              + \xi_{j} + \varepsilon_{ijt}
+  \end{equation*}
+  \begin{itemize}
+    \item where $\Sigma_{ijt} = X_{jt} - \theta_{it}$ is the deviation of product $j$'s characteristic from consumer $i$'s previously chosen characteristics $\theta_{it}$ in period $t$.
+    \item at the moment, $\theta_{it} = \frac{1}{t}\sum_{s=1}^{t-1} X_{js}$, or the mean of previously chosen product characteristics.
+  \end{itemize}
+  \vspace{8pt}
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \hl{Key parameters:}
+      \begin{itemize}
+        \item $\beta_i > 0$: quality
+        \item $\gamma_i > 0$: variety-seeking
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \hl{Choice probability (MNL):}
+      \begin{equation*}
+        P_{ijt} = \frac{e^{U_{ijt}}}{1 + \sum_{k} e^{U_{ikt}}}
+      \end{equation*}
+      Follows from $\varepsilon_{ijt} \sim \text{Gumbel}(0,1)$
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{State Variable: History of Choices}
+  \begin{tcolorbox}[colback=red!5!white, colframe=UGARed, title=\textbf{History of Choices $\theta_{it}$}]
+    \[
+    \theta_{it} = f(\{X_{js}\}_{s < t}) = \frac{1}{t}\sum_{s=1}^{t-1} X_{js}
+    \]
+
+    The consumer's history is summarized by the mean of previously chosen product characteristics.
+  \end{tcolorbox}
+
+  \vspace{6pt}
+  \hl{Simulation design:}
+  \begin{itemize}
+    \item \textbf{Initial state:} Simulate $T_{\text{prior}} = 5$ pre-sample
+          periods, choose products from $J \in [1,2,3,4,5]$ to generate an experience-based
+          prior.
+  \end{itemize}
+\end{frame}
+
+%\begin{frame}{Firm's Problem}
+%  \hl{Firm $j$ solves a dynamic program:}
+%  \[
+%    V_j(t; \Sigma_{jt}, \lambda_t(\gamma_i)) = \max_{a \in \{0,1\}}
+%    \left\{ \pi_{jt}(a) + \beta_{df} \, \E\bigl[V_j(t{+}1;\cdot)\bigr] \right\}
+%  \]
+%
+%  \vspace{4pt}
+%  \hl{Per-period profit:}
+%  \[
+%    \pi_{jt}(a) = s_{jt}(p - mc) - \mu \, a
+%  \]
+%
+%  \vspace{4pt}
+%  \hl{Two advertising specifications:}
+%  \begin{itemize}
+%    \item \textbf{Fixed:} $a \in \{0, 1\}$ (binary on/off)
+%    \item \textbf{Heuristic} $a_t \propto (\bar{X}_{it} - X_{jt-1})^2$
+%          --- higher spending when product is far from consumer's mean
+%          --- work in progress: not ideal measure of drift
+%  \end{itemize}
+%
+%  \vspace{4pt}
+%  Solved via backward induction; firm chooses $a$ to maximize discounted profits (to be completed)
+%\end{frame}
+% ============================================================
+\section{Simulation Design}
+% ============================================================
+
+\begin{frame}{Simulation Parameters}
+  \begin{table}
+    \centering
+    \caption{Parameters}
+    \begin{tabular}{lll}
+      \toprule
+      Param. & Value & Description \\
+      \midrule
+      $T$         & 100             & Periods \\
+      $J$         & 5               & Products \\
+      $S$         & 1{,}000         & Simulations \\
+      $\beta_{ij}$   & 2             & Quality \\
+      $\gamma_i$     & $\{6, 9, 12\}$ & Variety-seeking \\
+      $\alpha$    & 0               & Price (off) \\
+      $\xi_j$     & 0               & Unobserved quality (off) \\
+      $\beta_{df}$    & 0             & Discount factor (off) \\
+      \bottomrule
+    \end{tabular}
+  \end{table}
+\end{frame}
+
+% ============================================================
+\section{Results: Consumer Behavior}
+% ============================================================
+
+\begin{frame}{Utility Measurement (No LOV)}
+  \begin{tcolorbox}[colback=red!5!white, colframe=UGARed, title=\textbf{Utility Function without LOV}]
+    \begin{equation*}
+      \hat{U}_{ijt} = \beta_{ij} X_{jt} + \epsilon_{ijt}
+    \end{equation*}
+  \end{tcolorbox}
+  \begin{columns}[T]
+    \begin{column}{0.5\textwidth}
+      
+      \begin{itemize}
+        \item Any variation due to $\varepsilon_{ijt}$, not consumer preferences
+        \item CCPs are not informative about consumer behavior or firm incentives
+        \item Nearly all mass on Product 5, which has the highest quality $X_{jt}$
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.47\textwidth}
+      \begin{table}
+        \caption{CCPs (No LOV)}
+        \begin{tabular}{lc}
+          \toprule
+          Product & CCP \\
+          \midrule
+          Product 1     & 0.02\% \\
+          Product 2     & 0.84\% \\
+          Product 3     & 4.40\% \\
+          Product 4     & 19.3\% \\
+          Product 5     & 75.3\% \\
+          \bottomrule
+        \end{tabular}
+      \end{table}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Consumer Behavior with LOV}
+  \begin{tcolorbox}[colback=red!5!white, colframe=UGARed, title=\textbf{Utility Function with LOV}]
+    \begin{equation*}
+      \hat{U}_{ijt} = \beta_{ij} X_{jt} + \gamma_i \log(1 + \Sigma_{ijt}^2) + \epsilon_{ijt}
+    \end{equation*}
+  \end{tcolorbox}
+  \begin{itemize}
+    \item where $\Sigma_{ijt} = X_{jt} - \theta_{it}$ as before.
+    \item Consumer behavior varies significantly across variety specifications.
+    \item Higher $\gamma_i$ leads to more switching.
+    \item Cross-sectional sorting: consumers with higher $\gamma_i$ are more likely to switch to lower indexed products.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{LOV Specification}
+  \begin{center}
+  \scriptsize
+  \begin{tabular}{lcccc}
+    \toprule
+    & \multicolumn{4}{c}{$\gamma$} \\
+    \cmidrule(lr){2-5}
+    & $0$ & $6$ & $9$ & $12$ \\
+    \midrule
+    \multicolumn{5}{l}{\textit{Conditional Choice Probabilities}} \\[2pt]
+    Product 1 & 0.0016 & 0.3313 & 0.3971 & 0.4234 \\
+    Product 2 & 0.0084 & 0.0551 & 0.0081 & 0.0009 \\
+    Product 3 & 0.0437 & 0.0027 & 0.0000 & 0.0000 \\
+    Product 4 & 0.1934 & 0.0023 & 0.0002 & 0.0000 \\
+    Product 5 & 0.7529 & 0.6086 & 0.5946 & 0.5756 \\
+    \midrule
+    \multicolumn{5}{l}{\textit{Inclusive Values}} \\[2pt]
+    Inclusive Value & 10.9606 & 17.4522 & 22.4506 & 27.5139 \\
+    IV at $t=50$    & ---     & 16.3861 & 21.5165 & 27.6856 \\
+    \bottomrule
+  \end{tabular}
+  \end{center}
+\end{frame}
+
+\begin{frame}{Product Introduction ($\gamma = 0$)}
+\begin{center}
+\scriptsize
+\setlength{\tabcolsep}{5pt}
+\begin{tabular}{lrrrrr}
+  \toprule
+  & \multicolumn{5}{c}{Value of Introduced Product ($q_6$)} \\
+  \cmidrule(lr){2-6}
+  & $q_6=0$ & $q_6=1$ & $q_6=3$ & $q_6=5$ & $q_6=6$ \\
+  \midrule
+  Product 1        & 0.0016  & 0.0016  & 0.0016  & 0.0012  & 0.0009  \\
+  Product 2        & 0.0089  & 0.0089  & 0.0087  & 0.0066  & 0.0053  \\
+  Product 3        & 0.0440  & 0.0439  & 0.0429  & 0.0332  & 0.0263  \\
+  Product 4        & 0.1927  & 0.1926  & 0.1883  & 0.1484  & 0.1176  \\
+  Product 5        & 0.7527  & 0.7522  & 0.7375  & 0.5927  & 0.4727  \\
+  Product 6        & 0.0001  & 0.0008  & 0.0210  & 0.2179  & 0.3771  \\
+  \midrule
+  $\%\Delta$ IV    & 0.9993  & 0.9994  & 1.0017  & 1.0362  & 1.0910  \\
+  IV at $t=50$     & 11.3297 & 11.3300 & 11.3491 & 12.0579 & 13.5177 \\
+  \bottomrule
+\end{tabular}
+\end{center}
+\end{frame}
+
+\begin{frame}{Product Introduction ($\gamma = 6$)}
+\begin{center}
+\scriptsize
+\setlength{\tabcolsep}{5pt}
+\begin{tabular}{lrrrrr}
+  \toprule
+  & \multicolumn{5}{c}{Value of Introduced Product ($q_6$)} \\
+  \cmidrule(lr){2-6}
+  & $q_6=0$ & $q_6=1$ & $q_6=3$ & $q_6=5$ & $q_6=6$ \\
+  \midrule
+  Product 1        & 0.2125  & 0.2665  & 0.3295  & 0.2973  & 0.2396  \\
+  Product 2        & 0.0353  & 0.0446  & 0.0571  & 0.0523  & 0.0525  \\
+  Product 3        & 0.0021  & 0.0025  & 0.0031  & 0.0029  & 0.0043  \\
+  Product 4        & 0.0018  & 0.0019  & 0.0021  & 0.0017  & 0.0012  \\
+  Product 5        & 0.5943  & 0.5796  & 0.6069  & 0.4769  & 0.3082  \\
+  Product 6        & 0.1540  & 0.1049  & 0.0013  & 0.1689  & 0.3941  \\
+  \midrule
+  $\%\Delta$ IV    & 1.0126  & 0.9961  & 0.9835  & 0.9975  & 1.0946  \\
+  IV at $t=50$     & 20.9308 & 19.6201 & 16.6054 & 19.8850 & 27.0847 \\
+  \bottomrule
+\end{tabular}
+\end{center}
+\end{frame}
+
+\begin{frame}{Product Introduction ($\gamma = 9$)}
+\begin{center}
+\scriptsize
+\setlength{\tabcolsep}{5pt}
+\begin{tabular}{lrrrrr}
+  \toprule
+  & \multicolumn{5}{c}{Value of Introduced Product ($q_6$)} \\
+  \cmidrule(lr){2-6}
+  & $q_6=0$ & $q_6=1$ & $q_6=3$ & $q_6=5$ & $q_6=6$ \\
+  \midrule
+  Product 1        & 0.2087  & 0.3131  & 0.3966  & 0.3643  & 0.3164  \\
+  Product 2        & 0.0054  & 0.0072  & 0.0093  & 0.0088  & 0.0122  \\
+  Product 3        & 0.0001  & 0.0001  & 0.0001  & 0.0001  & 0.0001  \\
+  Product 4        & 0.0001  & 0.0001  & 0.0001  & 0.0001  & 0.0001  \\
+  Product 5        & 0.5768  & 0.5616  & 0.5940  & 0.4628  & 0.2994  \\
+  Product 6        & 0.2088  & 0.1179  & 0.0000  & 0.1640  & 0.3719  \\
+  \midrule
+  $\%\Delta$ IV    & 1.0301  & 0.9932  & 0.9823  & 0.9932  & 1.0928  \\
+  IV at $t=50$     & 24.0019 & 21.8304 & 21.5281 & 22.0987 & 30.4871 \\
+  \bottomrule
+\end{tabular}
+\end{center}
+\end{frame}
+
+\begin{frame}{Product Introduction ($\gamma = 12$)}
+\begin{center}
+\scriptsize
+\setlength{\tabcolsep}{5pt}
+\begin{tabular}{lrrrrr}
+  \toprule
+  & \multicolumn{5}{c}{Value of Introduced Product ($q_6$)} \\
+  \cmidrule(lr){2-6}
+  & $q_6=0$ & $q_6=1$ & $q_6=3$ & $q_6=5$ & $q_6=6$ \\
+  \midrule
+  Product 1        & 0.2113  & 0.3321  & 0.4234  & 0.3913  & 0.3503  \\
+  Product 2        & 0.0007  & 0.0009  & 0.0011  & 0.0011  & 0.0019  \\
+  Product 3        & 0.0000  & 0.0000  & 0.0000  & 0.0000  & 0.0000  \\
+  Product 4        & 0.0000  & 0.0000  & 0.0000  & 0.0000  & 0.0000  \\
+  Product 5        & 0.5546  & 0.5451  & 0.5755  & 0.4494  & 0.2904  \\
+  Product 6        & 0.2333  & 0.1219  & 0.0000  & 0.1582  & 0.3574  \\
+  \midrule
+  $\%\Delta$ IV    & 1.0421  & 0.9908  & 0.9818  & 0.9906  & 1.0930  \\
+  IV at $t=50$     & 32.1484 & 29.3938 & 29.3151 & 29.3385 & 37.1444 \\
+  \bottomrule
+\end{tabular}
+\end{center}
+\end{frame}
+
+% ============================================================
+\section{Next Steps}
+% ============================================================
+
+\begin{frame}{Road to Estimation}
+  \begin{enumerate}
+    \item \hl{Consumer value function} \\
+          Move from reduced-form simulation to solving the full
+          dynamic discrete choice with continuation values
+
+    \vspace{4pt}
+    \item \hl{Nielsen scanner data} \\
+          Bring model to data to recover structural parameters; use
+          variation in consumer switching behavior to identify
+          variety-seeking parameter
+
+    \vspace{4pt}
+    \item \hl{Firm's Problem} \\
+          Ad targeting policy; profit maximization; product introduction; welfare implications of data privacy policies 
+  \end{enumerate}
+\end{frame}
+
+
+\begin{frame}{Summary}
+  \begin{enumerate}
+    \item \hl{Model:} Consumer utility depends on deviation from
+          experiences; nests variety-seeking 
+
+    \vspace{4pt}
+    \item \hl{History:} Rich behavioral dynamics; greater preference for variety 
+          generates cross-sectional sorting
+
+    \vspace{4pt}
+    \item \hl{Next:} Multiple consumers, structural estimation,
+          Nielsen data
+  \end{enumerate}
+
+  \vspace{10pt}
+  \centering
+  \Large\textbf{Thank you --- questions welcome}
+\end{frame}
+
+% ============================================================
+% Appendix
+% ============================================================
+\appendix
+\begin{frame}[plain, noframenumbering]
+  \centering
+  \vspace{2cm}
+  {\Large \textbf{Appendix}}
+\end{frame}
+
+\begin{frame}{References}
+  \begin{thebibliography}{9}
+    \footnotesize
+    \bibitem{lattin1987}
+    Lattin, J. M. (1987). \textit{State dependence in consumer choice}. Journal of Consumer Research, 14(3), 417-431.
+
+    \bibitem{chintagunta1999}
+    Chintagunta, P. K. (1999). \textit{Panel data analysis of state dependence and heterogeneity in brand choice behavior}. Journal of Econometrics, 89(1-2), 5-34.
+
+    \bibitem{dube2010}
+    Dub\'e, J. P., Hitsch, G. J., \& Rossi, P. E. (2009). \textit{State dependence and alternative explanations for consumer inertia}. NBER Working Paper No. 14912.
+
+    \bibitem{shaffer1995}
+    Shaffer, G., \& Zhang, Z. J. (1995). \textit{Competitive advertising in a duopoly}. Marketing Science, 14(3_supplement), G206-G218.
+
+    \bibitem{erdem1996}
+    Erdem, T., \& Keane, M. P. (1996). \textit{Decision-making under uncertainty: Capturing dynamic brand choice processes in turbulent consumer goods markets}. Marketing Science, 15(1), 1-20. 
+
+    \bibitem{bronnenberg2012}
+    Bronnenberg, B. J., Dub\'e, J. P., \& Gentzkow, M. (2012). \textit{The Evolution of Brand Preferences: Evidence from Consumer Migration}. American Economic Review, 102(6), 2472-2508.
+
+    \bibitem{zhang2025}
+    Zhang, J., Choi, J., \& Cheng, S. (2025). \textit{Dynamic advertising targeting: A structural approach}. Marketing Science, 44(1), 1-20.
+
+  \end{thebibliography}
+\end{frame}
+
+\begin{frame}{Simulation Algorithm (Consumer)}
+  \begin{enumerate}
+    \item Draw $\varepsilon_{ijt} \sim \text{Gumbel}(0,1)$ for all $i, j, t$
+    \item Initialize $\bar{X}_{i0}$ (set mean or prior mean)
+    \item For $t = 1, \ldots, T$:
+      \begin{enumerate}
+        \item Compute $U_{ijt} = \beta_i X_{jt}
+              + \gamma_i \log(1 + (X_{jt} - \bar{X}_{it})^2)
+              \varepsilon_{ijt}$
+        \item Set $j^* = \arg\max_j U_{ijt}$
+        \item Update $\bar{X}_{i,t+1}
+      \end{enumerate}
+    \item Compute CCPs via log-sum-exp for numerical stability:
+          $\log P_{ijt} = U_{ijt} - \log \sum_k e^{U_{ikt}}$
+    \item Average over $S = 1{,}000$ simulation draws
+  \end{enumerate}
+\end{frame}
+
+\end{document}

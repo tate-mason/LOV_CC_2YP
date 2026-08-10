@@ -1,0 +1,386 @@
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  D:\SVN\trunk\analysis\Brands (CCA)\code\..\output\preclean.log
+  log type:  text
+ opened on:   9 Dec 2010, 10:32:42
+
+. set linesize 255
+
+. 
+. **********************************************************
+. * PRELIMINARIES
+. **********************************************************
+. version
+version 11.1
+
+. version 10
+
+. clear all
+
+. set mem 2g
+
+Current memory allocation
+
+                    current                                 memory usage
+    settable          value     description                 (1M = 1024k)
+    --------------------------------------------------------------------
+    set maxvar         5000     max. variables allowed           1.947M
+    set memory         2048M    max. data space              2,048.000M
+    set matsize         400     max. RHS vars in models          1.254M
+                                                            -----------
+                                                             2,051.201M
+
+. set matsize 5000
+
+Current memory allocation
+
+                    current                                 memory usage
+    settable          value     description                 (1M = 1024k)
+    --------------------------------------------------------------------
+    set maxvar         5000     max. variables allowed           1.947M
+    set memory         2048M    max. data space              2,048.000M
+    set matsize        5000     max. RHS vars in models        191.154M
+                                                            -----------
+                                                             2,241.102M
+
+. set more off
+
+. 
+. local hh_homescan "..\external\by_hh_brand.dta"
+
+. local cca "..\external\brand_shares.dta" 
+
+. local cross_br "..\external\CCA_Homescan_crosswalk.dta"
+
+. local demos "..\external\demos.dta"
+
+. local cca_hs_brand "..\temp\cca_hs_brand.dta"
+
+. 
+. adopath + ..\external
+  [1]  (UPDATES)   "C:\Program Files (x86)\Stata11\ado\updates/"
+  [2]  (BASE)      "C:\Program Files (x86)\Stata11\ado\base/"
+  [3]  (SITE)      "C:\Program Files (x86)\Stata11\ado\site/"
+  [4]              "."
+  [5]  (PERSONAL)  "c:\ado\personal/"
+  [6]  (PLUS)      "Z:\ado\plus/"
+  [7]  (OLDPLACE)  "c:\ado/"
+  [8]              "..\external"
+
+. 
+. tempfile temp      
+
+. 
+. **********************************************************
+. *  MAKE CCA-HOMESCAN CROSSWALK MANY TO ONE
+. **********************************************************
+. 
+. u `cross_br', clear
+
+. 
+. ** If one or more "best matches" exist for a CCA brand, keep only those **
+. replace best_match = 0 if best_match==.
+(0 real changes made)
+
+. egen has_best_match = max(best_match), by(brand_cca category_cca)
+
+. drop if has_best_match==1 & best_match==0
+(1210 observations deleted)
+
+. 
+. ** When CCA brand still matches to multiple HS modules, choose the one with the most HS hhs making purchases **
+. mmerge module using ../external/by_module, type(n:1) unm(master) ukeep(hh_all) urename(hh_all modhh)
+
+-------------------------------------------------------------------------------
+merge specs          |
+       matching type | n:1
+  mv's on match vars | none
+  unmatched obs from | master
+---------------------+---------------------------------------------------------
+  master        file | ..\external\CCA_Homescan_crosswalk.dta
+                 obs |    981
+                vars |      7
+          match vars | module  (not a key)
+  -------------------+---------------------------------------------------------
+  using         file | ../external/by_module.dta
+                 obs |    382
+                vars |      2  (selection via udrop/ukeep)
+          match vars | module  (key)
+---------------------+---------------------------------------------------------
+variable module does not uniquely identify observations in the master data
+result          file | ..\external\CCA_Homescan_crosswalk.dta
+                 obs |    981
+                vars |     10  (including _merge)
+         ------------+---------------------------------------------------------
+              _merge |    981  obs both in master and using data      (code==3)
+-------------------------------------------------------------------------------
+
+. 
+. preserve
+
+. keep brand_cca category_cca module modhh
+
+. duplicates drop
+
+Duplicates in terms of all variables
+
+(206 observations deleted)
+
+. rankunique modhh, by(brand_cca category_cca) gen(modrank)
+
+. keep if modrank==1
+(129 observations deleted)
+
+. save `temp', replace
+(note: file C:\Windows\TEMP\ST_01000002.tmp not found)
+file C:\Windows\TEMP\ST_01000002.tmp saved
+
+. restore
+
+. 
+. mmerge brand_cca category_cca module using `temp', type(n:1) unmatched(none) ukeep()
+
+-------------------------------------------------------------------------------
+merge specs          |
+       matching type | n:1
+  mv's on match vars | none
+  unmatched obs from | none
+---------------------+---------------------------------------------------------
+  master        file | ..\external\CCA_Homescan_crosswalk.dta
+                 obs |    981
+                vars |      8
+          match vars | brand_cca category_cca module  (not a key)
+  -------------------+---------------------------------------------------------
+  using         file | C:\Windows\TEMP\ST_01000002.tmp
+                 obs |    646
+                vars |      5
+          match vars | brand_cca category_cca module  (key)
+  -------------------+---------------------------------------------------------
+         common vars | modhh
+---------------------+---------------------------------------------------------
+variables brand_cca category_cca module do not uniquely identify observations in the master data
+result          file | ..\external\CCA_Homescan_crosswalk.dta
+                 obs |    719
+                vars |     11  (including _merge)
+         ------------+---------------------------------------------------------
+              _merge |    719  obs both in master and using data      (code==3)
+-------------------------------------------------------------------------------
+
+. 
+. ** When CCA brand still matches to multiple HS brands, choose the one with the most HS hhs making purchases **
+. mmerge brand using ../external/by_brand, type(n:1) unm(master) ukeep(hh) 
+
+-------------------------------------------------------------------------------
+merge specs          |
+       matching type | n:1
+  mv's on match vars | none
+  unmatched obs from | master
+---------------------+---------------------------------------------------------
+  master        file | ..\external\CCA_Homescan_crosswalk.dta
+                 obs |    719
+                vars |      9
+          match vars | brand  (not a key)
+  -------------------+---------------------------------------------------------
+  using         file | ../external/by_brand.dta
+                 obs |  51316
+                vars |      2  (selection via udrop/ukeep)
+          match vars | brand  (key)
+---------------------+---------------------------------------------------------
+variable brand does not uniquely identify observations in the master data
+result          file | ..\external\CCA_Homescan_crosswalk.dta
+                 obs |    719
+                vars |     12  (including _merge)
+         ------------+---------------------------------------------------------
+              _merge |    719  obs both in master and using data      (code==3)
+-------------------------------------------------------------------------------
+
+. rankunique hh, by(brand_cca category_cca) gen(brandrank)
+
+. keep if brandrank==1
+(73 observations deleted)
+
+. drop _merge
+
+. 
+. keep brand_cca category_cca brand module
+
+. save ..\temp\crosswalk, replace
+(note: file ..\temp\crosswalk.dta not found)
+file ..\temp\crosswalk.dta saved
+
+. 
+. **********************************************************
+. *  COLLAPSE CCA TO BRAND-STATE LEVEL
+. **********************************************************
+. u `cca', clear
+
+. 
+. drop if market=="IL"
+(1916 observations deleted)
+
+. ren share_fill share_cca_orig
+
+. 
+. * merge brand
+. mmerge brand_cca category_cca using ..\temp\crosswalk, type(n:1) unmatched(none) ukeep(brand)
+
+-------------------------------------------------------------------------------
+merge specs          |
+       matching type | n:1
+  mv's on match vars | none
+  unmatched obs from | none
+---------------------+---------------------------------------------------------
+  master        file | ..\external\brand_shares.dta
+                 obs | 452531
+                vars |      9
+          match vars | brand_cca category_cca  (not a key)
+  -------------------+---------------------------------------------------------
+  using         file | ..\temp\crosswalk.dta
+                 obs |    646
+                vars |      3  (selection via udrop/ukeep)
+          match vars | brand_cca category_cca  (key)
+---------------------+---------------------------------------------------------
+variables brand_cca category_cca do not uniquely identify observations in the master data
+result          file | ..\external\brand_shares.dta
+                 obs |  49977
+                vars |     12  (including _merge)
+         ------------+---------------------------------------------------------
+              _merge |  49977  obs both in master and using data      (code==3)
+-------------------------------------------------------------------------------
+
+. 
+. * when HS brand matches multiple CCA brands, average within brand-market-year
+. collapse (mean) share_cca_orig, by(brand market state year)
+
+. 
+. 
+. * collapse to brand-state level (over markets and years)
+. egen tagyear = tag(year state brand)
+
+. collapse (mean) share_cca_orig (sum) yrs_cca = tagyear, by(state brand)
+
+. save ..\temp\cca_brand_state, replace
+(note: file ..\temp\cca_brand_state.dta not found)
+file ..\temp\cca_brand_state.dta saved
+
+.  
+. **********************************************************
+. *  COLLAPSE HOMESCAN TO BRAND-STATE LEVEL
+. **********************************************************
+. u `hh_homescan', clear
+
+. mmerge hhld_id using "`demos'", type(n:1) unmatched(none) ukeep(state)
+
+-------------------------------------------------------------------------------
+merge specs          |
+       matching type | n:1
+  mv's on match vars | none
+  unmatched obs from | none
+---------------------+---------------------------------------------------------
+  master        file | ..\external\by_hh_brand.dta
+                 obs | 12561367
+                vars |     10
+          match vars | hhld_id  (not a key)
+  -------------------+---------------------------------------------------------
+  using         file | ..\external\demos.dta
+                 obs |  48951
+                vars |      2  (selection via udrop/ukeep)
+          match vars | hhld_id  (key)
+---------------------+---------------------------------------------------------
+variable hhld_id does not uniquely identify observations in the master data
+result          file | ..\external\by_hh_brand.dta
+                 obs | 12561367
+                vars |     13  (including _merge)
+         ------------+---------------------------------------------------------
+              _merge | 12561367  obs both in master and using data      (code==3)
+-------------------------------------------------------------------------------
+
+. 
+. gen hhs_hs = 1
+
+. collapse (sum) purch hhs_hs, by(state brand)
+
+. replace purch = 0 if purch == .
+(0 real changes made)
+
+. gen module = floor(brand/10^6)
+
+. save ..\temp\hs_brand_state, replace
+(note: file ..\temp\hs_brand_state.dta not found)
+file ..\temp\hs_brand_state.dta saved
+
+. 
+. **********************************************************
+. *  COMBINE HOMESCAN AND CCA
+. **********************************************************
+. u ..\temp\hs_brand_state, clear
+
+. mmerge state brand using ..\temp\cca_brand_state, type(1:1) unmatched(both) ukeep(share_cca_orig yrs_cca)
+
+-------------------------------------------------------------------------------
+merge specs          |
+       matching type | 1:1
+  mv's on match vars | none
+  unmatched obs from | both
+---------------------+---------------------------------------------------------
+  master        file | ..\temp\hs_brand_state.dta
+                 obs | 615968
+                vars |      5
+          match vars | state brand  (key)
+  -------------------+---------------------------------------------------------
+  using         file | ..\temp\cca_brand_state.dta
+                 obs |   6115
+                vars |      4  (selection via udrop/ukeep)
+          match vars | state brand  (key)
+---------------------+---------------------------------------------------------
+result          file | ..\temp\hs_brand_state.dta
+                 obs | 618295
+                vars |      9  (including _merge)
+         ------------+---------------------------------------------------------
+              _merge | 612180  obs only in master data                (code==1)
+                     |   2327  obs only in using data                 (code==2)
+                     |   3788  obs both in master and using data      (code==3)
+-------------------------------------------------------------------------------
+
+. drop if _merge==1 // homescan brands with no CCA match
+(612180 observations deleted)
+
+. drop if _merge==2 // brand-state pairs that have no purchases in homescan
+(2327 observations deleted)
+
+. drop _m
+
+. 
+. **********************************************************
+. * DEFINE SHARES & RANKS
+. **********************************************************
+. egen tot_hs = total(purch), by(state module)
+
+. gen share_hs = purch/tot_hs
+
+. egen tot_cca = total(share_cca_orig), by(state module)
+
+. gen share_cca = share_cca_orig/tot_cca
+(179 missing values generated)
+
+. drop tot_hs tot_cca share_cca_orig
+
+. 
+. rankunique share_hs, by(module state) gen(rank_hs_st)
+
+. rankunique share_cca, by(module state) gen(rank_cca_st)
+
+. 
+. **********************************************************
+. * SAVE AT THE BRAND-STATE LEVEL FOR ALL MATCHED BRANDS (cca_hs_brand.dta)
+. *********************************************************
+. save `cca_hs_brand', replace
+(note: file ..\temp\cca_hs_brand.dta not found)
+file ..\temp\cca_hs_brand.dta saved
+
+. 
+. 
+. 
+. 
+. 
+end of do-file

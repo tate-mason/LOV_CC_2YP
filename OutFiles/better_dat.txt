@@ -1,0 +1,247 @@
+Defaulting to user installation because normal site-packages is not writeable
+Requirement already satisfied: pandas in /home/dtm63837/.local/lib/python3.12/site-packages (3.0.3)
+Requirement already satisfied: numpy>=1.26.0 in /home/dtm63837/.local/lib/python3.12/site-packages (from pandas) (2.4.6)
+Requirement already satisfied: python-dateutil>=2.8.2 in /home/dtm63837/.local/lib/python3.12/site-packages (from pandas) (2.9.0.post0)
+Requirement already satisfied: six>=1.5 in /home/dtm63837/.local/lib/python3.12/site-packages (from python-dateutil>=2.8.2->pandas) (1.17.0)
+
+[notice] A new release of pip is available: 24.0 -> 26.1.2
+[notice] To update, run: pip install --upgrade pip
+Defaulting to user installation because normal site-packages is not writeable
+Requirement already satisfied: polars in /home/dtm63837/.local/lib/python3.12/site-packages (1.40.1)
+Requirement already satisfied: polars-runtime-32==1.40.1 in /home/dtm63837/.local/lib/python3.12/site-packages (from polars) (1.40.1)
+
+[notice] A new release of pip is available: 24.0 -> 26.1.2
+[notice] To update, run: pip install --upgrade pip
+Defaulting to user installation because normal site-packages is not writeable
+Requirement already satisfied: numpy in /home/dtm63837/.local/lib/python3.12/site-packages (2.4.6)
+
+[notice] A new release of pip is available: 24.0 -> 26.1.2
+[notice] To update, run: pip install --upgrade pip
+Defaulting to user installation because normal site-packages is not writeable
+Requirement already satisfied: matplotlib in /home/dtm63837/.local/lib/python3.12/site-packages (3.10.9)
+Requirement already satisfied: contourpy>=1.0.1 in /home/dtm63837/.local/lib/python3.12/site-packages (from matplotlib) (1.3.3)
+Requirement already satisfied: cycler>=0.10 in /home/dtm63837/.local/lib/python3.12/site-packages (from matplotlib) (0.12.1)
+Requirement already satisfied: fonttools>=4.22.0 in /home/dtm63837/.local/lib/python3.12/site-packages (from matplotlib) (4.63.0)
+Requirement already satisfied: kiwisolver>=1.3.1 in /home/dtm63837/.local/lib/python3.12/site-packages (from matplotlib) (1.5.0)
+Requirement already satisfied: numpy>=1.23 in /home/dtm63837/.local/lib/python3.12/site-packages (from matplotlib) (2.4.6)
+Requirement already satisfied: packaging>=20.0 in /apps/eb/Python/3.12.3-GCCcore-13.3.0/lib/python3.12/site-packages (from matplotlib) (24.0)
+Requirement already satisfied: pillow>=8 in /home/dtm63837/.local/lib/python3.12/site-packages (from matplotlib) (12.2.0)
+Requirement already satisfied: pyparsing>=3 in /home/dtm63837/.local/lib/python3.12/site-packages (from matplotlib) (3.3.2)
+Requirement already satisfied: python-dateutil>=2.7 in /home/dtm63837/.local/lib/python3.12/site-packages (from matplotlib) (2.9.0.post0)
+Requirement already satisfied: six>=1.5 in /home/dtm63837/.local/lib/python3.12/site-packages (from python-dateutil>=2.7->matplotlib) (1.17.0)
+
+[notice] A new release of pip is available: 24.0 -> 26.1.2
+[notice] To update, run: pip install --upgrade pip
+Defaulting to user installation because normal site-packages is not writeable
+Requirement already satisfied: seaborn in /home/dtm63837/.local/lib/python3.12/site-packages (0.13.2)
+Requirement already satisfied: numpy!=1.24.0,>=1.20 in /home/dtm63837/.local/lib/python3.12/site-packages (from seaborn) (2.4.6)
+Requirement already satisfied: pandas>=1.2 in /home/dtm63837/.local/lib/python3.12/site-packages (from seaborn) (3.0.3)
+Requirement already satisfied: matplotlib!=3.6.1,>=3.4 in /home/dtm63837/.local/lib/python3.12/site-packages (from seaborn) (3.10.9)
+Requirement already satisfied: contourpy>=1.0.1 in /home/dtm63837/.local/lib/python3.12/site-packages (from matplotlib!=3.6.1,>=3.4->seaborn) (1.3.3)
+Requirement already satisfied: cycler>=0.10 in /home/dtm63837/.local/lib/python3.12/site-packages (from matplotlib!=3.6.1,>=3.4->seaborn) (0.12.1)
+Requirement already satisfied: fonttools>=4.22.0 in /home/dtm63837/.local/lib/python3.12/site-packages (from matplotlib!=3.6.1,>=3.4->seaborn) (4.63.0)
+Requirement already satisfied: kiwisolver>=1.3.1 in /home/dtm63837/.local/lib/python3.12/site-packages (from matplotlib!=3.6.1,>=3.4->seaborn) (1.5.0)
+Requirement already satisfied: packaging>=20.0 in /apps/eb/Python/3.12.3-GCCcore-13.3.0/lib/python3.12/site-packages (from matplotlib!=3.6.1,>=3.4->seaborn) (24.0)
+Requirement already satisfied: pillow>=8 in /home/dtm63837/.local/lib/python3.12/site-packages (from matplotlib!=3.6.1,>=3.4->seaborn) (12.2.0)
+Requirement already satisfied: pyparsing>=3 in /home/dtm63837/.local/lib/python3.12/site-packages (from matplotlib!=3.6.1,>=3.4->seaborn) (3.3.2)
+Requirement already satisfied: python-dateutil>=2.7 in /home/dtm63837/.local/lib/python3.12/site-packages (from matplotlib!=3.6.1,>=3.4->seaborn) (2.9.0.post0)
+Requirement already satisfied: six>=1.5 in /home/dtm63837/.local/lib/python3.12/site-packages (from python-dateutil>=2.7->matplotlib!=3.6.1,>=3.4->seaborn) (1.17.0)
+
+[notice] A new release of pip is available: 24.0 -> 26.1.2
+[notice] To update, run: pip install --upgrade pip
+Defaulting to user installation because normal site-packages is not writeable
+Requirement already satisfied: pyarrow in /home/dtm63837/.local/lib/python3.12/site-packages (24.0.0)
+
+[notice] A new release of pip is available: 24.0 -> 26.1.2
+[notice] To update, run: pip install --upgrade pip
+/scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/dat_expo/summ_stats.py:51: UserWarning: You are merging on int and float columns where the float values are not equal to their int representation.
+  df = df.merge(flavors, on='upc', how='inner')
+Number of households:    2295
+ Number of times seen:    3.7028322440087145
+ Yogurt purchases:        2.423982113438456
+ Mean household income:   21.540123306956648
+ Median household income: 23.0
+ Racial Makeup of Sample: race
+1    2002
+2     162
+3      58
+4      73
+Name: household_code, dtype: int64
+
+flavor_descr
+PLAIN                             2740
+ST                                1779
+BB                                1288
+PEACH                              959
+VANILLA                            909
+ST & BN                            883
+H-P                                880
+RBY                                824
+CHERRY                             755
+ORANGE CREME                       626
+VERY CHERRY                        619
+KLP                                557
+BB PATCH                           514
+PINEAPPLE                          504
+RED RBY                            397
+BLACKBERRY                         379
+LEMON CREAM PIE                    334
+POMEGRANATE                        294
+BOSTON CREAM PIE                   291
+HONEY                              282
+FRENCH VANILLA                     272
+VERY VANILLA                       263
+BN CREAM PIE                       263
+RBY CHEESECAKE                     229
+CHOCOLATE MOUSSE                   204
+MIXED BERRY                        176
+WHITE CHOCOLATE                    149
+ST SHORTCAKE                       137
+ST MIST                            128
+BACON                              121
+NATURAL VANILLA                    117
+RED VELVET CAKE                    117
+APRICOT MANGO                      114
+ST CHEESECAKE                       98
+COFFEE                              89
+PINA COLADA                         86
+APPLE TURNOVER                      78
+LEMON BURST                         72
+LIVER                               70
+ICK & CREAMY  LEMON MERINGUE        70
+CHERRY & VANILLA                    68
+ICK & CREAMY  KLP                   63
+MARIONBERRY                         61
+CHOCOLATE UNDERG                    58
+CHOCOLATE CHIP                      58
+ST ORANGE SUNRIS                    56
+BLACK FOREST CAK                    56
+CKNCR/NAB OREO C                    54
+BLACKBERRY HARVE                    54
+VANILLA BEAN                        52
+PLAIN/BB                            52
+ST BN & VANILLA                     52
+VANILLA/M&MC                        51
+VANILLA/HRSH RES                    45
+PINEAPPLE UPSIDE                    44
+HUCKLEBERRY                         41
+TRIPLE BERRY TOR                    40
+PLAIN/ST                            37
+MANGO                               35
+RBY MOUSSE                          35
+BLACK CHERRY                        33
+PLAIN/HONEY                         32
+HONEY ST                            30
+BANILLA                             30
+ICK & CREAMY  ST                    30
+ST MANGO                            29
+MAPLE                               28
+ST & KIWI                           27
+CREAMY        VANILLA               27
+BLACKBERRY POMEG                    27
+KEY LIME                            26
+CHOCOLATE RBY MO                    26
+ST & H-P                            24
+ST & CEREAL                         23
+BN                                  22
+H-P & ST                            22
+ST & ST & BN                        20
+CHERRY POMEGRANA                    20
+VANILLA CREME MO                    20
+ICK & CREAMY  CHERRY COBBLER        20
+ICK & CREAMY  BB PIE                20
+PLAIN/PEACH                         17
+CREAMY        ST                    16
+CHERRY VANILLA                      16
+ICK & CREAMY  FRENCH VANILLA        16
+VANILLA/NESTLE C                    12
+ST & MIXED BERRY                    12
+ST SPLASH & BERR                    10
+ICK & CREAMY  CINNAMON ROLL         10
+.GO-GURT      ST                    10
+N             CHERRY & VANILLA       9
+V-C                                  9
+BB & VANILLA & S                     9
+N             PLAIN                  8
+PEACHES N CREAM                      8
+LEMON MERINGUE                       8
+ST RIPTIDE & BIK                     8
+BYP&BBP                              8
+BB PATCH & ST                        8
+N             APPLE PIE              7
+PEACH & CEREAL                       7
+BN PUDDING                           6
+N             BLACK CHERRY           6
+ACAI                                 6
+VANILLA & CEREAL                     6
+BURSTIN'MELONBER                     6
+NORTHWEST BERRY                      5
+N             ORANGE CREAM           5
+ONSIN SELECT  ST                     5
+N YO-LITE     PEACH                  5
+ST N CREAM                           5
+PRUNE                                5
+ASSORTED                             5
+COOL CTCDY & ST                      5
+N YO-LITE     BB                     4
+N YO-LITE     KEY LIME               4
+CREAMY        ST & BN                4
+CREAMY        PEACHES N CREAM        4
+CHILLIN CHERRY &                     4
+ST/CANDY PIECES                      4
+W-M & ST BN BURS                     4
+ST/GRANOLA                           3
+ST&BN/GRANOLA                        3
+ST/NESTLE CC PIE                     3
+RBY/GRANOLA                          3
+PAPAYA                               3
+N YO-LITE     VANILLA                3
+N             CLEMENTINE             3
+ONSIN SELECT  BB                     3
+BB & RBY & ST                        3
+PINEAPPLE & COCO                     3
+.GO-GURT      MIXED BERRY            3
+GUAVA                                2
+ONSIN SELECT  ST & BN                2
+N YO-LITE     ST                     2
+N YO-LITE     ST CHEESECAKE          2
+ST CREAM                             2
+N YO-LITE     CHERRY & VANILLA       2
+N - IC        STR                    2
+ST PARFAIT/GRANO                     2
+VANILLA/NBPC                         2
+PARADISE PUNCH &                     2
+ONSIN SELECT  KLP                    2
+LEMON                                2
+ST FRUIT CUP                         1
+N             PEACH                  1
+N             LEMON                  1
+N             ST & VANILLA           1
+N             PEACH COBBLER          1
+N             BB                     1
+Y             PEACH                  1
+ST & POMEGRANATE                     1
+N YO-LITE     ST & BN                1
+CHOCOLATE                            1
+N             ST                     1
+N YO-LITE     ST RHUBARB PIE         1
+N YO-LITE     RBY CHEESECAKE         1
+N             VANILLA                1
+BB CREAM                             1
+CREAMY        BLACKBERRY HARVE       1
+VANILLA & ST & B                     1
+BN SPLIT & ST MI                     1
+C-O CHERRY&ST KI                     1
+BERRY BLUE BLAST                     1
+KLP & VERY VANIL                     1
+Name: count, dtype: int64[pyarrow]
+Variance in brand: 0.33109975987604556
+Variance in product: 0.0
+int64
+Variance in flavor: 0.751061753075565
+Most Popular Flavor: 9.0 ST/GRANOLA
+Mean repeat purchase percentage of brand 0.7345381173787174
+Mean repeat purchase of container size 0.8423113869799749
+Mean repeat purchase of yogurt type 0.4549619448754895
+Mean Brand Concentration Within Household: 0.5821058374249863
+Mean Flavor Concentration Within Household: 0.44844517184942717

@@ -1,0 +1,24 @@
+***********************************************************
+*
+* input_param.txt: This file defines lists of variables
+*	and parameters that are inputs to Brands estimation.
+*
+***********************************************************
+
+q1 "purch1"
+q2 "purch2"
+q3 "equiv1"
+q4 "equiv2"
+q5 "exp1"
+q6 "exp2"
+q7 "unit1"
+q8 "unit2"
+
+demos "zage_cat2 zage_cat3 zage_cat4 zage_cat5 zage_cat6 zage_cat7 zage_cat8 zhispanic2 zrace2 zrace3 zrace4 linc hs col grad zemp2"
+
+maxgap 5
+minage 18
+maxage 99
+hhcutoff 5000
+
+

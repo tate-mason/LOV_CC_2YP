@@ -1,0 +1,733 @@
+
+. set linesize 255
+
+. 
+. *****************************************************************
+. * PRELIMINARIES
+. *****************************************************************
+. version 10
+
+. clear all
+
+. set mem 1g
+
+Current memory allocation
+
+                    current                                 memory usage
+    settable          value     description                 (1M = 1024k)
+    --------------------------------------------------------------------
+    set maxvar         5000     max. variables allowed           1.947M
+    set memory         1024M    max. data space              1,024.000M
+    set matsize         400     max. RHS vars in models          1.254M
+                                                            -----------
+                                                             1,027.201M
+
+. set matsize 5000
+
+Current memory allocation
+
+                    current                                 memory usage
+    settable          value     description                 (1M = 1024k)
+    --------------------------------------------------------------------
+    set maxvar         5000     max. variables allowed           1.947M
+    set memory         1024M    max. data space              1,024.000M
+    set matsize        5000     max. RHS vars in models        191.154M
+                                                            -----------
+                                                             1,217.102M
+
+. set more off
+
+. adopath + ..\external\
+  [1]  (UPDATES)   "C:\Program Files (x86)\Stata11\ado\updates/"
+  [2]  (BASE)      "C:\Program Files (x86)\Stata11\ado\base/"
+  [3]  (SITE)      "C:\Program Files (x86)\Stata11\ado\site/"
+  [4]              "."
+  [5]  (PERSONAL)  "c:\ado\personal/"
+  [6]  (PLUS)      "Z:\ado\plus/"
+  [7]  (OLDPLACE)  "c:\ado/"
+  [8]              "..\external\"
+
+. 
+. cap erase ..\output\texttables.txt
+
+. loadglob using ..\temp\figures.txt
+
+. 
+. *****************************************************************
+. * SAMPLE DESCRIPTION - TIMEFRAME OF PURCHASE DATA
+. *****************************************************************
+. use ..\external\hh_module_month.dta,clear
+
+. format ym %10.0g
+
+. gen date = dofm(ym)
+
+. format date %d
+
+. gen month = month(date)
+
+. gen year = year(date)
+
+. sort ym
+
+. local yearstart = year[1]
+
+. local monthstart = month[1]
+
+. quietly count
+
+. local yearend= year[`r(N)']
+
+. local monthend = month[`r(N)']
+
+. 
+. matrix TABLE = (nullmat(TABLE),(`yearstart', `monthstart' \ `yearend', `monthend'))
+
+. matrix_to_txt, saving(..\output\texttables.txt) mat(TABLE) format(%20.6f) title(<tab:samp_year>) append
+(note: file ..\output\texttables.txt not found)
+
+. matrix drop TABLE
+
+. 
+. *****************************************************************
+. * SAMPLE DESCRIPTION - SIZE OF FINAL DATA (NUM OF HOUSEHOLDS)
+. *****************************************************************
+. 
+. use ..\temp\hh_mig.dta,clear
+
+. sort hhld_id
+
+. by hhld_id: gen uni=_n==1
+
+. count if uni==1
+10412
+
+. scalar temp1=r(N)
+
+. use ..\temp\hh_nonmig.dta,clear
+
+. sort hhld_id
+
+. by hhld_id: gen uni=_n==1
+
+. count if uni==1
+27686
+
+. matrix TABLE = (nullmat(TABLE),(temp1+r(N)))
+
+. matrix_to_txt, saving(..\output\texttables.txt) mat(TABLE) format(%20.6f) title(<tab:num_hhld_final>) append
+
+. drop uni
+
+. mat drop TABLE
+
+. 
+. 
+. *****************************************************************
+. * SAMPLE DESCRIPTION - PURCHASE HISTORY
+. *****************************************************************
+. 
+. use ..\external\by_hh_brand.dta,clear
+
+. sort hhld_id
+
+. by hhld_id: gen uni = _n==1
+
+. count if uni==1
+48501
+
+. scalar num_hhld_id = r(N)
+
+. drop uni
+
+. 
+. sort brand
+
+. by brand: gen uni = _n==1
+
+. count if uni==1
+51316
+
+. scalar num_brand = r(N)
+
+. drop uni
+
+. 
+. sort module
+
+. by module: gen uni = _n==1
+
+. count if uni==1
+  382
+
+. scalar num_module = r(N)
+
+. matrix TABLE = (nullmat(TABLE),(num_hhld_id\num_brand\num_module))
+
+. matrix_to_txt, saving(..\output\texttables.txt) mat(TABLE) format(%20.6f) title(<tab:desc_purch_hist>) append
+
+. drop uni
+
+. mat drop TABLE
+
+. 
+. *****************************************************************
+. * SAMPLE DESCRIPTION - SURVEY
+. *****************************************************************
+. 
+. use ..\\external\survey.dta,clear
+
+. sort hhld_id
+
+. by hhld_id: gen uni= _n==1
+
+. count if uni==1
+48951
+
+. scalar num_hhld_survey = r(N)
+
+. quietly tab state_curr
+
+. scalar num_state = r(r)
+
+. matrix TABLE = (nullmat(TABLE),(num_state\num_hhld_survey\_N\75221\(num_hhld_survey/75221)))
+
+. matrix_to_txt, saving(..\output\texttables.txt) mat(TABLE) format(%20.6f) title(<tab:desc_survey>) append
+
+. drop uni
+
+. mat drop TABLE
+
+. 
+. *****************************************************************
+. * SAMPLE DESCRIPTION - PERCENTAGE MOVE (TO DIFFERENT REGION)
+. *****************************************************************
+. 
+. use ..\\temp\hh_nonmig.dta,clear
+
+. scalar num_nonmig = _N
+
+. use ..\\temp\hh_mig.dta,clear
+
+. scalar num_mig = _N
+
+. gen temp=1 if reg_born!=reg_curr
+(4198 missing values generated)
+
+. su temp
+
+    Variable |       Obs        Mean    Std. Dev.       Min        Max
+-------------+--------------------------------------------------------
+        temp |      6214           1           0          1          1
+
+. matrix TABLE = (nullmat(TABLE),(r(N)/(num_nonmig+num_mig)))
+
+. matrix_to_txt, saving(..\output\texttables.txt) mat(TABLE) format(%20.6f) title(<tab:perc_move>) append
+
+. mat drop TABLE
+
+. 
+. *****************************************************************
+. * STATISTICAL TESTS FOR RECENT MOVERS
+. *****************************************************************
+. 
+. u ..\temp\purch_mig_month, clear
+
+. gen year = year(dofm(ym))
+
+. gen month = month(dofm(ym))
+
+. quietly tab ym, gen(zym)
+
+. 
+. keep if (years==1 | years==0) & gap==0
+(1631635 observations deleted)
+
+. 
+. * note: survey fielded 9/13/08 - 10/1/08
+. drop if year==2008 & month>=10
+(303 observations deleted)
+
+. gen early = ((year==2007 & month<=9) | year==2006)
+
+. gen late = ((year==2007 & month>9) | year==2008)
+
+. gen w1nd = totpurch*sqdifnd/(modshare*(1-modshare))
+(5 missing values generated)
+
+. 
+. unique hhld_id if years==0
+Number of unique values of hhld_id is  115
+Number of records is  12789
+
+. unique hhld_id if years==1
+Number of unique values of hhld_id is  111
+Number of records is  13916
+
+. quietly tab hhld_id if years==0
+
+. local zeroyear `r(r)'
+
+. quietly tab hhld_id if years==1
+
+. local oneyear `r(r)'
+
+. 
+. matrix TABLE = (nullmat(TABLE),(`zeroyear' \ `oneyear'))
+
+. matrix_to_txt, saving(..\output\texttables.txt) mat(TABLE) format(%20.6f) title(<tab:samp_which_year>) append
+
+. matrix drop TABLE
+
+. 
+. reg betahatnd early late if years==0 [aw=sqdifnd], cluster(module) nocons
+(sum of wgt is   3.4712e+02)
+
+Linear regression                                      Number of obs =   12705
+                                                       F(  2,   237) =   36.34
+                                                       Prob > F      =  0.0000
+                                                       R-squared     =  0.0140
+                                                       Root MSE      =  2.7394
+
+                               (Std. Err. adjusted for 238 clusters in module)
+------------------------------------------------------------------------------
+             |               Robust
+   betahatnd |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+       early |   .0931466   .0598603     1.56   0.121    -.0247796    .2110727
+        late |   .4143758   .0486086     8.52   0.000     .3186157     .510136
+------------------------------------------------------------------------------
+
+. test early=0
+
+ ( 1)  early = 0
+
+       F(  1,   237) =    2.42
+            Prob > F =    0.1210
+
+. test early=$alpha
+
+ ( 1)  early = .6239428
+
+       F(  1,   237) =   78.63
+            Prob > F =    0.0000
+
+. test early=late
+
+ ( 1)  early - late = 0
+
+       F(  1,   237) =   20.98
+            Prob > F =    0.0000
+
+. 
+. 
+. 
+. * Output table for regression results - years == 0
+. 
+. scalar cil_early = _b[early]-invttail(e(df_r),.025)*_se[early]
+
+. scalar ciu_early = _b[early]+invttail(e(df_r),.025)*_se[early]
+
+. scalar ciu_late = _b[late]+invttail(e(df_r),.025)*_se[late]
+
+. scalar cil_late = _b[late]-invttail(e(df_r),.025)*_se[late]
+
+. 
+. matrix TABLE = (nullmat(TABLE),(_b[early] \ _b[late]))
+
+. matrix TABLE = (nullmat(TABLE),(_se[early] \ _se[late]))
+
+. matrix TABLE = (nullmat(TABLE),(_b[early]/_se[early] \ _b[late]/_se[late]))
+
+. matrix TABLE = (nullmat(TABLE),(ttail(e(df_r),(_b[early]/_se[early]))*2 \ (ttail(e(df_r),_b[late]/_se[late]))*2))
+
+. matrix TABLE = (nullmat(TABLE),( cil_early \ cil_late))
+
+. matrix TABLE = (nullmat(TABLE),( ciu_early \ ciu_late))
+
+. 
+. matrix_to_txt, saving(..\output\texttables.txt) mat(TABLE) format(%20.6f) title(<tab:reg_early_late>) append
+
+. matrix drop TABLE
+
+. 
+. reg betahatnd early late if years==1 [aw=sqdifnd], cluster(module) nocons
+(sum of wgt is   3.8400e+02)
+
+Linear regression                                      Number of obs =   13809
+                                                       F(  2,   237) =   33.91
+                                                       Prob > F      =  0.0000
+                                                       R-squared     =  0.0417
+                                                       Root MSE      =  2.7029
+
+                               (Std. Err. adjusted for 238 clusters in module)
+------------------------------------------------------------------------------
+             |               Robust
+   betahatnd |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+       early |   .3426848   .0714601     4.80   0.000     .2019066    .4834629
+        late |   .6770929   .0822598     8.23   0.000     .5150392    .8391466
+------------------------------------------------------------------------------
+
+. test late=0
+
+ ( 1)  late = 0
+
+       F(  1,   237) =   67.75
+            Prob > F =    0.0000
+
+. test late=$alpha
+
+ ( 1)  late = .6239428
+
+       F(  1,   237) =    0.42
+            Prob > F =    0.5188
+
+. test early=late
+
+ ( 1)  early - late = 0
+
+       F(  1,   237) =   20.98
+            Prob > F =    0.0000
+
+. 
+. reg betahatnd age_move if years==0 & early [aw=w1nd], cluster(module)
+(sum of wgt is   8.8766e+02)
+
+Linear regression                                      Number of obs =    5266
+                                                       F(  1,   232) =    0.81
+                                                       Prob > F      =  0.3705
+                                                       R-squared     =  0.0005
+                                                       Root MSE      =  2.8847
+
+                               (Std. Err. adjusted for 233 clusters in module)
+------------------------------------------------------------------------------
+             |               Robust
+   betahatnd |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+    age_move |   .0052507   .0058516     0.90   0.370    -.0062784    .0167797
+       _cons |  -.1108906   .2897218    -0.38   0.702    -.6817127    .4599315
+------------------------------------------------------------------------------
+
+. matrix TABLE = (nullmat(TABLE),(_b[age_move]))
+
+. matrix TABLE = (nullmat(TABLE),(_se[age_move]))
+
+. matrix TABLE = (nullmat(TABLE),(_b[age_move]/_se[age_move]))
+
+. matrix TABLE = (nullmat(TABLE),(ttail(e(df_r),_b[age_move]/_se[age_move])*2))
+
+. matrix_to_txt, saving(..\output\texttables.txt) mat(TABLE) format(%20.6f) title(<tab:reg_age_move>) append
+
+. matrix drop TABLE
+
+. 
+. reg betahatnd age_move if years==1 & late [aw=w1nd], cluster(module)
+(sum of wgt is   1.5092e+03)
+
+Linear regression                                      Number of obs =    8451
+                                                       F(  1,   231) =    1.94
+                                                       Prob > F      =  0.1651
+                                                       R-squared     =  0.0007
+                                                       Root MSE      =  2.7643
+
+                               (Std. Err. adjusted for 232 clusters in module)
+------------------------------------------------------------------------------
+             |               Robust
+   betahatnd |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+    age_move |   .0054421   .0039083     1.39   0.165    -.0022584    .0131425
+       _cons |   .4494811   .2123865     2.12   0.035     .0310187    .8679434
+------------------------------------------------------------------------------
+
+. 
+. *****************************************************************
+. * Section 5 in the paper - secondary assumption test 
+. *****************************************************************
+. 
+. cap program drop addtotable_bp
+
+. program addtotable_bp
+  1.         local r2 = e(r2)
+  2.         local N = e(N)
+  3.         local prs = e(N_clust)
+  4.         nlcom (par1: _b[years_treated]) (par2: _b[treat_in_b]) (par3: _b[years_untreated]) (par4: _b[not_treat_in_b]), post
+  5.         matrix TABLE = (nullmat(TABLE) , (_b[par1] \ _se[par1] \ _b[par2] \ _se[par2] \ _b[par3] \ _se[par3] \ _b[par4] \ _se[par4] \ `prs' \ `N'))
+  6. end
+
+. 
+. u ..\temp\purch_mig_bp, clear
+
+. mmerge hhld_id using ..\temp\hh_mig, type(n:1) unm(master) ukeep(years)
+
+-------------------------------------------------------------------------------
+merge specs          |
+       matching type | n:1
+  mv's on match vars | none
+  unmatched obs from | master
+---------------------+---------------------------------------------------------
+  master        file | ..\temp\purch_mig_bp.dta
+                 obs |  86879
+                vars |     21
+          match vars | hhld_id  (not a key)
+  -------------------+---------------------------------------------------------
+  using         file | ..\temp\hh_mig.dta
+                 obs |  10412
+                vars |      2  (selection via udrop/ukeep)
+          match vars | hhld_id  (key)
+---------------------+---------------------------------------------------------
+variable hhld_id does not uniquely identify observations in the master data
+result          file | ..\temp\purch_mig_bp.dta
+                 obs |  86879
+                vars |     24  (including _merge)
+         ------------+---------------------------------------------------------
+              _merge |  86879  obs both in master and using data      (code==3)
+-------------------------------------------------------------------------------
+
+. 
+. *generate bunch of variables plus weights
+. gen yearumbrella = min(umbrella_year1, umbrella_year2) 
+
+. gen yearlaunch = min(launch_year1, launch_year2) 
+
+. gen ysl = 2007-yearlaunch
+
+. gen years_b = ysl - years
+
+. gen treat_in_b = years_b>0
+
+. gen not_treat_in_b = 1-treat_in_b
+
+. gen years_untreated = not_treat_in_b*years 
+
+. gen years_treated = treat_in_b*years 
+
+. gen w1 = totpurch*sqdif/(pairshare*(1-pairshare))
+(163 missing values generated)
+
+. gen w1nd = totpurch*sqdifnd/(pairshare*(1-pairshare))
+(163 missing values generated)
+
+. 
+. * data screen drop if betahat == .
+. drop if betahat == . 
+(74 observations deleted)
+
+. 
+. * all pairs (yearlaunch>=1955)
+. reg betahatnd treat_in_b years_treated not_treat_in_b years_untreated [aw=sqdifnd] , cluster(pairid) nocons
+(sum of wgt is   2.4278e+03)
+
+Linear regression                                      Number of obs =   86805
+                                                       F(  4,    51) = 1246.19
+                                                       Prob > F      =  0.0000
+                                                       R-squared     =  0.1117
+                                                       Root MSE      =  2.3254
+
+                                (Std. Err. adjusted for 52 clusters in pairid)
+------------------------------------------------------------------------------
+             |               Robust
+   betahatnd |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+  treat_in_b |   .6572718   .0547744    12.00   0.000     .5473077    .7672359
+years_trea~d |   .0071101   .0016169     4.40   0.000     .0038641    .0103562
+not_treat_~b |   .8535249   .0998622     8.55   0.000     .6530431    1.054007
+years_untr~d |   .0006799   .0017616     0.39   0.701    -.0028567    .0042166
+------------------------------------------------------------------------------
+
+. test years_treated=0
+
+ ( 1)  years_treated = 0
+
+       F(  1,    51) =   19.34
+            Prob > F =    0.0001
+
+. scalar w1_1955=r(p)
+
+. test years_untreated=0
+
+ ( 1)  years_untreated = 0
+
+       F(  1,    51) =    0.15
+            Prob > F =    0.7011
+
+. scalar w3_1955=r(p)
+
+. test not_treat_in_b=1
+
+ ( 1)  not_treat_in_b = 1
+
+       F(  1,    51) =    2.15
+            Prob > F =    0.1486
+
+. scalar w2_1955=r(p)
+
+. test years_untreated=1-not_treat_in_b=0
+
+ ( 1)  not_treat_in_b + years_untreated = 1
+ ( 2)  years_untreated = 0
+
+       F(  2,    51) =   11.60
+            Prob > F =    0.0001
+
+. scalar w2w3_1955=r(p)
+
+. 
+. * post-1975
+. reg betahatnd treat_in_b years_treated not_treat_in_b years_untreated [aw=sqdifnd] if yearlaunch>=1975, cluster(pairid) nocons
+(sum of wgt is   1.2460e+03)
+
+Linear regression                                      Number of obs =   43083
+                                                       F(  4,    23) =  588.77
+                                                       Prob > F      =  0.0000
+                                                       R-squared     =  0.1269
+                                                       Root MSE      =  2.2116
+
+                                (Std. Err. adjusted for 24 clusters in pairid)
+------------------------------------------------------------------------------
+             |               Robust
+   betahatnd |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+  treat_in_b |   .7014897   .0750142     9.35   0.000     .5463111    .8566683
+years_trea~d |   .0071575   .0026318     2.72   0.012     .0017132    .0126017
+not_treat_~b |   .8520465   .1009662     8.44   0.000     .6431819    1.060911
+years_untr~d |   .0008293   .0017593     0.47   0.642      -.00281    .0044687
+------------------------------------------------------------------------------
+
+. test years_treated=0
+
+ ( 1)  years_treated = 0
+
+       F(  1,    23) =    7.40
+            Prob > F =    0.0122
+
+. scalar w1_1975=r(p)
+
+. test years_untreated=0
+
+ ( 1)  years_untreated = 0
+
+       F(  1,    23) =    0.22
+            Prob > F =    0.6418
+
+. scalar w3_1975=r(p)
+
+. test not_treat_in_b=1
+
+ ( 1)  not_treat_in_b = 1
+
+       F(  1,    23) =    2.15
+            Prob > F =    0.1564
+
+. scalar w2_1975=r(p)
+
+. test years_untreated=1-not_treat_in_b=0
+
+ ( 1)  not_treat_in_b + years_untreated = 1
+ ( 2)  years_untreated = 0
+
+       F(  2,    23) =    5.42
+            Prob > F =    0.0118
+
+. scalar w2w3_1975=r(p)
+
+. 
+. * post-1985
+. reg betahatnd treat_in_b years_treated not_treat_in_b years_untreated [aw=sqdifnd] if yearlaunch>=1985, cluster(pairid) nocons
+(sum of wgt is   7.1792e+02)
+
+Linear regression                                      Number of obs =   22088
+                                                       F(  4,    10) =  713.56
+                                                       Prob > F      =  0.0000
+                                                       R-squared     =  0.1449
+                                                       Root MSE      =  2.1458
+
+                                (Std. Err. adjusted for 11 clusters in pairid)
+------------------------------------------------------------------------------
+             |               Robust
+   betahatnd |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+  treat_in_b |   .6934827   .0903772     7.67   0.000     .4921098    .8948556
+years_trea~d |    .017891    .004959     3.61   0.005     .0068416    .0289403
+not_treat_~b |   .8803829    .100775     8.74   0.000     .6558421    1.104924
+years_untr~d |   .0005348   .0015349     0.35   0.735    -.0028852    .0039547
+------------------------------------------------------------------------------
+
+. test years_treated=0
+
+ ( 1)  years_treated = 0
+
+       F(  1,    10) =   13.02
+            Prob > F =    0.0048
+
+. scalar w1_1985=r(p)
+
+. test years_untreated=0
+
+ ( 1)  years_untreated = 0
+
+       F(  1,    10) =    0.12
+            Prob > F =    0.7348
+
+. scalar w3_1985=r(p)
+
+. test not_treat_in_b=1
+
+ ( 1)  not_treat_in_b = 1
+
+       F(  1,    10) =    1.41
+            Prob > F =    0.2627
+
+. scalar w2_1985=r(p)
+
+. test years_untreated=1-not_treat_in_b=0
+
+ ( 1)  not_treat_in_b + years_untreated = 1
+ ( 2)  years_untreated = 0
+
+       F(  2,    10) =    3.34
+            Prob > F =    0.0774
+
+. scalar w2w3_1985=r(p)
+
+. 
+. matrix TABLE = (nullmat(TABLE),(w1_1955\w3_1955\w2_1955\w2w3_1955))
+
+. matrix TABLE = (nullmat(TABLE),(w1_1975\w3_1975\w2_1975\w2w3_1975))
+
+. matrix TABLE = (nullmat(TABLE),(w1_1985\w3_1985\w2_1985\w2w3_1985))
+
+. matrix_to_txt, saving(..\output\texttables.txt) mat(TABLE) format(%20.6f) title(<tab:move_before_brands_introduced>) append
+
+. matrix drop TABLE
+
+. *********************************************************************************************
+. * Section 7 in the paper - correlation between dummy for advertising and that for visibility
+. *********************************************************************************************
+. 
+. use ..\temp\modchar.dta,clear
+
+. reg social ad
+
+      Source |       SS       df       MS              Number of obs =     382
+-------------+------------------------------           F(  1,   380) =    0.21
+       Model |  .039990725     1  .039990725           Prob > F      =  0.6481
+    Residual |   72.818648   380  .191628021           R-squared     =  0.0005
+-------------+------------------------------           Adj R-squared = -0.0021
+       Total |  72.8586387   381  .191230023           Root MSE      =  .43775
+
+------------------------------------------------------------------------------
+      social |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+          ad |  -.0298368   .0653134    -0.46   0.648    -.1582578    .0985842
+       _cons |   .2606061   .0240975    10.81   0.000     .2132249    .3079873
+------------------------------------------------------------------------------
+
+. scalar corr_social_ad = sign(_b[ad])*sqrt(e(r2))
+
+. matrix TABLE = (nullmat(TABLE),(corr_social_ad))
+
+. matrix_to_txt, saving(..\output\texttables.txt) mat(TABLE) format(%20.6f) title(<tab:corr_social_ad>) append
+
+. 
+. cap log close

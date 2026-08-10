@@ -1,0 +1,698 @@
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  D:\SVN\trunk\analysis\Brands (Descriptive)\code\..\output\figures.log
+  log type:  text
+ opened on:  21 Jun 2011, 06:37:29
+
+. set linesize 255
+
+. 
+. **********************************************************
+. * PRELIMINARIES
+. **********************************************************
+. version
+version 11.1
+
+. version 10
+
+. clear all
+
+. set mem 500m
+
+Current memory allocation
+
+                    current                                 memory usage
+    settable          value     description                 (1M = 1024k)
+    --------------------------------------------------------------------
+    set maxvar         5000     max. variables allowed           1.947M
+    set memory          500M    max. data space                500.000M
+    set matsize         400     max. RHS vars in models          1.254M
+                                                            -----------
+                                                               503.201M
+
+. set matsize 5000
+
+Current memory allocation
+
+                    current                                 memory usage
+    settable          value     description                 (1M = 1024k)
+    --------------------------------------------------------------------
+    set maxvar         5000     max. variables allowed           1.947M
+    set memory          500M    max. data space                500.000M
+    set matsize        5000     max. RHS vars in models        191.154M
+                                                            -----------
+                                                               693.102M
+
+. set more off
+
+. set seed 04271975
+
+. set sortseed 04271975
+
+. adopath + ..\external
+  [1]  (UPDATES)   "C:\Program Files (x86)\Stata11\ado\updates/"
+  [2]  (BASE)      "C:\Program Files (x86)\Stata11\ado\base/"
+  [3]  (SITE)      "C:\Program Files (x86)\Stata11\ado\site/"
+  [4]              "."
+  [5]  (PERSONAL)  "c:\ado\personal/"
+  [6]  (PLUS)      "Z:\ado\plus/"
+  [7]  (OLDPLACE)  "c:\ado/"
+  [8]              "..\external"
+
+. loadglob using ..\temp\figures.txt
+
+. set scheme s1mono
+
+. 
+. *****************************************************************
+. * FIGURE <fig:SummaryStats>
+. *****************************************************************
+. * Age
+. u ..\temp\hh_mig, clear
+
+. histogram age, fraction start(5) width(10) gap(10) title("Age", size(medium)) xlabel(0(20)80, noticks) xtitle(Years) ///
+>         yscale(range(0 .31)) ylabel(0(0.1).3) ytitle("Share") name(age, replace)
+(bin=9, start=5, width=10)
+
+. 
+. * Age leaving state of birth
+. histogram age_move, fraction start(-5) width(10) gap(10) title("Age Leaving State of Birth", size(medium)) xlabel(0(20)80, noticks) xtitle(Years) ///
+>         yscale(range(0 .31)) ylabel(0(0.1).3) ytitle("Share") name(age_move, replace)
+(bin=9, start=-5, width=10)
+
+. 
+. * Years living in current state
+. histogram years, fraction start(-5) width(10) gap(10) title("Years Living in Current State", size(medium)) xlabel(0(20)80, noticks) xtitle(Years) ///
+>         yscale(range(0 .21)) ylabel(0(0.1).2) ytitle("Share") name(years, replace)
+(bin=10, start=-5, width=10)
+
+. 
+. * Gap
+. histogram gap, fraction start(-.5) width(1) gap(10) title("Gap", size(medium)) xscale(range(0 5)) xlabel(0(1)5, noticks) xtitle(Years) ///
+>         yscale(range(0 .84)) ylabel(0(.2).8) ytitle("Share") name(gap, replace)
+(bin=6, start=-.5, width=1)
+
+. 
+. * Combine
+. graph combine age age_move years gap
+
+. graph export ..\output\figures\summarystats.eps, as(eps) replace
+(note: file ..\output\figures\summarystats.eps not found)
+(file ..\output\figures\summarystats.eps written in EPS format)
+
+. graph drop _all
+
+. 
+. 
+. *****************************************************************
+. * FIGURE <fig:Years>
+. *****************************************************************
+. u ..\temp\purch_mig, clear
+
+. mmerge hhld_id using ..\temp\hh_mig, type(n:1) unm(master) ukeep(years_cat)
+
+-------------------------------------------------------------------------------
+merge specs          |
+       matching type | n:1
+  mv's on match vars | none
+  unmatched obs from | master
+---------------------+---------------------------------------------------------
+  master        file | ..\temp\purch_mig.dta
+                 obs | 528972
+                vars |     16
+          match vars | hhld_id  (not a key)
+  -------------------+---------------------------------------------------------
+  using         file | ..\temp\hh_mig.dta
+                 obs |  10412
+                vars |      2  (selection via udrop/ukeep)
+          match vars | hhld_id  (key)
+---------------------+---------------------------------------------------------
+variable hhld_id does not uniquely identify observations in the master data
+result          file | ..\temp\purch_mig.dta
+                 obs | 528972
+                vars |     19  (including _merge)
+         ------------+---------------------------------------------------------
+              _merge | 528972  obs both in master and using data      (code==3)
+-------------------------------------------------------------------------------
+
+. 
+. local xlab "0-4 5-9 10-14 15-19 20-24 25-29 30-34 35-39 40-44 45-49 50-54 55-59 60+" 
+
+. local options "ylabel(0(.1)1) yline(0 1, lpattern(dash)) yscale(range(-.1 1.1)) ytitle(Relative Share ({&beta} {subscript:ij})) xtitle(Years Since Move) label(`xlab')"
+
+. quietly tab years_cat, gen(zyears)
+
+. 
+. gen w1nd = totpurch*sqdifnd/(modshare*(1-modshare))
+(283 missing values generated)
+
+. gen w1 = totpurch*sqdif/(modshare*(1-modshare))
+(283 missing values generated)
+
+. 
+. reg betahatnd zyears1-zyears13 [aw=sqdifnd], cluster(module) nocons
+(sum of wgt is   1.4467e+04)
+
+Linear regression                                      Number of obs =  528689
+                                                       F( 13,   237) =  720.86
+                                                       Prob > F      =  0.0000
+                                                       R-squared     =  0.0939
+                                                       Root MSE      =  2.4979
+
+                               (Std. Err. adjusted for 238 clusters in module)
+------------------------------------------------------------------------------
+             |               Robust
+   betahatnd |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+     zyears1 |    .615201   .0279702    21.99   0.000     .5600991    .6703029
+     zyears2 |   .7021881   .0261207    26.88   0.000     .6507297    .7536465
+     zyears3 |   .7567356   .0249436    30.34   0.000     .7075962    .8058751
+     zyears4 |   .7688472   .0249629    30.80   0.000     .7196697    .8180246
+     zyears5 |   .7909103   .0198575    39.83   0.000     .7517905    .8300301
+     zyears6 |   .8294125   .0185148    44.80   0.000      .792938     .865887
+     zyears7 |   .8519637   .0175456    48.56   0.000     .8173984    .8865291
+     zyears8 |   .8621537   .0168761    51.09   0.000     .8289073       .8954
+     zyears9 |   .8716893   .0157075    55.50   0.000     .8407453    .9026334
+    zyears10 |   .8900032   .0151751    58.65   0.000      .860108    .9198985
+    zyears11 |   .8892561   .0176287    50.44   0.000     .8545272     .923985
+    zyears12 |   .8605621   .0238394    36.10   0.000     .8135979    .9075262
+    zyears13 |   .9391432   .0172377    54.48   0.000     .9051846    .9731018
+------------------------------------------------------------------------------
+
+. plotcoeffs zyears1-zyears13, `options'
+
+. graph export ..\output\figures\years_none.eps, as(eps) replace
+(note: file ..\output\figures\years_none.eps not found)
+(file ..\output\figures\years_none.eps written in EPS format)
+
+. 
+. reg betahat zyears1-zyears13 [aw=sqdif], cluster(module) nocons
+(sum of wgt is   1.3906e+04)
+
+Linear regression                                      Number of obs =  528621
+                                                       F( 13,   237) =  734.77
+                                                       Prob > F      =  0.0000
+                                                       R-squared     =  0.0922
+                                                       Root MSE      =  2.5221
+
+                               (Std. Err. adjusted for 238 clusters in module)
+------------------------------------------------------------------------------
+             |               Robust
+     betahat |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+     zyears1 |   .6070359   .0291747    20.81   0.000     .5495609    .6645108
+     zyears2 |   .7021202   .0267684    26.23   0.000     .6493859    .7548545
+     zyears3 |   .7556606   .0250964    30.11   0.000     .7062201     .805101
+     zyears4 |   .7724296   .0249247    30.99   0.000     .7233273    .8215319
+     zyears5 |   .7933194    .019567    40.54   0.000     .7547719    .8318669
+     zyears6 |   .8327352   .0184257    45.19   0.000     .7964361    .8690342
+     zyears7 |   .8536588   .0176195    48.45   0.000      .818948    .8883696
+     zyears8 |   .8612383   .0169103    50.93   0.000     .8279246     .894552
+     zyears9 |   .8707938   .0156525    55.63   0.000      .839958    .9016296
+    zyears10 |   .8850253   .0160568    55.12   0.000      .853393    .9166576
+    zyears11 |   .8893319   .0175765    50.60   0.000     .8547058    .9239581
+    zyears12 |    .867877   .0225558    38.48   0.000     .8234415    .9123126
+    zyears13 |   .9258068   .0162926    56.82   0.000       .89371    .9579037
+------------------------------------------------------------------------------
+
+. plotcoeffs zyears1-zyears13, `options'
+
+. graph export ..\output\figures\years_demo.eps, as(eps) replace
+(note: file ..\output\figures\years_demo.eps not found)
+(file ..\output\figures\years_demo.eps written in EPS format)
+
+. 
+. *****************************************************************
+. * FIGURE <fig:AgeMove>
+. *****************************************************************
+. u ..\temp\purch_mig, clear
+
+. mmerge hhld_id using ..\temp\hh_mig, type(n:1) unm(master) ukeep(age_move_cat)
+
+-------------------------------------------------------------------------------
+merge specs          |
+       matching type | n:1
+  mv's on match vars | none
+  unmatched obs from | master
+---------------------+---------------------------------------------------------
+  master        file | ..\temp\purch_mig.dta
+                 obs | 528972
+                vars |     16
+          match vars | hhld_id  (not a key)
+  -------------------+---------------------------------------------------------
+  using         file | ..\temp\hh_mig.dta
+                 obs |  10412
+                vars |      2  (selection via udrop/ukeep)
+          match vars | hhld_id  (key)
+---------------------+---------------------------------------------------------
+variable hhld_id does not uniquely identify observations in the master data
+result          file | ..\temp\purch_mig.dta
+                 obs | 528972
+                vars |     19  (including _merge)
+         ------------+---------------------------------------------------------
+              _merge | 528972  obs both in master and using data      (code==3)
+-------------------------------------------------------------------------------
+
+. 
+. local xlab "0-4 5-9 10-14 15-19 20-24 25-29 30-34 35-39 40-44 45-49 50-54 55-59 60+" 
+
+. local options "ylabel(0(.1)1) yline(0 1, lpattern(dash)) yscale(range(-.1 1.1)) ytitle(Relative Share ({&beta} {subscript:ij})) xtitle(Age at Move) label(`xlab')"
+
+. quietly tab age_move_cat, gen(zagemove)
+
+. 
+. gen w1nd = totpurch*sqdifnd/(modshare*(1-modshare))
+(283 missing values generated)
+
+. gen w1 = totpurch*sqdif/(modshare*(1-modshare))
+(283 missing values generated)
+
+. 
+. reg betahatnd zagemove1-zagemove13 [aw=sqdifnd], cluster(module) nocons
+(sum of wgt is   1.4467e+04)
+
+Linear regression                                      Number of obs =  528689
+                                                       F( 13,   237) =  798.19
+                                                       Prob > F      =  0.0000
+                                                       R-squared     =  0.0937
+                                                       Root MSE      =  2.4982
+
+                               (Std. Err. adjusted for 238 clusters in module)
+------------------------------------------------------------------------------
+             |               Robust
+   betahatnd |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+   zagemove1 |   .8847063   .0127023    69.65   0.000     .8596825      .90973
+   zagemove2 |   .9034394   .0146343    61.73   0.000     .8746094    .9322694
+   zagemove3 |   .8436031   .0173284    48.68   0.000     .8094657    .8777406
+   zagemove4 |   .8577036   .0160403    53.47   0.000     .8261037    .8893034
+   zagemove5 |   .8093826   .0164058    49.34   0.000     .7770628    .8417023
+   zagemove6 |   .7790128   .0235129    33.13   0.000     .7326918    .8253337
+   zagemove7 |   .7385663   .0234038    31.56   0.000     .6924603    .7846724
+   zagemove8 |   .6960614   .0257964    26.98   0.000     .6452419    .7468808
+   zagemove9 |   .7323787   .0252347    29.02   0.000     .6826656    .7820917
+  zagemove10 |     .73197   .0332966    21.98   0.000     .6663748    .7975651
+  zagemove11 |   .6319487    .035852    17.63   0.000     .5613194     .702578
+  zagemove12 |   .6505688   .0446482    14.57   0.000     .5626108    .7385268
+  zagemove13 |   .6523042   .0466167    13.99   0.000     .5604683    .7441402
+------------------------------------------------------------------------------
+
+. plotcoeffs zagemove1-zagemove13 , `options'
+
+. graph export ..\output\figures\agemove_none.eps, as(eps) replace
+(note: file ..\output\figures\agemove_none.eps not found)
+(file ..\output\figures\agemove_none.eps written in EPS format)
+
+. 
+. reg betahat zagemove1-zagemove13 [aw=sqdif], cluster(module) nocons
+(sum of wgt is   1.3906e+04)
+
+Linear regression                                      Number of obs =  528621
+                                                       F( 13,   237) =  815.63
+                                                       Prob > F      =  0.0000
+                                                       R-squared     =  0.0919
+                                                       Root MSE      =  2.5224
+
+                               (Std. Err. adjusted for 238 clusters in module)
+------------------------------------------------------------------------------
+             |               Robust
+     betahat |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+   zagemove1 |   .8831794   .0128714    68.62   0.000     .8578225    .9085363
+   zagemove2 |   .9066537   .0144086    62.92   0.000     .8782685     .935039
+   zagemove3 |   .8390773   .0183373    45.76   0.000     .8029523    .8752023
+   zagemove4 |   .8543868   .0166312    51.37   0.000      .821623    .8871505
+   zagemove5 |   .8063155   .0167521    48.13   0.000     .7733135    .8393175
+   zagemove6 |   .7786076   .0238349    32.67   0.000     .7316523    .8255629
+   zagemove7 |   .7356392   .0239073    30.77   0.000     .6885412    .7827372
+   zagemove8 |   .6952979   .0262193    26.52   0.000     .6436452    .7469505
+   zagemove9 |   .7306354   .0251318    29.07   0.000     .6811251    .7801457
+  zagemove10 |   .7318797   .0327105    22.37   0.000     .6674393    .7963202
+  zagemove11 |   .6398955   .0347699    18.40   0.000      .571398     .708393
+  zagemove12 |   .6659493   .0410866    16.21   0.000     .5850078    .7468909
+  zagemove13 |   .6660898   .0416962    15.97   0.000     .5839473    .7482324
+------------------------------------------------------------------------------
+
+. plotcoeffs zagemove1-zagemove13 , `options'
+
+. graph export ..\output\figures\agemove_demo.eps, as(eps) replace
+(note: file ..\output\figures\agemove_demo.eps not found)
+(file ..\output\figures\agemove_demo.eps written in EPS format)
+
+. 
+. *****************************************************************
+. * FIGURE <fig:AgeMove_recent>
+. *****************************************************************
+. u ..\temp\purch_mig, clear
+
+. mmerge hhld_id using ..\temp\hh_mig, type(n:1) unm(master) ukeep(years age_move_cat)
+
+-------------------------------------------------------------------------------
+merge specs          |
+       matching type | n:1
+  mv's on match vars | none
+  unmatched obs from | master
+---------------------+---------------------------------------------------------
+  master        file | ..\temp\purch_mig.dta
+                 obs | 528972
+                vars |     16
+          match vars | hhld_id  (not a key)
+  -------------------+---------------------------------------------------------
+  using         file | ..\temp\hh_mig.dta
+                 obs |  10412
+                vars |      3  (selection via udrop/ukeep)
+          match vars | hhld_id  (key)
+---------------------+---------------------------------------------------------
+variable hhld_id does not uniquely identify observations in the master data
+result          file | ..\temp\purch_mig.dta
+                 obs | 528972
+                vars |     20  (including _merge)
+         ------------+---------------------------------------------------------
+              _merge | 528972  obs both in master and using data      (code==3)
+-------------------------------------------------------------------------------
+
+. 
+. local xlab "20-24 25-29 30-34 35-39 40-44 45-49 50-54 55-59 60+" 
+
+. local options "ylabel(0(.1)1) yline(0 1, lpattern(dash)) yscale(range(-.1 1.1)) ytitle(Relative Share ({&beta} {subscript:ij})) xtitle(Age at Move) label(`xlab')"
+
+. quietly tab age_move_cat, gen(zagemove)
+
+. 
+. gen w1nd = totpurch*sqdifnd/(modshare*(1-modshare))
+(283 missing values generated)
+
+. gen w1 = totpurch*sqdif/(modshare*(1-modshare))
+(283 missing values generated)
+
+. 
+. reg betahatnd zagemove4-zagemove13 if years<=5 [aw=sqdifnd], cluster(module) nocons
+(sum of wgt is   1.7367e+03)
+
+Linear regression                                      Number of obs =   60296
+                                                       F( 10,   237) =   72.21
+                                                       Prob > F      =  0.0000
+                                                       R-squared     =  0.0618
+                                                       Root MSE      =  2.4662
+
+                               (Std. Err. adjusted for 238 clusters in module)
+------------------------------------------------------------------------------
+             |               Robust
+   betahatnd |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+   zagemove4 |   .6774909    .052874    12.81   0.000     .5733278    .7816539
+   zagemove5 |   .6576109    .034182    19.24   0.000     .5902715    .7249504
+   zagemove6 |   .6920924   .0378304    18.29   0.000     .6175655    .7666193
+   zagemove7 |   .6829146   .0355951    19.19   0.000     .6127914    .7530378
+   zagemove8 |   .5645908   .0426123    13.25   0.000     .4806436     .648538
+   zagemove9 |   .6339499   .0367933    17.23   0.000     .5614662    .7064335
+  zagemove10 |   .6661812   .0390447    17.06   0.000     .5892623    .7431002
+  zagemove11 |   .5875175   .0364517    16.12   0.000     .5157069    .6593282
+  zagemove12 |   .5984705   .0510903    11.71   0.000     .4978214    .6991197
+  zagemove13 |   .5602685   .0511672    10.95   0.000      .459468     .661069
+------------------------------------------------------------------------------
+
+. plotcoeffs zagemove4-zagemove13 , `options'
+
+. graph export ..\output\figures\agemove_recent_none.eps, as(eps) replace
+(note: file ..\output\figures\agemove_recent_none.eps not found)
+(file ..\output\figures\agemove_recent_none.eps written in EPS format)
+
+. 
+. reg betahat zagemove4-zagemove13 if years<=5  [aw=sqdif], cluster(module) nocons
+(sum of wgt is   1.6677e+03)
+
+Linear regression                                      Number of obs =   60288
+                                                       F( 10,   237) =   60.76
+                                                       Prob > F      =  0.0000
+                                                       R-squared     =  0.0593
+                                                       Root MSE      =  2.4906
+
+                               (Std. Err. adjusted for 238 clusters in module)
+------------------------------------------------------------------------------
+             |               Robust
+     betahat |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+   zagemove4 |   .6684386   .0522077    12.80   0.000     .5655881    .7712891
+   zagemove5 |   .6497531   .0355814    18.26   0.000     .5796569    .7198493
+   zagemove6 |   .6932604   .0384963    18.01   0.000     .6174218    .7690989
+   zagemove7 |   .6639685   .0380513    17.45   0.000     .5890065    .7389305
+   zagemove8 |   .5471433   .0445002    12.30   0.000     .4594767    .6348098
+   zagemove9 |   .6107828   .0387934    15.74   0.000     .5343589    .6872068
+  zagemove10 |   .6537757   .0396828    16.48   0.000     .5755997    .7319517
+  zagemove11 |   .5900578   .0367297    16.06   0.000     .5176994    .6624161
+  zagemove12 |   .6097742   .0490835    12.42   0.000     .5130786    .7064699
+  zagemove13 |    .560635   .0478249    11.72   0.000     .4664189    .6548512
+------------------------------------------------------------------------------
+
+. plotcoeffs zagemove4-zagemove13 , `options'
+
+. graph export ..\output\figures\agemove_recent_demo.eps, as(eps) replace
+(note: file ..\output\figures\agemove_recent_demo.eps not found)
+(file ..\output\figures\agemove_recent_demo.eps written in EPS format)
+
+. 
+. *****************************************************************
+. * FIGURE <fig:Years_25plus>
+. *****************************************************************
+. u ..\temp\purch_mig, clear
+
+. mmerge hhld_id using ..\temp\hh_mig, type(n:1) unm(master) ukeep(years age_move years_cat)
+
+-------------------------------------------------------------------------------
+merge specs          |
+       matching type | n:1
+  mv's on match vars | none
+  unmatched obs from | master
+---------------------+---------------------------------------------------------
+  master        file | ..\temp\purch_mig.dta
+                 obs | 528972
+                vars |     16
+          match vars | hhld_id  (not a key)
+  -------------------+---------------------------------------------------------
+  using         file | ..\temp\hh_mig.dta
+                 obs |  10412
+                vars |      4  (selection via udrop/ukeep)
+          match vars | hhld_id  (key)
+---------------------+---------------------------------------------------------
+variable hhld_id does not uniquely identify observations in the master data
+result          file | ..\temp\purch_mig.dta
+                 obs | 528972
+                vars |     21  (including _merge)
+         ------------+---------------------------------------------------------
+              _merge | 528972  obs both in master and using data      (code==3)
+-------------------------------------------------------------------------------
+
+. 
+. local xlab "0-4 5-9 10-14 15-19 20-24 25-29 30-34 35-39 40-44 45-49 50-54" 
+
+. local options "ylabel(0(.1)1) yline(0 1, lpattern(dash)) yscale(range(-.1 1.1)) ytitle(Relative Share ({&beta} {subscript:ij})) xtitle(Years Since Move) label(`xlab')"
+
+. quietly tab years_cat, gen(zyears)
+
+. 
+. gen w1nd = totpurch*sqdifnd/(modshare*(1-modshare))
+(283 missing values generated)
+
+. gen w1 = totpurch*sqdif/(modshare*(1-modshare))
+(283 missing values generated)
+
+. 
+. reg betahatnd zyears1-zyears11 if age_move>25 & years_cat<=50 [aw=sqdifnd], cluster(module) nocons
+(sum of wgt is   5.7645e+03)
+
+Linear regression                                      Number of obs =  199480
+                                                       F( 11,   237) =  133.47
+                                                       Prob > F      =  0.0000
+                                                       R-squared     =  0.0801
+                                                       Root MSE      =  2.4458
+
+                               (Std. Err. adjusted for 238 clusters in module)
+------------------------------------------------------------------------------
+             |               Robust
+   betahatnd |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+     zyears1 |   .6081143   .0287871    21.12   0.000     .5514029    .6648256
+     zyears2 |   .6969849     .02738    25.46   0.000     .6430457     .750924
+     zyears3 |   .7405902   .0277291    26.71   0.000     .6859631    .7952173
+     zyears4 |    .737426   .0303967    24.26   0.000     .6775437    .7973082
+     zyears5 |   .7471489   .0276913    26.98   0.000     .6925964    .8017014
+     zyears6 |   .7745786   .0298748    25.93   0.000     .7157245    .8334327
+     zyears7 |   .8164816   .0276056    29.58   0.000     .7620979    .8708653
+     zyears8 |   .8247964   .0379215    21.75   0.000     .7500901    .8995026
+     zyears9 |   .8675243   .0473736    18.31   0.000     .7741971    .9608514
+    zyears10 |   .9327805   .0565816    16.49   0.000     .8213135    1.044248
+    zyears11 |   .8955683   .1074438     8.34   0.000     .6839014    1.107235
+------------------------------------------------------------------------------
+
+. plotcoeffs zyears1-zyears11, `options'
+
+. graph export ..\output\figures\years25_none.eps, as(eps) replace
+(note: file ..\output\figures\years25_none.eps not found)
+(file ..\output\figures\years25_none.eps written in EPS format)
+
+. 
+. reg betahat zyears1-zyears11 if age_move>25 & years_cat<=50 [aw=sqdif], cluster(module) nocons
+(sum of wgt is   5.5442e+03)
+
+Linear regression                                      Number of obs =  199456
+                                                       F( 11,   237) =  165.80
+                                                       Prob > F      =  0.0000
+                                                       R-squared     =  0.0791
+                                                       Root MSE      =  2.4702
+
+                               (Std. Err. adjusted for 238 clusters in module)
+------------------------------------------------------------------------------
+             |               Robust
+     betahat |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+     zyears1 |   .5996227   .0298776    20.07   0.000     .5407632    .6584823
+     zyears2 |   .6962481   .0278823    24.97   0.000     .6413193    .7511769
+     zyears3 |    .740482    .027593    26.84   0.000     .6861232    .7948407
+     zyears4 |   .7473379   .0292251    25.57   0.000     .6897638     .804912
+     zyears5 |   .7544605   .0266592    28.30   0.000     .7019411    .8069799
+     zyears6 |   .7843159   .0271119    28.93   0.000     .7309048    .8377269
+     zyears7 |   .8261683   .0257704    32.06   0.000        .7754    .8769366
+     zyears8 |   .8242639   .0364289    22.63   0.000     .7524982    .8960297
+     zyears9 |   .8803586   .0454992    19.35   0.000     .7907241     .969993
+    zyears10 |   .9272771   .0587219    15.79   0.000     .8115936    1.042961
+    zyears11 |   .8617476    .110498     7.80   0.000     .6440639    1.079431
+------------------------------------------------------------------------------
+
+. plotcoeffs zyears1-zyears11, `options'
+
+. graph export ..\output\figures\years25_demo.eps, as(eps) replace
+(note: file ..\output\figures\years25_demo.eps not found)
+(file ..\output\figures\years25_demo.eps written in EPS format)
+
+. 
+. *****************************************************************
+. * FIGURE <fig:RecentMovers>
+. *****************************************************************
+. u ..\temp\purch_mig_month, clear
+
+. 
+. gen year = year(dofm(ym))
+
+. gen month = month(dofm(ym))
+
+. 
+. keep if (years==1 | years==0) & gap==0
+(1631635 observations deleted)
+
+. 
+. * note: survey fielded 9/13/08 - 10/1/08
+. drop if year==2008 & month>=10
+(303 observations deleted)
+
+. 
+. quietly tab ym, gen(zym)
+
+. egen hhmod=group(hhld_id module)
+
+. local xlab "10/06 11/06 12/06 1/07 2/07 3/07 4/07 5/07 6/07 7/07 8/07 9/07 10/07 11/07 12/07 1/08 2/08 3/08 4/08 5/08 6/08 7/08 8/08 9/08 10/08"
+
+. local options "ylabel(0(.1)1) yline($alpha, lpattern(dash) lcolor(red)) yline(0 1, lpattern(dash)) yscale(range(-.1 1.1)) ytitle(Relative Share ({&beta} {subscript:ij})) xtitle(Month/Year) label(`xlab')"
+
+. 
+. gen w1nd = totpurch*sqdifnd/(modshare*(1-modshare))
+(5 missing values generated)
+
+. 
+. * <1 Year
+. reg betahatnd zym1-zym24 if years==0 [aw=sqdifnd], cluster(module) nocons
+(sum of wgt is   3.4712e+02)
+
+Linear regression                                      Number of obs =   12705
+                                                       F( 24,   237) =    6.94
+                                                       Prob > F      =  0.0000
+                                                       R-squared     =  0.0181
+                                                       Root MSE      =  2.7361
+
+                               (Std. Err. adjusted for 238 clusters in module)
+------------------------------------------------------------------------------
+             |               Robust
+   betahatnd |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+        zym1 |  -.0238426   .1096841    -0.22   0.828    -.2399229    .1922376
+        zym2 |  -.0396359    .150914    -0.26   0.793    -.3369402    .2576684
+        zym3 |   .0831777   .1548468     0.54   0.592    -.2218743    .3882297
+        zym4 |   .0689831   .1202444     0.57   0.567    -.1679012    .3058674
+        zym5 |   .1294677   .1032893     1.25   0.211    -.0740148    .3329502
+        zym6 |   .3262108   .1223407     2.67   0.008     .0851967    .5672249
+        zym7 |   .1186238   .1222531     0.97   0.333    -.1222178    .3594653
+        zym8 |    .027588   .1227451     0.22   0.822    -.2142229    .2693988
+        zym9 |   .2008623   .1306268     1.54   0.125    -.0564757    .4582002
+       zym10 |  -.0610392    .110964    -0.55   0.583    -.2796409    .1575624
+       zym11 |   .1112426   .1206192     0.92   0.357    -.1263802    .3488653
+       zym12 |   .1100325   .1149911     0.96   0.340    -.1165028    .3365678
+       zym13 |   .0965289   .1258804     0.77   0.444    -.1514584    .3445163
+       zym14 |  -.0145929   .1311392    -0.11   0.911    -.2729402    .2437544
+       zym15 |   .1317645   .1404022     0.94   0.349    -.1448312    .4083602
+       zym16 |   .2728838   .1136762     2.40   0.017     .0489389    .4968287
+       zym17 |   .4119673   .1380125     2.99   0.003     .1400794    .6838552
+       zym18 |   .3025778   .1216955     2.49   0.014     .0628347    .5423209
+       zym19 |   .3463188   .0891864     3.88   0.000     .1706195    .5220182
+       zym20 |   .4097591   .1007609     4.07   0.000     .2112578    .6082605
+       zym21 |   .4015363   .1265786     3.17   0.002     .1521734    .6508991
+       zym22 |   .6512551   .1103416     5.90   0.000     .4338796    .8686306
+       zym23 |   .6259523   .0917734     6.82   0.000     .4451566    .8067481
+       zym24 |   .6944989   .0962474     7.22   0.000     .5048893    .8841086
+------------------------------------------------------------------------------
+
+. plotcoeffs zym1-zym24, `options' note("years living in current state: less than 1")
+
+. graph export ..\output\figures\years0_none.eps, as(eps) replace
+(note: file ..\output\figures\years0_none.eps not found)
+(file ..\output\figures\years0_none.eps written in EPS format)
+
+. 
+. * 1-2 Years
+. reg betahatnd zym1-zym24 if years==1 [aw=sqdifnd], cluster(module) nocons
+(sum of wgt is   3.8400e+02)
+
+Linear regression                                      Number of obs =   13809
+                                                       F( 24,   237) =    7.82
+                                                       Prob > F      =  0.0000
+                                                       R-squared     =  0.0443
+                                                       Root MSE      =  2.7014
+
+                               (Std. Err. adjusted for 238 clusters in module)
+------------------------------------------------------------------------------
+             |               Robust
+   betahatnd |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+        zym1 |    .109896   .1469458     0.75   0.455    -.1795908    .3993829
+        zym2 |   .2905168    .112254     2.59   0.010     .0693737    .5116599
+        zym3 |   .1324589   .1006188     1.32   0.189    -.0657626    .3306804
+        zym4 |   .1362571   .1223694     1.11   0.267    -.1048135    .3773278
+        zym5 |   .2239451   .1295973     1.73   0.085    -.0313647     .479255
+        zym6 |   .2908829   .1321993     2.20   0.029     .0304472    .5513187
+        zym7 |    .262189   .1249028     2.10   0.037     .0161276    .5082505
+        zym8 |    .384241     .14662     2.62   0.009     .0953961    .6730859
+        zym9 |   .2453717     .15395     1.59   0.112    -.0579134    .5486568
+       zym10 |   .5300146   .1043292     5.08   0.000     .3244834    .7355457
+       zym11 |   .7735148   .1448647     5.34   0.000     .4881278    1.058902
+       zym12 |   .6193015   .1211661     5.11   0.000     .3806014    .8580016
+       zym13 |   .6275731   .1212167     5.18   0.000     .3887732     .866373
+       zym14 |   .6266575   .1211412     5.17   0.000     .3880064    .8653085
+       zym15 |   .6320784   .1247042     5.07   0.000     .3864082    .8777486
+       zym16 |   .6648086    .127023     5.23   0.000     .4145702    .9150469
+       zym17 |   .5371341   .1460747     3.68   0.000     .2493635    .8249048
+       zym18 |   .5346779   .1406195     3.80   0.000     .2576543    .8117016
+       zym19 |   .7104307   .1308861     5.43   0.000     .4525819    .9682795
+       zym20 |   .7542392   .1186167     6.36   0.000     .5205615     .987917
+       zym21 |    .763438   .1084139     7.04   0.000     .5498601    .9770159
+       zym22 |   .6847938   .1113218     6.15   0.000     .4654872    .9041004
+       zym23 |   .7245318   .0916303     7.91   0.000     .5440179    .9050457
+       zym24 |   .7919981   .1065661     7.43   0.000     .5820603    1.001936
+------------------------------------------------------------------------------
+
+. plotcoeffs zym1-zym24, `options' note("Years Living in Current State: 1")
+
+. graph export ..\output\figures\years1_none.eps, as(eps) replace
+(note: file ..\output\figures\years1_none.eps not found)
+(file ..\output\figures\years1_none.eps written in EPS format)
+
+. 
+. cap log close

@@ -1,0 +1,248 @@
+0.5 2 0
+                                 OLS Regression Results                                
+=======================================================================================
+Dep. Variable:                      y   R-squared (uncentered):                   0.990
+Model:                            OLS   Adj. R-squared (uncentered):              0.990
+Method:                 Least Squares   F-statistic:                          2.456e+05
+Date:                Tue, 09 Jun 2026   Prob (F-statistic):                        0.00
+Time:                        09:29:10   Log-Likelihood:                         -20044.
+No. Observations:                5000   AIC:                                  4.009e+04
+Df Residuals:                    4998   BIC:                                  4.010e+04
+Df Model:                           2                                                  
+Covariance Type:            nonrobust                                                  
+==============================================================================
+                 coef    std err          t      P>|t|      [0.025      0.975]
+------------------------------------------------------------------------------
+x1             0.4939      0.004    111.449      0.000       0.485       0.503
+x2             1.9702      0.005    436.891      0.000       1.961       1.979
+==============================================================================
+Omnibus:                     8638.355   Durbin-Watson:                   1.987
+Prob(Omnibus):                  0.000   Jarque-Bera (JB):          5482060.298
+Skew:                         -12.286   Prob(JB):                         0.00
+Kurtosis:                     163.344   Cond. No.                         2.26
+==============================================================================
+
+Notes:
+[1] R² is computed without centering (uncentered) since the model does not contain a constant.
+[2] Standard Errors assume that the covariance matrix of the errors is correctly specified.
+0.5 2 6
+                                 OLS Regression Results                                
+=======================================================================================
+Dep. Variable:                      y   R-squared (uncentered):                   0.964
+Model:                            OLS   Adj. R-squared (uncentered):              0.964
+Method:                 Least Squares   F-statistic:                          6.694e+04
+Date:                Tue, 09 Jun 2026   Prob (F-statistic):                        0.00
+Time:                        09:29:10   Log-Likelihood:                         -24351.
+No. Observations:                5000   AIC:                                  4.871e+04
+Df Residuals:                    4998   BIC:                                  4.872e+04
+Df Model:                           2                                                  
+Covariance Type:            nonrobust                                                  
+==============================================================================
+                 coef    std err          t      P>|t|      [0.025      0.975]
+------------------------------------------------------------------------------
+x1             0.9026      0.010     86.061      0.000       0.882       0.923
+x2             2.1896      0.011    205.171      0.000       2.169       2.211
+==============================================================================
+Omnibus:                     2950.275   Durbin-Watson:                   0.586
+Prob(Omnibus):                  0.000   Jarque-Bera (JB):            52081.729
+Skew:                          -2.473   Prob(JB):                         0.00
+Kurtosis:                      18.018   Cond. No.                         2.26
+==============================================================================
+
+Notes:
+[1] R² is computed without centering (uncentered) since the model does not contain a constant.
+[2] Standard Errors assume that the covariance matrix of the errors is correctly specified.
+0.5 2 9
+                                 OLS Regression Results                                
+=======================================================================================
+Dep. Variable:                      y   R-squared (uncentered):                   0.950
+Model:                            OLS   Adj. R-squared (uncentered):              0.950
+Method:                 Least Squares   F-statistic:                          4.727e+04
+Date:                Tue, 09 Jun 2026   Prob (F-statistic):                        0.00
+Time:                        09:29:10   Log-Likelihood:                         -25739.
+No. Observations:                5000   AIC:                                  5.148e+04
+Df Residuals:                    4998   BIC:                                  5.150e+04
+Df Model:                           2                                                  
+Covariance Type:            nonrobust                                                  
+==============================================================================
+                 coef    std err          t      P>|t|      [0.025      0.975]
+------------------------------------------------------------------------------
+x1             1.1008      0.014     79.509      0.000       1.074       1.128
+x2             2.3416      0.014    166.211      0.000       2.314       2.369
+==============================================================================
+Omnibus:                     1763.792   Durbin-Watson:                   0.426
+Prob(Omnibus):                  0.000   Jarque-Bera (JB):            13087.791
+Skew:                          -1.488   Prob(JB):                         0.00
+Kurtosis:                      10.346   Cond. No.                         2.26
+==============================================================================
+
+Notes:
+[1] R² is computed without centering (uncentered) since the model does not contain a constant.
+[2] Standard Errors assume that the covariance matrix of the errors is correctly specified.
+0.5 2 12
+                                 OLS Regression Results                                
+=======================================================================================
+Dep. Variable:                      y   R-squared (uncentered):                   0.936
+Model:                            OLS   Adj. R-squared (uncentered):              0.936
+Method:                 Least Squares   F-statistic:                          3.630e+04
+Date:                Tue, 09 Jun 2026   Prob (F-statistic):                        0.00
+Time:                        09:29:10   Log-Likelihood:                         -26876.
+No. Observations:                5000   AIC:                                  5.376e+04
+Df Residuals:                    4998   BIC:                                  5.377e+04
+Df Model:                           2                                                  
+Covariance Type:            nonrobust                                                  
+==============================================================================
+                 coef    std err          t      P>|t|      [0.025      0.975]
+------------------------------------------------------------------------------
+x1             1.3359      0.017     76.874      0.000       1.302       1.370
+x2             2.4635      0.018    139.314      0.000       2.429       2.498
+==============================================================================
+Omnibus:                     1065.926   Durbin-Watson:                   0.336
+Prob(Omnibus):                  0.000   Jarque-Bera (JB):             4370.125
+Skew:                          -0.996   Prob(JB):                         0.00
+Kurtosis:                       7.124   Cond. No.                         2.26
+==============================================================================
+
+Notes:
+[1] R² is computed without centering (uncentered) since the model does not contain a constant.
+[2] Standard Errors assume that the covariance matrix of the errors is correctly specified.
+0.5 2 0
+                                 OLS Regression Results                                
+=======================================================================================
+Dep. Variable:                      y   R-squared (uncentered):                   0.990
+Model:                            OLS   Adj. R-squared (uncentered):              0.990
+Method:                 Least Squares   F-statistic:                          1.640e+05
+Date:                Tue, 09 Jun 2026   Prob (F-statistic):                        0.00
+Time:                        09:29:10   Log-Likelihood:                         -20039.
+No. Observations:                5000   AIC:                                  4.008e+04
+Df Residuals:                    4997   BIC:                                  4.010e+04
+Df Model:                           3                                                  
+Covariance Type:            nonrobust                                                  
+==============================================================================
+                 coef    std err          t      P>|t|      [0.025      0.975]
+------------------------------------------------------------------------------
+x1             0.4867      0.005     96.370      0.000       0.477       0.497
+x2             1.9671      0.005    425.516      0.000       1.958       1.976
+x3             0.1089      0.037      2.942      0.003       0.036       0.181
+==============================================================================
+Omnibus:                     8624.203   Durbin-Watson:                   1.988
+Prob(Omnibus):                  0.000   Jarque-Bera (JB):          5419416.905
+Skew:                         -12.247   Prob(JB):                         0.00
+Kurtosis:                     162.415   Cond. No.                         14.6
+==============================================================================
+
+Notes:
+[1] R² is computed without centering (uncentered) since the model does not contain a constant.
+[2] Standard Errors assume that the covariance matrix of the errors is correctly specified.
+0.5 2 6
+                                 OLS Regression Results                                
+=======================================================================================
+Dep. Variable:                      y   R-squared (uncentered):                   0.990
+Model:                            OLS   Adj. R-squared (uncentered):              0.990
+Method:                 Least Squares   F-statistic:                          1.612e+05
+Date:                Tue, 09 Jun 2026   Prob (F-statistic):                        0.00
+Time:                        09:29:10   Log-Likelihood:                         -21206.
+No. Observations:                5000   AIC:                                  4.242e+04
+Df Residuals:                    4997   BIC:                                  4.244e+04
+Df Model:                           3                                                  
+Covariance Type:            nonrobust                                                  
+==============================================================================
+                 coef    std err          t      P>|t|      [0.025      0.975]
+------------------------------------------------------------------------------
+x1             0.4880      0.007     72.801      0.000       0.475       0.501
+x2             1.9543      0.006    322.249      0.000       1.942       1.966
+x3             6.0944      0.054    112.171      0.000       5.988       6.201
+==============================================================================
+Omnibus:                     8036.836   Durbin-Watson:                   1.957
+Prob(Omnibus):                  0.000   Jarque-Bera (JB):          3227560.311
+Skew:                         -10.739   Prob(JB):                         0.00
+Kurtosis:                     125.601   Cond. No.                         16.9
+==============================================================================
+
+Notes:
+[1] R² is computed without centering (uncentered) since the model does not contain a constant.
+[2] Standard Errors assume that the covariance matrix of the errors is correctly specified.
+0.5 2 9
+                                 OLS Regression Results                                
+=======================================================================================
+Dep. Variable:                      y   R-squared (uncentered):                   0.990
+Model:                            OLS   Adj. R-squared (uncentered):              0.990
+Method:                 Least Squares   F-statistic:                          1.593e+05
+Date:                Tue, 09 Jun 2026   Prob (F-statistic):                        0.00
+Time:                        09:29:10   Log-Likelihood:                         -21791.
+No. Observations:                5000   AIC:                                  4.359e+04
+Df Residuals:                    4997   BIC:                                  4.361e+04
+Df Model:                           3                                                  
+Covariance Type:            nonrobust                                                  
+==============================================================================
+                 coef    std err          t      P>|t|      [0.025      0.975]
+------------------------------------------------------------------------------
+x1             0.4811      0.008     62.388      0.000       0.466       0.496
+x2             1.9675      0.007    283.427      0.000       1.954       1.981
+x3             8.9941      0.065    138.733      0.000       8.867       9.121
+==============================================================================
+Omnibus:                     7837.223   Durbin-Watson:                   1.932
+Prob(Omnibus):                  0.000   Jarque-Bera (JB):          2721357.523
+Skew:                         -10.258   Prob(JB):                         0.00
+Kurtosis:                     115.435   Cond. No.                         18.0
+==============================================================================
+
+Notes:
+[1] R² is computed without centering (uncentered) since the model does not contain a constant.
+[2] Standard Errors assume that the covariance matrix of the errors is correctly specified.
+0.5 2 12
+                                 OLS Regression Results                                
+=======================================================================================
+Dep. Variable:                      y   R-squared (uncentered):                   0.990
+Model:                            OLS   Adj. R-squared (uncentered):              0.990
+Method:                 Least Squares   F-statistic:                          1.638e+05
+Date:                Tue, 09 Jun 2026   Prob (F-statistic):                        0.00
+Time:                        09:29:10   Log-Likelihood:                         -22236.
+No. Observations:                5000   AIC:                                  4.448e+04
+Df Residuals:                    4997   BIC:                                  4.450e+04
+Df Model:                           3                                                  
+Covariance Type:            nonrobust                                                  
+==============================================================================
+                 coef    std err          t      P>|t|      [0.025      0.975]
+------------------------------------------------------------------------------
+x1             0.4874      0.009     56.694      0.000       0.471       0.504
+x2             1.9607      0.008    256.840      0.000       1.946       1.976
+x3            11.9852      0.073    164.212      0.000      11.842      12.128
+==============================================================================
+Omnibus:                     7891.473   Durbin-Watson:                   1.989
+Prob(Omnibus):                  0.000   Jarque-Bera (JB):          2686783.278
+Skew:                         -10.421   Prob(JB):                         0.00
+Kurtosis:                     114.634   Cond. No.                         18.5
+==============================================================================
+
+Notes:
+[1] R² is computed without centering (uncentered) since the model does not contain a constant.
+[2] Standard Errors assume that the covariance matrix of the errors is correctly specified.
+True: beta1=0.5, beta2=2, gamma=0
+Estimated (No LOV): beta1=0.6841, beta2=2.7804
+Estimated (LOV):    beta1=0.6827, beta2=2.7872, gamma=0.0111
+Converged (No LOV): True | Converged (LOV): True
+LL (No LOV): -92256.62 | LL (LOV): -92255.60
+Percent taking outside option: 0.01
+------------------------------------------------------------
+True: beta1=0.5, beta2=2, gamma=6
+Estimated (No LOV): beta1=0.2154, beta2=0.5902
+Estimated (LOV):    beta1=0.5011, beta2=2.0045, gamma=6.0146
+Converged (No LOV): True | Converged (LOV): True
+LL (No LOV): -463967.05 | LL (LOV): -184242.43
+Percent taking outside option: 0.01
+------------------------------------------------------------
+True: beta1=0.5, beta2=2, gamma=9
+Estimated (No LOV): beta1=0.1665, beta2=0.4470
+Estimated (LOV):    beta1=0.5001, beta2=2.0003, gamma=9.0012
+Converged (No LOV): True | Converged (LOV): True
+LL (No LOV): -585867.80 | LL (LOV): -181141.55
+Percent taking outside option: 0.01
+------------------------------------------------------------
+True: beta1=0.5, beta2=2, gamma=12
+Estimated (No LOV): beta1=0.1426, beta2=0.3630
+Estimated (LOV):    beta1=0.5000, beta2=2.0002, gamma=12.0015
+Converged (No LOV): True | Converged (LOV): True
+LL (No LOV): -651123.88 | LL (LOV): -181346.41
+Percent taking outside option: 0.01
+------------------------------------------------------------

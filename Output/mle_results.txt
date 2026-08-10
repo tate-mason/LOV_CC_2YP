@@ -1,0 +1,28 @@
+True: beta1=0.5, beta2=2, gamma=0
+Estimated (No LOV): beta1=0.6841, beta2=2.7804
+Estimated (LOV):    beta1=0.6837, beta2=2.7847, gamma=0.0131
+Converged (No LOV): True | Converged (LOV): True
+LL (No LOV): -92256.62 | LL (LOV): -92256.21
+Percent taking outside option: 0.01
+------------------------------------------------------------
+True: beta1=0.5, beta2=2, gamma=6
+Estimated (No LOV): beta1=0.2933, beta2=0.9332
+Estimated (LOV):    beta1=0.7221, beta2=2.7818, gamma=7.7321
+Converged (No LOV): True | Converged (LOV): True
+LL (No LOV): -268490.85 | LL (LOV): -166433.66
+Percent taking outside option: 0.01
+------------------------------------------------------------
+True: beta1=0.5, beta2=2, gamma=9
+Estimated (No LOV): beta1=0.2675, beta2=0.7647
+Estimated (LOV):    beta1=0.5866, beta2=2.3622, gamma=10.7229
+Converged (No LOV): True | Converged (LOV): True
+LL (No LOV): -343679.83 | LL (LOV): -180773.38
+Percent taking outside option: 0.01
+------------------------------------------------------------
+True: beta1=0.5, beta2=2, gamma=12
+Estimated (No LOV): beta1=0.2376, beta2=0.6560
+Estimated (LOV):    beta1=0.5177, beta2=2.0682, gamma=12.4430
+Converged (No LOV): True | Converged (LOV): True
+LL (No LOV): -413863.03 | LL (LOV): -184594.99
+Percent taking outside option: 0.01
+------------------------------------------------------------

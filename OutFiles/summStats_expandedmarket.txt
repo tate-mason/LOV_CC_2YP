@@ -1,0 +1,76 @@
+Defaulting to user installation because normal site-packages is not writeable
+Requirement already satisfied: pandas in /home/dtm63837/.local/lib/python3.12/site-packages (3.0.3)
+Requirement already satisfied: numpy>=1.26.0 in /home/dtm63837/.local/lib/python3.12/site-packages (from pandas) (2.4.6)
+Requirement already satisfied: python-dateutil>=2.8.2 in /home/dtm63837/.local/lib/python3.12/site-packages (from pandas) (2.9.0.post0)
+Requirement already satisfied: six>=1.5 in /home/dtm63837/.local/lib/python3.12/site-packages (from python-dateutil>=2.8.2->pandas) (1.17.0)
+
+[notice] A new release of pip is available: 24.0 -> 26.1.2
+[notice] To update, run: pip install --upgrade pip
+Defaulting to user installation because normal site-packages is not writeable
+Requirement already satisfied: polars in /home/dtm63837/.local/lib/python3.12/site-packages (1.40.1)
+Requirement already satisfied: polars-runtime-32==1.40.1 in /home/dtm63837/.local/lib/python3.12/site-packages (from polars) (1.40.1)
+
+[notice] A new release of pip is available: 24.0 -> 26.1.2
+[notice] To update, run: pip install --upgrade pip
+Defaulting to user installation because normal site-packages is not writeable
+Requirement already satisfied: numpy in /home/dtm63837/.local/lib/python3.12/site-packages (2.4.6)
+
+[notice] A new release of pip is available: 24.0 -> 26.1.2
+[notice] To update, run: pip install --upgrade pip
+Defaulting to user installation because normal site-packages is not writeable
+Requirement already satisfied: matplotlib in /home/dtm63837/.local/lib/python3.12/site-packages (3.10.9)
+Requirement already satisfied: contourpy>=1.0.1 in /home/dtm63837/.local/lib/python3.12/site-packages (from matplotlib) (1.3.3)
+Requirement already satisfied: cycler>=0.10 in /home/dtm63837/.local/lib/python3.12/site-packages (from matplotlib) (0.12.1)
+Requirement already satisfied: fonttools>=4.22.0 in /home/dtm63837/.local/lib/python3.12/site-packages (from matplotlib) (4.63.0)
+Requirement already satisfied: kiwisolver>=1.3.1 in /home/dtm63837/.local/lib/python3.12/site-packages (from matplotlib) (1.5.0)
+Requirement already satisfied: numpy>=1.23 in /home/dtm63837/.local/lib/python3.12/site-packages (from matplotlib) (2.4.6)
+Requirement already satisfied: packaging>=20.0 in /apps/eb/Python/3.12.3-GCCcore-13.3.0/lib/python3.12/site-packages (from matplotlib) (24.0)
+Requirement already satisfied: pillow>=8 in /home/dtm63837/.local/lib/python3.12/site-packages (from matplotlib) (12.2.0)
+Requirement already satisfied: pyparsing>=3 in /home/dtm63837/.local/lib/python3.12/site-packages (from matplotlib) (3.3.2)
+Requirement already satisfied: python-dateutil>=2.7 in /home/dtm63837/.local/lib/python3.12/site-packages (from matplotlib) (2.9.0.post0)
+Requirement already satisfied: six>=1.5 in /home/dtm63837/.local/lib/python3.12/site-packages (from python-dateutil>=2.7->matplotlib) (1.17.0)
+
+[notice] A new release of pip is available: 24.0 -> 26.1.2
+[notice] To update, run: pip install --upgrade pip
+Defaulting to user installation because normal site-packages is not writeable
+Requirement already satisfied: seaborn in /home/dtm63837/.local/lib/python3.12/site-packages (0.13.2)
+Requirement already satisfied: numpy!=1.24.0,>=1.20 in /home/dtm63837/.local/lib/python3.12/site-packages (from seaborn) (2.4.6)
+Requirement already satisfied: pandas>=1.2 in /home/dtm63837/.local/lib/python3.12/site-packages (from seaborn) (3.0.3)
+Requirement already satisfied: matplotlib!=3.6.1,>=3.4 in /home/dtm63837/.local/lib/python3.12/site-packages (from seaborn) (3.10.9)
+Requirement already satisfied: contourpy>=1.0.1 in /home/dtm63837/.local/lib/python3.12/site-packages (from matplotlib!=3.6.1,>=3.4->seaborn) (1.3.3)
+Requirement already satisfied: cycler>=0.10 in /home/dtm63837/.local/lib/python3.12/site-packages (from matplotlib!=3.6.1,>=3.4->seaborn) (0.12.1)
+Requirement already satisfied: fonttools>=4.22.0 in /home/dtm63837/.local/lib/python3.12/site-packages (from matplotlib!=3.6.1,>=3.4->seaborn) (4.63.0)
+Requirement already satisfied: kiwisolver>=1.3.1 in /home/dtm63837/.local/lib/python3.12/site-packages (from matplotlib!=3.6.1,>=3.4->seaborn) (1.5.0)
+Requirement already satisfied: packaging>=20.0 in /apps/eb/Python/3.12.3-GCCcore-13.3.0/lib/python3.12/site-packages (from matplotlib!=3.6.1,>=3.4->seaborn) (24.0)
+Requirement already satisfied: pillow>=8 in /home/dtm63837/.local/lib/python3.12/site-packages (from matplotlib!=3.6.1,>=3.4->seaborn) (12.2.0)
+Requirement already satisfied: pyparsing>=3 in /home/dtm63837/.local/lib/python3.12/site-packages (from matplotlib!=3.6.1,>=3.4->seaborn) (3.3.2)
+Requirement already satisfied: python-dateutil>=2.7 in /home/dtm63837/.local/lib/python3.12/site-packages (from matplotlib!=3.6.1,>=3.4->seaborn) (2.9.0.post0)
+Requirement already satisfied: six>=1.5 in /home/dtm63837/.local/lib/python3.12/site-packages (from python-dateutil>=2.7->matplotlib!=3.6.1,>=3.4->seaborn) (1.17.0)
+
+[notice] A new release of pip is available: 24.0 -> 26.1.2
+[notice] To update, run: pip install --upgrade pip
+Defaulting to user installation because normal site-packages is not writeable
+Requirement already satisfied: pyarrow in /home/dtm63837/.local/lib/python3.12/site-packages (24.0.0)
+
+[notice] A new release of pip is available: 24.0 -> 26.1.2
+[notice] To update, run: pip install --upgrade pip
+Number of households:    963
+ Number of times seen:    10.669781931464174
+Mean household income:   18.5423852111772
+ Median household income: 19.0
+ Racial Makeup of Sample: race
+1    736
+2    179
+3     21
+4     27
+Name: household_code, dtype: int64
+
+['trip_code_uc', 'household_code', 'purchase_date', 'retailer_code', 'store_code_uc', 'panel_year', 'store_zip3', 'total_spent', 'method_of_payment_cd', 'upc', 'upc_ver_uc', 'quantity', 'total_price_paid', 'coupon_value', 'deal_flag_uc', 'panel_year', 'projection_factor', 'projection_factor_magnet', 'household_income', 'household_size', 'type_of_residence', 'household_composition', 'age_and_presence_of_children', 'male_head_age', 'female_head_age', 'male_head_employment', 'female_head_employment', 'male_head_education', 'female_head_education', 'male_head_occupation', 'female_head_occupation', 'male_head_birth', 'female_head_birth', 'marital_status', 'race', 'hispanic_origin', 'panelist_zipcd', 'fips_state_cd', 'fips_state_desc', 'fips_county_cd', 'fips_county_desc', 'region_cd', 'scantrack_market_identifier_cd', 'scantrack_market_identifier_desc', 'dma_cd', 'dma_name', 'kitchen_appliances', 'tv_items', 'household_internet_connection', 'wic_indicator_current', 'wic_indicator_ever_not_current', 'member_1_birth', 'member_1_relationship_sex', 'member_1_employment', 'member_2_birth', 'member_2_relationship_sex', 'member_2_employment', 'member_3_birth', 'member_3_relationship_sex', 'member_3_employment', 'member_4_birth', 'member_4_relationship_sex', 'member_4_employment', 'member_5_birth', 'member_5_relationship_sex', 'member_5_employment', 'member_6_birth', 'member_6_relationship_sex', 'member_6_employment', 'member_7_birth', 'member_7_relationship_sex', 'member_7_employment', 'upc_ver_uc_right', 'upc_descr', 'product_module_code', 'product_module_descr', 'product_group_code', 'product_group_descr', 'department_code', 'department_descr', 'brand_code_uc', 'brand_descr', 'multi', 'size1_code_uc', 'size1_amount', 'size1_units', 'dataset_found_uc', 'size1_change_flag_uc']
+0.37284745771307976
+0.22929805550853663
+0.0
+45838
+1.961487440626471
+3.8370138093360078
+0.6828528072837633
+Mean Brand Concentration Within Household: 0.28315201411349605

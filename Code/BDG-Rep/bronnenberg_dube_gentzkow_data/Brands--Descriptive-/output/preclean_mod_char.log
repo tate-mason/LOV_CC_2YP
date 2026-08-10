@@ -1,0 +1,166 @@
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  D:\SVN\trunk\analysis\Brands (Descriptive)\code\..\output\preclean_mod_char.log
+  log type:  text
+ opened on:  21 Jun 2011, 06:37:13
+
+. set linesize 255
+
+. 
+. **********************************************************
+. * PRELIMINARIES
+. **********************************************************
+. version
+version 11.1
+
+. version 10
+
+. clear
+
+. set mem 500m
+
+Current memory allocation
+
+                    current                                 memory usage
+    settable          value     description                 (1M = 1024k)
+    --------------------------------------------------------------------
+    set maxvar         5000     max. variables allowed           1.947M
+    set memory          500M    max. data space                500.000M
+    set matsize         400     max. RHS vars in models          1.254M
+                                                            -----------
+                                                               503.201M
+
+. set matsize 5000
+
+Current memory allocation
+
+                    current                                 memory usage
+    settable          value     description                 (1M = 1024k)
+    --------------------------------------------------------------------
+    set maxvar         5000     max. variables allowed           1.947M
+    set memory          500M    max. data space                500.000M
+    set matsize        5000     max. RHS vars in models        191.154M
+                                                            -----------
+                                                               693.102M
+
+. set more off
+
+. set seed 04271975
+
+. set sortseed 04271975
+
+. adopath + ..\external
+  [1]  (UPDATES)   "C:\Program Files (x86)\Stata11\ado\updates/"
+  [2]  (BASE)      "C:\Program Files (x86)\Stata11\ado\base/"
+  [3]  (SITE)      "C:\Program Files (x86)\Stata11\ado\site/"
+  [4]              "."
+  [5]  (PERSONAL)  "c:\ado\personal/"
+  [6]  (PLUS)      "Z:\ado\plus/"
+  [7]  (OLDPLACE)  "c:\ado/"
+  [8]              "..\external"
+
+. tempfile surtemp modtemp tertemp
+
+. 
+. **********************************************************
+. * FILES
+. **********************************************************
+. local addata ..\external\module_top2brands_dollars_2008.dta 
+
+. local visible ..\external\module_visibility.csv
+
+. 
+. *****************************************************************
+. * CREATE MODULE CHARACTERISTICS FILE
+. *****************************************************************
+. 
+. tempfile ads2 
+
+. use `addata', clear 
+
+. rename totaldols000 addols000
+
+. keep module addols000 
+
+. replace addols=0 if addols ==.
+(0 real changes made)
+
+. egen meddols = median(addols) 
+
+. gen ad2 = addols000>meddols 
+
+. egen ad25 = pctile(addols), p(25)
+
+. gen ad3 = addols>ad25 
+
+. egen ad75 = pctile(addols), p(75)
+
+. gen ad4 = addols>ad75 
+
+. gen ad5 = ad3+ad4 
+
+. save `ads2', replace 
+(note: file C:\Windows\TEMP\ST_01000005.tmp not found)
+file C:\Windows\TEMP\ST_01000005.tmp saved
+
+. 
+. tempfile vis1 
+
+. insheet using `visible', clear
+(6 vars, 382 obs)
+
+. rename visibility_module vis_module
+
+. gen vis2 = vis_module==2 
+
+. gen vis3 = vis_module>0 
+
+. keep module vis_module vis2 vis3
+
+. mmerge module using `ads2', type(n:1) unmatched(both)
+
+-------------------------------------------------------------------------------
+merge specs          |
+       matching type | n:1
+  mv's on match vars | none
+  unmatched obs from | both
+---------------------+---------------------------------------------------------
+  master        file | <data in memory not named>
+                 obs |    382
+                vars |      4
+          match vars | module  (key)
+  -------------------+---------------------------------------------------------
+  using         file | C:\Windows\TEMP\ST_01000005.tmp
+                 obs |    208
+                vars |      9
+          match vars | module  (key)
+---------------------+---------------------------------------------------------
+result          file | <data in memory not named>
+                 obs |    382
+                vars |     14  (including _merge)
+         ------------+---------------------------------------------------------
+              _merge |    174  obs only in master data                (code==1)
+                     |    208  obs both in master and using data      (code==3)
+-------------------------------------------------------------------------------
+
+. save `vis1' 
+file C:\Windows\TEMP\ST_01000006.tmp saved
+
+. 
+. keep module ad4 vis2
+
+. ren ad4 ad
+
+. ren vis2 social
+
+. 
+. replace ad=0 if ad==.
+(174 real changes made)
+
+. 
+. save ../temp/modchar.dta, replace
+(note: file ../temp/modchar.dta not found)
+file ../temp/modchar.dta saved
+
+. 
+. cap log close

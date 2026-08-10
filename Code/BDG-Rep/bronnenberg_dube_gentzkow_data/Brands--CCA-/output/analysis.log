@@ -1,0 +1,715 @@
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  D:\SVN\trunk\analysis\Brands (CCA)\code\..\output\analysis.log
+  log type:  text
+ opened on:   9 Dec 2010, 10:33:10
+
+. set linesize 255
+
+. 
+. **********************************************************
+. * PRELIMINARIES
+. **********************************************************
+. version
+version 11.1
+
+. version 11
+
+. clear all
+
+. set mem 1g
+
+Current memory allocation
+
+                    current                                 memory usage
+    settable          value     description                 (1M = 1024k)
+    --------------------------------------------------------------------
+    set maxvar         5000     max. variables allowed           1.947M
+    set memory         1024M    max. data space              1,024.000M
+    set matsize         400     max. RHS vars in models          1.254M
+                                                            -----------
+                                                             1,027.201M
+
+. set matsize 5000
+
+Current memory allocation
+
+                    current                                 memory usage
+    settable          value     description                 (1M = 1024k)
+    --------------------------------------------------------------------
+    set maxvar         5000     max. variables allowed           1.947M
+    set memory         1024M    max. data space              1,024.000M
+    set matsize        5000     max. RHS vars in models        191.154M
+                                                            -----------
+                                                             1,217.102M
+
+. set more off
+
+. set scheme s1mono
+
+. 
+. adopath + ..\external
+  [1]  (UPDATES)   "C:\Program Files (x86)\Stata11\ado\updates/"
+  [2]  (BASE)      "C:\Program Files (x86)\Stata11\ado\base/"
+  [3]  (SITE)      "C:\Program Files (x86)\Stata11\ado\site/"
+  [4]              "."
+  [5]  (PERSONAL)  "c:\ado\personal/"
+  [6]  (PLUS)      "Z:\ado\plus/"
+  [7]  (OLDPLACE)  "c:\ado/"
+  [8]              "..\external"
+
+. 
+. local cca_hs_brand "..\temp\cca_hs_brand.dta"
+
+. local by_brand "..\external\by_brand.dta"
+
+. local by_module "..\external\by_module.dta"
+
+. 
+. tempfile temp
+
+. 
+. **********************************************************
+. * DESCRIBE MATCHES
+. **********************************************************
+. u `cca_hs_brand', clear 
+
+. keep brand module
+
+. duplicates drop
+
+Duplicates in terms of all variables
+
+(3374 observations deleted)
+
+. mmerge brand using `by_brand', type(n:1) unm(master) ukeep(rank)
+
+-------------------------------------------------------------------------------
+merge specs          |
+       matching type | n:1
+  mv's on match vars | none
+  unmatched obs from | master
+---------------------+---------------------------------------------------------
+  master        file | ..\temp\cca_hs_brand.dta
+                 obs |    414
+                vars |      2
+          match vars | brand  (key)
+  -------------------+---------------------------------------------------------
+  using         file | ..\external\by_brand.dta
+                 obs |  51316
+                vars |      2  (selection via udrop/ukeep)
+          match vars | brand  (key)
+---------------------+---------------------------------------------------------
+result          file | ..\temp\cca_hs_brand.dta
+                 obs |    414
+                vars |      5  (including _merge)
+         ------------+---------------------------------------------------------
+              _merge |    414  obs both in master and using data      (code==3)
+-------------------------------------------------------------------------------
+
+. 
+. egen numbr = sum(1), by(module)
+
+. egen numtop2 = sum(rank==1 | rank==2), by(module)
+
+. rankunique -rank, by(module) gen(rankindata)
+
+. gen perfmatch = numtop2==2
+
+. 
+. unique module if numtop2==0
+Number of unique values of module is  29
+Number of records is  82
+
+. unique module if numtop2==1
+Number of unique values of module is  64
+Number of records is  167
+
+. unique module if numtop2==2
+Number of unique values of module is  27
+Number of records is  165
+
+. 
+. save `temp'
+file C:\Windows\TEMP\ST_01000001.tmp saved
+
+. 
+. **********************************************************
+. * SET UP DATA FOR PURCHASE SHARES
+. **********************************************************
+. u `cca_hs_brand', clear
+
+. mmerge brand using `temp', type(n:1) unm(master) ukeep(perfmatch rankindata numtop2 numbr)
+
+-------------------------------------------------------------------------------
+merge specs          |
+       matching type | n:1
+  mv's on match vars | none
+  unmatched obs from | master
+---------------------+---------------------------------------------------------
+  master        file | ..\temp\cca_hs_brand.dta
+                 obs |   3788
+                vars |     10
+          match vars | brand  (not a key)
+  -------------------+---------------------------------------------------------
+  using         file | C:\Windows\TEMP\ST_01000001.tmp
+                 obs |    414
+                vars |      5  (selection via udrop/ukeep)
+          match vars | brand  (key)
+---------------------+---------------------------------------------------------
+variable brand does not uniquely identify observations in the master data
+result          file | ..\temp\cca_hs_brand.dta
+                 obs |   3788
+                vars |     16  (including _merge)
+         ------------+---------------------------------------------------------
+              _merge |   3788  obs both in master and using data      (code==3)
+-------------------------------------------------------------------------------
+
+. 
+. keep if numbr>=2
+(548 observations deleted)
+
+. keep if rankindata==1 | rankindata==2
+(1628 observations deleted)
+
+. 
+. mmerge brand using `by_brand', type(n:1) unm(master) ukeep(brand_name)
+
+-------------------------------------------------------------------------------
+merge specs          |
+       matching type | n:1
+  mv's on match vars | none
+  unmatched obs from | master
+---------------------+---------------------------------------------------------
+  master        file | ..\temp\cca_hs_brand.dta
+                 obs |   1612
+                vars |     14
+          match vars | brand  (not a key)
+  -------------------+---------------------------------------------------------
+  using         file | ..\external\by_brand.dta
+                 obs |  51316
+                vars |      2  (selection via udrop/ukeep)
+          match vars | brand  (key)
+---------------------+---------------------------------------------------------
+variable brand does not uniquely identify observations in the master data
+result          file | ..\temp\cca_hs_brand.dta
+                 obs |   1612
+                vars |     17  (including _merge)
+         ------------+---------------------------------------------------------
+              _merge |   1612  obs both in master and using data      (code==3)
+-------------------------------------------------------------------------------
+
+. mmerge module using `by_module', type(n:1) unm(master) ukeep(module_name)
+
+-------------------------------------------------------------------------------
+merge specs          |
+       matching type | n:1
+  mv's on match vars | none
+  unmatched obs from | master
+---------------------+---------------------------------------------------------
+  master        file | ..\temp\cca_hs_brand.dta
+                 obs |   1612
+                vars |     15
+          match vars | module  (not a key)
+  -------------------+---------------------------------------------------------
+  using         file | ..\external\by_module.dta
+                 obs |    382
+                vars |      2  (selection via udrop/ukeep)
+          match vars | module  (key)
+---------------------+---------------------------------------------------------
+variable module does not uniquely identify observations in the master data
+result          file | ..\temp\cca_hs_brand.dta
+                 obs |   1612
+                vars |     18  (including _merge)
+         ------------+---------------------------------------------------------
+              _merge |   1612  obs both in master and using data      (code==3)
+-------------------------------------------------------------------------------
+
+. 
+. keep module brand module_name brand_name state share_hs share_cca perfmatch rankindata hhs_hs yrs_cca
+
+. reshape wide brand brand_name share_hs share_cca hhs_hs yrs_cca, i(module state) j(rankindata)
+(note: j = 1 2)
+
+Data                               long   ->   wide
+-----------------------------------------------------------------------------
+Number of obs.                     1612   ->     936
+Number of variables                  11   ->      16
+j variable (2 values)        rankindata   ->   (dropped)
+xij variables:
+                                  brand   ->   brand1 brand2
+                             brand_name   ->   brand_name1 brand_name2
+                               share_hs   ->   share_hs1 share_hs2
+                              share_cca   ->   share_cca1 share_cca2
+                                 hhs_hs   ->   hhs_hs1 hhs_hs2
+                                yrs_cca   ->   yrs_cca1 yrs_cca2
+-----------------------------------------------------------------------------
+
+. placevar state module module_name perfmatch
+
+. egen numstates = sum(1), by(module)
+
+. 
+. gen hhs_hs  = hhs_hs1 + hhs_hs2
+(260 missing values generated)
+
+. gen yrs_cca = min(yrs_cca1, yrs_cca2)
+
+. drop hhs_hs1 hhs_hs2 yrs_cca1 yrs_cca2
+
+. gen ps_hs = share_hs1 / (share_hs1 + share_hs2)
+(260 missing values generated)
+
+. gen ps_cca = share_cca1 / (share_cca1 + share_cca2)
+(306 missing values generated)
+
+. 
+. save ../temp/rel_shares.dta, replace
+(note: file ../temp/rel_shares.dta not found)
+file ../temp/rel_shares.dta saved
+
+. 
+. *****************************************************************
+. * TABLE <Tab:CCA>
+. *****************************************************************
+. cap program drop addtotable
+
+. program addtotable
+  1.         local r2 = e(r2)
+  2.         local N = e(N)
+  3.         local mod = e(N_clust)
+  4.         local F = r(F)
+  5.         local p = r(p)
+  6.         matrix TABLE = (nullmat(TABLE) , (_b[ps_hs] \ _se[ps_hs] \ _b[_cons] \ _se[_cons] \ `p' \ `mod' \ `N'))
+  7. end
+
+. 
+. use ../temp/rel_shares.dta, clear
+
+. 
+. 
+. * Regressions
+. reg ps_cca ps_hs if perfmatch, cluster(module)
+
+Linear regression                                      Number of obs =     325
+                                                       F(  1,    26) =   68.89
+                                                       Prob > F      =  0.0000
+                                                       R-squared     =  0.3172
+                                                       Root MSE      =  .28641
+
+                                (Std. Err. adjusted for 27 clusters in module)
+------------------------------------------------------------------------------
+             |               Robust
+      ps_cca |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+       ps_hs |   .9963941   .1200512     8.30   0.000     .7496254    1.243163
+       _cons |  -.0788796   .0970283    -0.81   0.424    -.2783241    .1205648
+------------------------------------------------------------------------------
+
+. test (ps_hs=1) (_b[_cons]=0)
+
+ ( 1)  ps_hs = 1
+ ( 2)  _cons = 0
+
+       F(  2,    26) =    1.55
+            Prob > F =    0.2312
+
+. 
+. reg ps_cca ps_hs if perfmatch [aw=yrs_cca], cluster(module)
+(sum of wgt is   1.8300e+03)
+
+Linear regression                                      Number of obs =     325
+                                                       F(  1,    26) =   48.05
+                                                       Prob > F      =  0.0000
+                                                       R-squared     =  0.3169
+                                                       Root MSE      =  .24051
+
+                                (Std. Err. adjusted for 27 clusters in module)
+------------------------------------------------------------------------------
+             |               Robust
+      ps_cca |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+       ps_hs |   .8217833   .1185545     6.93   0.000     .5780911    1.065476
+       _cons |   .0839719    .082144     1.02   0.316    -.0848775    .2528214
+------------------------------------------------------------------------------
+
+. test (ps_hs=1) (_b[_cons]=0)
+
+ ( 1)  ps_hs = 1
+ ( 2)  _cons = 0
+
+       F(  2,    26) =    1.26
+            Prob > F =    0.2999
+
+. addtotable
+
+. 
+. reg ps_cca ps_hs if perfmatch & hhs_hs>200 [aw=yrs_cca], cluster(module)
+(sum of wgt is   1.0380e+03)
+
+Linear regression                                      Number of obs =     188
+                                                       F(  1,    24) =   78.05
+                                                       Prob > F      =  0.0000
+                                                       R-squared     =  0.3182
+                                                       Root MSE      =  .24303
+
+                                (Std. Err. adjusted for 25 clusters in module)
+------------------------------------------------------------------------------
+             |               Robust
+      ps_cca |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+       ps_hs |   .9257801   .1047895     8.83   0.000     .7095051    1.142055
+       _cons |   .0274744   .0773214     0.36   0.725    -.1321092     .187058
+------------------------------------------------------------------------------
+
+. test (ps_hs=1) (_b[_cons]=0)
+
+ ( 1)  ps_hs = 1
+ ( 2)  _cons = 0
+
+       F(  2,    24) =    0.30
+            Prob > F =    0.7465
+
+. addtotable
+
+. 
+. reg ps_cca ps_hs if perfmatch & hhs_hs>500 [aw=yrs_cca], cluster(module)
+(sum of wgt is   6.4100e+02)
+
+Linear regression                                      Number of obs =     115
+                                                       F(  1,    20) =  136.25
+                                                       Prob > F      =  0.0000
+                                                       R-squared     =  0.3336
+                                                       Root MSE      =  .24088
+
+                                (Std. Err. adjusted for 21 clusters in module)
+------------------------------------------------------------------------------
+             |               Robust
+      ps_cca |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+       ps_hs |   1.039238   .0890307    11.67   0.000     .8535231    1.224953
+       _cons |   .0007683   .0800356     0.01   0.992     -.166183    .1677196
+------------------------------------------------------------------------------
+
+. test (ps_hs=1) (_b[_cons]=0)
+
+ ( 1)  ps_hs = 1
+ ( 2)  _cons = 0
+
+       F(  2,    20) =    0.23
+            Prob > F =    0.7930
+
+. addtotable
+
+. 
+. matrix_to_txt, saving(..\output\tables.txt) mat(TABLE) format(%20.6f) title(<tab:CCA>) append
+(note: file ..\output\tables.txt not found)
+
+. 
+. **********************************************************
+. * FIGURES
+. **********************************************************
+. use ../temp/rel_shares.dta, clear
+
+. 
+. * Histogram of shares
+. histogram ps_cca
+(bin=25, start=0, width=.04)
+
+. graph export "..\output\figures\histogram_cca.eps", replace
+(note: file ..\output\figures\histogram_cca.eps not found)
+(file ..\output\figures\histogram_cca.eps written in EPS format)
+
+. histogram ps_hs
+(bin=26, start=.00282167, width=.03834363)
+
+. graph export "..\output\figures\histogram_hs.eps", replace
+(note: file ..\output\figures\histogram_hs.eps not found)
+(file ..\output\figures\histogram_hs.eps written in EPS format)
+
+. 
+. 
+. * Scatter Plot
+. scatter ps_cca ps_hs if perfmatch & hhs_hs>100 [aw=yrs_cca], msymbol(circle_hollow) msize(vsmall) xtitle(Purchase Share 2006-2008 (Homescan)) ytitle(Purchase Share 1948-1968 (CCA)) ///
+>         || lfit ps_cca ps_hs if perfmatch & hhs_hs>100 [aw=yrs_cca],  legend(order(2))
+
+. graph export "..\output\figures\scatter.eps", replace
+(note: file ..\output\figures\scatter.eps not found)
+(file ..\output\figures\scatter.eps written in EPS format)
+
+. 
+. * Graphs of share_cca vs share_hs
+. replace module_name = subinstr(module_name,"/","-",.)
+(70 real changes made)
+
+. levelsof module_name if numstates>5, local(mod) 
+`"ABRASIVE CLEANSERS-POWDERED"' `"ALL REM. CARB. BEVERAGES-DIET"' `"ALL REM. CARB. BEVERAGES-REGUL"' `"ANTACIDS"' `"BABY CEREAL & BISCUITS"' `"BABY FOOD - JUNIOR"' `"BABY FOOD - STRAINED"' `"BAKERY - BREAD - FRESH"' `"BEER"' `"BUTTER"' `"CANDY-CHOCOLATE"'
+>  `"CANDY-NON-CHOCOLATE"' `"CAT FOOD - WET TYPE"' `"CATSUP"' `"CEREAL - HOT"' `"CHEESE - PROCESSED - CREAM CHE"' `"CHEESE - SHREDDED"' `"CIGARETTES"' `"CLEANERS - DISINFECTANTS"' `"CLEANERS - NON-DISINFECTANT"' `"COFFEE - SOLUBLE"' `"COFFEE - SOLUBLE FLA
+> VORED"' `"COLA DIET"' `"COLA REGULAR"' `"CRACKERS - CHEESE"' `"CRACKERS - FLAKED SODA"' `"CRACKERS - SPRAYED BUTTER"' `"DENTURE CLEANSERS"' `"DEODORANTS - STICK-SOLID"' `"DETERGENTS - HEAVY DUTY - LIQU"' `"DETERGENTS - LIGHT DUTY"' `"DETERGENTS-PACKAGED
+> "' `"DINNERS-FROZEN"' `"ENTREES - MEAT - 1 FOOD - FROZ"' `"ENTREES - POULTRY - 1 FOOD - F"' `"FACIAL TISSUE"' `"GROUND AND WHOLE BEAN COFFEE"' `"HOMINY GRITS"' `"ICE CREAM - BULK"' `"LEMON-LIME REGULAR"' `"MARGARINE AND SPREADS"' `"MAYONNAISE"' `"MUSTAR
+> D"' `"PAPER NAPKINS"' `"PAPER TOWELS"' `"PEANUT BUTTER"' `"POT PIES-FROZEN"' `"PRESERVES"' `"RAZORS DISPOSABLE"' `"SALAD DRESSING - LIQUID"' `"SANDWICHES-REFRIGERATED-FROZEN"' `"SHAMPOO-AEROSOL- LIQUID- LOTIO"' `"SHAVE CREAM - OTHER THAN WOMEN"' `"SOAP 
+> - BAR"' `"SOUP MIXES - DRY & BASES"' `"SOUP-CANNED"' `"TOILET BOWL - CLEANERS"' `"TOILET TISSUE"' `"TOOTHPASTE"'
+
+. foreach m in `mod' {
+  2.         levelsof brand_name1 if module_name=="`m'", local(br1) clean
+  3.         levelsof brand_name2 if module_name=="`m'", local(br2) clean
+  4.         scatter ps_cca ps_hs if module_name == "`m'", ///
+>                 mlabel(state) title("`m'") subtitle(`"Brands: `br1' & `br2'"')  xtitle(Purchase Share 2006-2008 (Homescan)) ytitle(Purchase Share 1948-1968 (CCA))  ///
+>                 xlabel(0(.1)1) ylabel(0(.1)1) scale(.8) yscale(range(0 1)) xscale(range(0 1))
+  5.         graph export "..\output\figures\predict_shares_`m'.eps", replace
+  6. } 
+COMET
+AJAX
+(note: file ..\output\figures\predict_shares_ABRASIVE CLEANSERS-POWDERED.eps not found)
+(file ..\output\figures\predict_shares_ABRASIVE CLEANSERS-POWDERED.eps written in EPS format)
+DR PEPPER DT
+FRESCA DT
+(note: file ..\output\figures\predict_shares_ALL REM. CARB. BEVERAGES-DIET.eps not found)
+(file ..\output\figures\predict_shares_ALL REM. CARB. BEVERAGES-DIET.eps written in EPS format)
+MOUNTAIN DEW R
+DR PEPPER R
+(note: file ..\output\figures\predict_shares_ALL REM. CARB. BEVERAGES-REGUL.eps not found)
+(file ..\output\figures\predict_shares_ALL REM. CARB. BEVERAGES-REGUL.eps written in EPS format)
+ROLAIDS
+TUMS E-X 750
+(note: file ..\output\figures\predict_shares_ANTACIDS.eps not found)
+(file ..\output\figures\predict_shares_ANTACIDS.eps written in EPS format)
+GERBER
+BEECHNUT STAGES
+(note: file ..\output\figures\predict_shares_BABY CEREAL & BISCUITS.eps not found)
+(file ..\output\figures\predict_shares_BABY CEREAL & BISCUITS.eps written in EPS format)
+GERBER
+GERBER GRADUATES
+(note: file ..\output\figures\predict_shares_BABY FOOD - JUNIOR.eps not found)
+(file ..\output\figures\predict_shares_BABY FOOD - JUNIOR.eps written in EPS format)
+GERBER
+BEECHNUT STAGES
+(note: file ..\output\figures\predict_shares_BABY FOOD - STRAINED.eps not found)
+(file ..\output\figures\predict_shares_BABY FOOD - STRAINED.eps written in EPS format)
+OROWEAT
+SUNBEAM
+(note: file ..\output\figures\predict_shares_BAKERY - BREAD - FRESH.eps not found)
+(file ..\output\figures\predict_shares_BAKERY - BREAD - FRESH.eps written in EPS format)
+BUDWEISER
+MILLER HIGH LIFE
+(note: file ..\output\figures\predict_shares_BEER.eps not found)
+(file ..\output\figures\predict_shares_BEER.eps written in EPS format)
+LAND O LAKES
+CHALLENGE
+(note: file ..\output\figures\predict_shares_BUTTER.eps not found)
+(file ..\output\figures\predict_shares_BUTTER.eps written in EPS format)
+M&M MARS SNICKERS
+M&M MARS THREE MUSKETEERS
+(note: file ..\output\figures\predict_shares_CANDY-CHOCOLATE.eps not found)
+(file ..\output\figures\predict_shares_CANDY-CHOCOLATE.eps written in EPS format)
+BRACH'S
+GLADE'S
+(note: file ..\output\figures\predict_shares_CANDY-NON-CHOCOLATE.eps not found)
+(file ..\output\figures\predict_shares_CANDY-NON-CHOCOLATE.eps written in EPS format)
+PURINA FRISKIES
+9 LIVES
+(note: file ..\output\figures\predict_shares_CAT FOOD - WET TYPE.eps not found)
+(file ..\output\figures\predict_shares_CAT FOOD - WET TYPE.eps written in EPS format)
+HEINZ
+HUNT'S
+(note: file ..\output\figures\predict_shares_CATSUP.eps not found)
+(file ..\output\figures\predict_shares_CATSUP.eps written in EPS format)
+QUAKER
+QUAKER WEIGHT CONTROL
+(note: file ..\output\figures\predict_shares_CEREAL - HOT.eps not found)
+(file ..\output\figures\predict_shares_CEREAL - HOT.eps written in EPS format)
+PHILADELPHIA
+KAUKAUNA
+(note: file ..\output\figures\predict_shares_CHEESE - PROCESSED - CREAM CHE.eps not found)
+(file ..\output\figures\predict_shares_CHEESE - PROCESSED - CREAM CHE.eps written in EPS format)
+KRAFT - SHR
+BORDEN - SHR
+(note: file ..\output\figures\predict_shares_CHEESE - SHREDDED.eps not found)
+(file ..\output\figures\predict_shares_CHEESE - SHREDDED.eps written in EPS format)
+MARLBORO
+NEWPORT
+(note: file ..\output\figures\predict_shares_CIGARETTES.eps not found)
+(file ..\output\figures\predict_shares_CIGARETTES.eps written in EPS format)
+CLOROX CDPT
+LYSOL CDL
+(note: file ..\output\figures\predict_shares_CLEANERS - DISINFECTANTS.eps not found)
+(file ..\output\figures\predict_shares_CLEANERS - DISINFECTANTS.eps written in EPS format)
+PINE-SOL ND-LIQ
+MR. CLEAN SSNS' FRSHNS ND-LIQ
+(note: file ..\output\figures\predict_shares_CLEANERS - NON-DISINFECTANT.eps not found)
+(file ..\output\figures\predict_shares_CLEANERS - NON-DISINFECTANT.eps written in EPS format)
+CHASE & SANBORN
+YUBAN
+(note: file ..\output\figures\predict_shares_COFFEE - SOLUBLE.eps not found)
+(file ..\output\figures\predict_shares_COFFEE - SOLUBLE.eps written in EPS format)
+GENERAL FOODS INT'L COFFEES
+HILLS BROS
+(note: file ..\output\figures\predict_shares_COFFEE - SOLUBLE FLAVORED.eps not found)
+(file ..\output\figures\predict_shares_COFFEE - SOLUBLE FLAVORED.eps written in EPS format)
+COCA-COLA DT
+PEPSI DT
+(note: file ..\output\figures\predict_shares_COLA DIET.eps not found)
+(file ..\output\figures\predict_shares_COLA DIET.eps written in EPS format)
+COCA-COLA CLASSIC R
+PEPSI R
+(note: file ..\output\figures\predict_shares_COLA REGULAR.eps not found)
+(file ..\output\figures\predict_shares_COLA REGULAR.eps written in EPS format)
+SUNSHINE CHEEZ-IT
+PEPPERIDGE FARM GOLDFISH
+(note: file ..\output\figures\predict_shares_CRACKERS - CHEESE.eps not found)
+(file ..\output\figures\predict_shares_CRACKERS - CHEESE.eps written in EPS format)
+NABISCO PREMIUM
+VISTA
+(note: file ..\output\figures\predict_shares_CRACKERS - FLAKED SODA.eps not found)
+(file ..\output\figures\predict_shares_CRACKERS - FLAKED SODA.eps written in EPS format)
+NABISCO RITZ
+KEEBLER TOWNHOUSE
+(note: file ..\output\figures\predict_shares_CRACKERS - SPRAYED BUTTER.eps not found)
+(file ..\output\figures\predict_shares_CRACKERS - SPRAYED BUTTER.eps written in EPS format)
+POLIDENT
+DENTU-CREME
+(note: file ..\output\figures\predict_shares_DENTURE CLEANSERS.eps not found)
+(file ..\output\figures\predict_shares_DENTURE CLEANSERS.eps written in EPS format)
+SECRET
+MENNEN SPEED STICK
+(note: file ..\output\figures\predict_shares_DEODORANTS - STICK-SOLID.eps not found)
+(file ..\output\figures\predict_shares_DEODORANTS - STICK-SOLID.eps written in EPS format)
+PUREX - H-D LIQ
+ALL - H-D LIQ
+(note: file ..\output\figures\predict_shares_DETERGENTS - HEAVY DUTY - LIQU.eps not found)
+(file ..\output\figures\predict_shares_DETERGENTS - HEAVY DUTY - LIQU.eps written in EPS format)
+AJAX - L-D LIQ
+IVORY - L-D LIQ
+(note: file ..\output\figures\predict_shares_DETERGENTS - LIGHT DUTY.eps not found)
+(file ..\output\figures\predict_shares_DETERGENTS - LIGHT DUTY.eps written in EPS format)
+TIDE - PCK
+GAIN - PCK
+(note: file ..\output\figures\predict_shares_DETERGENTS-PACKAGED.eps not found)
+(file ..\output\figures\predict_shares_DETERGENTS-PACKAGED.eps written in EPS format)
+BANQUET
+PATIO
+(note: file ..\output\figures\predict_shares_DINNERS-FROZEN.eps not found)
+(file ..\output\figures\predict_shares_DINNERS-FROZEN.eps written in EPS format)
+ON-COR
+ARMOUR
+(note: file ..\output\figures\predict_shares_ENTREES - MEAT - 1 FOOD - FROZ.eps not found)
+(file ..\output\figures\predict_shares_ENTREES - MEAT - 1 FOOD - FROZ.eps written in EPS format)
+BANQUET
+BIRDS EYE VOILA!
+(note: file ..\output\figures\predict_shares_ENTREES - POULTRY - 1 FOOD - F.eps not found)
+(file ..\output\figures\predict_shares_ENTREES - POULTRY - 1 FOOD - F.eps written in EPS format)
+KLEENEX
+PUFFS
+(note: file ..\output\figures\predict_shares_FACIAL TISSUE.eps not found)
+(file ..\output\figures\predict_shares_FACIAL TISSUE.eps written in EPS format)
+MAXWELL HOUSE
+FOLGERS
+(note: file ..\output\figures\predict_shares_GROUND AND WHOLE BEAN COFFEE.eps not found)
+(file ..\output\figures\predict_shares_GROUND AND WHOLE BEAN COFFEE.eps written in EPS format)
+QUAKER
+JIM DANDY
+(note: file ..\output\figures\predict_shares_HOMINY GRITS.eps not found)
+(file ..\output\figures\predict_shares_HOMINY GRITS.eps written in EPS format)
+BREYERS - IC
+MEADOW GOLD - IC
+(note: file ..\output\figures\predict_shares_ICE CREAM - BULK.eps not found)
+(file ..\output\figures\predict_shares_ICE CREAM - BULK.eps written in EPS format)
+SPRITE R
+SEVEN UP R
+(note: file ..\output\figures\predict_shares_LEMON-LIME REGULAR.eps not found)
+(file ..\output\figures\predict_shares_LEMON-LIME REGULAR.eps written in EPS format)
+BLUE BONNET
+IMPERIAL
+(note: file ..\output\figures\predict_shares_MARGARINE AND SPREADS.eps not found)
+(file ..\output\figures\predict_shares_MARGARINE AND SPREADS.eps written in EPS format)
+HELLMANN'S
+KRAFT
+(note: file ..\output\figures\predict_shares_MAYONNAISE.eps not found)
+(file ..\output\figures\predict_shares_MAYONNAISE.eps written in EPS format)
+FRENCH'S
+GULDEN'S
+(note: file ..\output\figures\predict_shares_MUSTARD.eps not found)
+(file ..\output\figures\predict_shares_MUSTARD.eps written in EPS format)
+VANITY FAIR
+MARCAL
+(note: file ..\output\figures\predict_shares_PAPER NAPKINS.eps not found)
+(file ..\output\figures\predict_shares_PAPER NAPKINS.eps written in EPS format)
+BOUNTY
+KLEENEX VIVA
+(note: file ..\output\figures\predict_shares_PAPER TOWELS.eps not found)
+(file ..\output\figures\predict_shares_PAPER TOWELS.eps written in EPS format)
+JIF
+SKIPPY
+(note: file ..\output\figures\predict_shares_PEANUT BUTTER.eps not found)
+(file ..\output\figures\predict_shares_PEANUT BUTTER.eps written in EPS format)
+BANQUET
+SWANSON
+(note: file ..\output\figures\predict_shares_POT PIES-FROZEN.eps not found)
+(file ..\output\figures\predict_shares_POT PIES-FROZEN.eps written in EPS format)
+SMUCKER'S
+WELCH'S
+(note: file ..\output\figures\predict_shares_PRESERVES.eps not found)
+(file ..\output\figures\predict_shares_PRESERVES.eps written in EPS format)
+SCHICK ST SLIM TWIN D-RZ
+GILLETTE CUSTOM PLUS D-RZ
+(note: file ..\output\figures\predict_shares_RAZORS DISPOSABLE.eps not found)
+(file ..\output\figures\predict_shares_RAZORS DISPOSABLE.eps written in EPS format)
+KRAFT
+KEN'S STEAK HOUSE
+(note: file ..\output\figures\predict_shares_SALAD DRESSING - LIQUID.eps not found)
+(file ..\output\figures\predict_shares_SALAD DRESSING - LIQUID.eps written in EPS format)
+OSCAR MAYER DELI CREATIONS
+MADE-RITE
+(note: file ..\output\figures\predict_shares_SANDWICHES-REFRIGERATED-FROZEN.eps not found)
+(file ..\output\figures\predict_shares_SANDWICHES-REFRIGERATED-FROZEN.eps written in EPS format)
+SUAVE NATURALS
+ALBERTO VO5
+(note: file ..\output\figures\predict_shares_SHAMPOO-AEROSOL- LIQUID- LOTIO.eps not found)
+(file ..\output\figures\predict_shares_SHAMPOO-AEROSOL- LIQUID- LOTIO.eps written in EPS format)
+BARBASOL
+GILLETTE SERIES
+(note: file ..\output\figures\predict_shares_SHAVE CREAM - OTHER THAN WOMEN.eps not found)
+(file ..\output\figures\predict_shares_SHAVE CREAM - OTHER THAN WOMEN.eps written in EPS format)
+DOVE
+DIAL
+(note: file ..\output\figures\predict_shares_SOAP - BAR.eps not found)
+(file ..\output\figures\predict_shares_SOAP - BAR.eps written in EPS format)
+LIPTON
+WYLER'S MRS GRASS
+(note: file ..\output\figures\predict_shares_SOUP MIXES - DRY & BASES.eps not found)
+(file ..\output\figures\predict_shares_SOUP MIXES - DRY & BASES.eps written in EPS format)
+CAMPBELL'S
+HABITANT
+(note: file ..\output\figures\predict_shares_SOUP-CANNED.eps not found)
+(file ..\output\figures\predict_shares_SOUP-CANNED.eps written in EPS format)
+LYSOL
+CLOROX
+(note: file ..\output\figures\predict_shares_TOILET BOWL - CLEANERS.eps not found)
+(file ..\output\figures\predict_shares_TOILET BOWL - CLEANERS.eps written in EPS format)
+CHARMIN
+KLEENEX COTTONELLE
+(note: file ..\output\figures\predict_shares_TOILET TISSUE.eps not found)
+(file ..\output\figures\predict_shares_TOILET TISSUE.eps written in EPS format)
+CREST
+COLGATE TOTAL
+(note: file ..\output\figures\predict_shares_TOOTHPASTE.eps not found)
+(file ..\output\figures\predict_shares_TOOTHPASTE.eps written in EPS format)
+
+. 
+. *****************************************************************
+. * OUTPUT STATE-MODULE PAIRS
+. *****************************************************************
+. use ../temp/rel_shares.dta, clear
+
+. keep if perfmatch
+(494 observations deleted)
+
+. keep state module ps_cca ps_hs yrs_cca
+
+. outsheet using ../output/rel_shares.csv, comma names replace
+(note: file ../output/rel_shares.csv not found)
+
+. 
+. 
+. 
+end of do-file

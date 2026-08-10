@@ -1,0 +1,26 @@
+# Core data management
+numpy
+pandas
+polars
+pyarrow
+
+# Estimation/Econometrics
+scipy
+statsmodels
+scikit-learn
+linearmodels
+pyblp
+pylogit
+larch
+
+# Optimization
+autograd
+numdifftools
+
+# Plotting
+matplotlib
+seaborn
+
+# Utilities
+tqdm
+rich

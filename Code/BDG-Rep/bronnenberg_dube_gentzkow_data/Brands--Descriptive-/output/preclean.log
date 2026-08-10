@@ -1,0 +1,568 @@
+
+. set linesize 255
+
+. 
+. *****************************************************************
+. * PRELIMINARIES
+. *****************************************************************
+. version 10
+
+. clear all
+
+. set mem 800m
+
+Current memory allocation
+
+                    current                                 memory usage
+    settable          value     description                 (1M = 1024k)
+    --------------------------------------------------------------------
+    set maxvar         5000     max. variables allowed           1.947M
+    set memory          800M    max. data space                800.000M
+    set matsize         400     max. RHS vars in models          1.254M
+                                                            -----------
+                                                               803.201M
+
+. set matsize 5000
+
+Current memory allocation
+
+                    current                                 memory usage
+    settable          value     description                 (1M = 1024k)
+    --------------------------------------------------------------------
+    set maxvar         5000     max. variables allowed           1.947M
+    set memory          800M    max. data space                800.000M
+    set matsize        5000     max. RHS vars in models        191.154M
+                                                            -----------
+                                                               993.102M
+
+. set more off
+
+. 
+. tempfile temp_lhs temp_mu temp_samplehh temp_samplemod
+
+. 
+. *****************************************************************
+. * HH DATA (NON-MIGRANTs)
+. *****************************************************************
+. insheet using ../external/sample_hh_nonmig.csv, names comma clear
+(1 var, 27686 obs)
+
+. mmerge hhld_id using ../external/survey.dta, type(n:1) unm(master) uif(keeper==1) ukeep(age reg_born reg_curr state_born state_curr)
+
+-------------------------------------------------------------------------------
+merge specs          |
+       matching type | n:1
+  mv's on match vars | none
+  unmatched obs from | master
+---------------------+---------------------------------------------------------
+  master        file | <data in memory not named>
+                 obs |  27686
+                vars |      1
+          match vars | hhld_id  (key)
+  -------------------+---------------------------------------------------------
+  using         file | ../external/survey.dta
+                 obs |  47549  (selection: keeper==1)
+                vars |      6  (selection via udrop/ukeep)
+          match vars | hhld_id  (key)
+---------------------+---------------------------------------------------------
+result          file | <data in memory not named>
+                 obs |  27686
+                vars |      8  (including _merge)
+         ------------+---------------------------------------------------------
+              _merge |  27686  obs both in master and using data      (code==3)
+-------------------------------------------------------------------------------
+
+. drop _merge
+
+. save ../temp/hh_nonmig.dta, replace
+(note: file ../temp/hh_nonmig.dta not found)
+file ../temp/hh_nonmig.dta saved
+
+. 
+. *****************************************************************
+. * HH DATA (MIGRANTS)
+. *****************************************************************
+. insheet using ../external/sample_hh_mig.csv, names comma clear
+(1 var, 10412 obs)
+
+. mmerge hhld_id using ../external/survey.dta, type(n:1) unm(master) uif(keeper==1) ukeep(years age age_move reg_born reg_curr state_born state_curr gap)
+
+-------------------------------------------------------------------------------
+merge specs          |
+       matching type | n:1
+  mv's on match vars | none
+  unmatched obs from | master
+---------------------+---------------------------------------------------------
+  master        file | <data in memory not named>
+                 obs |  10412
+                vars |      1
+          match vars | hhld_id  (key)
+  -------------------+---------------------------------------------------------
+  using         file | ../external/survey.dta
+                 obs |  47549  (selection: keeper==1)
+                vars |      9  (selection via udrop/ukeep)
+          match vars | hhld_id  (key)
+---------------------+---------------------------------------------------------
+(label reglab already defined)
+result          file | <data in memory not named>
+                 obs |  10412
+                vars |     11  (including _merge)
+         ------------+---------------------------------------------------------
+              _merge |  10412  obs both in master and using data      (code==3)
+-------------------------------------------------------------------------------
+
+. drop _merge
+
+. 
+. * define categorical years & age variables
+. gen years_cat = min(max(floor(years/5)*5,0),60) if years~=.
+
+. gen age_cat = min(max(floor(age/5)*5,30),65)
+
+. gen age_move_cat = min(max(floor(age_move/5)*5,0),60)
+
+. 
+. save ../temp/hh_mig.dta, replace
+(note: file ../temp/hh_mig.dta not found)
+file ../temp/hh_mig.dta saved
+
+. 
+. *****************************************************************
+. * PURCHASE DATA (NON-MIGRANTS)
+. *****************************************************************
+. insheet using ../external/lhs_nonmig.csv, names comma clear
+(10 vars, 1408284 obs)
+
+. gen share = purch1 / (purch1 + purch2)
+
+. save ../temp/purch_nonmig.dta, replace
+(note: file ../temp/purch_nonmig.dta not found)
+file ../temp/purch_nonmig.dta saved
+
+. 
+. *****************************************************************
+. * PURCHASE DATA (MIGRANTS)
+. *****************************************************************
+. insheet using ../external/lhs_mig.csv, names comma clear
+(10 vars, 533444 obs)
+
+. save `temp_lhs', replace
+(note: file C:\Windows\TEMP\ST_01000002.tmp not found)
+file C:\Windows\TEMP\ST_01000002.tmp saved
+
+. 
+. insheet using ../temp/mu.csv, names comma clear
+(6 vars, 533444 obs)
+
+. mmerge hhld_id module using `temp_lhs', type(1:1) unm(master) ukeep(purch1 purch2)
+
+-------------------------------------------------------------------------------
+merge specs          |
+       matching type | 1:1
+  mv's on match vars | none
+  unmatched obs from | master
+---------------------+---------------------------------------------------------
+  master        file | <data in memory not named>
+                 obs | 533444
+                vars |      6
+          match vars | hhld_id module  (key)
+  -------------------+---------------------------------------------------------
+  using         file | C:\Windows\TEMP\ST_01000002.tmp
+                 obs | 533444
+                vars |      4  (selection via udrop/ukeep)
+          match vars | hhld_id module  (key)
+---------------------+---------------------------------------------------------
+result          file | <data in memory not named>
+                 obs | 533444
+                vars |     10  (including _merge)
+         ------------+---------------------------------------------------------
+              _merge | 533444  obs both in master and using data      (code==3)
+-------------------------------------------------------------------------------
+
+. drop _merge
+
+. 
+. * recode mu
+. foreach V in mub muc mundb mundc {
+  2.         replace `V' = "" if `V' == "NaN"
+  3. }
+(203 real changes made)
+(86 real changes made)
+(203 real changes made)
+(86 real changes made)
+
+. destring mub muc mundb mundc, replace
+mub has all characters numeric; replaced as double
+(203 missing values generated)
+muc has all characters numeric; replaced as double
+(86 missing values generated)
+mundb has all characters numeric; replaced as double
+(203 missing values generated)
+mundc has all characters numeric; replaced as double
+(86 missing values generated)
+
+. 
+. * drop if no gap
+. drop if mundb==mundc 
+(4472 observations deleted)
+
+. 
+. * define share, betahat, sqdif, and variables need to compute weights 
+. gen totpurch = purch1 + purch2 
+
+. gen share = purch1 / totpurch
+
+. gen betahat = (share - mub) / (muc - mub)
+(351 missing values generated)
+
+. gen sqdif = (muc - mub)^2
+(283 missing values generated)
+
+. gen betahatnd = (share - mundb) / (mundc - mundb)
+(283 missing values generated)
+
+. gen sqdifnd = (mundc - mundb)^2
+(283 missing values generated)
+
+. by module, sort: egen modpurch = mean(totpurch) 
+
+. by module, sort: egen modshare = mean(share) 
+
+. 
+. save ../temp/purch_mig.dta, replace
+(note: file ../temp/purch_mig.dta not found)
+file ../temp/purch_mig.dta saved
+
+. 
+. 
+. *****************************************************************
+. * PURCHASE DATA (MIGRANTS BY MONTH)
+. *****************************************************************
+. insheet using ../temp/mu.csv, names comma clear
+(6 vars, 533444 obs)
+
+. save `temp_mu', replace
+(note: file C:\Windows\TEMP\ST_01000003.tmp not found)
+file C:\Windows\TEMP\ST_01000003.tmp saved
+
+. insheet using ../external/sample_hh_mig.csv, names comma clear
+(1 var, 10412 obs)
+
+. save `temp_samplehh', replace
+(note: file C:\Windows\TEMP\ST_01000004.tmp not found)
+file C:\Windows\TEMP\ST_01000004.tmp saved
+
+. insheet using ../external/sample_mod.csv, names comma clear
+(1 var, 238 obs)
+
+. save `temp_samplemod', replace
+(note: file C:\Windows\TEMP\ST_01000005.tmp not found)
+file C:\Windows\TEMP\ST_01000005.tmp saved
+
+. 
+. use hhld module ym purch1 purch2 using ../external/hh_module_month.dta, clear
+
+. 
+. * restrict to sample hhs & modules
+. mmerge hhld_id using `temp_samplehh', type(n:1) unm(none)
+
+-------------------------------------------------------------------------------
+merge specs          |
+       matching type | n:1
+  mv's on match vars | none
+  unmatched obs from | none
+---------------------+---------------------------------------------------------
+  master        file | ../external/hh_module_month.dta
+                 obs | 8663198
+                vars |      5
+          match vars | hhld_id  (not a key)
+  -------------------+---------------------------------------------------------
+  using         file | C:\Windows\TEMP\ST_01000004.tmp
+                 obs |  10412
+                vars |      1
+          match vars | hhld_id  (key)
+---------------------+---------------------------------------------------------
+variable hhld_id does not uniquely identify observations in the master data
+result          file | ../external/hh_module_month.dta
+                 obs | 1874050
+                vars |      7  (including _merge)
+         ------------+---------------------------------------------------------
+              _merge | 1874050  obs both in master and using data      (code==3)
+-------------------------------------------------------------------------------
+
+. mmerge module using `temp_samplemod', type(n:1) unm(none)
+
+-------------------------------------------------------------------------------
+merge specs          |
+       matching type | n:1
+  mv's on match vars | none
+  unmatched obs from | none
+---------------------+---------------------------------------------------------
+  master        file | ../external/hh_module_month.dta
+                 obs | 1874050
+                vars |      5
+          match vars | module  (not a key)
+  -------------------+---------------------------------------------------------
+  using         file | C:\Windows\TEMP\ST_01000005.tmp
+                 obs |    238
+                vars |      1
+          match vars | module  (key)
+---------------------+---------------------------------------------------------
+variable module does not uniquely identify observations in the master data
+result          file | ../external/hh_module_month.dta
+                 obs | 1658643
+                vars |      7  (including _merge)
+         ------------+---------------------------------------------------------
+              _merge | 1658643  obs both in master and using data      (code==3)
+-------------------------------------------------------------------------------
+
+. 
+. * merge in other data
+. mmerge hhld_id module using `temp_mu', type(n:1) unm(master) ukeep(mu*)
+
+-------------------------------------------------------------------------------
+merge specs          |
+       matching type | n:1
+  mv's on match vars | none
+  unmatched obs from | master
+---------------------+---------------------------------------------------------
+  master        file | ../external/hh_module_month.dta
+                 obs | 1658643
+                vars |      5
+          match vars | hhld_id module  (not a key)
+  -------------------+---------------------------------------------------------
+  using         file | C:\Windows\TEMP\ST_01000003.tmp
+                 obs | 533444
+                vars |      6  (selection via udrop/ukeep)
+          match vars | hhld_id module  (key)
+---------------------+---------------------------------------------------------
+variables hhld_id module do not uniquely identify observations in the master data
+result          file | ../external/hh_module_month.dta
+                 obs | 1658643
+                vars |     11  (including _merge)
+         ------------+---------------------------------------------------------
+              _merge | 1658643  obs both in master and using data      (code==3)
+-------------------------------------------------------------------------------
+
+. mmerge hhld_id using ..\external\survey, type(n:1) unm(master) uif(keeper==1) ukeep(keeper years age_move gap)
+
+-------------------------------------------------------------------------------
+merge specs          |
+       matching type | n:1
+  mv's on match vars | none
+  unmatched obs from | master
+---------------------+---------------------------------------------------------
+  master        file | ../external/hh_module_month.dta
+                 obs | 1658643
+                vars |      9
+          match vars | hhld_id  (not a key)
+  -------------------+---------------------------------------------------------
+  using         file | ..\external\survey.dta
+                 obs |  47549  (selection: keeper==1)
+                vars |      5  (selection via udrop/ukeep)
+          match vars | hhld_id  (key)
+---------------------+---------------------------------------------------------
+variable hhld_id does not uniquely identify observations in the master data
+result          file | ../external/hh_module_month.dta
+                 obs | 1658643
+                vars |     15  (including _merge)
+         ------------+---------------------------------------------------------
+              _merge | 1658643  obs both in master and using data      (code==3)
+-------------------------------------------------------------------------------
+
+. drop _merge keeper
+
+. 
+. * recode mu
+. foreach V in mub muc mundb mundc {
+  2.         replace `V' = "" if `V' == "NaN"
+  3. }
+(559 real changes made)
+(144 real changes made)
+(559 real changes made)
+(144 real changes made)
+
+. destring mub muc mundb mundc, replace
+mub has all characters numeric; replaced as double
+(559 missing values generated)
+muc has all characters numeric; replaced as double
+(144 missing values generated)
+mundb has all characters numeric; replaced as double
+(559 missing values generated)
+mundc has all characters numeric; replaced as double
+(144 missing values generated)
+
+. 
+. * define share, betahat, and sqdif
+. gen totpurch = purch1 + purch2 
+
+. gen share = purch1 / totpurch
+
+. gen betahat = (share - mub) / (muc - mub)
+(1009 missing values generated)
+
+. gen sqdif = (muc - mub)^2
+(697 missing values generated)
+
+. gen betahatnd = (share - mundb) / (mundc - mundb)
+(13484 missing values generated)
+
+. gen sqdifnd = (mundc - mundb)^2
+(697 missing values generated)
+
+. by module, sort: egen modpurch = mean(totpurch)
+
+. by module, sort: egen modshare = mean(share) 
+
+. save ../temp/purch_mig_month.dta, replace
+(note: file ../temp/purch_mig_month.dta not found)
+file ../temp/purch_mig_month.dta saved
+
+. 
+. 
+. *****************************************************************
+. * PURCHASE DATA (MIGRANTS BRAND PAIRS)
+. *****************************************************************
+. tempfile temp_lhs2
+
+. insheet using ../external/lhs_mig_bp.csv, names comma clear
+(9 vars, 198001 obs)
+
+. save `temp_lhs2', replace
+(note: file C:\Windows\TEMP\ST_0100000k.tmp not found)
+file C:\Windows\TEMP\ST_0100000k.tmp saved
+
+. 
+. insheet using ../temp/mu_bp.csv, names comma clear
+(6 vars, 198001 obs)
+
+. mmerge hhld_id pairid using `temp_lhs2', type(1:1) unm(master) ukeep(module purch1 purch2 launch_year1 umbrella_year1 launch_year2 umbrella_year2)
+
+-------------------------------------------------------------------------------
+merge specs          |
+       matching type | 1:1
+  mv's on match vars | none
+  unmatched obs from | master
+---------------------+---------------------------------------------------------
+  master        file | <data in memory not named>
+                 obs | 198001
+                vars |      6
+          match vars | hhld_id pairid  (key)
+  -------------------+---------------------------------------------------------
+  using         file | C:\Windows\TEMP\ST_0100000k.tmp
+                 obs | 198001
+                vars |      9  (selection via udrop/ukeep)
+          match vars | hhld_id pairid  (key)
+---------------------+---------------------------------------------------------
+result          file | <data in memory not named>
+                 obs | 198001
+                vars |     15  (including _merge)
+         ------------+---------------------------------------------------------
+              _merge | 198001  obs both in master and using data      (code==3)
+-------------------------------------------------------------------------------
+
+. drop _merge
+
+. 
+. * recode mu
+. foreach V in mub muc mundb mundc {
+  2.         replace `V' = "" if `V' == "NaN"
+  3. }
+(85 real changes made)
+(57 real changes made)
+(85 real changes made)
+(57 real changes made)
+
+. destring mub muc mundb mundc, replace
+mub has all characters numeric; replaced as double
+(85 missing values generated)
+muc has all characters numeric; replaced as double
+(57 missing values generated)
+mundb has all characters numeric; replaced as double
+(85 missing values generated)
+mundc has all characters numeric; replaced as double
+(57 missing values generated)
+
+. 
+. *drop if no gap
+. drop if mundb == mundc 
+(26927 observations deleted)
+
+. 
+. * define share, betahat, sqdif, and other stuff needed to compute weightsd
+. gen totpurch = purch1 + purch2 
+
+. gen share = purch1 / totpurch
+
+. gen betahat = (share - mub) / (muc - mub)
+(140 missing values generated)
+
+. gen sqdif = (muc - mub)^2
+(140 missing values generated)
+
+. gen betahatnd = (share - mundb) / (mundc - mundb)
+(140 missing values generated)
+
+. gen sqdifnd = (mundc - mundb)^2
+(140 missing values generated)
+
+. by pairid, sort: egen pairpurch = mean(totpurch) 
+
+. by pairid, sort: egen pairshare = mean(share)
+
+. 
+. * keep only biggest pair in each  module
+. egen max = max(pairpurch), by(module)
+
+. keep if pairpurch==max
+(84195 observations deleted)
+
+. drop max
+
+. 
+. save ../temp/purch_mig_bp.dta, replace
+(note: file ../temp/purch_mig_bp.dta not found)
+file ../temp/purch_mig_bp.dta saved
+
+. 
+. *****************************************************************
+. * CROSS-STATE STDEV OF PURCHASE SHARES
+. *****************************************************************
+. use hhld_id module share using ..\temp\purch_nonmig, clear
+
+. mmerge hhld_id using ..\temp\hh_nonmig, type(n:1) unm(master) ukeep(state_curr)
+
+-------------------------------------------------------------------------------
+merge specs          |
+       matching type | n:1
+  mv's on match vars | none
+  unmatched obs from | master
+---------------------+---------------------------------------------------------
+  master        file | ..\temp\purch_nonmig.dta
+                 obs | 1408284
+                vars |      3
+          match vars | hhld_id  (not a key)
+  -------------------+---------------------------------------------------------
+  using         file | ..\temp\hh_nonmig.dta
+                 obs |  27686
+                vars |      2  (selection via udrop/ukeep)
+          match vars | hhld_id  (key)
+---------------------+---------------------------------------------------------
+variable hhld_id does not uniquely identify observations in the master data
+result          file | ..\temp\purch_nonmig.dta
+                 obs | 1408284
+                vars |      6  (including _merge)
+         ------------+---------------------------------------------------------
+              _merge | 1408284  obs both in master and using data      (code==3)
+-------------------------------------------------------------------------------
+
+. collapse (mean) stateshare = share, by(module state_curr)
+
+. collapse (sd) sdstateshare = stateshare, by(module)
+
+. save ../temp/stddev.dta, replace
+(note: file ../temp/stddev.dta not found)
+file ../temp/stddev.dta saved
+
+. 
+. cap log close

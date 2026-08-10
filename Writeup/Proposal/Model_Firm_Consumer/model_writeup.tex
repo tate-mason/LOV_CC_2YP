@@ -1,0 +1,260 @@
+\documentclass[11pt]{article}
+
+% ── Packages ────────────────────────────────────────────────
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{natbib}
+\usepackage{setspace}
+\usepackage{microtype}
+\usepackage{enumitem}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{xcolor}
+\usepackage{float}
+% code packages
+\usepackage{listings}
+\usepackage{inconsolata}
+\lstset{basicstyle=\ttfamily\footnotesize,breaklines=true}
+\usepackage{csvsimple}
+\usepackage{booktabs}
+
+% ── Hyperref setup ──────────────────────────────────────────
+\hypersetup{
+    colorlinks = true,
+    linkcolor  = black,
+    citecolor  = black,
+    urlcolor   = blue
+}
+
+% ── Theorem environments ────────────────────────────────────
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}{Proposition}
+\newtheorem{lemma}{Lemma}
+\newtheorem{corollary}{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+\newtheorem{assumption}{Assumption}
+\theoremstyle{remark}
+\newtheorem{remark}{Remark}
+
+% ── Spacing ─────────────────────────────────────────────────
+\onehalfspacing
+
+% ── Title block ─────────────────────────────────────────────
+\title{Love of Variety Model and Simulation}
+\author{Tate Mason}
+\date{\today}
+
+% ============================================================
+\begin{document}
+\maketitle
+\thispagestyle{empty}
+
+% ── Abstract ────────────────────────────────────────────────
+
+\newpage
+\setcounter{page}{1}
+
+\section{Model}
+
+\subsection{Consumer's Problem}
+The consumer's problem is to maximize utility subject to their choice set. The utility function is as follows:
+
+\begin{equation}
+  U_{ijt} = \beta_i X_{jt} - \gamma_{i}(\Sigma_{ijt})^2 + \kappa a_{jt} - \alpha_jp_{jt} + \xi_j + \epsilon_{ijt}
+\end{equation}
+
+\begin{gather*}
+  \Sigma_j = \bar{X}_{it}-X_{jt}
+\end{gather*}
+
+Where $U_{ijt}$ is the utility of consumer $i$ from product $j$ at time $t$. $X_{jt}$ is the attribute of product $j$ at time $t$.  $\gamma_{i}$ denotes 
+a cost of sameness. $\Sigma_j$ is the sum of product attributes chosen until time $t$. Note, $\gamma_i$ has a standard normal distribution. 
+$\xi_j$ captures utility from unobserved quality. Finally, $\epsilon_{ijt}$ is a  random error term distributed T1EV.
+
+\begin{equation}
+  P_{ijt} = \frac{e^{U_{ijt}}}{1 + \sum_{k} e^{U_{ikt}}}
+\end{equation}
+
+Where the denominator sums over all products $k$ in the choice set at time $t$, with the outside option.
+
+\subsection{Firm's Problem}
+The firm will maximize profits by choosing how to advertise to the consumer according to their perceptions surrounding the distribution of $\gamma$.
+
+\begin{equation}
+  \pi_{jt} = s_{jt}(p_{jt},a_{jt})(p_{jt}-mc_{jt}) - \kappa a_{jt}**2
+\end{equation}
+
+The firm's profits are a function of the market share $s_{jt}$, which in this case is the probability our individual consumer chooses product $j$ at time $t$. This is a function of the price $p_{jt}$ and the advertising level $a_{jt}$. The share is scaling the difference in price and marginal cost. The firm also has to pay for advertising, which is quadratic in the level of advertising.
+
+For now, we will assume that $a_{jt}\sim lognormal(\frac{(\bar{X}_{it} - X_{jt})^2}{1 + \sum_{k} (\bar{X}_{it} - X_{kt})^2}, \sigma_a)$. This means that the firm is more likely to advertise when their product is more different from the average product in the market. The variance $\sigma_a$ captures the uncertainty in the firm's advertising decision. Later, I would like to make the advertising
+decision endogenous to the firm's beliefs about the distribution of $\gamma$ in the consumer population.
+
+
+\begin{equation}
+  V(a_{jt}|\lambda_{jt}(\gamma_{i})) = \max_{\pi_{jt}} \{\pi_{jt} + \int_{\gamma} V'(a_{j,t+1}|\lambda_{jt+1}(\gamma_i)) d\lambda(\gamma)\}
+\end{equation}
+
+Here, $\lambda(\gamma)$ is the firm's belief about the distribution of $\gamma$ in the consumer population. $\Sigma_j$ is the sum of product attributes chosen until time $t$. $a_{t-1}$ is the advertising level at time $t-1$.
+The firm chooses $a$ to maximize profits based on its current beliefs and the expected future value of advertising. Note, the distribution of $\lambda(\gamma) \sim N(\frac{1}{\Sigma_j}, \sigma_{\lambda})$.
+This states they use past purchases to update their mean belief about the distribution of $\gamma$, but they have some variance in that belief.
+
+\section{Results}
+
+\begin{table}[hbtp]
+  \centering
+  \begin{tabular}{lcl}
+    \toprule
+    Parameter & Value & Description \\
+    \midrule
+    $\beta_i$ & \{0.2, 0.5, 0.8\} & Consumer preference for product attributes \\
+    $\gamma_i$ & \{0.2, 0.5, 0.8\} & Consumer cost of sameness \\
+    $\kappa$ & 2 & Advertising cost parameter \\
+    $\alpha_j$ & 0 & Price sensitivity \\
+    $p_{jt}$ & 2 & Price of product $j$ at time $t$ \\
+    $mc_{jt}$ & 1 & Marginal cost of product $j$ at time $t$ \\
+    $\beta_{DF}$ & 0.9 & Discount factor for the firm \\
+    \bottomrule
+  \end{tabular}
+  \caption{Simulation Parameters}
+  \label{tab:model_parameters}
+\end{table}
+
+Consumer utility decreases over time in both specifications. This is because the consumer will choose similar products over time, which in turn hurts their utility via $\gamma$. The firm will choose a fixed advertising level, equally advertising to each product. 
+
+Choice proabibilities are the truly interesting part. In the fixed specification, we see probabilities bunched around 0.2, which is the level of advertising. Interestingly, we also see some substitution towards either the outside option or other products. For instance, no one chooses product 1 after around $t=85$. When looking at the Markov specification, we see a lot of variation. Again, looking at product 1, we see that probability of choice does not go above 0.15 until $t=11$. We also see that people fully stop choosing the product after around $t=40$. This is because advertising is based on inference of $\gamma_i$, based on the chosen products.
+
+\clearpage
+
+\begin{figure}[H]
+  \centering
+  \begin{subfigure}{0.45\textwidth}
+    \includegraphics[width=\textwidth]{../../Output/consumer_utility_by_regime.pdf}
+    \caption{Consumer Utility by Regime (Fixed Advertising $a=0.2$)}
+    \label{fig:consumer_utility}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}{0.45\textwidth}
+    \includegraphics[width=\textwidth]{../../Output/consumer_utility_by_regime_markov.pdf}
+    \caption{Consumer Utility by Regime (Markov Advertising)}
+    \label{fig:consumer_utility_markov}
+  \end{subfigure}
+  \caption{Consumer Utility across Regimes}
+  \label{fig:consumer_utility_all}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \begin{subfigure}{\textwidth}
+    \includegraphics[width=\textwidth]{../../Output/ad_choice_both.pdf}
+    \caption{Firm Advertising by Regime (Fixed Advertising $a=0.2$)}
+    \label{fig:firm_advertising}
+  \end{subfigure}
+  \vspace{1em}
+  \begin{subfigure}{\textwidth}
+    \includegraphics[width=\textwidth]{../../Output/ad_choice_markov_both.pdf}
+    \caption{Firm Advertising by Regime (Markov Advertising)}
+    \label{fig:firm_advertising_markov}
+  \end{subfigure}
+  \caption{Firm Advertising across Regimes}
+  \label{fig:firm_advertising_all}
+\end{figure}
+
+\clearpage
+
+\begin{figure}[H]
+  \centering
+  \begin{subfigure}{0.45\textwidth}
+    \includegraphics[width=\textwidth]{../../Output/choice_prob_product_1.pdf}
+    \caption{Choice Probability of Product 1 by Regime (Fixed Advertising $a=0.2$)}
+    \label{fig:choice_prob_product_1}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}{0.45\textwidth}
+    \includegraphics[width=\textwidth]{../../Output/choice_prob_product_1_markov.pdf}
+    \caption{Choice Probability of Product 1 by Regime (Markov Advertising)}
+    \label{fig:choice_prob_product_1_markov}
+  \end{subfigure}
+  \caption{Choice Probability of Product 1 across Regimes}
+  \label{fig:choice_prob_product_1_all}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \begin{subfigure}{0.45\textwidth}
+    \includegraphics[width=\textwidth]{../../Output/choice_prob_product_2.pdf}
+    \caption{Choice Probability of Product 2 by Regime (Fixed Advertising $a=0.2$)}
+    \label{fig:choice_prob_product_2}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}{0.45\textwidth}
+    \includegraphics[width=\textwidth]{../../Output/choice_prob_product_2_markov.pdf}
+    \caption{Choice Probability of Product 2 by Regime (Markov Advertising)}
+    \label{fig:choice_prob_product_2_markov}
+  \end{subfigure}
+  \caption{Choice Probability of Product 2 across Regimes}
+  \label{fig:choice_prob_product_2_all}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \begin{subfigure}{0.45\textwidth}
+    \includegraphics[width=\textwidth]{../../Output/choice_prob_product_3.pdf}
+    \caption{Choice Probability of Product 3 by Regime (Fixed Advertising $a=0.2$)}
+    \label{fig:choice_prob_product_3}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}{0.45\textwidth}
+    \includegraphics[width=\textwidth]{../../Output/choice_prob_product_3_markov.pdf}
+    \caption{Choice Probability of Product 3 by Regime (Markov Advertising)}
+    \label{fig:choice_prob_product_3_markov}
+  \end{subfigure}
+  \caption{Choice Probability of Product 3 across Regimes}
+  \label{fig:choice_prob_product_3_all}
+\end{figure}
+
+\clearpage
+
+\begin{figure}[H]
+  \centering
+  \begin{subfigure}{0.45\textwidth}
+    \includegraphics[width=\textwidth]{../../Output/choice_prob_product_4.pdf}
+    \caption{Choice Probability of Product 4 by Regime (Fixed Advertising $a=0.2$)}
+    \label{fig:choice_prob_product_4}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}{0.45\textwidth}
+    \includegraphics[width=\textwidth]{../../Output/choice_prob_product_4_markov.pdf}
+    \caption{Choice Probability of Product 4 by Regime (Markov Advertising)}
+    \label{fig:choice_prob_product_4_markov}
+  \end{subfigure}
+  \caption{Choice Probability of Product 4 across Regimes}
+  \label{fig:choice_prob_product_4_all}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \begin{subfigure}{0.45\textwidth}
+    \includegraphics[width=\textwidth]{../../Output/choice_prob_product_5.pdf}
+    \caption{Choice Probability of Product 5 by Regime (Fixed Advertising $a=0.2$)}
+    \label{fig:choice_prob_product_5}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}{0.45\textwidth}
+    \includegraphics[width=\textwidth]{../../Output/choice_prob_product_5_markov.pdf}
+    \caption{Choice Probability of Product 5 by Regime (Markov Advertising)}
+    \label{fig:choice_prob_product_5_markov}
+  \end{subfigure}
+  \caption{Choice Probability of Product 5 across Regimes}
+  \label{fig:choice_prob_product_5_all}
+\end{figure}
+
+\clearpage
+
+\section{Code}
+\lstinputlisting[language=Python]{../../Code/updated_prob.py}
+
+\end{document}

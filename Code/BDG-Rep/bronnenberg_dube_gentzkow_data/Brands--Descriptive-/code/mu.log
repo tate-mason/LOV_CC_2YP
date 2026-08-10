@@ -1,0 +1,4 @@
+Destroying 1 pre-existing parallel job(s) created by matlabpool that were in the 
+finished or failed state.
+
+Starting matlabpool using the 'local' configuration ... connected to 8 labs.

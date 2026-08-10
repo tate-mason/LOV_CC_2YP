@@ -1,0 +1,257 @@
+-----------------------------------------------------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  W:\AcademicResearch\analysis\Brands (First Stage)\code\..\output\define_sample.log
+  log type:  text
+ opened on:  11 Sep 2011, 12:17:56
+
+. set linesize 255
+
+. 
+. **********************************************************
+. * PRELIMINARIES
+. **********************************************************
+. version
+version 11.1
+
+. version 11
+
+. clear all
+
+. set mem 500m
+
+Current memory allocation
+
+                    current                                 memory usage
+    settable          value     description                 (1M = 1024k)
+    --------------------------------------------------------------------
+    set maxvar         5000     max. variables allowed           1.947M
+    set memory          500M    max. data space                500.000M
+    set matsize         400     max. RHS vars in models          1.254M
+                                                            -----------
+                                                               503.201M
+
+. set matsize 5000
+
+Current memory allocation
+
+                    current                                 memory usage
+    settable          value     description                 (1M = 1024k)
+    --------------------------------------------------------------------
+    set maxvar         5000     max. variables allowed           1.947M
+    set memory          500M    max. data space                500.000M
+    set matsize        5000     max. RHS vars in models        191.154M
+                                                            -----------
+                                                               693.102M
+
+. set more off
+
+. set seed 04271975
+
+. set sortseed 04271975
+
+. adopath + ..\external
+  [1]  (UPDATES)   "C:\Program Files (x86)\Stata11\ado\updates/"
+  [2]  (BASE)      "C:\Program Files (x86)\Stata11\ado\base/"
+  [3]  (SITE)      "C:\Program Files (x86)\Stata11\ado\site/"
+  [4]              "."
+  [5]  (PERSONAL)  "c:\ado\personal/"
+  [6]  (PLUS)      "c:\ado\plus/"
+  [7]  (OLDPLACE)  "c:\ado/"
+  [8]              "..\external"
+
+. loadglob using input_param.txt
+
+. 
+. tempfile temp temp_top2same
+
+. 
+. *****************************************************************
+. * DEFINE SAMPLE OF MODULES
+. *****************************************************************
+. insheet using ../external/module_top2same.csv, clear
+(5 vars, 382 obs)
+
+. keep if top2same==1
+(345 observations deleted)
+
+. save module using `temp_top2same', replace
+(note: file C:\DOCUME~1\BBronnen\LOCALS~1\Temp\ST_01000003.tmp not found)
+file C:\DOCUME~1\BBronnen\LOCALS~1\Temp\ST_01000003.tmp saved
+
+. 
+. u module hh_all using ../external/by_module.dta, clear
+
+. drop if hh_all<$hhcutoff
+(122 observations deleted)
+
+. mmerge module using `temp_top2same', type(1:1) unmatched(master) ukeep()
+
+-------------------------------------------------------------------------------
+merge specs          |
+       matching type | 1:1
+  mv's on match vars | none
+  unmatched obs from | master
+---------------------+---------------------------------------------------------
+  master        file | ../external/by_module.dta
+                 obs |    260
+                vars |      2
+          match vars | module  (key)
+  -------------------+---------------------------------------------------------
+  using         file | C:\DOCUME~1\BBronnen\LOCALS~1\Temp\ST_01000003.tmp
+                 obs |     37
+                vars |      5
+          match vars | module  (key)
+---------------------+---------------------------------------------------------
+result          file | ../external/by_module.dta
+                 obs |    260
+                vars |      8  (including _merge)
+         ------------+---------------------------------------------------------
+              _merge |    238  obs only in master data                (code==1)
+                     |     22  obs both in master and using data      (code==3)
+-------------------------------------------------------------------------------
+
+. drop if _merge==3
+(22 observations deleted)
+
+. 
+. sort module
+
+. outsheet module using ../output/sample_mod.csv, comma replace names
+(note: file ../output/sample_mod.csv not found)
+
+. 
+. save module using `temp', replace
+(note: file C:\DOCUME~1\BBronnen\LOCALS~1\Temp\ST_01000002.tmp not found)
+file C:\DOCUME~1\BBronnen\LOCALS~1\Temp\ST_01000002.tmp saved
+
+. 
+. *****************************************************************
+. * STORE LIST OF HHS W/ PURCHASES IN SELECTED MODULES
+. *****************************************************************
+. u module hhld_id $q1 $q2 using ../external/by_hh_module.dta, clear
+
+. mmerge module using `temp', type(n:1) unmatched(master)
+
+-------------------------------------------------------------------------------
+merge specs          |
+       matching type | n:1
+  mv's on match vars | none
+  unmatched obs from | master
+---------------------+---------------------------------------------------------
+  master        file | ../external/by_hh_module.dta
+                 obs | 5229599
+                vars |      4
+          match vars | module  (not a key)
+  -------------------+---------------------------------------------------------
+  using         file | C:\DOCUME~1\BBronnen\LOCALS~1\Temp\ST_01000002.tmp
+                 obs |    238
+                vars |      6
+          match vars | module  (key)
+---------------------+---------------------------------------------------------
+variable module does not uniquely identify observations in the master data
+result          file | ../external/by_hh_module.dta
+                 obs | 5229599
+                vars |     11  (including _merge)
+         ------------+---------------------------------------------------------
+              _merge | 631927  obs only in master data                (code==1)
+                     | 4597672  obs both in master and using data      (code==3)
+-------------------------------------------------------------------------------
+
+. drop if _merge==1
+(631927 observations deleted)
+
+. drop if $q1==0 & $q2==0
+(2140888 observations deleted)
+
+. keep hhld_id
+
+. duplicates drop
+
+Duplicates in terms of all variables
+
+(2408418 observations deleted)
+
+. save `temp', replace
+file C:\DOCUME~1\BBronnen\LOCALS~1\Temp\ST_01000002.tmp saved
+
+. 
+. *****************************************************************
+. * DEFINE SAMPLE OF HOUSEHOLDS
+. *****************************************************************
+. u hhld_id age gap keeper state_born state_curr if keeper==1 using ..\external\survey.dta, clear
+
+. 
+. * drop cases where age, years, and age_moved were mutually inconsistent
+. drop if gap==.
+(319 observations deleted)
+
+. 
+. * drop cases where age out of range
+. drop if age>$maxage | age<$minage
+(56 observations deleted)
+
+. 
+. * drop the one household in the data whose current state is reported as Hawaii or Alaska
+. drop if state_curr=="HI" | state_curr=="AK" 
+(2 observations deleted)
+
+. 
+. * drop households born in Hawaii or Alaska
+. drop if state_born=="HI" | state_born=="AK"
+(145 observations deleted)
+
+. 
+. * drop cases for which we have no purchase data
+. mmerge hhld_id using `temp', type(n:1) unmatched(master)
+
+-------------------------------------------------------------------------------
+merge specs          |
+       matching type | n:1
+  mv's on match vars | none
+  unmatched obs from | master
+---------------------+---------------------------------------------------------
+  master        file | ..\external\survey.dta
+                 obs |  47027
+                vars |      6
+          match vars | hhld_id  (key)
+  -------------------+---------------------------------------------------------
+  using         file | C:\DOCUME~1\BBronnen\LOCALS~1\Temp\ST_01000002.tmp
+                 obs |  48366
+                vars |      1
+          match vars | hhld_id  (key)
+---------------------+---------------------------------------------------------
+result          file | ..\external\survey.dta
+                 obs |  47027
+                vars |      8  (including _merge)
+         ------------+---------------------------------------------------------
+              _merge |    560  obs only in master data                (code==1)
+                     |  46467  obs both in master and using data      (code==3)
+-------------------------------------------------------------------------------
+
+. drop if _merge==1
+(560 observations deleted)
+
+. 
+. sort hhld_id
+
+. outsheet hhld_id gap using ../output/sample_hh_mig_all.csv if state_born~=state_curr, comma replace names
+(note: file ../output/sample_hh_mig_all.csv not found)
+
+. 
+. * drop cases where gap out of range 
+. * gap is defined to be  0 for life time residents in ..\derived\Homescan (Survey)\build.do 
+. 
+. drop if gap>$maxgap
+(8369 observations deleted)
+
+. 
+. sort hhld_id
+
+. outsheet hhld_id using ../output/sample_hh_mig.csv if state_born~=state_curr, comma replace names
+(note: file ../output/sample_hh_mig.csv not found)
+
+. outsheet hhld_id using ../output/sample_hh_nonmig.csv if state_born==state_curr, comma replace names
+(note: file ../output/sample_hh_nonmig.csv not found)
+
+. 
+. cap log close

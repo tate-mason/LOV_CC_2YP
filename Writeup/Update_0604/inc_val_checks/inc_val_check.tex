@@ -1,0 +1,59 @@
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{pgffor}
+\begin{document}
+
+Setting out to see how to incorporate preference heterogeneity into model via augmenting the U_{ijt} term it is now defined as follows:
+
+    U_ijt = \Sum_{j\in J^c} \beta_{ji}X_{jt} + \gamma_i\log(1 + \Xi_{ijt}^2) + \varepsilon_{ijt}
+    s.t.
+        \Xi_{ijt} = \Sum_{j} \sqrt{(X_{jt} - \bar{X}_{jt})^2}
+        \varepsilon_{ijt} \sim Gumbel(0,1)
+
+This allows for \beta to vary with the specific characteristics the product holds rather than just a beta for the overall bundle. Variety now takes the euclidean distance of each characteristic of the product's bundle from the amount the consumer has already consumed in the past, allowing for a more nuanced measure of variety that captures the idea that consumers may want to try products that have some different characteristics from their past consumption, but not necessarily products that are completely different from what they have already consumed.
+
+Results reported:
+    \begin{itemize}
+        \item Utility graphs
+        \item Regression results on log difference in shares
+        \item Inclusive value tables
+    \end{itemize}
+
+
+\section{Utility Graphs}
+\foreach \g in {0, 6, 9, 12}{
+  \foreach \bone/\btwo in {2/0.5, 0.5/2, 0.5/0.5, 2/2}{
+    \begin{figure}
+      \centering
+      \includegraphics[width=0.8\textwidth]{../../Output/Plots/utility_gamma_\g_beta_\bone_\btwo.pdf}
+      \caption{Utility graph for $\gamma = \g$, $\beta_1 = \bone$, $\beta_2 = \btwo$}
+    \end{figure}
+  }
+}
+
+\section{Regression Results on Log Difference in Shares}
+
+\foreach \bone/\btwo in {2/0.5, 0.5/2, 0.5/0.5, 2/2}{
+  \begin{table}[ht]
+    \centering
+    \input{
+    ../../Output/Tables/regression_baseline_beta_\bone_\btwo.tex
+    }
+    \caption{Regression results for $y = \sum_j^2 \beta_jX_j + \varepsilon_j$}
+  \end{table}
+}
+
+\foreach \g in {0, 6, 9, 12}{
+  \foreach \bone/\btwo in {2/0.5, 0.5/2, 0.5/0.5, 2/2}{
+  \begin{table}[ht]
+    \input{
+    ../../Output/Tables/regression_gamma_\g_beta_\bone_\btwo.tex
+    }
+    \caption{Regression results for $y = \sum_j^2\beta_jX_j + \gamma\log(1 + \Xi^2)$}
+  \end{table}
+  }
+}
+
+
+\end{document}

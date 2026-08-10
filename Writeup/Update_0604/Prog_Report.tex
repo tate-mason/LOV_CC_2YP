@@ -1,0 +1,45 @@
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{pgffor}
+\usepackage{booktabs}
+\usepackage{float}
+\usepackage{longtable}
+\begin{document}
+
+Setting out to see how to incorporate preference heterogeneity over the product's overall bundle into model via augmenting the $U_{ijt}$ term it is now defined as follows:
+
+\begin{gather*}
+    U_ijt = \sum_{j} \beta_{ji}X_{jt} + \gamma_i\log(1 + \Xi_{ijt}^2) + \varepsilon_{ijt} \\
+    \text{s.t.} \\
+        \Xi_{ijt} = \sum_j \sqrt{(X_{jt} - \bar{X}_{jt})^2} \\
+        \varepsilon_{ijt} \sim Gumbel(0,1)
+\end{gather*}
+
+This allows for $\beta$ to vary with the specific characteristics the product holds rather than just a beta for the overall bundle. Variety now takes the euclidean distance of each characteristic of the product's bundle from the amount the consumer has already consumed in the past, allowing for a more nuanced measure of variety that captures the idea that consumers may want to try products that have some different characteristics from their past consumption, but not necessarily products that are completely different from what they have already consumed.
+
+
+\section{Regression Results on Log Difference in Shares}
+
+\foreach \g in {0,6,9,12}{
+  \begin{table}[ht]
+    \centering
+    \input{
+    ../../Output/Tables/naive_regression_summary_gamma_\g.tex
+    }
+    \caption{Regression results for $y = \beta_jX_j + \varepsilon_j$ with $\beta = [0.5, 2]$, True $\gamma = \g$}
+  \end{table}
+}
+
+\foreach \g in {6, 9, 12}{
+  \begin{table}[ht]
+    \centering
+    \input{
+    ../../Output/Tables/regression_summary_gamma_\g.tex
+    }
+    \caption{$y = \beta_jX_j + \gamma\log(1 + \Xi^2)$ with $\gamma = \g$, $\beta=2$}
+  \end{table}
+}
+
+
+\end{document}

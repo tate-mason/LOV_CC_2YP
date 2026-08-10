@@ -1,0 +1,586 @@
+Defaulting to user installation because normal site-packages is not writeable
+Requirement already satisfied: pandas in /home/dtm63837/.local/lib/python3.12/site-packages (3.0.3)
+Requirement already satisfied: numpy>=1.26.0 in /home/dtm63837/.local/lib/python3.12/site-packages (from pandas) (2.4.6)
+Requirement already satisfied: python-dateutil>=2.8.2 in /home/dtm63837/.local/lib/python3.12/site-packages (from pandas) (2.9.0.post0)
+Requirement already satisfied: six>=1.5 in /home/dtm63837/.local/lib/python3.12/site-packages (from python-dateutil>=2.8.2->pandas) (1.17.0)
+
+[notice] A new release of pip is available: 24.0 -> 26.1.2
+[notice] To update, run: pip install --upgrade pip
+Defaulting to user installation because normal site-packages is not writeable
+Requirement already satisfied: polars in /home/dtm63837/.local/lib/python3.12/site-packages (1.40.1)
+Requirement already satisfied: polars-runtime-32==1.40.1 in /home/dtm63837/.local/lib/python3.12/site-packages (from polars) (1.40.1)
+
+[notice] A new release of pip is available: 24.0 -> 26.1.2
+[notice] To update, run: pip install --upgrade pip
+Defaulting to user installation because normal site-packages is not writeable
+Requirement already satisfied: numpy in /home/dtm63837/.local/lib/python3.12/site-packages (2.4.6)
+
+[notice] A new release of pip is available: 24.0 -> 26.1.2
+[notice] To update, run: pip install --upgrade pip
+Defaulting to user installation because normal site-packages is not writeable
+Requirement already satisfied: matplotlib in /home/dtm63837/.local/lib/python3.12/site-packages (3.10.9)
+Requirement already satisfied: contourpy>=1.0.1 in /home/dtm63837/.local/lib/python3.12/site-packages (from matplotlib) (1.3.3)
+Requirement already satisfied: cycler>=0.10 in /home/dtm63837/.local/lib/python3.12/site-packages (from matplotlib) (0.12.1)
+Requirement already satisfied: fonttools>=4.22.0 in /home/dtm63837/.local/lib/python3.12/site-packages (from matplotlib) (4.63.0)
+Requirement already satisfied: kiwisolver>=1.3.1 in /home/dtm63837/.local/lib/python3.12/site-packages (from matplotlib) (1.5.0)
+Requirement already satisfied: numpy>=1.23 in /home/dtm63837/.local/lib/python3.12/site-packages (from matplotlib) (2.4.6)
+Requirement already satisfied: packaging>=20.0 in /apps/eb/Python/3.12.3-GCCcore-13.3.0/lib/python3.12/site-packages (from matplotlib) (24.0)
+Requirement already satisfied: pillow>=8 in /home/dtm63837/.local/lib/python3.12/site-packages (from matplotlib) (12.2.0)
+Requirement already satisfied: pyparsing>=3 in /home/dtm63837/.local/lib/python3.12/site-packages (from matplotlib) (3.3.2)
+Requirement already satisfied: python-dateutil>=2.7 in /home/dtm63837/.local/lib/python3.12/site-packages (from matplotlib) (2.9.0.post0)
+Requirement already satisfied: six>=1.5 in /home/dtm63837/.local/lib/python3.12/site-packages (from python-dateutil>=2.7->matplotlib) (1.17.0)
+
+[notice] A new release of pip is available: 24.0 -> 26.1.2
+[notice] To update, run: pip install --upgrade pip
+Defaulting to user installation because normal site-packages is not writeable
+Requirement already satisfied: seaborn in /home/dtm63837/.local/lib/python3.12/site-packages (0.13.2)
+Requirement already satisfied: numpy!=1.24.0,>=1.20 in /home/dtm63837/.local/lib/python3.12/site-packages (from seaborn) (2.4.6)
+Requirement already satisfied: pandas>=1.2 in /home/dtm63837/.local/lib/python3.12/site-packages (from seaborn) (3.0.3)
+Requirement already satisfied: matplotlib!=3.6.1,>=3.4 in /home/dtm63837/.local/lib/python3.12/site-packages (from seaborn) (3.10.9)
+Requirement already satisfied: contourpy>=1.0.1 in /home/dtm63837/.local/lib/python3.12/site-packages (from matplotlib!=3.6.1,>=3.4->seaborn) (1.3.3)
+Requirement already satisfied: cycler>=0.10 in /home/dtm63837/.local/lib/python3.12/site-packages (from matplotlib!=3.6.1,>=3.4->seaborn) (0.12.1)
+Requirement already satisfied: fonttools>=4.22.0 in /home/dtm63837/.local/lib/python3.12/site-packages (from matplotlib!=3.6.1,>=3.4->seaborn) (4.63.0)
+Requirement already satisfied: kiwisolver>=1.3.1 in /home/dtm63837/.local/lib/python3.12/site-packages (from matplotlib!=3.6.1,>=3.4->seaborn) (1.5.0)
+Requirement already satisfied: packaging>=20.0 in /apps/eb/Python/3.12.3-GCCcore-13.3.0/lib/python3.12/site-packages (from matplotlib!=3.6.1,>=3.4->seaborn) (24.0)
+Requirement already satisfied: pillow>=8 in /home/dtm63837/.local/lib/python3.12/site-packages (from matplotlib!=3.6.1,>=3.4->seaborn) (12.2.0)
+Requirement already satisfied: pyparsing>=3 in /home/dtm63837/.local/lib/python3.12/site-packages (from matplotlib!=3.6.1,>=3.4->seaborn) (3.3.2)
+Requirement already satisfied: python-dateutil>=2.7 in /home/dtm63837/.local/lib/python3.12/site-packages (from matplotlib!=3.6.1,>=3.4->seaborn) (2.9.0.post0)
+Requirement already satisfied: six>=1.5 in /home/dtm63837/.local/lib/python3.12/site-packages (from python-dateutil>=2.7->matplotlib!=3.6.1,>=3.4->seaborn) (1.17.0)
+
+[notice] A new release of pip is available: 24.0 -> 26.1.2
+[notice] To update, run: pip install --upgrade pip
+Defaulting to user installation because normal site-packages is not writeable
+Requirement already satisfied: pyarrow in /home/dtm63837/.local/lib/python3.12/site-packages (24.0.0)
+
+[notice] A new release of pip is available: 24.0 -> 26.1.2
+[notice] To update, run: pip install --upgrade pip
+Index(['trip_code_uc', 'household_code', 'purchase_date', 'retailer_code',
+       'store_code_uc', 'panel_year', 'store_zip3', 'total_spent',
+       'method_of_payment_cd', 'upc', 'upc_ver_uc', 'quantity',
+       'total_price_paid', 'coupon_value', 'deal_flag_uc', 'panel_year',
+       'projection_factor', 'projection_factor_magnet', 'household_income',
+       'household_size', 'type_of_residence', 'household_composition',
+       'age_and_presence_of_children', 'male_head_age', 'female_head_age',
+       'male_head_employment', 'female_head_employment', 'male_head_education',
+       'female_head_education', 'male_head_occupation',
+       'female_head_occupation', 'male_head_birth', 'female_head_birth',
+       'marital_status', 'race', 'hispanic_origin', 'panelist_zipcd',
+       'fips_state_cd', 'fips_state_desc', 'fips_county_cd',
+       'fips_county_desc', 'region_cd', 'scantrack_market_identifier_cd',
+       'scantrack_market_identifier_desc', 'dma_cd', 'dma_name',
+       'kitchen_appliances', 'tv_items', 'household_internet_connection',
+       'wic_indicator_current', 'wic_indicator_ever_not_current',
+       'member_1_birth', 'member_1_relationship_sex', 'member_1_employment',
+       'member_2_birth', 'member_2_relationship_sex', 'member_2_employment',
+       'member_3_birth', 'member_3_relationship_sex', 'member_3_employment',
+       'member_4_birth', 'member_4_relationship_sex', 'member_4_employment',
+       'member_5_birth', 'member_5_relationship_sex', 'member_5_employment',
+       'member_6_birth', 'member_6_relationship_sex', 'member_6_employment',
+       'member_7_birth', 'member_7_relationship_sex', 'member_7_employment',
+       'upc_ver_uc_right', 'upc_descr', 'product_module_code',
+       'product_module_descr', 'product_group_code', 'product_group_descr',
+       'department_code', 'department_descr', 'brand_code_uc', 'brand_descr',
+       'multi', 'size1_code_uc', 'size1_amount', 'size1_units',
+       'dataset_found_uc', 'size1_change_flag_uc', 'module', 'flavor_code',
+       'flavor_descr', 'num_flavor'],
+      dtype='str')
+Number of households:    7169
+ Number of times seen:    8.768726461152182
+ Yogurt purchases:        1.979001956635859
+ Mean household income:   17.16369789238461
+ Median household income: 17.0
+ Racial Makeup of Sample: race
+1    6065
+2     762
+3     106
+4     236
+Name: household_code, dtype: int64
+
+flavor_descr
+PLAIN                             17930
+ST                                10726
+VANILLA                            9280
+BB                                 9188
+PEACH                              7232
+RBY                                5510
+ST & BN                            4761
+CHERRY                             3920
+H-P                                3229
+ORANGE CREME                       2464
+KLP                                2438
+PINEAPPLE                          2225
+VERY CHERRY                        1745
+HONEY                              1718
+BB PATCH                           1629
+BLACKBERRY                         1552
+POMEGRANATE                        1402
+BOSTON CREAM PIE                   1346
+MIXED BERRY                        1252
+RED RBY                            1243
+CHERRY & VANILLA                   1235
+FRENCH VANILLA                     1182
+BLACK CHERRY                       1103
+CHOCOLATE MOUSSE                   1069
+LEMON CREAM PIE                    1067
+VERY VANILLA                       1038
+RBY CHEESECAKE                      880
+PINA COLADA                         851
+BN CREAM PIE                        842
+ST MIST                             778
+ST SHORTCAKE                        618
+APRICOT MANGO                       615
+WHITE CHOCOLATE                     607
+CKNCR/NAB OREO C                    600
+NATURAL VANILLA                     579
+ST CHEESECAKE                       579
+VANILLA/M&MC                        573
+BACON                               557
+RED VELVET CAKE                     500
+PINEAPPLE UPSIDE                    462
+LEMON                               459
+KEY LIME                            445
+ST BN & VANILLA                     443
+LIVER                               426
+CHERRIES JUBILEE                    421
+APPLE TURNOVER                      419
+VANILLA BEAN                        394
+PEACH PARFAIT                       353
+COFFEE                              334
+CHERRY CHEESECAK                    328
+H-P & ST                            322
+ST ORANGE SUNRIS                    321
+RBY MOUSSE                          318
+MANGO                               317
+BN                                  315
+MAPLE                               281
+BLACKBERRY HARVE                    279
+ICK & CREAMY  LEMON MERINGUE        270
+ST & H-P                            249
+LEMON BURST                         222
+ST & PEACH & VAN                    220
+COCONUT CREAM PI                    191
+MARIONBERRY                         188
+TRIPLE BERRY TOR                    185
+ICK & CREAMY  ST                    184
+BLACK FOREST CAK                    181
+ST & BB & PEACH                     180
+ST & MIXED BERRY                    176
+BB PATCH & ST                       175
+ICK & CREAMY  KLP                   174
+ST & ST & BN                        173
+VANILLA/NBPC                        168
+VANILLA/HRSH RES                    165
+L-C                                 163
+CHOCOLATE UNDERG                    162
+CHERRY VANILLA                      158
+BYP&BBP                             154
+ST COLADA                           152
+VANILLA CREME MO                    151
+PLAIN/ST                            150
+TP FRUIT                            145
+RBY YUMBERRY                        145
+MT BB & H-P & ST                    143
+VANILLA/NESTLE C                    141
+CHOCOLATE CHIP                      132
+PINEAPPLE & COCO                    131
+CARROT CAKE                         130
+ST & KIWI                           130
+HUCKLEBERRY                         130
+BB & H-P & ST                       128
+CREAMY        VANILLA               125
+ST POMEGRANATE                      124
+N YO-LITE     RBY                   120
+ST MANGO                            116
+BLACKBERRY POMEG                    116
+CHOCOLATE RBY MO                    115
+ST SPLASH & BERR                    114
+ORANGE CREAM                        111
+ST/GRANOLA                          111
+PLAIN/BB                            110
+HONEY ST                            108
+LEMON MERINGUE                      105
+CHOCOLATE                           101
+PRUNE                               101
+PLAIN/PEACH                         101
+PLAIN/HONEY                         100
+BN CREAM                             99
+ORANGE & GINGER                      98
+BOYSENBERRY                          95
+P-B                                  89
+MANDARIN ORANGE                      87
+CREAMY        ST                     87
+CREAMY        PEACHES N CREAM        85
+POMEGRANATE BERR                     83
+ST PARFAIT/GRANO                     78
+DUTCH APPLE PIE                      74
+N             PLAIN                  71
+ICK & CREAMY  CHERRY COBBLER         70
+ST & PEACH                           68
+GUAVA                                64
+ICK & CREAMY  BB PIE                 64
+BB & VANILLA & S                     62
+ST RIPTIDE & BIK                     62
+N YO-LITE     ST                     59
+CAPPUCCINO                           57
+ST/NESTLE CC PIE                     57
+N YO-LITE     BB                     55
+ST & CEREAL                          55
+BN CREME                             54
+NORTHWEST BERRY                      53
+PEACHES N CREAM                      52
+V-C                                  52
+MANGO & GUAVA                        51
+ICK & CREAMY  FRENCH VANILLA         51
+ACAI                                 50
+BANILLA                              48
+APPLE PIE                            46
+ICK & CREAMY  CINNAMON ROLL          46
+ASSORTED                             45
+BLACKBERRY & CRE                     43
+RED CHERRY                           42
+RBY/GRANOLA                          42
+ST FRUIT CUP                         42
+PEACH & CEREAL                       41
+N             CHERRY & VANILLA       39
+ST&BN/GRANOLA                        39
+PEACH MANGO PASS                     39
+COOL CTCDY & ST                      38
+POMEGRANATE CHER                     37
+BURSTIN'MELONBER                     36
+TP BLEND                             35
+CHERRY POMEGRANA                     35
+M             PLAIN                  32
+ST/CANDY PIECES                      32
+BERRY & ST                           31
+CINNAMON BUN                         30
+ST/NAB OREO CKE                      30
+POMEGRANATE & PA                     30
+FIG                                  28
+ST & BB & H-P                        28
+LEMON SQUEEZE                        28
+DARK CHERRY                          26
+JUST PEACHY                          26
+DUTCH APPLE                          25
+ST BN                                25
+PEACH MANGO                          24
+CREAMY        ST & BN                24
+N YO-LITE     VANILLA                23
+DARK SWEET CHERR                     23
+ONSIN SELECT  BB                     23
+.GO-GURT      ST                     23
+ONSIN SELECT  KLP                    23
+ONSIN SELECT  ST                     22
+ST N CREAM                           21
+KLP & VERY VANIL                     21
+BN PUDDING                           21
+ORANGE PASSION F                     21
+BB & ST                              21
+CHILLIN CHERRY &                     20
+PASSIONATE MANGO                     20
+ANICS         VANILLA                20
+W-M & ST BN BURS                     20
+EAMERY        PLAIN                  19
+CREAMY        BLACKBERRY HARVE       19
+N             BLACK CHERRY           18
+N YO-LITE     PEACH                  18
+CKNCR/NOCP & VAN                     18
+RMS           PEACH                  17
+N             ST                     15
+N YO-LITE     BLACK CHERRY           15
+WILD BERRY CRUMB                     15
+PAPAYA                               15
+N YO-LITE     KEY LIME               15
+BN SPLIT                             15
+BB/GRANOLA                           15
+N             PINA COLADA            14
+BB & PEACH & ST                      14
+ST & POMEGRANATE                     13
+BN SPLIT & ST MI                     13
+RMS           ST                     13
+BB & RBY & ST                        13
+N             RED RBY                12
+C-O CHERRY&ST KI                     12
+ST & BB                              12
+CRANBERRY/GP                         12
+ONSIN SELECT  RBY                    12
+N             CLEMENTINE             12
+POMEGRANATE RBY                      11
+CTCDY & MELON BE                     11
+ANICS         ST                     11
+APPLE & SPICE                        11
+BN VANILLA                           11
+ST CREAM                             10
+ANICS         PLAIN                  10
+URAL          PEACH                  10
+PARADISE PUNCH &                     10
+CREAMY        KLP                    10
+.GO-GURT      MIXED BERRY             9
+MARASCHINO CHERR                      9
+STRAWBABY                             9
+N YO-LITE     RBY CHEESECAKE          8
+N YO-LITE     BB CHEESECAKE           8
+COCONUT                               8
+RMS           BB                      8
+N - IC        STR                     8
+VANILLA CINNAMON                      8
+VANILLA & CEREAL                      8
+N             VANILLA                 8
+VANILLA & PEACH                       7
+N             ORANGE CREAM            7
+ONSIN SELECT  ST & BN                 7
+N YO-LITE     FRENCH VANILLA B        7
+VANILLA & ST & B                      7
+BB CREAM                              7
+ANICS         BB                      6
+ONSIN SELECT  PINA COLADA             6
+BERRY BLUE BLAST                      6
+N YO-LITE     ORANGE                  6
+N             PEACH APRICOT VA        5
+N             LEMON                   5
+LIME                                  5
+RMS           BLACK CHERRY            5
+WILD ST                               5
+RMS           ST & BN                 5
+PLAIN/FRUIT & GR                      5
+N             ST RHUBARB PIE          4
+N             APPLE PIE               4
+N             PEACH                   4
+N YO-LITE     ST & BN                 4
+ONSIN SELECT  PEACH                   4
+N YO-LITE     LEMON                   4
+N             ST & VANILLA            4
+N             PEACH COBBLER           4
+N YO-LITE     ST RHUBARB PIE          4
+N YO-LITE     ST CHEESECAKE           4
+CARAMEL                               4
+RMS           VANILLA                 4
+N             RBY & VANILLA           4
+BB THRILL                             4
+BN FOSTER                             4
+PEACH PARADISE                        4
+ST & BN & BB                          3
+N             ST CHEESECAKE           3
+POMEGRANATE MANG                      3
+ADIRONDACK RBY                        3
+MANGO LIME                            3
+RMS           RBY                     3
+RBY LMD                               3
+VANILLA BEAN & S                      3
+ARMS          PEACH                   3
+ARMS          BB                      3
+ST & VANILLA                          3
+M             VANILLA                 3
+BARTLETT PEAR                         3
+PINEAPPLE PASSIO                      3
+FARMS        RBY                      3
+N YO-LITE     CHERRY & VANILLA        3
+ARMS          PLAIN                   2
+N YO-LITE     PEACH APRICOT VA        2
+MAPLE VANILLA                         2
+URAL          VANILLA                 2
+SURFIN ST                             2
+LEMON/LIME                            2
+ANICS         HONEY                   2
+ONSIN SELECT  BN CREAM PIE            2
+FARMS        VANILLA BEAN             2
+CINNAMON & RAISI                      2
+Y             PLAIN                   2
+ONSIN SELECT  LEMON                   2
+LEMON TW                              2
+N YO-LITE     CHERRY VANILLA          2
+RBY RUSH                              2
+ST CRUSH                              2
+URAL          ST                      2
+COUNTRY ORANGE C                      2
+ORANGE TANGO                          2
+M             BB                      2
+BB PARFAIT/GRANO                      2
+N YO-LITE     ST VANILLA              1
+N YO-LITE     RBY & VANILLA           1
+ORANGE DREAM                          1
+N             FRENCH VANILLA B        1
+M             ST                      1
+RUSH          CRAZY BLUE BOLT         1
+CTCDY                                 1
+HAWAIIAN DELIGHT                      1
+CALIFORNIA ST                         1
+N             BN VANILLA              1
+ARMS          ST                      1
+ARMS          VANILLA BEAN            1
+PEACHES & CREME                       1
+M             APRICOT MANGO           1
+EGG NOG                               1
+CARAMEL APPLE                         1
+HONEY ALMOND                          1
+AMARETTO CHEESEC                      1
+N             ST & BN                 1
+N                                     1
+EAMERY        VANILLA                 1
+BAKED APPLE PIE                       1
+SPICED APPLE                          1
+HONEY ALMOND CRE                      1
+N             BB                      1
+TUBERZ        ST LMD SQUEEZE S        1
+Name: count, dtype: int64[pyarrow]
+Variance in brand: 0.24666300163466623
+Variance in product: 0.0
+int64
+Variance in flavor: 0.5381268321191989
+Most Popular Flavor: 12.0 PLAIN
+Mean repeat purchase percentage of brand 0.6927480206668402
+Mean repeat purchase of container size 0.920904599445465
+Mean repeat purchase of yogurt type 0.5007359569151425
+Mean Brand Concentration Within Household: 0.4227087017501067
+Mean Flavor Concentration Within Household: 0.3609976218062077
+Mean consecutive buys by household: 4.933490033203638
+Variance in consecutive buys by household: 123.47851795302994
+Mean consecutive_buys by flavor x Household: flavor
+1.0      1.238971
+2.0      2.216715
+3.0      1.306041
+4.0      1.711210
+5.0      1.480837
+6.0      1.280694
+7.0      2.261138
+8.0      2.051109
+9.0      2.677197
+10.0     4.825045
+11.0     2.841076
+12.0    13.572003
+Name: consecutive_buys, dtype: float64
+Mean percentage returned after switch 0.9851211191109184
+Average time spent on one flavor: 8.866980066407276
+Time spent on switched flavor: prev_flavor  flavor
+1.0          2.0       1.296296
+             3.0       1.162162
+             4.0       1.333333
+             5.0       1.212121
+             6.0       1.212121
+             7.0       1.700000
+             8.0       1.098765
+             9.0       1.494253
+             10.0      1.500000
+             11.0      1.333333
+             12.0      3.833333
+2.0          1.0       1.230769
+             3.0       1.203125
+             4.0       1.276423
+             5.0       1.214612
+             6.0       1.160377
+             7.0       1.660834
+             8.0       1.798257
+             9.0       1.847840
+             10.0      1.996154
+             11.0      1.698068
+             12.0      3.750789
+3.0          1.0       1.160000
+             2.0       1.403226
+             4.0       1.086957
+             5.0       1.268817
+             6.0       1.153846
+             7.0       1.685714
+             8.0       1.198582
+             9.0       1.689076
+             10.0      1.444444
+             11.0      1.100000
+             12.0      4.125000
+4.0          1.0       1.043478
+             2.0       1.326241
+             3.0       1.153846
+             5.0       1.337017
+             6.0       1.120482
+             7.0       1.548837
+             8.0       1.291022
+             9.0       1.513514
+             10.0      1.375691
+             11.0      1.084507
+             12.0      2.500000
+5.0          1.0       1.302326
+             2.0       1.388298
+             3.0       1.052632
+             4.0       1.167598
+             6.0       1.206452
+             7.0       1.419355
+             8.0       1.276276
+             9.0       1.436709
+             10.0      1.657534
+             11.0      1.484127
+             12.0      2.793651
+6.0          1.0       1.189189
+             2.0       1.297030
+             3.0       1.161290
+             4.0       1.340278
+             5.0       1.246006
+             7.0       1.345133
+             8.0       1.276316
+             9.0       1.543333
+             10.0      1.696133
+             11.0      1.322581
+             12.0      2.097561
+7.0          1.0       1.120000
+             2.0       1.592141
+             3.0       1.434783
+             4.0       1.399177
+             5.0       1.211268
+             6.0       1.152381
+             8.0       1.602496
+             9.0       1.726994
+             10.0      1.848635
+             11.0      1.505085
+             12.0      3.659686
+8.0          1.0       1.094595
+             2.0       1.672050
+             3.0       1.100000
+             4.0       1.282282
+             5.0       1.239645
+             6.0       1.157658
+             7.0       1.617261
+             9.0       1.705019
+             10.0      1.748201
+             11.0      1.819315
+             12.0      3.165644
+9.0          1.0       1.090909
+             2.0       1.621897
+             3.0       1.280172
+             4.0       1.173719
+             5.0       1.162996
+             6.0       1.137124
+             7.0       1.652561
+             8.0       1.563424
+             10.0      1.888658
+             11.0      1.575071
+             12.0      3.165158
+10.0         1.0       1.333333
+             2.0       1.627255
+             3.0       1.397727
+             4.0       1.178010
+             5.0       1.195556
+             6.0       1.182320
+             7.0       1.517413
+             8.0       1.737401
+             9.0       1.772400
+             11.0      1.579439
+             12.0      3.767779
+11.0         1.0       1.208333
+             2.0       1.726027
+             3.0       1.180328
+             4.0       1.202899
+             5.0       1.211679
+             6.0       1.178082
+             7.0       1.509225
+             8.0       1.480938
+             9.0       1.704225
+             10.0      1.850962
+             12.0      3.571429
+12.0         1.0       1.500000
+             2.0       1.837134
+             3.0       1.375000
+             4.0       1.163636
+             5.0       1.661290
+             6.0       1.567568
+             7.0       1.806283
+             8.0       1.671141
+             9.0       1.909091
+             10.0      2.328632
+             11.0      1.653061
+Name: run_length, dtype: float64

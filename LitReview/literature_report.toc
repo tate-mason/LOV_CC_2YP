@@ -1,0 +1,12 @@
+\contentsline {section}{\numberline {1}Motivation and Overview}{2}{section.1}%
+\contentsline {section}{\numberline {2}Variety-Seeking and Habit Formation}{2}{section.2}%
+\contentsline {subsection}{\numberline {2.1}Classic Foundations}{2}{subsection.2.1}%
+\contentsline {subsection}{\numberline {2.2}Contemporary Demand Evidence}{2}{subsection.2.2}%
+\contentsline {section}{\numberline {3}Discrete-Choice Demand Estimation}{2}{section.3}%
+\contentsline {subsection}{\numberline {3.1}BLP and Mixed Logit}{2}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.2}Dynamic Extensions}{3}{subsection.3.2}%
+\contentsline {section}{\numberline {4}Dynamic Advertising}{3}{section.4}%
+\contentsline {subsection}{\numberline {4.1}Dynamic Advertising}{3}{subsection.4.1}%
+\contentsline {subsection}{\numberline {4.2}Targeted and Personalized Advertising}{3}{subsection.4.2}%
+\contentsline {section}{\numberline {5}Open Questions and Research Gaps}{4}{section.5}%
+\contentsline {section}{\numberline {6}Summary Table}{4}{section.6}%

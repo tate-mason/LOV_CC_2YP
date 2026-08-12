@@ -199,138 +199,136 @@ fixed_uniforms_index = {
 }
 sample_hh_ids = trip_level['household_code'].unique()[:10]
 trip_level_sample = trip_level[trip_level['household_code'].isin(sample_hh_ids)]
-# precompute once, alongside choice_set_index / chosen_upc_index / fixed_uniforms_index
 trip_flavor_share = (
     trip_level[trip_level['yogurt_buy'].notna()]     # only actual purchases, not the NaN placeholder rows
     .groupby('trip_code_uc')['flavor_binary']
     .mean()
     .to_dict()
 )
-print(master_df['price'].isna().mean())
-#def household_contribution(
-#        hh_id, trip_level,
-#        choice_set_index, chosen_upc_index,
-#        beta, gamma, alpha, delta, lam,
-#        R=30, theta_i0=0.0):
-#
-#    hh_df = trip_level[trip_level['household_code'] == hh_id].sort_values(['trip_code_uc', 'yogurt_buy'])
-#    n_trips = len(hh_df)
-#
-#    if n_trips == 0:
-#        return 0.0
-#
-#    theta = theta_i0
-#    log_lik = 0.0
-#
-#    for occ in hh_df.itertuples():
-#        store = occ.store_code_uc
-#        week  = occ.week_end
-#
-#        choice_set  = choice_set_index[(store, week)]
-#        flavor_vals = choice_set['flavor_binary'].to_numpy()
-#
-#        d_ht = np.array([
-#            1.0, occ.household_income, occ.weeks_since_last_flavor,
-#            occ.since_last_trip, occ.single_male_head,
-#            occ.head_age, occ.type_of_residence, occ.race
-#        ])
-#
-#        lambda_ht = np.exp(d_ht @ delta)
-#
-#        if not np.isfinite(lambda_ht):
-#            print('BAD lambda_ht:', lambda_ht)
-#            print('d_ht:', d_ht)
-#            print('delta:', delta)
-#
-#        u_fixed = fixed_uniforms_index[occ.trip_code_uc]
-#        J_draws = np.maximum(poisson_dist.ppf(u_fixed, lambda_ht).astype(int), 1)
-#
-#        if occ.yogurt_buy:
-#            chosen_upc    = occ.yogurt_buy  
-#            chosen_mask   = (choice_set['upc'] == chosen_upc).to_numpy()
-#            chosen_idx    = np.where(chosen_mask)[0][0]
-#            x_chosen      = trip_flavor_share[occ.trip_code_uc]   # replaces chosen_flavor
-#        else:
-#            chosen_idx = None
-#        u = utility_func(
-#            x=flavor_vals, beta=beta, gamma=gamma, alpha=alpha,
-#            theta=theta, price=choice_set['price'].to_numpy()
-#        )
-#        u_all = np.append(u, 0.0)
-#        IV    = logsumexp(u_all)
-#        prob  = np.exp(u_all - IV)
-#
-#        if chosen_idx is not None:
-#            sim_probs = 1 - (1 - prob[chosen_idx]) ** J_draws
-#        else:
-#            sim_probs = prob[-1] ** J_draws
-#
-#        chosen_prob = max(sim_probs.mean(), 1e-300)
-#
-#        if chosen_idx is not None:
-#            theta = update_theta(theta, x_chosen, lam)   # x_chosen is now the trip-level share
-#
-#        log_lik += np.log(chosen_prob)
-#
-#    return log_lik
-#
-## =================================================================== #
-## SECTION 3: total pop utility
-## =================================================================== #
-#_call_count = 0
-#def total_objective(theta_vec, trip_level_sample, choice_set_index, chosen_upc_index, w, R=30):
-#    global _call_count
-#    _call_count += 1
-#    print(f'call #{_call_count}')
-#    beta, gamma, alpha, lam = theta_vec[:4]
-#    delta = theta_vec[4:]
-#
-#    total_log_lik = 0.0
-#    hh_list = trip_level['household_code'].unique()
-#
-#    for hh_id in hh_list:
-#        total_log_lik += household_contribution(
-#            hh_id, trip_level_sample, choice_set_index, chosen_upc_index, 
-#            beta, gamma, alpha, delta, lam, R=R
-#        )
-#
-#    return -total_log_lik
-#
-#
-## ========================================================== #
-## SECTION 4: optimization
-## ========================================================== #
-#
-#w  = 0.5
-#x0 = np.array([0.5, 6.0, 0.5, 0.7,
-#               0.0, 0.0, 0.0, 0.0,
-#               0.0, 0.0, 0.0, 0.0])
-#bounds = (
-#    [(None, None), (None, None), (0, None), (0.001, 0.999)] + 
-#    [(None, None)]*8
-#)
-#
-#res = minimize(
-#    total_objective,
-#    x0     = x0,
-#    args   = (trip_level_sample, choice_set_index, chosen_upc_index, w),
-#    method = 'L-BFGS-B',
-#    bounds = bounds
-#)
-#
-#param_names = ['β', 'γ', 'α', 'λ'] + [
-#    'δ_0', 'δ_inc', 'δ_flav_gap', 'δ_time_gap',
-#    'δ_m_age', 'δ_f_age', 'δ_res', 'δ_race'
-#]
-#for name, val in zip(param_names, res.x):
-#    print(f'{name}: {val:.4f}')
-#print('success:', res.success)
-#print('final objective:', res.fun)
-#
-## combat with simulated data and estimate off that
-## try weighting lambda 50/50
-## dummy for plain, flavored
-## think of as product fixed effect (excluding outside option)
-## update theta with only x_t-1
-## share of occasions flavor purchased
-## use product intro to add if one period behind works but other doesn't
+def household_contribution(
+        hh_id, trip_level,
+        choice_set_index, chosen_upc_index,
+        beta, gamma, alpha, delta, lam,
+        R=30, theta_i0=0.0):
+
+    hh_df = trip_level[trip_level['household_code'] == hh_id].sort_values(['trip_code_uc', 'yogurt_buy'])
+    n_trips = len(hh_df)
+
+    if n_trips == 0:
+        return 0.0
+
+    theta = theta_i0
+    log_lik = 0.0
+
+    for occ in hh_df.itertuples():
+        store = occ.store_code_uc
+        week  = occ.week_end
+
+        choice_set  = choice_set_index[(store, week)]
+        flavor_vals = choice_set['flavor_binary'].to_numpy()
+
+        d_ht = np.array([
+            1.0, occ.household_income, occ.weeks_since_last_flavor,
+            occ.since_last_trip, occ.single_male_head,
+            occ.head_age, occ.type_of_residence, occ.race
+        ])
+
+        lambda_ht = np.exp(d_ht @ delta)
+
+        if not np.isfinite(lambda_ht):
+            print('BAD lambda_ht:', lambda_ht)
+            print('d_ht:', d_ht)
+            print('delta:', delta)
+
+        u_fixed = fixed_uniforms_index[occ.trip_code_uc]
+        J_draws = np.maximum(poisson_dist.ppf(u_fixed, lambda_ht).astype(int), 1)
+
+        if occ.yogurt_buy:
+            chosen_upc    = occ.yogurt_buy  
+            chosen_mask   = (choice_set['upc'] == chosen_upc).to_numpy()
+            chosen_idx    = np.where(chosen_mask)[0][0]
+            x_chosen      = trip_flavor_share[occ.trip_code_uc]   # replaces chosen_flavor
+        else:
+            chosen_idx = None
+        u = utility_func(
+            x=flavor_vals, beta=beta, gamma=gamma, alpha=alpha,
+            theta=theta, price=choice_set['price'].to_numpy()
+        )
+        u_all = np.append(u, 0.0)
+        IV    = logsumexp(u_all)
+        prob  = np.exp(u_all - IV)
+
+        if chosen_idx is not None:
+            sim_probs = 1 - (1 - prob[chosen_idx]) ** J_draws
+        else:
+            sim_probs = prob[-1] ** J_draws
+
+        chosen_prob = max(sim_probs.mean(), 1e-300)
+
+        if chosen_idx is not None:
+            theta = update_theta(theta, x_chosen, lam)   # x_chosen is now the trip-level share
+
+        log_lik += np.log(chosen_prob)
+
+    return log_lik
+
+# =================================================================== #
+# SECTION 3: total pop utility
+# =================================================================== #
+_call_count = 0
+def total_objective(theta_vec, trip_level_sample, choice_set_index, chosen_upc_index, w, R=30):
+    global _call_count
+    _call_count += 1
+    print(f'call #{_call_count}')
+    beta, gamma, alpha, lam = theta_vec[:4]
+    delta = theta_vec[4:]
+
+    total_log_lik = 0.0
+    hh_list = trip_level['household_code'].unique()
+
+    for hh_id in hh_list:
+        total_log_lik += household_contribution(
+            hh_id, trip_level_sample, choice_set_index, chosen_upc_index, 
+            beta, gamma, alpha, delta, lam, R=R
+        )
+
+    return -total_log_lik
+
+
+# ========================================================== #
+# SECTION 4: optimization
+# ========================================================== #
+
+w  = 0.5
+x0 = np.array([0.5, 6.0, 0.5, 0.7,
+               0.0, 0.0, 0.0, 0.0,
+               0.0, 0.0, 0.0, 0.0])
+bounds = (
+    [(None, None), (None, None), (0, None), (0.001, 0.999)] + 
+    [(None, None)]*8
+)
+
+res = minimize(
+    total_objective,
+    x0     = x0,
+    args   = (trip_level_sample, choice_set_index, chosen_upc_index, w),
+    method = 'L-BFGS-B',
+    bounds = bounds
+)
+
+param_names = ['β', 'γ', 'α', 'λ'] + [
+    'δ_0', 'δ_inc', 'δ_flav_gap', 'δ_time_gap',
+    'δ_m_age', 'δ_f_age', 'δ_res', 'δ_race'
+]
+for name, val in zip(param_names, res.x):
+    print(f'{name}: {val:.4f}')
+print('success:', res.success)
+print('final objective:', res.fun)
+
+# combat with simulated data and estimate off that
+# try weighting lambda 50/50
+# dummy for plain, flavored
+# think of as product fixed effect (excluding outside option)
+# update theta with only x_t-1
+# share of occasions flavor purchased
+# use product intro to add if one period behind works but other doesn't

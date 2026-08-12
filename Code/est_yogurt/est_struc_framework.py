@@ -188,7 +188,8 @@ fixed_uniforms_index = {
     trip_id: rng.uniform(size=R)
     for trip_id in all_trip_ids
 }
-
+sample_hh_ids = trip_level['household_code'].unique()[:100]
+trip_level_sample = trip_level[trip_level['household_code'].isin(sample_hh_ids)]
 
 def household_contribution(
         hh_id, trip_level,
@@ -264,7 +265,7 @@ def household_contribution(
 # SECTION 3: total pop utility
 # =================================================================== #
 
-def total_objective(theta_vec, trip_level, choice_set_index, chosen_upc_index, w, R=30):
+def total_objective(theta_vec, trip_level_sample, choice_set_index, chosen_upc_index, w, R=30):
     beta, gamma, alpha, lam = theta_vec[:4]
     delta = theta_vec[4:]
 
@@ -296,7 +297,7 @@ bounds = (
 res = minimize(
     total_objective,
     x0     = x0,
-    args   = (trip_level, choice_set_index, chosen_upc_index, w),
+    args   = (trip_level_sample, choice_set_index, chosen_upc_index, w),
     method = 'L-BFGS-B',
     bounds = bounds
 )

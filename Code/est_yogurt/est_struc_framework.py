@@ -300,7 +300,7 @@ def total_objective(theta_vec, trip_level_sample, choice_set_index, chosen_upc_i
 # ========================================================== #
 
 w  = 0.5
-x0 = np.array([0.5, 6.0, 0.5, 0.7,
+x0 = np.array([1.0, 10.0, 2.0, 0.0
                0.0, 0.0, 0.0, 0.0,
                0.0, 0.0, 0.0, 0.0])
 bounds = (
@@ -322,8 +322,9 @@ param_names = ['β', 'γ', 'α', 'λ'] + [
 ]
 for name, val in zip(param_names, res.x):
     print(f'{name}: {val:.4f}')
-print('success:', res.success)
-print('final objective:', res.fun)
+console.print('success:', res.success)
+console.print('final objective:', res.fun)
+console.print('jacobian', res.jac)
 
 # combat with simulated data and estimate off that
 # try weighting lambda 50/50

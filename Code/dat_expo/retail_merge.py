@@ -51,7 +51,6 @@ gc.collect()
 master = pl.scan_parquet('/scratch/dtm63837/Kilts_Panel/RMS/step2.parquet').join(stores, on = ['panel_year', 'store_code_uc'], how='left')
 n3     = master.select(pl.len()).collect(engine='streaming').item()
 print('master rows:', n3)
-print('week_end', master.pl.col('week_end').unique())
 
 master.sink_parquet('/scratch/dtm63837/Kilts_Panel/RMS/master_retail.parquet')
 # does step1 have multiple upc_ver_uc rows per upc?

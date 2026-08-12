@@ -202,12 +202,7 @@ trip_flavor_share = (
     .mean()
     .to_dict()
 )
-
-console.print(trip_level_sample.groupby('household_code')['trip_code_uc'].nunique())
-for col in ['household_income', 'weeks_since_last_flavor', 'since_last_trip',
-            'single_male_head', 'head_age', 'type_of_residence', 'race']:
-    print(col, trip_level[col].isna().sum())
-print(master_df['price'].isna().sum())
+print(master_df['price'].isna().mean())
 #def household_contribution(
 #        hh_id, trip_level,
 #        choice_set_index, chosen_upc_index,

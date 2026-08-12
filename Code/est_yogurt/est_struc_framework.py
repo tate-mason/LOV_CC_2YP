@@ -210,7 +210,7 @@ def household_contribution(
     theta = theta_i0
     log_lik = 0.0
 
-    for _, occ in hh_df.itertuples():
+    for occ in hh_df.itertuples():
         store = occ.store_code_uc
         week  = occ.week_end
 

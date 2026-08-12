@@ -1,13 +1,15 @@
 # Fdb version 4
-["bibtex mason_2yp"] 0 "mason_2yp.aux" "mason_2yp.bbl" "mason_2yp" 1786548325.64191 0
+["bibtex mason_2yp"] 0 "mason_2yp.aux" "mason_2yp.bbl" "mason_2yp" 1786550671.22454 0
   "lov_lit.bib" 0 -1 0 ""
   "mason_2yp.aux" 0 -1 0 "pdflatex"
   (generated)
   "mason_2yp.bbl"
   "mason_2yp.blg"
   (rewritten before read)
-["pdflatex"] 1786548324.85344 "mason_2yp.tex" "mason_2yp.pdf" "mason_2yp" 1786548325.642 0
+["pdflatex"] 1786550670.30753 "mason_2yp.tex" "mason_2yp.pdf" "mason_2yp" 1786550671.22464 0
+  "/usr/local/texlive/2026/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc" 1136849721 2900 1537cc8184ad1792082cd229ecc269f4 ""
   "/usr/local/texlive/2026/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
+  "/usr/local/texlive/2026/texmf-dist/fonts/tfm/jknappen/ec/tcrm1095.tfm" 1136768653 1536 02c06700a42be0f5a28664c7273f82e7 ""
   "/usr/local/texlive/2026/texmf-dist/fonts/tfm/public/amsfonts/cmextra/cmex7.tfm" 1246382020 1004 54797486969f23fa377b128694d548df ""
   "/usr/local/texlive/2026/texmf-dist/fonts/tfm/public/amsfonts/cmextra/cmex8.tfm" 1246382020 988 bdf658c3bfc2d96d3c8b02cfc1c94c20 ""
   "/usr/local/texlive/2026/texmf-dist/fonts/tfm/public/amsfonts/symbols/msam10.tfm" 1246382020 916 f87d7c45f9c908e672703b83b72241a3 ""
@@ -40,6 +42,7 @@
   "/usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb" 1248133631 32726 0a1aea6fcd6468ee2cf64d891f5c43c8 ""
   "/usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb" 1248133631 32569 5e5ddc8df908dea60932f3c484a54c0d ""
   "/usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb" 1248133631 32626 4f5c1b83753b1dd3a97d1b399a005b4b ""
+  "/usr/local/texlive/2026/texmf-dist/fonts/type1/public/cm-super/sfrm1095.pfb" 1215737283 145929 f25e56369a345c4ff583b067cd87ce8e ""
   "/usr/local/texlive/2026/texmf-dist/tex/context/base/mkii/supp-pdf.mkii" 1461363279 71627 94eb9990bed73c364d7f53f960cc8c5b ""
   "/usr/local/texlive/2026/texmf-dist/tex/generic/bigintcalc/bigintcalc.sty" 1576625341 40635 c40361e206be584d448876bba8a64a3b ""
   "/usr/local/texlive/2026/texmf-dist/tex/generic/bitset/bitset.sty" 1576016050 33961 6b5c75130e435b2bfdb9f480a09a39f9 ""
@@ -132,10 +135,10 @@
   "/usr/local/texlive/2026/texmf-var/fonts/map/pdftex/updmap/pdftex.map" 1779924663 5573038 b99aad5e4898a9034e953632f940512b ""
   "/usr/local/texlive/2026/texmf-var/web2c/pdftex/pdflatex.fmt" 1774209607 3636776 dc5fa9b6b1453b9d196cd42edf876004 ""
   "/usr/local/texlive/2026/texmf.cnf" 1774209515 577 648cd9f92f9c0eac486f4c71c85cfbbe ""
-  "mason_2yp.aux" 1786548325.49671 1637 88e774e121ece35746faf4a82240cf2e "pdflatex"
+  "mason_2yp.aux" 1786550671.07361 1637 6fa46afa5a479ed543be00f5b406267a "pdflatex"
   "mason_2yp.bbl" 0 -1 0 "bibtex mason_2yp"
-  "mason_2yp.out" 1786548325.4989 1281 2937c0d3e977503c908b72ff98d07db7 "pdflatex"
-  "mason_2yp.tex" 1786548323.65272 9861 5a43867faff9640a92ed52c631590750 ""
+  "mason_2yp.out" 1786550671.07421 1281 2937c0d3e977503c908b72ff98d07db7 "pdflatex"
+  "mason_2yp.tex" 1786550669.97132 11227 446f54b38dc60ee1c7de87408ae6124f ""
   (generated)
   "mason_2yp.aux"
   "mason_2yp.log"

@@ -199,9 +199,9 @@ def household_contribution(
         hh_id, trip_level,
         choice_set_index, chosen_upc_index,
         beta, gamma, alpha, delta, lam,
-        R = 30, theta_i0=0.0): 
+        R=30, theta_i0=0.0):
 
-    hh_df = trip_level[trip_level['household_code'] == hh_id].sort_values(['trip_code_uc','yogurt_buy']) # defining the estimation df, sorted by time
+    hh_df = trip_level[trip_level['household_code'] == hh_id].sort_values(['trip_code_uc', 'yogurt_buy'])
     n_trips = len(hh_df)
 
     if n_trips == 0:
@@ -210,59 +210,51 @@ def household_contribution(
     theta = theta_i0
     log_lik = 0.0
 
-    for _, occ in hh_df.iterrows():
-        store = occ['store_code_uc'] # defining stores
-        week  = occ['week_end']      # defining time 
+    for _, occ in hh_df.itertuples():
+        store = occ.store_code_uc
+        week  = occ.week_end
 
-        choice_set = choice_set_index[(store, week)]
-        flavor_vals = choice_set['flavor_binary'].to_numpy() # getting the flavors from the choice set 
+        choice_set  = choice_set_index[(store, week)]
+        flavor_vals = choice_set['flavor_binary'].to_numpy()
 
         d_ht = np.array([
-            1.0, occ['household_income'], occ['weeks_since_last_flavor'],
-            occ['since_last_trip'], occ['single_male_head'], occ['single_female_head'],
-            occ['head_age'], occ['type_of_residence'], occ['race']
+            1.0, occ.household_income, occ.weeks_since_last_flavor,
+            occ.since_last_trip, occ.single_male_head,
+            occ.head_age, occ.type_of_residence, occ.race
         ])
 
         lambda_ht = np.exp(d_ht @ delta)
-        u = fixed_uniforms_index[occ['trip_code_uc']]              # fixed, same every call
-        J_draws = np.maximum(poisson_dist.ppf(u, lambda_ht).astype(int), 1)
+        u_fixed = fixed_uniforms_index[occ.trip_code_uc]
+        J_draws = np.maximum(poisson_dist.ppf(u_fixed, lambda_ht).astype(int), 1)
 
         if occ['yogurt_buy']:
-            chosen_upc  = chosen_upc_index[occ['trip_code_uc']]
-            chosen_mask = (choice_set['upc'] == chosen_upc).to_numpy()
-            chosen_idx  = np.where(chosen_mask)[0][0]
+            chosen_upc    = chosen_upc_index[occ.trip_code_uc]
+            chosen_mask   = (choice_set['upc'] == chosen_upc).to_numpy()
+            chosen_idx    = np.where(chosen_mask)[0][0]
             chosen_flavor = choice_set.loc[chosen_mask, 'flavor_binary'].iloc[0]
         else:
             chosen_idx = None
-        sim_probs = np.empty(R)
 
-        for r in range(R):
-            theta_r = theta
-            prob_never_chose = 1.0
+        u = utility_func(
+            x=flavor_vals, beta=beta, gamma=gamma, alpha=alpha,
+            theta=theta, price=choice_set['price'].to_numpy()
+        )
+        u_all = np.append(u, 0.0)
+        IV    = logsumexp(u_all)
+        prob  = np.exp(u_all - IV)
 
-            for _ in range(J_draws[r]):
+        if chosen_idx is not None:
+            sim_probs = 1 - (1 - prob[chosen_idx]) ** J_draws
+        else:
+            sim_probs = prob[-1] ** J_draws
 
-                u = utility_func(
-                    x=flavor_vals, # characteristic is flavors
-                    beta=beta, gamma=gamma, alpha=alpha, # beta, gamma, alpha are guesses
-                    theta=theta, price=choice_set['price'].to_numpy() # theta = 0.0 to start, updated below, price from data
-                )
-
-                u_all = np.append(u, 0.0)          # last entry = outside option (==0)
-                IV = logsumexp(u_all)              # calculating inclusive value (e^U/sum(e^U))
-                prob = np.exp(u_all - IV)          # calculating probability     (exp(U - IV))
-                if chosen_idx is not None:
-                    prob_never_chose *= (1-prob[chosen_idx])
-                    theta_r = update_theta(theta, chosen_flavor, lam)   # only updates on a real purchase
-                else:
-                    chosen_prob *= prob[-1]         # probability mass on the outside option
-            # no theta update, no flavor-share accumulation -- nothing was purchased
-            sim_probs[r] = (1-prob_never_chose) if chosen_idx is not None else prob_never_chose
         chosen_prob = max(sim_probs.mean(), 1e-300)
 
         if chosen_idx is not None:
             theta = update_theta(theta, chosen_flavor, lam)
+
         log_lik += np.log(chosen_prob)
+
     return log_lik
 
 # =================================================================== #
@@ -278,7 +270,7 @@ def total_objective(theta_vec, trip_level_sample, choice_set_index, chosen_upc_i
 
     for hh_id in hh_list:
         total_log_lik += household_contribution(
-            hh_id, trip_level, choice_set_index, chosen_upc_index, 
+            hh_id, trip_level_sample, choice_set_index, chosen_upc_index, 
             beta, gamma, alpha, delta, lam, R=R
         )
 
@@ -292,10 +284,10 @@ def total_objective(theta_vec, trip_level_sample, choice_set_index, chosen_upc_i
 w  = 0.5
 x0 = np.array([0.5, 6.0, 0.5, 0.7,
                0.0, 0.0, 0.0, 0.0,
-               0.0, 0.0, 0.0, 0.0, 0.0])
+               0.0, 0.0, 0.0, 0.0])
 bounds = (
     [(None, None), (None, None), (0, None), (0.001, 0.999)] + 
-    [(None, None)]*9
+    [(None, None)]*8
 )
 
 res = minimize(

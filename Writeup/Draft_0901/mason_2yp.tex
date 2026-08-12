@@ -91,7 +91,36 @@ concludes.
 %============================================================%
 
     \subsection{Data}
-    To estimate the model, I am in the process of acquiring Nielsen's homescan and marketscan data. This data combination will provide detailed information on consumer purchases, such as products bought, prices paid, and quantities purchased. Furhter, I am able to see deals/coupons which are used as well as any advertising in the form of feature displays. The data has a panel structure, which allows me to implement these dynamics. The data also includes information on product characteristics, which will be important for estimating the utility function. 
+
+    My data comes from Nielsen's HomeScan and MarketScan data. These two main
+    datasets give me access to household purchase decisions as well as product
+    characteristics. I am looking at the years between 2014-2016 in markets
+    Atlanta, Chicago, San Diego, and Denver. Households are single-person to
+    avoid any contamination of shopping for multiple people like children or
+    spouses, allowing me a cleaner sample of shopping trips. 
+
+    The product space I am looking at is yogurt. Yogurt is good for this sort of
+    analysis due to its relative lack of storability as well as its variation in
+    attributes like flavor, nutrient contents, and types like Greek or Skyr. I
+    have limited yogurt sizes to two kinds: cups and tubs. Cups of yogurt are
+    between five and seven ounces while tubs are approximately 32 ounces. Cups
+    are single serving products and come in more varied flavors. Tubs, on the
+    other hand, tend to be limited in flavors but hold five to seven servings of
+    yogurt. These two types provide interesting anaylsis of what type of person
+    buys which size.
+
+    \ref{tab:stat_tab} shows that there are n households, with a in Atlanta, b
+    in Chicago, c in Denver, and d in San Diego. The mean income is \$17,000 and
+    the mean age is n years old. The sample is mostly white at n\%. Households
+    go on an average of n shopping trips, indexed by a unique trip code. Per
+    trip, they buy an average of n units of yogurt. If we break out by type, n
+    cups and/or n tubs. 
+
+    I define the outside option to be anytime yogurt isn't purchased during a
+    shopping occasion within a trip. In each trip, the outside option was taken
+    x\%, on average.
+
+
 
 
 %============================================================%
@@ -99,7 +128,13 @@ concludes.
 %============================================================%
 
     \subsection{Environment}
-    There is a continuum of consumers $i\in\mathcal{I}$ who shop for $t\in\mathcal{T}$ periods. Each period $t$, they can make one purchase from a market. The market is made up of a continuum of firms $f\in\mathcal{F}$ in which one firm $f^*$ acts as both the market and a producer. $f^*$ will be the primary player, strategically advertising to consumer $i$ based on inferences about their type. $f^*$ will see all other $f\in\mathcal{F}$ as a competitor, denoted $\bar{f}$.
+    % customers, trips, occasions, menu in store
+
+    There are a continuum of $i \in \mathcal{I}$ consumers who exist for
+    $\mathcal{T}$ periods. Within a given period, a household can go for
+    a shopping trip $t\in\mathcal{T}$ which is comprised of choice occasions
+    $o\in\mathcal{O}_t$. Each choice occasion allows for the purchase of a
+    singular good. 
 
 
     \subsection{Consumer's Problem}
@@ -107,15 +142,16 @@ concludes.
 
 
     \begin{alignat*}{1}
-      U_{ijt} &= \sum_1^k\beta^k_i X^k_{jt} + \gamma_i \log(1 + \Xi_{ijt}) 
+      U_{ijt} &= \delta D_{ht} + \sum_1^k\beta^k_i X^k_{jt} + \gamma_i \log(1 + \Xi_{ijt}) 
                   + \alpha_i p_{jt} + \xi_j + \varepsilon_{ijt} \\
     \text{subject to} \\
       \Xi_{ijt} &= \sqrt{\sum_{k}(X^k_{jt} - \theta^k_{ijt})^2} \\
-      \theta^k_{ijt} &= \frac{1}{t-1}\sum^{t-1}_{s} X^k_{js} \\
+      \theta^k_{ijt} &= \lambda\frac{1}{t-2}\sum^{t-2}_{s} X^{*k}_{js} +
+      (1-\lambda)X^{*k}_{jt-1} \\
       \gamma_i &\sim \mathcal{N}(0, 1)\\ \varepsilon_{ijt} &\sim \text{T1EV}(0,1)
     \end{alignat*}
 
-    where $\beta^k_i$ is a consumer's utility from characteristic $X^k_{jt}$, $\gamma_i$ is their preference for variety, $\Xi_{ijt}$ is the difference between the current characteristic and the previous choices, $\theta^k_{it}$. $\theta^k_{it}$ is a function of the consumers' past purchases. This could take many forms, but in this paper will be the mean characteristic of past purchases. $\alpha_i$ is a hetergeneous price sensitivity to $p_{jt}$.$\xi_j$ is unobserved quality in product $j$, and $\varepsilon_{ijt}$ is the Gumbel shock which allows for a closed form logit.
+    where $\delta D_{ht}$ are household specific effects, $\beta^k_i$ is a consumer's utility from characteristic $X^k_{jt}$, $\gamma_i$ is their preference for variety, $\Xi_{ijt}$ is the difference between the current characteristic and the previous choices, $\theta^k_{it}$. $\theta^k_{it}$ is a function of the consumers' past purchases, where $\lambda$ weights chosen products in the past, $X^{*k}_{js}$ and the most recently chosen product, $X_{jt-1}^{*k}$, allowing for more recent purchases to play more of a role in the current period's decision. This could take many forms, but in this paper will be the mean characteristic of past purchases. $\alpha_i$ is a hetergeneous price sensitivity to $p_{jt}$. $\xi_j$ is unobserved quality in product $j$, and $\varepsilon_{ijt}$ is the Gumbel shock which allows for a closed form logit.
 
 
     The choice probability of consumer $i$ choosing product $j$ in time $t$ is as follows:

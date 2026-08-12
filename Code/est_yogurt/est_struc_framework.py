@@ -192,7 +192,7 @@ fixed_uniforms_index = {
     trip_id: rng.uniform(size=R)
     for trip_id in all_trip_ids
 }
-sample_hh_ids = trip_level['household_code'].unique()[:100]
+sample_hh_ids = trip_level['household_code'].unique()[:10]
 trip_level_sample = trip_level[trip_level['household_code'].isin(sample_hh_ids)]
 # precompute once, alongside choice_set_index / chosen_upc_index / fixed_uniforms_index
 trip_flavor_share = (

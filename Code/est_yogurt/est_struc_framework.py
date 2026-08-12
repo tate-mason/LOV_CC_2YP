@@ -300,7 +300,7 @@ def total_objective(theta_vec, trip_level_sample, choice_set_index, chosen_upc_i
 # ========================================================== #
 
 w  = 0.5
-x0 = np.array([1.0, 10.0, 2.0, 0.0
+x0 = np.array([1.0, 10.0, 2.0, 0.0,
                0.0, 0.0, 0.0, 0.0,
                0.0, 0.0, 0.0, 0.0])
 bounds = (

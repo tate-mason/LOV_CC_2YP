@@ -151,7 +151,7 @@ console.print('='*60)
 
 # function to update theta within utility
 def update_theta(theta_prev, x_chosen, lam):
-    theta = (lam*(theta_prev) + (1-lam)*(x_chosen)) # weighted average of previous choices and most recent choice
+    theta = x_chosen # weighted average of previous choices and most recent choice
     return theta
 
 # function to compute LOV within utility
@@ -307,3 +307,10 @@ for name, val in zip(param_names, res.x):
 print('success:', res.success)
 print('final objective:', res.fun)
 
+# combat with simulated data and estimate off that
+# try weighting lambda 50/50
+# dummy for plain, flavored
+# think of as product fixed effect (excluding outside option)
+# update theta with only x_t-1
+# share of occasions flavor purchased
+# use product intro to add if one period behind works but other doesn't

@@ -64,6 +64,7 @@ master_df = master_df.to_pandas() # make pandas format
 master_df.columns = master_df.columns.str.lower() # column names lower
 flavors   = pd.read_csv('/scratch/dtm63837/Kilts_Panel/RMS/Reference_Documentation/2006-2020_Documentation/Latest_Flavor_2010.csv') # load in flavors documentation
 master_df = master_df.merge(flavors, on = 'upc', how = 'left')
+master_df = master_df.dropna(subset=('price'))
 
 master_df = master_df.assign(
     flavor = np.select(

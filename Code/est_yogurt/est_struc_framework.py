@@ -242,6 +242,7 @@ def household_contribution(
 
         u_fixed = fixed_uniforms_index[occ.trip_code_uc]
         J_draws = np.maximum(poisson_dist.ppf(u_fixed, lambda_ht).astype(int), 1)
+        console.print(J_draws.min(), J_draws.max(), J_draws.mean())
 
         if occ.yogurt_buy:
             chosen_upc    = occ.yogurt_buy  
@@ -304,7 +305,7 @@ x0 = np.array([2.0, 9.0, 0.5, 0.0,
                0.0, 0.0, 0.0, 0.0])
 bounds = (
     [(None, None), (None, None), (0, None), (0.001, 0.999)] + 
-    [(None, None)]*8
+    [(-10, 10)]*8
 )
 
 res = minimize(

@@ -205,17 +205,16 @@ for col in z_cols:
     std  = trip_level[col].std()
     trip_level[col + '_z'] = (trip_level[col] - mean) / std
 
-sample_hh_ids = trip_level['household_code'].unique()[:10]
+sample_hh_ids = trip_level['household_code'].unique()[:100]
 trip_level_sample = trip_level[trip_level['household_code'].isin(sample_hh_ids)]
+console.print((trip_level_sample.groupby('trip_code_uc')['yogurt_buy'].first() != 0).mean())
+
 trip_flavor_share = (
     trip_level[trip_level['yogurt_buy'].notna()]     # only actual purchases, not the NaN placeholder rows
     .groupby('trip_code_uc')['flavor_binary']
     .mean()
     .to_dict()
 )
-purchase_share = (trip_level_sample.groupby('trip_code_uc')['yogurt_buy']
-                   .first() != 0).mean()
-console.print(purchase_share)
 #def household_contribution(
 #        hh_id, trip_level,
 #        choice_set_index, chosen_upc_index,

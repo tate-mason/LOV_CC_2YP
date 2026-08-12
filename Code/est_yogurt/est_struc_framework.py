@@ -173,12 +173,13 @@ rng            = np.random.default_rng(219) # setting seed
 yog_trip_count = trip_level.groupby('household_code')['yogurt_buy'].sum() # sum of yogurt trips by HH
 
 R = 30
-
+import time
+t0 = time.time()
 choice_set_index = {
     key: group[['upc','price','flavor_binary']]
     for key,group in master_df.groupby(['store_code_uc','week_end'])
 }
-
+print('choice_set_index build:', time.time() - t0)
 yogurt_master = master_df[master_df['product_module_code'].isin([3612,3603])]
 chosen_upc_index = {
     trip_id: group['upc'].iloc[0]
@@ -274,8 +275,11 @@ def household_contribution(
 # =================================================================== #
 # SECTION 3: total pop utility
 # =================================================================== #
-
+_call_count = 0
 def total_objective(theta_vec, trip_level_sample, choice_set_index, chosen_upc_index, w, R=30):
+    global _call_count
+    _call_count += 1
+    print(f'call #{_call_count}')
     beta, gamma, alpha, lam = theta_vec[:4]
     delta = theta_vec[4:]
 

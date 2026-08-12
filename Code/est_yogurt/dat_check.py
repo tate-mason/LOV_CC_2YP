@@ -40,3 +40,16 @@ console.print(agent_panel['upc'].dtype, product_panel['upc'].dtype)
 console.print(product_panel['week_end'].dt.dayofweek.value_counts())
 console.print(agent_panel['week_end'].min(), agent_panel['week_end'].max())
 console.print(product_panel['week_end'].min(), product_panel['week_end'].max())
+
+print('store overlap:', len(set(agent_panel['store_code_uc']) & set(product_panel['store_code_uc'])),
+      'of', agent_panel['store_code_uc'].nunique(), 'agent stores')
+
+print('upc overlap:', len(set(agent_panel['upc']) & set(product_panel['upc'])),
+      'of', agent_panel['upc'].nunique(), 'agent upcs')
+
+print('week_end overlap:', len(set(agent_panel['week_end']) & set(product_panel['week_end'])),
+      'of', agent_panel['week_end'].nunique(), 'agent weeks')
+
+agent_keys   = set(zip(agent_panel['store_code_uc'], agent_panel['week_end'], agent_panel['upc']))
+product_keys = set(zip(product_panel['store_code_uc'], product_panel['week_end'], product_panel['upc']))
+print('combined key overlap:', len(agent_keys & product_keys), 'of', len(agent_keys), 'agent rows')

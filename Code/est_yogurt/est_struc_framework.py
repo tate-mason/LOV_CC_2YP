@@ -242,7 +242,6 @@ def household_contribution(
 
         u_fixed = fixed_uniforms_index[occ.trip_code_uc]
         J_draws = np.maximum(poisson_dist.ppf(u_fixed, lambda_ht).astype(int), 1)
-        console.print(J_draws.min(), J_draws.max(), J_draws.mean())
 
         if occ.yogurt_buy:
             chosen_upc    = occ.yogurt_buy  
@@ -313,7 +312,8 @@ res = minimize(
     x0     = x0,
     args   = (trip_level_sample, choice_set_index, chosen_upc_index),
     method = 'L-BFGS-B',
-    bounds = bounds
+    bounds = bounds,
+    options= {'eps':1e-3}
 )
 
 param_names = ['β', 'γ', 'α', 'λ'] + [

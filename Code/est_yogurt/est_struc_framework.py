@@ -277,7 +277,7 @@ def household_contribution(
 # SECTION 3: total pop utility
 # =================================================================== #
 _call_count = 0
-def total_objective(theta_vec, trip_level_sample, choice_set_index, chosen_upc_index, w, R=30):
+def total_objective(theta_vec, trip_level_sample, choice_set_index, chosen_upc_index, R=30):
     global _call_count
     _call_count += 1
     print(f'call #{_call_count}')
@@ -311,7 +311,7 @@ bounds = (
 res = minimize(
     total_objective,
     x0     = x0,
-    args   = (trip_level_sample, choice_set_index, chosen_upc_index, w),
+    args   = (trip_level_sample, choice_set_index, chosen_upc_index),
     method = 'L-BFGS-B',
     bounds = bounds
 )

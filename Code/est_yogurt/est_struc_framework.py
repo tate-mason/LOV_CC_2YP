@@ -6,6 +6,7 @@ import numpy as np
 import scipy as sp
 from scipy.optimize import minimize
 from scipy.special import logsumexp, expit
+from scipy.stats import poisson as poisson_dist
 #output
 from rich.console import Console
 from rich.traceback import install; install()
@@ -182,6 +183,12 @@ chosen_upc_index = {
 
 trip_level = trip_level.dropna(subset=('type_of_residence'))
 
+all_trip_ids = trip_level['trip_code_uc'].unique()
+fixed_uniforms_index = {
+    trip_id: rng.uniform(size=R)
+    for trip_id in all_trip_ids
+}
+
 
 def household_contribution(
         hh_id, trip_level,
@@ -212,7 +219,8 @@ def household_contribution(
         ])
 
         lambda_ht = np.exp(d_ht @ delta)
-        J_draws   = np.maximum(rng.poisson(lambda_ht, size=R), 1)
+        u = fixed_uniforms_index[occ['trip_code_uc']]              # fixed, same every call
+        J_draws = np.maximum(poisson_dist.ppf(u, lambda_ht).astype(int), 1)
 
         if occ['yogurt_buy']:
             chosen_upc  = chosen_upc_index[occ['trip_code_uc']]

@@ -202,6 +202,8 @@ trip_flavor_share = (
     .to_dict()
 )
 
+console.print(trip_level_sample.groupby('household_code')['trip_code_uc'].nunique())
+
 def household_contribution(
         hh_id, trip_level,
         choice_set_index, chosen_upc_index,

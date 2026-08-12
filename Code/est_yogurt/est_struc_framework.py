@@ -205,6 +205,14 @@ trip_flavor_share = (
     .mean()
     .to_dict()
 )
+
+z_cols = ['household_income', 'weeks_since_last_flavor', 'since_last_trip', 'head_age']
+
+for col in z_cols:
+    mean = trip_level[col].mean()
+    std  = trip_level[col].std()
+    trip_level[col + '_z'] = (trip_level[col] - mean) / std
+
 def household_contribution(
         hh_id, trip_level,
         choice_set_index, chosen_upc_index,
@@ -228,9 +236,9 @@ def household_contribution(
         flavor_vals = choice_set['flavor_binary'].to_numpy()
 
         d_ht = np.array([
-            1.0, occ.household_income, occ.weeks_since_last_flavor,
-            occ.since_last_trip, occ.single_male_head,
-            occ.head_age, occ.type_of_residence, occ.race
+            1.0, occ.household_income_z, occ.weeks_since_last_flavor_z,
+            occ.since_last_trip_z, occ.single_male_head_z,
+            occ.head_age_z, occ.type_of_residence, occ.race
         ])
 
         lambda_ht = np.exp(d_ht @ delta)
@@ -305,7 +313,7 @@ x0 = np.array([2.0, 9.0, 0.5, 0.0,
                0.0, 0.0, 0.0, 0.0])
 bounds = (
     [(None, None), (None, None), (0, None), (0.001, 0.999)] + 
-    [(-10, 10)]*8
+    [(-3, 3)]*8
 )
 
 res = minimize(

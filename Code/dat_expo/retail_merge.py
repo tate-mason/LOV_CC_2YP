@@ -36,7 +36,7 @@ print('step1 rows:', n1)
 
 step1.sink_parquet('/scratch/dtm63837/Kilts_Panel/RMS/step1.parquet')
 
-del products, rms, step1
+del products, rms
 gc.collect()
 
 step2 = pl.scan_parquet('/scratch/dtm63837/Kilts_Panel/RMS/step1.parquet').join(filtered_movement, on = 'upc', how='left')
@@ -54,7 +54,13 @@ print('master rows:', n3)
 print('week_end', master.pl.col('week_end').unique())
 
 master.sink_parquet('/scratch/dtm63837/Kilts_Panel/RMS/master_retail.parquet')
+# does step1 have multiple upc_ver_uc rows per upc?
+print(step1.group_by('upc').agg(pl.col('upc_ver_uc').n_unique().alias('n_versions')).filter(pl.col('n_versions') > 1).collect().shape)
 
+# does master_retail.parquet have duplicate (store_code_uc, week_end, upc) rows?
+master_retail = pl.read_parquet('/scratch/dtm63837/Kilts_Panel/RMS/master_retail.parquet')
+print(master_retail.shape)
+print(master_retail.select(['store_code_uc','week_end','upc']).unique().shape)
 del master, stores
 gc.collect()
 

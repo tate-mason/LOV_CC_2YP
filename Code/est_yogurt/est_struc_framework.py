@@ -194,6 +194,13 @@ fixed_uniforms_index = {
 }
 sample_hh_ids = trip_level['household_code'].unique()[:100]
 trip_level_sample = trip_level[trip_level['household_code'].isin(sample_hh_ids)]
+# precompute once, alongside choice_set_index / chosen_upc_index / fixed_uniforms_index
+trip_flavor_share = (
+    trip_level[trip_level['yogurt_buy'].notna()]     # only actual purchases, not the NaN placeholder rows
+    .groupby('trip_code_uc')['flavor_binary']
+    .mean()
+    .to_dict()
+)
 
 def household_contribution(
         hh_id, trip_level,
@@ -231,10 +238,9 @@ def household_contribution(
             chosen_upc    = chosen_upc_index[occ.trip_code_uc]
             chosen_mask   = (choice_set['upc'] == chosen_upc).to_numpy()
             chosen_idx    = np.where(chosen_mask)[0][0]
-            chosen_flavor = choice_set.loc[chosen_mask, 'flavor_binary'].iloc[0]
+            x_chosen      = trip_flavor_share[occ.trip_code_uc]   # replaces chosen_flavor
         else:
             chosen_idx = None
-
         u = utility_func(
             x=flavor_vals, beta=beta, gamma=gamma, alpha=alpha,
             theta=theta, price=choice_set['price'].to_numpy()
@@ -251,7 +257,7 @@ def household_contribution(
         chosen_prob = max(sim_probs.mean(), 1e-300)
 
         if chosen_idx is not None:
-            theta = update_theta(theta, chosen_flavor, lam)
+            theta = update_theta(theta, x_chosen, lam)   # x_chosen is now the trip-level share
 
         log_lik += np.log(chosen_prob)
 

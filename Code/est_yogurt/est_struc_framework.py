@@ -42,8 +42,11 @@ def build_merged_panel(hms_path, rms_path, out_path, force):
         agent_panel['purchase_date']   = agent_panel['purchase_date'].str.replace('-','',regex=False)
         agent_panel['purchase_date']   = pd.to_datetime(agent_panel['purchase_date'], format='%Y%m%d')
         agent_panel['week_end']        = agent_panel['purchase_date'] + pd.offsets.Week(weekday=5, n=0) # convert purchase date to week_end to make it work in merge
-        agent_panel["upc"]             = agent_panel["upc"].astype("Int64")
-        product_panel['store_code_uc'] = product_panel['store_code_uc'].astype("Int64")
+        agent_panel['store_code_uc']   = agent_panel['store_code_uc'].astype('Int64')
+        product_panel['store_code_uc'] = product_panel['store_code_uc'].astype('Int64')
+
+        agent_panel['upc']   = agent_panel['upc'].astype('Int64')
+        product_panel['upc'] = product_panel['upc'].astype('Int64')
         product_panel['week_end']      = pd.to_datetime(product_panel['week_end'], format='%Y%m%d')
         product_panel                  = product_panel.dropna(subset=('week_end'))
         master_df = agent_panel.merge(product_panel, on=['store_code_uc', 'week_end', 'upc'], how='left')                  # merge the HMS and RMS on store x week x product

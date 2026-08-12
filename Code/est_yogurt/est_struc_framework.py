@@ -197,7 +197,7 @@ fixed_uniforms_index = {
     trip_id: rng.uniform(size=R)
     for trip_id in all_trip_ids
 }
-sample_hh_ids = trip_level['household_code'].unique()[:100]
+sample_hh_ids = trip_level['household_code'].unique()[:10]
 trip_level_sample = trip_level[trip_level['household_code'].isin(sample_hh_ids)]
 trip_flavor_share = (
     trip_level[trip_level['yogurt_buy'].notna()]     # only actual purchases, not the NaN placeholder rows
@@ -242,6 +242,7 @@ def household_contribution(
 
         u_fixed = fixed_uniforms_index[occ.trip_code_uc]
         J_draws = np.maximum(poisson_dist.ppf(u_fixed, lambda_ht).astype(int), 1)
+        console.print(J_draws.min(), J_draws.max(), J_draws.mean())
 
         if occ.yogurt_buy:
             chosen_upc    = occ.yogurt_buy  
@@ -299,8 +300,7 @@ def total_objective(theta_vec, trip_level_sample, choice_set_index, chosen_upc_i
 # SECTION 4: optimization
 # ========================================================== #
 
-w  = 0.5
-x0 = np.array([1.0, 10.0, 2.0, 0.0,
+x0 = np.array([1.0, 10.0, 0.5, 0.0,
                0.0, 0.0, 0.0, 0.0,
                0.0, 0.0, 0.0, 0.0])
 bounds = (

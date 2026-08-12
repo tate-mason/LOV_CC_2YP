@@ -170,6 +170,8 @@ def utility_func(x, beta, gamma, alpha, theta, price):
 rng            = np.random.default_rng(219) # setting seed
 yog_trip_count = trip_level.groupby('household_code')['yogurt_buy'].sum() # sum of yogurt trips by HH
 
+R = 30
+
 choice_set_index = {
     key: group[['upc','price','flavor_binary']]
     for key,group in master_df.groupby(['store_code_uc','week_end'])

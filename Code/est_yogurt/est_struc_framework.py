@@ -237,7 +237,7 @@ def household_contribution(
 
         d_ht = np.array([
             1.0, occ.household_income_z, occ.weeks_since_last_flavor_z,
-            occ.since_last_trip_z, occ.single_male_head_z,
+            occ.since_last_trip_z, occ.single_male_head,
             occ.head_age_z, occ.type_of_residence, occ.race
         ])
 

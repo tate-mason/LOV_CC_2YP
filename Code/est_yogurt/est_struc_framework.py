@@ -227,7 +227,7 @@ def household_contribution(
         u_fixed = fixed_uniforms_index[occ.trip_code_uc]
         J_draws = np.maximum(poisson_dist.ppf(u_fixed, lambda_ht).astype(int), 1)
 
-        if occ['yogurt_buy']:
+        if occ.yogurt_buy:
             chosen_upc    = chosen_upc_index[occ.trip_code_uc]
             chosen_mask   = (choice_set['upc'] == chosen_upc).to_numpy()
             chosen_idx    = np.where(chosen_mask)[0][0]

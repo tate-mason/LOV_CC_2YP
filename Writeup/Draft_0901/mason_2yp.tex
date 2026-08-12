@@ -1,0 +1,155 @@
+\documentclass[11pt]{article}
+
+% ── Packages ────────────────────────────────────────────────
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{natbib}
+\usepackage{setspace}
+\usepackage{microtype}
+\usepackage{enumitem}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{xcolor}
+\usepackage{float}
+% code packages
+\usepackage{listings}
+\usepackage{inconsolata}
+\lstset{basicstyle=\ttfamily\footnotesize,breaklines=true}
+\usepackage{csvsimple}
+\usepackage{booktabs}
+
+% ── Hyperref setup ──────────────────────────────────────────
+\hypersetup{
+    colorlinks = true,
+    linkcolor  = black,
+    citecolor  = black,
+    urlcolor   = blue
+}
+
+% ── Theorem environments ────────────────────────────────────
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}{Proposition}
+\newtheorem{lemma}{Lemma}
+\newtheorem{corollary}{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+\newtheorem{assumption}{Assumption}
+\theoremstyle{remark}
+\newtheorem{remark}{Remark}
+
+% ── Spacing ─────────────────────────────────────────────────
+\onehalfspacing
+
+% ── Title block ─────────────────────────────────────────────
+\title{Accounting for Love of Variety in Consumer Demand Estimation}
+\author{Tate Mason}
+\date{\today}
+
+% ============================================================
+\begin{document}
+\maketitle
+\thispagestyle{empty}
+
+%============================================================%
+\section{Introduction}
+%============================================================%
+
+In the baseline logit model, a consumer is perceived as having a fixed preference for each product, and the utility from consuming a product is independent of past consumption. Further, it is assumed that a new good is always a utility boosting event, by the error term's property of being identically and independently distributed. However, in many markets, consumers may have a love of variety, or a desire to consume different products over time. This can be due to factors such as boredom, satiation, or a preference for novelty. In such cases, the utility from consuming a product may depend on past consumption, and the introduction of a new good may not always lead to an increase in utility.
+
+In this paper, I build upon the existing love of variety literature by
+modernizing the maximum likelihood methods as well as using moment estimation to
+get aggregate estimates of demand. I also plan to see how these preferences for
+variety differ across product spaces. Using Nielsen data, I estimate a discrete
+choice demand model using Nielsen scanner data. Consumers are myopic, only
+internalizing past consumption as an input for variety without strategically
+choosing products.
+
+I find that...
+
+The rest of the paper is organized as follows: section two discusses the related
+literature and section three describes the data used and some descriptive
+statistics. Section four showcases the model and environment and section five
+presents results. Section six goes into counterfactual analysis, while section 7
+concludes.
+
+%============================================================%
+\section{Related Literature}
+%============================================================%
+
+    The variety-seeking and state dependence literature has been primarily focused on understanding the dynamics of consumer preferences and demand over time. From \cite{lattin_model_1987}, who developed an empirical structural model of state dependence in consumer choice, to \citet{erdem_decision-making_1996}, who iterated the model to allow for consumer learning. \cite{chintagunta_variety_1999} is the most closely related paper, as he develops a model of variety-seeking behavior which is both tractible and flexible, and uses Nielsen data to estimate the model. However, this paper only looks at demand, leaving me a niche to explore the interplay between variety-seeking and strategic advertising.
+
+    % Dube (2004), McAllister (1984), etc.
+
+    % discrete choice methods papers
+
+
+%============================================================%
+\section{Data}
+%============================================================%
+
+    \subsection{Data}
+    To estimate the model, I am in the process of acquiring Nielsen's homescan and marketscan data. This data combination will provide detailed information on consumer purchases, such as products bought, prices paid, and quantities purchased. Furhter, I am able to see deals/coupons which are used as well as any advertising in the form of feature displays. The data has a panel structure, which allows me to implement these dynamics. The data also includes information on product characteristics, which will be important for estimating the utility function. 
+
+
+%============================================================%
+\section{Model}
+%============================================================%
+
+    \subsection{Environment}
+    There is a continuum of consumers $i\in\mathcal{I}$ who shop for $t\in\mathcal{T}$ periods. Each period $t$, they can make one purchase from a market. The market is made up of a continuum of firms $f\in\mathcal{F}$ in which one firm $f^*$ acts as both the market and a producer. $f^*$ will be the primary player, strategically advertising to consumer $i$ based on inferences about their type. $f^*$ will see all other $f\in\mathcal{F}$ as a competitor, denoted $\bar{f}$.
+
+
+    \subsection{Consumer's Problem}
+    The consumer's problem is the following. In each period $t$, the consumer $i$ chooses a product $j$ from the menu of available products $J_t$. Each product $j\in J_t$ is a bundle of $k\in K$ characteristics such that $X_{jt}^k \in \mathcal{X}_{jt}$. The consumer's utility from choosing product $j$ at time $t$ is given by:
+
+
+    \begin{alignat*}{1}
+      U_{ijt} &= \sum_1^k\beta^k_i X^k_{jt} + \gamma_i \log(1 + \Xi_{ijt}) 
+                  + \alpha_i p_{jt} + \xi_j + \varepsilon_{ijt} \\
+    \text{subject to} \\
+      \Xi_{ijt} &= \sqrt{\sum_{k}(X^k_{jt} - \theta^k_{ijt})^2} \\
+      \theta^k_{ijt} &= \frac{1}{t-1}\sum^{t-1}_{s} X^k_{js} \\
+      \gamma_i &\sim \mathcal{N}(0, 1)\\ \varepsilon_{ijt} &\sim \text{T1EV}(0,1)
+    \end{alignat*}
+
+    where $\beta^k_i$ is a consumer's utility from characteristic $X^k_{jt}$, $\gamma_i$ is their preference for variety, $\Xi_{ijt}$ is the difference between the current characteristic and the previous choices, $\theta^k_{it}$. $\theta^k_{it}$ is a function of the consumers' past purchases. This could take many forms, but in this paper will be the mean characteristic of past purchases. $\alpha_i$ is a hetergeneous price sensitivity to $p_{jt}$.$\xi_j$ is unobserved quality in product $j$, and $\varepsilon_{ijt}$ is the Gumbel shock which allows for a closed form logit.
+
+
+    The choice probability of consumer $i$ choosing product $j$ in time $t$ is as follows:
+    \begin{alignat*}{1}
+      P_{ijt} = \frac{\exp{U_{ijt}}}{\sum_k\exp{U_{ikt}}}
+    \end{alignat*}
+
+%============================================================%
+\section{Results}
+%============================================================%
+
+%============================================================%
+\section{Counterfactuals}
+%============================================================%
+
+    \subsection{Counterfactual 1}
+
+    % Counterfactual sales
+
+    \subsection{Counterfactual 2}
+
+    Secondly, I am interested in pivoting to a more consumer welfare focused counterfactual, in which I evaluate the effects of product entry on consumer welfare under different levels of $\gamma$. This will allow me to understand how a love of variety affects consumer welfare in the face of new product entry, and to evaluate the potential benefits and drawbacks of a love of variety for consumers in dynamic markets. Specifically, I want to understand how consumer welfare is impacted by both perfect and obscured information about the distribution of $\gamma$ when introducting a new product. I expect to find that a love of variety can lead to higher consumer welfare in the face of new product entry, as it allows consumers to derive more utility from a wider range of products. However, if consumers have obscured information about the distribution of $\gamma$, they may not be able to fully realize the benefits of new product entry, which could lead to lower consumer welfare.
+
+
+%============================================================%
+\section{Conclusion}
+%============================================================%
+
+In closing, this paper develops a dynamic discrete choice model of consumer demand that incorporates a love of variety and strategic advertising by firms. The model is estimated using scanner data, and counterfactual analyses are conducted to evaluate the effects of different market structures on consumer welfare and market outcomes. The paper contributes to the literature on  advertising and consumer behavior, by providing empirical evidence on the effects of strategic advertising in a dynamic demand setting. The findings of this paper have important implications for policymakers and firms, as they highlight the potential benefits and drawbacks of targeted advertising in markets when accounting for consumers' preference for variety.
+
+%============================================================%
+\newpage
+
+\bibliography{lov_lit.bib}
+
+\end{document}
+

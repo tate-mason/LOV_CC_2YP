@@ -29,6 +29,7 @@ def build_merged_panel(hms_path, rms_path, out_path, force):
         agent_panel   = (
                 pl.read_parquet(hms_path)
                 .filter((pl.col('product_module_code') == 3612) | (pl.col('product_module_code') == 3603))
+                .filter(pl.col('dma_code').isin([524, 602, 751, 825]))
                 .to_pandas() # load in parquet and convert to pandas 
         )
         product_panel = (

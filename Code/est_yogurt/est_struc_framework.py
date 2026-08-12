@@ -233,6 +233,12 @@ def household_contribution(
         ])
 
         lambda_ht = np.exp(d_ht @ delta)
+
+        if not np.isfinite(lambda_ht):
+            print('BAD lambda_ht:', lambda_ht)
+            print('d_ht:', d_ht)
+            print('delta:', delta)
+
         u_fixed = fixed_uniforms_index[occ.trip_code_uc]
         J_draws = np.maximum(poisson_dist.ppf(u_fixed, lambda_ht).astype(int), 1)
 

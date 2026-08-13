@@ -119,7 +119,7 @@ occ_lists = (
     .apply(lambda g: list(np.repeat(g['upc'].values, g['quantity'].values.astype(int))))
 )
 occ_lists.name = 'yogurt_buy'
-
+print(yog_buyers.loc[yog_buyers['is_yogurt'] == 1, 'quantity'].isna().sum())
 hh_trips = yog_buyers.merge(
     occ_lists, on=['household_code', 'trip_code_uc'], how='left'
 )

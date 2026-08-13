@@ -294,7 +294,7 @@ def total_objective(
 
     for hh_id in trip_level_df['household_code'].unique():
         contrib = household_contribution(
-            hh_id, trip_level_sample, choice_set_index, chosen_upc_index, 
+            hh_id, trip_level_sample, choice_set_index, fixed_uniforms_index, trip_flavor_share, 
             beta, gamma, alpha, delta, lam, R=R
         )
         if not np.isifinite(contrib):

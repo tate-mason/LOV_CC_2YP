@@ -308,9 +308,10 @@ def total_objective(
 # SECTION 4: optimization
 # ========================================================== #
 
-trip_level_test = trip_level['household_code'].unique()[:100]
+sample_hh_ids   = trip_level['household_code'].unique()[:100]
+trip_level_test = trip_level[trip_level['household_code'].isin(sample_hh_ids)]
 
-purchase_share  = (trip_level_test.groupby('trip_code_uc')['yogurt_buy'].first().notna().mean())
+purchase_share = (trip_level_test.groupby('trip_code_uc')['yogurt_buy'].first().notna()).mean()
 console.print(f'purchase-trip share in this sample: {purchase_share:.4f}')
 
 x0 = np.array([2.0, 9.0, 0.5, 0.5,

@@ -116,7 +116,7 @@ yog_buyers['is_yogurt'] = (
 occ_lists = (
     yog_buyers[yog_buyers['is_yogurt']==1]
     .groupby(['household_code', 'trip_code_uc'])
-    .apply(lambda g: list(np.repeat(g['upc'].values, g['quantity'].values)))
+    .apply(lambda g: list(np.repeat(g['upc'].values, g['quantity'].values.astype(int))))
 )
 occ_lists.name = 'yogurt_buy'
 

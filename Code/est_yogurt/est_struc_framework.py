@@ -247,6 +247,8 @@ def household_contribution(
         if occ.yogurt_buy:
             chosen_upc    = occ.yogurt_buy  
             chosen_mask   = (choice_set['upc'] == chosen_upc).to_numpy()
+            if not chosen_mask.any():
+                continue
             chosen_idx    = np.where(chosen_mask)[0][0]
             x_chosen      = trip_flavor_share.get(occ.trip_code_uc)   # replaces chosen_flavor
         else:

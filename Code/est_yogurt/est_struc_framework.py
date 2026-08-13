@@ -95,7 +95,7 @@ full_panel = master_df.copy()
 master_df = master_df[master_df['product_module_code'].isin([3612, 3603])]
 master_df = master_df.dropna(subset=['price'])
 
-consonle.print('flavor_binary counts (yogurt only):')
+console.print('flavor_binary counts (yogurt only):')
 console.print(master_df['flavor_binary'].value_counts()) # checking counts of flavor_binary values
 
 trips_df = full_panel[[

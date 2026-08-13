@@ -299,7 +299,7 @@ def total_objective(
             hh_id, trip_level_test, choice_set_index, fixed_uniforms_index, trip_flavor_share, 
             beta, gamma, alpha, delta, lam, R=R
         )
-        if not np.isifinite(contrib):
+        if not np.isfinite(contrib):
             console.print(f'[red]non-finite contribution[/red] household={hh_id}: {contrib}')
 
         total_log_lik += contrib

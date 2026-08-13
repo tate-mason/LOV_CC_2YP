@@ -343,6 +343,16 @@ console.print('success:', res.success)
 console.print('final objective:', res.fun)
 console.print('jacobian', res.jac)
 
+# --- how much of the sample actually contributed to the likelihood? ---
+n_evaluated = 0
+n_total = 0
+for hh_id in trip_level_test['household_code'].unique():
+    hh_df = trip_level_test[trip_level_test['household_code'] == hh_id]
+    for occ in hh_df.itertuples():
+        n_total += 1
+        if (occ.store_code_uc, occ.week_end) in choice_set_index:
+            n_evaluated += 1
+console.print(f'{n_evaluated} of {n_total} trips actually contribute to the likelihood')
 # combat with simulated data and estimate off that
 # try weighting lambda 50/50
 # dummy for plain, flavored

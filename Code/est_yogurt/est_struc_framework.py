@@ -98,6 +98,14 @@ master_df = master_df.dropna(subset=['price'])
 console.print('flavor_binary counts (yogurt only):')
 console.print(master_df['flavor_binary'].value_counts()) # checking counts of flavor_binary values
 
+import time
+t0 = time.time()
+choice_set_index = {
+    key: group[['upc','price','flavor_binary']]
+    for key,group in master_df.groupby(['store_code_uc','week_end'])
+}
+print(f'choice_set_index build: {time.time() - t0:.2f}s')
+
 trips_df = full_panel[[
     'upc', 'product_module_code', 'trip_code_uc', 'household_code',
     'week_end', 'purchase_date', 'store_code_uc', 'flavor_binary',
@@ -105,7 +113,7 @@ trips_df = full_panel[[
     'type_of_residence', 'race'
 ]]
 
-yog    = full_panel[(full_panel['product_module_code'] == 3612) | (full_panel['product_module_code'] == 3603)]
+yog    = full_panel[full_panel['product_module_code'].isin([3612,3603])]
 hh_yog = yog['household_code'].unique()   # households that buy yogurt at least once — still a reasonable scope restriction
 
 yog_buyers = trips_df[trips_df['household_code'].isin(hh_yog)].copy()
@@ -119,29 +127,41 @@ occ_lists = (
     .apply(lambda g: list(np.repeat(g['upc'].values, g['quantity'].values.astype(int))))
 )
 occ_lists.name = 'yogurt_buy'
-print(yog_buyers.loc[yog_buyers['is_yogurt'] == 1, 'quantity'].isna().sum())
+
 hh_trips = yog_buyers.merge(
     occ_lists, on=['household_code', 'trip_code_uc'], how='left'
 )
 trip_level = hh_trips.explode('yogurt_buy')
-no_purchase_share = trip_level.groupby('trip_code_uc')['yogurt_buy'].first().isna().mean()
-console.print(f'no-purchase trip share: {no_purchase_share:.4f}')
+
+known_store_weeks = pd.DataFrame(
+    list(choice_set_index.keys()), columns=['store_code_uc','week_end']
+)
+n_before   = trip_level['trip_code_uc'].nunique()
+trip_level = trip_level.merge(known_store_weeks,
+                              on=['store_code_uc','week_end'],
+                              how = 'inner' )
+n_after    = trip_level['trip_code_uc'].nunique()
+console.print(f'trips retained after covered store filter: {n_after} of {n_before}')
 
 trip_level = trip_level.sort_values(['household_code', 'week_end'])
 trip_level['new_flavor'] = (
-    (trip_level['flavor_binary']  != trip_level.groupby('household_code')['flavor_binary'].shift(1)) |
+    (trip_level['flavor_binary'] != trip_level.groupby('household_code')['flavor_binary'].shift(1)) |
     (trip_level['household_code'] != trip_level['household_code'].shift(1))
 ).astype(int)
 trip_level['flav_spell_id'] = trip_level.groupby('household_code')['new_flavor'].cumsum()
 trip_level['cons_buys']     = trip_level.groupby(['household_code', 'flav_spell_id']).cumcount() + 1
-
-trip_level['weeks_since_last_flavor'] = trip_level['cons_buys'] - 1   # 0 at the switch itself, contemporaneously known
-
+trip_level['weeks_since_last_flavor'] = trip_level['cons_buys'] - 1
 trip_level['weeks_since_last_trip']   = trip_level.groupby('household_code')['week_end'].diff().dt.days / 7
 trip_level['since_last_trip']         = trip_level['weeks_since_last_trip'].fillna(0)
+trip_level['head_age']                = trip_level['male_head_age'].fillna(trip_level['female_head_age'])
+trip_level['single_male_head']        = trip_level['male_head_age'].notna().astype(int)
 
-trip_level['head_age']           = trip_level['male_head_age'].fillna(trip_level['female_head_age'])
-trip_level['single_male_head']   = trip_level['male_head_age'].notna().astype(int)
+trip_level = trip_level.dropna(subset = ['type_of_residence', 'race', 'head_age'])
+
+no_purchase_share = trip_level.groupby('trip_code_uc')['yogurt_buy'].first().isna().mean()
+
+console.print(f'no-purchase trip share (post-restriction): {no_purchase_share:.4f}')
+console.print(f'households remaining: {trip_level["household_code"].nunique()}')
 
 console.print('='*60)
 console.print('Built merged panel for estimation')
@@ -176,18 +196,11 @@ def utility_func(x, beta, gamma, alpha, theta, price):
 # SECTION 2: household contribution given params
 # ============================================= #
 
-R = 30
-rng            = np.random.default_rng(219) # setting seed
+R   = 30
+rng = np.random.default_rng(219) # setting seed
 
-import time
-t0 = time.time()
-choice_set_index = {
-    key: group[['upc','price','flavor_binary']]
-    for key,group in master_df.groupby(['store_code_uc','week_end'])
-}
-print(f'choice_set_index build: {time.time() - t0:.2f}s')
 
-trip_keys = set(zip(trip_level['store_code_uc'], trip_level['week_end']))
+trip_keys  = set(zip(trip_level['store_code_uc'], trip_level['week_end']))
 known_keys = set(choice_set_index.keys())
 console.print(f'{len(trip_keys & known_keys)} of {len(trip_keys)} store-week combos have a known assortment')
 
@@ -304,8 +317,7 @@ def total_objective(
 
         total_log_lik += contrib
 
-    result = -total_log_lik
-    return result
+     return -total_log_lik
 # ========================================================== #
 # SECTION 4: optimization
 # ========================================================== #
@@ -333,26 +345,15 @@ res = minimize(
     options= {'eps':1e-3}
 )
 
-param_names = ['β', 'γ', 'α', 'λ'] + [
-    'δ_0', 'δ_inc', 'δ_flav_gap', 'δ_time_gap',
-    'δ_m_age', 'δ_f_age', 'δ_res', 'δ_race'
-]
+console.print(f'estimation time: {time.time() - t0:.1f}s over {_call_count} calls')
+ 
+param_names = ['β', 'γ', 'α', 'λ', 'δ_0', 'δ_inc', 'δ_flav_gap', 'δ_time_gap',
+               'δ_m_head', 'δ_age', 'δ_res', 'δ_race']
 for name, val in zip(param_names, res.x):
-    print(f'{name}: {val:.4f}')
+    console.print(f'{name}: {val:.4f}')
 console.print('success:', res.success)
 console.print('final objective:', res.fun)
-console.print('jacobian', res.jac)
-
-# --- how much of the sample actually contributed to the likelihood? ---
-n_evaluated = 0
-n_total = 0
-for hh_id in trip_level_test['household_code'].unique():
-    hh_df = trip_level_test[trip_level_test['household_code'] == hh_id]
-    for occ in hh_df.itertuples():
-        n_total += 1
-        if (occ.store_code_uc, occ.week_end) in choice_set_index:
-            n_evaluated += 1
-console.print(f'{n_evaluated} of {n_total} trips actually contribute to the likelihood')
+console.print('jacobian:', res.jac)
 # combat with simulated data and estimate off that
 # try weighting lambda 50/50
 # dummy for plain, flavored

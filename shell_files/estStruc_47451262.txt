@@ -1,0 +1,37 @@
+============================================================
+Data Loading and Manipulation
+============================================================
+flavor_binary counts (yogurt only):
+flavor_binary
+0    44064
+1     2748
+Name: count, dtype: int64
+0
+no-purchase trip share: 0.9293
+============================================================
+Built merged panel for estimation
+============================================================
+============================================================
+Model Functions
+============================================================
+choice_set_index build: 8.57s
+13076 of 112616 store-week combos have a known assortment
+purchase-trip share in this sample: 0.0723
+β: -0.8193
+γ: 7.3089
+α: 0.8127
+λ: 0.5000
+δ_0: 1.3285
+δ_inc: -0.3172
+δ_flav_gap: -0.6260
+δ_time_gap: 0.0202
+δ_m_age: 1.3285
+δ_f_age: 0.2948
+δ_res: 4.8425
+δ_race: 1.5290
+success: True
+final objective: 7.693278069115293e-08
+jacobian [-1.02613330e-06  1.11448185e-07  6.42657511e-06  0.00000000e+00
+ -1.41951674e-06  1.35879564e-06  3.53210688e-07  1.61843762e-07
+ -1.41951674e-06  2.15752118e-06 -1.41951674e-06 -1.41951674e-06]
+87492 of 226903 trips actually contribute to the likelihood

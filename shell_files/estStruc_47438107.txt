@@ -1,0 +1,30 @@
+============================================================
+Data Loading and Manipulation
+============================================================
+flavor_binary counts (yogurt only):
+flavor_binary
+0    44064
+1     2748
+Name: count, dtype: int64
+no-purchase trip share: 0.9293
+============================================================
+Built merged panel for estimation
+============================================================
+============================================================
+Model Functions
+============================================================
+choice_set_index build: 7.80s
+13076 of 112616 store-week combos have a known assortment
+╭───────────────────── Traceback (most recent call last) ──────────────────────╮
+│ /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/est_yogurt/est_struc_framework │
+│ .py:313 in <module>                                                          │
+│                                                                              │
+│   310                                                                        │
+│   311 trip_level_test = trip_level['household_code'].unique()[:100]          │
+│   312                                                                        │
+│ ❱ 313 purchase_share  = (trip_level_test.groupby('trip_code_uc')['yogurt_buy │
+│   314 console.print(f'purchase-trip share in this sample: {purchase_share:.4 │
+│   315                                                                        │
+│   316 x0 = np.array([2.0, 9.0, 0.5, 0.5,                                     │
+╰──────────────────────────────────────────────────────────────────────────────╯
+AttributeError: 'numpy.ndarray' object has no attribute 'groupby'

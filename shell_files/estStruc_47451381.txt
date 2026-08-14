@@ -1,12 +1,6 @@
 ============================================================
 Data Loading and Manipulation
 ============================================================
-flavor_binary counts (yogurt only):
-flavor_binary
-0    44064
-1     2748
-Name: count, dtype: int64
-0
 no-purchase trip share: 0.9293
 ============================================================
 Built merged panel for estimation

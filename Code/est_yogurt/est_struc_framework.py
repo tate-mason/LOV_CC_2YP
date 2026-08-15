@@ -81,17 +81,14 @@ master_df = master_df.assign(
             master_df['flavor_code'].isin([5537, 5539, 66938, 5658, 72317]), # vanilla
             master_df['flavor_code'].isin([66438, 66684, 71101, 72483,19061, 16102,  61082, 61487, 57428, 67420, 78857, 1154, 26050, 1216]), # mixed flavors
             master_df['flavor_code'].isin([57129, 76690, 16200, 62349, 16199, 16182, 72290, 32300, 72289, 16102, 72292, 3465, 68109, 52953, 72288]), # mixed berry
-            master_df['flavor_code'].isin([4167]) # plain
+            master_df['flavor_code'].isin([4167]) #plain 
         ],
         [1,2,3,4,5,6,7,8,9,10,11,12,13],
         default=np.nan
     )
 )
-master_df['plain'] = (
+master_df['flavor_binary'] = (
     master_df['flavor'] == 13 # if plain, flavor_binary == 1
-).astype(int)
-master_df['other'] = (
-    master_df['flavor'] != 13
 ).astype(int)
 
 full_panel = master_df.copy()
@@ -111,7 +108,7 @@ print(f'choice_set_index build: {time.time() - t0:.2f}s')
 
 trips_df = full_panel[[
     'upc', 'product_module_code', 'trip_code_uc', 'household_code',
-    'week_end', 'purchase_date', 'store_code_uc', 'plain', 'other',
+    'week_end', 'purchase_date', 'store_code_uc', 'flavor_binary', 'other',
     'quantity', 'household_income', 'male_head_age', 'female_head_age',
     'type_of_residence', 'race'
 ]]
@@ -246,7 +243,7 @@ def household_contribution(
             continue # skips stores not covered
 
         choice_set  = choice_set_index[(store, week)]
-        plain       = choice_set['plain'].to_numpy()
+        flavor_binary       = choice_set['plain'].to_numpy()
 
         #d_ht = np.array([
         #    1.0, occ.household_income_z, occ.weeks_since_last_flavor_z,
@@ -264,13 +261,13 @@ def household_contribution(
             if not chosen_mask.any():
                 continue
             chosen_idx    = np.where(chosen_mask)[0][0]
-            x_chosen      = occ.plain   # replaces chosen_flavor
+            x_chosen      = occ.flavor_binary   # replaces chosen_flavor
         else:
             chosen_idx = None
             x_chosen   = None
 
         u = utility_func(
-            x=plain, beta=beta, gamma=gamma, alpha=alpha,
+            x=flavor_binary, beta=beta, gamma=gamma, alpha=alpha,
             theta=theta, price=choice_set['price'].to_numpy()
         )
         u_all = np.append(u, 0.0)
@@ -347,7 +344,7 @@ console.print('final objective:', res.fun)
 console.print('jacobian:', res.jac)
 # combat with simulated data and estimate off that
 # try weighting lambda 50/50
-# dummy for plain, flavored
+# dummy for flavor_binary, flavored
 # think of as product fixed effect (excluding outside option)
 # update theta with only x_t-1
 # share of occasions flavor purchased

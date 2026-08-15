@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --job-name=estStruc		# Job name (testBowtie2)
-#SBATCH --partition=batch		# Partition name (batch, highmem_p, or gpu_p)
+#SBATCH --partition=highmem_p           # Partition name (batch, highmem_p, or gpu_p)
 #SBATCH --nodes=1			# Number of compute nodes for resources to be spread out over (increase only if using MPI enabled software)
 #SBATCH --ntasks=1			# 1 task (process) for below commands
 #SBATCH --cpus-per-task=1	 	# CPU core count per task, by default 1 CPU core per task

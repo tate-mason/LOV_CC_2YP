@@ -1,0 +1,39 @@
+============================================================
+Data Loading and Manipulation
+============================================================
+flavor_binary counts (yogurt only):
+flavor_binary
+0    44064
+1     2748
+Name: count, dtype: int64
+choice_set_index build: 9.39s
+trips retained after covered store filter: 77058 of 694439
+no-purchase trip share (post-restriction): 0.7252
+households remaining: 3554
+============================================================
+Built merged panel for estimation
+============================================================
+============================================================
+Model Functions
+============================================================
+13076 of 13076 store-week combos have a known assortment
+purchase-trip share in this sample: 0.2969
+/scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/est_yogurt/est_struc_framework.py:258: RuntimeWarning: invalid value encountered in cast
+  J_draws = np.maximum(poisson_dist.ppf(u_fixed, lambda_ht).astype(int), 1)
+β: -4.1485
+γ: 5.3038
+α: 0.0000
+λ: 0.5000
+δ_0: 1.4924
+δ_inc: -1.2214
+δ_flav_gap: 0.1149
+δ_time_gap: 0.5124
+δ_m_head: 1.4924
+δ_age: -0.8386
+δ_res: 1.4924
+δ_race: 1.4924
+success: True
+final objective: 2.691853552826124e-07
+jacobian: [ 2.08888798e-07  1.47089565e-07 -1.99886489e-06  0.00000000e+00
+ -7.97217573e-06 -5.83952708e-06  1.06230426e-06  8.91015052e-08
+ -7.97217573e-06 -7.36442808e-07 -7.97217573e-06 -7.97217573e-06]

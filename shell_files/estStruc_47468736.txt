@@ -1,0 +1,33 @@
+============================================================
+Data Loading and Manipulation
+============================================================
+flavor_binary counts (yogurt only):
+flavor_binary
+0    44064
+1     2748
+Name: count, dtype: int64
+choice_set_index build: 9.99s
+trips retained after covered store filter: 77058 of 694439
+no-purchase trip share (post-restriction): 0.7252
+households remaining: 3554
+============================================================
+Built merged panel for estimation
+============================================================
+============================================================
+Model Functions
+============================================================
+13076 of 13076 store-week combos have a known assortment
+purchase-trip share in this sample: 0.2783
+╭───────────────────── Traceback (most recent call last) ──────────────────────╮
+│ /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/est_yogurt/est_struc_framework │
+│ .py:348 in <module>                                                          │
+│                                                                              │
+│   345 │   options= {'eps':1e-3}                                              │
+│   346 )                                                                      │
+│   347                                                                        │
+│ ❱ 348 console.print(f'estimation time: {time.time() - t0:.1f}s over {_call_c │
+│   349                                                                        │
+│   350 param_names = ['β', 'γ', 'α', 'λ', 'δ_0', 'δ_inc', 'δ_flav_gap', 'δ_ti │
+│   351 │   │   │      'δ_m_head', 'δ_age', 'δ_res', 'δ_race']                 │
+╰──────────────────────────────────────────────────────────────────────────────╯
+NameError: name '_call_count' is not defined

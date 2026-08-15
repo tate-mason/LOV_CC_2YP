@@ -284,7 +284,7 @@ def household_contribution(
 
         chosen_prob = prob[chosen_idx] if chosen_idx is not None else prob[-1]
 
-        if chosen_idx is not None and chosen_x is not None:
+        if chosen_idx is not None and x_chosen is not None:
             theta = update_theta(theta, x_chosen)
 
         log_lik += np.log(chosen_prob)

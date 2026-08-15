@@ -54,7 +54,7 @@ def build_merged_panel(hms_path, rms_path, out_path, force):
         master_df.write_parquet(out_path)     # write df
     return master_df # return merged data
 
-master_df = build_merged_panel(hms_path, rms_path, out_path, force=True) # call function
+master_df = build_merged_panel(hms_path, rms_path, out_path, force=False) # call function
 master_df = master_df.rename({'product_module_code_x':'product_module_code',
                               'product_group_code_x':'product_group_code', 
                               'size1_code_uc_x':'size1_code_uc',
@@ -108,7 +108,7 @@ print(f'choice_set_index build: {time.time() - t0:.2f}s')
 
 trips_df = full_panel[[
     'upc', 'product_module_code', 'trip_code_uc', 'household_code',
-    'week_end', 'purchase_date', 'store_code_uc', 'flavor_binary', 'other',
+    'week_end', 'purchase_date', 'store_code_uc', 'flavor_binary',
     'quantity', 'household_income', 'male_head_age', 'female_head_age',
     'type_of_residence', 'race'
 ]]

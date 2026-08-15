@@ -344,8 +344,6 @@ res = minimize(
     bounds = bounds,
     options= {'eps':1e-3}
 )
-
-console.print(f'estimation time: {time.time() - t0:.1f}s over {_call_count} calls')
  
 param_names = ['β', 'γ', 'α', 'λ', 'δ_0', 'δ_inc', 'δ_flav_gap', 'δ_time_gap',
                'δ_m_head', 'δ_age', 'δ_res', 'δ_race']

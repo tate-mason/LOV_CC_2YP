@@ -190,9 +190,9 @@ def comp_Xi(x, theta):
     return Xi
 
 # gives the utility function (deterministic)
-def utility_func(x, beta_p, gamma, alpha, theta, price):
+def utility_func(x, beta, gamma, alpha, theta, price):
     Xi = comp_Xi(x, theta) # calling LOV variable
-    u = 1 + beta_p*x + gamma*np.log(1 + Xi) - alpha*price # defining utility
+    u = 1 + beta*x + gamma*np.log(1 + Xi) - alpha*price # defining utility
     return u
 
 # ============================================= #
@@ -212,12 +212,12 @@ all_trip_ids = trip_level['trip_code_uc'].unique()
 #    for trip_id in all_trip_ids
 #}
 
-#trip_flavor_share = (
-#    trip_level[trip_level['yogurt_buy'].notna()]     # only actual purchases, not the NaN placeholder rows
-#    .groupby('trip_code_uc')['flavor_binary']
-#    .mean()
-#    .to_dict()
-#)
+trip_flavor_share = (
+    trip_level[trip_level['yogurt_buy'].notna()]     # only actual purchases, not the NaN placeholder rows
+    .groupby('trip_code_uc')['flavor_binary']
+    .mean()
+    .to_dict()
+)
 
 #z_cols = ['household_income', 'weeks_since_last_flavor', 'since_last_trip', 'head_age']
 #
@@ -228,7 +228,7 @@ all_trip_ids = trip_level['trip_code_uc'].unique()
 
 def household_contribution(
         hh_id, trip_level_df,
-        choice_set_index, fixed_uniforms_index, trip_flavor_share,
+        choice_set_index,
         beta, gamma, alpha, theta_i0=0.0):
 
     hh_df = trip_level[trip_level['household_code'] == hh_id].sort_values(['trip_code_uc', 'yogurt_buy'])
@@ -264,7 +264,7 @@ def household_contribution(
             if not chosen_mask.any():
                 continue
             chosen_idx    = np.where(chosen_mask)[0][0]
-            x_chosen      = trip_flavor_share.get(occ.flavor_binary.mode())   # replaces chosen_flavor
+            x_chosen      = occ.plain   # replaces chosen_flavor
         else:
             chosen_idx = None
             x_chosen   = None
@@ -284,6 +284,9 @@ def household_contribution(
 
         chosen_prob = prob[chosen_idx] if chosen_idx is not None else prob[-1]
 
+        if chosen_idx is not None and chosen_x is not None:
+            theta = update_theta(theta, x_chosen)
+
         log_lik += np.log(chosen_prob)
 
     return log_lik
@@ -294,8 +297,7 @@ def household_contribution(
 
 
 def total_objective(
-        theta_vec, trip_level_df, choice_set_index, fixed_uniforms_index,
-        trip_flavor_share):
+        theta_vec, trip_level_df, choice_set_index):
 
     beta, gamma, alpha = theta_vec[:3]
     #delta = theta_vec[4:]
@@ -305,7 +307,7 @@ def total_objective(
 
     for hh_id in trip_level_df['household_code'].unique():
         contrib = household_contribution(
-            hh_id, trip_level_test, choice_set_index, fixed_uniforms_index, trip_flavor_share, 
+            hh_id, trip_level_test, choice_set_index, 
             beta, gamma, alpha
         )
         if not np.isfinite(contrib):
@@ -331,7 +333,7 @@ bounds = (
 res = minimize(
     total_objective,
     x0     = x0,
-    args   = (trip_level_test, choice_set_index, fixed_uniforms_index, trip_flavor_share),
+    args   = (trip_level_test, choice_set_index),
     method = 'L-BFGS-B',
     bounds = bounds,
     options= {'eps':1e-3}

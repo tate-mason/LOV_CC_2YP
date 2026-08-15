@@ -243,7 +243,7 @@ def household_contribution(
             continue # skips stores not covered
 
         choice_set  = choice_set_index[(store, week)]
-        flavor_binary       = choice_set['plain'].to_numpy()
+        flavor_binary       = choice_set['flavor_binary'].to_numpy()
 
         #d_ht = np.array([
         #    1.0, occ.household_income_z, occ.weeks_since_last_flavor_z,

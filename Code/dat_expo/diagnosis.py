@@ -7,8 +7,8 @@ console = Console()
 agent_panel  = pl.read_parquet('/scratch/dtm63837/Kilts_Panel/nielsen_extracts/master_panel.parquet').to_pandas()
 product_panel = pl.read_parquet('/scratch/dtm63837/Kilts_Panel/RMS/master_retail.parquet').to_pandas()
 
-console.print(agent_panel.head)
-console.print(product_panel.head)
+console.print(agent_panel.head[:1000])
+console.print(product_panel.head[:1000])
 
 agent_panel['purchase_date'] = agent_panel['purchase_date'].str.replace('-','',regex=False)
 agent_panel['purchase_date'] = pd.to_datetime(agent_panel['purchase_date'], format='%Y%m%d')

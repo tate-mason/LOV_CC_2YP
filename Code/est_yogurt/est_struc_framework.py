@@ -87,8 +87,11 @@ master_df = master_df.assign(
         default=np.nan
     )
 )
-master_df['flavor_binary'] = (
+master_df['plain'] = (
     master_df['flavor'] == 13 # if plain, flavor_binary == 1
+).astype(int)
+master_df['other'] = (
+    master_df['flavor'] != 13
 ).astype(int)
 
 full_panel = master_df.copy()
@@ -108,7 +111,7 @@ print(f'choice_set_index build: {time.time() - t0:.2f}s')
 
 trips_df = full_panel[[
     'upc', 'product_module_code', 'trip_code_uc', 'household_code',
-    'week_end', 'purchase_date', 'store_code_uc', 'flavor_binary',
+    'week_end', 'purchase_date', 'store_code_uc', 'plain', 'other',
     'quantity', 'household_income', 'male_head_age', 'female_head_age',
     'type_of_residence', 'race'
 ]]
@@ -176,7 +179,7 @@ console.print('Model Functions')
 console.print('='*60)
 
 # function to update theta within utility
-def update_theta(theta_prev, x_chosen, lam):
+def update_theta(theta_prev, x_chosen):
     # last period for testing
     theta = x_chosen # weighted average of previous choices and most recent choice
     return theta
@@ -187,48 +190,46 @@ def comp_Xi(x, theta):
     return Xi
 
 # gives the utility function (deterministic)
-def utility_func(x, beta, gamma, alpha, theta, price):
+def utility_func(x, beta_p, gamma, alpha, theta, price):
     Xi = comp_Xi(x, theta) # calling LOV variable
-    u = beta*x + gamma*np.log(1 + Xi) - alpha*price # defining utility
+    u = 1 + beta_p*x + gamma*np.log(1 + Xi) - alpha*price # defining utility
     return u
 
 # ============================================= #
 # SECTION 2: household contribution given params
 # ============================================= #
 
-R   = 30
+#R   = 30
 rng = np.random.default_rng(219) # setting seed
-
 
 trip_keys  = set(zip(trip_level['store_code_uc'], trip_level['week_end']))
 known_keys = set(choice_set_index.keys())
 console.print(f'{len(trip_keys & known_keys)} of {len(trip_keys)} store-week combos have a known assortment')
 
 all_trip_ids = trip_level['trip_code_uc'].unique()
-fixed_uniforms_index = {
-    trip_id: rng.uniform(size=R)
-    for trip_id in all_trip_ids
-}
+#fixed_uniforms_index = {
+#    trip_id: rng.uniform(size=R)
+#    for trip_id in all_trip_ids
+#}
 
-trip_flavor_share = (
-    trip_level[trip_level['yogurt_buy'].notna()]     # only actual purchases, not the NaN placeholder rows
-    .groupby('trip_code_uc')['flavor_binary']
-    .mean()
-    .to_dict()
-)
+#trip_flavor_share = (
+#    trip_level[trip_level['yogurt_buy'].notna()]     # only actual purchases, not the NaN placeholder rows
+#    .groupby('trip_code_uc')['flavor_binary']
+#    .mean()
+#    .to_dict()
+#)
 
-z_cols = ['household_income', 'weeks_since_last_flavor', 'since_last_trip', 'head_age']
-
-for col in z_cols:
-    mean = trip_level[col].mean()
-    std  = trip_level[col].std()
-    trip_level[col + '_z'] = (trip_level[col] - mean) / std
+#z_cols = ['household_income', 'weeks_since_last_flavor', 'since_last_trip', 'head_age']
+#
+#for col in z_cols:
+#    mean = trip_level[col].mean()
+#    std  = trip_level[col].std()
+#    trip_level[col + '_z'] = (trip_level[col] - mean) / std
 
 def household_contribution(
         hh_id, trip_level_df,
         choice_set_index, fixed_uniforms_index, trip_flavor_share,
-        beta, gamma, alpha, delta, lam,
-        R=30, theta_i0=0.0):
+        beta, gamma, alpha, theta_i0=0.0):
 
     hh_df = trip_level[trip_level['household_code'] == hh_id].sort_values(['trip_code_uc', 'yogurt_buy'])
     if len(hh_df) == 0:
@@ -245,17 +246,17 @@ def household_contribution(
             continue # skips stores not covered
 
         choice_set  = choice_set_index[(store, week)]
-        flavor_vals = choice_set['flavor_binary'].to_numpy()
+        plain       = choice_set['plain'].to_numpy()
 
-        d_ht = np.array([
-            1.0, occ.household_income_z, occ.weeks_since_last_flavor_z,
-            occ.since_last_trip_z, occ.single_male_head,
-            occ.head_age_z, occ.type_of_residence, occ.race
-        ])
-        lambda_ht = np.exp(d_ht @ delta)
+        #d_ht = np.array([
+        #    1.0, occ.household_income_z, occ.weeks_since_last_flavor_z,
+        #    occ.since_last_trip_z, occ.single_male_head,
+        #    occ.head_age_z, occ.type_of_residence, occ.race
+        #])
+        #lambda_ht = np.exp(d_ht @ delta)
 
-        u_fixed = fixed_uniforms_index[occ.trip_code_uc]
-        J_draws = np.maximum(poisson_dist.ppf(u_fixed, lambda_ht).astype(int), 1)
+        #u_fixed = fixed_uniforms_index[occ.trip_code_uc]
+        #J_draws = np.maximum(poisson_dist.ppf(u_fixed, lambda_ht).astype(int), 1)
 
         if occ.yogurt_buy:
             chosen_upc    = occ.yogurt_buy  
@@ -263,30 +264,25 @@ def household_contribution(
             if not chosen_mask.any():
                 continue
             chosen_idx    = np.where(chosen_mask)[0][0]
-            x_chosen      = trip_flavor_share.get(occ.trip_code_uc)   # replaces chosen_flavor
+            x_chosen      = trip_flavor_share.get(occ.flavor_binary.mode())   # replaces chosen_flavor
         else:
             chosen_idx = None
             x_chosen   = None
 
         u = utility_func(
-            x=flavor_vals, beta=beta, gamma=gamma, alpha=alpha,
+            x=plain, beta=beta, gamma=gamma, alpha=alpha,
             theta=theta, price=choice_set['price'].to_numpy()
         )
         u_all = np.append(u, 0.0)
         IV    = logsumexp(u_all)
         prob  = np.exp(u_all - IV)
 
-        if chosen_idx is not None:
-            sim_probs = 1 - (1 - prob[chosen_idx]) ** J_draws
-        else:
-            sim_probs = prob[-1] ** J_draws
+        #if chosen_idx is not None:
+        #    sim_probs = 1 - (1 - prob[chosen_idx]) ** J_draws
+        #else:
+        #    sim_probs = prob[-1] ** J_draws
 
-        chosen_prob = sim_probs.mean()
-        if not np.isfinite(chosen_prob) or chosen_prob <= 0:
-            chosen_prob = 1e-300
-
-        if chosen_idx is not None and x_chosen is not None: 
-            theta = update_theta(theta, x_chosen, lam)   # x_chosen is now the trip-level share
+        chosen_prob = prob[chosen_idx] if chosen_idx is not None else prob[-1]
 
         log_lik += np.log(chosen_prob)
 
@@ -299,10 +295,10 @@ def household_contribution(
 
 def total_objective(
         theta_vec, trip_level_df, choice_set_index, fixed_uniforms_index,
-        trip_flavor_share, R=30):
+        trip_flavor_share):
 
-    beta, gamma, alpha, lam = theta_vec[:4]
-    delta = theta_vec[4:]
+    beta, gamma, alpha = theta_vec[:3]
+    #delta = theta_vec[4:]
 
     total_log_lik = 0.0
     hh_list = trip_level['household_code'].unique()
@@ -310,7 +306,7 @@ def total_objective(
     for hh_id in trip_level_df['household_code'].unique():
         contrib = household_contribution(
             hh_id, trip_level_test, choice_set_index, fixed_uniforms_index, trip_flavor_share, 
-            beta, gamma, alpha, delta, lam, R=R
+            beta, gamma, alpha
         )
         if not np.isfinite(contrib):
             console.print(f'[red]non-finite contribution[/red] household={hh_id}: {contrib}')
@@ -328,13 +324,9 @@ trip_level_test = trip_level[trip_level['household_code'].isin(sample_hh_ids)]
 purchase_share = (trip_level_test.groupby('trip_code_uc')['yogurt_buy'].first().notna()).mean()
 console.print(f'purchase-trip share in this sample: {purchase_share:.4f}')
 
-x0 = np.array([2.0, 9.0, 0.5, 0.5,
-               0.0, 0.0, 0.0, 0.0,
-               0.0, 0.0, 0.0, 0.0])
+x0 = np.array([2.0, 9.0, 0.5])
 bounds = (
-    [(None, None), (None, None), (0, None), (0.001, 0.999)] + 
-    [(-5, 5)]*8
-)
+    [(None, None), (None, None), (0, None)])
 
 res = minimize(
     total_objective,
@@ -345,8 +337,7 @@ res = minimize(
     options= {'eps':1e-3}
 )
  
-param_names = ['β', 'γ', 'α', 'λ', 'δ_0', 'δ_inc', 'δ_flav_gap', 'δ_time_gap',
-               'δ_m_head', 'δ_age', 'δ_res', 'δ_race']
+param_names = ['β', 'γ', 'α']
 for name, val in zip(param_names, res.x):
     console.print(f'{name}: {val:.4f}')
 console.print('success:', res.success)

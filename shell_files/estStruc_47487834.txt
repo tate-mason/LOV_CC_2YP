@@ -1,0 +1,80 @@
+============================================================
+Data Loading and Manipulation
+============================================================
+flavor_binary counts (yogurt only):
+flavor_binary
+0    44064
+1     2748
+Name: count, dtype: int64
+choice_set_index build: 9.29s
+trips retained after covered store filter: 77058 of 694439
+no-purchase trip share (post-restriction): 0.7252
+households remaining: 3554
+============================================================
+Built merged panel for estimation
+============================================================
+============================================================
+Model Functions
+============================================================
+13076 of 13076 store-week combos have a known assortment
+purchase-trip share in this sample: 0.2783
+purchase-trip share in this sample: 0.2719
+╭───────────────────── Traceback (most recent call last) ──────────────────────╮
+│ /home/dtm63837/.local/lib/python3.12/site-packages/pandas/core/indexes/base. │
+│ py:3641 in get_loc                                                           │
+│                                                                              │
+│   3638 │   │   """                                                           │
+│   3639 │   │   casted_key = self._maybe_cast_indexer(key)                    │
+│   3640 │   │   try:                                                          │
+│ ❱ 3641 │   │   │   return self._engine.get_loc(casted_key)                   │
+│   3642 │   │   except KeyError as err:                                       │
+│   3643 │   │   │   if isinstance(casted_key, slice) or (                     │
+│   3644 │   │   │   │   isinstance(casted_key, abc.Iterable)                  │
+│                                                                              │
+│ in pandas._libs.index.IndexEngine.get_loc:168                                │
+│                                                                              │
+│ in pandas._libs.index.IndexEngine.get_loc:197                                │
+│                                                                              │
+│ in pandas._libs.hashtable.PyObjectHashTable.get_item:7668                    │
+│                                                                              │
+│ in pandas._libs.hashtable.PyObjectHashTable.get_item:7676                    │
+╰──────────────────────────────────────────────────────────────────────────────╯
+KeyError: 'price'
+
+The above exception was the direct cause of the following exception:
+
+╭───────────────────── Traceback (most recent call last) ──────────────────────╮
+│ /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/est_yogurt/est_struc_framework │
+│ .py:332 in <module>                                                          │
+│                                                                              │
+│   329                                                                        │
+│   330 purchase_share_1000 = (trip_level_1000.groupby('trip_code_uc')['yogurt │
+│   331 console.print(f'purchase-trip share in this sample: {purchase_share_10 │
+│ ❱ 332 console.print(trip_level_100['price'].describe())                      │
+│   333 console.print(trip_level_1000['price'].describe())                     │
+│   334                                                                        │
+│   335 console.print(trip_level_100['price'].isna().sum())                    │
+│                                                                              │
+│ /home/dtm63837/.local/lib/python3.12/site-packages/pandas/core/frame.py:4378 │
+│ in __getitem__                                                               │
+│                                                                              │
+│    4375 │   │   if is_single_key:                                            │
+│    4376 │   │   │   if self.columns.nlevels > 1:                             │
+│    4377 │   │   │   │   return self._getitem_multilevel(key)                 │
+│ ❱  4378 │   │   │   indexer = self.columns.get_loc(key)                      │
+│    4379 │   │   │   if is_integer(indexer):                                  │
+│    4380 │   │   │   │   indexer = [indexer]                                  │
+│    4381 │   │   else:                                                        │
+│                                                                              │
+│ /home/dtm63837/.local/lib/python3.12/site-packages/pandas/core/indexes/base. │
+│ py:3648 in get_loc                                                           │
+│                                                                              │
+│   3645 │   │   │   │   and any(isinstance(x, slice) for x in casted_key)     │
+│   3646 │   │   │   ):                                                        │
+│   3647 │   │   │   │   raise InvalidIndexError(key) from err                 │
+│ ❱ 3648 │   │   │   raise KeyError(key) from err                              │
+│   3649 │   │   except TypeError:                                             │
+│   3650 │   │   │   # If we have a listlike key, _check_indexing_error will r │
+│   3651 │   │   │   #  InvalidIndexError. Otherwise we fall through and re-ra │
+╰──────────────────────────────────────────────────────────────────────────────╯
+KeyError: 'price'

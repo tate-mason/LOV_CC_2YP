@@ -216,6 +216,11 @@ trip_flavor_share = (
     .to_dict()
 )
 
+hh_index = {
+    key: group.sort_values(['trip_code_uc', 'yogurt_buy'])
+    for key, group in trip_level.groupby('household_code')
+}
+
 #z_cols = ['household_income', 'weeks_since_last_flavor', 'since_last_trip', 'head_age']
 #
 #for col in z_cols:
@@ -225,10 +230,10 @@ trip_flavor_share = (
 
 def household_contribution(
         hh_id, trip_level_df,
-        choice_set_index,
+        choice_set_index, hh_index,
         beta, gamma, alpha, theta_i0=0.0):
 
-    hh_df = trip_level[trip_level['household_code'] == hh_id].sort_values(['trip_code_uc', 'yogurt_buy'])
+    hh_df = hh_index[hh_id] 
     if len(hh_df) == 0:
         return 0.0
 
@@ -316,7 +321,7 @@ def obj_test(
 
 
 def total_objective(
-        theta_vec, trip_level_df, choice_set_index):
+        theta_vec, trip_level_df, choice_set_index, hh_index):
 
     beta, gamma, alpha = theta_vec[:3]
     #delta = theta_vec[4:]
@@ -326,7 +331,7 @@ def total_objective(
 
     for hh_id in trip_level_df['household_code'].unique():
         contrib = household_contribution(
-            hh_id, trip_level_test, choice_set_index, 
+            hh_id, trip_level_test, choice_set_index, hh_index,
             beta, gamma, alpha
         )
         if not np.isfinite(contrib):
@@ -366,7 +371,7 @@ bounds = (
 res = minimize(
     total_objective,
     x0     = x0,
-    args   = (trip_level_test, choice_set_index),
+    args   = (trip_level_test, choice_set_index, hh_index),
     method = 'L-BFGS-B',
     bounds = bounds,
     options= {'eps':1e-3}

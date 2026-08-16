@@ -374,8 +374,26 @@ console.print(trip_level_1000['price'].describe())
 console.print(trip_level_100['price'].isna().sum())
 console.print(trip_level_1000['price'].isna().sum())
 
-
 x0 = np.array([2.0, 9.0, 0.5])
+
+from scipy.optimize import approx_fprime
+
+def obj_value_only(theta_vec, trip_level_df, choice_set_index, hh_index):
+    f, _ = total_objective(theta_vec, trip_level_df, choice_set_index, hh_index)
+    return f
+
+numerical_grad = approx_fprime(
+    x0,
+    obj_value_only,
+    1e-6,
+    trip_level_100, choice_set_index, hh_index
+)
+
+f_analytic, analytic_grad = total_objective(x0, trip_level_100, choice_set_index, hh_index)
+
+console.print('analytic: ', analytic_grad)
+console.print('numerical:', numerical_grad)
+console.print('diff:     ', analytic_grad - numerical_grad)
 
 bounds = (
     [(None, None), (None, None), (0, None)])

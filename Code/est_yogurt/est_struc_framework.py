@@ -375,7 +375,7 @@ console.print(trip_level_100['price'].isna().sum())
 console.print(trip_level_1000['price'].isna().sum())
 
 
-#x0 = np.array([2.0, 9.0, 0.5])
+x0 = np.array([2.0, 9.0, 0.5])
 #
 #bounds = (
 #    [(None, None), (None, None), (0, None)])

@@ -371,7 +371,7 @@ bounds = (
 res = minimize(
     total_objective,
     x0     = x0,
-    args   = (trip_level_test, choice_set_index, hh_index),
+    args   = (trip_level_100, choice_set_index, hh_index),
     method = 'L-BFGS-B',
     bounds = bounds,
     options= {'eps':1e-3}

@@ -157,6 +157,7 @@ trip_level['head_age']                = trip_level['male_head_age'].fillna(trip_
 trip_level['single_male_head']        = trip_level['male_head_age'].notna().astype(int)
 
 trip_level = trip_level.dropna(subset = ['type_of_residence', 'race', 'head_age'])
+trip_level = trip_level[trip_level['price'] > 0.01]
 
 no_purchase_share = trip_level.groupby('trip_code_uc')['yogurt_buy'].first().isna().mean()
 
@@ -361,6 +362,8 @@ console.print(trip_level_1000['price'].describe())
 
 console.print(trip_level_100['price'].isna().sum())
 console.print(trip_level_1000['price'].isna().sum())
+
+console.print(np.where(trip_level_1000['price'] < .05))
 
 x0 = np.array([2.0, 9.0, 0.5])
 bounds = (

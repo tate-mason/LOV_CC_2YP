@@ -324,9 +324,11 @@ trip_level_100  = trip_level[trip_level['household_code'].isin(sample_hh_100)]
 trip_level_1000 = trip_level[trip_level['household_code'].isin(sample_hh_1000)]
 
 
-purchase_share = (trip_level_test.groupby('trip_code_uc')['yogurt_buy'].first().notna()).mean()
+purchase_share = (trip_level_100.groupby('trip_code_uc')['yogurt_buy'].first().notna()).mean()
 console.print(f'purchase-trip share in this sample: {purchase_share:.4f}')
 
+purchase_share_1000 = (trip_level_1000.groupby('trip_code_uc')['yogurt_buy'].first().notna()).mean()
+console.print(f'purchase-trip share in this sample: {purchase_share_1000:.4f}')
 console.print(trip_level_100['price'].describe())
 console.print(trip_level_1000['price'].describe())
 

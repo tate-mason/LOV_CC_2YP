@@ -272,7 +272,7 @@ def household_contribution(
         else:
             chosen_idx = None
             x_chosen   = None
-            y = np.zeros(len(prob) - 1)
+            y = np.zeros(len(flavor_binary))
 
         u = utility_func(
             x=flavor_binary, beta=beta, gamma=gamma, alpha=alpha,
@@ -288,13 +288,12 @@ def household_contribution(
         #    sim_probs = prob[-1] ** J_draws
 
         chosen_prob = prob[chosen_idx] if chosen_idx is not None else prob[-1]
-
-        if chosen_idx is not None and x_chosen is not None:
-            theta = update_theta(theta, x_chosen)
-
         grad_beta  += (y - prob[:-1])@choice_set['flavor_binary']
         grad_gamma += (y - prob[:-1])@np.log(1 + np.abs(choice_set['flavor_binary'] - theta))
         grad_alpha += -(y - prob[:-1])@choice_set['price'].to_numpy()
+
+        if chosen_idx is not None and x_chosen is not None:
+            theta = update_theta(theta, x_chosen)
 
         log_lik += np.log(chosen_prob)
 

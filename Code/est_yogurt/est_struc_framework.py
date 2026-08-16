@@ -317,35 +317,46 @@ def total_objective(
 # SECTION 4: optimization
 # ========================================================== #
 
-sample_hh_ids   = trip_level['household_code'].unique()[:1000]
-trip_level_test = trip_level[trip_level['household_code'].isin(sample_hh_ids)]
+sample_hh_100   = trip_level['household_code'].unique()[:100]
+sample_hh_1000  = trip_level['household_code'].unique()[100:1000]
+
+trip_level_100  = trip_level[trip_level['household_code'].isin(sample_hh_100)]
+trip_level_1000 = trip_level[trip_level['household_code'].isin(sample_hh_1000)]
+
 
 purchase_share = (trip_level_test.groupby('trip_code_uc')['yogurt_buy'].first().notna()).mean()
 console.print(f'purchase-trip share in this sample: {purchase_share:.4f}')
 
-x0 = np.array([2.0, 9.0, 0.5])
-bounds = (
-    [(None, None), (None, None), (0, None)])
+console.print(trip_level_100['price'].describe())
+console.print(trip_level_1000['price'].describe())
 
-res = minimize(
-    total_objective,
-    x0     = x0,
-    args   = (trip_level_test, choice_set_index),
-    method = 'L-BFGS-B',
-    bounds = bounds,
-    options= {'eps':1e-3}
-)
- 
-param_names = ['β', 'γ', 'α']
-for name, val in zip(param_names, res.x):
-    console.print(f'{name}: {val:.4f}')
-console.print('success:', res.success)
-console.print('final objective:', res.fun)
-console.print('jacobian:', res.jac)
-# combat with simulated data and estimate off that
-# try weighting lambda 50/50
-# dummy for flavor_binary, flavored
-# think of as product fixed effect (excluding outside option)
-# update theta with only x_t-1
-# share of occasions flavor purchased
-# use product intro to add if one period behind works but other doesn't
+console.print(trip_level_100['price'].isna().sum())
+console.print(trip_level_1000['price'].isna().sum())
+
+
+#x0 = np.array([2.0, 9.0, 0.5])
+#bounds = (
+#    [(None, None), (None, None), (0, None)])
+#
+#res = minimize(
+#    total_objective,
+#    x0     = x0,
+#    args   = (trip_level_test, choice_set_index),
+#    method = 'L-BFGS-B',
+#    bounds = bounds,
+#    options= {'eps':1e-3}
+#)
+# 
+#param_names = ['β', 'γ', 'α']
+#for name, val in zip(param_names, res.x):
+#    console.print(f'{name}: {val:.4f}')
+#console.print('success:', res.success)
+#console.print('final objective:', res.fun)
+#console.print('jacobian:', res.jac)
+## combat with simulated data and estimate off that
+## try weighting lambda 50/50
+## dummy for flavor_binary, flavored
+## think of as product fixed effect (excluding outside option)
+## update theta with only x_t-1
+## share of occasions flavor purchased
+## use product intro to add if one period behind works but other doesn't

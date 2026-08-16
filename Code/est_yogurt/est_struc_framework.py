@@ -239,6 +239,7 @@ def household_contribution(
 
     theta = theta_i0
     log_lik = 0.0
+    grad_beta, grad_gamma, grad_alpha = 0.0, 0.0, 0.0
 
     for occ in hh_df.itertuples():
         store = occ.store_code_uc
@@ -267,9 +268,11 @@ def household_contribution(
                 continue
             chosen_idx    = np.where(chosen_mask)[0][0]
             x_chosen      = occ.flavor_binary   # replaces chosen_flavor
+            y = chosen_mask
         else:
             chosen_idx = None
             x_chosen   = None
+            y = np.zeros(len(prob) - 1)
 
         u = utility_func(
             x=flavor_binary, beta=beta, gamma=gamma, alpha=alpha,
@@ -289,9 +292,15 @@ def household_contribution(
         if chosen_idx is not None and x_chosen is not None:
             theta = update_theta(theta, x_chosen)
 
+        if chosen_idx is not None and x_chosen is not None:
+            grad_beta  += (y - prob[:-1])@choice_set['flavor_binary']
+            grad_gamma += (y - prob[:-1])@np.log(1 + np.abs(choice_set['flavor_binary'] - theta))
+            grad_alpha += -(y - prob[:-1])@choice_set['price'].to_numpy()
+        else:
+
         log_lik += np.log(chosen_prob)
 
-    return log_lik
+    return log_lik, grad_beta, grad_gamma, grad_alpha
 
 # =================================================================== #
 # SECTION 3: total pop utility
@@ -315,7 +324,7 @@ def obj_test(
             console.print(f'[red]non-finite contribution[/red] household = {hh_id}: {contrib}')
 
         ll_contrib.append(contrib)
-    contrib = np.array(ll_contrib)
+    contribs = np.array(ll_contrib)
 
     console.print(contribs.min(), contribs.max(), np.sort(contribs), np.std(contribs))
 
@@ -327,24 +336,29 @@ def total_objective(
     #delta = theta_vec[4:]
 
     total_log_lik = 0.0
+    grad_beta, grad_gamma, grad_alpha = 0.0, 0.0, 0.0
     hh_list = trip_level['household_code'].unique()
 
     for hh_id in trip_level_df['household_code'].unique():
-        contrib = household_contribution(
-            hh_id, trip_level_100, choice_set_index, hh_index,
+        ll, g_b, g_g, g_a  = household_contribution(
+            hh_id, trip_level_df, choice_set_index, hh_index,
             beta, gamma, alpha
         )
-        if not np.isfinite(contrib):
+        if not np.isfinite(ll):
             console.print(f'[red]non-finite contribution[/red] household={hh_id}: {contrib}')
 
-        total_log_lik += contrib
+        total_log_lik += ll
+        grad_beta     += g_b
+        grad_gamma    += g_g
+        grad_alpha    += g_a
 
-    return -total_log_lik
+
+    return -total_log_lik, -np.array([grad_beta, grad_gamma, grad_alpha])
 # ========================================================== #
 # SECTION 4: optimization
 # ========================================================== #
 
-sample_hh_100   = trip_level['household_code'].unique()[:100]
+sample_hh_100   = trip_level['household_code'].unique()[:20]
 sample_hh_1000  = trip_level['household_code'].unique()[100:1000]
 
 trip_level_100  = trip_level[trip_level['household_code'].isin(sample_hh_100)]
@@ -363,46 +377,48 @@ console.print(trip_level_100['price'].isna().sum())
 console.print(trip_level_1000['price'].isna().sum())
 
 
-x0 = np.array([2.0, 9.0, 0.5])
+#x0 = np.array([2.0, 9.0, 0.5])
+#
+#bounds = (
+#    [(None, None), (None, None), (0, None)])
+#
+#res_100 = minimize(
+#    total_objective,
+#    x0     = x0,
+#    args   = (trip_level_100, choice_set_index, hh_index),
+#    method = 'L-BFGS-B',
+#    bounds = bounds,
+#    jac    = True
+#)
+# 
+#res_1000 = minimize(
+#    total_objective,
+#    x0     = x0,
+#    args   = (trip_level_1000, choice_set_index, hh_index),
+#    method = 'L-BFGS-B',
+#    bounds = bounds,
+#    jac    = True
+#)
 
-bounds = (
-    [(None, None), (None, None), (0, None)])
+console.print(total_objective(x0, trip_level_100, choice_set_index, hh_index))
 
-res_100 = minimize(
-    total_objective,
-    x0     = x0,
-    args   = (trip_level_100, choice_set_index, hh_index),
-    method = 'L-BFGS-B',
-    bounds = bounds,
-    options= {'eps':1e-3}
-)
- 
-res_1000 = minimize(
-    total_objective,
-    x0     = x0,
-    args   = (trip_level_1000, choice_set_index, hh_index),
-    method = 'L-BFGS-B',
-    bounds = bounds,
-    options= {'eps':1e-3}
-)
-
-param_names = ['β', 'γ', 'α']
-sample_labels = ['100 households', '1000 households']
-for label, res in zip(sample_labels, [res_100, res_1000]):
-    console.print(f'--- {label} ---')
-    for name, val in zip(param_names, res.x):
-        console.print(f'{name}: {val:.4f}')
-    console.print('success:', res.success)
-    console.print('final objective:', res.fun)
-    console.print('jacobian:', res.jac)
-
-obj_test(res.x, trip_level_100, choice_set_index, hh_index)
-obj_test(res.x, trip_level_1000)
-
-# combat with simulated data and estimate off that
-# try weighting lambda 50/50
-# dummy for flavor_binary, flavored
-# think of as product fixed effect (excluding outside option)
-# update theta with only x_t-1
-# share of occasions flavor purchased
-# use product intro to add if one period behind works but other doesn't
+#param_names = ['β', 'γ', 'α']
+#sample_labels = ['100 households', '1000 households']
+#for label, res in zip(sample_labels, [res_100, res_1000]):
+#    console.print(f'--- {label} ---')
+#    for name, val in zip(param_names, res.x):
+#        console.print(f'{name}: {val:.4f}')
+#    console.print('success:', res.success)
+#    console.print('final objective:', res.fun)
+#    console.print('jacobian:', res.jac)
+#
+#obj_test(res_100.x, trip_level_100, choice_set_index, hh_index)
+#obj_test(res_100.x, trip_level_1000, choice_set_index, hh_index)
+#
+## combat with simulated data and estimate off that
+## try weighting lambda 50/50
+## dummy for flavor_binary, flavored
+## think of as product fixed effect (excluding outside option)
+## update theta with only x_t-1
+## share of occasions flavor purchased
+## use product intro to add if one period behind works but other doesn't

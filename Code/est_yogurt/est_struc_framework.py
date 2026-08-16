@@ -407,8 +407,7 @@ for label, res in zip(sample_labels, [res_100]):
     console.print('success:', res.success)
     console.print('final objective:', res.fun)
     console.print('jacobian:', res.jac)
-
-obj_test(res_100.x, trip_level_100, choice_set_index, hh_index)
+    console.print(res.message)
 
 # combat with simulated data and estimate off that
 # try weighting lambda 50/50

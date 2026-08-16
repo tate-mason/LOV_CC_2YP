@@ -1,0 +1,26 @@
+============================================================
+Data Loading and Manipulation
+============================================================
+flavor_binary counts (yogurt only):
+flavor_binary
+0    44064
+1     2748
+Name: count, dtype: int64
+choice_set_index build: 9.38s
+trips retained after covered store filter: 77058 of 694439
+no-purchase trip share (post-restriction): 0.7252
+households remaining: 3554
+============================================================
+Built merged panel for estimation
+============================================================
+============================================================
+Model Functions
+============================================================
+13076 of 13076 store-week combos have a known assortment
+purchase-trip share in this sample: 0.2725
+β: 0.2680
+γ: -0.3759
+α: 0.0000
+success: True
+final objective: 1090350.9415885778
+jacobian: [-3.24868597e-03 -3.38535756e-03  1.27159934e+04]

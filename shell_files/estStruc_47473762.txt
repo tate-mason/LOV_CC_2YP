@@ -1,0 +1,167 @@
+============================================================
+Data Loading and Manipulation
+============================================================
+flavor_binary counts (yogurt only):
+flavor_binary
+0    44064
+1     2748
+Name: count, dtype: int64
+choice_set_index build: 9.32s
+trips retained after covered store filter: 77058 of 694439
+no-purchase trip share (post-restriction): 0.7252
+households remaining: 3554
+============================================================
+Built merged panel for estimation
+============================================================
+============================================================
+Model Functions
+============================================================
+13076 of 13076 store-week combos have a known assortment
+purchase-trip share in this sample: 0.2783
+╭───────────────────── Traceback (most recent call last) ──────────────────────╮
+│ /home/dtm63837/.local/lib/python3.12/site-packages/pandas/core/indexes/base. │
+│ py:3641 in get_loc                                                           │
+│                                                                              │
+│   3638 │   │   """                                                           │
+│   3639 │   │   casted_key = self._maybe_cast_indexer(key)                    │
+│   3640 │   │   try:                                                          │
+│ ❱ 3641 │   │   │   return self._engine.get_loc(casted_key)                   │
+│   3642 │   │   except KeyError as err:                                       │
+│   3643 │   │   │   if isinstance(casted_key, slice) or (                     │
+│   3644 │   │   │   │   isinstance(casted_key, abc.Iterable)                  │
+│                                                                              │
+│ in pandas._libs.index.IndexEngine.get_loc:168                                │
+│                                                                              │
+│ in pandas._libs.index.IndexEngine.get_loc:197                                │
+│                                                                              │
+│ in pandas._libs.hashtable.PyObjectHashTable.get_item:7668                    │
+│                                                                              │
+│ in pandas._libs.hashtable.PyObjectHashTable.get_item:7676                    │
+╰──────────────────────────────────────────────────────────────────────────────╯
+KeyError: 'plain'
+
+The above exception was the direct cause of the following exception:
+
+╭───────────────────── Traceback (most recent call last) ──────────────────────╮
+│ /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/est_yogurt/est_struc_framework │
+│ .py:330 in <module>                                                          │
+│                                                                              │
+│   327 bounds = (                                                             │
+│   328 │   [(None, None), (None, None), (0, None)])                           │
+│   329                                                                        │
+│ ❱ 330 res = minimize(                                                        │
+│   331 │   total_objective,                                                   │
+│   332 │   x0     = x0,                                                       │
+│   333 │   args   = (trip_level_test, choice_set_index),                      │
+│                                                                              │
+│ /home/dtm63837/.local/lib/python3.12/site-packages/scipy/optimize/_minimize. │
+│ py:738 in minimize                                                           │
+│                                                                              │
+│    735 │   │   res = _minimize_newtoncg(fun, x0, args, jac, hess, hessp, cal │
+│    736 │   │   │   │   │   │   │   │    **options)                           │
+│    737 │   elif meth == 'l-bfgs-b':                                          │
+│ ❱  738 │   │   res = _minimize_lbfgsb(fun, x0, args, jac, bounds,            │
+│    739 │   │   │   │   │   │   │      callback=callback, **options)          │
+│    740 │   elif meth == 'tnc':                                               │
+│    741 │   │   res = _minimize_tnc(fun, x0, args, jac, bounds, callback=call │
+│                                                                              │
+│ /home/dtm63837/.local/lib/python3.12/site-packages/scipy/optimize/_lbfgsb_py │
+│ .py:386 in _minimize_lbfgsb                                                  │
+│                                                                              │
+│   383 │   │   x0 = np.clip(x0, bounds[0], bounds[1])                         │
+│   384 │                                                                      │
+│   385 │   # _prepare_scalar_function can use bounds=None to represent no bou │
+│ ❱ 386 │   sf = _prepare_scalar_function(fun, x0, jac=jac, args=args, epsilon │
+│   387 │   │   │   │   │   │   │   │     bounds=bounds,                       │
+│   388 │   │   │   │   │   │   │   │     finite_diff_rel_step=finite_diff_rel │
+│   389                                                                        │
+│                                                                              │
+│ /home/dtm63837/.local/lib/python3.12/site-packages/scipy/optimize/_optimize. │
+│ py:291 in _prepare_scalar_function                                           │
+│                                                                              │
+│    288 │                                                                     │
+│    289 │   # ScalarFunction caches. Reuse of fun(x) during grad              │
+│    290 │   # calculation reduces overall function evaluations.               │
+│ ❱  291 │   sf = ScalarFunction(fun, x0, args, grad, hess,                    │
+│    292 │   │   │   │   │   │   finite_diff_rel_step, bounds, epsilon=epsilon │
+│    293 │                                                                     │
+│    294 │   return sf                                                         │
+│                                                                              │
+│ /home/dtm63837/.local/lib/python3.12/site-packages/scipy/optimize/_different │
+│ iable_functions.py:223 in __init__                                           │
+│                                                                              │
+│   220 │   │   │   finite_diff_options["as_linear_operator"] = True           │
+│   221 │   │                                                                  │
+│   222 │   │   # Initial function evaluation                                  │
+│ ❱ 223 │   │   self._update_fun()                                             │
+│   224 │   │                                                                  │
+│   225 │   │   # Initial gradient evaluation                                  │
+│   226 │   │   self._wrapped_grad, self._ngev = _wrapper_grad(                │
+│                                                                              │
+│ /home/dtm63837/.local/lib/python3.12/site-packages/scipy/optimize/_different │
+│ iable_functions.py:295 in _update_fun                                        │
+│                                                                              │
+│   292 │                                                                      │
+│   293 │   def _update_fun(self):                                             │
+│   294 │   │   if not self.f_updated:                                         │
+│ ❱ 295 │   │   │   fx = self._wrapped_fun(self.x)                             │
+│   296 │   │   │   if fx < self._lowest_f:                                    │
+│   297 │   │   │   │   self._lowest_x = self.x                                │
+│   298 │   │   │   │   self._lowest_f = fx                                    │
+│                                                                              │
+│ /home/dtm63837/.local/lib/python3.12/site-packages/scipy/optimize/_different │
+│ iable_functions.py:21 in wrapped                                             │
+│                                                                              │
+│    18 │   │   # Send a copy because the user may overwrite it.               │
+│    19 │   │   # Overwriting results in undefined behaviour because           │
+│    20 │   │   # fun(self.x) will change self.x, with the two no longer linke │
+│ ❱  21 │   │   fx = fun(np.copy(x), *args)                                    │
+│    22 │   │   # Make sure the function returns a true scalar                 │
+│    23 │   │   if not np.isscalar(fx):                                        │
+│    24 │   │   │   try:                                                       │
+│                                                                              │
+│ /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/est_yogurt/est_struc_framework │
+│ .py:306 in total_objective                                                   │
+│                                                                              │
+│   303 │   hh_list = trip_level['household_code'].unique()                    │
+│   304 │                                                                      │
+│   305 │   for hh_id in trip_level_df['household_code'].unique():             │
+│ ❱ 306 │   │   contrib = household_contribution(                              │
+│   307 │   │   │   hh_id, trip_level_test, choice_set_index,                  │
+│   308 │   │   │   beta, gamma, alpha                                         │
+│   309 │   │   )                                                              │
+│                                                                              │
+│ /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/est_yogurt/est_struc_framework │
+│ .py:246 in household_contribution                                            │
+│                                                                              │
+│   243 │   │   │   continue # skips stores not covered                        │
+│   244 │   │                                                                  │
+│   245 │   │   choice_set  = choice_set_index[(store, week)]                  │
+│ ❱ 246 │   │   flavor_binary       = choice_set['plain'].to_numpy()           │
+│   247 │   │                                                                  │
+│   248 │   │   #d_ht = np.array([                                             │
+│   249 │   │   #    1.0, occ.household_income_z, occ.weeks_since_last_flavor_ │
+│                                                                              │
+│ /home/dtm63837/.local/lib/python3.12/site-packages/pandas/core/frame.py:4378 │
+│ in __getitem__                                                               │
+│                                                                              │
+│    4375 │   │   if is_single_key:                                            │
+│    4376 │   │   │   if self.columns.nlevels > 1:                             │
+│    4377 │   │   │   │   return self._getitem_multilevel(key)                 │
+│ ❱  4378 │   │   │   indexer = self.columns.get_loc(key)                      │
+│    4379 │   │   │   if is_integer(indexer):                                  │
+│    4380 │   │   │   │   indexer = [indexer]                                  │
+│    4381 │   │   else:                                                        │
+│                                                                              │
+│ /home/dtm63837/.local/lib/python3.12/site-packages/pandas/core/indexes/base. │
+│ py:3648 in get_loc                                                           │
+│                                                                              │
+│   3645 │   │   │   │   and any(isinstance(x, slice) for x in casted_key)     │
+│   3646 │   │   │   ):                                                        │
+│   3647 │   │   │   │   raise InvalidIndexError(key) from err                 │
+│ ❱ 3648 │   │   │   raise KeyError(key) from err                              │
+│   3649 │   │   except TypeError:                                             │
+│   3650 │   │   │   # If we have a listlike key, _check_indexing_error will r │
+│   3651 │   │   │   #  InvalidIndexError. Otherwise we fall through and re-ra │
+╰──────────────────────────────────────────────────────────────────────────────╯
+KeyError: 'plain'

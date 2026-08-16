@@ -1,0 +1,11 @@
+int64 Int64
+Int64 int64
+week_end
+5    12909683
+Name: count, dtype: int64
+2014-01-04 00:00:00 2014-12-27 00:00:00
+2014-01-04 00:00:00 2014-12-27 00:00:00
+store overlap: 822 of 2091 agent stores
+upc overlap: 1355 of 2502 agent upcs
+week_end overlap: 52 of 52 agent weeks
+combined key overlap: 36973 of 87796 agent rows

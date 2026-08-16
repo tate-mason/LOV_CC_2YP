@@ -308,7 +308,7 @@ def obj_test(
     hh_list = trip_level['household_code'].unique()
     for hh_id in trip_level_df['household_code'].unique():
         contrib = household_contribution(
-            hh_id, trip_level_100, choice_set_index,
+            hh_id, trip_level_100, choice_set_index, hh_index,
             beta, gamma, alpha
         )
         if not np.isfinite(contrib):
@@ -344,7 +344,7 @@ def total_objective(
 # SECTION 4: optimization
 # ========================================================== #
 
-sample_hh_100   = trip_level['household_code'].unique()[:20]
+sample_hh_100   = trip_level['household_code'].unique()[:100]
 sample_hh_1000  = trip_level['household_code'].unique()[100:1000]
 
 trip_level_100  = trip_level[trip_level['household_code'].isin(sample_hh_100)]

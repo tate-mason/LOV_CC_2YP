@@ -384,7 +384,7 @@ console.print('success:', res.success)
 console.print('final objective:', res.fun)
 console.print('jacobian:', res.jac)
 
-obj_test(res.x, trip_level_100, choice_set_index)
+obj_test(res.x, trip_level_100, choice_set_index, hh_index)
 
 # combat with simulated data and estimate off that
 # try weighting lambda 50/50

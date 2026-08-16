@@ -292,11 +292,9 @@ def household_contribution(
         if chosen_idx is not None and x_chosen is not None:
             theta = update_theta(theta, x_chosen)
 
-        if chosen_idx is not None and x_chosen is not None:
-            grad_beta  += (y - prob[:-1])@choice_set['flavor_binary']
-            grad_gamma += (y - prob[:-1])@np.log(1 + np.abs(choice_set['flavor_binary'] - theta))
-            grad_alpha += -(y - prob[:-1])@choice_set['price'].to_numpy()
-        else:
+        grad_beta  += (y - prob[:-1])@choice_set['flavor_binary']
+        grad_gamma += (y - prob[:-1])@np.log(1 + np.abs(choice_set['flavor_binary'] - theta))
+        grad_alpha += -(y - prob[:-1])@choice_set['price'].to_numpy()
 
         log_lik += np.log(chosen_prob)
 

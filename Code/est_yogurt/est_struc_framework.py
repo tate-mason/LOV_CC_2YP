@@ -292,6 +292,28 @@ def household_contribution(
 # SECTION 3: total pop utility
 # =================================================================== #
 
+def obj_test(
+        theta_vec, trip_level_df, choice_set_index
+):
+    ll_contrib = []
+    beta, gamma, alpha = theta_vec[:3]
+
+    total_log_lik = 0.0
+
+    hh_list = trip_level['household_code'].unique()
+    for hh_id in trip_level_df['household_code'].unique():
+        contrib = household_contribution(
+            hh_id, trip_level_test, choice_set_index,
+            beta, gamma, alpha
+        )
+        if not np.isfinite(contrib):
+            console.print(f'[red]non-finite contribution[/red] household = {hh_id}: {contrib}')
+
+        ll_contrib.append(contrib)
+    contrib = np.array(ll_contrib)
+
+    console.print(contribs.min(), contribs.max(), np.sort(contribs), np.std(contribs))
+
 
 def total_objective(
         theta_vec, trip_level_df, choice_set_index):
@@ -317,7 +339,7 @@ def total_objective(
 # SECTION 4: optimization
 # ========================================================== #
 
-sample_hh_100   = trip_level['household_code'].unique()[:100]
+sample_hh_100   = trip_level['household_code'].unique()[:20]
 sample_hh_1000  = trip_level['household_code'].unique()[100:1000]
 
 trip_level_100  = trip_level[trip_level['household_code'].isin(sample_hh_100)]
@@ -336,29 +358,33 @@ console.print(trip_level_100['price'].isna().sum())
 console.print(trip_level_1000['price'].isna().sum())
 
 
-#x0 = np.array([2.0, 9.0, 0.5])
-#bounds = (
-#    [(None, None), (None, None), (0, None)])
-#
-#res = minimize(
-#    total_objective,
-#    x0     = x0,
-#    args   = (trip_level_test, choice_set_index),
-#    method = 'L-BFGS-B',
-#    bounds = bounds,
-#    options= {'eps':1e-3}
-#)
-# 
-#param_names = ['β', 'γ', 'α']
-#for name, val in zip(param_names, res.x):
-#    console.print(f'{name}: {val:.4f}')
-#console.print('success:', res.success)
-#console.print('final objective:', res.fun)
-#console.print('jacobian:', res.jac)
-## combat with simulated data and estimate off that
-## try weighting lambda 50/50
-## dummy for flavor_binary, flavored
-## think of as product fixed effect (excluding outside option)
-## update theta with only x_t-1
-## share of occasions flavor purchased
-## use product intro to add if one period behind works but other doesn't
+x0 = np.array([2.0, 9.0, 0.5])
+
+bounds = (
+    [(None, None), (None, None), (0, None)])
+
+res = minimize(
+    total_objective,
+    x0     = x0,
+    args   = (trip_level_test, choice_set_index),
+    method = 'L-BFGS-B',
+    bounds = bounds,
+    options= {'eps':1e-3}
+)
+ 
+param_names = ['β', 'γ', 'α']
+for name, val in zip(param_names, res.x):
+    console.print(f'{name}: {val:.4f}')
+console.print('success:', res.success)
+console.print('final objective:', res.fun)
+console.print('jacobian:', res.jac)
+
+obj_test(res.x, trip_level_100, choice_set_index)
+
+# combat with simulated data and estimate off that
+# try weighting lambda 50/50
+# dummy for flavor_binary, flavored
+# think of as product fixed effect (excluding outside option)
+# update theta with only x_t-1
+# share of occasions flavor purchased
+# use product intro to add if one period behind works but other doesn't

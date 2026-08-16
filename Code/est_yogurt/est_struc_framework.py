@@ -110,7 +110,7 @@ trips_df = full_panel[[
     'upc', 'product_module_code', 'trip_code_uc', 'household_code',
     'week_end', 'purchase_date', 'store_code_uc', 'flavor_binary',
     'quantity', 'household_income', 'male_head_age', 'female_head_age',
-    'type_of_residence', 'race'
+    'type_of_residence', 'race', 'price'
 ]]
 
 yog    = full_panel[full_panel['product_module_code'].isin([3612,3603])]

@@ -376,19 +376,19 @@ console.print(trip_level_1000['price'].isna().sum())
 
 
 x0 = np.array([2.0, 9.0, 0.5])
-#
-#bounds = (
-#    [(None, None), (None, None), (0, None)])
-#
-#res_100 = minimize(
-#    total_objective,
-#    x0     = x0,
-#    args   = (trip_level_100, choice_set_index, hh_index),
-#    method = 'L-BFGS-B',
-#    bounds = bounds,
-#    jac    = True
-#)
-# 
+
+bounds = (
+    [(None, None), (None, None), (0, None)])
+
+res_100 = minimize(
+    total_objective,
+    x0     = x0,
+    args   = (trip_level_100, choice_set_index, hh_index),
+    method = 'L-BFGS-B',
+    bounds = bounds,
+    jac    = True
+)
+ 
 #res_1000 = minimize(
 #    total_objective,
 #    x0     = x0,
@@ -398,25 +398,22 @@ x0 = np.array([2.0, 9.0, 0.5])
 #    jac    = True
 #)
 
-console.print(total_objective(x0, trip_level_100, choice_set_index, hh_index))
+param_names = ['β', 'γ', 'α']
+sample_labels = ['100 households']
+for label, res in zip(sample_labels, [res_100]):
+    console.print(f'--- {label} ---')
+    for name, val in zip(param_names, res.x):
+        console.print(f'{name}: {val:.4f}')
+    console.print('success:', res.success)
+    console.print('final objective:', res.fun)
+    console.print('jacobian:', res.jac)
 
-#param_names = ['β', 'γ', 'α']
-#sample_labels = ['100 households', '1000 households']
-#for label, res in zip(sample_labels, [res_100, res_1000]):
-#    console.print(f'--- {label} ---')
-#    for name, val in zip(param_names, res.x):
-#        console.print(f'{name}: {val:.4f}')
-#    console.print('success:', res.success)
-#    console.print('final objective:', res.fun)
-#    console.print('jacobian:', res.jac)
-#
-#obj_test(res_100.x, trip_level_100, choice_set_index, hh_index)
-#obj_test(res_100.x, trip_level_1000, choice_set_index, hh_index)
-#
-## combat with simulated data and estimate off that
-## try weighting lambda 50/50
-## dummy for flavor_binary, flavored
-## think of as product fixed effect (excluding outside option)
-## update theta with only x_t-1
-## share of occasions flavor purchased
-## use product intro to add if one period behind works but other doesn't
+obj_test(res_100.x, trip_level_100, choice_set_index, hh_index)
+
+# combat with simulated data and estimate off that
+# try weighting lambda 50/50
+# dummy for flavor_binary, flavored
+# think of as product fixed effect (excluding outside option)
+# update theta with only x_t-1
+# share of occasions flavor purchased
+# use product intro to add if one period behind works but other doesn't

@@ -298,7 +298,7 @@ def household_contribution(
 # =================================================================== #
 
 def obj_test(
-        theta_vec, trip_level_df, choice_set_index
+        theta_vec, trip_level_df, choice_set_index, hh_index
 ):
     ll_contrib = []
     beta, gamma, alpha = theta_vec[:3]

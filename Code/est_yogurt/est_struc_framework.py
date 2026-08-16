@@ -239,7 +239,6 @@ def household_contribution(
 
     theta = theta_i0
     log_lik = 0.0
-    grad_beta, grad_gamma, grad_alpha = 0.0, 0.0, 0.0
 
     for occ in hh_df.itertuples():
         store = occ.store_code_uc
@@ -268,11 +267,9 @@ def household_contribution(
                 continue
             chosen_idx    = np.where(chosen_mask)[0][0]
             x_chosen      = occ.flavor_binary   # replaces chosen_flavor
-            y = chosen_mask
         else:
             chosen_idx = None
             x_chosen   = None
-            y = np.zeros(len(flavor_binary))
 
         u = utility_func(
             x=flavor_binary, beta=beta, gamma=gamma, alpha=alpha,
@@ -288,16 +285,13 @@ def household_contribution(
         #    sim_probs = prob[-1] ** J_draws
 
         chosen_prob = prob[chosen_idx] if chosen_idx is not None else prob[-1]
-        grad_beta  += (y - prob[:-1])@choice_set['flavor_binary']
-        grad_gamma += (y - prob[:-1])@np.log(1 + np.abs(choice_set['flavor_binary'] - theta))
-        grad_alpha += -(y - prob[:-1])@choice_set['price'].to_numpy()
 
         if chosen_idx is not None and x_chosen is not None:
             theta = update_theta(theta, x_chosen)
 
         log_lik += np.log(chosen_prob)
 
-    return log_lik, grad_beta, grad_gamma, grad_alpha
+    return log_lik
 
 # =================================================================== #
 # SECTION 3: total pop utility
@@ -333,11 +327,10 @@ def total_objective(
     #delta = theta_vec[4:]
 
     total_log_lik = 0.0
-    grad_beta, grad_gamma, grad_alpha = 0.0, 0.0, 0.0
     hh_list = trip_level['household_code'].unique()
 
     for hh_id in trip_level_df['household_code'].unique():
-        ll, g_b, g_g, g_a  = household_contribution(
+        ll = household_contribution(
             hh_id, trip_level_df, choice_set_index, hh_index,
             beta, gamma, alpha
         )
@@ -345,17 +338,13 @@ def total_objective(
             console.print(f'[red]non-finite contribution[/red] household={hh_id}: {contrib}')
 
         total_log_lik += ll
-        grad_beta     += g_b
-        grad_gamma    += g_g
-        grad_alpha    += g_a
 
-
-    return -total_log_lik, -np.array([grad_beta, grad_gamma, grad_alpha])
+    return -total_log_lik
 # ========================================================== #
 # SECTION 4: optimization
 # ========================================================== #
 
-sample_hh_100   = trip_level['household_code'].unique()[:20]
+sample_hh_100   = trip_level['household_code'].unique()[:100]
 sample_hh_1000  = trip_level['household_code'].unique()[100:1000]
 
 trip_level_100  = trip_level[trip_level['household_code'].isin(sample_hh_100)]
@@ -374,26 +363,6 @@ console.print(trip_level_100['price'].isna().sum())
 console.print(trip_level_1000['price'].isna().sum())
 
 x0 = np.array([2.0, 9.0, 0.5])
-
-from scipy.optimize import approx_fprime
-
-def obj_value_only(theta_vec, trip_level_df, choice_set_index, hh_index):
-    f, _ = total_objective(theta_vec, trip_level_df, choice_set_index, hh_index)
-    return f
-
-numerical_grad = approx_fprime(
-    x0,
-    obj_value_only,
-    1e-6,
-    trip_level_100, choice_set_index, hh_index
-)
-
-f_analytic, analytic_grad = total_objective(x0, trip_level_100, choice_set_index, hh_index)
-
-console.print('analytic: ', analytic_grad)
-console.print('numerical:', numerical_grad)
-console.print('diff:     ', analytic_grad - numerical_grad)
-
 bounds = (
     [(None, None), (None, None), (0, None)])
 
@@ -402,8 +371,7 @@ res_100 = minimize(
     x0     = x0,
     args   = (trip_level_100, choice_set_index, hh_index),
     method = 'L-BFGS-B',
-    bounds = bounds,
-    jac    = True
+    bounds = bounds
 )
  
 #res_1000 = minimize(

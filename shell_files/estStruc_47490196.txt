@@ -6,28 +6,51 @@ flavor_binary
 0    44064
 1     2748
 Name: count, dtype: int64
-0
-no-purchase trip share: 0.9293
+choice_set_index build: 9.08s
+trips retained after covered store filter: 77058 of 694439
+no-purchase trip share (post-restriction): 0.7252
+households remaining: 3554
 ============================================================
 Built merged panel for estimation
 ============================================================
 ============================================================
 Model Functions
 ============================================================
-choice_set_index build: 7.83s
-13076 of 112616 store-week combos have a known assortment
-purchase-trip share in this sample: 0.0723
+13076 of 13076 store-week combos have a known assortment
+purchase-trip share in this sample: 0.2783
+purchase-trip share in this sample: 0.2725
+count    12791.000000
+mean         1.004080
+std          0.776203
+min          0.150000
+25%          0.550000
+50%          1.000000
+75%          1.000000
+max          7.290000
+Name: price, dtype: float64
+count    99703.000000
+mean         1.104851
+std          0.781688
+min          0.140000
+25%          0.600000
+50%          1.000000
+75%          1.140000
+max          7.590000
+Name: price, dtype: float64
+89350
+815357
+(array([], dtype=int64),)
 ╭───────────────────── Traceback (most recent call last) ──────────────────────╮
 │ /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/est_yogurt/est_struc_framework │
-│ .py:327 in <module>                                                          │
+│ .py:380 in <module>                                                          │
 │                                                                              │
-│   324 │   [(-5, 5)]*8                                                        │
-│   325 )                                                                      │
-│   326                                                                        │
-│ ❱ 327 res = minimize(                                                        │
-│   328 │   total_objective,                                                   │
-│   329 │   x0     = x0,                                                       │
-│   330 │   args   = (trip_level_test, choice_set_index, fixed_uniforms_index, │
+│   377 │   bounds = bounds                                                    │
+│   378 )                                                                      │
+│   379                                                                        │
+│ ❱ 380 res_1000 = minimize(                                                   │
+│   381 │   total_objective,                                                   │
+│   382 │   x0     = x0,                                                       │
+│   383 │   args   = (trip_level_1000, choice_set_index, hh_index),            │
 │                                                                              │
 │ /home/dtm63837/.local/lib/python3.12/site-packages/scipy/optimize/_minimize. │
 │ py:738 in minimize                                                           │
@@ -95,26 +118,26 @@ purchase-trip share in this sample: 0.0723
 │    23 │   │   if not np.isscalar(fx):                                        │
 │    24 │   │   │   try:                                                       │
 │                                                                              │
-│ /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/est_yogurt/est_struc_framework │
-│ .py:302 in total_objective                                                   │
+│ /home/dtm63837/.local/lib/python3.12/site-packages/scipy/optimize/_optimize. │
+│ py:80 in __call__                                                            │
 │                                                                              │
-│   299 │   │   │   hh_id, trip_level_test, choice_set_index, fixed_uniforms_i │
-│   300 │   │   │   beta, gamma, alpha, delta, lam, R=R                        │
-│   301 │   │   )                                                              │
-│ ❱ 302 │   │   if not np.isifinite(contrib):                                  │
-│   303 │   │   │   console.print(f'[red]non-finite contribution[/red] househo │
-│   304 │   │                                                                  │
-│   305 │   │   total_log_lik += contrib                                       │
+│     77 │                                                                     │
+│     78 │   def __call__(self, x, *args):                                     │
+│     79 │   │   """ returns the function value """                            │
+│ ❱   80 │   │   self._compute_if_needed(x, *args)                             │
+│     81 │   │   return self._value                                            │
+│     82 │                                                                     │
+│     83 │   def derivative(self, x, *args):                                   │
 │                                                                              │
-│ /home/dtm63837/.local/lib/python3.12/site-packages/numpy/__init__.py:792 in  │
-│ __getattr__                                                                  │
+│ /home/dtm63837/.local/lib/python3.12/site-packages/scipy/optimize/_optimize. │
+│ py:75 in _compute_if_needed                                                  │
 │                                                                              │
-│   789 │   │   │   import numpy.char as char                                  │
-│   790 │   │   │   return char.chararray                                      │
-│   791 │   │                                                                  │
-│ ❱ 792 │   │   raise AttributeError(f"module {__name__!r} has no attribute {a │
-│   793 │                                                                      │
-│   794 │   def __dir__():                                                     │
-│   795 │   │   public_symbols = (                                             │
+│     72 │   │   if not np.all(x == self.x) or self._value is None or self.jac │
+│     73 │   │   │   self.x = np.asarray(x).copy()                             │
+│     74 │   │   │   fg = self.fun(x, *args)                                   │
+│ ❱   75 │   │   │   self.jac = fg[1]                                          │
+│     76 │   │   │   self._value = fg[0]                                       │
+│     77 │                                                                     │
+│     78 │   def __call__(self, x, *args):                                     │
 ╰──────────────────────────────────────────────────────────────────────────────╯
-AttributeError: module 'numpy' has no attribute 'isifinite'
+IndexError: invalid index to scalar variable.

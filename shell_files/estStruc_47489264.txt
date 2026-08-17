@@ -1,0 +1,43 @@
+============================================================
+Data Loading and Manipulation
+============================================================
+flavor_binary counts (yogurt only):
+flavor_binary
+0    44064
+1     2748
+Name: count, dtype: int64
+choice_set_index build: 9.34s
+trips retained after covered store filter: 77058 of 694439
+no-purchase trip share (post-restriction): 0.0000
+households remaining: 2596
+============================================================
+Built merged panel for estimation
+============================================================
+============================================================
+Model Functions
+============================================================
+13071 of 13071 store-week combos have a known assortment
+purchase-trip share in this sample: 1.0000
+purchase-trip share in this sample: 1.0000
+count    14936.000000
+mean         0.991249
+std          0.758489
+min          0.150000
+25%          0.550000
+50%          0.970000
+75%          1.000000
+max          7.290000
+Name: price, dtype: float64
+count    120776.000000
+mean          1.107375
+std           0.789798
+min           0.090000
+25%           0.600000
+50%           1.000000
+75%           1.130000
+max           7.590000
+Name: price, dtype: float64
+0
+0
+(array([], dtype=int64),)
+slurmstepd: error: *** JOB 47489264 ON b6-8 CANCELLED AT 2026-08-16T15:24:02 ***

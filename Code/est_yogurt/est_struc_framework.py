@@ -346,7 +346,7 @@ def total_objective(
 # ========================================================== #
 
 sample_hh_100   = trip_level['household_code'].unique()[:100]
-sample_hh_1000  = trip_level['household_code'].unique()[100:1000]
+sample_hh_1000  = trip_level['household_code'].unique()[:1000]
 
 trip_level_100  = trip_level[trip_level['household_code'].isin(sample_hh_100)]
 trip_level_1000 = trip_level[trip_level['household_code'].isin(sample_hh_1000)]
@@ -367,7 +367,7 @@ console.print(np.where(trip_level_1000['price'] < .05))
 
 x0 = np.array([2.0, 9.0, 0.5])
 bounds = (
-    [(None, None), (None, None), (0, None)])
+    [(None, None), (None, None), (None, None)])
 
 res_100 = minimize(
     total_objective,
@@ -377,18 +377,17 @@ res_100 = minimize(
     bounds = bounds
 )
  
-#res_1000 = minimize(
-#    total_objective,
-#    x0     = x0,
-#    args   = (trip_level_1000, choice_set_index, hh_index),
-#    method = 'L-BFGS-B',
-#    bounds = bounds,
-#    jac    = True
-#)
+res_1000 = minimize(
+    total_objective,
+    x0     = x0,
+    args   = (trip_level_1000, choice_set_index, hh_index),
+    method = 'L-BFGS-B',
+    bounds = bounds,
+)
 
 param_names = ['β', 'γ', 'α']
-sample_labels = ['100 households']
-for label, res in zip(sample_labels, [res_100]):
+sample_labels = ['100 households', '1000 households']
+for label, res in zip(sample_labels, [res_100, res_1000]):
     console.print(f'--- {label} ---')
     for name, val in zip(param_names, res.x):
         console.print(f'{name}: {val:.4f}')

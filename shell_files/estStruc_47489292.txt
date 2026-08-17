@@ -1,0 +1,4 @@
+  File "/scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/est_yogurt/est_struc_framework.py", line 160
+    trip_level = trip_level[*trip_level['price'] > 0.01) | (trip_level['price'].isna())]
+                                                       ^
+SyntaxError: closing parenthesis ')' does not match opening parenthesis '['

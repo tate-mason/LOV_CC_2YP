@@ -6,7 +6,7 @@ flavor_binary
 0    44064
 1     2748
 Name: count, dtype: int64
-choice_set_index build: 9.39s
+choice_set_index build: 9.25s
 trips retained after covered store filter: 77058 of 694439
 no-purchase trip share (post-restriction): 0.7252
 households remaining: 3554
@@ -17,23 +17,33 @@ Built merged panel for estimation
 Model Functions
 ============================================================
 13076 of 13076 store-week combos have a known assortment
-purchase-trip share in this sample: 0.2969
-/scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/est_yogurt/est_struc_framework.py:258: RuntimeWarning: invalid value encountered in cast
-  J_draws = np.maximum(poisson_dist.ppf(u_fixed, lambda_ht).astype(int), 1)
-β: -4.1485
-γ: 5.3038
-α: 0.0000
-λ: 0.5000
-δ_0: 1.4924
-δ_inc: -1.2214
-δ_flav_gap: 0.1149
-δ_time_gap: 0.5124
-δ_m_head: 1.4924
-δ_age: -0.8386
-δ_res: 1.4924
-δ_race: 1.4924
+purchase-trip share in this sample: 0.2783
+purchase-trip share in this sample: 0.2719
+count    12791.000000
+mean         1.004080
+std          0.776203
+min          0.150000
+25%          0.550000
+50%          1.000000
+75%          1.000000
+max          7.290000
+Name: price, dtype: float64
+count    86944.000000
+mean         1.119274
+std          0.781547
+min          0.010000
+25%          0.610000
+50%          1.000000
+75%          1.160000
+max          7.590000
+Name: price, dtype: float64
+89350
+726007
+--- 100 households ---
+β: 0.7639
+γ: -0.0538
+α: 0.1024
 success: True
-final objective: 2.691853552826124e-07
-jacobian: [ 2.08888798e-07  1.47089565e-07 -1.99886489e-06  0.00000000e+00
- -7.97217573e-06 -5.83952708e-06  1.06230426e-06  8.91015052e-08
- -7.97217573e-06 -7.36442808e-07 -7.97217573e-06 -7.97217573e-06]
+final objective: 144154.9755651313
+jacobian: [-0.58498699  0.12223609  0.50349627]
+CONVERGENCE: RELATIVE REDUCTION OF F <= FACTR*EPSMCH

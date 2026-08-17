@@ -7,7 +7,7 @@ import scipy as sp
 from scipy.optimize import minimize
 from scipy.special import logsumexp, expit
 from scipy.stats import poisson as poisson_dist
-import statsmodels.api as sm
+import statsmodels.formula.api as smf
 #output
 from rich.console import Console
 from rich.traceback import install; install()
@@ -111,7 +111,7 @@ trips_df = full_panel[[
     'upc', 'product_module_code', 'trip_code_uc', 'household_code',
     'week_end', 'purchase_date', 'store_code_uc', 'flavor_binary',
     'quantity', 'household_income', 'male_head_age', 'female_head_age',
-    'type_of_residence', 'race', 'price'
+    'type_of_residence', 'race', 'price', 'dma_code'
 ]]
 
 yog    = full_panel[full_panel['product_module_code'].isin([3612,3603])]
@@ -224,7 +224,7 @@ hh_index = {
 }
 
 market_price = (
-    trip_level.groupby(['upc', 'week_end', 'dma_code'])['price']
+    master_df.groupby(['upc', 'week_end', 'dma_code'])['price']
     .mean()
     .reset_index()
 )
@@ -240,6 +240,23 @@ market_price['price_iv'] = (
     (market_price['n_markets_all'] - 1)
 )
 market_price['price_iv'] = market_price['price_iv'].replace([np.inf, -np.inf], np.nan)
+
+trip_level = trip_level.merge(
+    market_price[['upc', 'week_end', 'dma_code', 'price_iv']],
+    on=['upc', 'week_end', 'dma_code'],
+    how='left'
+)
+
+
+iv_res = smf.OLS('price ~ price_iv + size1_amount + C(week_end)', data=trip_level).fit()
+iv_resid = iv_res.resid
+
+console.print(iv_res.summary())
+
+console.print(trip_level[['price_iv', 'household_income', 'head_age']].isna().sum())
+console.print(len(trip_level), iv_res.nobs)
+
+trip_level['iv_resid'] = iv_resid
 
 
 #z_cols = ['household_income', 'weeks_since_last_flavor', 'since_last_trip', 'head_age']

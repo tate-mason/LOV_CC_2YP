@@ -100,14 +100,6 @@ master_df = master_df.dropna(subset=['price'])
 console.print('flavor_binary counts (yogurt only):')
 console.print(master_df['flavor_binary'].value_counts()) # checking counts of flavor_binary values
 
-import time
-t0 = time.time()
-choice_set_index = {
-    key: group[['upc','price','flavor_binary']]
-    for key,group in master_df.groupby(['store_code_uc','week_end'])
-}
-print(f'choice_set_index build: {time.time() - t0:.2f}s')
-
 trips_df = full_panel[[
     'upc', 'product_module_code', 'trip_code_uc', 'household_code',
     'week_end', 'purchase_date', 'store_code_uc', 'flavor_binary',
@@ -190,14 +182,26 @@ def comp_Xi(x, theta):
     return Xi
 
 # gives the utility function (deterministic)
-def utility_func(x, const, beta, gamma, alpha, theta, price):
+def utility_func(x, const, beta, gamma, alpha, theta, price, resid):
     Xi = comp_Xi(x, theta) # calling LOV variable
-    u = const + beta*x + gamma*np.log(1 + Xi) - alpha*price # defining utility
+    u = const + beta*x + gamma*np.log(1 + Xi) - alpha*price + sigma*resid # defining utility
     return u
 
 # ============================================= #
 # SECTION 2: household contribution given params
 # ============================================= #
+iv_res = smf.ols('price ~ price_iv + size1_amount + C(week_end)', data=master_df, missing='drop').fit()
+iv_resid = iv_res.resid
+master_df['iv_resid'] = iv_res.resid
+master_df.dropna(subset=['iv_resid']) # drop NA
+
+import time
+t0 = time.time()
+choice_set_index = {
+    key: group[['upc','price','flavor_binary', 'iv_resid']]
+    for key,group in master_df.groupby(['store_code_uc','week_end'])
+}
+print(f'choice_set_index build: {time.time() - t0:.2f}s')
 
 #R   = 30
 rng = np.random.default_rng(219) # setting seed
@@ -249,16 +253,6 @@ trip_level = trip_level.merge(
 )
 
 
-iv_res = smf.ols('price ~ price_iv + size1_amount + C(week_end)', data=trip_level).fit()
-iv_resid = iv_res.resid
-
-console.print(iv_res.summary())
-
-console.print(trip_level[['price_iv', 'household_income', 'head_age']].isna().sum())
-console.print(len(trip_level), iv_res.nobs)
-
-trip_level['iv_resid'] = iv_resid
-
 
 #z_cols = ['household_income', 'weeks_since_last_flavor', 'since_last_trip', 'head_age']
 #
@@ -270,7 +264,8 @@ trip_level['iv_resid'] = iv_resid
 def household_contribution(
         hh_id, trip_level_df,
         choice_set_index, hh_index,
-        const, beta, gamma, alpha, theta_i0=0.0):
+        const, beta, gamma, alpha,
+        sigma, resid, theta_i0=0.0):
 
     hh_df = hh_index[hh_id] 
     if len(hh_df) == 0:
@@ -310,9 +305,11 @@ def household_contribution(
             chosen_idx = None
             x_chosen   = None
 
+        iv_resid_array = choice_set['iv_resid'].to_numpy()
+
         u = utility_func(
-            x=flavor_binary, const= const, beta=beta, gamma=gamma, alpha=alpha,
-            theta=theta, price=choice_set['price'].to_numpy()
+            x=flavor_binary, const=const, beta=beta, gamma=gamma, alpha=alpha,
+            theta=theta, sigma=sigma, price=choice_set['price'].to_numpy(), resid=iv_resid_array
         )
         u_all = np.append(u, 0.0)
         IV    = logsumexp(u_all)
@@ -340,7 +337,7 @@ def obj_test(
         theta_vec, trip_level_df, choice_set_index, hh_index
 ):
     ll_contrib = []
-    const, beta, gamma, alpha = theta_vec[:4]
+    const, beta, gamma, alpha, sigma = theta_vec[:5]
 
     total_log_lik = 0.0
 
@@ -348,7 +345,7 @@ def obj_test(
     for hh_id in trip_level_df['household_code'].unique():
         contrib = household_contribution(
             hh_id, trip_level_100, choice_set_index, hh_index,
-            const, beta, gamma, alpha
+            const, beta, gamma, alpha, sigma, resid
         )
         if not np.isfinite(contrib):
             console.print(f'[red]non-finite contribution[/red] household = {hh_id}: {contrib}')
@@ -362,7 +359,7 @@ def obj_test(
 def total_objective(
         theta_vec, trip_level_df, choice_set_index, hh_index):
 
-    const, beta, gamma, alpha = theta_vec[:3]
+    const, beta, gamma, alpha, sigma = theta_vec[:5]
     #delta = theta_vec[4:]
 
     total_log_lik = 0.0
@@ -371,7 +368,7 @@ def total_objective(
     for hh_id in trip_level_df['household_code'].unique():
         ll = household_contribution(
             hh_id, trip_level_df, choice_set_index, hh_index,
-            const, beta, gamma, alpha
+            const, beta, gamma, alpha, sigma, resid
         )
         if not np.isfinite(ll):
             console.print(f'[red]non-finite contribution[/red] household={hh_id}: {contrib}')
@@ -403,9 +400,9 @@ console.print(trip_level_1000['price'].isna().sum())
 
 console.print(np.where(trip_level_1000['price'] < .05))
 
-x0 = np.array([0.0, 2.0, 9.0, 0.5])
+x0 = np.array([0.0, 2.0, 9.0, 0.5,0.0])
 bounds = (
-    [(None, None), (None, None), (None, None), (None, None)])
+    [(None, None), (None, None), (None, None), (None, None),(None,None)])
 
 res_100 = minimize(
     total_objective,
@@ -423,7 +420,7 @@ res_1000 = minimize(
     bounds = bounds,
 )
 
-param_names = ['Constant', 'β', 'γ', 'α']
+param_names = ['Constant', 'β', 'γ', 'α', 'σ']
 sample_labels = ['100 households', '1000 households']
 for label, res in zip(sample_labels, [res_100, res_1000]):
     console.print(f'--- {label} ---')

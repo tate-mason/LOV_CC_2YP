@@ -7,6 +7,7 @@ import scipy as sp
 from scipy.optimize import minimize
 from scipy.special import logsumexp, expit
 from scipy.stats import poisson as poisson_dist
+import statsmodels.api as sm
 #output
 from rich.console import Console
 from rich.traceback import install; install()
@@ -188,9 +189,9 @@ def comp_Xi(x, theta):
     return Xi
 
 # gives the utility function (deterministic)
-def utility_func(x, beta, gamma, alpha, theta, price):
+def utility_func(x, const, beta, gamma, alpha, theta, price):
     Xi = comp_Xi(x, theta) # calling LOV variable
-    u = 1 + beta*x + gamma*np.log(1 + Xi) - alpha*price # defining utility
+    u = const + beta*x + gamma*np.log(1 + Xi) - alpha*price # defining utility
     return u
 
 # ============================================= #
@@ -222,6 +223,25 @@ hh_index = {
     for key, group in trip_level.groupby('household_code')
 }
 
+market_price = (
+    trip_level.groupby(['upc', 'week_end', 'dma_code'])['price']
+    .mean()
+    .reset_index()
+)
+totals = (
+    market_price.groupby(['upc', 'week_end'])['price']
+    .agg(['sum', 'count'])
+    .reset_index()
+    .rename(columns={'sum':'price_sum_all', 'count':'n_markets_all'})
+)
+market_price = market_price.merge(totals, on=['upc', 'week_end'], how='left')
+market_price['price_iv'] = (
+    (market_price['price_sum_all'] - market_price['price']) /
+    (market_price['n_markets_all'] - 1)
+)
+market_price['price_iv'] = market_price['price_iv'].replace([np.inf, -np.inf], np.nan)
+
+
 #z_cols = ['household_income', 'weeks_since_last_flavor', 'since_last_trip', 'head_age']
 #
 #for col in z_cols:
@@ -232,7 +252,7 @@ hh_index = {
 def household_contribution(
         hh_id, trip_level_df,
         choice_set_index, hh_index,
-        beta, gamma, alpha, theta_i0=0.0):
+        const, beta, gamma, alpha, theta_i0=0.0):
 
     hh_df = hh_index[hh_id] 
     if len(hh_df) == 0:
@@ -273,7 +293,7 @@ def household_contribution(
             x_chosen   = None
 
         u = utility_func(
-            x=flavor_binary, beta=beta, gamma=gamma, alpha=alpha,
+            x=flavor_binary, const= const, beta=beta, gamma=gamma, alpha=alpha,
             theta=theta, price=choice_set['price'].to_numpy()
         )
         u_all = np.append(u, 0.0)
@@ -302,7 +322,7 @@ def obj_test(
         theta_vec, trip_level_df, choice_set_index, hh_index
 ):
     ll_contrib = []
-    beta, gamma, alpha = theta_vec[:3]
+    const, beta, gamma, alpha = theta_vec[:4]
 
     total_log_lik = 0.0
 
@@ -310,7 +330,7 @@ def obj_test(
     for hh_id in trip_level_df['household_code'].unique():
         contrib = household_contribution(
             hh_id, trip_level_100, choice_set_index, hh_index,
-            beta, gamma, alpha
+            const, beta, gamma, alpha
         )
         if not np.isfinite(contrib):
             console.print(f'[red]non-finite contribution[/red] household = {hh_id}: {contrib}')
@@ -324,7 +344,7 @@ def obj_test(
 def total_objective(
         theta_vec, trip_level_df, choice_set_index, hh_index):
 
-    beta, gamma, alpha = theta_vec[:3]
+    const, beta, gamma, alpha = theta_vec[:3]
     #delta = theta_vec[4:]
 
     total_log_lik = 0.0
@@ -333,7 +353,7 @@ def total_objective(
     for hh_id in trip_level_df['household_code'].unique():
         ll = household_contribution(
             hh_id, trip_level_df, choice_set_index, hh_index,
-            beta, gamma, alpha
+            const, beta, gamma, alpha
         )
         if not np.isfinite(ll):
             console.print(f'[red]non-finite contribution[/red] household={hh_id}: {contrib}')
@@ -365,9 +385,9 @@ console.print(trip_level_1000['price'].isna().sum())
 
 console.print(np.where(trip_level_1000['price'] < .05))
 
-x0 = np.array([2.0, 9.0, 0.5])
+x0 = np.array([0.0, 2.0, 9.0, 0.5])
 bounds = (
-    [(None, None), (None, None), (None, None)])
+    [(None, None), (None, None), (None, None), (None, None)])
 
 res_100 = minimize(
     total_objective,
@@ -385,7 +405,7 @@ res_1000 = minimize(
     bounds = bounds,
 )
 
-param_names = ['β', 'γ', 'α']
+param_names = ['Constant', 'β', 'γ', 'α']
 sample_labels = ['100 households', '1000 households']
 for label, res in zip(sample_labels, [res_100, res_1000]):
     console.print(f'--- {label} ---')

@@ -64,6 +64,8 @@ master_df = master_df.rename({'product_module_code_x':'product_module_code',
 master_df = master_df.to_pandas() # make pandas format
 master_df.columns = master_df.columns.str.lower() # column names lower
 
+console.print(master_df.columns.tolist())
+
 flavors   = pd.read_csv('/scratch/dtm63837/Kilts_Panel/RMS/Reference_Documentation/2006-2020_Documentation/Latest_Flavor_2010.csv') # load in flavors documentation
 master_df = master_df.merge(flavors, on = 'upc', how = 'left')
 

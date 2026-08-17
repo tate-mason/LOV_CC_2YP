@@ -249,7 +249,7 @@ trip_level = trip_level.merge(
 )
 
 
-iv_res = smf.OLS('price ~ price_iv + size1_amount + C(week_end)', data=trip_level).fit()
+iv_res = smf.ols('price ~ price_iv + size1_amount + C(week_end)', data=trip_level).fit()
 iv_resid = iv_res.resid
 
 console.print(iv_res.summary())

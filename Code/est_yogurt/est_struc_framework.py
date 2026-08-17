@@ -13,6 +13,8 @@ from rich.console import Console
 from rich.traceback import install; install()
 console = Console()
 
+import time
+
 console.print('='*60)
 console.print('Data Loading and Manipulation')
 console.print('='*60)

@@ -349,7 +349,7 @@ bounds = [(None, None)] * 5
 import cProfile
 
 cProfile.run(
-    'total_objective(x0, trip_level_100, hh_index, choice_set_index)',
+    'total_objective(x0, trip_level_1000, hh_index, choice_set_index)',
     sort='cumulative'
 )
 

@@ -235,7 +235,7 @@ def utility_func(x, const, beta, gamma, alpha, theta, price, resid, sigma):
     Xi = comp_Xi(x, theta)
     return const + beta * x + gamma * np.log(1 + Xi) - alpha * price + sigma * resid
 
-def fast_logsum_exp(x):
+def fast_logsumexp(x):
     m = np.max(x)
     return m + np.log(np.sum(np.exp(x-m)))
 

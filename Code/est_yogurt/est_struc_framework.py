@@ -235,6 +235,10 @@ def utility_func(x, const, beta, gamma, alpha, theta, price, resid, sigma):
     Xi = comp_Xi(x, theta)
     return const + beta * x + gamma * np.log(1 + Xi) - alpha * price + sigma * resid
 
+def fast_logsum_exp(x):
+    m = np.max(x)
+    return m + np.log(np.sum(np.exp(x-m)))
+
 # ============================================================
 # SECTION 2: precomputed lookup structures
 # (choice_set_index already built above, in Section A)
@@ -297,7 +301,7 @@ def household_contribution(
             resid=iv_resid_arr, sigma=sigma
         )
         u_all = np.append(u, 0.0)
-        prob  = np.exp(u_all - logsumexp(u_all))
+        prob  = np.exp(u_all - fast_logsumexp(u_all))
 
         chosen_prob = prob[chosen_idx] if chosen_idx is not None else prob[-1]
         if not np.isfinite(chosen_prob) or chosen_prob <= 0:

@@ -346,28 +346,32 @@ for label, tl in [('100 households', trip_level_100), ('1000 households', trip_l
 x0 = np.array([0.0, 2.0, 9.0, 0.5, 0.0])
 bounds = [(None, None)] * 5
 
-import cProfile
+#import cProfile
+#
+#cProfile.run(
+#    'total_objective(x0, trip_level_1000, hh_index, choice_set_index)',
+#    sort='cumulative'
+#)
 
-cProfile.run(
-    'total_objective(x0, trip_level_1000, hh_index, choice_set_index)',
-    sort='cumulative'
+res_100 = minimize(
+    total_objective, x0=x0, args=(trip_level_100, hh_index, choice_set_index),
+    method='L-BFGS-B', bounds=bounds
+)
+res_1000 = minimize(
+    total_objective, x0=x0, args=(trip_level_1000, hh_index, choice_set_index),
+    method='L-BFGS-B', bounds=bounds
+)
+res_full = minimize(
+    total_objective, x0=x0, args=(trip_level, hh_index, choice_set_index),
+    method='L-BFGS-B', bounds=bounds
 )
 
-#res_100 = minimize(
-#    total_objective, x0=x0, args=(trip_level_100, hh_index, choice_set_index),
-#    method='L-BFGS-B', bounds=bounds
-#)
-#res_1000 = minimize(
-#    total_objective, x0=x0, args=(trip_level_1000, hh_index, choice_set_index),
-#    method='L-BFGS-B', bounds=bounds
-#)
-#
-#param_names = ['Constant', 'β', 'γ', 'α', 'σ']
-#for label, res in zip(['100 households', '1000 households'], [res_100, res_1000]):
-#    console.print(f'--- {label} ---')
-#    for name, val in zip(param_names, res.x):
-#        console.print(f'{name}: {val:.4f}')
-#    console.print('success:', res.success)
-#    console.print('final objective:', res.fun)
-#    console.print('jacobian:', res.jac)
-#    console.print(res.message)
+param_names = ['Constant', 'β', 'γ', 'α', 'σ']
+for label, res in zip(['100 households', '1000 households', 'Full Sample'], [res_100, res_1000, res_full]):
+    console.print(f'--- {label} ---')
+    for name, val in zip(param_names, res.x):
+        console.print(f'{name}: {val:.4f}')
+    console.print('success:', res.success)
+    console.print('final objective:', res.fun)
+    console.print('jacobian:', res.jac)
+    console.print(res.message)

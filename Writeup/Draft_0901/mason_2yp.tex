@@ -59,13 +59,7 @@
 
 In the baseline logit model, a consumer is perceived as having a fixed preference for each product, and the utility from consuming a product is independent of past consumption. Further, it is assumed that a new good is always a utility boosting event, by the error term's property of being identically and independently distributed. However, in many markets, consumers may have a love of variety, or a desire to consume different products over time. This can be due to factors such as boredom, satiation, or a preference for novelty. In such cases, the utility from consuming a product may depend on past consumption, and the introduction of a new good may not always lead to an increase in utility.
 
-In this paper, I build upon the existing love of variety literature by
-modernizing the maximum likelihood methods as well as using moment estimation to
-get aggregate estimates of demand. I also plan to see how these preferences for
-variety differ across product spaces. Using Nielsen data, I estimate a discrete
-choice demand model using Nielsen scanner data. Consumers are myopic, only
-internalizing past consumption as an input for variety without strategically
-choosing products.
+% contribute dynamics and supply side effects to LOV literature
 
 I find that...
 
@@ -81,9 +75,7 @@ concludes.
 
     The variety-seeking and state dependence literature has been primarily focused on understanding the dynamics of consumer preferences and demand over time. From \cite{lattin_model_1987}, who developed an empirical structural model of state dependence in consumer choice, to \citet{erdem_decision-making_1996}, who iterated the model to allow for consumer learning. \cite{chintagunta_variety_1999} is the most closely related paper, as he develops a model of variety-seeking behavior which is both tractible and flexible, and uses Nielsen data to estimate the model. However, this paper only looks at demand, leaving me a niche to explore the interplay between variety-seeking and strategic advertising.
 
-    % Dube (2004), McAllister (1984), etc.
-
-    % discrete choice methods papers
+    % Dube (2004), McAllister (1984), Train (2010), Chintgunta, Dube, Hao (2006)
 
 
 %============================================================%
@@ -116,10 +108,10 @@ concludes.
     trip, they buy an average of n units of yogurt. If we break out by type, n
     cups and/or n tubs. 
 
-    I define the outside option to be anytime yogurt isn't purchased during a
-    shopping occasion within a trip. In each trip, the outside option was taken
+    I define the outside option to be anytime yogurt isn't purchased during a trip. This occurred
     x\%, on average.
 
+    \ref{fig:flav_heatmap} shows that people who enjoy plain yogurt stay with their flavor longer, staying with plain for about 6 periods as opposed to about 2 for flavored people. This data fact implies that people do differ in their preferences for variety along the flavor dimension. Further along these lines, we see that \ref{fig:var_timeseries} shows ... . This is indicative of ... .
 %============================================================%
 \section{Model}
 %============================================================%
@@ -140,15 +132,19 @@ concludes.
 
     \begin{alignat*}{1}
       U_{ijt} &= \delta D_{ht} + \sum_1^k\beta^k_i X^k_{jt} + \gamma_i \log(1 + \Xi_{ijt}) 
-                  + \alpha_i p_{jt} + \xi_j + \varepsilon_{ijt} \\
+                  + \alpha_i p_{jt} + \sigma\hat{\eta} + \xi_j + \varepsilon_{ijt} \\
     \text{subject to} \\
       \Xi_{ijt} &= \sqrt{\sum_{k}(X^k_{jt} - \theta^k_{ijt})^2} \\
       \theta^k_{ijt} &= \lambda\frac{1}{t-2}\sum^{t-2}_{s} X^{*k}_{js} +
       (1-\lambda)X^{*k}_{jt-1} \\
+      \hat{\eta} = p_jt - \bar{p} - \tau
       \gamma_i &\sim \mathcal{N}(0, 1)\\ \varepsilon_{ijt} &\sim \text{T1EV}(0,1)
+
     \end{alignat*}
 
-    where $\delta D_{ht}$ are household specific effects, $\beta^k_i$ is a consumer's utility from characteristic $X^k_{jt}$, $\gamma_i$ is their preference for variety, $\Xi_{ijt}$ is the difference between the current characteristic and the previous choices, $\theta^k_{it}$. $\theta^k_{it}$ is a function of the consumers' past purchases, where $\lambda$ weights chosen products in the past, $X^{*k}_{js}$ and the most recently chosen product, $X_{jt-1}^{*k}$, allowing for more recent purchases to play more of a role in the current period's decision. This could take many forms, but in this paper will be the mean characteristic of past purchases. $\alpha_i$ is a hetergeneous price sensitivity to $p_{jt}$. $\xi_j$ is unobserved quality in product $j$, and $\varepsilon_{ijt}$ is the Gumbel shock which allows for a closed form logit.
+    $\beta^k_i$ is a consumer's utility from characteristic $X^k_{jt}$, $\gamma_i$ is their preference for variety, $\Xi_{ijt}$ is the difference between the current characteristic and the previous choices, $\theta^k_{it}$. $\theta^k_{it}$ is a function of the consumers' past purchases, where $\lambda$ weights chosen products in the past, $X^{*k}_{js}$ and the most recently chosen product, $X_{jt-1}^{*k}$, allowing for more recent purchases to play more of a role in the current period's decision. This could take many forms, but in this paper will be the mean characteristic of past purchases. $\alpha_i$ is a hetergeneous price sensitivity to $p_{jt}$. $\xi_j$ is unobserved quality in product $j$, and $\varepsilon_{ijt}$ is the Gumbel shock which allows for a closed form logit.
+
+    % Control function to correct for price endogeneity, Dube arrival rate.
 
 
     The choice probability of consumer $i$ choosing product $j$ in time $t$ is as follows:
@@ -160,17 +156,22 @@ concludes.
 \section{Results}
 %============================================================%
 
+% base tables
+% marginal effects
+% dollarized
+
 %============================================================%
 \section{Counterfactuals}
 %============================================================%
 
-    \subsection{Counterfactual 1}
 
-    % Counterfactual sales
+    % Supply side aspects
 
-    \subsection{Counterfactual 2}
+    % Counterfactual sales on products
+    
+    % $.20 sale leads to x% change in switching likelihood
 
-    Secondly, I am interested in pivoting to a more consumer welfare focused counterfactual, in which I evaluate the effects of product entry on consumer welfare under different levels of $\gamma$. This will allow me to understand how a love of variety affects consumer welfare in the face of new product entry, and to evaluate the potential benefits and drawbacks of a love of variety for consumers in dynamic markets. Specifically, I want to understand how consumer welfare is impacted by both perfect and obscured information about the distribution of $\gamma$ when introducting a new product. I expect to find that a love of variety can lead to higher consumer welfare in the face of new product entry, as it allows consumers to derive more utility from a wider range of products. However, if consumers have obscured information about the distribution of $\gamma$, they may not be able to fully realize the benefits of new product entry, which could lead to lower consumer welfare.
+    % product intro (new flavor category ?)
 
 
 %============================================================%

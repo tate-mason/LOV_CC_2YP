@@ -143,7 +143,12 @@ master_df = master_df.dropna(subset=['iv_resid'])   # was missing the reassignme
 
 t0 = time.time()
 choice_set_index = {
-    key: group[['upc', 'price', 'flavor_binary', 'iv_resid']]
+    key: {
+        'upc': group['upc'].to_numpy(),
+        'price': group['price'].to_numpy(),
+        'flavor': group['flavor_binary'].to_numpy(),
+        'iv_resid': group['iv_resid'].to_numpy(),
+    }
     for key, group in master_df.groupby(['store_code_uc', 'week_end'])
 }
 console.print(f'choice_set_index build: {time.time() - t0:.2f}s')
@@ -277,7 +282,7 @@ def household_contribution(
 
         if occ.yogurt_buy:
             chosen_upc  = occ.yogurt_buy
-            chosen_mask = (choice_set['upc'] == chosen_upc).to_numpy()
+            chosen_mask = choice_set['upc'] == chosen_upc
             if not chosen_mask.any():
                 continue
             chosen_idx = np.where(chosen_mask)[0][0]
@@ -288,7 +293,7 @@ def household_contribution(
 
         u = utility_func(
             x=flavor_binary, const=const, beta=beta, gamma=gamma, alpha=alpha,
-            theta=theta, price=choice_set['price'].to_numpy(),
+            theta=theta, price=choice_set['price'],
             resid=iv_resid_arr, sigma=sigma
         )
         u_all = np.append(u, 0.0)
@@ -337,21 +342,28 @@ for label, tl in [('100 households', trip_level_100), ('1000 households', trip_l
 x0 = np.array([0.0, 2.0, 9.0, 0.5, 0.0])
 bounds = [(None, None)] * 5
 
-res_100 = minimize(
-    total_objective, x0=x0, args=(trip_level_100, hh_index, choice_set_index),
-    method='L-BFGS-B', bounds=bounds
-)
-res_1000 = minimize(
-    total_objective, x0=x0, args=(trip_level_1000, hh_index, choice_set_index),
-    method='L-BFGS-B', bounds=bounds
+import cProfile
+
+cProfile.run(
+    'total_objective(x0, trip_level_100, hh_index, choice_set_index)',
+    sort='cumulative'
 )
 
-param_names = ['Constant', 'β', 'γ', 'α', 'σ']
-for label, res in zip(['100 households', '1000 households'], [res_100, res_1000]):
-    console.print(f'--- {label} ---')
-    for name, val in zip(param_names, res.x):
-        console.print(f'{name}: {val:.4f}')
-    console.print('success:', res.success)
-    console.print('final objective:', res.fun)
-    console.print('jacobian:', res.jac)
-    console.print(res.message)
+#res_100 = minimize(
+#    total_objective, x0=x0, args=(trip_level_100, hh_index, choice_set_index),
+#    method='L-BFGS-B', bounds=bounds
+#)
+#res_1000 = minimize(
+#    total_objective, x0=x0, args=(trip_level_1000, hh_index, choice_set_index),
+#    method='L-BFGS-B', bounds=bounds
+#)
+#
+#param_names = ['Constant', 'β', 'γ', 'α', 'σ']
+#for label, res in zip(['100 households', '1000 households'], [res_100, res_1000]):
+#    console.print(f'--- {label} ---')
+#    for name, val in zip(param_names, res.x):
+#        console.print(f'{name}: {val:.4f}')
+#    console.print('success:', res.success)
+#    console.print('final objective:', res.fun)
+#    console.print('jacobian:', res.jac)
+#    console.print(res.message)

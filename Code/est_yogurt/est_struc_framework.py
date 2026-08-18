@@ -277,8 +277,8 @@ def household_contribution(
             continue
 
         choice_set    = choice_set_index[(store, week)]
-        flavor_binary = choice_set['flavor_binary'].to_numpy()
-        iv_resid_arr  = choice_set['iv_resid'].to_numpy()
+        flavor_binary = choice_set['flavor']
+        iv_resid_arr  = choice_set['iv_resid']
 
         if occ.yogurt_buy:
             chosen_upc  = occ.yogurt_buy

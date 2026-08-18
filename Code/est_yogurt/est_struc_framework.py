@@ -337,7 +337,7 @@ sample_hh_1000 = trip_level['household_code'].unique()[:1000]
 trip_level_100  = trip_level[trip_level['household_code'].isin(sample_hh_100)]
 trip_level_1000 = trip_level[trip_level['household_code'].isin(sample_hh_1000)]
 
-for label, tl in [('100 households', trip_level_100), ('1000 households', trip_level_1000)]:
+for label, tl in [('100 households', trip_level_100), ('1000 households', trip_level_1000), ('All households', trip_level)]:
     share = (tl.groupby('trip_code_uc')['yogurt_buy'].first().notna()).mean()
     console.print(f'purchase-trip share ({label}): {share:.4f}')
     console.print(tl['price'].describe())

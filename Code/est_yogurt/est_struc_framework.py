@@ -144,9 +144,9 @@ master_df = master_df.dropna(subset=['iv_resid'])   # was missing the reassignme
 t0 = time.time()
 choice_set_index = {
     key: {
-        'upc': group['upc'].to_numpy(),
-        'price': group['price'].to_numpy(),
-        'flavor': group['flavor_binary'].to_numpy(),
+        'upc':      group['upc'].to_numpy(),
+        'price':    group['price'].to_numpy(),
+        'flavor':   group['flavor_binary'].to_numpy(),
         'iv_resid': group['iv_resid'].to_numpy(),
     }
     for key, group in master_df.groupby(['store_code_uc', 'week_end'])

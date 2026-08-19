@@ -46,7 +46,6 @@ agent_panel   = (
 # Agent panel cleaning
 agent_panel                             = agent_panel.convert_dtypes(dtype_backend = 'numpy_nullable') # make data numpy compatible
 agent_panel.columns                     = agent_panel.columns.str.lower() # make column names lowercase
-agent_panel                             = agent_panel.dropna(subset=['quantity', 'product_group_code', 'flavor_code', 'flavor_descr']) # drop NA for key var
 
 agent_panel                    = agent_panel[agent_panel['household_size'] == 1] # subset to single agent hh
 agent_panel                    = agent_panel[agent_panel.groupby('household_code')['trip_code_uc'].transform('count') > 2] # at least 2 shopping trips
@@ -85,6 +84,7 @@ flavors      = pd.read_csv(flav_path) # load in flavors documentation
 # Agent merge and clean
 
 agent_master = agent_panel.merge(flavors, on='upc', how='left') # merge flavors on UPC codes with a left join
+agent_panel  = agent_panel.dropna(subset=['quantity', 'product_group_code', 'flavor_code', 'flavor_descr']) # drop NA for key var after merge
 agent_master['plain'] = (
         agent_master['flavor_code'] == 4167 # 1 if plain 0 if flavored
 ).astype(int)

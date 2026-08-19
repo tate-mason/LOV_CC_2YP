@@ -12,11 +12,6 @@
 
 ml Python/3.12.3-GCCcore-13.3.0 # Load software module and run bowtie2 below
 
-pip install pandas
-pip install polars
-pip install numpy
-pip install matplotlib
-pip install seaborn
-pip install pyarrow
+pip install -qqq -r /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/shell_files/requirements.txt
 
 python /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/full_draft/data.py

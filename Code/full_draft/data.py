@@ -139,6 +139,7 @@ agent_yogurt = agent_yogurt[agent_yogurt['product_module_code'].isin([3612, 3603
 
 console.print(
     f'Number of households in full sample:                  {agent_master['household_code'].nunique()}\n',
+    f'Number of yogurt purchasing households:               {agent_yogurt['household_code'].nunique()}\n',
     f'Mean number of trips per HH:                          {agent_master.groupby('household_code')['trip_code_uc'].nunique().mean()}\n',
     f'Number of yogurt purchases among purchasers per trip: {agent_yogurt.groupby(['household_code', 'trip_code_uc', 'plain'])['quantity'].mean()}\n',
     f'Mean household income:                                {agent_master['household_income'].mean()}\n',
@@ -157,7 +158,7 @@ agent_yogurt['new_flavor'] = (
 ).astype(int) # dummy for if a household switched flavors between trips 
 agent_yogurt['flavor_spell_id']      = agent_yogurt.groupby('household_code')['new_flavor'].cumsum() # count of periods on new flavor
 agent_yogurt['flavor_spell_buys']    = agent_yogurt.groupby('household_code')['flavor_spell_id'].cumcount() + 1 # consecutive periods on flavor
-agent_yogrut['prev_flavor']          = agent_yogurt.groupby('household_code')['plain'].shift(1) # last purchased flavor
+agent_yogurt['prev_flavor']          = agent_yogurt.groupby('household_code')['plain'].shift(1) # last purchased flavor
 agent_yogurt['spell_length']         = agent_yogurt.groupby(['household_code', 'flavor_spell_id'])['flavor_spell_buys'].transform('max') # get the number of buys in the flavor spell
 agent_yogurt['switched']             = (
     agent_yogurt['plain']           != agent_yogurt['prev_flavor']

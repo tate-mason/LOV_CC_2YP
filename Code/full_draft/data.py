@@ -107,7 +107,7 @@ console.print(agent_master['plain'].value_counts())           # print # of indiv
 console.print(agent_master['yogurt_purchase'].value_counts()) # number of purchasers vs non-purchasers
 
 # Product merge and clean
-product_master = prduct_panel.merge(flavors, on='upc', how='left')
+product_master = product_panel.merge(flavors, on='upc', how='left')
 product_master['plain'] = (
     product_master['flavor_code'] == 4167 # same as above
 ).astype(int)

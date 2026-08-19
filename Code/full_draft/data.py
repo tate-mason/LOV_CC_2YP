@@ -98,10 +98,10 @@ outside_option = agent_master.groupby(['household_code', 'trip_code_uc']).agg({
     'no_yogurt': 'sum',        # sum of no purchase occ.
     'yogurt_purchase': 'count' # count of yogurt purchasers by trip code
 }).assign(
-    total_occasions = lambda x: x['no_purchase'] + x['yogurt_purchase'] # total purchase occ.
+    total_occasions = lambda x: x['no_yogurt'] + x['yogurt_purchase'] # total purchase occ.
 )
 outside_option['outside_option_rate'] = (
-    outside_option['no_purchase'] / outside_option['total_occasions']
+    outside_option['no_yogurt'] / outside_option['total_occasions']
 ) # variable for the rate of taking outside option (sum of no purchase occ. / total occ.)
 console.print(agent_master['plain'].value_counts())           # print # of individuals who purchased plain v other
 console.print(agent_master['yogurt_purchase'].value_counts()) # number of purchasers vs non-purchasers

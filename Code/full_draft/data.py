@@ -39,7 +39,7 @@ flav_path = '/scratch/dtm63837/Kilts_Panel/RMS/Reference_Documentation/2006-2020
 
 agent_panel   = (
     pl.read_parquet(hms_path)      # call the local path set above
-    .rename({'DMA_cd':'dma_code'}) # rename for easier filtering/merging later
+    .rename({'DMA_Cd':'dma_code'}) # rename for easier filtering/merging later
     .to_pandas()                   # convert from LazyFrame to pandas DataFrame
 )
 
@@ -126,6 +126,12 @@ Full Household:
     - mean/median income per HH
     - n. each race
     - mean taking outside option
+    - coupon users
+Yogurt Only:
+    - percent ever-switch 
+    - average time on a flavor
+    - mean times switching
+    - mean consecutive buys
 """
 
 agent_yogurt = agent_master.copy() # copy full sample
@@ -172,4 +178,3 @@ console.print(
     f'Percent of HH who ever-switch:        {(switching_sample['household_code'].count() / agent_yogurt['household_code'].count())}\n',
     f'Average time spent on each flavor:    {agent_yogurt.groupby(['prev_flavor', 'plain'])['spell_length'].mean()}'
 )
-

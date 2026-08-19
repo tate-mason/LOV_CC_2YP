@@ -21,7 +21,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 # Output formatting
 from rich.traceback import install; install()
-from rich.console import Console()
+from rich.console import Console
 console=Console() # alias for function
 
 #==================================#

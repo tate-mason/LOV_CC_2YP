@@ -6,7 +6,7 @@
 #SBATCH --cpus-per-task=1   # CPU core count per task, by default 1 CPU core per task
 #SBATCH --mem=500G          # Memory per node (4GB); by default using M as unit
 #SBATCH --time=6:00:00      # Time limit hrs:min:sec or days-hours:minutes:seconds
-#SBATCH --output=%x_%j.out  # Standard output log, e.g., testBowtie2_12345.out
+#SBATCH --output=%x_%j.txt  # Standard output log, e.g., testBowtie2_12345.out
 #SBATCH --mail-user=dtm63837@uga.edu    # Where to send mail
 #SBATCH --mail-type=END,FAIL            # Mail events (BEGIN, END, FAIL, ALL)
 

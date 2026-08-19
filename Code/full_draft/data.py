@@ -84,7 +84,7 @@ flavors      = pd.read_csv(flav_path) # load in flavors documentation
 # Agent merge and clean
 
 agent_master = agent_panel.merge(flavors, on='upc', how='left') # merge flavors on UPC codes with a left join
-agent_panel  = agent_panel.dropna(subset=['quantity', 'product_group_code', 'flavor_code', 'flavor_descr']) # drop NA for key var after merge
+agent_panel  = agent_master.dropna(subset=['quantity', 'product_group_code', 'flavor_code', 'flavor_descr']) # drop NA for key var after merge
 agent_master['plain'] = (
         agent_master['flavor_code'] == 4167 # 1 if plain 0 if flavored
 ).astype(int)

@@ -19,4 +19,4 @@ pip install matplotlib
 pip install seaborn
 pip install pyarrow
 
-python /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/dat_expo/dat_desc.py
+python /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/full_draft/data.py

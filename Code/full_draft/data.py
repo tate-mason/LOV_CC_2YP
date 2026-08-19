@@ -89,10 +89,10 @@ agent_master['plain'] = (
         agent_master['flavor_code'] == 4167 # 1 if plain 0 if flavored
 ).astype(int)
 agent_master['yogurt_purchase'] = (
-    (df_yogurt['product_module_code'].isin([3612,3603]) & (df_yogurt['quantity']>0)) # create dummy for HH who bought at least one yogurt product
+    (agent_master['product_module_code'].isin([3612,3603]) & (agent_master['quantity']>0)) # create dummy for HH who bought at least one yogurt product
 ).astype(int)
 agent_master['no_yogurt']       = (
-    1 - df_yogurt['yogurt_purchase'] # 0 when purchased, 1 when no purchase
+    1 - agent_master['yogurt_purchase'] # 0 when purchased, 1 when no purchase
 )
 outside_option = agent_master.groupby(['household_code', 'trip_code_uc']).agg({
     'no_yogurt': 'sum',        # sum of no purchase occ.
@@ -152,8 +152,8 @@ console.print(
 
 agent_yogurt = agent_yogurt.sort_values(['household_code', 'trip_code_uc']) # sort by time and household
 agent_yogurt['new_flavor'] = (
-    (agent_yogurt['plain']          != df_yogurt.groupby('household_code')['plain'].shift(1)) |
-    (agent_yogurt['household_code'] != df_yogurt['household_code'].shift(1))
+    (agent_yogurt['plain']          != agent_yogurt.groupby('household_code')['plain'].shift(1)) |
+    (agent_yogurt['household_code'] != agent_yogurt['household_code'].shift(1))
 ).astype(int) # dummy for if a household switched flavors between trips 
 agent_yogurt['flavor_spell_id']      = agent_yogurt.groupby('household_code')['new_flavor'].cumsum() # count of periods on new flavor
 agent_yogurt['flavor_spell_buys']    = agent_yogurt.groupby('household_code')['flavor_spell_id'].cumcount() + 1 # consecutive periods on flavor

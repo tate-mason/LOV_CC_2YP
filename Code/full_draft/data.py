@@ -170,8 +170,10 @@ switching_sample = agent_yogurt[agent_yogurt['switched'] == 1][[
     'household_code',
     'trip_code_uc',
     'plain',
+    'prev_flavor',
     'spell_length'
 ]] # filter to switchers
+
 
 console.print(
     f'Mean consecutive buys by flavor x hh: {agent_yogurt.groupby(['household_code','plain'])['flavor_spell_buys'].mean()}\n',
@@ -179,3 +181,27 @@ console.print(
     f'Percent of HH who ever-switch:        {(switching_sample['household_code'].count() / agent_yogurt['household_code'].count())}\n',
     f'Average time spent on each flavor:    {agent_yogurt.groupby(['prev_flavor', 'plain'])['spell_length'].mean()}'
 )
+
+#=== Switching Graphs for Agents ===#
+
+heat_flav = (
+        switching_sample.groupby(['prev_flavor', 'plain'])['spell_length']
+        .mean()
+        .unstack()
+)
+heat_flav = heat_flav.rename(columns={0:"Flavored", 1:"Plain"})
+cell_labs = np.array(
+    [[f'{val:.1f} trips' for val in row] for row in heat_flav.to_numpy()]
+)
+fig, ax   = plt.subplot(figsize=(10,8))
+sns.heatmap(heat_flav,
+            annot   =cell_labs,
+            fmt     ='.2f',
+            cmap    ='YlOrRd',
+            ax      =ax,
+            cbar_kws={"label": "Mean Spell Length"})
+ax.set_xlabel('Flavor Switched To')
+ax.set_ylabel('Flavor Switched From')
+ax.set_title('Mean Spell Length by Previous Flavor')
+plt.tight_layout()
+plt.savefig('../Output/Plots/2_flav_heatmap.pdf',format='pdf',bbox_inches='tight')

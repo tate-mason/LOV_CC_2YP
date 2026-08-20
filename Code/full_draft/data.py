@@ -35,6 +35,15 @@ flav_path = '/scratch/dtm63837/Kilts_Panel/RMS/Reference_Documentation/2006-2020
 
 #=== Agent Panel Operations ===#
 
+# Loading merged panel
+
+merged_panel  = (
+    pl.read_parquet(out_path)      # call the local path
+    .filter(size1_amount.between(5, 8))
+    .filter(pl.col('dma_code').is_in([524, 602, 751, 825]))
+    .to_pandas()
+)
+
 # Loading agent panel
 
 agent_panel   = (
@@ -52,7 +61,7 @@ agent_panel.columns                     = agent_panel.columns.str.lower() # make
 agent_panel                    = agent_panel[agent_panel['household_size'] == 1] # subset to single agent hh
 agent_panel                    = agent_panel[agent_panel.groupby('household_code')['trip_code_uc'].transform('count') > 2] # at least 2 shopping trips
 agent_panel                    = agent_panel[agent_panel['size1_units'] == 'OZ'] # keep only yogurt measured in ounces
-agent_panel                    = agent_panel[(agent_panel['size1_amount'] > 5) | (agent_panel['size1_amount'] < 8)] # restrict to cups of yogurt
+agent_panel                    = agent_panel[agent_panel['size1_amount'].between(5,8)] # restrict to cups of yogurt
 
 agent_panel['purchase_date']   = agent_panel['purchase_date'].str.replace('-','',regex=False)   # get rid of hyphens in purchase date
 agent_panel['purchase_date']   = pd.to_datetime(agent_panel['purchase_date'], format='%Y%m%d')  # convert to YearMonthDay format
@@ -71,7 +80,6 @@ product_panel = (
     .to_pandas()              # convert from LazyFrame to DataFrame
 ) 
 
-console.print(product_panel.columns.tolist())
 # Product panel cleaning
 
 product_panel['week_end']      = pd.to_datetime(product_panel['week_end'], format='%Y%m%d') # convert date format
@@ -80,15 +88,13 @@ product_panel                  = product_panel.dropna(subset=['week_end'])      
 product_panel['store_code_uc'] = product_panel['store_code_uc'].astype('Int64')             # convert store code to Int64 type
 product_panel['upc']           = product_panel['upc'].astype('Int64')                       # same as above
 
-console.print(product_panel['size1_units'].value_counts())
-
 #=== Merging Flavor Data ===#
 
 flavors      = pd.read_csv(flav_path) # load in flavors documentation
 
 # Agent merge and clean
 
-agent_master = agent_panel.merge(flavors, on='upc', how='left') # merge flavors on UPC codes with a left join
+agent_master  = agent_panel.merge(flavors, on='upc', how='left') # merge flavors on UPC codes with a left join
 agent_master  = agent_master.dropna(subset=['quantity', 'product_group_code', 'flavor_code', 'flavor_descr']) # drop NA for key var after merge
 agent_master  = agent_master.assign(
     flavor_class = np.select(
@@ -140,11 +146,41 @@ outside_option['outside_option_rate'] = (
 console.print(agent_master['flavor'].value_counts())           # print # of individuals who purchased plain v other
 console.print(agent_master['yogurt_purchase'].value_counts()) # number of purchasers vs non-purchasers
 
-# Product merge and clean
-product_master = product_panel.merge(flavors, on='upc', how='left')
-product_master['flavor'] = (
-    product_master['flavor_code'] == 4167 # same as above
-).astype(int)
+# Merged merge and clean
+
+merged_master  = merged_panel.merge(flavors, on='upc', how='left') # merge flavors on UPC codes with a left join
+merged_master  = merged_master.dropna(subset=['quantity', 'product_group_code', 'flavor_code', 'flavor_descr']) # drop NA for key var after merge
+merged_master  = merged_master.assign(
+    flavor_class = np.select(
+        [
+            merged_master['flavor_code'].isin([139, 44642, 75721, 2180]), # apple
+            merged_master['flavor_code'].isin([22053, 24357, 52953, 74408, 17159, 23721]), # blueberry
+            merged_master['flavor_code'].isin([11214, 20888, 17849, 17849]), # banana
+            merged_master['flavor_code'].isin([904, 13314, 1169, 1174, 5651]), # cherry
+            merged_master['flavor_code'].isin([73560, 3075, 73560]), # key lime
+            merged_master['flavor_code'].isin([3107, 22916, 3122, 6061]), # lemon
+            merged_master['flavor_code'].isin([3943, 3060, 70529, 10808, 3985, 23346]), # peach
+            merged_master['flavor_code'].isin([6352, 41654, 41681, 78681, 41634, 6912]), # raspberry
+            merged_master['flavor_code'].isin([23344, 16007, 16102, 66438, 16194, 30581, 45574, 72000, 17110]), # strawberry
+            merged_master['flavor_code'].isin([5537, 5539, 66938, 5658, 72317]), # vanilla
+            merged_master['flavor_code'].isin([66438, 66684, 71101, 72483,19061, 16102,  61082, 61487, 57428, 67420, 78857, 1154, 26050, 1216]), # mixed flavors
+            merged_master['flavor_code'].isin([57129, 76690, 16200, 62349, 16199, 16182, 72290, 32300, 72289, 16102, 72292, 3465, 68109, 52953, 72288]), # mixed berry
+            merged_master['flavor_code'].isin([4167]) # flavor
+        ],
+        [1,2,3,4,5,6,7,8,9,10,11,12,13],
+        default=np.nan
+    )
+)
+merged_master = merged_master.assign(
+    flavor = np.select(
+        [
+            merged_master['flavor_class'].isin([2,8,9,12]), # berry
+            merged_master['flavor_class'] == 13,
+        ],
+        [1,2],
+        default=0
+    )
+)
 
 #==========================#
 # Summary Statistics       #
@@ -282,18 +318,19 @@ plt.close() # same
 
 #=== Product Stats ===#
 
-console.print(f' Mean price of yogurt: {product_master['price'].mean():.2f}')
-product_master['week_mean'] = product_master.groupby(['week_end', 'dma_code'])['price'].transform('mean')
+console.print(f' Mean price of yogurt: {merged_master['price'].mean():.2f}\n',
+              f' Mean price by flavor: {merged_master.groupby('flavor')['price'].mean():.2f}\n')
+merged_master['week_mean'] = merged_master.groupby(['week_end', 'dma_code'])['price'].transform('mean')
 
 price_summary = (
-    product_master.groupby(['week_end', 'dma_code'], as_index=False)['price']
+    merged_master.groupby(['week_end', 'dma_code'], as_index=False)['price']
     .mean()
     .rename(columns={'price': 'mean_price'})
 )
 
 fig, ax = plt.subplots(figsize=(10,4))
 sns.lineplot(
-    data=product_master,
+    data=merged_master,
     x='week_end',
     y='week_mean',
     hue='dma_code',

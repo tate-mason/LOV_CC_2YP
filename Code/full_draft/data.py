@@ -204,13 +204,21 @@ switching_sample = agent_yogurt[agent_yogurt['switched'] == 1][[
     'next_flavor',
     'spell_length'
 ]] # filter to switchers
-
+switches_coupon = agent_yogurt[(df_3flav['switched'] == 1) & (agent_yogurt['deal_flag_uc'] == 1)][[
+    'household_code',
+    'trip_code_uc',
+    'prev_flavor',
+    'flavor_3',
+    'run_length',
+    'size_cat'
+]] # filtering to HH who switched and used a deal in purchase
 
 console.print(
     f'Mean consecutive buys by flavor x hh: {agent_yogurt['spell_length'].mean()}\n',
     f'Mean times switching by flavor x hh:  {agent_yogurt.groupby(['household_code', 'flavor'])['switched'].count().mean()}\n',
     f'Percent of HH who ever-switch:        {(switching_sample['household_code'].count()) / (agent_yogurt['household_code'].count())}\n',
     f'Average time spent on each flavor:    {agent_yogurt['spell_length'].mean()}'
+    f'Percent switching due to coupon:      {switches_coupon['household_code'].count())/(agent_yogurt['household_code'].count())}\n',
 )
 
 #=== Switching Graphs for Agents ===#

@@ -207,10 +207,10 @@ switching_sample = agent_yogurt[agent_yogurt['switched'] == 1][[
 switches_coupon = agent_yogurt[(agent_yogurt['switched'] == 1) & (agent_yogurt['deal_flag_uc'] == 1)][[
     'household_code',
     'trip_code_uc',
+    'flavor',
     'prev_flavor',
-    'flavor_3',
-    'run_length',
-    'size_cat'
+    'next_flavor',
+    'spell_length'
 ]] # filtering to HH who switched and used a deal in purchase
 
 console.print(

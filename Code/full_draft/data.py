@@ -224,6 +224,7 @@ cell_labs = np.array(
 )
 fig, ax   = plt.subplots(figsize=(10,8))
 sns.heatmap(heat_flav,
+            yticklabels=['Other', 'Berry', 'Plain']
             annot   =cell_labs,
             fmt     ='',
             cmap    ='YlGnBu',

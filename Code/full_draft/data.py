@@ -186,7 +186,7 @@ agent_yogurt['new_flavor'] = (
     (agent_yogurt['household_code'] != agent_yogurt['household_code'].shift(1))
 ).astype(int) # dummy for if a household switched flavors between trips 
 agent_yogurt['flavor_spell_id']      = agent_yogurt.groupby('household_code')['new_flavor'].cumsum() # count of periods on new flavor
-agent_yogurt['flavor_spell_buys']    = agent_yogurt.groupby(['household_code','flavor_spell_id']).cumcount() + 1[cite:1] # consecutive periods on flavor
+agent_yogurt['flavor_spell_buys']    = agent_yogurt.groupby(['household_code','flavor_spell_id']).cumcount() + 1 # consecutive periods on flavor
 agent_yogurt['prev_flavor']          = agent_yogurt.groupby('household_code')['flavor'].shift(1) # last purchased flavor
 agent_yogurt['spell_length']         = agent_yogurt.groupby(['household_code', 'flavor_spell_id'])['flavor_spell_buys'].transform('max') # get the number of buys in the flavor spell
 agent_yogurt['switched']             = (

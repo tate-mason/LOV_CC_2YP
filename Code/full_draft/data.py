@@ -327,7 +327,7 @@ plt.close() # same
 #=== Product Stats ===#
 
 console.print(f' Mean price of yogurt: {merged_master['price'].mean():.2f}\n',
-              f' Mean price by flavor: {merged_master.groupby('flavor')['price'].mean():.2f}\n')
+              f' Mean price by flavor: {merged_master.groupby('flavor')['price'].mean()}\n')
 merged_master['week_mean'] = merged_master.groupby(['week_end', 'dma_code'])['price'].transform('mean')
 
 price_summary = (

@@ -1,0 +1,25 @@
+/scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/full_draft/data.py:86: UserWarning: You are merging on int and float columns where the float values are not equal to their int representation.
+  agent_master = agent_panel.merge(flavors, on='upc', how='left') # merge flavors on UPC codes with a left join
+plain
+0    9606369
+1     172047
+Name: count, dtype: int64
+yogurt_purchase
+0    9526899
+1     251517
+Name: count, dtype: int64
+/scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/full_draft/data.py:110: UserWarning: You are merging on int and float columns where the float values are not equal to their int representation.
+  product_master = product_panel.merge(flavors, on='upc', how='left')
+╭───────────────────── Traceback (most recent call last) ──────────────────────╮
+│ /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/full_draft/data.py:142 in      │
+│ <module>                                                                     │
+│                                                                              │
+│   139                                                                        │
+│   140 console.print(                                                         │
+│   141 │   f'Number of households in full sample:                  {agent_mas │
+│ ❱ 142 │   f'Number of yogurt purchasing households:               {agent_yog │
+│   143 │   f'Mean number of trips per HH:                          {agent_mas │
+│   144 │   f'Number of yogurt purchases among purchasers per trip: {agent_yog │
+│   145 │   f'Mean household income:                                {agent_mas │
+╰──────────────────────────────────────────────────────────────────────────────╯
+AttributeError: 'int' object has no attribute 'mean'

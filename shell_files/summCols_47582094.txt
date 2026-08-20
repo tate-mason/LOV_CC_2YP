@@ -1,0 +1,61 @@
+/scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/full_draft/data.py:188: SyntaxWarning: 'int' object is not subscriptable; perhaps you missed a comma?
+  agent_yogurt['flavor_spell_buys']    = agent_yogurt.groupby(['household_code','flavor_spell_id']).cumcount() + 1[cite:1] # consecutive periods on flavor
+/scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/full_draft/data.py:86: UserWarning: You are merging on int and float columns where the float values are not equal to their int representation.
+  agent_master = agent_panel.merge(flavors, on='upc', how='left') # merge flavors on UPC codes with a left join
+╭───────────────────── Traceback (most recent call last) ──────────────────────╮
+│ /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/full_draft/data.py:109 in      │
+│ <module>                                                                     │
+│                                                                              │
+│   106 │   │   default=np.nan                                                 │
+│   107 │   )                                                                  │
+│   108 )                                                                      │
+│ ❱ 109 agent_master['flavor'] = (                                             │
+│   110 │   np.select(                                                         │
+│   111 │   │   [                                                              │
+│   112 │   │   │   [agent_master['flavor_class'].isin([2,8,9,12])], # berry   │
+│                                                                              │
+│ /home/dtm63837/.local/lib/python3.12/site-packages/pandas/core/frame.py:4672 │
+│ in __setitem__                                                               │
+│                                                                              │
+│    4669 │   │   │   self._setitem_array([key], value)                        │
+│    4670 │   │   else:                                                        │
+│    4671 │   │   │   # set column                                             │
+│ ❱  4672 │   │   │   self._set_item(key, value)                               │
+│    4673 │                                                                    │
+│    4674 │   def _setitem_slice(self, key: slice, value) -> None:             │
+│    4675 │   │   # NB: we can't just use self.loc[key] = value because that   │
+│                                                                              │
+│ /home/dtm63837/.local/lib/python3.12/site-packages/pandas/core/frame.py:4872 │
+│ in _set_item                                                                 │
+│                                                                              │
+│    4869 │   │   Series/TimeSeries will be conformed to the DataFrames index  │
+│    4870 │   │   ensure homogeneity.                                          │
+│    4871 │   │   """                                                          │
+│ ❱  4872 │   │   value, refs = self._sanitize_column(value)                   │
+│    4873 │   │                                                                │
+│    4874 │   │   if (                                                         │
+│    4875 │   │   │   key in self.columns                                      │
+│                                                                              │
+│ /home/dtm63837/.local/lib/python3.12/site-packages/pandas/core/frame.py:5754 │
+│ in _sanitize_column                                                          │
+│                                                                              │
+│    5751 │   │   │   return _reindex_for_setitem(value, self.index)           │
+│    5752 │   │                                                                │
+│    5753 │   │   if is_list_like(value):                                      │
+│ ❱  5754 │   │   │   com.require_length_match(value, self.index)              │
+│    5755 │   │   return sanitize_array(value, self.index, copy=True, allow_2d │
+│    5756 │                                                                    │
+│    5757 │   @property                                                        │
+│                                                                              │
+│ /home/dtm63837/.local/lib/python3.12/site-packages/pandas/core/common.py:601 │
+│ in require_length_match                                                      │
+│                                                                              │
+│   598 │   Check the length of data matches the length of the index.          │
+│   599 │   """                                                                │
+│   600 │   if len(data) != len(index):                                        │
+│ ❱ 601 │   │   raise ValueError(                                              │
+│   602 │   │   │   "Length of values "                                        │
+│   603 │   │   │   f"({len(data)}) "                                          │
+│   604 │   │   │   "does not match length of index "                          │
+╰──────────────────────────────────────────────────────────────────────────────╯
+ValueError: Length of values (1) does not match length of index (3098336)

@@ -1,0 +1,15 @@
+/scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/full_draft/data.py:86: UserWarning: You are merging on int and float columns where the float values are not equal to their int representation.
+  agent_master = agent_panel.merge(flavors, on='upc', how='left') # merge flavors on UPC codes with a left join
+╭───────────────────── Traceback (most recent call last) ──────────────────────╮
+│ /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/full_draft/data.py:92 in       │
+│ <module>                                                                     │
+│                                                                              │
+│    89 │   │   agent_master['flavor_code'] == 4167 # 1 if plain 0 if flavored │
+│    90 ).astype(int)                                                          │
+│    91 agent_master['yogurt_purchase'] = (                                    │
+│ ❱  92 │   (df_yogurt['product_module_code'].isin([3612,3603]) & (df_yogurt[' │
+│    93 ).astype(int)                                                          │
+│    94 agent_master['no_yogurt']       = (                                    │
+│    95 │   1 - df_yogurt['yogurt_purchase'] # 0 when purchased, 1 when no pur │
+╰──────────────────────────────────────────────────────────────────────────────╯
+NameError: name 'df_yogurt' is not defined

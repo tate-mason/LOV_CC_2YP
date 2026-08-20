@@ -1,0 +1,4 @@
+  File "/scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/full_draft/data.py", line 144
+    f'Number of yogurt purchases among purchasers per trip: {agent_yogurt.groupby('household_code')['quantity']value_counts().mean()}\n',
+                                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+SyntaxError: invalid syntax. Perhaps you forgot a comma?

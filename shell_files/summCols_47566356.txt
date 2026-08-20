@@ -1,0 +1,65 @@
+/scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/full_draft/data.py:86: UserWarning: You are merging on int and float columns where the float values are not equal to their int representation.
+  agent_master = agent_panel.merge(flavors, on='upc', how='left') # merge flavors on UPC codes with a left join
+plain
+0    9606369
+1     172047
+Name: count, dtype: int64
+yogurt_purchase
+0    9526899
+1     251517
+Name: count, dtype: int64
+/scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/full_draft/data.py:110: UserWarning: You are merging on int and float columns where the float values are not equal to their int representation.
+  product_master = product_panel.merge(flavors, on='upc', how='left')
+Number of households in full sample:                  15697
+ Mean number of trips per HH:                          91.81168376122827
+ Number of yogurt purchases among purchasers per trip: household_code  
+trip_code_uc  plain
+2000049         1051756326    0             1.0
+2000076         1044990491    0             4.0
+                1045222638    0             6.0
+                1045729652    0             1.0
+                1045957701    0             6.0
+                                         ...   
+31150112        1046859094    0             6.0
+                1047659257    0             5.0
+                1050525199    0        1.666667
+                1051017428    0             5.0
+                1051574946    0             3.0
+Name: quantity, Length: 122361, dtype: Float64
+ Mean household income:                                16.39091372263156
+ Median household income:                              16.0
+ Racial makeup of sample:                              race
+1    12782
+2     2087
+3      262
+4      566
+Name: household_code, dtype: int64
+ Percent taking outside option each trip:              0.49328936027436976
+ Percent purchasing with coupon:                       household_code  
+deal_flag_uc
+2000049         0               0.005556
+                1               0.000000
+2000076         0               0.058559
+                1               0.071429
+2000129         0               0.000000
+                                  ...   
+31150108        1               0.000000
+31150111        0               0.000000
+                1               0.000000
+31150112        0               0.018223
+                1               0.012500
+Name: yogurt_purchase, Length: 29981, dtype: float64
+
+╭───────────────────── Traceback (most recent call last) ──────────────────────╮
+│ /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/full_draft/data.py:160 in      │
+│ <module>                                                                     │
+│                                                                              │
+│   157 ).astype(int) # dummy for if a household switched flavors between trip │
+│   158 agent_yogurt['flavor_spell_id']      = agent_yogurt.groupby('household │
+│   159 agent_yogurt['flavor_spell_buys']    = agent_yogurt.groupby('household │
+│ ❱ 160 agent_yogrut['prev_flavor']          = agent_yogurt.groupby('household │
+│   161 agent_yogurt['spell_length']         = agent_yogurt.groupby(['househol │
+│   162 agent_yogurt['switched']             = (                               │
+│   163 │   agent_yogurt['plain']           != agent_yogurt['prev_flavor']     │
+╰──────────────────────────────────────────────────────────────────────────────╯
+NameError: name 'agent_yogrut' is not defined

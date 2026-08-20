@@ -1,0 +1,77 @@
+/scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/full_draft/data.py:189: SyntaxWarning: 'int' object is not subscriptable; perhaps you missed a comma?
+  agent_yogurt['flavor_spell_buys']    = agent_yogurt.groupby(['household_code','flavor_spell_id']).cumcount() + 1[cite:1] # consecutive periods on flavor
+/scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/full_draft/data.py:86: UserWarning: You are merging on int and float columns where the float values are not equal to their int representation.
+  agent_master = agent_panel.merge(flavors, on='upc', how='left') # merge flavors on UPC codes with a left join
+flavor
+0    2883505
+2     172047
+1      42784
+Name: count, dtype: int64
+yogurt_purchase
+0    2966910
+1     131426
+Name: count, dtype: int64
+/scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/full_draft/data.py:139: UserWarning: You are merging on int and float columns where the float values are not equal to their int representation.
+  product_master = product_panel.merge(flavors, on='upc', how='left')
+Number of households in full sample:                  15690
+ Number of yogurt purchasing households:               9792
+ Mean number of trips per HH:                          59.005991077119184
+ Number of yogurt purchases among purchasers per trip: 5.7426374202569255
+ Mean household income:                                16.274173298183282
+ Median household income:                              16.0
+ Racial makeup of sample:                              race
+1    12780
+2     2083
+3      261
+4      566
+Name: household_code, dtype: int64
+ Percent taking outside option each trip:              0.48591788215065457
+ Percent purchasing with coupon:                       household_code
+2000049     False
+2000076      True
+2000179      True
+2000351     False
+2000784      True
+            ...  
+31148480    False
+31148487    False
+31149872     True
+31150083     True
+31150112    False
+Name: deal_flag_uc, Length: 9792, dtype: boolean
+
+╭───────────────────── Traceback (most recent call last) ──────────────────────╮
+│ /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/full_draft/data.py:185 in      │
+│ <module>                                                                     │
+│                                                                              │
+│   182                                                                        │
+│   183 agent_yogurt = agent_yogurt.sort_values(['household_code', 'trip_code_ │
+│   184 agent_yogurt['new_flavor'] = (                                         │
+│ ❱ 185 │   (agent_yogurt['flavor']          != agent_yogurt.groupby('househol │
+│   186 │   (agent_yogurt['household_code'] != agent_yogurt['household_code']. │
+│   187 ).astype(int) # dummy for if a household switched flavors between trip │
+│   188 agent_yogurt['flavor_spell_id']      = agent_yogurt.groupby('household │
+│                                                                              │
+│ /home/dtm63837/.local/lib/python3.12/site-packages/pandas/core/groupby/gener │
+│ ic.py:2938 in __getitem__                                                    │
+│                                                                              │
+│   2935 │   │   │   │   "Cannot subset columns with a tuple with more than on │
+│   2936 │   │   │   │   "Use a list instead."                                 │
+│   2937 │   │   │   )                                                         │
+│ ❱ 2938 │   │   return super().__getitem__(key)                               │
+│   2939 │                                                                     │
+│   2940 │   def _gotitem(self, key, ndim: int, subset=None):                  │
+│   2941 │   │   """                                                           │
+│                                                                              │
+│ /home/dtm63837/.local/lib/python3.12/site-packages/pandas/core/base.py:228   │
+│ in __getitem__                                                               │
+│                                                                              │
+│    225 │   │                                                                 │
+│    226 │   │   else:                                                         │
+│    227 │   │   │   if key not in self.obj:                                   │
+│ ❱  228 │   │   │   │   raise KeyError(f"Column not found: {key}")            │
+│    229 │   │   │   ndim = self.obj[key].ndim                                 │
+│    230 │   │   │   return self._gotitem(key, ndim=ndim)                      │
+│    231                                                                       │
+╰──────────────────────────────────────────────────────────────────────────────╯
+KeyError: 'Column not found: plain'

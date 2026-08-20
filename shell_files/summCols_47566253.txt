@@ -1,0 +1,23 @@
+/scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/full_draft/data.py:86: UserWarning: You are merging on int and float columns where the float values are not equal to their int representation.
+  agent_master = agent_panel.merge(flavors, on='upc', how='left') # merge flavors on UPC codes with a left join
+plain
+0    9606369
+1     172047
+Name: count, dtype: int64
+yogurt_purchase
+0    9526899
+1     251517
+Name: count, dtype: int64
+╭───────────────────── Traceback (most recent call last) ──────────────────────╮
+│ /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/full_draft/data.py:110 in      │
+│ <module>                                                                     │
+│                                                                              │
+│   107 console.print(agent_master['yogurt_purchase'].value_counts()) # number │
+│   108                                                                        │
+│   109 # Product merge and clean                                              │
+│ ❱ 110 product_master = prduct_panel.merge(flavors, on='upc', how='left')     │
+│   111 product_master['plain'] = (                                            │
+│   112 │   product_master['flavor_code'] == 4167 # same as above              │
+│   113 ).astype(int)                                                          │
+╰──────────────────────────────────────────────────────────────────────────────╯
+NameError: name 'prduct_panel' is not defined

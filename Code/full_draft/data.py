@@ -201,6 +201,7 @@ switching_sample = agent_yogurt[agent_yogurt['switched'] == 1][[
     'trip_code_uc',
     'flavor',
     'prev_flavor',
+    'next_flavor',
     'spell_length'
 ]] # filter to switchers
 

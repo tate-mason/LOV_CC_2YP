@@ -216,7 +216,7 @@ console.print(
     f'Number of households in full sample:                  {agent_master['household_code'].nunique()}\n',
     f'Number of yogurt purchasing households:               {agent_yogurt['household_code'].nunique()}\n',
     f'Mean number of trips per HH:                          {agent_master.groupby('household_code')['trip_code_uc'].nunique().mean()}\n',
-    f'Number of yogurt purchases among purchasers per trip: {agent_yogurt.groupby('household_code')['trip_code_uc'].value_counts().mean()}\n',
+    f'Number of yogurt purchases among purchasers per trip: {agent_yogurt.groupby(['household_code', 'trip_code_uc'])['quantity'].sum().mean()}\n',
     f'Mean household income:                                {agent_master['household_income'].mean()}\n',
     f'Median household income:                              {agent_master['household_income'].median()}\n',
     f'Racial makeup of sample:                              {agent_master.groupby('race')['household_code'].nunique()}\n',
@@ -261,10 +261,10 @@ switches_coupon = agent_yogurt[(agent_yogurt['switched'] == 1) & (agent_yogurt['
 
 console.print(
     f'Mean consecutive buys by flavor x hh: {agent_yogurt['spell_length'].mean()}\n',
-    f'Mean times switching by flavor x hh:  {agent_yogurt.groupby(['household_code', 'flavor'])['switched'].count().mean()}\n',
+    f'Mean times switching by flavor x hh:  {agent_yogurt.groupby(['household_code', 'flavor'])['switched'].sum().mean()}\n',
     f'Percent of HH who ever-switch:        {(agent_yogurt.groupby('household_code')['plain'].nunique()>1).mean()*100}\n',
     f'Average time spent on each flavor:    {agent_yogurt['spell_length'].mean()}\n'
-    f'Percent switching due to coupon:      {(switches_coupon['household_code'].count())/(agent_yogurt['household_code'].count())}\n',
+    f'Percent switching due to coupon:      {len(switches_coupon)/(len(switching_sample))}\n',
 )
 
 #=== Switching Graphs for Agents ===#
@@ -309,7 +309,7 @@ price_summary = (
 
 fig, ax = plt.subplots(figsize=(10,4))
 sns.lineplot(
-    data=merged_master,
+    data=price_summary,
     x='week_end',
     y='week_mean',
     hue='dma_code',

@@ -70,6 +70,7 @@ product_panel = (
     .to_pandas()              # convert from LazyFrame to DataFrame
 ) 
 
+console.print(product_panel.columns.tolist())
 # Product panel cleaning
 
 product_panel['week_end']      = pd.to_datetime(product_panel['week_end'], format='%Y%m%d') # convert date format

@@ -157,7 +157,7 @@ agent_yogurt['new_flavor'] = (
     (agent_yogurt['household_code'] != agent_yogurt['household_code'].shift(1))
 ).astype(int) # dummy for if a household switched flavors between trips 
 agent_yogurt['flavor_spell_id']      = agent_yogurt.groupby('household_code')['new_flavor'].cumsum() # count of periods on new flavor
-agent_yogurt['flavor_spell_buys']    = agent_yogurt.groupby('household_code')['flavor_spell_id'].cumcount() + 1 # consecutive periods on flavor
+agent_yogurt['flavor_spell_buys']    = agent_yogurt.groupby(['household_code','flavor_spell_id']).cumcount() + 1 # consecutive periods on flavor
 agent_yogurt['prev_flavor']          = agent_yogurt.groupby('household_code')['plain'].shift(1) # last purchased flavor
 agent_yogurt['spell_length']         = agent_yogurt.groupby(['household_code', 'flavor_spell_id'])['flavor_spell_buys'].transform('max') # get the number of buys in the flavor spell
 agent_yogurt['switched']             = (
@@ -177,7 +177,7 @@ switching_sample = agent_yogurt[agent_yogurt['switched'] == 1][[
 
 console.print(
     f'Mean consecutive buys by flavor x hh: {agent_yogurt.groupby(['household_code','plain'])['flavor_spell_buys'].mean()}\n',
-    f'Mean times switching by flavor x hh:  {agent_yogurt.groupby(['household_code', 'plain'])['new_flavor'].count().mean()}\n',
+    f'Mean times switching by flavor x hh:  {agent_yogurt.groupby(['household_code', 'plain'])['switched'].count().mean()}\n',
     f'Percent of HH who ever-switch:        {(switching_sample['household_code'].count()) / (agent_yogurt['household_code'].count())}\n',
     f'Average time spent on each flavor:    {agent_yogurt['spell_length'].mean()}'
 )

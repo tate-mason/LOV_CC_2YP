@@ -84,10 +84,38 @@ flavors      = pd.read_csv(flav_path) # load in flavors documentation
 # Agent merge and clean
 
 agent_master = agent_panel.merge(flavors, on='upc', how='left') # merge flavors on UPC codes with a left join
-agent_panel  = agent_master.dropna(subset=['quantity', 'product_group_code', 'flavor_code', 'flavor_descr']) # drop NA for key var after merge
-agent_master['plain'] = (
-        agent_master['flavor_code'] == 4167 # 1 if plain 0 if flavored
-).astype(int)
+agent_master  = agent_master.dropna(subset=['quantity', 'product_group_code', 'flavor_code', 'flavor_descr']) # drop NA for key var after merge
+agent_master  = agent_master.assign(
+    flavor_class = np.select(
+        [
+            agent_master['flavor_code'].isin([139, 44642, 75721, 2180]), # apple
+            agent_master['flavor_code'].isin([22053, 24357, 52953, 74408, 17159, 23721]), # blueberry
+            agent_master['flavor_code'].isin([11214, 20888, 17849, 17849]), # banana
+            agent_master['flavor_code'].isin([904, 13314, 1169, 1174, 5651]), # cherry
+            agent_master['flavor_code'].isin([73560, 3075, 73560]), # key lime
+            agent_master['flavor_code'].isin([3107, 22916, 3122, 6061]), # lemon
+            agent_master['flavor_code'].isin([3943, 3060, 70529, 10808, 3985, 23346]), # peach
+            agent_master['flavor_code'].isin([6352, 41654, 41681, 78681, 41634, 6912]), # raspberry
+            agent_master['flavor_code'].isin([23344, 16007, 16102, 66438, 16194, 30581, 45574, 72000, 17110]), # strawberry
+            agent_master['flavor_code'].isin([5537, 5539, 66938, 5658, 72317]), # vanilla
+            agent_master['flavor_code'].isin([66438, 66684, 71101, 72483,19061, 16102,  61082, 61487, 57428, 67420, 78857, 1154, 26050, 1216]), # mixed flavors
+            agent_master['flavor_code'].isin([57129, 76690, 16200, 62349, 16199, 16182, 72290, 32300, 72289, 16102, 72292, 3465, 68109, 52953, 72288]), # mixed berry
+            agent_master['flavor_code'].isin([4167]) # flavor
+        ],
+        [1,2,3,4,5,6,7,8,9,10,11,12,13],
+        default=np.nan
+    )
+)
+agent_master['flavor'] = (
+    np.select(
+        [
+            [agent_master['flavor_class'].isin([2,8,9,12])], # berry
+            [agent_master['flavor_class'] == 13]
+        ],
+        [1,2],
+        default=0
+    )
+)
 agent_master['yogurt_purchase'] = (
     (agent_master['product_module_code'].isin([3612,3603]) & (agent_master['quantity']>0)) # create dummy for HH who bought at least one yogurt product
 ).astype(int)
@@ -103,12 +131,12 @@ outside_option = agent_master.groupby(['household_code', 'trip_code_uc']).agg({
 outside_option['outside_option_rate'] = (
     outside_option['no_yogurt'] / outside_option['total_occasions']
 ) # variable for the rate of taking outside option (sum of no purchase occ. / total occ.)
-console.print(agent_master['plain'].value_counts())           # print # of individuals who purchased plain v other
+console.print(agent_master['flavor'].value_counts())           # print # of individuals who purchased plain v other
 console.print(agent_master['yogurt_purchase'].value_counts()) # number of purchasers vs non-purchasers
 
 # Product merge and clean
 product_master = product_panel.merge(flavors, on='upc', how='left')
-product_master['plain'] = (
+product_master['flavor'] = (
     product_master['flavor_code'] == 4167 # same as above
 ).astype(int)
 
@@ -146,38 +174,38 @@ console.print(
     f'Median household income:                              {agent_master['household_income'].median()}\n',
     f'Racial makeup of sample:                              {agent_master.groupby('race')['household_code'].nunique()}\n',
     f'Percent taking outside option each trip:              {outside_option['outside_option_rate'].mean()}\n',
-    f'Percent purchasing with coupon:                       {agent_master.groupby(['household_code', 'deal_flag_uc'])['yogurt_purchase'].mean()}\n',
+    f'Percent purchasing with coupon:                       {agent_yogurt.groupby('household_code')['deal_flag_uc'].max()==1}\n',
 )
 
 #=== Switching Stats ===#
 
 agent_yogurt = agent_yogurt.sort_values(['household_code', 'trip_code_uc']) # sort by time and household
 agent_yogurt['new_flavor'] = (
-    (agent_yogurt['plain']          != agent_yogurt.groupby('household_code')['plain'].shift(1)) |
+    (agent_yogurt['flavor']          != agent_yogurt.groupby('household_code')['plain'].shift(1)) |
     (agent_yogurt['household_code'] != agent_yogurt['household_code'].shift(1))
 ).astype(int) # dummy for if a household switched flavors between trips 
 agent_yogurt['flavor_spell_id']      = agent_yogurt.groupby('household_code')['new_flavor'].cumsum() # count of periods on new flavor
-agent_yogurt['flavor_spell_buys']    = agent_yogurt.groupby(['household_code','flavor_spell_id']).cumcount() + 1 # consecutive periods on flavor
-agent_yogurt['prev_flavor']          = agent_yogurt.groupby('household_code')['plain'].shift(1) # last purchased flavor
+agent_yogurt['flavor_spell_buys']    = agent_yogurt.groupby(['household_code','flavor_spell_id']).cumcount() + 1[cite:1] # consecutive periods on flavor
+agent_yogurt['prev_flavor']          = agent_yogurt.groupby('household_code')['flavor'].shift(1) # last purchased flavor
 agent_yogurt['spell_length']         = agent_yogurt.groupby(['household_code', 'flavor_spell_id'])['flavor_spell_buys'].transform('max') # get the number of buys in the flavor spell
 agent_yogurt['switched']             = (
-    agent_yogurt['plain']           != agent_yogurt['prev_flavor']
+    agent_yogurt['flavor']           != agent_yogurt['prev_flavor']
 ).astype(int) # ever-switch indicator
-agent_yogurt['returned']             = agent_yogurt.groupby('household_code')['plain'].transform(
+agent_yogurt['returned']             = agent_yogurt.groupby('household_code')['flavor'].transform(
         lambda x: x.shift(1).isin(x.shift(-1))
 ) # indicator for returning to a previous flavor
 switching_sample = agent_yogurt[agent_yogurt['switched'] == 1][[
     'household_code',
     'trip_code_uc',
-    'plain',
+    'flavor',
     'prev_flavor',
     'spell_length'
 ]] # filter to switchers
 
 
 console.print(
-    f'Mean consecutive buys by flavor x hh: {agent_yogurt.groupby(['household_code','plain'])['flavor_spell_buys'].mean()}\n',
-    f'Mean times switching by flavor x hh:  {agent_yogurt.groupby(['household_code', 'plain'])['switched'].count().mean()}\n',
+    f'Mean consecutive buys by flavor x hh: {agent_yogurt['spell_length'].mean()}\n',
+    f'Mean times switching by flavor x hh:  {agent_yogurt.groupby(['household_code', 'flavor'])['switched'].count().mean()}\n',
     f'Percent of HH who ever-switch:        {(switching_sample['household_code'].count()) / (agent_yogurt['household_code'].count())}\n',
     f'Average time spent on each flavor:    {agent_yogurt['spell_length'].mean()}'
 )
@@ -185,11 +213,11 @@ console.print(
 #=== Switching Graphs for Agents ===#
 
 heat_flav = (
-        switching_sample.groupby(['prev_flavor', 'plain'])['spell_length']
+        switching_sample.groupby(['prev_flavor', 'flavor'])['spell_length']
         .mean()
         .unstack()
 )
-heat_flav = heat_flav.rename(columns={0:"Flavored", 1:"Plain"})
+heat_flav = heat_flav.rename(columns={0:"Other", 1:"Berry", 2:"Plain"})
 cell_labs = np.array(
     [[f'{val:.1f} trips' for val in row] for row in heat_flav.to_numpy()]
 )

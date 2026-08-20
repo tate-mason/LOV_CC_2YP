@@ -142,17 +142,14 @@ agent_master['yogurt_purchase'] = (
 agent_master['no_yogurt']       = (
     1 - agent_master['yogurt_purchase'] # 0 when purchased, 1 when no purchase
 )
-outside_option = agent_master.groupby(['household_code', 'trip_code_uc']).agg({
-    'no_yogurt': 'sum',        # sum of no purchase occ.
-    'yogurt_purchase': 'count' # count of yogurt purchasers by trip code
-}).assign(
-    total_occasions = lambda x: x['no_yogurt'] + x['yogurt_purchase'] # total purchase occ.
-)
-outside_option['outside_option_rate'] = (
-    outside_option['no_yogurt'] / outside_option['total_occasions']
-) # variable for the rate of taking outside option (sum of no purchase occ. / total occ.)
-console.print(agent_master['flavor'].value_counts())           # print # of individuals who purchased plain v other
-console.print(agent_master['yogurt_purchase'].value_counts()) # number of purchasers vs non-purchasers
+# 1. Identify if ANY yogurt was purchased on a given store trip
+trip_yogurt = agent_master.groupby(['household_code', 'trip_code_uc'])['yogurt_purchase'].max().reset_index()
+
+# 2. A trip took the outside option if max(yogurt_purchase) == 0
+trip_yogurt['chose_outside_option'] = (trip_yogurt['yogurt_purchase'] == 0).astype(int)
+
+# 3. Overall rate of taking the outside option across all trips
+outside_option_rate = trip_yogurt['chose_outside_option'].mean()
 
 # Merged merge and clean
 
@@ -223,7 +220,7 @@ console.print(
     f'Mean household income:                                {agent_master['household_income'].mean()}\n',
     f'Median household income:                              {agent_master['household_income'].median()}\n',
     f'Racial makeup of sample:                              {agent_master.groupby('race')['household_code'].nunique()}\n',
-    f'Percent taking outside option each trip:              {outside_option['outside_option_rate'].mean()}\n',
+    f'Percent taking outside option each trip:              {outside_option_rate:.2f}\n',
     f'Percent purchasing with coupon:                       {agent_yogurt['deal_flag_uc'].mean()*100:.2f}\n',
 )
 

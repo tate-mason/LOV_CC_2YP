@@ -84,22 +84,7 @@ concludes.
 
     \subsection{Data}
 
-    My data comes from Nielsen's HomeScan and MarketScan data. These two main
-    datasets give me access to household purchase decisions as well as product
-    characteristics. I am looking at the years between 2014-2016 in markets
-    Atlanta, Chicago, San Diego, and Denver. Households are single-person to
-    avoid any contamination of shopping for multiple people like children or
-    spouses, allowing me a cleaner sample of shopping trips. Stores have to be valid Nielsen stores, meaning they appear in the reatil code data. This is necessary to observe prices the products were bought at. 
-
-    The product space I am looking at is yogurt. Yogurt is good for this sort of
-    analysis due to its relative lack of storability as well as its variation in
-    attributes like flavor, nutrient contents, and types like Greek or Skyr. I
-    have limited yogurt sizes to two kinds: cups and tubs. Cups of yogurt are
-    between five and seven ounces while tubs are approximately 32 ounces. Cups
-    are single serving products and come in more varied flavors. Tubs, on the
-    other hand, tend to be limited in flavors but hold five to seven servings of
-    yogurt. These two types provide interesting anaylsis of what type of person
-    buys which size.
+    My data comes from Nielsen's HomeScan and MarketScan data. These two main datasets give me access to household purchase decisions as well as product characteristics. I am looking at the years between 2014-2016 in markets Atlanta, Chicago, San Diego, and Denver. Households are comprised of a single-person to avoid any contamination of shopping for multiple people like children or spouses, allowing me a cleaner sample of shopping trips. Stores have to be valid Nielsen stores, meaning they appear in the reatil code data. This is necessary to observe prices the products were bought at. The product space I am looking at is yogurt. Yogurt is good for this sort of analysis due to its relative lack of storability as well as its variation in attributes like flavor, nutrient contents, and types like Greek or Skyr. I have limited yogurt sizes to cups. Cups of yogurt are between five and eight ounces and are single serving products which come in more varied flavors. This product space 
 
     \ref{tab:stat_tab} shows that there are n households, with a in Atlanta, b
     in Chicago, c in Denver, and d in San Diego. The mean income is \$17,000 and
@@ -182,6 +167,55 @@ In closing, this paper develops a dynamic discrete choice model of consumer dema
 
 %============================================================%
 \newpage
+
+\section{Tables and Figures}
+
+\begin{table}[htbp]
+\centering
+\caption{Summary Statistics for Household Panel, Switching Dynamics, and Pricing}
+\label{tab:stat_tab}
+\begin{tabular}{lrr}
+\toprule
+\textbf{Statistic / Variable} & \textbf{Value} & \textbf{Unit / Description} \\
+\midrule
+\multicolumn{3}{l}{\textbf{Panel \& Household Demographics}} \\
+\quad Total Households in Sample & 1,269 & Households \\
+\quad Yogurt Purchasing Households & 715 & Households (56.3\%) \\
+\quad Mean Trips per Household & 17.65 & Trips / Household \\
+\quad Mean Purchases per Shopping Trip & 5.91 & Units / Trip \\
+\quad Mean Household Income & 17.62 & Income Bracket \\
+\quad Median Household Income & 18.00 & Income Bracket \\
+\quad Outside Option Rate & 41.71\% & Non-purchase trip share \\
+\midrule
+\multicolumn{3}{l}{\textbf{Racial Composition of Households}} \\
+\quad White (Code 1) & 955 & Households (75.26\%) \\
+\quad Black (Code 2) & 254 & Households (20.02\%) \\
+\quad Asian (Code 3) & 24 & Households (1.89\%) \\
+\quad Other / Multiracial (Code 4) & 36 & Households (2.84\%) \\
+\midrule
+\multicolumn{3}{l}{\textbf{Switching \& Purchasing Dynamics}} \\
+\quad Ever-Switcher Households & 34.88\% & Conditional on yogurt purchase \\
+\quad Coupon Purchase Rate (All Purchases) & 47.56\% & Share of yogurt trips \\
+\quad Switching Attributable to Coupon & 17.31\% & Share of switch events \\
+\quad Mean Times Switching per Household & 8.60 & Switches / Household \\
+\quad Mean Consecutive Buys per Flavor & 10.16 & Continuous purchase trips \\
+\quad Mean Spell Duration per Flavor & 10.16 & Trips per flavor spell \\
+\midrule
+\multicolumn{3}{l}{\textbf{Yogurt Pricing}} \\
+\quad Overall Mean Price & \$0.84 & Per unit price \\
+\quad Other Flavors Price & \$0.76 & Per unit price \\
+\quad Berry Price & \$0.92 & Per unit price \\
+\quad Plain Price & \$1.16 & Per unit price \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[htbp]
+  \centering
+  \label{fig:flav_heatmap}
+  \caption{Mean Length of Time Spent on a Flavor Post-Switch}
+  \includegraphics[width=\textwidth]{../../Output/Plots/3_flav_heatmap.pdf}
+\end{figure}
 
 \bibliography{lov_lit.bib}
 

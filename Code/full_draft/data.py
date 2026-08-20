@@ -175,7 +175,7 @@ console.print(
     f'Median household income:                              {agent_master['household_income'].median()}\n',
     f'Racial makeup of sample:                              {agent_master.groupby('race')['household_code'].nunique()}\n',
     f'Percent taking outside option each trip:              {outside_option['outside_option_rate'].mean()}\n',
-    f'Percent purchasing with coupon:                       {agent_yogurt.groupby('household_code')['deal_flag_uc'].max()==1}\n',
+    f'Percent purchasing with coupon:                       {agent_yogurt.groupby('household_code')['deal_flag_uc'].count()/agent_yogurt['household_code'].count()}\n',
 )
 
 #=== Switching Stats ===#

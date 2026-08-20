@@ -40,6 +40,7 @@ flav_path = '/scratch/dtm63837/Kilts_Panel/RMS/Reference_Documentation/2006-2020
 agent_panel   = (
     pl.read_parquet(hms_path)      # call the local path set above
     .rename({'DMA_Cd':'dma_code'}) # rename for easier filtering/merging later
+    .filter(pl.col('dma_code').is_in([524, 602, 751, 825])) # filter to 4 markets
     .to_pandas()                   # convert from LazyFrame to pandas DataFrame
 )
 
@@ -274,3 +275,8 @@ ax.set_title('Mean Spell Length Prior to Switching') # how long you stay on init
 plt.tight_layout() # same
 plt.savefig('../Output/Plots/3_flav_future.pdf', format='pdf', bbox_inches='tight') #same
 plt.close() # same
+
+#=== Product Stats ===#
+
+console.print(product_master['price'].mean())
+console.print()

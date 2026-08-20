@@ -217,45 +217,49 @@ console.print(
     f'Mean consecutive buys by flavor x hh: {agent_yogurt['spell_length'].mean()}\n',
     f'Mean times switching by flavor x hh:  {agent_yogurt.groupby(['household_code', 'flavor'])['switched'].count().mean()}\n',
     f'Percent of HH who ever-switch:        {(switching_sample['household_code'].count()) / (agent_yogurt['household_code'].count())}\n',
-    f'Average time spent on each flavor:    {agent_yogurt['spell_length'].mean()}'
+    f'Average time spent on each flavor:    {agent_yogurt['spell_length'].mean()}\n'
     f'Percent switching due to coupon:      {(switches_coupon['household_code'].count())/(agent_yogurt['household_code'].count())}\n',
 )
 
 #=== Switching Graphs for Agents ===#
 
+# t-1 --> t
+
 heat_flav = (
         switching_sample.groupby(['prev_flavor', 'flavor'])['spell_length']
         .mean()
         .unstack()
-)
-heat_flav = heat_flav.rename(columns={0:"Other", 1:"Berry", 2:"Plain"})
+) # grouping switchers by flavor sequence, taking the mean, and then pivoting rows to columns, like a matrix
+heat_flav = heat_flav.rename(columns={0:"Other", 1:"Berry", 2:"Plain"}) # labeling columns with flavor names
 cell_labs = np.array(
     [[f'{val:.1f} trips' for val in row] for row in heat_flav.to_numpy()]
-)
-fig, ax   = plt.subplots(figsize=(10,8))
+) # applying cell labels applying the word 'trips' after the spell value 
+fig, ax   = plt.subplots(figsize=(10,8)) # defining the canvas and plot area
 sns.heatmap(heat_flav,
             yticklabels=['Other', 'Berry', 'Plain'],
             annot   =cell_labs,
             fmt     ='',
             cmap    ='YlOrRd',
             ax      =ax,
-            )
-ax.set_xlabel('Flavor Switched To')
-ax.set_ylabel('Flavor Switched From')
-ax.set_title('Mean Spell Length Upon Switching')
-plt.tight_layout()
-plt.savefig('../Output/Plots/3_flav_heatmap.pdf',format='pdf',bbox_inches='tight')
-plt.close()
+            ) # heatmap using spell lengths, labeling y axis, applying cell labels, no formatting, color specification (Yellow,Orange,Red gradient), axis
+ax.set_xlabel('Flavor Switched To') # x label
+ax.set_ylabel('Flavor Switched From') # y label
+ax.set_title('Mean Spell Length Upon Switching') # title: plot shows how long you stay on the switched to flavor
+plt.tight_layout() # auto adjusts the spacing and margins
+plt.savefig('../Output/Plots/3_flav_heatmap.pdf',format='pdf',bbox_inches='tight') # save the heatmap to output/plots
+plt.close() # close the plot in python
+
+# t --> t+1
 
 heat_flav_future = (
     switching_sample.groupby(['flavor', 'next_flavor'])['spell_length']
     .mean()
     .unstack()
-)
-heat_flav_future = heat_flav_future.rename(columns={0:'Other', 1:'Berry', 2:'Plain'}) 
+) # same as above, but for t+1
+heat_flav_future = heat_flav_future.rename(columns={0:'Other', 1:'Berry', 2:'Plain'})  # same as above
 cell_labs_future = np.array(
     [[f'{val:.1f} trips' for val in row] for row in heat_flav_future.to_numpy()]
-)
+) # same as above
 fig, ax          = plt.subplots(figsize=(10,8))
 sns.heatmap(heat_flav_future,
             yticklabels= ['Other', 'Plain', 'Berry'],
@@ -263,10 +267,10 @@ sns.heatmap(heat_flav_future,
             fmt        = '',
             cmap       = 'YlOrRd',
             ax         = ax,
-            )
-ax.set_xlabel('Flavor Switched From')
-ax.set_ylabel('Flavor Switched To')
-ax.set_title('Mean Spell Length Prior to Switching')
-plt.tight_layout()
-plt.savefig('../Output/Plots/3_flav_future.pdf', format='pdf', bbox_inches='tight')
-plt.close()
+            ) # same as above
+ax.set_xlabel('Flavor Switched From') # same as above
+ax.set_ylabel('Flavor Switched To') # same as above
+ax.set_title('Mean Spell Length Prior to Switching') # how long you stay on initial flavor before switching
+plt.tight_layout() # same
+plt.savefig('../Output/Plots/3_flav_future.pdf', format='pdf', bbox_inches='tight') #same
+plt.close() # same

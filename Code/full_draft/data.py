@@ -139,9 +139,9 @@ agent_yogurt = agent_yogurt[agent_yogurt['product_module_code'].isin([3612, 3603
 
 console.print(
     f'Number of households in full sample:                  {agent_master['household_code'].nunique()}\n',
-    f'Number of yogurt purchasing households:               {agent_yogurt['household_code'].nunique()}\n',
+    f'Number of yogurt purchasing households:               {agent_yogurt['household_code'].nunique().mean()}\n',
     f'Mean number of trips per HH:                          {agent_master.groupby('household_code')['trip_code_uc'].nunique().mean()}\n',
-    f'Number of yogurt purchases among purchasers per trip: {agent_yogurt.groupby(['household_code', 'trip_code_uc', 'plain'])['quantity'].mean()}\n',
+    f'Number of yogurt purchases among purchasers per trip: {agent_yogurt.groupby(['household_code')['quantity']value_counts().mean()}\n',
     f'Mean household income:                                {agent_master['household_income'].mean()}\n',
     f'Median household income:                              {agent_master['household_income'].median()}\n',
     f'Racial makeup of sample:                              {agent_master.groupby('race')['household_code'].nunique()}\n',
@@ -178,8 +178,8 @@ switching_sample = agent_yogurt[agent_yogurt['switched'] == 1][[
 console.print(
     f'Mean consecutive buys by flavor x hh: {agent_yogurt.groupby(['household_code','plain'])['flavor_spell_buys'].mean()}\n',
     f'Mean times switching by flavor x hh:  {agent_yogurt.groupby(['household_code', 'plain'])['new_flavor'].count().mean()}\n',
-    f'Percent of HH who ever-switch:        {(switching_sample['household_code'].count() / agent_yogurt['household_code'].count())}\n',
-    f'Average time spent on each flavor:    {agent_yogurt.groupby(['prev_flavor', 'plain'])['spell_length'].mean()}'
+    f'Percent of HH who ever-switch:        {(switching_sample['household_code'].count()) / (agent_yogurt['household_code'].count()))}\n',
+    f'Average time spent on each flavor:    {agent_yogurt['spell_length'].mean()}'
 )
 
 #=== Switching Graphs for Agents ===#

@@ -211,7 +211,10 @@ Yogurt Only:
 
 agent_yogurt = agent_master.copy() # copy full sample
 agent_yogurt = agent_yogurt[agent_yogurt['product_group_code'] == 2510] # subset to yogurt purchases
-
+multipack_pattern   = r'MULTI|MULTIPACK|\bPK\b|\bCT\b'
+agent_yogurt = agent_yogurt[
+    ~agent_yogurt['upc_descr'].str.contains(multipack_pattern,case=FALSE, na=False)
+]
 console.print(
     f'Number of households in full sample:                  {agent_master['household_code'].nunique()}\n',
     f'Number of yogurt purchasing households:               {agent_yogurt['household_code'].nunique()}\n',
@@ -242,6 +245,7 @@ agent_yogurt['returned']             = agent_yogurt.groupby('household_code')['f
         lambda x: x.shift(1).isin(x.shift(-1))
 ) # indicator for returning to a previous flavor
 agent_yogurt['next_flavor']          = agent_yogurt.groupby('household_code')['flavor'].shift(-1) # get the next flavor
+
 switching_sample = agent_yogurt[agent_yogurt['switched'] == 1][[
     'household_code',
     'trip_code_uc',

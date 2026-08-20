@@ -166,7 +166,7 @@ agent_yogurt['switched']             = (
 agent_yogurt['returned']             = agent_yogurt.groupby('household_code')['plain'].transform(
         lambda x: x.shift(1).isin(x.shift(-1))
 ) # indicator for returning to a previous flavor
-switching_sample = agent_yogurt[agent_yogurt['swithced'] == 1][[
+switching_sample = agent_yogurt[agent_yogurt['switched'] == 1][[
     'household_code',
     'trip_code_uc',
     'plain',

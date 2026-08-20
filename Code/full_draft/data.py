@@ -182,7 +182,7 @@ console.print(
 
 agent_yogurt = agent_yogurt.sort_values(['household_code', 'trip_code_uc']) # sort by time and household
 agent_yogurt['new_flavor'] = (
-    (agent_yogurt['flavor']          != agent_yogurt.groupby('household_code')['plain'].shift(1)) |
+    (agent_yogurt['flavor']          != agent_yogurt.groupby('household_code')['flavor'].shift(1)) |
     (agent_yogurt['household_code'] != agent_yogurt['household_code'].shift(1))
 ).astype(int) # dummy for if a household switched flavors between trips 
 agent_yogurt['flavor_spell_id']      = agent_yogurt.groupby('household_code')['new_flavor'].cumsum() # count of periods on new flavor

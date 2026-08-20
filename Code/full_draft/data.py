@@ -227,7 +227,7 @@ sns.heatmap(heat_flav,
             yticklabels=['Other', 'Berry', 'Plain']
             annot   =cell_labs,
             fmt     ='',
-            cmap    ='YlGnBu',
+            cmap    ='YlOrRd',
             ax      =ax,
             )
 ax.set_xlabel('Flavor Switched To')

@@ -193,7 +193,7 @@ heat_flav = heat_flav.rename(columns={0:"Flavored", 1:"Plain"})
 cell_labs = np.array(
     [[f'{val:.1f} trips' for val in row] for row in heat_flav.to_numpy()]
 )
-fig, ax   = plt.subplot(figsize=(10,8))
+fig, ax   = plt.subplots(figsize=(10,8))
 sns.heatmap(heat_flav,
             annot   =cell_labs,
             fmt     ='.2f',

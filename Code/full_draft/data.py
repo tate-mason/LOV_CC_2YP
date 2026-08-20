@@ -39,10 +39,12 @@ flav_path = '/scratch/dtm63837/Kilts_Panel/RMS/Reference_Documentation/2006-2020
 
 merged_panel  = (
     pl.read_parquet(out_path)      # call the local path
-    .filter(pl.col('dma_code').is_in([524, 602, 751, 825]))
+    .filter(pl.col('size1_amount').between(5, 8))
+    .filter(pl.col('dma_code_x').is_in([524, 602, 751, 825]))
     .to_pandas()
 )
-console.print(merged_panel.columns.tolist())
+
+merged_panel = merged_panel.rename({'dma_code_x':'dma_code'})
 
 # Loading agent panel
 

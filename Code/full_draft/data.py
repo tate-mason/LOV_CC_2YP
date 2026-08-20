@@ -43,7 +43,7 @@ merged_panel  = (
     .filter(pl.col('dma_code_x').is_in([524, 602, 751, 825]))
     .to_pandas()
 )
-merged_panel. = merged_panel.rename(columns={
+merged_panel = merged_panel.rename(columns={
     'product_module_code_x':'product_module_code',
     'product_group_code_x':'product_group_code', 
     'size1_code_uc_x':'size1_code_uc',

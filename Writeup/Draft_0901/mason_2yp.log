@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.8.17)  20 AUG 2026 15:46
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.8.17)  20 AUG 2026 18:32
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -522,138 +522,187 @@ Package caption Info: End \AtBeginDocument code.
 \c@lstlisting=\count356
  (/usr/local/texlive/2026/texmf-dist/tex/latex/upquote/upquote.sty
 Package: upquote 2012/04/19 v1.3 upright-quote and grave-accent glyphs in verbatim
-)
-
-Package natbib Warning: Citation `lattin_model_1987' on page 1 undefined on input line 76.
-
-
-Package natbib Warning: Citation `erdem_decision-making_1996' on page 1 undefined on input line 76.
-
-
-Package natbib Warning: Citation `chintagunta_variety_1999' on page 1 undefined on input line 76.
-
-[1
+) [1
 
 {/usr/local/texlive/2026/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
-LaTeX Font Info:    Trying to load font information for U+msa on input line 98.
+
+Package natbib Warning: Citation `mcallister_1984' on page 2 undefined on input line 77.
+
+
+Package natbib Warning: Citation `lattin_model_1987' on page 2 undefined on input line 77.
+
+
+Package natbib Warning: Citation `erdem_decision-making_1996' on page 2 undefined on input line 77.
+
+
+Package natbib Warning: Citation `chintagunta_variety_1999' on page 2 undefined on input line 77.
+
+
+Package natbib Warning: Citation `dube_2004' on page 2 undefined on input line 77.
+
+
+Package natbib Warning: Citation `chintagunta_2006' on page 2 undefined on input line 77.
+
+
+Package natbib Warning: Citation `train_2010' on page 2 undefined on input line 79.
+
+[2]
+LaTeX Font Info:    Trying to load font information for U+msa on input line 105.
  (/usr/local/texlive/2026/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 ) (/usr/local/texlive/2026/texmf-dist/tex/latex/microtype/mt-msa.cfg
 File: mt-msa.cfg 2006/02/04 v1.1 microtype config. file: AMS symbols (a) (RS)
 )
-LaTeX Font Info:    Trying to load font information for U+msb on input line 98.
+LaTeX Font Info:    Trying to load font information for U+msb on input line 105.
  (/usr/local/texlive/2026/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 ) (/usr/local/texlive/2026/texmf-dist/tex/latex/microtype/mt-msb.cfg
 File: mt-msb.cfg 2005/06/01 v1.0 microtype config. file: AMS symbols (b) (RS)
-)
-Runaway argument?
- U_{ijt} &= \delta D_{ht} + \sum _1^k\beta ^k_i X^k_{jt} + \gamma _i \ETC.
-./mason_2yp.tex:118: Paragraph ended before \alignat* was complete.
+) [3]
+
+Package natbib Warning: Citation `train_2010' on page 4 undefined on input line 127.
+
+[4]
+./mason_2yp.tex:168: Missing number, treated as zero.
 <to be read again> 
-                   \par 
-l.118 
-      
-I suspect you've forgotten a `}', causing me to apply this
-control sequence to too much text. How can we recover?
-My plan is to forget the whole thing and hope for the best.
+                   U
+l.168       U
+             _{ijt} &= \beta_0 + \sum_1^k\beta^k_i X^k_{jt} + \gamma_i \log(...
+A number should have been here; I inserted `0'.
+(If you can't figure out why I needed to see a number,
+look up `weird error' in the index to The TeXbook.)
 
-./mason_2yp.tex:118: Missing $ inserted.
-<inserted text> 
-                $
-l.118 
-      
-I've inserted a begin-math/end-math symbol since I think
-you left one out. Proceed, with fingers crossed.
 
-./mason_2yp.tex:118: Missing \endgroup inserted.
-<inserted text> 
-                \endgroup 
-l.118 
-      
-I've inserted something that you may have forgotten.
-(See the <inserted text> above.)
-With luck, this will get me unwedged. But if you
-really didn't forget anything, try typing `2' now; then
-my insertion and my current dilemma will both disappear.
+./mason_2yp.tex:175: Package amsmath Error: Extra & on this line.
 
-./mason_2yp.tex:118: Display math should end with $$.
-<to be read again> 
-                   \tex_par:D 
-l.118 
-      
-The `$' that I just saw supposedly matches a previous `$$'.
-So I shall assume that you typed `$$' both times.
-
-./mason_2yp.tex:119: Misplaced \cr.
-\math@cr@@@ ->\cr 
-                  
-l.119     \end{alignat*}
+See the amsmath package documentation for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.175     \end{alignat*}
                         
-I can't figure out why you would want to use a tab mark
-or \cr or \span just now. If something like a right brace
-up above has ended a previous alignment prematurely,
-you're probably due for more error messages, and you
-might try typing `S' now just to see what is salvageable.
+\An extra & here is so disastrous that you should probably exit
+ and fix things up. 
 
-./mason_2yp.tex:119: Misplaced \noalign.
-\math@cr@@ ... \iffalse }\fi \math@cr@@@ \noalign 
-                                                  {\vskip #1\relax }
-l.119     \end{alignat*}
+
+./mason_2yp.tex:175: Package amsmath Error: Extra & on this line.
+
+See the amsmath package documentation for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.175     \end{alignat*}
                         
-I expect to see \noalign only after the \cr of
+\An extra & here is so disastrous that you should probably exit
+ and fix things up. 
+
+
+./mason_2yp.tex:175: Package amsmath Error: Extra & on this line.
+
+See the amsmath package documentation for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.175     \end{alignat*}
+                        
+\An extra & here is so disastrous that you should probably exit
+ and fix things up. 
+
+
+./mason_2yp.tex:175: Package amsmath Error: Extra & on this line.
+
+See the amsmath package documentation for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.175     \end{alignat*}
+                        
+\An extra & here is so disastrous that you should probably exit
+ and fix things up. 
+
+
+./mason_2yp.tex:175: Package amsmath Error: Extra & on this line.
+
+See the amsmath package documentation for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.175     \end{alignat*}
+                        
+\An extra & here is so disastrous that you should probably exit
+ and fix things up. 
+
+
+./mason_2yp.tex:175: Package amsmath Error: Extra & on this line.
+
+See the amsmath package documentation for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.175     \end{alignat*}
+                        
+\An extra & here is so disastrous that you should probably exit
+ and fix things up. 
+
+./mason_2yp.tex:175: Misplaced \omit.
+\math@cr@@@ ...@ \@ne \add@amps \maxfields@ \omit 
+                                                  \kern -\alignsep@ \iftag@ ...
+l.175     \end{alignat*}
+                        
+I expect to see \omit only after tab marks or the \cr of
 an alignment. Proceed, and I'll ignore this case.
 
-./mason_2yp.tex:119: Misplaced \noalign.
-\black@ #1->\noalign 
-                     {\ifdim #1>\displaywidth \dimen@ \prevdepth \nointerlin...
-l.119     \end{alignat*}
+./mason_2yp.tex:175: Misplaced \omit.
+\math@cr@@@ ...@ \@ne \add@amps \maxfields@ \omit 
+                                                  \kern -\alignsep@ \iftag@ ...
+l.175     \end{alignat*}
                         
-I expect to see \noalign only after the \cr of
+I expect to see \omit only after tab marks or the \cr of
 an alignment. Proceed, and I'll ignore this case.
 
-./mason_2yp.tex:119: Extra }, or forgotten \endgroup.
-\endalign ->\math@cr \black@ \totwidth@ \egroup 
-                                                \ifingather@ \restorealignst...
-l.119     \end{alignat*}
+./mason_2yp.tex:175: Misplaced \omit.
+\math@cr@@@ ...@ \@ne \add@amps \maxfields@ \omit 
+                                                  \kern -\alignsep@ \iftag@ ...
+l.175     \end{alignat*}
                         
-I've deleted a group-closing symbol because it seems to be
-spurious, as in `$x}$'. But perhaps the } is legitimate and
-you forgot something else, as in `\hbox{$x}'. In such cases
-the way to recover is to insert both the forgotten and the
-deleted material, e.g., by typing `I$}'.
+I expect to see \omit only after tab marks or the \cr of
+an alignment. Proceed, and I'll ignore this case.
 
-./mason_2yp.tex:119: Missing $ inserted.
-<inserted text> 
-                $
-l.119     \end{alignat*}
+./mason_2yp.tex:175: Misplaced \omit.
+\math@cr@@@ ...@ \@ne \add@amps \maxfields@ \omit 
+                                                  \kern -\alignsep@ \iftag@ ...
+l.175     \end{alignat*}
                         
-I've inserted something that you may have forgotten.
-(See the <inserted text> above.)
-With luck, this will get me unwedged. But if you
-really didn't forget anything, try typing `2' now; then
-my insertion and my current dilemma will both disappear.
+I expect to see \omit only after tab marks or the \cr of
+an alignment. Proceed, and I'll ignore this case.
 
-./mason_2yp.tex:119: Display math should end with $$.
-<to be read again> 
-                   \endgroup 
-l.119     \end{alignat*}
+./mason_2yp.tex:175: Misplaced \omit.
+\math@cr@@@ ...@ \@ne \add@amps \maxfields@ \omit 
+                                                  \kern -\alignsep@ \iftag@ ...
+l.175     \end{alignat*}
                         
-The `$' that I just saw supposedly matches a previous `$$'.
-So I shall assume that you typed `$$' both times.
+I expect to see \omit only after tab marks or the \cr of
+an alignment. Proceed, and I'll ignore this case.
 
-[2] [3]
-<../../Output/Plots/3_flav_heatmap.pdf, id=74, 662.63759pt x 569.1551pt>
+./mason_2yp.tex:175: Misplaced \omit.
+\math@cr@@@ ...@ \@ne \add@amps \maxfields@ \omit 
+                                                  \kern -\alignsep@ \iftag@ ...
+l.175     \end{alignat*}
+                        
+I expect to see \omit only after tab marks or the \cr of
+an alignment. Proceed, and I'll ignore this case.
+
+[5] [6]
+No file mason_2yp.bbl.
+<../../Output/Plots/3_flav_heatmap.pdf, id=88, 662.63759pt x 569.1551pt>
 File: ../../Output/Plots/3_flav_heatmap.pdf Graphic file (type pdf)
 <use ../../Output/Plots/3_flav_heatmap.pdf>
-Package pdftex.def Info: ../../Output/Plots/3_flav_heatmap.pdf  used on input line 207.
+Package pdftex.def Info: ../../Output/Plots/3_flav_heatmap.pdf  used on input line 237.
 (pdftex.def)             Requested size: 469.75502pt x 403.48633pt.
-
-No file mason_2yp.bbl.
 
 Package natbib Warning: There were undefined citations.
 
-[4{/usr/local/texlive/2026/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc}] [5 <../../Output/Plots/3_flav_heatmap.pdf>] (./mason_2yp.aux)
+[7{/usr/local/texlive/2026/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc}] [8 <../../Output/Plots/3_flav_heatmap.pdf>] (./mason_2yp.aux)
  ***********
 LaTeX2e <2026-06-01>
 L3 programming layer <2026-07-20>
@@ -662,18 +711,18 @@ Package rerunfilecheck Info: File `mason_2yp.out' has not changed.
 (rerunfilecheck)             Checksum: 8E41484E190953A47AD70C783521D1F7;1139.
  ) 
 Here is how much of TeX's memory you used:
- 17244 strings out of 467159
- 278678 string characters out of 5409218
- 743046 words of memory out of 5000000
- 46218 multiletter control sequences out of 15000+600000
- 636517 words of font info for 103 fonts, out of 8000000 for 9000
+ 17276 strings out of 467159
+ 278965 string characters out of 5409218
+ 750990 words of memory out of 5000000
+ 46223 multiletter control sequences out of 15000+600000
+ 637745 words of font info for 116 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 74i,10n,79p,1122b,463s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 74i,10n,79p,1108b,463s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr17.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/cm-super/sfrm1095.pfb>
-Output written on mason_2yp.pdf (5 pages, 159976 bytes).
+Output written on mason_2yp.pdf (8 pages, 171038 bytes).
 PDF statistics:
- 186 PDF objects out of 1000 (max. 8388607)
- 116 compressed objects within 2 object streams
- 19 named destinations out of 1000 (max. 500000)
- 20574 words of extra memory for PDF output out of 20736 (max. 10000000)
+ 201 PDF objects out of 1000 (max. 8388607)
+ 128 compressed objects within 2 object streams
+ 22 named destinations out of 1000 (max. 500000)
+ 24670 words of extra memory for PDF output out of 24883 (max. 10000000)
 

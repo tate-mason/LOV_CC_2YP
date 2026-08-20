@@ -109,13 +109,14 @@ agent_master  = agent_master.assign(
 agent_master = agent_master.assign(
     flavor = np.select(
         [
-            [agent_master['flavor_class'].isin([2,8,9,12])], # berry
-            [agent_master['flavor_class'] == 13]
+            agent_master['flavor_class'].isin([2,8,9,12]), # berry
+            agent_master['flavor_class'] == 13,
         ],
         [1,2],
         default=0
     )
 )
+
 agent_master['yogurt_purchase'] = (
     (agent_master['product_module_code'].isin([3612,3603]) & (agent_master['quantity']>0)) # create dummy for HH who bought at least one yogurt product
 ).astype(int)

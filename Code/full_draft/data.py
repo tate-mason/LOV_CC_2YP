@@ -204,7 +204,7 @@ switching_sample = agent_yogurt[agent_yogurt['switched'] == 1][[
     'next_flavor',
     'spell_length'
 ]] # filter to switchers
-switches_coupon = agent_yogurt[(df_3flav['switched'] == 1) & (agent_yogurt['deal_flag_uc'] == 1)][[
+switches_coupon = agent_yogurt[(agent_yogurt['switched'] == 1) & (agent_yogurt['deal_flag_uc'] == 1)][[
     'household_code',
     'trip_code_uc',
     'prev_flavor',

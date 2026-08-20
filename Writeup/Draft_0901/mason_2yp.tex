@@ -84,19 +84,10 @@ concludes.
 
     \subsection{Data}
 
-    My data comes from Nielsen's HomeScan and MarketScan data. These two main datasets give me access to household purchase decisions as well as product characteristics. I am looking at the years between 2014-2016 in markets Atlanta, Chicago, San Diego, and Denver. Households are comprised of a single-person to avoid any contamination of shopping for multiple people like children or spouses, allowing me a cleaner sample of shopping trips. Stores have to be valid Nielsen stores, meaning they appear in the reatil code data. This is necessary to observe prices the products were bought at. The product space I am looking at is yogurt. Yogurt is good for this sort of analysis due to its relative lack of storability as well as its variation in attributes like flavor, nutrient contents, and types like Greek or Skyr. I have limited yogurt sizes to cups. Cups of yogurt are between five and eight ounces and are single serving products which come in more varied flavors. This product space 
+    My data comes from Nielsen's HomeScan and MarketScan data. These two main datasets give me access to household purchase decisions as well as product characteristics. I am looking at the years between 2014-2016 in markets Atlanta, Chicago, San Diego, and Denver. Households are comprised of a single-person to avoid any contamination of shopping for multiple people like children or spouses, allowing me a cleaner sample of shopping trips. These trips are encoded with unique identifiers, thus allowing me to look at per-trip, and within-trip, decisions. Stores have to be valid Nielsen stores, meaning they appear in the reatil code data. This is necessary to observe prices the products were bought at. The product space I am looking at is yogurt. Yogurt is good for this sort of analysis due to its relative lack of storability as well as its variation in attributes like flavor, nutrient contents, and types like Greek or Skyr. I have limited yogurt sizes to cups. Cups of yogurt are between five and eight ounces and are single serving products which come in more varied flavors.
 
-    \ref{tab:stat_tab} shows that there are n households, with a in Atlanta, b
-    in Chicago, c in Denver, and d in San Diego. The mean income is \$17,000 and
-    the mean age is n years old. The sample is mostly white at n\%. Households
-    go on an average of n shopping trips, indexed by a unique trip code. Per
-    trip, they buy an average of n units of yogurt. If we break out by type, n
-    cups and/or n tubs. 
+    I classify flavors into three categories: berry, plain, and other. While these are not taking full advantage of the granularity in flavors available, the classifications capture the two largest categories, berry and plain. I define the outside option as a trip in which yogurt was not ever purchased. \ref{tab:stat_tab} shows that the outside option is taken 80\% of the time each trip. 
 
-    I define the outside option to be anytime yogurt isn't purchased during a trip. This occurred
-    x\%, on average.
-
-    \ref{fig:flav_heatmap} shows that people who enjoy plain yogurt stay with their flavor longer, staying with plain for about 6 periods as opposed to about 2 for flavored people. This data fact implies that people do differ in their preferences for variety along the flavor dimension. Further along these lines, we see that \ref{fig:var_timeseries} shows ... . This is indicative of ... .
 %============================================================%
 \section{Model}
 %============================================================%
@@ -180,23 +171,23 @@ In closing, this paper develops a dynamic discrete choice model of consumer dema
 \midrule
 \multicolumn{3}{l}{\textbf{Panel \& Household Demographics}} \\
 \quad Total Households in Sample & 1,269 & Households \\
-\quad Yogurt Purchasing Households & 715 & Households (56.3\%) \\
+\quad Yogurt Purchasing Households & 715 & Households (56\%) \\
 \quad Mean Trips per Household & 17.65 & Trips / Household \\
 \quad Mean Purchases per Shopping Trip & 5.91 & Units / Trip \\
 \quad Mean Household Income & 17.62 & Income Bracket \\
 \quad Median Household Income & 18.00 & Income Bracket \\
-\quad Outside Option Rate & 41.71\% & Non-purchase trip share \\
+\quad Outside Option Rate & 80\% & Non-purchase trip share \\
 \midrule
 \multicolumn{3}{l}{\textbf{Racial Composition of Households}} \\
-\quad White (Code 1) & 955 & Households (75.26\%) \\
-\quad Black (Code 2) & 254 & Households (20.02\%) \\
-\quad Asian (Code 3) & 24 & Households (1.89\%) \\
-\quad Other / Multiracial (Code 4) & 36 & Households (2.84\%) \\
+\quad White (Code 1) & 955 & Households (75\%) \\
+\quad Black (Code 2) & 254 & Households (20\%) \\
+\quad Asian (Code 3) & 24 & Households (2\%) \\
+\quad Other / Multiracial (Code 4) & 36 & Households (3\%) \\
 \midrule
 \multicolumn{3}{l}{\textbf{Switching \& Purchasing Dynamics}} \\
-\quad Ever-Switcher Households & 34.88\% & Conditional on yogurt purchase \\
-\quad Coupon Purchase Rate (All Purchases) & 47.56\% & Share of yogurt trips \\
-\quad Switching Attributable to Coupon & 17.31\% & Share of switch events \\
+\quad Ever-Switcher Households & 35\% & Conditional on yogurt purchase \\
+\quad Coupon Purchase Rate (All Purchases) & 48\% & Share of yogurt trips \\
+\quad Switching Attributable to Coupon & 17\% & Share of switch events \\
 \quad Mean Times Switching per Household & 8.60 & Switches / Household \\
 \quad Mean Consecutive Buys per Flavor & 10.16 & Continuous purchase trips \\
 \quad Mean Spell Duration per Flavor & 10.16 & Trips per flavor spell \\
@@ -213,7 +204,6 @@ In closing, this paper develops a dynamic discrete choice model of consumer dema
 \begin{figure}[htbp]
   \centering
   \label{fig:flav_heatmap}
-  \caption{Mean Length of Time Spent on a Flavor Post-Switch}
   \includegraphics[width=\textwidth]{../../Output/Plots/3_flav_heatmap.pdf}
 \end{figure}
 

@@ -216,7 +216,7 @@ console.print(
     f'Number of households in full sample:                  {agent_master['household_code'].nunique()}\n',
     f'Number of yogurt purchasing households:               {agent_yogurt['household_code'].nunique()}\n',
     f'Mean number of trips per HH:                          {agent_master.groupby('household_code')['trip_code_uc'].nunique().mean()}\n',
-    f'Number of yogurt purchases among purchasers per trip: {agent_yogurt.groupby('household_code')['quantity'].value_counts().mean()}\n',
+    f'Number of yogurt purchases among purchasers per trip: {agent_yogurt.groupby('household_code')['quantity'].sum().mean()}\n',
     f'Mean household income:                                {agent_master['household_income'].mean()}\n',
     f'Median household income:                              {agent_master['household_income'].median()}\n',
     f'Racial makeup of sample:                              {agent_master.groupby('race')['household_code'].nunique()}\n',

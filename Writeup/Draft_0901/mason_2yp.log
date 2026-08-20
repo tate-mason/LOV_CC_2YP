@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.8.17)  20 AUG 2026 15:34
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.8.17)  20 AUG 2026 15:46
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -535,23 +535,13 @@ Package natbib Warning: Citation `chintagunta_variety_1999' on page 1 undefined 
 [1
 
 {/usr/local/texlive/2026/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
-
-Package caption Warning: \label without proper reference on input line 215.
-See the caption package documentation for explanation.
-
-
-LaTeX Warning: Reference `fig:flav_heatmap' on page 2 undefined on input line 99.
-
-
-LaTeX Warning: Reference `fig:var_timeseries' on page 2 undefined on input line 99.
-
-LaTeX Font Info:    Trying to load font information for U+msa on input line 107.
-(/usr/local/texlive/2026/texmf-dist/tex/latex/amsfonts/umsa.fd
+LaTeX Font Info:    Trying to load font information for U+msa on input line 98.
+ (/usr/local/texlive/2026/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 ) (/usr/local/texlive/2026/texmf-dist/tex/latex/microtype/mt-msa.cfg
 File: mt-msa.cfg 2006/02/04 v1.1 microtype config. file: AMS symbols (a) (RS)
 )
-LaTeX Font Info:    Trying to load font information for U+msb on input line 107.
+LaTeX Font Info:    Trying to load font information for U+msb on input line 98.
  (/usr/local/texlive/2026/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 ) (/usr/local/texlive/2026/texmf-dist/tex/latex/microtype/mt-msb.cfg
@@ -559,27 +549,27 @@ File: mt-msb.cfg 2005/06/01 v1.0 microtype config. file: AMS symbols (b) (RS)
 )
 Runaway argument?
  U_{ijt} &= \delta D_{ht} + \sum _1^k\beta ^k_i X^k_{jt} + \gamma _i \ETC.
-./mason_2yp.tex:127: Paragraph ended before \alignat* was complete.
+./mason_2yp.tex:118: Paragraph ended before \alignat* was complete.
 <to be read again> 
                    \par 
-l.127 
+l.118 
       
 I suspect you've forgotten a `}', causing me to apply this
 control sequence to too much text. How can we recover?
 My plan is to forget the whole thing and hope for the best.
 
-./mason_2yp.tex:127: Missing $ inserted.
+./mason_2yp.tex:118: Missing $ inserted.
 <inserted text> 
                 $
-l.127 
+l.118 
       
 I've inserted a begin-math/end-math symbol since I think
 you left one out. Proceed, with fingers crossed.
 
-./mason_2yp.tex:127: Missing \endgroup inserted.
+./mason_2yp.tex:118: Missing \endgroup inserted.
 <inserted text> 
                 \endgroup 
-l.127 
+l.118 
       
 I've inserted something that you may have forgotten.
 (See the <inserted text> above.)
@@ -587,18 +577,18 @@ With luck, this will get me unwedged. But if you
 really didn't forget anything, try typing `2' now; then
 my insertion and my current dilemma will both disappear.
 
-./mason_2yp.tex:127: Display math should end with $$.
+./mason_2yp.tex:118: Display math should end with $$.
 <to be read again> 
                    \tex_par:D 
-l.127 
+l.118 
       
 The `$' that I just saw supposedly matches a previous `$$'.
 So I shall assume that you typed `$$' both times.
 
-./mason_2yp.tex:128: Misplaced \cr.
+./mason_2yp.tex:119: Misplaced \cr.
 \math@cr@@@ ->\cr 
                   
-l.128     \end{alignat*}
+l.119     \end{alignat*}
                         
 I can't figure out why you would want to use a tab mark
 or \cr or \span just now. If something like a right brace
@@ -606,26 +596,26 @@ up above has ended a previous alignment prematurely,
 you're probably due for more error messages, and you
 might try typing `S' now just to see what is salvageable.
 
-./mason_2yp.tex:128: Misplaced \noalign.
+./mason_2yp.tex:119: Misplaced \noalign.
 \math@cr@@ ... \iffalse }\fi \math@cr@@@ \noalign 
                                                   {\vskip #1\relax }
-l.128     \end{alignat*}
+l.119     \end{alignat*}
                         
 I expect to see \noalign only after the \cr of
 an alignment. Proceed, and I'll ignore this case.
 
-./mason_2yp.tex:128: Misplaced \noalign.
+./mason_2yp.tex:119: Misplaced \noalign.
 \black@ #1->\noalign 
                      {\ifdim #1>\displaywidth \dimen@ \prevdepth \nointerlin...
-l.128     \end{alignat*}
+l.119     \end{alignat*}
                         
 I expect to see \noalign only after the \cr of
 an alignment. Proceed, and I'll ignore this case.
 
-./mason_2yp.tex:128: Extra }, or forgotten \endgroup.
+./mason_2yp.tex:119: Extra }, or forgotten \endgroup.
 \endalign ->\math@cr \black@ \totwidth@ \egroup 
                                                 \ifingather@ \restorealignst...
-l.128     \end{alignat*}
+l.119     \end{alignat*}
                         
 I've deleted a group-closing symbol because it seems to be
 spurious, as in `$x}$'. But perhaps the } is legitimate and
@@ -633,10 +623,10 @@ you forgot something else, as in `\hbox{$x}'. In such cases
 the way to recover is to insert both the forgotten and the
 deleted material, e.g., by typing `I$}'.
 
-./mason_2yp.tex:128: Missing $ inserted.
+./mason_2yp.tex:119: Missing $ inserted.
 <inserted text> 
                 $
-l.128     \end{alignat*}
+l.119     \end{alignat*}
                         
 I've inserted something that you may have forgotten.
 (See the <inserted text> above.)
@@ -644,50 +634,46 @@ With luck, this will get me unwedged. But if you
 really didn't forget anything, try typing `2' now; then
 my insertion and my current dilemma will both disappear.
 
-./mason_2yp.tex:128: Display math should end with $$.
+./mason_2yp.tex:119: Display math should end with $$.
 <to be read again> 
                    \endgroup 
-l.128     \end{alignat*}
+l.119     \end{alignat*}
                         
 The `$' that I just saw supposedly matches a previous `$$'.
 So I shall assume that you typed `$$' both times.
 
-[2{/usr/local/texlive/2026/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc}] [3]
-<../../Output/Plots/3_flav_heatmap.pdf, id=77, 662.63759pt x 569.1551pt>
+[2] [3]
+<../../Output/Plots/3_flav_heatmap.pdf, id=74, 662.63759pt x 569.1551pt>
 File: ../../Output/Plots/3_flav_heatmap.pdf Graphic file (type pdf)
 <use ../../Output/Plots/3_flav_heatmap.pdf>
-Package pdftex.def Info: ../../Output/Plots/3_flav_heatmap.pdf  used on input line 217.
+Package pdftex.def Info: ../../Output/Plots/3_flav_heatmap.pdf  used on input line 207.
 (pdftex.def)             Requested size: 469.75502pt x 403.48633pt.
 
 No file mason_2yp.bbl.
 
 Package natbib Warning: There were undefined citations.
 
-[4] [5 <../../Output/Plots/3_flav_heatmap.pdf>] (./mason_2yp.aux)
+[4{/usr/local/texlive/2026/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc}] [5 <../../Output/Plots/3_flav_heatmap.pdf>] (./mason_2yp.aux)
  ***********
 LaTeX2e <2026-06-01>
 L3 programming layer <2026-07-20>
  ***********
-
-
-LaTeX Warning: There were undefined references.
-
 Package rerunfilecheck Info: File `mason_2yp.out' has not changed.
 (rerunfilecheck)             Checksum: 8E41484E190953A47AD70C783521D1F7;1139.
  ) 
 Here is how much of TeX's memory you used:
- 17250 strings out of 467159
- 278741 string characters out of 5409218
+ 17244 strings out of 467159
+ 278678 string characters out of 5409218
  743046 words of memory out of 5000000
- 46220 multiletter control sequences out of 15000+600000
- 636619 words of font info for 105 fonts, out of 8000000 for 9000
+ 46218 multiletter control sequences out of 15000+600000
+ 636517 words of font info for 103 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 74i,10n,79p,1026b,484s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 74i,10n,79p,1122b,463s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr17.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/cm-super/sfrm1095.pfb>
-Output written on mason_2yp.pdf (5 pages, 160734 bytes).
+Output written on mason_2yp.pdf (5 pages, 159976 bytes).
 PDF statistics:
- 187 PDF objects out of 1000 (max. 8388607)
- 117 compressed objects within 2 object streams
+ 186 PDF objects out of 1000 (max. 8388607)
+ 116 compressed objects within 2 object streams
  19 named destinations out of 1000 (max. 500000)
  20574 words of extra memory for PDF output out of 20736 (max. 10000000)
 

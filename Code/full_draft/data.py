@@ -262,7 +262,7 @@ switches_coupon = agent_yogurt[(agent_yogurt['switched'] == 1) & (agent_yogurt['
 console.print(
     f'Mean consecutive buys by flavor x hh: {agent_yogurt['spell_length'].mean()}\n',
     f'Mean times switching by flavor x hh:  {agent_yogurt.groupby(['household_code', 'flavor'])['switched'].sum().mean()}\n',
-    f'Percent of HH who ever-switch:        {(agent_yogurt.groupby('household_code')['plain'].nunique()>1).mean()*100}\n',
+    f'Percent of HH who ever-switch:        {(agent_yogurt.groupby('household_code')['flavor'].nunique()>1).mean()*100}\n',
     f'Average time spent on each flavor:    {agent_yogurt['spell_length'].mean()}\n'
     f'Percent switching due to coupon:      {len(switches_coupon)/(len(switching_sample))}\n',
 )

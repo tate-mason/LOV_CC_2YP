@@ -225,10 +225,10 @@ cell_labs = np.array(
 fig, ax   = plt.subplots(figsize=(10,8))
 sns.heatmap(heat_flav,
             annot   =cell_labs,
-            fmt     ='.2f',
-            cmap    ='YlOrRd',
+            fmt     ='',
+            cmap    ='YlGnBu',
             ax      =ax,
-            cbar_kws={"label": "Mean Spell Length"})
+            )
 ax.set_xlabel('Flavor Switched To')
 ax.set_ylabel('Flavor Switched From')
 ax.set_title('Mean Spell Length by Previous Flavor')

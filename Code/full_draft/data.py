@@ -175,7 +175,7 @@ console.print(
     f'Median household income:                              {agent_master['household_income'].median()}\n',
     f'Racial makeup of sample:                              {agent_master.groupby('race')['household_code'].nunique()}\n',
     f'Percent taking outside option each trip:              {outside_option['outside_option_rate'].mean()}\n',
-    f'Percent purchasing with coupon:                       {agent_yogurt.groupby('household_code')['deal_flag_uc'].count()/agent_yogurt['household_code'].count()}\n',
+    f'Percent purchasing with coupon:                       {agent_yogurt['deal_flag_uc'].mean()*100:.2f}\n',
 )
 
 #=== Switching Stats ===#
@@ -195,6 +195,7 @@ agent_yogurt['switched']             = (
 agent_yogurt['returned']             = agent_yogurt.groupby('household_code')['flavor'].transform(
         lambda x: x.shift(1).isin(x.shift(-1))
 ) # indicator for returning to a previous flavor
+agent_yogurt['next_flavor']          = agent_yogurt.groupby('household_code')['flavor'].shift(-1) # get the next flavor
 switching_sample = agent_yogurt[agent_yogurt['switched'] == 1][[
     'household_code',
     'trip_code_uc',
@@ -232,7 +233,31 @@ sns.heatmap(heat_flav,
             )
 ax.set_xlabel('Flavor Switched To')
 ax.set_ylabel('Flavor Switched From')
-ax.set_title('Mean Spell Length by Previous Flavor')
+ax.set_title('Mean Spell Length Upon Switching')
 plt.tight_layout()
-plt.savefig('../Output/Plots/2_flav_heatmap.pdf',format='pdf',bbox_inches='tight')
+plt.savefig('../Output/Plots/3_flav_heatmap.pdf',format='pdf',bbox_inches='tight')
+plt.close()
+
+heat_flav_future = (
+    switching_sample.groupby(['flavor', 'next_flavor'])['spell_length']
+    .mean()
+    .unstack()
+)
+heat_flav_future = heat_flav_future.rename(columns={0:'Other', 1:'Berry', 2:'Plain'}) 
+cell_labs_future = np.array(
+    [[f'{val:.1f} trips' for val in row] for row in heat_flav_future.to_numpy()]
+)
+fig, ax          = plt.subplots(figsize=(10,8))
+sns.heatmap(heat_flav_future,
+            yticklabels= ['Other', 'Plain', 'Berry'],
+            annot      = cell_labs_future,
+            fmt        = '',
+            cmap       = 'YlOrRd',
+            ax         = ax,
+            )
+ax.set_xlabel('Flavor Switched From')
+ax.set_ylabel('Flavor Switched To')
+ax.set_title('Mean Spell Length Prior to Switching')
+plt.tight_layout()
+plt.savefig('../Output/Plots/3_flav_future.pdf', format='pdf', bbox_inches='tight')
 plt.close()

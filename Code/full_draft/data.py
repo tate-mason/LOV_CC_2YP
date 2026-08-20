@@ -178,7 +178,7 @@ switching_sample = agent_yogurt[agent_yogurt['switched'] == 1][[
 console.print(
     f'Mean consecutive buys by flavor x hh: {agent_yogurt.groupby(['household_code','plain'])['flavor_spell_buys'].mean()}\n',
     f'Mean times switching by flavor x hh:  {agent_yogurt.groupby(['household_code', 'plain'])['new_flavor'].count().mean()}\n',
-    f'Percent of HH who ever-switch:        {(switching_sample['household_code'].count()) / (agent_yogurt['household_code'].count()))}\n',
+    f'Percent of HH who ever-switch:        {(switching_sample['household_code'].count()) / (agent_yogurt['household_code'].count())}\n',
     f'Average time spent on each flavor:    {agent_yogurt['spell_length'].mean()}'
 )
 

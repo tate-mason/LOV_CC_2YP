@@ -106,8 +106,8 @@ agent_master  = agent_master.assign(
         default=np.nan
     )
 )
-agent_master['flavor'] = (
-    np.select(
+agent_master = agent_master.assign(
+    flavor = np.select(
         [
             [agent_master['flavor_class'].isin([2,8,9,12])], # berry
             [agent_master['flavor_class'] == 13]

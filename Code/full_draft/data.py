@@ -78,7 +78,10 @@ product_panel                  = product_panel.dropna(subset=['week_end'])      
 product_panel['store_code_uc'] = product_panel['store_code_uc'].astype('Int64')             # convert store code to Int64 type
 product_panel['upc']           = product_panel['upc'].astype('Int64')                       # same as above
 
-#=== Merging Flavor Date ===#
+product_panel                  = product_panel[product_panel['size1_units'] == 'OZ']        # restrict to oz
+product_panel                  = product_panel[(product_panel['size1_amount'] > 5) | (product_panel['size1_amount'] < 8)] # restrict to cups
+
+#=== Merging Flavor Data ===#
 
 flavors      = pd.read_csv(flav_path) # load in flavors documentation
 
@@ -278,5 +281,27 @@ plt.close() # same
 
 #=== Product Stats ===#
 
-console.print(product_master['price'].mean())
-console.print()
+console.print(f' Mean price of yogurt: {product_master['price'].mean():.2f}')
+product_master['week_mean'] = product_master.groupby(['week_end', 'dma_code'])['price'].transform('mean')
+
+price_summary = (
+    product_master.groupby(['week_end', 'dma_code'], as_index=False)['price']
+    .mean()
+    .rename(columns={'price': 'mean_price'})
+)
+
+fig, ax = plt.subplots(figsize=(10,4))
+sns.lineplot(
+    data=product_master,
+    x='week_end',
+    y='week_mean',
+    hue='dma_code',
+    ax=ax
+)
+ax.set_xlabel('Week')
+ax.set_ylabel('Price')
+ax.set_title('Evolution of Prices Throughout 2014')
+plt.tight_layout()
+plt.savefig('../Output/Plots/price_time_series.pdf', format='pdf', bbox_inches='tight')
+plt.close()
+

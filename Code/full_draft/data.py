@@ -46,7 +46,7 @@ merged_panel  = (
 console.print(merged_panel.columns.tolist())
 merged_panel = merged_panel.rename({
     'product_module_code_x':'product_module_code',
-    'product_group_code_x':'product_group_code', 
+    'product_group_code_y':'product_group_code', 
     'size1_code_uc_x':'size1_code_uc',
     'size1_units_x':'size1_units',
     'dma_code_x':'dma_code',

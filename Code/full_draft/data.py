@@ -39,7 +39,7 @@ flav_path = '/scratch/dtm63837/Kilts_Panel/RMS/Reference_Documentation/2006-2020
 
 merged_panel  = (
     pl.read_parquet(out_path)      # call the local path
-    .filter(pl.col('size1_amount').between(5, 8))
+    .filter(pl.col('size1_amount').is_between(5, 8))
     .filter(pl.col('dma_code_x').is_in([524, 602, 751, 825]))
     .to_pandas()
 )

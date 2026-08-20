@@ -44,6 +44,7 @@ agent_panel   = (
     .to_pandas()                   # convert from LazyFrame to pandas DataFrame
 )
 
+
 # Agent panel cleaning
 agent_panel                             = agent_panel.convert_dtypes(dtype_backend = 'numpy_nullable') # make data numpy compatible
 agent_panel.columns                     = agent_panel.columns.str.lower() # make column names lowercase
@@ -52,7 +53,7 @@ agent_panel                    = agent_panel[agent_panel['household_size'] == 1]
 agent_panel                    = agent_panel[agent_panel.groupby('household_code')['trip_code_uc'].transform('count') > 2] # at least 2 shopping trips
 agent_panel                    = agent_panel[agent_panel['size1_units'] == 'OZ'] # keep only yogurt measured in ounces
 agent_panel                    = agent_panel[(agent_panel['size1_amount'] > 5) | (agent_panel['size1_amount'] < 8)] # restrict to cups of yogurt
-
+console.print(agent_panel.loc[(agent_panel['size1_amount'] > 5) | (agent_panel[size1_amount] < 8), 'size1_code_uc'])
 agent_panel['purchase_date']   = agent_panel['purchase_date'].str.replace('-','',regex=False)   # get rid of hyphens in purchase date
 agent_panel['purchase_date']   = pd.to_datetime(agent_panel['purchase_date'], format='%Y%m%d')  # convert to YearMonthDay format
 agent_panel['week_end']        = agent_panel['purchase_date'] + pd.offsets.Week(weekday=5, n=0) # create a week_end variable like RMS has 

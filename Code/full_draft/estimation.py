@@ -78,6 +78,9 @@ master_df["flavor"] = np.select(conditions, [0, 1, 2], default=np.nan)
 
 console.print('flavor counts (yogurt only):')
 console.print(master_df['flavor'].value_counts())
+master_df['yogurt_buy'] = (
+    (master_df['product_module_code'].isin([3612,3603]) & (master_df['quantity']>0)) # create dummy for HH who bought at least one yogurt product
+).astype(int)
 
 market_price = (
     master_df.groupby(['upc', 'week_end', 'dma_code'])['price']

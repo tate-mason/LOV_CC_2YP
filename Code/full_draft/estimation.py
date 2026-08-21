@@ -138,7 +138,7 @@ def map_flavor_category(flavor):
 
 # map individual item purchases to category strings
 trip_level['category_chosen'] = trip_level['flavor'].map(map_flavor_category)
-
+trip_level = trip_level.drop_duplicates(subset=['household_code', 'trip_code_uc']).copy()
 # model trip category tiebreaker
 rng                           = np.random.default_rng(219)
 
@@ -155,6 +155,7 @@ def get_modal_flavor(group):
     return rng.choice(top_modes) # random tiebreaker if tied
 
 modal_choices = (
+    trip_level.sort_values(['household_code', 'week_end', 'trip_code_uc'])
     trip_level.groupby(['household_code', 'trip_code_uc', 'week_end'])
     .apply(get_modal_flavor)
     .reset_index(name='modal_x')
@@ -166,41 +167,44 @@ modal_choices['theta_prev'] = (
     .shift(1)
     .fillna(0.0) # default initial state
 )
+flavor_map_num = {'other':0.0, 'berry':1.0, 'plain':2.0}
 
 """
     Aggregated Store-Week Choice Sets
     - construct fixed alternative attributes for each category per store x week
 """
 
-# create category mapping on master
+# Create category mapping on master
 master_df['category'] = master_df['flavor'].map(map_flavor_category)
 
-# group assortments by store x week x category
+# Group assortments by store x week x category
 cat_choice_sets = (
     master_df.groupby(['store_code_uc', 'week_end', 'category'])
     .agg(
         price     = ('price', 'mean'),
-        iv_resid  = ('iv_resid', 'mean'),
-        flavor    = ('flavor', 'mean')
+        iv_resid  = ('iv_resid', 'mean')
     )
     .reset_index()
 )
-cat_choice_sets['price_demeaned'] = (
-    cat_choice_sets['price'] - 
-    cat_choice_sets.groupby(['store_code_uc', 'week_end'])['price'].transform('mean')
-) # demean prices
-# reshape into 2D array for easier lookup
+
 CATEGORIES = ['other', 'berry', 'plain', 'outside']
-cat_map = {c: i for i,c in enumerate(CATEGORIES)}
+cat_map = {c: i for i, c in enumerate(CATEGORIES)}
 
 choice_set_matrix = {}
 for (store, week), group in cat_choice_sets.groupby(['store_code_uc', 'week_end']):
-    mat=np.zeros((4,3))
-
+    mat = np.zeros((4, 2))  # Matrix shape is now (4, 2) since flavor is fixed structurally
+    
+    # Calculate store-week average price to fill missing categories cleanly
+    mean_store_price = group['price'].mean()
+    mat[:3, 0] = mean_store_price # Default fallback price
+    
     for row in group.itertuples():
         if row.category in cat_map and row.category != 'outside':
-            idx      = cat_map[row.category]
-            mat[idx] = [row.price, row.iv_resid, row.flavor]
+            idx = cat_map[row.category]
+            # Store price and residual; ignore NaN residuals
+            res_val = 0.0 if np.isnan(row.iv_resid) else row.iv_resid
+            mat[idx] = [row.price, res_val]
+            
     choice_set_matrix[(store, week)] = mat
 
 """
@@ -235,12 +239,11 @@ for hh_id, group in trips_processed.groupby('household_code'):
     }
 
 def total_objective(params, hh_packed_data):
-    # Match parameter order from the structural code: [const, beta, gamma, alpha, sigma]
+    # Parameter order: [const, beta, gamma, alpha, sigma]
     const, beta, gamma, alpha, sigma = params
     
-    # Category flavor flags [other=0, berry=1, plain=2, outside=0]
-    # (Matches flavor_binary in the UPC framework)
-    flavor_vec = np.array([0.0, 1.0, 2.0, 0.0]) 
+    # Fixed structural flavor representations: other = 0.0, berry = 1.0, plain = 2.0
+    cat_flavors = np.array([0.0, 1.0, 2.0]) 
     
     total_ll = 0.0 
 
@@ -250,22 +253,21 @@ def total_objective(params, hh_packed_data):
         thetas   = hh_data['thetas']
 
         for X_mat, y_idx, theta in zip(matrices, choices, thetas):
-            prices  = X_mat[:, 0]
-            resids  = X_mat[:, 1]
-            flavors = X_mat[:, 2]  # Or use flavor_vec
+            prices = X_mat[:, 0]
+            resids = X_mat[:, 1]
 
             # 1. Compute Xi for inside alternatives (rows 0, 1, 2)
             Xi = np.zeros(4)
-            Xi[:3] = np.abs(flavors[:3] - theta)
+            Xi[:3] = np.abs(cat_flavors - theta)
 
-            # 2. Compute Utility matching utility_func()
+            # 2. Compute Utility using fixed cat_flavors
             u = np.zeros(4)
             u[:3] = (
-                const                         # Overall yogurt buy intercept
-                + beta * flavors[:3]          # Continuous/binary flavor effect
-                + gamma * np.log(1.0 + Xi[:3]) # Variety seeking / habit term
-                + alpha * prices[:3]          # Price aversion (- alpha * price)
-                + sigma * resids[:3]          # Control function residual
+                const
+                + beta * cat_flavors
+                + gamma * np.log(1.0 + Xi[:3])
+                + alpha * prices[:3]
+                + sigma * resids[:3]
             )
             u[3] = 0.0  # Outside option normalized baseline
 
@@ -275,7 +277,6 @@ def total_objective(params, hh_packed_data):
 
             log_prob = u[y_idx] - log_sum_exp
             
-            # Guard against log(0) numerical issues (same as chosen_prob = 1e-300)
             if not np.isfinite(log_prob):
                 log_prob = -700.0
 

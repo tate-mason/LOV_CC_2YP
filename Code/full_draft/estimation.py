@@ -279,7 +279,8 @@ res = minimize(
 param_names = ['β_oth', 'β_ber', 'β_pla', 'γ', 'α', 'σ']
 for name, val in zip(param_names, res.x):
     console.print(f'{name}: {val:.4f}')
-    console.print('success:', res.success)
-    console.print('final objective:', res.fun)
-    console.print('jacobian:', res.jac)
-    console.print(res.message)
+console.print('-'*20)
+console.print('success:', res.success)
+console.print('final objective:', res.fun)
+console.print('jacobian:', res.jac)
+console.print(res.message)

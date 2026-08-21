@@ -303,11 +303,34 @@ res = minimize(
     options={'ftol':1e-6}
 )
 
-param_names = ['β_0', 'β_fla', 'γ', 'α', 'σ']
-for name, val in zip(param_names, res.x):
-    console.print(f'{name}: {val:.4f}')
-console.print('-'*20)
-console.print('success:', res.success)
-console.print('final objective:', res.fun)
-console.print('jacobian:', res.jac)
-console.print(res.message)
+se = np.sqrt(np.diag(res.hess_inv)) # standard errors from the inverse of the hessian
+z = res.x / se
+p = 2 * (1 - sp.stats.norm.cdf(np.abs(z)))
+
+table = Table(title="Structural Estimation Results", show_header=True, header_style="bold magenta")
+table.add_column("Parameter", style="cyan", justify="left")
+table.add_column("Estimate", justify="right")
+table.add_column("Std. Error", justify="right")
+table.add_column("z-stat", justify="right")
+table.add_column("p-value", justify="right")
+
+param_names = ['β_0 (Intercept)', 'β_fla (Flavor)', 'γ (Habit/Variety)', 'α (Price)', 'σ (Control Func)']
+
+for name, val, se, z, p in zip(param_names, res.x, se, z, p):
+    p_str = f"{p:.4f}" if not np.isnan(p) else "N/A"
+    if p < 0.001:
+        p_str += " ***"
+    elif p < 0.05:
+        p_str += " **"
+
+    table.add_row(
+        name,
+        f"{val:.4f}",
+        f"{se:.4f}" if not np.isnan(se) else "N/A",
+        f"{z:.3f}" if not np.isnan(z) else "N/A",
+        p_str
+    )
+
+console.print(table)
+console.print(f"[bold]Optimization Success:[/bold] {res.success}")
+console.print(f"[bold]Final Log-Likelihood Objective:[/bold] {res.fun:.4f}")

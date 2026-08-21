@@ -301,7 +301,7 @@ res = minimize(
     options={'ftol':1e-6}
 )
 
-param_names = ['β_oth', 'β_ber', 'β_pla', 'γ', 'α', 'σ']
+param_names = ['β_0', 'β_fla', 'γ', 'α', 'σ']
 for name, val in zip(param_names, res.x):
     console.print(f'{name}: {val:.4f}')
 console.print('-'*20)

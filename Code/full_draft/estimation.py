@@ -235,11 +235,13 @@ for hh_id, group in trips_processed.groupby('household_code'):
     }
 
 def total_objective(params, hh_packed_data):
-    beta0, beta1, beta2, gamma, alpha, sigma = params
-
-    # Vector of baseline intercepts [other, berry, plain, outside]
-    beta_vec = np.array([beta0, beta1, beta2, 0.0])  
-
+    # Match parameter order from the structural code: [const, beta, gamma, alpha, sigma]
+    const, beta, gamma, alpha, sigma = params
+    
+    # Category flavor flags [other=0, berry=1, plain=2, outside=0]
+    # (Matches flavor_binary in the UPC framework)
+    flavor_vec = np.array([0.0, 1.0, 2.0, 0.0]) 
+    
     total_ll = 0.0 
 
     for hh_data in hh_packed_data.values():
@@ -250,36 +252,41 @@ def total_objective(params, hh_packed_data):
         for X_mat, y_idx, theta in zip(matrices, choices, thetas):
             prices  = X_mat[:, 0]
             resids  = X_mat[:, 1]
-            flavors = X_mat[:, 2]
+            flavors = X_mat[:, 2]  # Or use flavor_vec
 
-            # Compute Xi only for inside alternatives (rows 0, 1, 2)
+            # 1. Compute Xi for inside alternatives (rows 0, 1, 2)
             Xi = np.zeros(4)
             Xi[:3] = np.abs(flavors[:3] - theta)
 
-            # Utility specification
+            # 2. Compute Utility matching utility_func()
             u = np.zeros(4)
             u[:3] = (
-                beta_vec[:3]
-                - alpha * prices[:3]
-                + sigma * resids[:3]
-                + gamma * np.log(1.0 + Xi[:3])
+                const                         # Overall yogurt buy intercept
+                + beta * flavors[:3]          # Continuous/binary flavor effect
+                + gamma * np.log(1.0 + Xi[:3]) # Variety seeking / habit term
+                - alpha * prices[:3]          # Price aversion (- alpha * price)
+                + sigma * resids[:3]          # Control function residual
             )
             u[3] = 0.0  # Outside option normalized baseline
 
-            # Log-Sum-Exp trick
+            # 3. Log-Sum-Exp & Choice Probability
             u_max = np.max(u)
             log_sum_exp = u_max + np.log(np.sum(np.exp(u - u_max)))
 
             log_prob = u[y_idx] - log_sum_exp
+            
+            # Guard against log(0) numerical issues (same as chosen_prob = 1e-300)
+            if not np.isfinite(log_prob):
+                log_prob = -700.0
+
             total_ll += log_prob
 
     return -total_ll
 
-x0 = np.zeros(6)
+x0 = np.zeros(5)
 bounds = [
-    (None, None),  # beta_oth
-    (None, None),  # beta_ber
-    (None, None),  # beta_pla
+    (None, None),  # beta_0
+    (None, None),  # beta_flav
     (None, None),  # gamma (unconstrained)
     (0.0, None),  # alpha (strictly positive magnitude)
     (None, None)   # sigma

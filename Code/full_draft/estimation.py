@@ -264,7 +264,7 @@ def total_objective(params, hh_packed_data):
                 const                         # Overall yogurt buy intercept
                 + beta * flavors[:3]          # Continuous/binary flavor effect
                 + gamma * np.log(1.0 + Xi[:3]) # Variety seeking / habit term
-                - alpha * prices[:3]          # Price aversion (- alpha * price)
+                + alpha * prices[:3]          # Price aversion (- alpha * price)
                 + sigma * resids[:3]          # Control function residual
             )
             u[3] = 0.0  # Outside option normalized baseline
@@ -283,12 +283,12 @@ def total_objective(params, hh_packed_data):
 
     return -total_ll
 
-x0 = np.zeros(5)
+x0 = np.array([-2.0, 1.8, -0.4, -0.5, -0.2])
 bounds = [
     (None, None),  # beta_0
     (None, None),  # beta_flav
     (None, None),  # gamma (unconstrained)
-    (0.0, None),  # alpha (strictly positive magnitude)
+    (None, 0.0),  # alpha (strictly positive magnitude)
     (None, None)   # sigma
 ]
 

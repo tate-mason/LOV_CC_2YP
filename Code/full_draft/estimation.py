@@ -113,7 +113,7 @@ master_df = master_df.dropna(subset=['iv_resid'])   # was missing the reassignme
 trip_level             = master_df.copy()
 trip_level['head_age'] = trip_level['male_head_age'].fillna(trip_level['female_head_age'])
 trip_level             = trip_level.dropna(subset=['type_of_residence', 'race', 'head_age'])
-trip_level             = trip_level[trip_level['price'] > 0.01]
+trip_level             = trip_level[(trip_level['price'] > 0.01) | (trip_level['price'].isna())]
 
 console.print('='*60)
 console.print('Built merged panel for estimation')

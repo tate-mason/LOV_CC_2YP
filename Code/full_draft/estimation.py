@@ -283,7 +283,7 @@ def total_objective(params, hh_packed_data):
 
     return -total_ll
 
-x0 = np.array([-2.1, 1.8, -0.4, 0.0, -0.2])
+x0 = np.array([-2.1, 1.8, -0.4, -1.0, -0.2])
 bounds = [
     (None, None),  # beta_0
     (None, None),  # beta_flav

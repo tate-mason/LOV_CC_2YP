@@ -272,5 +272,10 @@ res = minimize(
     method = 'L-BFGS-B'
 )
 
-console.print('Optimization Result:')
-console.print(res)
+param_names = ['Constant', 'β', 'γ', 'α', 'σ']
+for name, val in zip(param_names, res.x):
+console.print(f'{name}: {val:.4f}')
+console.print('success:', res.success)
+console.print('final objective:', res.fun)
+console.print('jacobian:', res.jac)
+console.print(res.message)

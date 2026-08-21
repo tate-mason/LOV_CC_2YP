@@ -185,7 +185,7 @@ cat_choice_sets = (
 )
 
 # reshape into 2D array for easier lookup
-CATEGORIES = ['plain', 'berry', 'other', 'outside']
+CATEGORIES = ['other', 'berry', 'plain', 'outside']
 cat_map = {c: i for i,c in enumerate(CATEGORIES)}
 
 choice_set_matrix = {}
@@ -252,7 +252,7 @@ def total_objective(params, hh_packed_data):
                 # 2. Build full utility vector
                 u = (
                     beta_vec
-                    + alpha * prices
+                    - alpha * prices
                     + sigma * resids
                     + gamma * np.log(1.0 + Xi)
                 )
@@ -268,12 +268,22 @@ def total_objective(params, hh_packed_data):
     return -total_ll
 
 x0 = np.zeros(6)
+bounds = [
+    (None, None),  # beta_oth
+    (None, None),  # beta_ber
+    (None, None),  # beta_pla
+    (None, None),  # gamma (unconstrained)
+    (0.0, None),  # alpha (strictly positive magnitude)
+    (None, None)   # sigma
+]
 
 res = minimize(
     total_objective,
     x0 = x0,
     args = (hh_packed_data,),
-    method = 'L-BFGS-B'
+    method = 'L-BFGS-B',
+    bounds = bounds,
+    options={'ftol':1e-6}
 )
 
 param_names = ['β_oth', 'β_ber', 'β_pla', 'γ', 'α', 'σ']

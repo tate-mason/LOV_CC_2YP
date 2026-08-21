@@ -27,6 +27,7 @@ agent_panel = (
     pl.read_parquet(hms_path)
     .rename({'DMA_Cd':'dma_code'})
     .filter(pl.col('dma_code').is_in([524, 602, 751, 825]))
+    .filter(pl.col('size1_amount').is_between(5, 8))
     .with_columns([
         pl.col('purchase_date').str.replace_all('-', '').str.to_date("%Y%m%d").alias('purchase_date'),
         pl.col('store_code_uc').cast(pl.Int64),

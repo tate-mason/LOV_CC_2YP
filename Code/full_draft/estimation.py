@@ -156,7 +156,7 @@ def get_modal_flavor(group):
 
 modal_choices = (
     trip_level.sort_values(['household_code', 'week_end', 'trip_code_uc'])
-    trip_level.groupby(['household_code', 'trip_code_uc', 'week_end'])
+    .groupby(['household_code', 'trip_code_uc', 'week_end'])
     .apply(get_modal_flavor)
     .reset_index(name='modal_x')
 )
@@ -217,7 +217,8 @@ trips_processed = trip_level.merge(
     on  = ['household_code', 'trip_code_uc'],
     how = 'left'
 )
-trips_processed['choice_idx'] = trips_processed['category_chosen'].map(cat_map)
+# Default unmapped/outside choices safely to index 3
+trips_processed['choice_idx'] = trips_processed['category_chosen'].map(cat_map).fillna(3).astype(np.int64)
 
 # pre-pack inputs in arrays by hh
 

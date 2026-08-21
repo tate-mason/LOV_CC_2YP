@@ -258,7 +258,7 @@ x0 = np.array([0.5, 1.0, 0.2, 0.5, 1.0, 0.0])
 res = minimize(
     total_objective,
     x0 = x0,
-    args = (hh_packed_data,)
+    args = (hh_packed_data,),
     method = 'L-BFGS-B'
 )
 

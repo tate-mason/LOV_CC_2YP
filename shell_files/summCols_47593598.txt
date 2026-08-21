@@ -1,0 +1,61 @@
+/scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/full_draft/data.py:105: UserWarning: You are merging on int and float columns where the float values are not equal to their int representation.
+  agent_master  = agent_panel.merge(flavors, on='upc', how='left') # merge flavors on UPC codes with a left join
+/scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/full_draft/data.py:156: UserWarning: You are merging on int and float columns where the float values are not equal to their int representation.
+  merged_master  = merged_panel.merge(flavors, on='upc', how='left') # merge flavors on UPC codes with a left join
+╭───────────────────── Traceback (most recent call last) ──────────────────────╮
+│ /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/full_draft/data.py:224 in      │
+│ <module>                                                                     │
+│                                                                              │
+│   221 │   f'Median household income:                              {agent_mas │
+│   222 │   f'Racial makeup of sample:                              {agent_mas │
+│   223 │   f'Percent taking outside option each trip:              {outside_o │
+│ ❱ 224 │   f'Percent purchasing with coupon:                       {agent_yog │
+│   225 )                                                                      │
+│   226                                                                        │
+│   227 #=== Switching Stats ===#                                              │
+│                                                                              │
+│ /home/dtm63837/.local/lib/python3.12/site-packages/pandas/util/_decorators.p │
+│ y:336 in wrapper                                                             │
+│                                                                              │
+│   333 │   │   │   │   │   klass,                                             │
+│   334 │   │   │   │   │   stacklevel=find_stack_level(),                     │
+│   335 │   │   │   │   )                                                      │
+│ ❱ 336 │   │   │   return func(*args, **kwargs)                               │
+│   337 │   │                                                                  │
+│   338 │   │   # error: "Callable[[VarArg(Any), KwArg(Any)], Any]" has no     │
+│   339 │   │   # attribute "__signature__"                                    │
+│                                                                              │
+│ /home/dtm63837/.local/lib/python3.12/site-packages/pandas/core/frame.py:1083 │
+│ 3 in groupby                                                                 │
+│                                                                              │
+│   10830 │   │   if level is None and by is None:                             │
+│   10831 │   │   │   raise TypeError("You have to supply one of 'by' and 'lev │
+│   10832 │   │                                                                │
+│ ❱ 10833 │   │   return DataFrameGroupBy(                                     │
+│   10834 │   │   │   obj=self,                                                │
+│   10835 │   │   │   keys=by,                                                 │
+│   10836 │   │   │   level=level,                                             │
+│                                                                              │
+│ /home/dtm63837/.local/lib/python3.12/site-packages/pandas/core/groupby/group │
+│ by.py:1095 in __init__                                                       │
+│                                                                              │
+│   1092 │   │   self.dropna = dropna                                          │
+│   1093 │   │                                                                 │
+│   1094 │   │   if grouper is None:                                           │
+│ ❱ 1095 │   │   │   grouper, exclusions, obj = get_grouper(                   │
+│   1096 │   │   │   │   obj,                                                  │
+│   1097 │   │   │   │   keys,                                                 │
+│   1098 │   │   │   │   level=level,                                          │
+│                                                                              │
+│ /home/dtm63837/.local/lib/python3.12/site-packages/pandas/core/groupby/group │
+│ er.py:901 in get_grouper                                                     │
+│                                                                              │
+│   898 │   │   │   elif obj._is_level_reference(gpr, axis=0):                 │
+│   899 │   │   │   │   in_axis, level, gpr = False, gpr, None                 │
+│   900 │   │   │   else:                                                      │
+│ ❱ 901 │   │   │   │   raise KeyError(gpr)                                    │
+│   902 │   │   elif isinstance(gpr, Grouper) and gpr.key is not None:         │
+│   903 │   │   │   # Add key to exclusions                                    │
+│   904 │   │   │   exclusions.add(gpr.key)                                    │
+╰──────────────────────────────────────────────────────────────────────────────╯
+KeyError: 'trip_code_ic'

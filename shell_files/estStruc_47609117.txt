@@ -1,0 +1,27 @@
+============================================================
+Data Loading and Manipulation
+============================================================
+/scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/full_draft/estimation.py:66: UserWarning: You are merging on int and float columns where the float values are not equal to their int representation.
+  master_df = master_df.merge(flavors, on = 'upc', how = 'left')
+flavor counts (yogurt only):
+flavor
+0.0    15667
+1.0    14833
+2.0    13356
+Name: count, dtype: int64
+============================================================
+Built merged panel for estimation
+============================================================
+Optimization Result:
+  message: CONVERGENCE: RELATIVE REDUCTION OF F <= FACTR*EPSMCH
+  success: True
+   status: 0
+      fun: 22271.64284935248
+        x: [-3.784e+00 -3.096e+00 -2.802e+00 -4.371e-02 -3.281e+00
+            -3.040e+00]
+      nit: 19
+      jac: [ 2.085e-01  3.824e-01 -2.874e-02  1.928e-01 -4.366e-02
+             2.583e-02]
+     nfev: 154
+     njev: 22
+ hess_inv: <6x6 LbfgsInvHessProduct with dtype=float64>

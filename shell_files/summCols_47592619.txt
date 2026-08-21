@@ -1,0 +1,32 @@
+/scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/full_draft/data.py:105: UserWarning: You are merging on int and float columns where the float values are not equal to their int representation.
+  agent_master  = agent_panel.merge(flavors, on='upc', how='left') # merge flavors on UPC codes with a left join
+/scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/full_draft/data.py:156: UserWarning: You are merging on int and float columns where the float values are not equal to their int representation.
+  merged_master  = merged_panel.merge(flavors, on='upc', how='left') # merge flavors on UPC codes with a left join
+Number of households in full sample:                  1269
+ Number of yogurt purchasing households:               715
+ Mean number of trips per HH:                          17.65169424743893
+ Number of yogurt purchases among purchasers per trip: 5.909355026147589
+ Mean household income:                                17.623599365124488
+ Median household income:                              18.0
+ Racial makeup of sample:                              race
+1    955
+2    254
+3     24
+4     36
+Name: household_code, dtype: int64
+ Percent taking outside option each trip:              0.80
+ Percent purchasing with coupon:                       47.56
+
+Mean consecutive buys by flavor x hh: 10.16361848574238
+ Mean times switching by flavor x hh:  8.604060913705585
+ Percent of HH who ever-switch:        0.3487708947885939
+ Average time spent on each flavor:    10.16361848574238
+Percent switching due to coupon:      0.17305801376597837
+
+ Mean price of yogurt: 0.84
+  Mean price by flavor: flavor
+0    0.758699
+1    0.917394
+2    1.160189
+Name: price, dtype: float64
+

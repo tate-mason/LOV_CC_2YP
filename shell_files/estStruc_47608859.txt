@@ -1,0 +1,65 @@
+============================================================
+Data Loading and Manipulation
+============================================================
+╭───────────────────── Traceback (most recent call last) ──────────────────────╮
+│ /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/full_draft/estimation.py:44 in │
+│ <module>                                                                     │
+│                                                                              │
+│    41 product_panel = (                                                      │
+│    42 │   pl.read_parquet(rms_path)                                          │
+│    43 │   .filter(pl.col('product_module_code').is_in([3612, 3603]))         │
+│ ❱  44 │   .with_columns([                                                    │
+│    45 │   │   pl.col('week_end').str.to_date('%Y%m%d'),                      │
+│    46 │   │   pl.col('store_code_uc').cast(pl.Int64),                        │
+│    47 │   │   pl.col('upc').cast(pl.Int64)                                   │
+│                                                                              │
+│ /home/dtm63837/.local/lib/python3.12/site-packages/polars/dataframe/frame.py │
+│ :10515 in with_columns                                                       │
+│                                                                              │
+│   10512 │   │   return (                                                     │
+│   10513 │   │   │   self.lazy()                                              │
+│   10514 │   │   │   .with_columns(*exprs, **named_exprs)                     │
+│ ❱ 10515 │   │   │   .collect(optimizations=QueryOptFlags._eager())           │
+│   10516 │   │   )                                                            │
+│   10517 │                                                                    │
+│   10518 │   def with_columns_seq(                                            │
+│                                                                              │
+│ /home/dtm63837/.local/lib/python3.12/site-packages/polars/_utils/deprecation │
+│ .py:97 in wrapper                                                            │
+│                                                                              │
+│    94 │   │   │   │                                                          │
+│    95 │   │   │   │   del kwargs["streaming"]                                │
+│    96 │   │   │                                                              │
+│ ❱  97 │   │   │   return function(*args, **kwargs)                           │
+│    98 │   │                                                                  │
+│    99 │   │   wrapper.__signature__ = inspect.signature(function)  # type: i │
+│   100 │   │   return wrapper                                                 │
+│                                                                              │
+│ /home/dtm63837/.local/lib/python3.12/site-packages/polars/lazyframe/opt_flag │
+│ s.py:343 in wrapper                                                          │
+│                                                                              │
+│   340 │   │   │   │   │   optflags = cb(optflags, kwargs.pop(key))  # type:  │
+│   341 │   │   │                                                              │
+│   342 │   │   │   kwargs["optimizations"] = optflags                         │
+│ ❱ 343 │   │   │   return function(*args, **kwargs)                           │
+│   344 │   │                                                                  │
+│   345 │   │   wrapper.__signature__ = inspect.signature(function)  # type: i │
+│   346 │   │   return wrapper                                                 │
+│                                                                              │
+│ /home/dtm63837/.local/lib/python3.12/site-packages/polars/lazyframe/frame.py │
+│ :2510 in collect                                                             │
+│                                                                              │
+│   2507 │   │                                                                 │
+│   2508 │   │   # Only for testing purposes                                   │
+│   2509 │   │   callback = _kwargs.get("post_opt_callback", callback)         │
+│ ❱ 2510 │   │   return wrap_df(ldf.collect(engine, callback))                 │
+│   2511 │                                                                     │
+│   2512 │   @overload                                                         │
+│   2513 │   def collect_async(                                                │
+╰──────────────────────────────────────────────────────────────────────────────╯
+SchemaError: invalid series dtype: expected `String`, got `i64` for series with 
+name `week_end`
+
+This error occurred in the following expression:
+        col("week_end").str.strptime(["raise"])
+

@@ -1,0 +1,117 @@
+============================================================
+Data Loading and Manipulation
+============================================================
+/scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/full_draft/estimation.py:66: UserWarning: You are merging on int and float columns where the float values are not equal to their int representation.
+  master_df = master_df.merge(flavors, on = 'upc', how = 'left')
+flavor counts (yogurt only):
+flavor
+0.0    15667
+1.0    14833
+2.0    13356
+Name: count, dtype: int64
+============================================================
+Built merged panel for estimation
+============================================================
+╭───────────────────── Traceback (most recent call last) ──────────────────────╮
+│ /home/dtm63837/.local/lib/python3.12/site-packages/pandas/core/indexes/base. │
+│ py:3641 in get_loc                                                           │
+│                                                                              │
+│   3638 │   │   """                                                           │
+│   3639 │   │   casted_key = self._maybe_cast_indexer(key)                    │
+│   3640 │   │   try:                                                          │
+│ ❱ 3641 │   │   │   return self._engine.get_loc(casted_key)                   │
+│   3642 │   │   except KeyError as err:                                       │
+│   3643 │   │   │   if isinstance(casted_key, slice) or (                     │
+│   3644 │   │   │   │   isinstance(casted_key, abc.Iterable)                  │
+│                                                                              │
+│ in pandas._libs.index.IndexEngine.get_loc:168                                │
+│                                                                              │
+│ in pandas._libs.index.IndexEngine.get_loc:197                                │
+│                                                                              │
+│ in pandas._libs.hashtable.PyObjectHashTable.get_item:7668                    │
+│                                                                              │
+│ in pandas._libs.hashtable.PyObjectHashTable.get_item:7676                    │
+╰──────────────────────────────────────────────────────────────────────────────╯
+KeyError: 'yogurt_buy'
+
+The above exception was the direct cause of the following exception:
+
+╭───────────────────── Traceback (most recent call last) ──────────────────────╮
+│ /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/full_draft/estimation.py:152   │
+│ in <module>                                                                  │
+│                                                                              │
+│   149                                                                        │
+│   150 modal_choices = (                                                      │
+│   151 │   trip_level.groupby(['household_code', 'trip_code_uc', 'week_end']) │
+│ ❱ 152 │   .apply(get_modal_flavor)                                           │
+│   153 │   .reset_index(name='modal_x')                                       │
+│   154 )                                                                      │
+│   155 # vectorized state update sequence with lag                            │
+│                                                                              │
+│ /home/dtm63837/.local/lib/python3.12/site-packages/pandas/core/groupby/group │
+│ by.py:1650 in apply                                                          │
+│                                                                              │
+│   1647 │   │   else:                                                         │
+│   1648 │   │   │   f = func                                                  │
+│   1649 │   │                                                                 │
+│ ❱ 1650 │   │   return self._python_apply_general(f, self._obj_with_exclusion │
+│   1651 │                                                                     │
+│   1652 │   @final                                                            │
+│   1653 │   def _python_apply_general(                                        │
+│                                                                              │
+│ /home/dtm63837/.local/lib/python3.12/site-packages/pandas/core/groupby/group │
+│ by.py:1687 in _python_apply_general                                          │
+│                                                                              │
+│   1684 │   │   Series or DataFrame                                           │
+│   1685 │   │   │   data after applying f                                     │
+│   1686 │   │   """                                                           │
+│ ❱ 1687 │   │   values, mutated = self._grouper.apply_groupwise(f, data)      │
+│   1688 │   │   if not_indexed_same is None:                                  │
+│   1689 │   │   │   not_indexed_same = mutated                                │
+│   1690                                                                       │
+│                                                                              │
+│ /home/dtm63837/.local/lib/python3.12/site-packages/pandas/core/groupby/ops.p │
+│ y:1035 in apply_groupwise                                                    │
+│                                                                              │
+│   1032 │   │   │                                                             │
+│   1033 │   │   │   # group might be modified                                 │
+│   1034 │   │   │   group_axes = group.axes                                   │
+│ ❱ 1035 │   │   │   res = f(group)                                            │
+│   1036 │   │   │   if not mutated and not _is_indexed_like(res, group_axes): │
+│   1037 │   │   │   │   mutated = True                                        │
+│   1038 │   │   │   result_values.append(res)                                 │
+│                                                                              │
+│ /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/full_draft/estimation.py:142   │
+│ in get_modal_flavor                                                          │
+│                                                                              │
+│   139                                                                        │
+│   140 def get_modal_flavor(group):                                           │
+│   141 │   # Filter out outside option - purchase occurred                    │
+│ ❱ 142 │   purchases = group[group['yogurt_buy'].notna()]                     │
+│   143 │   if purchases.empty:                                                │
+│   144 │   │   return np.nan                                                  │
+│   145 │   counts    = purchases['flavor'].value_counts()                     │
+│                                                                              │
+│ /home/dtm63837/.local/lib/python3.12/site-packages/pandas/core/frame.py:4378 │
+│ in __getitem__                                                               │
+│                                                                              │
+│    4375 │   │   if is_single_key:                                            │
+│    4376 │   │   │   if self.columns.nlevels > 1:                             │
+│    4377 │   │   │   │   return self._getitem_multilevel(key)                 │
+│ ❱  4378 │   │   │   indexer = self.columns.get_loc(key)                      │
+│    4379 │   │   │   if is_integer(indexer):                                  │
+│    4380 │   │   │   │   indexer = [indexer]                                  │
+│    4381 │   │   else:                                                        │
+│                                                                              │
+│ /home/dtm63837/.local/lib/python3.12/site-packages/pandas/core/indexes/base. │
+│ py:3648 in get_loc                                                           │
+│                                                                              │
+│   3645 │   │   │   │   and any(isinstance(x, slice) for x in casted_key)     │
+│   3646 │   │   │   ):                                                        │
+│   3647 │   │   │   │   raise InvalidIndexError(key) from err                 │
+│ ❱ 3648 │   │   │   raise KeyError(key) from err                              │
+│   3649 │   │   except TypeError:                                             │
+│   3650 │   │   │   # If we have a listlike key, _check_indexing_error will r │
+│   3651 │   │   │   #  InvalidIndexError. Otherwise we fall through and re-ra │
+╰──────────────────────────────────────────────────────────────────────────────╯
+KeyError: 'yogurt_buy'

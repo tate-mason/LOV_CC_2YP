@@ -1,0 +1,17 @@
+/scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/full_draft/data.py:105: UserWarning: You are merging on int and float columns where the float values are not equal to their int representation.
+  agent_master  = agent_panel.merge(flavors, on='upc', how='left') # merge flavors on UPC codes with a left join
+/scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/full_draft/data.py:156: UserWarning: You are merging on int and float columns where the float values are not equal to their int representation.
+  merged_master  = merged_panel.merge(flavors, on='upc', how='left') # merge flavors on UPC codes with a left join
+╭───────────────────── Traceback (most recent call last) ──────────────────────╮
+│ /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/full_draft/data.py:216 in      │
+│ <module>                                                                     │
+│                                                                              │
+│   213 agent_yogurt = agent_yogurt[agent_yogurt['product_group_code'] == 2510 │
+│   214 multipack_pattern   = r'MULTI|MULTIPACK|\bPK\b|\bCT\b'                 │
+│   215 agent_yogurt = agent_yogurt[                                           │
+│ ❱ 216 │   ~agent_yogurt['upc_descr'].str.contains(multipack_pattern,case=FAL │
+│   217 ]                                                                      │
+│   218 console.print(                                                         │
+│   219 │   f'Number of households in full sample:                  {agent_mas │
+╰──────────────────────────────────────────────────────────────────────────────╯
+NameError: name 'FALSE' is not defined

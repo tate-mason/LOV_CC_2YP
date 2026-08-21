@@ -1,0 +1,73 @@
+============================================================
+Data Loading and Manipulation
+============================================================
+/scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/full_draft/estimation.py:66: UserWarning: You are merging on int and float columns where the float values are not equal to their int representation.
+  master_df = master_df.merge(flavors, on = 'upc', how = 'left')
+flavor counts (yogurt only):
+flavor
+0.0    15667
+1.0    14833
+2.0    13356
+Name: count, dtype: int64
+============================================================
+Built merged panel for estimation
+============================================================
+╭───────────────────── Traceback (most recent call last) ──────────────────────╮
+│ /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/full_draft/estimation.py:155   │
+│ in <module>                                                                  │
+│                                                                              │
+│   152                                                                        │
+│   153 modal_choices = (                                                      │
+│   154 │   trip_level.groupby(['household_code', 'trip_code_uc', 'week_end']) │
+│ ❱ 155 │   .apply(get_modal_flavor)                                           │
+│   156 │   .reset_index(name='modal_x')                                       │
+│   157 )                                                                      │
+│   158 # vectorized state update sequence with lag                            │
+│                                                                              │
+│ /home/dtm63837/.local/lib/python3.12/site-packages/pandas/core/groupby/group │
+│ by.py:1650 in apply                                                          │
+│                                                                              │
+│   1647 │   │   else:                                                         │
+│   1648 │   │   │   f = func                                                  │
+│   1649 │   │                                                                 │
+│ ❱ 1650 │   │   return self._python_apply_general(f, self._obj_with_exclusion │
+│   1651 │                                                                     │
+│   1652 │   @final                                                            │
+│   1653 │   def _python_apply_general(                                        │
+│                                                                              │
+│ /home/dtm63837/.local/lib/python3.12/site-packages/pandas/core/groupby/group │
+│ by.py:1687 in _python_apply_general                                          │
+│                                                                              │
+│   1684 │   │   Series or DataFrame                                           │
+│   1685 │   │   │   data after applying f                                     │
+│   1686 │   │   """                                                           │
+│ ❱ 1687 │   │   values, mutated = self._grouper.apply_groupwise(f, data)      │
+│   1688 │   │   if not_indexed_same is None:                                  │
+│   1689 │   │   │   not_indexed_same = mutated                                │
+│   1690                                                                       │
+│                                                                              │
+│ /home/dtm63837/.local/lib/python3.12/site-packages/pandas/core/groupby/ops.p │
+│ y:1035 in apply_groupwise                                                    │
+│                                                                              │
+│   1032 │   │   │                                                             │
+│   1033 │   │   │   # group might be modified                                 │
+│   1034 │   │   │   group_axes = group.axes                                   │
+│ ❱ 1035 │   │   │   res = f(group)                                            │
+│   1036 │   │   │   if not mutated and not _is_indexed_like(res, group_axes): │
+│   1037 │   │   │   │   mutated = True                                        │
+│   1038 │   │   │   result_values.append(res)                                 │
+│                                                                              │
+│ /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/full_draft/estimation.py:151   │
+│ in get_modal_flavor                                                          │
+│                                                                              │
+│   148 │   counts    = purchases['flavor'].value_counts()                     │
+│   149 │   max_count = counts.max()                                           │
+│   150 │   top_modes = counts[counts==max_count].index.to_numpy()             │
+│ ❱ 151 │   return rng.choice(top_modes) # random tiebreaker if tied           │
+│   152                                                                        │
+│   153 modal_choices = (                                                      │
+│   154 │   trip_level.groupby(['household_code', 'trip_code_uc', 'week_end']) │
+│                                                                              │
+│ in numpy.random._generator.Generator.choice:866                              │
+╰──────────────────────────────────────────────────────────────────────────────╯
+ValueError: a cannot be empty unless no samples are taken

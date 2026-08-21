@@ -206,7 +206,7 @@ agent_yogurt = agent_master.copy() # copy full sample
 agent_yogurt = agent_yogurt[agent_yogurt['product_group_code'] == 2510] # subset to yogurt purchases
 multipack_pattern   = r'MULTI|MULTIPACK|\bPK\b|\bCT\b'
 agent_yogurt = agent_yogurt[
-    ~agent_yogurt['upc_descr'].str.contains(multipack_pattern,case=FALSE, na=False)
+    ~agent_yogurt['upc_descr'].str.contains(multipack_pattern,case=False, na=False)
 ]
 console.print(
     f'Number of households in full sample:                  {agent_master['household_code'].nunique()}\n',

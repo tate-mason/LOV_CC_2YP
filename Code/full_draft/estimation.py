@@ -190,8 +190,9 @@ cat_map = {c: i for i,c in enumerate(CATEGORIES)}
 
 choice_set_matrix = {}
 for (store, week), group in cat_choice_sets.groupby(['store_code_uc', 'week_end']):
+    mat=np.zeros((4,3))
+
     for row in group.itertuples():
-        mat[3,:] = [0.0, 0.0, 0.0, 0.0]
         if row.category in cat_map and row.category != 'outside':
             idx      = cat_map[row.category]
             mat[idx] = [row.price, row.iv_resid, row.flavor]

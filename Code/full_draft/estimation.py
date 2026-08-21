@@ -245,11 +245,11 @@ def total_objective(params, hh_packed_data):
             resids  = X_mat[:, 1]
             flavors = X_mat[:, 2]
 
-            Xi      = np.abs(flavors - thetas)
+            Xi      = np.abs(flavors - theta)
 
             u       = (
                 beta_vec
-                - alpha * prices
+                + alpha * prices
                 + sigma * resids
                 + gamma * np.log(1.0 + Xi)
             )

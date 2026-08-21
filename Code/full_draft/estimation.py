@@ -235,35 +235,35 @@ def total_objective(params, hh_packed_data):
     beta_vec = np.array([beta0, beta1, beta2, 0.0])  # [other, berry, plain]
     total_ll  = 0.0 
 
-for hh_data in hh_packed_data.values():
-        matrices = hh_data['matrices']
-        choices  = hh_data['choices']
-        thetas   = hh_data['thetas']
+    for hh_data in hh_packed_data.values():
+            matrices = hh_data['matrices']
+            choices  = hh_data['choices']
+            thetas   = hh_data['thetas']
 
-        for X_mat, y_idx, theta in zip(matrices, choices, thetas):
-            prices  = X_mat[:, 0]
-            resids  = X_mat[:, 1]
-            flavors = X_mat[:, 2]
+            for X_mat, y_idx, theta in zip(matrices, choices, thetas):
+                prices  = X_mat[:, 0]
+                resids  = X_mat[:, 1]
+                flavors = X_mat[:, 2]
 
-            # 1. Compute Xi for inside options only
-            Xi = np.zeros(4)
-            Xi[:3] = np.abs(flavors[:3] - theta)
+                # 1. Compute Xi for inside options only
+                Xi = np.zeros(4)
+                Xi[:3] = np.abs(flavors[:3] - theta)
 
-            # 2. Build full utility vector
-            u = (
-                beta_vec
-                + alpha * prices
-                + sigma * resids
-                + gamma * np.log(1.0 + Xi)
-            )
-            # Row 3 evaluates naturally to 0.0 + a*0 + s*0 + g*0 = 0.0
+                # 2. Build full utility vector
+                u = (
+                    beta_vec
+                    + alpha * prices
+                    + sigma * resids
+                    + gamma * np.log(1.0 + Xi)
+                )
+                # Row 3 evaluates naturally to 0.0 + a*0 + s*0 + g*0 = 0.0
 
-            # 3. Log-Sum-Exp
-            u_max = np.max(u)
-            log_sum_exp = u_max + np.log(np.sum(np.exp(u - u_max)))
+                # 3. Log-Sum-Exp
+                u_max = np.max(u)
+                log_sum_exp = u_max + np.log(np.sum(np.exp(u - u_max)))
 
-            log_prob = u[y_idx] - log_sum_exp
-            total_ll += log_prob
+                log_prob = u[y_idx] - log_sum_exp
+                total_ll += log_prob
 
     return -total_ll
 

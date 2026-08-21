@@ -11,6 +11,7 @@ import statsmodels.formula.api as smf
 #output
 from rich.console import Console
 from rich.traceback import install; install()
+from rich.table import Table
 console = Console()
 
 console.print('='*60)

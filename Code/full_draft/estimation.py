@@ -74,14 +74,10 @@ conditions = [
     master_df["flavor_code"].isin(berry_codes),
     master_df["flavor_code"].isin(plain_codes),
 ]
-master_df["flavor_binary"] = np.select(conditions, [0, 1, 2], default=np.nan)
+master_df["flavor"] = np.select(conditions, [0, 1, 2], default=np.nan)
 
-full_panel = master_df.copy()
-master_df = master_df[master_df['product_module_code'].isin([3612, 3603])]
-master_df = master_df.dropna(subset=['price'])
-
-console.print('flavor_binary counts (yogurt only):')
-console.print(master_df['flavor_binary'].value_counts())
+console.print('flavor counts (yogurt only):')
+console.print(master_df['flavor'].value_counts())
 
 market_price = (
     master_df.groupby(['upc', 'week_end', 'dma_code'])['price']

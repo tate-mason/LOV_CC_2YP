@@ -106,7 +106,7 @@ master_df = master_df.merge(
     how='left'
 )
 
-master_df = master_df[(master_df['price'] > 0.01) | (trip_level['price'].isna())]
+master_df = master_df[(master_df['price'] > 0.01) | (master_df['price'].isna())]
 
 iv_res = smf.ols('price ~ price_iv + size1_amount + C(week_end)', data=master_df, missing='drop').fit()
 master_df['iv_resid'] = iv_res.resid

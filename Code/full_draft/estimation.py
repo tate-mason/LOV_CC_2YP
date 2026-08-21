@@ -42,7 +42,7 @@ product_panel = (
     pl.read_parquet(rms_path)
     .filter(pl.col('product_module_code').is_in([3612, 3603]))
     .with_columns([
-        pl.col('week_end')cast(pl.String).str.to_date('%Y%m%d'),
+        pl.col('week_end').cast(pl.String).str.to_date('%Y%m%d'),
         pl.col('store_code_uc').cast(pl.Int64),
         pl.col('upc').cast(pl.Int64)
     ])

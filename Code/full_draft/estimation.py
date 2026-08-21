@@ -54,7 +54,7 @@ master_df = agent_panel.merge(
     product_panel, on = ['store_code_uc', 'week_end', 'upc'], how = 'left'
 )
 
-master_df = master_df.rename({'product_module_code_x':'product_module_code',
+master_df = master_df.rename(columns = {'product_module_code_x':'product_module_code',
                               'product_group_code_x':'product_group_code', 
                               'size1_code_uc_x':'size1_code_uc',
                               'size1_units_x':'size1_units',

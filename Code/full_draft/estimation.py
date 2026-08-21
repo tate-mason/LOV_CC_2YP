@@ -146,6 +146,8 @@ def get_modal_flavor(group):
     if purchases.empty:
         return np.nan
     counts    = purchases['flavor'].value_counts()
+    if counts.empty:
+        return np.nan
     max_count = counts.max()
     top_modes = counts[counts==max_count].index.to_numpy()
     return rng.choice(top_modes) # random tiebreaker if tied

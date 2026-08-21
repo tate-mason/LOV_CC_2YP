@@ -245,7 +245,7 @@ def total_objective(params, hh_packed_data):
             resids  = X_mat[:, 1]
             flavors = X_mat[:, 2]
 
-            Xi      = np.abs(flavors - theta)
+            Xi      = np.abs(flavors - thetas)
 
             u       = (
                 beta_vec
@@ -263,7 +263,7 @@ def total_objective(params, hh_packed_data):
             total_ll    += log_prob
     return -total_ll
 
-x0 = np.array([0.5, 1.0, 0.2, 0.5, 1.0, 0.0])
+x0 = np.zeros(6)
 
 res = minimize(
     total_objective,

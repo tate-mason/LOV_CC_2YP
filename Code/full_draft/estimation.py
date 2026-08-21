@@ -183,7 +183,10 @@ cat_choice_sets = (
     )
     .reset_index()
 )
-
+cat_choice_sets['price_demeaned'] = (
+    cat_choice_sets['price'] - 
+    cat_choice_sets.groupby(['store_code_uc', 'week_end'])['price'].transform('mean')
+) # demean prices
 # reshape into 2D array for easier lookup
 CATEGORIES = ['other', 'berry', 'plain', 'outside']
 cat_map = {c: i for i,c in enumerate(CATEGORIES)}

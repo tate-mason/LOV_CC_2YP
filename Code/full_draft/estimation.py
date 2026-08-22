@@ -242,10 +242,12 @@ for hh_id, group in trips_processed.groupby('household_code'):
 
 def total_objective(params, hh_packed_data):
     # Parameter order: [const, beta, gamma, alpha, sigma]
-    const, beta_ber, beta_pl, gamma, alpha, sigma = params
+    const, beta_oth, beta_ber, beta_pl, gamma, alpha, sigma = params
 
+    d_other = np.array([1.0, 0.0, 0.0])
     d_berry = np.array([0.0, 1.0, 0.0])
     d_plain = np.array([0.0, 0.0, 1.0])
+
     
     # Fixed structural flavor representations: other = 0.0, berry = 1.0, plain = 2.0
     cat_flavors = np.array([0.0, 1.0, 2.0]) 
@@ -269,11 +271,12 @@ def total_objective(params, hh_packed_data):
             u = np.zeros(4)
             u[:3] = (
                 const
-                + beta_ber * d_berry 
-                + beta_pl  * d_plain
+                + beta_oth * d_other # other utility
+                + beta_ber * d_berry # berry utility
+                + beta_pl  * d_plain # plain utility
                 + gamma * Xi[:3] # did it match last period or not
-                + alpha * prices[:3]
-                + sigma * resids[:3]
+                + alpha * prices[:3] # price disutility
+                + sigma * resids[:3] # IV residual control function
             )
             u[3] = 0.0  # Outside option normalized baseline
 
@@ -290,13 +293,14 @@ def total_objective(params, hh_packed_data):
 
     return -total_ll
 
-x0 = np.zeros(6)
+x0 = np.zeros(7)
 bounds = [
     (None, None),  # beta_0
-    (None, None),  # beta_ber
-    (None, None),
+    (None, None),  # beta_other
+    (None, None),  # beta_berry
+    (None, None),  # beta_plain
     (None, None),  # gamma (unconstrained)
-    (None, 0.0),  # alpha (strictly positive magnitude)
+    (None, 0.0),   # alpha (strictly positive magnitude)
     (None, None)   # sigma
 ]
 
@@ -322,7 +326,7 @@ table.add_column("Std. Error", justify="right")
 table.add_column("z-stat", justify="right")
 table.add_column("p-value", justify="right")
 
-param_names = ['β_0 (Intercept)', 'β_ber (Berry)', 'β_pl (Plain)', 'γ (Habit/Variety)', 'α (Price)', 'σ (Control Func)']
+param_names = ['β_0 (Intercept)', 'β_oth (Other)', 'β_ber (Berry)', 'β_pl (Plain)', 'γ (Habit/Variety)', 'α (Price)', 'σ (Control Func)']
 
 for name, val, se, z, p in zip(param_names, res.x, se, z, p):
     p_str = f"{p:.4f}" if not np.isnan(p) else "N/A"

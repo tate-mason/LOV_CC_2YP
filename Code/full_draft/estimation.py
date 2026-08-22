@@ -178,11 +178,14 @@ flavor_map_num = {'other':0.0, 'berry':1.0, 'plain':2.0}
 # Create category mapping on master
 master_df['category'] = master_df['flavor'].map(map_flavor_category)
 
+cat_price_means = master_df.groupby('category')['price'].mean().to_dict()
+master_df['price_demeaned'] = master_df['price'] - master_df['category'].map(cat_price_means)
+
 # Group assortments by store x week x category
 cat_choice_sets = (
     master_df.groupby(['store_code_uc', 'week_end', 'category'])
     .agg(
-        price     = ('price', 'mean'),
+        price     = ('price_demeaned', 'mean'),
         iv_resid  = ('iv_resid', 'mean')
     )
     .reset_index()
@@ -204,7 +207,8 @@ for (store, week), group in cat_choice_sets.groupby(['store_code_uc', 'week_end'
             idx = cat_map[row.category]
             # Store price and residual; ignore NaN residuals
             res_val = 0.0 if np.isnan(row.iv_resid) else row.iv_resid
-            mat[idx] = [row.price, res_val]
+            p_val   = 0.0 if np.isnan(row.price_demeaned) else row.price_demeaned
+            mat[idx] = [p_val, res_val]
             
     choice_set_matrix[(store, week)] = mat
 
@@ -258,12 +262,12 @@ def total_objective(params, hh_packed_data):
         thetas   = hh_data['thetas']
 
         for X_mat, y_idx, theta in zip(matrices, choices, thetas):
-            prices = X_mat[:, 0]
+            prices_dm = X_mat[:, 0]
             resids = X_mat[:, 1]
 
             # 1. Compute Xi for inside alternatives (rows 0, 1, 2)
             Xi = np.zeros(4)
-            Xi[:3] = np.abs(cat_flavors - theta)
+            Xi[:3] = np.abs(cat_flavors != theta).astype(float) # 0-1 did flavor today match
 
             # 2. Compute Utility using fixed cat_flavors
             u = np.zeros(4)
@@ -271,8 +275,8 @@ def total_objective(params, hh_packed_data):
                 const
                 + beta_ber * d_berry 
                 + beta_pl  * d_plain
-                + gamma * np.log(1.0 + Xi[:3])
-                + alpha * prices[:3]
+                + gamma * Xi[:3] # did it match last period or not
+                + alpha * prices_dm[:3]
                 + sigma * resids[:3]
             )
             u[3] = 0.0  # Outside option normalized baseline
@@ -343,5 +347,7 @@ console.print(table)
 console.print(f"[bold]Optimization Success:[/bold] {res.success}")
 console.print(f"[bold]Final Log-Likelihood Objective:[/bold] {res.fun:.4f}")
 
-WTP = res.x[2] / res.x[4]
+WTP = -1*(res.x[2] / res.x[4])
 console.print(f'[bold]Willingness to Pay:[/bold] {WTP}')
+
+console.print(trip_level['category_chosen'].value_counts())

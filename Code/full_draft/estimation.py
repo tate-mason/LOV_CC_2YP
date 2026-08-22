@@ -345,7 +345,18 @@ console.print(table)
 console.print(f"[bold]Optimization Success:[/bold] {res.success}")
 console.print(f"[bold]Final Log-Likelihood Objective:[/bold] {res.fun:.4f}")
 
-WTP = -1*(res.x[2] / res.x[4])
-console.print(f'[bold]Willingness to Pay:[/bold] {WTP}')
+# Extract price parameter (alpha)
+alpha = res.x[4]
+
+# Calculate WTPs relative to the baseline ("Other" flavor)
+wtp_results = {
+    "Intercept (Base Utility)": -1 * (res.x[0] / alpha),
+    "Berry Flavor":             -1 * (res.x[1] / alpha),
+    "Plain Flavor":             -1 * (res.x[2] / alpha),
+    "Habit/Switching Penalty":  -1 * (res.x[3] / alpha),
+}
+
+for param, wtp in wtp_results.items():
+    print(f"WTP for {param}: ${wtp:.4f}")
 
 console.print(trip_level['category_chosen'].value_counts())

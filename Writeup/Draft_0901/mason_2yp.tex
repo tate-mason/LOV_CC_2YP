@@ -60,9 +60,7 @@
 
 In the baseline logit model, a consumer is perceived as having a fixed preference for each product, and the utility from consuming a product is independent of past consumption. Further, it is assumed that a new good is always a utility boosting event, by the error term's property of being identically and independently distributed. However, in many markets, consumers may have a love of variety, or a desire to consume different products over time. This can be due to factors such as boredom, satiation, or a preference for novelty. In such cases, the utility from consuming a product may depend on past consumption, and the introduction of a new good may not always lead to an increase in utility.
 
-I contribute to the love of variety literature by adding a supply side to the existing demand models. With the supply side, I am able to understand how firms will maximize profits using customers' desire for variety in product characteristics. Further, I develop the models by controlling for endogeneity in prices via a control function approach. This corrects potential bias in price coefficients that exist in previous work. 
-
-I find that consumers have a distaste for variety in certain characteristics. 
+I contribute to the love of variety literature by adding a supply side to the existing demand models. With the supply side, I am able to understand how firms will maximize profits using customers' desire for variety in product characteristics. Further, I develop the models by controlling for endogeneity in prices via a control function approach. This corrects potential bias in price coefficients that exist in previous work. I find that consumers do not gain utilty from variety. The estimation yields a statistically significant disutility for variety, implying that people prefer habit in an attribute like flavor. I also find that consumers would need to be paid between \$0.20 and \$0.30 to switch. This desire for habit creates a pathway for interesting firm-side experiments like targeted discounting or strategic product introduction.  
 
 The rest of the paper is organized as follows: section two discusses the related
 literature and section three describes the data used and some descriptive
@@ -114,8 +112,8 @@ concludes.
 
 
     \begin{alignat*}{1}
-      U_{ijt} &= \beta_0 + \sum_1^k\beta^k_i X^k_{jt} + \gamma_i \log(1 + \Xi_{ijt}) 
-                  + \alpha_i p_{jt} + \sigma\hat{\eta} + \xi_j + \varepsilon_{ijt} \\
+      U_{ijt} &= \beta_0 + \sum_1^k\beta^k_i X^k_{jt} + \gamma_i\Xi_{ijt}
+                  + \alpha_i p_{jt} + \sigma\hat{\eta}_{jt} + \varepsilon_{ijt} \\
     \text{subject to} \\
       \Xi_{ijt} &= |X_jt - X^*_{j,t-1}| \\
       \gamma_i &\sim \mathcal{N}(0, 1)\\
@@ -124,20 +122,41 @@ concludes.
 
     In the utility function, there are the following components: $\beta_0$ is a constant, $\beta^k_i$ is a consumer's utility from characteristic $X^k_{jt}$, $\gamma_i$ is their preference for variety, $\Xi_{ijt}$ is the difference between the current characteristic and the most recent choice, $\alpha_i$ is a hetergeneous price sensitivity to $p_{jt}$ and $\varepsilon_{ijt}$ is the Gumbel shock which allows for a closed form logit.
 
-    To correct for price endogeneity in the above, I have implemented a control function as in \cite{train_2010}. Here, I do a first stage instrumental variable estimation and then take residual from that estimation and insert it into the utility function. That is $\hat{\eta}$, which is defined as:
+    To correct for price endogeneity in the above, I have implemented a control function as in \cite{train_2010}. Here, I do a first stage instrumental variable estimation and then take residual from that estimation and insert it into the utility function. That is $\hat{\eta}$, which is recovered from:
     \begin{alignat*}{2}
-      \hat{\eta} &= p_{jt} - \bar{p}_{jt} - \mathbf{1}\{\text{Week} = t\}
+      p_{jt} = \bar{p}_{jt} + \tau_t + \eta_{jt}
     \end{alignat*}
 
-    Where $\bar{p}_{jt}$ is the mean price from the three markets the household is not shopping in and a time indicator are regressors. The residual corrects for the bias present in pricing, allowing us a consistent estimate of pricing. 
+    Where $\bar{p}_{jt}$ is the mean price from the three markets the household is not shopping in and $\tau_t$ is a time indicator. The residual corrects for the bias present in pricing, allowing us a consistent estimate of pricing.
+
+    Choice probabilities take the following form:
+
+    \begin{alignat*}{3}
+      P_{ijt} = \frac{\beta_0 + \sum_1^k\beta_i^kX_{jt}^k + \gamma_i\Xi_{ijt} + \alpha_ip_{jt} + \sigma\hat{\eta}_{jt} + \varepsilon_{ijt}}{1 + \sum_s\beta_0+\sum_1^k\beta_i^kX_{st}^k + \gamma_i\Xi_{ist} + \alpha_ip_{st} + \sigma\hat{\eta}_{jt} + \varepsilon_{ist}}
+    \end{alignat*}
+
+    Where we normalize the outside option, not purchasing yogurt, to be zero by construction. 
+
+
+
+%============================================================%
+\section{Estimation}
+%============================================================%
+
+The estimation procedure uses standard maximum likelihood estimation, while implementing the \cite{train_2010} control function. This means that there is no random coefficient estimation at this point, allowing me to identify the parameters of interest from the data alone. This is accomplished by first making an index of prices, instrumental variable residuals, and previous choices for each household's trips for each flavor. Then, I plug these values into the objective function represented by:
+\begin{alignat*}
+  U_{ijt} = \beta_0 + \beta_i^bX_{jt}^b + \beta_i^pX^p_{jt} + \gamma_i\Xi_{ijt} + \alpha_ip_{jt} + \sigma\hat{\eta}_{jt}
+\end{alignat*}
+
+Where $\beta_0$ is a constant, $\beta_i^b, \beta_i^p$ are choice specific constants for choosing berry or plain. Other flavors are left out to avoid multi-collinearity. $\gamma_i\Xi_{ijt}$ is the love of variety term, which is just capturing if you switched between periods. The price and control function term are unchanged from above. I then maximize the total log-likelihood to recover the parameters at the optimal.
 
 %============================================================%
 \section{Results}
 %============================================================%
 
-% base tables
-% marginal effects
-% dollarized
+Results are shown in \ref{tab:res_tab}. Here, you can see mixed findings. Firstly, I find that $\gamma_i$ is statistically significant and negative at $-1.23$. This finding points to consumers being less willing to switch flavors between trips. This finding is surprising given the data fact that more than half of houses are switchers, conditional on yogurt purchase, and houses switch 3 times on average if they do switch. This discrepancy points to my sample potentially suffering from being too small. Further, I find a negative price coefficient $\alpha$, but am unable to claim statistical significance. This is fixable with a better instrumental variable, something which is actively being considered. Similarly, the control function correction coefficient is not significant either. However, given $\sigma$ is positive, we can infer that $\alpha$ is positively biased without this correction. With a better IV approach 
+
+When looking at the characteristic coefficients, only berry, $\beta_i^b$, is statistically significant. This is, again, an issue with lack of observations. As \ref{tab:stat_tab} shows, berry has over 2,000 observed times being chosen. When looking at plain's coefficient, $\beta_i^p$, I do not find significance. This makes total sense upon seeing it is only chosen 412 times. The constant is negative, which is to be expected with a high outside option uptake rate. It is close to fringe significance, but is not either. 
 
 %============================================================%
 \section{Counterfactuals}
@@ -145,7 +164,7 @@ concludes.
 
 Now, suppose we introduce firm side dynamics. Here, the firm acts statically, taking the consumer's last observed action into account and deciding whether or not to offer a promotion to encourage switching. That is, in each period $t$, firm $f$ maximizes profits according to the following problem:
 
-    \begin{alignat*}{3}
+    \begin{alignat*}{4}
       V_{f,t} &= \max\{V_f^d, V_f^n\} \\
       \text{subject to} \\
       V_f^d  &= p'_js_j(x_j, p'_j) - MC_j \\
@@ -155,16 +174,15 @@ Now, suppose we introduce firm side dynamics. Here, the firm acts statically, ta
 
 The firm has to decide whether to offer a discount, $V_f^d$, or sell at the normal price, $V_f^n$. Prices are set at $p'$ when giving a discount, a level strictly lower than the baseline. I assume a flat marginal cost that does not change if a discount is offered. The firm has the following constraints:
 
-    \begin{alignat*}{4}
+    \begin{alignat*}{5}
       V_f^d &\geq V_f^n \\
-      p'_js_j(p'_j,x_j) - MC_j &\geq p_js_j(p_j,x_j) - MC_j \\
       p'_js_j(p'_j,x_j) &\geq p_js_j(p_j,x_j)
     \end{alignat*}
 
     That is, the firm will advertise when the market share under the new price is larger than under the old price, offsetting the lowered price. 
 
     As an example, suppose the firm offers a discount of 20\% on berry yogurt if you are a plain type. Thus, the consumer faces the following problem:
-    \begin{alignat*}
+    \begin{alignat*}{6}
       U_{ijt} &= \beta_0 + \sum_1^k\beta^k_i X^k_{jt} + \gamma_i \log(1 + \Xi_{ijt}) 
                   + \alpha_i p'_{jt} + \sigma\hat{\eta}' + \xi_j + \varepsilon_{ijt} \\
     \text{subject to} \\
@@ -226,6 +244,12 @@ In closing, this paper develops a dynamic discrete choice model of consumer dema
 \quad Other Flavors Price & \$0.76 & Per unit price \\
 \quad Berry Price & \$0.92 & Per unit price \\
 \quad Plain Price & \$1.16 & Per unit price \\
+\midrule
+  \multicolumn{3}{l}{\textbf{Yogurt Choices}} \\
+  Outside Option Chosen & 8,102 & Times Outside Option Chosen \\
+  Berry Chosen          & 2,108 & Times Berry Yogurt Chosen  \\
+  Other Chosen          & 1,865 & Times Other Yogurt Flavors Chosen \\
+  Plain Chosen          &   412 & Times Plain Yogurt Chosen \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -237,6 +261,26 @@ In closing, this paper develops a dynamic discrete choice model of consumer dema
   \includegraphics[width=\textwidth]{../../Output/Plots/3_flav_heatmap.pdf}
 \end{figure}
 
+\newpage
+
+\begin{table}[htbp]
+    \centering
+    \caption{Structural Estimation Results}
+    \label{tab:res_tab}
+    \begin{tabular}{l S[table-format=-1.4] S[table-format=1.4] S[table-format=-1.3] l}
+        \toprule
+        \textbf{Parameter} & {\textbf{Estimate}} & {\textbf{Std. Error}} & {\textbf{z-stat}} & \textbf{p-value} \\
+        \midrule
+        $\beta_0$ (Intercept)   & -0.8402 & 0.5736 & -1.465 & 0.14 \\
+        $\beta_{\text{ber}}$ (Berry) & 1.0115 & 0.2485 & 4.070  & 0.00$^{**{*}}$ \\
+        $\beta_{\text{pl}}$ (Plain)  & 0.4322  & 0.7620 & 0.567  & 0.57 \\
+        $\gamma$ (Habit/Variety)     & -1.2333 & 0.5372 & -2.296 & 0.02$^{**}$ \\
+        $\alpha$ (Price)             & -0.5603 & 0.5762 & -0.973 & 0.33 \\
+        $\sigma$ (Control Func)      & 0.3831  & 2.7661 & 0.139  & 0.89 \\
+        \bottomrule
+        \multicolumn{5}{l}{\footnotesize $^{***}p < 0.001$, $^{**}p < 0.05$}
+    \end{tabular}
+\end{table}
 
 \end{document}
 

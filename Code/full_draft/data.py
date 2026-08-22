@@ -147,7 +147,8 @@ outside_option_rate = trip_yogurt['chose_outside_option'].mean()
 # Merged merge and clean
 
 merged_master  = merged_panel.merge(flavors, on='upc', how='left') # merge flavors on UPC codes with a left join
-merged_master  = merged_master.dropna(subset=['quantity', 'product_group_code', 'flavor_code', 'flavor_descr']) # drop NA for key var after merge
+merged_master = merged_master.loc[:, ~merged_master.columns.duplicated()]
+merged_master = merged_master.dropna(subset=['quantity', 'product_group_code'])
 merged_master  = merged_master.assign(
     flavor_class = np.select(
         [

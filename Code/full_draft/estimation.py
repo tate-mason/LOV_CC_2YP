@@ -304,7 +304,12 @@ res = minimize(
     options={'ftol':1e-6}
 )
 
-se = np.sqrt(np.diag(res.hess_inv)) # standard errors from the inverse of the hessian
+try:
+    cov_matrix = res.hess_inv.to_dense()
+    se         = np.sqrt(np.diag(cov_matrix))
+except Exception:
+    se         = np.full_like(res.x, np.nan)
+
 z = res.x / se
 p = 2 * (1 - sp.stats.norm.cdf(np.abs(z)))
 
@@ -335,3 +340,6 @@ for name, val, se, z, p in zip(param_names, res.x, se, z, p):
 console.print(table)
 console.print(f"[bold]Optimization Success:[/bold] {res.success}")
 console.print(f"[bold]Final Log-Likelihood Objective:[/bold] {res.fun:.4f}")
+
+WTP = res.x[2] / res.x[4]
+console.print(f'[bold]Willingness to Pay:[/bold] {WTP}')

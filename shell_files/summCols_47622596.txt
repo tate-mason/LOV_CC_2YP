@@ -1,0 +1,28 @@
+/scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/full_draft/data.py:98: UserWarning: You are merging on int and float columns where the float values are not equal to their int representation.
+  agent_master  = agent_panel.merge(flavors, on='upc', how='left') # merge flavors on UPC codes with a left join
+/scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/full_draft/data.py:149: UserWarning: You are merging on int and float columns where the float values are not equal to their int representation.
+  merged_master  = merged_panel.merge(flavors, on='upc', how='left') # merge flavors on UPC codes with a left join
+╭───────────────────── Traceback (most recent call last) ──────────────────────╮
+│ /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/full_draft/data.py:151 in      │
+│ <module>                                                                     │
+│                                                                              │
+│   148                                                                        │
+│   149 merged_master  = merged_panel.merge(flavors, on='upc', how='left') # m │
+│   150 merged_master = merged_master.loc[:, ~merged_master.columns.duplicated │
+│ ❱ 151 merged_master = merged_master.dropna(subset=['quantity', 'product_grou │
+│   152 merged_master  = merged_master.assign(                                 │
+│   153 │   flavor_class = np.select(                                          │
+│   154 │   │   [                                                              │
+│                                                                              │
+│ /home/dtm63837/.local/lib/python3.12/site-packages/pandas/core/frame.py:7801 │
+│ in dropna                                                                    │
+│                                                                              │
+│    7798 │   │   │   indices = ax.get_indexer_for(subset)                     │
+│    7799 │   │   │   check = indices == -1                                    │
+│    7800 │   │   │   if check.any():                                          │
+│ ❱  7801 │   │   │   │   raise KeyError(np.array(subset)[check].tolist())     │
+│    7802 │   │   │   agg_obj = self.take(indices, axis=agg_axis)              │
+│    7803 │   │                                                                │
+│    7804 │   │   if thresh is not lib.no_default:                             │
+╰──────────────────────────────────────────────────────────────────────────────╯
+KeyError: ['product_group_code']

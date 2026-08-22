@@ -207,7 +207,8 @@ for (store, week), group in cat_choice_sets.groupby(['store_code_uc', 'week_end'
             idx = cat_map[row.category]
             # Store price and residual; ignore NaN residuals
             res_val = 0.0 if np.isnan(row.iv_resid) else row.iv_resid
-            p_val   = 0.0 if np.isnan(row.price_demeaned) else row.price_demeaned
+            p_val   = getattr(row, 'price_demeaned', 0.0)
+            p_val   = 0.0 if pd.isna(p_val) else p_val
             mat[idx] = [p_val, res_val]
             
     choice_set_matrix[(store, week)] = mat

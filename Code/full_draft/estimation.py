@@ -304,7 +304,7 @@ res = minimize(
     options={'ftol':1e-6}
 )
 
-cov_matrix = res.hess_inv.to_dense()
+cov_matrix = res.hess_inv.todense()
 se         = np.sqrt(np.diag(cov_matrix))
 
 z = res.x / se

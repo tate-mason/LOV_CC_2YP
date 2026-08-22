@@ -304,11 +304,8 @@ res = minimize(
     options={'ftol':1e-6}
 )
 
-try:
-    cov_matrix = res.hess_inv.to_dense()
-    se         = np.sqrt(np.diag(cov_matrix))
-except Exception:
-    se         = np.full_like(res.x, np.nan)
+cov_matrix = res.hess_inv.to_dense()
+se         = np.sqrt(np.diag(cov_matrix))
 
 z = res.x / se
 p = 2 * (1 - sp.stats.norm.cdf(np.abs(z)))

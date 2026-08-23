@@ -343,7 +343,12 @@ weekly_dma_price = (
     .mean()
     .reset_index()
 )
-
+custom_colors = {
+    'Atlanta': '#1f77b4',
+    'Chicago': '#ff7f0e',
+    'Denver': '#2ca02c',
+    'San Diego': '#d62728'
+}
 fig, ax = plt.subplots(figsize=(9, 4.5))
 sns.lineplot(
     data=weekly_dma_price,
@@ -351,6 +356,7 @@ sns.lineplot(
     y='price',
     hue='market_name',
     style='market_name',
+    palette=custom_colors,
     linewidth=1.8,
     ax=ax
 )

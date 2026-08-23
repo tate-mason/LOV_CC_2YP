@@ -222,6 +222,11 @@ INPUT ../../Output/Plots/3_flav_heatmap.pdf
 INPUT ../../Output/Plots/3_flav_heatmap.pdf
 INPUT ../../Output/Plots/3_flav_heatmap.pdf
 INPUT ../../Output/Plots/3_flav_heatmap.pdf
+INPUT ../../Output/Plots/price_time_series.pdf
+INPUT ../../Output/Plots/price_time_series.pdf
+INPUT ../../Output/Plots/price_time_series.pdf
+INPUT ../../Output/Plots/price_time_series.pdf
+INPUT ../../Output/Plots/price_time_series.pdf
 INPUT /usr/local/texlive/2026/texmf-dist/fonts/tfm/public/cm/cmr9.tfm
 INPUT /usr/local/texlive/2026/texmf-dist/fonts/tfm/public/cm/cmmi9.tfm
 INPUT /usr/local/texlive/2026/texmf-dist/fonts/tfm/public/cm/cmsy9.tfm

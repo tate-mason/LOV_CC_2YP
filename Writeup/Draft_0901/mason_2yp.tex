@@ -85,13 +85,15 @@ concludes.
 
     \subsection{Data}
 
-    My data comes from Nielsen's HomeScan and MarketScan data. These two main datasets give me access to household purchase decisions as well as product characteristics. I am looking at the year 2014 in markets Atlanta, Chicago, San Diego, and Denver. Households are comprised of a single-person to avoid any contamination of shopping for multiple people like children or spouses, allowing me a cleaner sample of shopping trips. These trips are encoded with unique identifiers, thus allowing me to look at per-trip, and within-trip, decisions. Stores have to be valid Nielsen stores, meaning they appear in the reatil code data. This is necessary to observe prices the products were bought at. The product space I am looking at is yogurt. Yogurt is good for this sort of analysis due to its relative lack of storability as well as its variation in attributes like flavor, nutrient contents, and types like Greek or Skyr. I have limited yogurt sizes to cups. Cups of yogurt are between five and eight ounces and are single serving products which come in more varied flavors.
+    My data comes from Nielsen's HomeScan and MarketScan data. These two main datasets give me access to household purchase decisions as well as product characteristics. I am looking at the year 2014 in markets Atlanta, Chicago, San Diego, and Denver. These markets were chosen since they are major cities in different parts of the country. Households are comprised of a single-person to avoid any contamination of shopping for multiple people like children or spouses. This ensures I am picking up true preferences for variety rather than buying for multiple people. These trips are encoded with unique identifiers, thus allowing me to look at per-trip, and within-trip, decisions. Agents are under observation for eight weeks and asked to record each shopping trip. Stores are restricted to be valid Nielsen stores, meaning they appear in the reatil code data. This is necessary to observe prices the products were bought at. The product space I am looking at is single-serving cups of yogurt. Yogurt was chosen for a host of reasons. Firstly, it is a good that is not storable indefinitely, being good for approximately one to three weeks. This is particularly important when considering it will have less of an impact on the dynamics the consumers face. Yogurt also has a large menu of flavors within the category, allowing consumers to switch easily along this dimension. Similarly, yogurt has many types like sugary, Greek, Skyr, low-fat, and many more. This presents potential variation to exploit as well.
 
-    I classify flavors into three categories: berry, plain, and other. While these are not taking full advantage of the granularity in flavors available, the classifications capture the two largest categories, berry and plain. I define the outside option as a trip in which yogurt was not ever purchased. \ref{tab:stat_tab} shows that the outside option is taken 80\% of the time each trip. My sample has 1,269 agents who are seen for an average of about 18 trips. Of those 1,269, 715 made a yogurt purchase in 2014. If an agent was a yogurt purchaser, they purchased about 2.3 cups of yogurt per-trip. The mean income of my sample was 18,000. The sample is predominately white, with 75\% of agents being White, 20\% being Black, and 5\% being either Asian or Hispanic. 
+    I classify flavors into three categories: berry, plain, and other. While these are not taking full advantage of the granularity in flavors available, the classifications capture the two largest categories, berry and plain. Berry and plain will then be compared to other flavors, which serve as the baseline category. I define the outside option as a trip in which yogurt was not ever purchased. \ref{tab:stat_tab} shows that the outside option is taken 80\% of the time each trip. My sample has 1,269 agents who are seen for an average of about 18 trips. Of those 1,269, 715 made a yogurt purchase in 2014. If an agent was a yogurt purchaser, they purchased about 2.3 cups of yogurt per-trip. The mean income of my sample was 18,000. The sample is predominately white, with 75\% of agents being White, 20\% being Black, and 5\% being either Asian or Hispanic. 
 
     Conditional on purchasing yogurt, 57\% of households switch flavors at least once during the observation period. Approximately 50\% of switching households did so using a coupon during purchase. It is impossible to know what product the coupon was used on, given multiple units are purchased each period. Yogurt buying households, on average, buy the same flavor for ten consecutive trips and switch three times. 
 
     Looking at \ref{fig:flav_heatmap}, we can see the breakdown of switching behavior by flavor. For those who switched from berry yogurt to plain yogurt, they will stay on plain for 4.4 trips on average. Those who switch to plain tend to stay on plain longer for either case, staying an average of four periods if they switch from either flavor to plain. For those switching to other, they stay on that other flavor for 3.2 trips no matter the origin flavor. For berry, it appears that households are less stuck to it or use it as their switching flavor. That is, they break up the monotony of their primary flavor, plain or other, with a berry yogurt. This is interesting, since plain is more expensive on average. This implies the household's taste for plain yogurt outweighs their disutility of cost. 
+
+
 
 %============================================================%
 \section{Model}
@@ -276,6 +278,13 @@ In closing, this paper develops a dynamic discrete choice model of consumer dema
 \end{figure}
 
 \newpage
+
+\begin{figure}[htbp]
+  \centering
+  \caption{ }
+  \label{fig:price_var}
+  \includegraphics[width=\textwidth]{../../Output/Plots/price_time_series.pdf}
+\end{figure}
 
 \begin{table}[htbp]
     \centering

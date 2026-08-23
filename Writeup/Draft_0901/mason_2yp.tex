@@ -132,7 +132,7 @@ concludes.
     Choice probabilities take the following form:
 
     \begin{alignat*}{3}
-      P_{ijt} = \frac{\beta_0 + \sum_1^k\beta_i^kX_{jt}^k + \gamma_i\Xi_{ijt} + \alpha_ip_{jt} + \sigma\hat{\eta}_{jt} + \varepsilon_{ijt}}{1 + \sum_s\beta_0+\sum_1^k\beta_i^kX_{st}^k + \gamma_i\Xi_{ist} + \alpha_ip_{st} + \sigma\hat{\eta}_{jt} + \varepsilon_{ist}}
+      P_{ijt} = \frac{\exp\beta_0 + \sum_1^k\beta_i^kX_{jt}^k + \gamma_i\Xi_{ijt} + \alpha_ip_{jt} + \sigma\hat{\eta}_{jt} + \varepsilon_{ijt}}{1 + \exp\sum_s\beta_0+\sum_1^k\beta_i^kX_{st}^k + \gamma_i\Xi_{ist} + \alpha_ip_{st} + \sigma\hat{\eta}_{jt} + \varepsilon_{ist}}
     \end{alignat*}
 
     Where we normalize the outside option, not purchasing yogurt, to be zero by construction. 
@@ -148,17 +148,29 @@ The estimation procedure uses standard maximum likelihood estimation, while impl
   U_{ijt} = \beta_0 + \beta_i^bX_{jt}^b + \beta_i^pX^p_{jt} + \gamma_i\Xi_{ijt} + \alpha_ip_{jt} + \sigma\hat{\eta}_{jt}
 \end{alignat*}
 
-Where $\beta_0$ is a constant, $\beta_i^b, \beta_i^p$ are choice specific constants for choosing berry or plain. Other flavors are left out to avoid multi-collinearity. $\gamma_i\Xi_{ijt}$ is the love of variety term, which is just capturing if you switched between periods. The price and control function term are unchanged from above. I then maximize the total log-likelihood to recover the parameters at the optimal.
+Where $\beta_0$ is a constant, $\beta_i^b, \beta_i^p$ are choice specific constants for choosing berry or plain. Other flavors are left out to avoid multi-collinearity. $\gamma_i\Xi_{ijt}$ is the love of variety term, which is just capturing if you switched between periods. The price and control function term are unchanged from above. The probability of individual $i$ choosing the observed product $j$ in time $t$ is given by:
+\begin{alignat*}{4}
+  \Pi_i(P_{ijt})^{y_{ijt}}
+\end{alignat*}
+
+Where $y_{ijt} = 1$ when person $i$ chosen $j$ that period, and zero otherwise. The log-likelihood is then given by:
+\begin{alignat*}{5}
+  \text{LL}(\theta) = \sum_i^I\sum_jy_{ijt}\ln P_{ijt}
+\end{alignat*}
+
+I then maximize the total log-likelihood to recover the parameters at the optimal.
 
 %============================================================%
 \section{Results}
 %============================================================%
 
-Results are shown in table \ref{tab:res_tab}. Here, you can see mixed findings. Firstly, I find that $\gamma_i$ is statistically significant and negative at $-1.23$. This finding points to consumers being less willing to switch flavors between trips. This finding is surprising given the data fact that more than half of houses are switchers, conditional on yogurt purchase, and houses switch 3 times on average if they do switch. This discrepancy points to my sample potentially suffering from being too small. Further, I find a negative price coefficient $\alpha$, but am unable to claim statistical significance. This is fixable with a better instrumental variable, something which is actively being considered. Similarly, the control function correction coefficient is not significant either. However, given $\sigma$ is positive, we can infer that $\alpha$ is positively biased without this correction. With a better IV approach, the control function should also produce more impactful effects. 
+Results are shown in table \ref{tab:res_tab}. Here, you can see mixed findings. Firstly, I find that $\gamma_i$ is statistically significant and negative with a value of $-1.23$. This finding points to consumers being less willing to switch flavors between trips. This estimate is at odss with what the data implies: more than half of houses are switchers, conditional on yogurt purchase, and houses switch 3 times on average if they do switch. This discrepancy points to my sample potentially suffering from being too small. Further, I find a negative price coefficient $\alpha$, but am unable to claim statistical significance. This is fixable with a better instrumental variable, something which is actively being considered. Similarly, the control function correction coefficient is not significant either. However, given $\sigma$ is positive, we can infer that $\alpha$ is positively biased without this correction. With a better IV approach, the control function should also produce more impactful effects. 
 
 When looking at the characteristic coefficients, only berry, $\beta_i^b$, is statistically significant. This is, again, an issue with lack of observations. As table \ref{tab:stat_tab} shows, berry has over 2,000 observed times being chosen. When looking at plain's coefficient, $\beta_i^p$, I do not find significance. This makes total sense upon seeing it is only chosen 412 times. The constant is negative, which is to be expected with a high outside option uptake rate. It is close to fringe significance, but is not either. 
 
 Finally, I calculated a willingness-to-pay for all $\beta$ coefficients as well as the variety coefficient $\gamma$. These values are found in table \ref{tab:wtp_estimates}. For the intercept, consumers value the outside option approximately \$1.50 more than yogurt flavored "other". For berry, it is valued about \$1.81 more than other flavors, while plain is valued about \$0.77 more. More interestingly, I find that consumers would need to be heavily compensated to switch. They would need approximately \$2.20 in incentives to switch from their normal choice of flavor. Judging by the average pricing of yogurt, this implies needing about two to three cups of yogurt given to them for free to switch. 
+
+Overall, my findings suggest consumers prefer to stick on flavors, experiencing disutility from switching. While a surprising result given the data facts, it must be noted that consumers do not just buy flavor. They buy for other characteristics that are not accounted for at this point in the research process. It will be interesting to see if this changes once I create a more holistic bundle of characteristics for the consumer to have preferences over. Similarly, the willingness-to-pay for variety is -2.20, meaning the consumer would need to be compensated \$2.20 to switch flavors. This opens a door for interesting counterfactual exercises in which the supply side is aware of the consumers willingness-to-pay and preferences, and thus try to influence them to switch. 
 
 %============================================================%
 \section{Counterfactuals}

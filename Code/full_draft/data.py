@@ -295,28 +295,69 @@ plt.close() # close the plot in python
 
 #=== Product Stats ===#
 
-console.print(f' Mean price of yogurt: {merged_master['price'].mean():.2f}\n',
-              f' Mean price by flavor: {merged_master.groupby('flavor')['price'].mean()}\n')
-merged_master['week_mean'] = merged_master.groupby(['week_end', 'dma_code'])['price'].transform('mean')
-price_summary = (
-    merged_master.
-    groupby(['week_end', 'dma_code'])['week_mean']
+# Mapping Nielsen DMA Codes to Market Names
+dma_map = {
+    524: 'Atlanta',
+    602: 'Chicago',
+    751: 'Denver',
+    825: 'San Diego'
+}
+
+merged_master['market_name'] = merged_master['dma_code'].map(dma_map)
+
+# 1. Generate Summary Table (LaTeX & Console Output)
+dma_price_stats = (
+    merged_master.groupby(['market_name', 'flavor'])['price']
+    .agg(
+        Mean_Price='mean',
+        Std_Dev='std',
+        Min_Price='min',
+        Max_Price='max',
+        Obs='count'
+    )
+    .reset_index()
+)
+
+# Format flavor labels
+flavor_map = {0: 'Other', 1: 'Berry', 2: 'Plain'}
+dma_price_stats['flavor_label'] = dma_price_stats['flavor'].map(flavor_map)
+
+# Pivot table for clean LaTeX formatting
+dma_pivot = dma_price_stats.pivot(index='market_name', columns='flavor_label', values='Mean_Price')
+dma_pivot.columns = [f'Mean Price ({col})' for col in dma_pivot.columns]
+
+console.print("\n=== DMA PRICE VARIATION SUMMARY ===")
+console.print(dma_pivot)
+
+# Save as LaTeX Table for paper
+dma_pivot.to_latex('../Output/Tables/dma_price_summary.tex', float_format="%.3f")
+
+
+# 2. Plot DMA Cross-Market Price Time Series
+weekly_dma_price = (
+    merged_master.groupby(['week_end', 'market_name'])['price']
     .mean()
     .reset_index()
 )
 
-fig, ax = plt.subplots(figsize=(10,4))
+fig, ax = plt.subplots(figsize=(9, 4.5))
 sns.lineplot(
-    data=price_summary,
+    data=weekly_dma_price,
     x='week_end',
-    y='week_mean',
-    hue='dma_code',
+    y='price',
+    hue='market_name',
+    style='market_name',
+    linewidth=1.8,
     ax=ax
 )
-ax.set_xlabel('Week')
-ax.set_ylabel('Price')
-ax.set_title('Evolution of Prices Throughout 2014')
+
+ax.set_xlabel('Week', fontsize=11)
+ax.set_ylabel('Mean Unit Price ($)', fontsize=11)
+ax.set_title('Weekly Yogurt Price Variation Across Markets (2014)', fontsize=12, fontweight='bold')
+ax.legend(title='Market (DMA)', frameon=True)
+ax.grid(True, linestyle='--', alpha=0.5)
+
 plt.tight_layout()
-plt.savefig('../Output/Plots/price_time_series.pdf', format='pdf', bbox_inches='tight')
+plt.savefig('../Output/Plots/dma_price_time_series.pdf', format='pdf', bbox_inches='tight')
 plt.close()
 

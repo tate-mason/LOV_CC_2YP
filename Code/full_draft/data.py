@@ -357,7 +357,7 @@ custom_colors = {
     'Atlanta': 'firebrick',
     'Chicago': 'navy',
     'Denver': 'forestgreen',
-    'San Diego': 'cyan'
+    'San Diego': 'darkorange'
 }
 
 fig, ax = plt.subplots(figsize=(9, 4.5))

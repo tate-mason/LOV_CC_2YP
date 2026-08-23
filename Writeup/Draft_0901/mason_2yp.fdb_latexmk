@@ -1,13 +1,13 @@
 # Fdb version 4
-["bibtex mason_2yp"] 0 "mason_2yp.aux" "mason_2yp.bbl" "mason_2yp" 1787512010.35513 0
+["bibtex mason_2yp"] 0 "mason_2yp.aux" "mason_2yp.bbl" "mason_2yp" 1787513675.39225 0
   "lov_lit.bib" 0 -1 0 ""
   "mason_2yp.aux" 0 -1 0 "pdflatex"
   (generated)
   "mason_2yp.bbl"
   "mason_2yp.blg"
   (rewritten before read)
-["pdflatex"] 1787512009.32775 "mason_2yp.tex" "mason_2yp.pdf" "mason_2yp" 1787512010.35525 2
-  "../../Output/Plots/3_flav_heatmap.pdf" 1787511950.17162 16303 414e48688975d155746f775c6dffbd7f ""
+["pdflatex"] 1787513674.35138 "mason_2yp.tex" "mason_2yp.pdf" "mason_2yp" 1787513675.39238 2
+  "../../Output/Plots/3_flav_heatmap.pdf" 1787513672.50349 16303 3e4e798fac26fc1e237ebbeebf26f01c ""
   "../../Output/Plots/price_time_series.pdf" 1787511950.17226 16263 aaf76cb53779ff812e3ece77ae80fa92 ""
   "/usr/local/texlive/2026/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc" 1136849721 2900 1537cc8184ad1792082cd229ecc269f4 ""
   "/usr/local/texlive/2026/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
@@ -143,9 +143,9 @@
   "/usr/local/texlive/2026/texmf-var/fonts/map/pdftex/updmap/pdftex.map" 1787008065 5573194 3473593ed16e9f152d99f1a1aaa20677 ""
   "/usr/local/texlive/2026/texmf-var/web2c/pdftex/pdflatex.fmt" 1787008814 3656725 4e447c05aa121cdaa2af3e1480626bfc ""
   "/usr/local/texlive/2026/texmf.cnf" 1774209515 577 648cd9f92f9c0eac486f4c71c85cfbbe ""
-  "mason_2yp.aux" 1787512010.13781 2977 4eb180a109dfb652010defda02dbff25 "pdflatex"
+  "mason_2yp.aux" 1787513675.17618 2977 4eb180a109dfb652010defda02dbff25 "pdflatex"
   "mason_2yp.bbl" 0 -1 0 "bibtex mason_2yp"
-  "mason_2yp.out" 1787512010.1383 1233 5bb57263b3c23a7ce0ed66a2ad7b37d6 "pdflatex"
+  "mason_2yp.out" 1787513675.17688 1233 5bb57263b3c23a7ce0ed66a2ad7b37d6 "pdflatex"
   "mason_2yp.tex" 1787512008.67703 23828 a8ceaa6fcf534efc77efb321c31488c2 ""
   (generated)
   "mason_2yp.aux"

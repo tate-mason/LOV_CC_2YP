@@ -344,10 +344,10 @@ weekly_dma_price = (
     .reset_index()
 )
 custom_colors = {
-    'Atlanta': '#1f77b4',
-    'Chicago': '#ff7f0e',
-    'Denver': '#2ca02c',
-    'San Diego': '#d62728'
+    'Atlanta': 'firebrick',
+    'Chicago': 'navy',
+    'Denver': 'forestgreen',
+    'San Diego': 'cyan'
 }
 fig, ax = plt.subplots(figsize=(9, 4.5))
 sns.lineplot(

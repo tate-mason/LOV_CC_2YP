@@ -1,0 +1,36 @@
+/scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/full_draft/data.py:102: UserWarning: You are merging on int and float columns where the float values are not equal to their int representation.
+  agent_master  = agent_panel.merge(flavors, on='upc', how='left') # merge flavors on UPC codes with a left join
+/scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/full_draft/data.py:153: UserWarning: You are merging on int and float columns where the float values are not equal to their int representation.
+  merged_master  = merged_panel.merge(flavors, on='upc', how='left') # merge flavors on UPC codes with a left join
+Columns in flavors.csv: ['upc', 'module', 'flavor_code', 'flavor_descr', 'num_flavor']
+Columns in merged_panel: ['trip_code_uc', 'household_code', 'purchase_date', 'retailer_code_x', 'store_code_uc', 'panel_year_x', 'store_zip3_x', 'total_spent', 'method_of_payment_cd', 'upc', 'upc_ver_uc_x', 'quantity', 'total_price_paid', 'coupon_value', 'deal_flag_uc', 'Panel_Year', 'Projection_Factor', 'Projection_Factor_Magnet', 'Household_Income', 'Household_Size', 'Type_Of_Residence', 'Household_Composition', 'Age_And_Presence_Of_Children', 'Male_Head_Age', 'Female_Head_Age', 'Male_Head_Employment', 'Female_Head_Employment', 'Male_Head_Education', 'Female_Head_Education', 'Male_Head_Occupation', 'Female_Head_Occupation', 'Male_Head_Birth', 'Female_Head_Birth', 'Marital_Status', 'Race', 'Hispanic_Origin', 'Panelist_ZipCd', 'Fips_State_Cd', 'Fips_State_Desc', 'Fips_County_Cd', 'Fips_County_Desc', 'Region_Cd', 'Scantrack_Market_Identifier_Cd', 'Scantrack_Market_Identifier_Desc', 'dma_code', 'DMA_Name', 'Kitchen_Appliances', 'TV_Items', 'Household_Internet_Connection', 'Wic_Indicator_Current', 'Wic_Indicator_Ever_Not_Current', 'Member_1_Birth', 'Member_1_Relationship_Sex', 'Member_1_Employment', 'Member_2_Birth', 'Member_2_Relationship_Sex', 'Member_2_Employment', 'Member_3_Birth', 'Member_3_Relationship_Sex', 'Member_3_Employment', 'Member_4_Birth', 'Member_4_Relationship_Sex', 'Member_4_Employment', 'Member_5_Birth', 'Member_5_Relationship_Sex', 'Member_5_Employment', 'Member_6_Birth', 'Member_6_Relationship_Sex', 'Member_6_Employment', 'Member_7_Birth', 'Member_7_Relationship_Sex', 'Member_7_Employment', 'upc_ver_uc_right', 'upc_descr', 'product_module_code_x', 'product_module_descr', 'product_group_code_x', 'product_group_descr', 'department_code', 'department_descr', 'brand_code_uc_x', 'brand_descr', 'multi', 'size1_code_uc_x', 'size1_amount', 'size1_units_x', 'dataset_found_uc', 'size1_change_flag_uc', 'week_end', 'upc_ver_uc_y', 'product_group_code', 'product_module_code_y', 'brand_code_uc_y', 'size1_code_uc_y', 'size1_units_y', 'panel_year_y', 'units', 'prmult', 'price', 'feature', 'display', 'parent_code', 'retailer_code_y', 'channel_code', 'store_zip3_y', 'fips_state_code', 'fips_state_descr', 'fips_county_code', 'fips_county_descr', 'dma_code_y', 'dma_descr']
+dtypes: int64 float64
+Number of households in full sample:                  1269
+ Number of yogurt purchasing households:               715
+ Mean number of trips per HH:                          17.65169424743893
+ Number of yogurt purchases among purchasers per trip: 5.232710069835549
+ Mean household income:                                17.623599365124488
+ Median household income:                              18.0
+ Racial makeup of sample:                              race
+1    955
+2    254
+3     24
+4     36
+Name: household_code, dtype: int64
+ Percent taking outside option each trip:              0.80
+ Percent purchasing with coupon:                       45.89
+
+Mean consecutive buys by flavor x hh: 10.16361848574238
+ Mean times switching by flavor x hh:  3.000846023688663
+ Percent of HH who ever-switch:        57.20279720279721
+ Average time spent on each flavor:    10.16361848574238
+Percent switching due to coupon:      0.49619396673245
+
+
+=== DMA PRICE VARIATION SUMMARY ===
+             Mean Price (Berry)  Mean Price (Other)  Mean Price (Plain)
+market_name                                                            
+Atlanta                1.034157            1.097357            1.116557
+Chicago                0.842434            1.038410            1.224188
+Denver                 0.998720            1.101376            1.118059
+San Diego              0.943003            1.016389            1.177731

@@ -39,7 +39,8 @@ flav_path = '/scratch/dtm63837/Kilts_Panel/RMS/Reference_Documentation/2006-2020
 
 merged_panel = (
     pl.read_parquet(out_path)
-    .rename({'dma_code_x': 'dma_code'}) # Clean it up first
+    .rename({'dma_code_x': 'dma_code',
+             'product_group_code_y': 'product_group_code'}) # Clean it up first
     .filter(pl.col('size1_amount').is_between(5, 8))
     .filter(pl.col('dma_code').is_in([524, 602, 751, 825]))
     .to_pandas()

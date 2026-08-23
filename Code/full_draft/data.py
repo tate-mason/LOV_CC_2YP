@@ -343,14 +343,17 @@ weekly_dma_price = (
     .mean()
     .reset_index()
 )
-custom_colors = dma_map = {
+
+dma_map = {
     524: 'Atlanta',
     602: 'Chicago',
     751: 'Denver',
     825: 'San Diego'
 }
 
-merged_master['market_name'] = merged_master['dma_code'].map(dma_map){
+merged_master['market_name'] = merged_master['dma_code'].map(dma_map)
+
+custom_colors = {
     'Atlanta': 'firebrick',
     'Chicago': 'navy',
     'Denver': 'forestgreen',
@@ -372,7 +375,7 @@ sns.lineplot(
 ax.set_xlabel('Week', fontsize=11)
 ax.set_ylabel('Mean Unit Price ($)', fontsize=11)
 ax.set_title('Weekly Yogurt Price Variation Across Markets (2014)', fontsize=12, fontweight='bold')
-ax.legend(title='Market', frameon=True)
+ax.legend(title='Market (DMA)', frameon=True)
 ax.grid(True, linestyle='--', alpha=0.5)
 
 plt.tight_layout()

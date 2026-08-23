@@ -58,9 +58,11 @@
 \section{Introduction}
 %============================================================%
 
-In the baseline logit model, a consumer is perceived as having a fixed preference for each product, and the utility from consuming a product is independent of past consumption. Further, it is assumed that a new good is always a utility boosting event, by the error term's property of being identically and independently distributed. However, in many markets, consumers may have a love of variety, or a desire to consume different products over time. This can be due to factors such as boredom, satiation, or a preference for novelty. In such cases, the utility from consuming a product may depend on past consumption, and the introduction of a new good may not always lead to an increase in utility.
+Standard discrete choice models in industrial organizational economics assume consumers are static agents with fixed preferences. They are assumed to make independent choices each period. In reality, this is often not the case. Consumers may value products differently in one period than the last. This would be baked into the error term of a standard model, leaving a consumer's choices to vary for unexplained reasons. Very real factors like boredom, preferences for novelty, or brand loyalty are not addressed. However, including a channel through which past choices can shape current marginal utility, perhaps we can get better estimates of consumer welfare. 
 
-I contribute to the love of variety literature by adding a supply side to the existing demand models. With the supply side, I am able to understand how firms will maximize profits using customers' desire for variety in product characteristics. Further, I develop the models by controlling for endogeneity in prices via a control function approach. This corrects potential bias in price coefficients that exist in previous work. I find that consumers do not gain utilty from variety. The estimation yields a statistically significant disutility for variety, implying that people prefer habit in an attribute like flavor. I also find that consumers would need to be paid between \$0.20 and \$0.30 to switch. This desire for habit creates a pathway for interesting firm-side experiments like targeted discounting or strategic product introduction.  
+Love of variety research largely originates from marketing researchers, explaining why demand estimation would be more important. This is useful for things understanding the effect of advertising via display positioning or how a feature advertisement affects demand. Using Nielsen data on single-serving yogurt cups, I add to the literature on love of variety in consumer demand by including supply side effects. Single-serving yogurt is an attractive product space due to its relative lack of storability, its large flavor variety, and frequent purchase rate. Adding a supply side allows me to investigate how firms can price-discriminate or target their advertising through discounts based on consumer preferences for variety. I also introduce a control function approach put forth by \cite{train_2010} to contend with the endogeneity in prices.
+
+I estimate a discrete choice model of consumer demand, including a term which captures preferences for variety. The model uses purchase data in Atlanta, Chicago, Denver, and San Diego, whose variation in pricing I use for my control function. My key finding is that consumers exhibit a distaste for variety. This disutility is statistically significant and requires \$2.20 in compensation to switch flavors. Using this finding, my supply side counterfactual will examine how firms adjust pricing in response to this, attempting to induce switching to grow market share. I also find that, relative to other flavors, consumers prefer berry and plain yogurt, with berry being statistically significant.
 
 The rest of the paper is organized as follows: section two discusses the related
 literature and section three describes the data used and some descriptive
@@ -87,13 +89,13 @@ concludes.
 
     My data comes from Nielsen's HomeScan and MarketScan data. These two main datasets give me access to household purchase decisions as well as product characteristics. I am looking at the year 2014 in markets Atlanta, Chicago, San Diego, and Denver. These markets were chosen since they are major cities in different parts of the country. Households are comprised of a single-person to avoid any contamination of shopping for multiple people like children or spouses. This ensures I am picking up true preferences for variety rather than buying for multiple people. These trips are encoded with unique identifiers, thus allowing me to look at per-trip, and within-trip, decisions. Agents are under observation for eight weeks and asked to record each shopping trip. Stores are restricted to be valid Nielsen stores, meaning they appear in the reatil code data. This is necessary to observe prices the products were bought at. The product space I am looking at is single-serving cups of yogurt. Yogurt was chosen for a host of reasons. Firstly, it is a good that is not storable indefinitely, being good for approximately one to three weeks. This is particularly important when considering it will have less of an impact on the dynamics the consumers face. Yogurt also has a large menu of flavors within the category, allowing consumers to switch easily along this dimension. Similarly, yogurt has many types like sugary, Greek, Skyr, low-fat, and many more. This presents potential variation to exploit as well.
 
-    I classify flavors into three categories: berry, plain, and other. While these are not taking full advantage of the granularity in flavors available, the classifications capture the two largest categories, berry and plain. Berry and plain will then be compared to other flavors, which serve as the baseline category. I define the outside option as a trip in which yogurt was not ever purchased. \ref{tab:stat_tab} shows that the outside option is taken 80\% of the time each trip. My sample has 1,269 agents who are seen for an average of about 18 trips. Of those 1,269, 715 made a yogurt purchase in 2014. If an agent was a yogurt purchaser, they purchased about 2.3 cups of yogurt per-trip. The mean income of my sample was 18,000. The sample is predominately white, with 75\% of agents being White, 20\% being Black, and 5\% being either Asian or Hispanic. 
+    I classify flavors into three categories: berry, plain, and other. While these are not taking full advantage of the granularity in flavors available, the classifications capture the two largest categories, berry and plain. Berry and plain will then be compared to other flavors, which serve as the baseline category. I define the outside option as a trip in which yogurt was not ever purchased. Table \ref{tab:stat_tab} shows that the outside option is taken 80\% of the time each trip. My sample has 1,269 agents who are seen for an average of about 18 trips. Of those 1,269, 715 made a yogurt purchase in 2014. If an agent was a yogurt purchaser, they purchased about 2.3 cups of yogurt per-trip. The mean income of my sample was 18,000. The sample is predominately white, with 75\% of agents being White, 20\% being Black, and 5\% being either Asian or Hispanic. 
 
     Conditional on purchasing yogurt, 57\% of households switch flavors at least once during the observation period. Approximately 50\% of switching households did so using a coupon during purchase. It is impossible to know what product the coupon was used on, given multiple units are purchased each period. Yogurt buying households, on average, buy the same flavor for ten consecutive trips and switch three times. 
 
-    Looking at \ref{fig:flav_heatmap}, we can see the breakdown of switching behavior by flavor. For those who switched from berry yogurt to plain yogurt, they will stay on plain for 4.4 trips on average. Those who switch to plain tend to stay on plain longer for either case, staying an average of four periods if they switch from either flavor to plain. For those switching to other, they stay on that other flavor for 3.2 trips no matter the origin flavor. For berry, it appears that households are less stuck to it or use it as their switching flavor. That is, they break up the monotony of their primary flavor, plain or other, with a berry yogurt. This is interesting, since plain is more expensive on average. This implies the household's taste for plain yogurt outweighs their disutility of cost. 
+    Looking at figure \ref{fig:flav_heatmap}, we can see the breakdown of switching behavior by flavor. For those who switched from berry yogurt to plain yogurt, they will stay on plain for 4.4 trips on average. Those who switch to plain tend to stay on plain longer for either case, staying an average of four periods if they switch from either flavor to plain. For those switching to other, they stay on that other flavor for 3.2 trips no matter the origin flavor. For berry, it appears that households are less stuck to it or use it as their switching flavor. That is, they break up the monotony of their primary flavor, plain or other, with a berry yogurt. This is interesting, since plain is more expensive on average. This implies the household's taste for plain yogurt outweighs their disutility of cost. 
 
-
+    Finally, when looking at pricing across markets, we see interesting patterns. Firstly, table \ref{tab:price_tab} shows that prices vary a lot between cities. In Chicago, for instance, berry is seen to have a mean price of \$0.84 per unit while plain has a mean unit price of \$1.22 per cup. This is a delta approximately twice the size of that between the two flavors in other markets. Looking at figure \ref{fig:price_var}, it becomes clear that fluctuation in the overall mean price of yogurt cups fluctuates quite a bit throughout the year. In Atlanta and Denver, it seems they move largely in lockstep, while San Diego and Chicago are relatively more stable. San Diego and Chicago also have a different pattern than Atlanta and Denver do until around the middle of the year, when they start to move together. This variability across markets is what I exploit for the instrumental variable used in control function approach of \cite{train_2010}.
 
 %============================================================%
 \section{Model}
@@ -110,7 +112,7 @@ concludes.
 
 
     \subsection{Consumer's Problem}
-    The consumer's problem is the following. In each period $t$, the consumer $i$ chooses a product $j$ from the menu of available products $J_t$. Each product $j\in J_t$ is a bundle of $k\in K$ characteristics such that $X_{jt}^k \in \mathcal{X}_{jt}$. The consumer's utility from choosing product $j$ at time $t$ is given by:
+    The consumer's problem is the following. In each period $t$, the consumer $i$ chooses a product $j$ from the menu of available products $J_t$. The available products are $J_t = \{0,1,2,3\}$ where $j=0$ is the outside option, $j=1$ is purchasing berry yogurt, $j=2$ is purchasing plain yogurt, and $j=3$ is purchasing other flavors. Consumers are assumed to be state-dependent, carrying previous preferences forward. This history is summarized with $X^*_{i,t-1}\in J_t$, which is the flavor last selected by consumer $i$. Each product $j\in J_t$ is a bundle of $k\in K$ characteristics such that $X_{jt}^k \in \mathcal{X}_{jt}$. The consumer's utility from choosing product $j$ at time $t$ is given by:
 
 
     \begin{alignat*}{1}
@@ -118,18 +120,16 @@ concludes.
                   + \alpha_i p_{jt} + \sigma\hat{\eta}_{jt} + \varepsilon_{ijt} \\
     \text{subject to} \\
       \Xi_{ijt} &= |X_jt - X^*_{j,t-1}| \\
-      \gamma_i &\sim \mathcal{N}(0, 1)\\
       \varepsilon_{ijt} &\sim \text{T1EV}(0,1)
     \end{alignat*}
 
-    In the utility function, there are the following components: $\beta_0$ is a constant, $\beta^k_i$ is a consumer's utility from characteristic $X^k_{jt}$, $\gamma_i$ is their preference for variety, $\Xi_{ijt}$ is the difference between the current characteristic and the most recent choice, $\alpha_i$ is a hetergeneous price sensitivity to $p_{jt}$ and $\varepsilon_{ijt}$ is the Gumbel shock which allows for a closed form logit.
+    In the utility function, there are the following components: $\beta_0$ is a constant, $\beta^k_i$ is a consumer's utility from characteristic $X^k_{jt}$, $\gamma_i$ is their preference for variety, $\Xi_{ijt}$ is the difference between the current characteristic and their most recent choice, $\alpha_i$ is price sensitivity to $p_{jt}$ and $\varepsilon_{ijt}$ is the Gumbel shock which allows for a closed form logit. To correct for price endogeneity in the above, I have implemented a control function as in \cite{train_2010}. Here, I do a first stage instrumental variable estimation and then take residual from that estimation and insert it into the utility function. That is $\hat{\eta}$, which is recovered from:
 
-    To correct for price endogeneity in the above, I have implemented a control function as in \cite{train_2010}. Here, I do a first stage instrumental variable estimation and then take residual from that estimation and insert it into the utility function. That is $\hat{\eta}$, which is recovered from:
     \begin{alignat*}{2}
-      p_{jt} = \bar{p}_{jt} + \tau_t + \eta_{jt}
+      p_{jt} = \bar{p}_{j,-m(i),t} + \tau_t + \eta_{jt}
     \end{alignat*}
 
-    Where $\bar{p}_{jt}$ is the mean price from the three markets the household is not shopping in and $\tau_t$ is a time indicator. The residual corrects for the bias present in pricing, allowing us a consistent estimate of pricing.
+    Where $\bar{p}_{j,-m(i),t}$ is the mean price from the three markets the household is not shopping in and $\tau_t$ is a time indicator. The residual corrects for the bias present in pricing, allowing us a consistent estimate of pricing.
 
     Choice probabilities take the following form:
 
@@ -166,7 +166,7 @@ I then maximize the total log-likelihood to recover the parameters at the optima
 \section{Results}
 %============================================================%
 
-Results are shown in table \ref{tab:res_tab}. Here, you can see mixed findings. Firstly, I find that $\gamma_i$ is statistically significant and negative with a value of $-1.23$. This finding points to consumers being less willing to switch flavors between trips. This estimate is at odss with what the data implies: more than half of houses are switchers, conditional on yogurt purchase, and houses switch 3 times on average if they do switch. This discrepancy points to my sample potentially suffering from being too small. Further, I find a negative price coefficient $\alpha$, but am unable to claim statistical significance. This is fixable with a better instrumental variable, something which is actively being considered. Similarly, the control function correction coefficient is not significant either. However, given $\sigma$ is positive, we can infer that $\alpha$ is positively biased without this correction. With a better IV approach, the control function should also produce more impactful effects. 
+Results are shown in table \ref{tab:res_tab}. Here, you can see mixed findings. Firstly, I find that $\gamma_i$ is statistically significant and negative with a value of $-1.23$. This finding points to consumers being less willing to switch flavors between trips. This estimate is at odss with what the data implies: more than half of houses are switchers, conditional on yogurt purchase, and houses switch 3 times on average if they do switch. This discrepancy points to my sample potentially suffering from being too small. Further, I find a negative price coefficient $\alpha$, but am unable to claim statistical significance. This is fixable with a better instrumental variable, something which is actively being considered. Similarly, the control function correction coefficient is not significant either. However, given $\sigma$ is positive, we can infer that $\alpha$ is positively biased without this correction. With a better IV approach, the control function should also produce more impactful effects. I am looking into factors like distribution networks, other product categories, as well as different sources of geographic variation to serve as instruments.
 
 When looking at the characteristic coefficients, only berry, $\beta_i^b$, is statistically significant. This is, again, an issue with lack of observations. As table \ref{tab:stat_tab} shows, berry has over 2,000 observed times being chosen. When looking at plain's coefficient, $\beta_i^p$, I do not find significance. This makes total sense upon seeing it is only chosen 412 times. The constant is negative, which is to be expected with a high outside option uptake rate. It is close to fringe significance, but is not either. 
 
@@ -195,28 +195,15 @@ The firm has to decide whether to offer a discount, $V_f^d$, or sell at the norm
       p'_js_j(p'_j,x_j) &\geq p_js_j(p_j,x_j)
     \end{alignat*}
 
-    That is, the firm will advertise when the market share under the new price is larger than under the old price, offsetting the lowered price. 
-
-    As an example, suppose the firm offers a discount of 20\% on berry yogurt if you are a plain type. Thus, the consumer faces the following problem:
-    \begin{alignat*}{6}
-      U_{ijt} &= \beta_0 + \sum_1^k\beta^k_i X^k_{jt} + \gamma_i \log(1 + \Xi_{ijt}) 
-                  + \alpha_i p'_{jt} + \sigma\hat{\eta}' + \xi_j + \varepsilon_{ijt} \\
-    \text{subject to} \\
-      \Xi_{ijt} &= |X_jt - X^*_{j,t-1}| \\
-      p'_{jt} &= 0.8*p_{jt} \\
-      \gamma_i &\sim \mathcal{N}(0, 1)\\
-      \varepsilon_{ijt} &\sim \text{T1EV}(0,1)
-    \end{alignat*}
-
-    This implies that the price of the consumer's non-current flavor will be lowered by 20\%. For instance, if the consumer chooses plain, the firm will lower its berry yogurt price by 20\%. 
-
-
+    That is, the firm will advertise when they gain market share under the new price, offsetting the lowered price. Because they can observe the consumer's choices and know their preferences, they can perfectly price-discriminate. For instance, if the firm $f$ knows that consumer $i$ is a plain yogurt person and wants them to switch to berry, the firm would need to offer some price $p'$ which is a large enough discount to offset the disutility of $-1.23$. 
 
 %============================================================%
 \section{Conclusion}
 %============================================================%
 
-In closing, this paper develops a dynamic discrete choice model of consumer demand that incorporates a love of variety and strategic advertising by firms. The model is estimated using scanner data, and counterfactual analyses are conducted to evaluate the effects of different market structures on consumer welfare and market outcomes. The paper contributes to the literature on  advertising and consumer behavior, by providing empirical evidence on the effects of strategic advertising in a dynamic demand setting. The findings of this paper have important implications for policymakers and firms, as they highlight the potential benefits and drawbacks of targeted advertising in markets when accounting for consumers' preference for variety.
+In closing, this paper develops a dynamic discrete choice model of consumer demand that incorporates a love of variety and strategic pricing by firms. The model is estimated using scanner data, and counterfactual analyses are conducted to evaluate the effects of different market structures on consumer welfare and market outcomes. The paper contributes to the literature on love of variety, price-discrimination, and dynanmic consumer behavior, by providing empirical evidence on the effects of strategic pricing in a dynamic demand setting. 
+
+I find that consumers exhibit preferences for habit, needing to be compensated \$2.20 to switch from one flavor to another. I find insignificant pricing effects, even with endogeneity intervention implying a need for a stronger instrumental variable. I also develop a framework for firm decisions which will be developed in future iterations of this paper. Future work will flesh out the supply side, add more markets, add more product characteristics, as well as improve the empirical strategy by reworking the instrumental variable.
 
 %============================================================%
 \newpage
@@ -279,12 +266,21 @@ In closing, this paper develops a dynamic discrete choice model of consumer dema
 
 \newpage
 
+\begin{table}[htbp]
+  \centering
+  \caption{Mean Price by Market}
+  \label{tab:price_tab}
+  \input{../../Output/Tables/dma_price_summary.tex}
+\end{table}
+
 \begin{figure}[htbp]
   \centering
   \caption{ }
   \label{fig:price_var}
-  \includegraphics[width=\textwidth]{../../Output/Plots/price_time_series.pdf}
+  \includegraphics[width=\textwidth]{../../Output/Plots/dma_price_time_series.pdf}
 \end{figure}
+
+\newpage
 
 \begin{table}[htbp]
     \centering
@@ -307,7 +303,7 @@ In closing, this paper develops a dynamic discrete choice model of consumer dema
 
 \begin{table}[htbp]
     \centering
-    \caption{Implied Willingness-to-Pay (WTP) Estimates}
+    \caption{Willingness-to-Pay (WTP) Estimates}
     \label{tab:wtp_estimates}
     \begin{tabular}{l S[table-format=-1.4]}
         \toprule

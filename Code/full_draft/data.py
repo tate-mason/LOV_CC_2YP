@@ -94,6 +94,9 @@ product_panel['upc']           = product_panel['upc'].astype('Int64')           
 flavors      = pd.read_csv(flav_path) # load in flavors documentation
 
 # Agent merge and clean
+print("Columns in flavors.csv:", flavors.columns.tolist())
+print("Columns in merged_panel:", merged_panel.columns.tolist())
+print("dtypes:", merged_panel['upc'].dtype, flavors['upc'].dtype)
 
 agent_master  = agent_panel.merge(flavors, on='upc', how='left') # merge flavors on UPC codes with a left join
 agent_master  = agent_master.dropna(subset=['quantity', 'product_group_code', 'flavor_code', 'flavor_descr']) # drop NA for key var after merge

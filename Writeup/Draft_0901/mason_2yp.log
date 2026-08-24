@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.8.17)  23 AUG 2026 17:03
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.8.17)  24 AUG 2026 12:58
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -262,19 +262,240 @@ Package: uniquecounter 2019/12/15 v1.4 Provide unlimited unique counter (HO)
 Package uniquecounter Info: New unique counter `rerunfilecheck' on input line 284.
 )
 \Hy@SectionHShift=\skip57
-) (/usr/local/texlive/2026/texmf-dist/tex/latex/natbib/natbib.sty
-Package: natbib 2010/09/13 8.31b (PWD, AO)
-\bibhang=\skip58
-\bibsep=\skip59
-LaTeX Info: Redefining \cite on input line 694.
-\c@NAT@ctr=\count315
-) (/usr/local/texlive/2026/texmf-dist/tex/latex/setspace/setspace.sty
+) (/usr/local/texlive/2026/texmf-dist/tex/latex/biblatex/biblatex.sty
+Package: biblatex 2026/08/13 v3.22 programmable bibliographies (PK/MW)
+ (/usr/local/texlive/2026/texmf-dist/tex/latex/logreq/logreq.sty
+Package: logreq 2010/08/04 v1.0 xml request logger
+\lrq@indent=\count315
+ (/usr/local/texlive/2026/texmf-dist/tex/latex/logreq/logreq.def
+File: logreq.def 2010/08/04 v1.0 logreq spec v1.0
+)) (/usr/local/texlive/2026/texmf-dist/tex/latex/base/ifthen.sty
+Package: ifthen 2024/03/16 v1.1e Standard LaTeX ifthen package (DPC)
+)
+\c@tabx@nest=\count316
+\c@listtotal=\count317
+\c@listcount=\count318
+\c@liststart=\count319
+\c@liststop=\count320
+\c@citecount=\count321
+\c@citetotal=\count322
+\c@multicitecount=\count323
+\c@multicitetotal=\count324
+\c@instcount=\count325
+\c@maxnames=\count326
+\c@minnames=\count327
+\c@maxitems=\count328
+\c@minitems=\count329
+\c@citecounter=\count330
+\c@maxcitecounter=\count331
+\c@savedcitecounter=\count332
+\c@uniquelist=\count333
+\c@uniquename=\count334
+\c@refsection=\count335
+\c@refsegment=\count336
+\c@maxextratitle=\count337
+\c@maxextratitleyear=\count338
+\c@maxextraname=\count339
+\c@maxextradate=\count340
+\c@maxextraalpha=\count341
+\c@abbrvpenalty=\count342
+\c@highnamepenalty=\count343
+\c@lownamepenalty=\count344
+\c@maxparens=\count345
+\c@parenlevel=\count346
+\blx@tempcnta=\count347
+\blx@tempcntb=\count348
+\blx@tempcntc=\count349
+\c@blx@maxsection=\count350
+\blx@maxsegment@0=\count351
+\blx@notetype=\count352
+\blx@parenlevel@text=\count353
+\blx@parenlevel@foot=\count354
+\blx@sectionciteorder@0=\count355
+\blx@sectionciteorderinternal@0=\count356
+\blx@entrysetcounter=\count357
+\blx@biblioinstance=\count358
+\labelnumberwidth=\skip58
+\labelalphawidth=\skip59
+\biblabelsep=\skip60
+\bibitemsep=\skip61
+\bibnamesep=\skip62
+\bibinitsep=\skip63
+\bibparsep=\skip64
+\bibhang=\skip65
+\blx@bcfin=\read2
+\blx@bcfout=\write3
+\blx@langwohyphens=\language91
+\c@mincomprange=\count359
+\c@maxcomprange=\count360
+\c@mincompwidth=\count361
+Package biblatex Info: Trying to load biblatex default data model...
+Package biblatex Info: ... file 'blx-dm.def' found.
+ (/usr/local/texlive/2026/texmf-dist/tex/latex/biblatex/blx-dm.def
+File: blx-dm.def 2026/08/13 v3.22 biblatex datamodel (PK/MW)
+)
+Package biblatex Info: Trying to load biblatex custom data model...
+Package biblatex Info: ... file 'biblatex-dm.cfg' not found.
+\c@afterword=\count362
+\c@savedafterword=\count363
+\c@annotator=\count364
+\c@savedannotator=\count365
+\c@author=\count366
+\c@savedauthor=\count367
+\c@bookauthor=\count368
+\c@savedbookauthor=\count369
+\c@commentator=\count370
+\c@savedcommentator=\count371
+\c@editor=\count372
+\c@savededitor=\count373
+\c@editora=\count374
+\c@savededitora=\count375
+\c@editorb=\count376
+\c@savededitorb=\count377
+\c@editorc=\count378
+\c@savededitorc=\count379
+\c@foreword=\count380
+\c@savedforeword=\count381
+\c@holder=\count382
+\c@savedholder=\count383
+\c@introduction=\count384
+\c@savedintroduction=\count385
+\c@namea=\count386
+\c@savednamea=\count387
+\c@nameb=\count388
+\c@savednameb=\count389
+\c@namec=\count390
+\c@savednamec=\count391
+\c@translator=\count392
+\c@savedtranslator=\count393
+\c@shortauthor=\count394
+\c@savedshortauthor=\count395
+\c@shorteditor=\count396
+\c@savedshorteditor=\count397
+\c@labelname=\count398
+\c@savedlabelname=\count399
+\c@institution=\count400
+\c@savedinstitution=\count401
+\c@lista=\count402
+\c@savedlista=\count403
+\c@listb=\count404
+\c@savedlistb=\count405
+\c@listc=\count406
+\c@savedlistc=\count407
+\c@listd=\count408
+\c@savedlistd=\count409
+\c@liste=\count410
+\c@savedliste=\count411
+\c@listf=\count412
+\c@savedlistf=\count413
+\c@location=\count414
+\c@savedlocation=\count415
+\c@organization=\count416
+\c@savedorganization=\count417
+\c@origlocation=\count418
+\c@savedoriglocation=\count419
+\c@origpublisher=\count420
+\c@savedorigpublisher=\count421
+\c@publisher=\count422
+\c@savedpublisher=\count423
+\c@language=\count424
+\c@savedlanguage=\count425
+\c@origlanguage=\count426
+\c@savedoriglanguage=\count427
+\c@pageref=\count428
+\c@savedpageref=\count429
+\shorthandwidth=\skip66
+\shortjournalwidth=\skip67
+\shortserieswidth=\skip68
+\shorttitlewidth=\skip69
+\shortauthorwidth=\skip70
+\shorteditorwidth=\skip71
+\locallabelnumberwidth=\skip72
+\locallabelalphawidth=\skip73
+\localshorthandwidth=\skip74
+\localshortjournalwidth=\skip75
+\localshortserieswidth=\skip76
+\localshorttitlewidth=\skip77
+\localshortauthorwidth=\skip78
+\localshorteditorwidth=\skip79
+Package biblatex Info: Trying to load compatibility code...
+Package biblatex Info: ... file 'blx-compat.def' found.
+ (/usr/local/texlive/2026/texmf-dist/tex/latex/biblatex/blx-compat.def
+File: blx-compat.def 2026/08/13 v3.22 biblatex compatibility (PK/MW)
+)
+Package biblatex Info: Trying to load generic definitions...
+Package biblatex Info: ... file 'biblatex.def' found.
+ (/usr/local/texlive/2026/texmf-dist/tex/latex/biblatex/biblatex.def
+File: biblatex.def 2026/08/13 v3.22 biblatex compatibility (PK/MW)
+\c@textcitecount=\count430
+\c@textcitetotal=\count431
+\c@textcitemaxnames=\count432
+\c@biburlbigbreakpenalty=\count433
+\c@biburlbreakpenalty=\count434
+\c@biburlnumpenalty=\count435
+\c@biburlucpenalty=\count436
+\c@biburllcpenalty=\count437
+\biburlbigskip=\muskip19
+\biburlnumskip=\muskip20
+\biburlucskip=\muskip21
+\biburllcskip=\muskip22
+\c@smartand=\count438
+)
+Package biblatex Info: Trying to load bibliography style 'numeric'...
+Package biblatex Info: ... file 'numeric.bbx' found.
+ (/usr/local/texlive/2026/texmf-dist/tex/latex/biblatex/bbx/numeric.bbx
+File: numeric.bbx 2026/08/13 v3.22 biblatex bibliography style (PK/MW)
+Package biblatex Info: Trying to load bibliography style 'standard'...
+Package biblatex Info: ... file 'standard.bbx' found.
+ (/usr/local/texlive/2026/texmf-dist/tex/latex/biblatex/bbx/standard.bbx
+File: standard.bbx 2026/08/13 v3.22 biblatex bibliography style (PK/MW)
+\c@bbx:relatedcount=\count439
+\c@bbx:relatedtotal=\count440
+))
+Package biblatex Info: Trying to load citation style 'numeric'...
+Package biblatex Info: ... file 'numeric.cbx' found.
+ (/usr/local/texlive/2026/texmf-dist/tex/latex/biblatex/cbx/numeric.cbx
+File: numeric.cbx 2026/08/13 v3.22 biblatex citation style (PK/MW)
+Package biblatex Info: Redefining '\cite'.
+Package biblatex Info: Redefining '\parencite'.
+Package biblatex Info: Redefining '\footcite'.
+Package biblatex Info: Redefining '\footcitetext'.
+Package biblatex Info: Redefining '\smartcite'.
+Package biblatex Info: Redefining '\supercite'.
+Package biblatex Info: Redefining '\textcite'.
+Package biblatex Info: Redefining '\textcites'.
+Package biblatex Info: Redefining '\cites'.
+Package biblatex Info: Redefining '\parencites'.
+Package biblatex Info: Redefining '\smartcites'.
+)
+Package biblatex Info: Trying to load configuration file...
+Package biblatex Info: ... file 'biblatex.cfg' found.
+ (/usr/local/texlive/2026/texmf-dist/tex/latex/biblatex/biblatex.cfg
+File: biblatex.cfg 
+)
+Package biblatex Info: Input encoding 'utf8' detected.
+Package biblatex Info: Document encoding is UTF8 ....
+ (/usr/local/texlive/2026/texmf-dist/tex/latex/l3kernel/expl3.sty
+Package: expl3 2026-07-20 L3 programming layer (loader) 
+ (/usr/local/texlive/2026/texmf-dist/tex/latex/l3backend/l3backend-pdftex.def
+File: l3backend-pdftex.def 2026-07-20 L3 backend support: PDF output (pdfTeX)
+\l__color_backend_stack_int=\count441
+))
+Package biblatex Info: ... and expl3
+(biblatex)             2026-07-20 L3 programming layer (loader) 
+(biblatex)             is new enough (at least 2020/04/06),
+(biblatex)             setting 'casechanger=expl3'.
+ (/usr/local/texlive/2026/texmf-dist/tex/latex/biblatex/blx-case-expl3.sty (/usr/local/texlive/2026/texmf-dist/tex/latex/l3packages/xparse/xparse.sty
+Package: xparse 2025-10-09 L3 Experimental document command parser
+)
+Package: blx-case-expl3 2026/08/13 v3.22 expl3 case changing code for biblatex
+)) (/usr/local/texlive/2026/texmf-dist/tex/latex/setspace/setspace.sty
 Package: setspace 2022/12/04 v6.7b set line spacing
 ) (/usr/local/texlive/2026/texmf-dist/tex/latex/microtype/microtype.sty
 Package: microtype 2026/03/01 v3.2d Micro-typographical refinements (RS)
 \MT@toks=\toks30
 \MT@tempbox=\box55
-\MT@count=\count316
+\MT@count=\count442
 LaTeX Info: Redefining \noprotrusionifhmode on input line 1084.
 LaTeX Info: Redefining \leftprotrusion on input line 1085.
 \MT@prot@toks=\toks31
@@ -283,12 +504,12 @@ LaTeX Info: Redefining \textls on input line 1449.
 \MT@outer@kern=\dimen187
 LaTeX Info: Redefining \microtypecontext on input line 2053.
 LaTeX Info: Redefining \textmicrotypecontext on input line 2070.
-\MT@listname@count=\count317
+\MT@listname@count=\count443
  (/usr/local/texlive/2026/texmf-dist/tex/latex/microtype/microtype-pdftex.def
 File: microtype-pdftex.def 2026/03/01 v3.2d Definitions specific to pdftex (RS)
 LaTeX Info: Redefining \lsstyle on input line 944.
 LaTeX Info: Redefining \lslig on input line 944.
-\MT@outer@space=\skip60
+\MT@outer@space=\skip80
 )
 Package microtype Info: Loading configuration file microtype.cfg.
  (/usr/local/texlive/2026/texmf-dist/tex/latex/microtype/microtype.cfg
@@ -297,13 +518,14 @@ File: microtype.cfg 2026/03/01 v3.2d microtype main configuration file (RS)
 LaTeX Info: Redefining \microtypesetup on input line 3065.
 ) (/usr/local/texlive/2026/texmf-dist/tex/latex/enumitem/enumitem.sty
 Package: enumitem 2025/02/06 v3.11 Customized lists
-\labelindent=\skip61
+\labelindent=\skip81
 \enit@outerparindent=\dimen188
 \enit@toks=\toks32
 \enit@inbox=\box56
-\enit@count@id=\count318
-\enitdp@description=\count319
-) (/usr/local/texlive/2026/texmf-dist/tex/latex/caption/caption.sty
+\enit@count@id=\count444
+\enitdp@description=\count445
+)
+(/usr/local/texlive/2026/texmf-dist/tex/latex/caption/caption.sty
 Package: caption 2023/08/05 v3.6o Customizing captions (AR)
  (/usr/local/texlive/2026/texmf-dist/tex/latex/caption/caption3.sty
 Package: caption3 2023/07/31 v2.4d caption3 kernel (AR)
@@ -317,15 +539,15 @@ Package: caption3 2023/07/31 v2.4d caption3 kernel (AR)
 \caption@hangindent=\dimen196
 Package caption Info: Standard document class detected.
 )
-\c@caption@flags=\count320
-\c@continuedfloat=\count321
+\c@caption@flags=\count446
+\c@continuedfloat=\count447
 Package caption Info: hyperref package is loaded.
 ) (/usr/local/texlive/2026/texmf-dist/tex/latex/caption/subcaption.sty
 Package: subcaption 2023/07/28 v1.6b Sub-captions (AR)
 Package caption Info: New subtype `subfigure' on input line 238.
-\c@subfigure=\count322
+\c@subfigure=\count448
 Package caption Info: New subtype `subtable' on input line 238.
-\c@subtable=\count323
+\c@subtable=\count449
 ) (/usr/local/texlive/2026/texmf-dist/tex/latex/xcolor/xcolor.sty
 Package: xcolor 2024/09/29 v3.02 LaTeX color extensions (UK)
  (/usr/local/texlive/2026/texmf-dist/tex/latex/graphics-cfg/color.cfg
@@ -344,30 +566,30 @@ Package xcolor Info: Model `Gray' substituted by `gray' on input line 1371.
 Package xcolor Info: Model `wave' substituted by `hsb' on input line 1372.
 ) (/usr/local/texlive/2026/texmf-dist/tex/latex/float/float.sty
 Package: float 2001/11/08 v1.3d Float enhancements (AL)
-\c@float@type=\count324
+\c@float@type=\count450
 \float@exts=\toks33
 \float@box=\box57
 \@float@everytoks=\toks34
 \@floatcapt=\box58
 ) (/usr/local/texlive/2026/texmf-dist/tex/latex/listings/listings.sty
-\lst@mode=\count325
+\lst@mode=\count451
 \lst@gtempboxa=\box59
 \lst@token=\toks35
-\lst@length=\count326
+\lst@length=\count452
 \lst@currlwidth=\dimen197
-\lst@column=\count327
-\lst@pos=\count328
+\lst@column=\count453
+\lst@pos=\count454
 \lst@lostspace=\dimen198
 \lst@width=\dimen199
-\lst@newlines=\count329
-\lst@lineno=\count330
+\lst@newlines=\count455
+\lst@lineno=\count456
 \lst@maxwidth=\dimen256
  (/usr/local/texlive/2026/texmf-dist/tex/latex/listings/lstpatch.sty
 File: lstpatch.sty 2025/11/14 1.11b (Carsten Heinz)
 ) (/usr/local/texlive/2026/texmf-dist/tex/latex/listings/lstmisc.sty
 File: lstmisc.sty 2025/11/14 1.11b (Carsten Heinz)
-\c@lstnumber=\count331
-\lst@skipnumbers=\count332
+\c@lstnumber=\count457
+\lst@skipnumbers=\count458
 \lst@framebox=\box60
 ) (/usr/local/texlive/2026/texmf-dist/tex/latex/listings/listings.cfg
 File: listings.cfg 2025/11/14 1.11b listings configuration
@@ -377,62 +599,60 @@ Package: listings 2025/11/14 1.11b (Carsten Heinz)
 Package: inconsolata 2019/05/17 v1.12
  `inconsolata-zi4' v1.12, 2019/05/17 Text macros for Inconsolata (msharpe) (/usr/local/texlive/2026/texmf-dist/tex/latex/base/textcomp.sty
 Package: textcomp 2024/04/24 v2.1b Standard LaTeX package
-)
-(/usr/local/texlive/2026/texmf-dist/tex/latex/xkeyval/xkeyval.sty
+) (/usr/local/texlive/2026/texmf-dist/tex/latex/xkeyval/xkeyval.sty
 Package: xkeyval 2025/11/04 v2.10 package option processing (HA)
  (/usr/local/texlive/2026/texmf-dist/tex/generic/xkeyval/xkeyval.tex (/usr/local/texlive/2026/texmf-dist/tex/generic/xkeyval/xkvutils.tex
 \XKV@toks=\toks36
 \XKV@tempa@toks=\toks37
 \XKV@tempb@toks=\toks38
 )
-\XKV@depth=\count333
+\XKV@depth=\count459
 File: xkeyval.tex 2014/12/03 v2.7a key=value parser (HA)
 ))
-\zifour@ocount=\count334
+\zifour@ocount=\count460
 ) (/usr/local/texlive/2026/texmf-dist/tex/latex/csvsimple/csvsimple.sty
 Package: csvsimple 2026/07/01 v3.0.0 LaTeX CSV file processing
 ) (/usr/local/texlive/2026/texmf-dist/tex/latex/csvsimple/csvsimple-l3.sty
 Package: csvsimple-l3 2026/07/01 v3.0.0 LaTeX3 CSV file processing
-\g__csvsim_col_int=\count335
-\g__csvsim_colmax_int=\count336
-\g_csvsim_columncount_int=\count337
-\g_csvsim_inputline_int=\count338
-\g_csvsim_row_int=\count339
-\l__csvsim_tmpa_int=\count340
-\l__csvsim_tmpb_int=\count341
+\g__csvsim_col_int=\count461
+\g__csvsim_colmax_int=\count462
+\g_csvsim_columncount_int=\count463
+\g_csvsim_inputline_int=\count464
+\g_csvsim_row_int=\count465
+\l__csvsim_tmpa_int=\count466
+\l__csvsim_tmpb_int=\count467
 )
-Package hyperref Info: Option `colorlinks' set `true' on input line 30.
-\c@theorem=\count342
-\c@proposition=\count343
-\c@lemma=\count344
-\c@corollary=\count345
-\c@definition=\count346
-\c@assumption=\count347
-\c@remark=\count348
- (/usr/local/texlive/2026/texmf-dist/tex/latex/l3backend/l3backend-pdftex.def
-File: l3backend-pdftex.def 2026-07-20 L3 backend support: PDF output (pdfTeX)
-\l__color_backend_stack_int=\count349
-) (./mason_2yp.aux)
+Package hyperref Info: Option `colorlinks' set `true' on input line 31.
+\c@theorem=\count468
+\c@proposition=\count469
+\c@lemma=\count470
+\c@corollary=\count471
+\c@definition=\count472
+\c@assumption=\count473
+\c@remark=\count474
+\@quotelevel=\count475
+\@quotereset=\count476
+ (./mason_2yp.aux)
 \openout1 = `mason_2yp.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 52.
-LaTeX Font Info:    ... okay on input line 52.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 52.
-LaTeX Font Info:    ... okay on input line 52.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 52.
-LaTeX Font Info:    ... okay on input line 52.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 52.
-LaTeX Font Info:    ... okay on input line 52.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 52.
-LaTeX Font Info:    ... okay on input line 52.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 52.
-LaTeX Font Info:    ... okay on input line 52.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 52.
-LaTeX Font Info:    ... okay on input line 52.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 52.
-LaTeX Font Info:    ... okay on input line 52.
-LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 52.
-LaTeX Font Info:    ... okay on input line 52.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 53.
+LaTeX Font Info:    ... okay on input line 53.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 53.
+LaTeX Font Info:    ... okay on input line 53.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 53.
+LaTeX Font Info:    ... okay on input line 53.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 53.
+LaTeX Font Info:    ... okay on input line 53.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 53.
+LaTeX Font Info:    ... okay on input line 53.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 53.
+LaTeX Font Info:    ... okay on input line 53.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 53.
+LaTeX Font Info:    ... okay on input line 53.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 53.
+LaTeX Font Info:    ... okay on input line 53.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 53.
+LaTeX Font Info:    ... okay on input line 53.
 
 *geometry* driver: auto-detecting
 *geometry* detected driver: pdftex
@@ -470,16 +690,16 @@ LaTeX Font Info:    ... okay on input line 52.
 
 (/usr/local/texlive/2026/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
-\scratchcounter=\count350
+\scratchcounter=\count477
 \scratchdimen=\dimen257
 \scratchbox=\box61
-\nofMPsegments=\count351
-\nofMParguments=\count352
+\nofMPsegments=\count478
+\nofMParguments=\count479
 \everyMPshowfont=\toks39
-\MPscratchCnt=\count353
+\MPscratchCnt=\count480
 \MPscratchDim=\dimen258
-\MPnumerator=\count354
-\makeMPintoPDFobject=\count355
+\MPnumerator=\count481
+\makeMPintoPDFobject=\count482
 \everyMPtoPDFconversion=\toks40
 ) (/usr/local/texlive/2026/texmf-dist/tex/latex/epstopdf-pkg/epstopdf-base.sty
 Package: epstopdf-base 2020-01-24 v2.11 Base part for package epstopdf
@@ -487,21 +707,48 @@ Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 48
  (/usr/local/texlive/2026/texmf-dist/tex/latex/latexconfig/epstopdf-sys.cfg
 File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Live
 ))
-Package hyperref Info: Link coloring ON on input line 52.
+Package hyperref Info: Link coloring ON on input line 53.
  (./mason_2yp.out) (./mason_2yp.out)
-\@outlinefile=\write3
-\openout3 = `mason_2yp.out'.
+\@outlinefile=\write4
+\openout4 = `mason_2yp.out'.
 
-LaTeX Info: Redefining \microtypecontext on input line 52.
-Package microtype Info: Applying patch `item' on input line 52.
-Package microtype Info: Applying patch `toc' on input line 52.
-Package microtype Info: Applying patch `eqnum' on input line 52.
+Package biblatex Info: Trying to load language 'english'...
+Package biblatex Info: ... file 'english.lbx' found.
+ (/usr/local/texlive/2026/texmf-dist/tex/latex/biblatex/lbx/english.lbx
+File: english.lbx 2026/08/13 v3.22 biblatex localization (PK/MW)
+)
+Package biblatex Info: Input encoding 'utf8' detected.
+Package biblatex Info: Automatic encoding selection.
+(biblatex)             Assuming data encoding 'utf8'.
+\openout3 = `mason_2yp.bcf'.
+
+Package biblatex Info: Trying to load bibliographic data...
 
 
-Package microtype Warning: Unable to apply patch `footnote' on input line 52.
+./mason_2yp.tex:53: Package biblatex Error: File 'mason_2yp.bbl' not created by biblatex.
 
-Package microtype Info: Applying patch `verbatim' on input line 52.
-LaTeX Info: Redefining \microtypesetup on input line 52.
+See the biblatex package documentation for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.53 \begin{document}
+                     ^^M
+This file was apparently not created by biblatex. Rename it or
+move it to a location were TeX will not find it. If this error
+persists, consider redefining \blxauxsuffix.See the biblatex
+manual for details.
+
+Package biblatex Info: Reference section=0 on input line 53.
+Package biblatex Info: Reference segment=0 on input line 53.
+LaTeX Info: Redefining \microtypecontext on input line 53.
+Package microtype Info: Applying patch `item' on input line 53.
+Package microtype Info: Applying patch `toc' on input line 53.
+Package microtype Info: Applying patch `eqnum' on input line 53.
+
+Package microtype Warning: Unable to apply patch `footnote' on input line 53.
+
+Package microtype Info: Applying patch `verbatim' on input line 53.
+LaTeX Info: Redefining \microtypesetup on input line 53.
 Package microtype Info: Generating PDF output.
 Package microtype Info: Character protrusion enabled (level 2).
 Package microtype Info: Using default protrusion set `alltext'.
@@ -519,975 +766,986 @@ Package caption Info: Begin \AtBeginDocument code.
 Package caption Info: float package is loaded.
 Package caption Info: listings package is loaded.
 Package caption Info: End \AtBeginDocument code.
-\c@lstlisting=\count356
+\c@lstlisting=\count483
  (/usr/local/texlive/2026/texmf-dist/tex/latex/upquote/upquote.sty
 Package: upquote 2012/04/19 v1.3 upright-quote and grave-accent glyphs in verbatim
 ) [1
 
 {/usr/local/texlive/2026/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
 
-Package natbib Warning: Citation `train_2010' on page 2 undefined on input line 63.
+LaTeX Warning: Citation 'train_2010' on page 2 undefined on input line 64.
 
 
-Package natbib Warning: Citation `mcallister_1984' on page 2 undefined on input line 77.
+LaTeX Warning: Citation 'mcallister_1984' on page 2 undefined on input line 78.
 
 
-Package natbib Warning: Citation `lattin_model_1987' on page 2 undefined on input line 77.
+LaTeX Warning: Citation 'lattin_model_1987' on page 2 undefined on input line 78.
 
 
-Package natbib Warning: Citation `erdem_decision-making_1996' on page 2 undefined on input line 77.
+LaTeX Warning: Citation 'erdem_decision-making_1996' on page 2 undefined on input line 78.
 
 
-Package natbib Warning: Citation `chintagunta_variety_1999' on page 2 undefined on input line 77.
+LaTeX Warning: Citation 'chintagunta_variety_1999' on page 2 undefined on input line 78.
 
 
-Package natbib Warning: Citation `dube_2004' on page 2 undefined on input line 77.
+LaTeX Warning: Citation 'dube_2004' on page 2 undefined on input line 78.
 
 
-Package natbib Warning: Citation `chintagunta_2006' on page 2 undefined on input line 77.
+LaTeX Warning: Citation 'chintagunta_2006' on page 2 undefined on input line 78.
 
 [2{/usr/local/texlive/2026/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc}]
 
-Package natbib Warning: Citation `train_2010' on page 3 undefined on input line 79.
+LaTeX Warning: Citation 'train_2010' on page 3 undefined on input line 80.
 
 [3]
 
-Package natbib Warning: Citation `train_2010' on page 4 undefined on input line 98.
+LaTeX Warning: Citation 'train_2010' on page 4 undefined on input line 99.
 
-LaTeX Font Info:    Trying to load font information for U+msa on input line 107.
+LaTeX Font Info:    Trying to load font information for U+msa on input line 108.
 (/usr/local/texlive/2026/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 ) (/usr/local/texlive/2026/texmf-dist/tex/latex/microtype/mt-msa.cfg
 File: mt-msa.cfg 2006/02/04 v1.1 microtype config. file: AMS symbols (a) (RS)
 )
-LaTeX Font Info:    Trying to load font information for U+msb on input line 107.
+LaTeX Font Info:    Trying to load font information for U+msb on input line 108.
  (/usr/local/texlive/2026/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 ) (/usr/local/texlive/2026/texmf-dist/tex/latex/microtype/mt-msb.cfg
 File: mt-msb.cfg 2005/06/01 v1.0 microtype config. file: AMS symbols (b) (RS)
 ) [4]
 
-Package natbib Warning: Citation `train_2010' on page 5 undefined on input line 126.
+LaTeX Warning: Citation 'train_2010' on page 5 undefined on input line 127.
 
 
-Package natbib Warning: Citation `train_2010' on page 5 undefined on input line 148.
+LaTeX Warning: Citation 'train_2010' on page 5 undefined on input line 149.
 
-./mason_2yp.tex:150: Missing number, treated as zero.
+./mason_2yp.tex:151: Missing number, treated as zero.
 <to be read again> 
                    U
-l.150   U
+l.151   U
          _{ijt} = \beta_0 + \beta_i^bX_{jt}^b + \beta_i^pX^p_{jt} + \gamma_i...
 A number should have been here; I inserted `0'.
 (If you can't figure out why I needed to see a number,
 look up `weird error' in the index to The TeXbook.)
 
 
-./mason_2yp.tex:151: Package amsmath Error: Extra & on this line.
+./mason_2yp.tex:152: Package amsmath Error: Extra & on this line.
 
 See the amsmath package documentation for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.151 \end{alignat*}
+l.152 \end{alignat*}
                     
 \An extra & here is so disastrous that you should probably exit
  and fix things up. 
 
-./mason_2yp.tex:151: Misplaced \omit.
+./mason_2yp.tex:152: Misplaced \omit.
 \math@cr@@@ ...@ \@ne \add@amps \maxfields@ \omit 
                                                   \kern -\alignsep@ \iftag@ ...
-l.151 \end{alignat*}
+l.152 \end{alignat*}
                     
 I expect to see \omit only after tab marks or the \cr of
 an alignment. Proceed, and I'll ignore this case.
 
 [5] [6] [7] [8]
-No file mason_2yp.bbl.
+
+LaTeX Warning: Empty bibliography on input line 212.
+
 <../../Output/Plots/3_flav_heatmap.pdf, id=112, 662.63759pt x 569.1551pt>
 File: ../../Output/Plots/3_flav_heatmap.pdf Graphic file (type pdf)
 <use ../../Output/Plots/3_flav_heatmap.pdf>
-Package pdftex.def Info: ../../Output/Plots/3_flav_heatmap.pdf  used on input line 264.
+Package pdftex.def Info: ../../Output/Plots/3_flav_heatmap.pdf  used on input line 265.
 (pdftex.def)             Requested size: 469.75502pt x 403.48633pt.
 [9] [10 <../../Output/Plots/3_flav_heatmap.pdf>] (../../Output/Tables/dma_price_summary.tex)
 <../../Output/Plots/dma_price_time_series.pdf, id=163, 640.45903pt x 316.4598pt>
 File: ../../Output/Plots/dma_price_time_series.pdf Graphic file (type pdf)
 <use ../../Output/Plots/dma_price_time_series.pdf>
-Package pdftex.def Info: ../../Output/Plots/dma_price_time_series.pdf  used on input line 280.
+Package pdftex.def Info: ../../Output/Plots/dma_price_time_series.pdf  used on input line 281.
 (pdftex.def)             Requested size: 469.75502pt x 232.1195pt.
  [11 <../../Output/Plots/dma_price_time_series.pdf>]
 
-./mason_2yp.tex:289: LaTeX Error: Illegal character in array arg.
+./mason_2yp.tex:290: LaTeX Error: Illegal character in array arg.
 
 See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.289 ...table-format=1.4] S[table-format=-1.3] l}
+l.290 ...table-format=1.4] S[table-format=-1.3] l}
                                                   
 You're in trouble here.  Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
 
-./mason_2yp.tex:289: LaTeX Error: Illegal character in array arg.
+./mason_2yp.tex:290: LaTeX Error: Illegal character in array arg.
 
 See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.289 ...table-format=1.4] S[table-format=-1.3] l}
+l.290 ...table-format=1.4] S[table-format=-1.3] l}
                                                   
 You're in trouble here.  Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
 
-./mason_2yp.tex:289: LaTeX Error: Illegal character in array arg.
+./mason_2yp.tex:290: LaTeX Error: Illegal character in array arg.
 
 See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.289 ...table-format=1.4] S[table-format=-1.3] l}
+l.290 ...table-format=1.4] S[table-format=-1.3] l}
                                                   
 You're in trouble here.  Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
 
-./mason_2yp.tex:289: LaTeX Error: Illegal character in array arg.
+./mason_2yp.tex:290: LaTeX Error: Illegal character in array arg.
 
 See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.289 ...table-format=1.4] S[table-format=-1.3] l}
+l.290 ...table-format=1.4] S[table-format=-1.3] l}
                                                   
 You're in trouble here.  Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
 
-./mason_2yp.tex:289: LaTeX Error: Illegal character in array arg.
+./mason_2yp.tex:290: LaTeX Error: Illegal character in array arg.
 
 See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.289 ...table-format=1.4] S[table-format=-1.3] l}
+l.290 ...table-format=1.4] S[table-format=-1.3] l}
                                                   
 You're in trouble here.  Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
 
-./mason_2yp.tex:289: LaTeX Error: Illegal character in array arg.
+./mason_2yp.tex:290: LaTeX Error: Illegal character in array arg.
 
 See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.289 ...table-format=1.4] S[table-format=-1.3] l}
+l.290 ...table-format=1.4] S[table-format=-1.3] l}
                                                   
 You're in trouble here.  Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
 
-./mason_2yp.tex:289: LaTeX Error: Illegal character in array arg.
+./mason_2yp.tex:290: LaTeX Error: Illegal character in array arg.
 
 See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.289 ...table-format=1.4] S[table-format=-1.3] l}
+l.290 ...table-format=1.4] S[table-format=-1.3] l}
                                                   
 You're in trouble here.  Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
 
-./mason_2yp.tex:289: LaTeX Error: Illegal character in array arg.
+./mason_2yp.tex:290: LaTeX Error: Illegal character in array arg.
 
 See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.289 ...table-format=1.4] S[table-format=-1.3] l}
+l.290 ...table-format=1.4] S[table-format=-1.3] l}
                                                   
 You're in trouble here.  Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
 
-./mason_2yp.tex:289: LaTeX Error: Illegal character in array arg.
+./mason_2yp.tex:290: LaTeX Error: Illegal character in array arg.
 
 See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.289 ...table-format=1.4] S[table-format=-1.3] l}
+l.290 ...table-format=1.4] S[table-format=-1.3] l}
                                                   
 You're in trouble here.  Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
 
-./mason_2yp.tex:289: LaTeX Error: Illegal character in array arg.
+./mason_2yp.tex:290: LaTeX Error: Illegal character in array arg.
 
 See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.289 ...table-format=1.4] S[table-format=-1.3] l}
+l.290 ...table-format=1.4] S[table-format=-1.3] l}
                                                   
 You're in trouble here.  Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
 
-./mason_2yp.tex:289: LaTeX Error: Illegal character in array arg.
+./mason_2yp.tex:290: LaTeX Error: Illegal character in array arg.
 
 See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.289 ...table-format=1.4] S[table-format=-1.3] l}
+l.290 ...table-format=1.4] S[table-format=-1.3] l}
                                                   
 You're in trouble here.  Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
 
-./mason_2yp.tex:289: LaTeX Error: Illegal character in array arg.
+./mason_2yp.tex:290: LaTeX Error: Illegal character in array arg.
 
 See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.289 ...table-format=1.4] S[table-format=-1.3] l}
+l.290 ...table-format=1.4] S[table-format=-1.3] l}
                                                   
 You're in trouble here.  Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
 
-./mason_2yp.tex:289: LaTeX Error: Illegal character in array arg.
+./mason_2yp.tex:290: LaTeX Error: Illegal character in array arg.
 
 See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.289 ...table-format=1.4] S[table-format=-1.3] l}
+l.290 ...table-format=1.4] S[table-format=-1.3] l}
                                                   
 You're in trouble here.  Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
 
-./mason_2yp.tex:289: LaTeX Error: Illegal character in array arg.
+./mason_2yp.tex:290: LaTeX Error: Illegal character in array arg.
 
 See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.289 ...table-format=1.4] S[table-format=-1.3] l}
+l.290 ...table-format=1.4] S[table-format=-1.3] l}
                                                   
 You're in trouble here.  Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
 
-./mason_2yp.tex:289: LaTeX Error: Illegal character in array arg.
+./mason_2yp.tex:290: LaTeX Error: Illegal character in array arg.
 
 See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.289 ...table-format=1.4] S[table-format=-1.3] l}
+l.290 ...table-format=1.4] S[table-format=-1.3] l}
                                                   
 You're in trouble here.  Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
 
-./mason_2yp.tex:289: LaTeX Error: Illegal character in array arg.
+./mason_2yp.tex:290: LaTeX Error: Illegal character in array arg.
 
 See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.289 ...table-format=1.4] S[table-format=-1.3] l}
+l.290 ...table-format=1.4] S[table-format=-1.3] l}
                                                   
 You're in trouble here.  Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
 
-./mason_2yp.tex:289: LaTeX Error: Illegal character in array arg.
+./mason_2yp.tex:290: LaTeX Error: Illegal character in array arg.
 
 See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.289 ...table-format=1.4] S[table-format=-1.3] l}
+l.290 ...table-format=1.4] S[table-format=-1.3] l}
                                                   
 You're in trouble here.  Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
 
-./mason_2yp.tex:289: LaTeX Error: Illegal character in array arg.
+./mason_2yp.tex:290: LaTeX Error: Illegal character in array arg.
 
 See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.289 ...table-format=1.4] S[table-format=-1.3] l}
+l.290 ...table-format=1.4] S[table-format=-1.3] l}
                                                   
 You're in trouble here.  Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
 
-./mason_2yp.tex:289: LaTeX Error: Illegal character in array arg.
+./mason_2yp.tex:290: LaTeX Error: Illegal character in array arg.
 
 See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.289 ...table-format=1.4] S[table-format=-1.3] l}
+l.290 ...table-format=1.4] S[table-format=-1.3] l}
                                                   
 You're in trouble here.  Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
 
-./mason_2yp.tex:289: LaTeX Error: Illegal character in array arg.
+./mason_2yp.tex:290: LaTeX Error: Illegal character in array arg.
 
 See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.289 ...table-format=1.4] S[table-format=-1.3] l}
+l.290 ...table-format=1.4] S[table-format=-1.3] l}
                                                   
 You're in trouble here.  Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
 
-./mason_2yp.tex:289: LaTeX Error: Illegal character in array arg.
+./mason_2yp.tex:290: LaTeX Error: Illegal character in array arg.
 
 See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.289 ...table-format=1.4] S[table-format=-1.3] l}
+l.290 ...table-format=1.4] S[table-format=-1.3] l}
                                                   
 You're in trouble here.  Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
 
-./mason_2yp.tex:289: LaTeX Error: Illegal character in array arg.
+./mason_2yp.tex:290: LaTeX Error: Illegal character in array arg.
 
 See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.289 ...table-format=1.4] S[table-format=-1.3] l}
+l.290 ...table-format=1.4] S[table-format=-1.3] l}
                                                   
 You're in trouble here.  Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
 
-./mason_2yp.tex:289: LaTeX Error: Illegal character in array arg.
+./mason_2yp.tex:290: LaTeX Error: Illegal character in array arg.
 
 See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.289 ...table-format=1.4] S[table-format=-1.3] l}
+l.290 ...table-format=1.4] S[table-format=-1.3] l}
                                                   
 You're in trouble here.  Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
 
-./mason_2yp.tex:289: LaTeX Error: Illegal character in array arg.
+./mason_2yp.tex:290: LaTeX Error: Illegal character in array arg.
 
 See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.289 ...table-format=1.4] S[table-format=-1.3] l}
+l.290 ...table-format=1.4] S[table-format=-1.3] l}
                                                   
 You're in trouble here.  Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
 
-./mason_2yp.tex:289: LaTeX Error: Illegal character in array arg.
+./mason_2yp.tex:290: LaTeX Error: Illegal character in array arg.
 
 See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.289 ...table-format=1.4] S[table-format=-1.3] l}
+l.290 ...table-format=1.4] S[table-format=-1.3] l}
                                                   
 You're in trouble here.  Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
 
-./mason_2yp.tex:289: LaTeX Error: Illegal character in array arg.
+./mason_2yp.tex:290: LaTeX Error: Illegal character in array arg.
 
 See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.289 ...table-format=1.4] S[table-format=-1.3] l}
+l.290 ...table-format=1.4] S[table-format=-1.3] l}
                                                   
 You're in trouble here.  Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
 
-./mason_2yp.tex:289: LaTeX Error: Illegal character in array arg.
+./mason_2yp.tex:290: LaTeX Error: Illegal character in array arg.
 
 See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.289 ...table-format=1.4] S[table-format=-1.3] l}
+l.290 ...table-format=1.4] S[table-format=-1.3] l}
                                                   
 You're in trouble here.  Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
 
-./mason_2yp.tex:289: LaTeX Error: Illegal character in array arg.
+./mason_2yp.tex:290: LaTeX Error: Illegal character in array arg.
 
 See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.289 ...table-format=1.4] S[table-format=-1.3] l}
+l.290 ...table-format=1.4] S[table-format=-1.3] l}
                                                   
 You're in trouble here.  Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
 
-./mason_2yp.tex:289: LaTeX Error: Illegal character in array arg.
+./mason_2yp.tex:290: LaTeX Error: Illegal character in array arg.
 
 See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.289 ...table-format=1.4] S[table-format=-1.3] l}
+l.290 ...table-format=1.4] S[table-format=-1.3] l}
                                                   
 You're in trouble here.  Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
 
-./mason_2yp.tex:289: LaTeX Error: Illegal character in array arg.
+./mason_2yp.tex:290: LaTeX Error: Illegal character in array arg.
 
 See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.289 ...table-format=1.4] S[table-format=-1.3] l}
+l.290 ...table-format=1.4] S[table-format=-1.3] l}
                                                   
 You're in trouble here.  Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
 
-./mason_2yp.tex:289: LaTeX Error: Illegal character in array arg.
+./mason_2yp.tex:290: LaTeX Error: Illegal character in array arg.
 
 See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.289 ...table-format=1.4] S[table-format=-1.3] l}
+l.290 ...table-format=1.4] S[table-format=-1.3] l}
                                                   
 You're in trouble here.  Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
 
-./mason_2yp.tex:289: LaTeX Error: Illegal character in array arg.
+./mason_2yp.tex:290: LaTeX Error: Illegal character in array arg.
 
 See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.289 ...table-format=1.4] S[table-format=-1.3] l}
+l.290 ...table-format=1.4] S[table-format=-1.3] l}
                                                   
 You're in trouble here.  Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
 
-./mason_2yp.tex:289: LaTeX Error: Illegal character in array arg.
+./mason_2yp.tex:290: LaTeX Error: Illegal character in array arg.
 
 See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.289 ...table-format=1.4] S[table-format=-1.3] l}
+l.290 ...table-format=1.4] S[table-format=-1.3] l}
                                                   
 You're in trouble here.  Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
 
-./mason_2yp.tex:289: LaTeX Error: Illegal character in array arg.
+./mason_2yp.tex:290: LaTeX Error: Illegal character in array arg.
 
 See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.289 ...table-format=1.4] S[table-format=-1.3] l}
+l.290 ...table-format=1.4] S[table-format=-1.3] l}
                                                   
 You're in trouble here.  Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
 
-./mason_2yp.tex:289: LaTeX Error: Illegal character in array arg.
+./mason_2yp.tex:290: LaTeX Error: Illegal character in array arg.
 
 See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.289 ...table-format=1.4] S[table-format=-1.3] l}
+l.290 ...table-format=1.4] S[table-format=-1.3] l}
                                                   
 You're in trouble here.  Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
 
-./mason_2yp.tex:289: LaTeX Error: Illegal character in array arg.
+./mason_2yp.tex:290: LaTeX Error: Illegal character in array arg.
 
 See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.289 ...table-format=1.4] S[table-format=-1.3] l}
+l.290 ...table-format=1.4] S[table-format=-1.3] l}
                                                   
 You're in trouble here.  Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
 
-./mason_2yp.tex:289: LaTeX Error: Illegal character in array arg.
+./mason_2yp.tex:290: LaTeX Error: Illegal character in array arg.
 
 See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.289 ...table-format=1.4] S[table-format=-1.3] l}
+l.290 ...table-format=1.4] S[table-format=-1.3] l}
                                                   
 You're in trouble here.  Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
 
-./mason_2yp.tex:289: LaTeX Error: Illegal character in array arg.
+./mason_2yp.tex:290: LaTeX Error: Illegal character in array arg.
 
 See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.289 ...table-format=1.4] S[table-format=-1.3] l}
+l.290 ...table-format=1.4] S[table-format=-1.3] l}
                                                   
 You're in trouble here.  Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
 
-./mason_2yp.tex:289: LaTeX Error: Illegal character in array arg.
+./mason_2yp.tex:290: LaTeX Error: Illegal character in array arg.
 
 See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.289 ...table-format=1.4] S[table-format=-1.3] l}
+l.290 ...table-format=1.4] S[table-format=-1.3] l}
                                                   
 You're in trouble here.  Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
 
-./mason_2yp.tex:289: LaTeX Error: Illegal character in array arg.
+./mason_2yp.tex:290: LaTeX Error: Illegal character in array arg.
 
 See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.289 ...table-format=1.4] S[table-format=-1.3] l}
+l.290 ...table-format=1.4] S[table-format=-1.3] l}
                                                   
 You're in trouble here.  Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
 
-./mason_2yp.tex:289: LaTeX Error: Illegal character in array arg.
+./mason_2yp.tex:290: LaTeX Error: Illegal character in array arg.
 
 See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.289 ...table-format=1.4] S[table-format=-1.3] l}
+l.290 ...table-format=1.4] S[table-format=-1.3] l}
                                                   
 You're in trouble here.  Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
 
-./mason_2yp.tex:289: LaTeX Error: Illegal character in array arg.
+./mason_2yp.tex:290: LaTeX Error: Illegal character in array arg.
 
 See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.289 ...table-format=1.4] S[table-format=-1.3] l}
+l.290 ...table-format=1.4] S[table-format=-1.3] l}
                                                   
 You're in trouble here.  Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
 
-./mason_2yp.tex:289: LaTeX Error: Illegal character in array arg.
+./mason_2yp.tex:290: LaTeX Error: Illegal character in array arg.
 
 See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.289 ...table-format=1.4] S[table-format=-1.3] l}
+l.290 ...table-format=1.4] S[table-format=-1.3] l}
                                                   
 You're in trouble here.  Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
 
-./mason_2yp.tex:289: LaTeX Error: Illegal character in array arg.
+./mason_2yp.tex:290: LaTeX Error: Illegal character in array arg.
 
 See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.289 ...table-format=1.4] S[table-format=-1.3] l}
+l.290 ...table-format=1.4] S[table-format=-1.3] l}
                                                   
 You're in trouble here.  Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
 
-./mason_2yp.tex:289: LaTeX Error: Illegal character in array arg.
+./mason_2yp.tex:290: LaTeX Error: Illegal character in array arg.
 
 See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.289 ...table-format=1.4] S[table-format=-1.3] l}
+l.290 ...table-format=1.4] S[table-format=-1.3] l}
                                                   
 You're in trouble here.  Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
 
-./mason_2yp.tex:289: LaTeX Error: Illegal character in array arg.
+./mason_2yp.tex:290: LaTeX Error: Illegal character in array arg.
 
 See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.289 ...table-format=1.4] S[table-format=-1.3] l}
+l.290 ...table-format=1.4] S[table-format=-1.3] l}
                                                   
 You're in trouble here.  Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
 
-./mason_2yp.tex:289: LaTeX Error: Illegal character in array arg.
+./mason_2yp.tex:290: LaTeX Error: Illegal character in array arg.
 
 See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.289 ...table-format=1.4] S[table-format=-1.3] l}
+l.290 ...table-format=1.4] S[table-format=-1.3] l}
                                                   
 You're in trouble here.  Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
 
-./mason_2yp.tex:289: LaTeX Error: Illegal character in array arg.
+./mason_2yp.tex:290: LaTeX Error: Illegal character in array arg.
 
 See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.289 ...table-format=1.4] S[table-format=-1.3] l}
+l.290 ...table-format=1.4] S[table-format=-1.3] l}
                                                   
 You're in trouble here.  Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
 
-./mason_2yp.tex:289: LaTeX Error: Illegal character in array arg.
+./mason_2yp.tex:290: LaTeX Error: Illegal character in array arg.
 
 See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.289 ...table-format=1.4] S[table-format=-1.3] l}
+l.290 ...table-format=1.4] S[table-format=-1.3] l}
                                                   
 You're in trouble here.  Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
 
-./mason_2yp.tex:289: LaTeX Error: Illegal character in array arg.
+./mason_2yp.tex:290: LaTeX Error: Illegal character in array arg.
 
 See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.289 ...table-format=1.4] S[table-format=-1.3] l}
+l.290 ...table-format=1.4] S[table-format=-1.3] l}
                                                   
 You're in trouble here.  Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
 
-./mason_2yp.tex:289: LaTeX Error: Illegal character in array arg.
+./mason_2yp.tex:290: LaTeX Error: Illegal character in array arg.
 
 See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.289 ...table-format=1.4] S[table-format=-1.3] l}
+l.290 ...table-format=1.4] S[table-format=-1.3] l}
                                                   
 You're in trouble here.  Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
 
-./mason_2yp.tex:289: LaTeX Error: Illegal character in array arg.
+./mason_2yp.tex:290: LaTeX Error: Illegal character in array arg.
 
 See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.289 ...table-format=1.4] S[table-format=-1.3] l}
+l.290 ...table-format=1.4] S[table-format=-1.3] l}
                                                   
 You're in trouble here.  Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
 
-./mason_2yp.tex:289: LaTeX Error: Illegal character in array arg.
+./mason_2yp.tex:290: LaTeX Error: Illegal character in array arg.
 
 See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.289 ...table-format=1.4] S[table-format=-1.3] l}
+l.290 ...table-format=1.4] S[table-format=-1.3] l}
                                                   
 You're in trouble here.  Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
 
-./mason_2yp.tex:308: LaTeX Error: Illegal character in array arg.
+./mason_2yp.tex:309: LaTeX Error: Illegal character in array arg.
 
 See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.308     \begin{tabular}{l S[table-format=-1.4]}
+l.309     \begin{tabular}{l S[table-format=-1.4]}
                                                  
 You're in trouble here.  Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
 
-./mason_2yp.tex:308: LaTeX Error: Illegal character in array arg.
+./mason_2yp.tex:309: LaTeX Error: Illegal character in array arg.
 
 See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.308     \begin{tabular}{l S[table-format=-1.4]}
+l.309     \begin{tabular}{l S[table-format=-1.4]}
                                                  
 You're in trouble here.  Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
 
-./mason_2yp.tex:308: LaTeX Error: Illegal character in array arg.
+./mason_2yp.tex:309: LaTeX Error: Illegal character in array arg.
 
 See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.308     \begin{tabular}{l S[table-format=-1.4]}
+l.309     \begin{tabular}{l S[table-format=-1.4]}
                                                  
 You're in trouble here.  Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
 
-./mason_2yp.tex:308: LaTeX Error: Illegal character in array arg.
+./mason_2yp.tex:309: LaTeX Error: Illegal character in array arg.
 
 See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.308     \begin{tabular}{l S[table-format=-1.4]}
+l.309     \begin{tabular}{l S[table-format=-1.4]}
                                                  
 You're in trouble here.  Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
 
-./mason_2yp.tex:308: LaTeX Error: Illegal character in array arg.
+./mason_2yp.tex:309: LaTeX Error: Illegal character in array arg.
 
 See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.308     \begin{tabular}{l S[table-format=-1.4]}
+l.309     \begin{tabular}{l S[table-format=-1.4]}
                                                  
 You're in trouble here.  Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
 
-./mason_2yp.tex:308: LaTeX Error: Illegal character in array arg.
+./mason_2yp.tex:309: LaTeX Error: Illegal character in array arg.
 
 See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.308     \begin{tabular}{l S[table-format=-1.4]}
+l.309     \begin{tabular}{l S[table-format=-1.4]}
                                                  
 You're in trouble here.  Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
 
-./mason_2yp.tex:308: LaTeX Error: Illegal character in array arg.
+./mason_2yp.tex:309: LaTeX Error: Illegal character in array arg.
 
 See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.308     \begin{tabular}{l S[table-format=-1.4]}
+l.309     \begin{tabular}{l S[table-format=-1.4]}
                                                  
 You're in trouble here.  Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
 
-./mason_2yp.tex:308: LaTeX Error: Illegal character in array arg.
+./mason_2yp.tex:309: LaTeX Error: Illegal character in array arg.
 
 See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.308     \begin{tabular}{l S[table-format=-1.4]}
+l.309     \begin{tabular}{l S[table-format=-1.4]}
                                                  
 You're in trouble here.  Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
 
-./mason_2yp.tex:308: LaTeX Error: Illegal character in array arg.
+./mason_2yp.tex:309: LaTeX Error: Illegal character in array arg.
 
 See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.308     \begin{tabular}{l S[table-format=-1.4]}
+l.309     \begin{tabular}{l S[table-format=-1.4]}
                                                  
 You're in trouble here.  Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
 
-./mason_2yp.tex:308: LaTeX Error: Illegal character in array arg.
+./mason_2yp.tex:309: LaTeX Error: Illegal character in array arg.
 
 See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.308     \begin{tabular}{l S[table-format=-1.4]}
+l.309     \begin{tabular}{l S[table-format=-1.4]}
                                                  
 You're in trouble here.  Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
 
-./mason_2yp.tex:308: LaTeX Error: Illegal character in array arg.
+./mason_2yp.tex:309: LaTeX Error: Illegal character in array arg.
 
 See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.308     \begin{tabular}{l S[table-format=-1.4]}
+l.309     \begin{tabular}{l S[table-format=-1.4]}
                                                  
 You're in trouble here.  Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
 
-./mason_2yp.tex:308: LaTeX Error: Illegal character in array arg.
+./mason_2yp.tex:309: LaTeX Error: Illegal character in array arg.
 
 See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.308     \begin{tabular}{l S[table-format=-1.4]}
+l.309     \begin{tabular}{l S[table-format=-1.4]}
                                                  
 You're in trouble here.  Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
 
-./mason_2yp.tex:308: LaTeX Error: Illegal character in array arg.
+./mason_2yp.tex:309: LaTeX Error: Illegal character in array arg.
 
 See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.308     \begin{tabular}{l S[table-format=-1.4]}
+l.309     \begin{tabular}{l S[table-format=-1.4]}
                                                  
 You're in trouble here.  Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
 
-./mason_2yp.tex:308: LaTeX Error: Illegal character in array arg.
+./mason_2yp.tex:309: LaTeX Error: Illegal character in array arg.
 
 See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.308     \begin{tabular}{l S[table-format=-1.4]}
+l.309     \begin{tabular}{l S[table-format=-1.4]}
                                                  
 You're in trouble here.  Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
 
-./mason_2yp.tex:308: LaTeX Error: Illegal character in array arg.
+./mason_2yp.tex:309: LaTeX Error: Illegal character in array arg.
 
 See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.308     \begin{tabular}{l S[table-format=-1.4]}
+l.309     \begin{tabular}{l S[table-format=-1.4]}
                                                  
 You're in trouble here.  Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
 
-./mason_2yp.tex:308: LaTeX Error: Illegal character in array arg.
+./mason_2yp.tex:309: LaTeX Error: Illegal character in array arg.
 
 See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.308     \begin{tabular}{l S[table-format=-1.4]}
+l.309     \begin{tabular}{l S[table-format=-1.4]}
                                                  
 You're in trouble here.  Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
 
-./mason_2yp.tex:308: LaTeX Error: Illegal character in array arg.
+./mason_2yp.tex:309: LaTeX Error: Illegal character in array arg.
 
 See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.308     \begin{tabular}{l S[table-format=-1.4]}
+l.309     \begin{tabular}{l S[table-format=-1.4]}
                                                  
 You're in trouble here.  Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
 
-./mason_2yp.tex:308: LaTeX Error: Illegal character in array arg.
+./mason_2yp.tex:309: LaTeX Error: Illegal character in array arg.
 
 See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.308     \begin{tabular}{l S[table-format=-1.4]}
+l.309     \begin{tabular}{l S[table-format=-1.4]}
                                                  
 You're in trouble here.  Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
-
-
-Package natbib Warning: There were undefined citations.
 
 [12] (./mason_2yp.aux)
  ***********
 LaTeX2e <2026-06-01>
 L3 programming layer <2026-07-20>
  ***********
+
+
+LaTeX Warning: There were undefined references.
+
 Package rerunfilecheck Info: File `mason_2yp.out' has not changed.
 (rerunfilecheck)             Checksum: 5BB57263B3C23A7CE0ED66A2AD7B37D6;1233.
+
+Package biblatex Warning: Please (re)run Biber on the file:
+(biblatex)                mason_2yp
+(biblatex)                and rerun LaTeX afterwards.
+
+Package logreq Info: Writing requests to 'mason_2yp.run.xml'.
+\openout1 = `mason_2yp.run.xml'.
+
  ) 
 Here is how much of TeX's memory you used:
- 17360 strings out of 467159
- 280421 string characters out of 5409218
- 749197 words of memory out of 5000000
- 46257 multiletter control sequences out of 15000+600000
- 640418 words of font info for 140 fonts, out of 8000000 for 9000
+ 24303 strings out of 467159
+ 423477 string characters out of 5409218
+ 1307714 words of memory out of 5000000
+ 53157 multiletter control sequences out of 15000+600000
+ 640238 words of font info for 137 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 74i,12n,79p,1548b,476s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 74i,12n,79p,1548b,1207s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi9.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr17.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy6.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy9.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/cm-super/sfbx1095.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/cm-super/sfrm1095.pfb>
-Output written on mason_2yp.pdf (12 pages, 264626 bytes).
+Output written on mason_2yp.pdf (12 pages, 266596 bytes).
 PDF statistics:
  335 PDF objects out of 1000 (max. 8388607)
  182 compressed objects within 2 object streams

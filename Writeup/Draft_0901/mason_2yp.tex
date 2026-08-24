@@ -6,7 +6,8 @@
 \usepackage{booktabs}
 \usepackage{graphicx}
 \usepackage{hyperref}
-\usepackage{natbib}
+\usepackage{biblatex}
+\bibliography{lov_bib.bib}
 \usepackage{setspace}
 \usepackage{microtype}
 \usepackage{enumitem}
@@ -19,7 +20,6 @@
 \usepackage{inconsolata}
 \lstset{basicstyle=\ttfamily\footnotesize,breaklines=true}
 \usepackage{csvsimple}
-\usepackage{booktabs}
 
 % ── Hyperref setup ──────────────────────────────────────────
 \hypersetup{
@@ -74,7 +74,7 @@ concludes.
 \section{Related Literature}
 %============================================================%
 
-    The variety-seeking and state dependence literature has been primarily focused on understanding the dynamics of consumer preferences and demand over time. Beginning with \cite{mcallister_1984}, who studied ... .From \cite{lattin_model_1987}, who developed an empirical structural model of state dependence in consumer choice, to \citet{erdem_decision-making_1996}, who iterated the model to allow for consumer learning. \cite{chintagunta_variety_1999} is the most closely related paper, as he develops a model of variety-seeking behavior which is both tractible and flexible, and uses Nielsen data to estimate the model. However, this paper only looks at demand, leaving me a niche to explore the interplay between variety-seeking and strategic advertising. \cite{dube_2004} progresses Chintagunta's work, showing how consumers seek variety in quantities purchased. Using the soda market, Dube is able to model purchase occasions at a very granular level. \cite{chintagunta_2006} ... .
+    The variety-seeking and state dependence literature has been primarily focused on understanding the dynamics of consumer preferences and demand over time. Beginning with \cite{mcallister_1984}, who studied ... .From \cite{lattin_model_1987}, who developed an empirical structural model of state dependence in consumer choice, to \cite{erdem_decision-making_1996}, who iterated the model to allow for consumer learning. \cite{chintagunta_variety_1999} is the most closely related paper, as he develops a model of variety-seeking behavior which is both tractible and flexible, and uses Nielsen data to estimate the model. However, this paper only looks at demand, leaving me a niche to explore the interplay between variety-seeking and strategic advertising. \cite{dube_multiple_2004} progresses Chintagunta's work, showing how consumers seek variety in quantities purchased. Using the soda market, Dube is able to model purchase occasions at a very granular level. \cite{chintagunta_2006} ... .
 
     I also add to the demand estimation methodology literature. \cite{train_2010} introduces a control function methodology which accounts for price endogeneity, taking the residual from the first stage of an IV regression and adding it as an element of the utility function. 
 
@@ -208,7 +208,7 @@ I find that consumers exhibit preferences for habit, needing to be compensated \
 %============================================================%
 \newpage
 
-\bibliography{lov_lit.bib}
+\printbibliography
 
 \section{Tables and Figures}
 
@@ -319,5 +319,3 @@ I find that consumers exhibit preferences for habit, needing to be compensated \
 \end{table}
 
 \end{document}
-\end{document}
-

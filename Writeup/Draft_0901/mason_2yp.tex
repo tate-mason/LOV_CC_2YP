@@ -58,9 +58,9 @@
 \section{Introduction}
 %============================================================%
 
-Standard discrete choice models in industrial organizational economics assume consumers are static agents with fixed preferences. They are assumed to make independent choices each period. In reality, this is often not the case. Consumers may value products differently in one period than the last. This would be baked into the error term of a standard model, leaving a consumer's choices to vary for unexplained reasons. Very real factors like boredom, preferences for novelty, or brand loyalty are not addressed. However, including a channel through which past choices can shape current marginal utility, perhaps we can get better estimates of consumer welfare. 
+Standard discrete choice models in industrial organizational economics assume consumers are static agents who make independent choices each period. In reality, this is often not the case. Consumers may value products differently in one period than the last. In the realm of non-durable goods, this could be due to a habit stock the consumer has built through past consumption. Very real factors like boredom, preferences for novelty, or brand loyalty may attribute to time-variant preferences. However, including a channel through which past choices can shape current marginal utility, perhaps we can get better estimates of consumer preferences, allowing for improved measures of consumer welfare. 
 
-Love of variety research largely originates from marketing researchers, explaining why demand estimation would be more important. This is useful for things understanding the effect of advertising via display positioning or how a feature advertisement affects demand. Using Nielsen data on single-serving yogurt cups, I add to the literature on love of variety in consumer demand by including supply side effects. Single-serving yogurt is an attractive product space due to its relative lack of storability, its large flavor variety, and frequent purchase rate. Adding a supply side allows me to investigate how firms can price-discriminate or target their advertising through discounts based on consumer preferences for variety. I also introduce a control function approach put forth by \cite{train_2010} to contend with the endogeneity in prices.
+One explanation for consumers' preferences over time is love of variety. Love of variety research largely originates from marketing researchers, explaining why demand estimation would be more important. This is useful for things understanding the effect of advertising via display positioning or how a feature advertisement affects demand. Using Nielsen data on single-serving yogurt cups, I add to the literature on love of variety in consumer demand by including supply side effects. Marketers, to date, have largely focused on the demand side of the equation, leaving a gap in how firms internalize consumer preferences for variety over time. Further, reseearch which has looked into this phenomenon is theoretical. So, taking an empirical lens to the problem is a novel contribution. Single-serving yogurt is an attractive product space due to its relative lack of storability, its large flavor variety, and frequent purchase rate. Adding a supply side allows me to investigate how firms can price-discriminate or target their advertising through discounts based on consumer preferences for variety. 
 
 I estimate a discrete choice model of consumer demand, including a term which captures preferences for variety. The model uses purchase data in Atlanta, Chicago, Denver, and San Diego, whose variation in pricing I use for my control function. My key finding is that consumers exhibit a distaste for variety. This disutility is statistically significant and requires \$2.20 in compensation to switch flavors. Using this finding, my supply side counterfactual will examine how firms adjust pricing in response to this, attempting to induce switching to grow market share. I also find that, relative to other flavors, consumers prefer berry and plain yogurt, with berry being statistically significant.
 
@@ -70,15 +70,15 @@ statistics. Section four showcases the model and environment and section five
 presents results. Section six goes into counterfactual analysis, while section 7
 concludes.
 
-%%============================================================%
-%\section{Related Literature}
-%%============================================================%
-%
-%    The variety-seeking and state dependence literature has been primarily focused on understanding the dynamics of consumer preferences and demand over time. Beginning with \cite{mcallister_1984}, who studied ... .From \cite{lattin_model_1987}, who developed an empirical structural model of state dependence in consumer choice, to \cite{erdem_decision-making_1996}, who iterated the model to allow for consumer learning. \cite{chintagunta_variety_1999} is the most closely related paper, as he develops a model of variety-seeking behavior which is both tractible and flexible, and uses Nielsen data to estimate the model. However, this paper only looks at demand, leaving me a niche to explore the interplay between variety-seeking and strategic advertising. \cite{dube_multiple_2004} progresses Chintagunta's work, showing how consumers seek variety in quantities purchased. Using the soda market, Dube is able to model purchase occasions at a very granular level. \cite{chintagunta_2006} ... .
-%
-%    I also add to the demand estimation methodology literature. \cite{train_2010} introduces a control function methodology which accounts for price endogeneity, taking the residual from the first stage of an IV regression and adding it as an element of the utility function. 
-%
-%    % Dube (2004), McAllister (1984), Train (2010), Chintgunta, Dube, Hao (2006)
+%============================================================%
+\section{Related Literature}
+%============================================================%
+
+% LOV Demand Literature
+
+The variety-seeking and state dependence literature has been mainly focused on understanding the dynamics of consumer preferences over time. When looking at earlier papers in this literature, \cite{mcallister_1984} proposes a model that accounts for consumers being attracted to different attraibutes at different times. \cite{givon_variety_1984} models how consumers vary over brands rather than attributes specifically, investigating how this impacts the choice set. \cite{lattin_model_1987}, building upon this, models the balance between current consumption and the lingering utility from past utility. \cite{erdem_decision-making_1996} then adds a learning channel to the model, allowing for experience and advertising to influence switching dynamics. \cite{chintagunta_variety_1999} is the most closely related paper, as he develops a model of variety-seeking behavior which is both tractible and flexible, and uses Nielsen data to estimate the model. However, this paper only looks at demand, leaving me a niche to explore the interplay between variety-seeking and strategic advertising. \cite{dube_multiple_2004} progresses Chintagunta's work, showing how consumers seek variety in quantities purchased. Using the soda market, Dube is able to model purchase occasions at a very granular level. I take attributes of both of their approaches to estimate the demand side.
+% Supply Literature
+
 
 
 %============================================================%
@@ -87,7 +87,9 @@ concludes.
 
     \subsection{Data}
 
-    My data comes from Nielsen's HomeScan and MarketScan data. These two main datasets give me access to household purchase decisions as well as product characteristics. I am looking at the year 2014 in markets Atlanta, Chicago, San Diego, and Denver. These markets were chosen since they are major cities in different parts of the country. Households are comprised of a single-person to avoid any contamination of shopping for multiple people like children or spouses. This ensures I am picking up true preferences for variety rather than buying for multiple people. These trips are encoded with unique identifiers, thus allowing me to look at per-trip, and within-trip, decisions. Agents are under observation for eight weeks and asked to record each shopping trip. Stores are restricted to be valid Nielsen stores, meaning they appear in the reatil code data. This is necessary to observe prices the products were bought at. The product space I am looking at is single-serving cups of yogurt. Yogurt was chosen for a host of reasons. Firstly, it is a good that is not storable indefinitely, being good for approximately one to three weeks. This is particularly important when considering it will have less of an impact on the dynamics the consumers face. Yogurt also has a large menu of flavors within the category, allowing consumers to switch easily along this dimension. Similarly, yogurt has many types like sugary, Greek, Skyr, low-fat, and many more. This presents potential variation to exploit as well.
+    My data comes from Nielsen's HomeScan and MarketScan data. These two main datasets give me access to household purchase decisions as well as product characteristics. From HomeScan, I can access household characteristics, purchase histories by shopping trip, and information on purchase characteristics like if a discount was used or the total price paid. From MarketScan, I get product characteristics like price or if the product was in a featured position on the shelf. I limit the sample to Atlanta, Chicago, Denver, and San Diego in 2014. These markets were chosen since they are major cities in different parts of the country. I only include single-person households to avoid any contamination of shopping for multiple people like children or spouses. This ensures I am picking up true preferences for variety rather than buying for multiple people. These trips are encoded with unique identifiers, thus allowing me to look at per-trip, and within-trip, decisions. Agents are under observation for eight weeks and asked to record each shopping trip. Stores are restricted to be valid Nielsen stores, meaning they appear in the reatil code data. This is necessary to observe product prices.
+    
+    I am looking at yogurt. Yogurt was chosen for a host of reasons. First, it is a good that is not storable indefinitely, being good for approximately one to three weeks. Yogurt also has a large menu of flavors within the category, allowing consumers to switch easily along this dimension. Similarly, yogurt has many types like sugary, Greek, Skyr, low-fat, and many more. This presents potential variation to exploit as well.
 
     I classify flavors into three categories: berry, plain, and other. While these are not taking full advantage of the granularity in flavors available, the classifications capture the two largest categories, berry and plain. Berry and plain will then be compared to other flavors, which serve as the baseline category. I define the outside option as a trip in which yogurt was not ever purchased. Table \ref{tab:stat_tab} shows that the outside option is taken 80\% of the time each trip. My sample has 1,269 agents who are seen for an average of about 18 trips. Of those 1,269, 715 made a yogurt purchase in 2014. If an agent was a yogurt purchaser, they purchased about 2.3 cups of yogurt per-trip. The mean income of my sample was 18,000. The sample is predominately white, with 75\% of agents being White, 20\% being Black, and 5\% being either Asian or Hispanic. 
 
@@ -100,30 +102,36 @@ concludes.
 %============================================================%
 \section{Model}
 %============================================================%
-
-    \subsection{Environment}
-    % customers, trips, occasions, menu in store
-
-    There are a continuum of $i \in \mathcal{I}$ consumers who exist for
-    $\mathcal{T}$ periods. Within a given period, a household can go for
-    a shopping trip $t\in\mathcal{T}$ which is comprised of choice occasions
-    $o\in\mathcal{O}_t$. Each choice occasion allows for the purchase of a
-    singular good. 
-
-
     \subsection{Consumer's Problem}
-    The consumer's problem is the following. In each period $t$, the consumer $i$ chooses a product $j$ from the menu of available products $J_t$. The available products are $J_t = \{0,1,2,3\}$ where $j=0$ is the outside option, $j=1$ is purchasing berry yogurt, $j=2$ is purchasing plain yogurt, and $j=3$ is purchasing other flavors. Consumers are assumed to be state-dependent, carrying previous preferences forward. This history is summarized with $X^*_{i,t-1}\in J_t$, which is the flavor last selected by consumer $i$. Each product $j\in J_t$ is a bundle of $k\in K$ characteristics such that $X_{jt}^k \in \mathcal{X}_{jt}$. The consumer's utility from choosing product $j$ at time $t$ is given by:
+    The consumer's problem is the following. In each period $t$, the consumer $i$ chooses a product $j$ from the menu of available products $J_t$. The available products are $J_t = \{0,1,2,3\}$ where $j=0$ is the outside option, $j=1$ is purchasing berry yogurt, $j=2$ is purchasing plain yogurt, and $j=3$ is purchasing other flavors. Consumers are assumed to be state-dependent, carrying previous choices forward. This history is summarized with $X^*_{i,t-1}\in J_t$, which is the modal flavor last selected by consumer $i$. Each product $j\in J_t$ is a bundle of $k\in K$ characteristics such that $X_{jt}^k \in \mathcal{X}_{jt}$. The consumer's utility from choosing product $j$ at time $t$ is given by:
 
 
     \begin{alignat*}{1}
       U_{ijt} &= \beta_0 + \sum_1^k\beta^k_i X^k_{jt} + \gamma_i\Xi_{ijt}
-                  + \alpha_i p_{jt} + \sigma\hat{\eta}_{jt} + \varepsilon_{ijt} \\
+                  + \alpha_i p_{jt} +  \varepsilon_{ijt} \\
     \text{subject to} \\
       \Xi_{ijt} &= |X_jt - X^*_{j,t-1}| \\
-      \varepsilon_{ijt} &\sim \text{T1EV}(0,1)
+      \varepsilon_{ijt} &\sim \text{T1EV}(0,1) \\
+      &\text{for j$\in\{1,2,3\}$} \\
+      &\text{$U_{i0t}$ normalized to $0$}
     \end{alignat*}
 
-    In the utility function, there are the following components: $\beta_0$ is a constant, $\beta^k_i$ is a consumer's utility from characteristic $X^k_{jt}$, $\gamma_i$ is their preference for variety, $\Xi_{ijt}$ is the difference between the current characteristic and their most recent choice, $\alpha_i$ is price sensitivity to $p_{jt}$ and $\varepsilon_{ijt}$ is the Gumbel shock which allows for a closed form logit. To correct for price endogeneity in the above, I have implemented a control function as in \cite{train_2010}. Here, I do a first stage instrumental variable estimation and then take residual from that estimation and insert it into the utility function. That is $\hat{\eta}$, which is recovered from:
+    In the utility function, there are the following components: $\beta_0$ is a constant, $\beta^k_i$ is a consumer's utility from characteristic $X^k_{jt}$, $\gamma_i$ is their preference for variety, $\Xi_{ijt}$ is the difference between the current characteristic and their most recent choice, $\alpha_i$ is price sensitivity to $p_{jt}$ and $\varepsilon_{ijt}$ is the Gumbel shock which allows for a closed form logit. 
+    Choice probabilities take the following form:
+
+    \begin{alignat*}{3}
+      P_{ijt} = \frac{\exp(\beta_0 + \sum_1^k\beta_i^kX_{jt}^k + \gamma_i\Xi_{ijt} + \alpha_ip_{jt} +  \varepsilon_{ijt})}{1 + \sum_s\exp(\beta_0+\sum_1^k\beta_i^kX_{st}^k + \gamma_i\Xi_{ist} + \alpha_ip_{st} + \varepsilon_{ist})}
+    \end{alignat*}
+
+    Where we normalize the outside option, not purchasing yogurt, to be zero by construction. 
+
+%============================================================%
+\section{Estimation}
+%============================================================%
+
+The estimation procedure uses standard maximum likelihood estimation. This means that there is no random coefficient estimation at this point, allowing me to identify the parameters of interest from the data alone.
+
+Following \cite{train_2010}, I use a control function to control for price endogeneity. I do a first stage instrumental variable estimation and then take residual from that estimation and insert it into the utility function. The first stage takes the form:
 
     \begin{alignat*}{2}
       p_{jt} = \bar{p}_{j,-m(i),t} + \tau_t + \eta_{jt}
@@ -131,32 +139,21 @@ concludes.
 
     Where $\bar{p}_{j,-m(i),t}$ is the mean price from the three markets the household is not shopping in and $\tau_t$ is a time indicator. The residual corrects for the bias present in pricing, allowing us a consistent estimate of pricing.
 
-    Choice probabilities take the following form:
+I make an index of prices, instrumental variable residuals, and previous choices for each household's trips for each flavor. Then, I plug these values into the objective function represented by:
 
-    \begin{alignat*}{3}
-      P_{ijt} = \frac{\exp\beta_0 + \sum_1^k\beta_i^kX_{jt}^k + \gamma_i\Xi_{ijt} + \alpha_ip_{jt} + \sigma\hat{\eta}_{jt} + \varepsilon_{ijt}}{1 + \exp\sum_s\beta_0+\sum_1^k\beta_i^kX_{st}^k + \gamma_i\Xi_{ist} + \alpha_ip_{st} + \sigma\hat{\eta}_{jt} + \varepsilon_{ist}}
-    \end{alignat*}
-
-    Where we normalize the outside option, not purchasing yogurt, to be zero by construction. 
-
-
-
-%============================================================%
-\section{Estimation}
-%============================================================%
-
-The estimation procedure uses standard maximum likelihood estimation, while implementing the \cite{train_2010} control function. This means that there is no random coefficient estimation at this point, allowing me to identify the parameters of interest from the data alone. This is accomplished by first making an index of prices, instrumental variable residuals, and previous choices for each household's trips for each flavor. Then, I plug these values into the objective function represented by:
-\begin{alignat*}
-  U_{ijt} = \beta_0 + \beta_i^bX_{jt}^b + \beta_i^pX^p_{jt} + \gamma_i\Xi_{ijt} + \alpha_ip_{jt} + \sigma\hat{\eta}_{jt}
+\begin{alignat*}{4}
+  U^k_{ijt} = \beta_0 +  \beta_i^kX^k_{jt} + \gamma_i\Xi_{ijt} + \alpha_ip_{jt} + \sigma\hat{\eta}_{jt}
 \end{alignat*}
 
-Where $\beta_0$ is a constant, $\beta_i^b, \beta_i^p$ are choice specific constants for choosing berry or plain. Other flavors are left out to avoid multi-collinearity. $\gamma_i\Xi_{ijt}$ is the love of variety term, which is just capturing if you switched between periods. The price and control function term are unchanged from above. The probability of individual $i$ choosing the observed product $j$ in time $t$ is given by:
-\begin{alignat*}{4}
+
+
+Where $\beta_0$ is a constant, $\beta_i^k \ \text{for k} \ \in \{\text{berry, other, plain}\}$ are choice specific coefficients for choosing berry, other, or plain. $\gamma_i\Xi_{ijt}$ is the love of variety term, which is just capturing if you switched between periods. The price and control function term are unchanged from above. The probability of individual $i$ choosing the observed product $j$ in time $t$ is given by:
+\begin{alignat*}{5}
   \Pi_i(P_{ijt})^{y_{ijt}}
 \end{alignat*}
 
 Where $y_{ijt} = 1$ when person $i$ chosen $j$ that period, and zero otherwise. The log-likelihood is then given by:
-\begin{alignat*}{5}
+\begin{alignat*}{6}
   \text{LL}(\theta) = \sum_i^I\sum_jy_{ijt}\ln P_{ijt}
 \end{alignat*}
 
@@ -166,7 +163,7 @@ I then maximize the total log-likelihood to recover the parameters at the optima
 \section{Results}
 %============================================================%
 
-Results are shown in table \ref{tab:res_tab}. Here, you can see mixed findings. Firstly, I find that $\gamma_i$ is statistically significant and negative with a value of $-1.23$. This finding points to consumers being less willing to switch flavors between trips. This estimate is at odss with what the data implies: more than half of houses are switchers, conditional on yogurt purchase, and houses switch 3 times on average if they do switch. This discrepancy points to my sample potentially suffering from being too small. Further, I find a negative price coefficient $\alpha$, but am unable to claim statistical significance. This is fixable with a better instrumental variable, something which is actively being considered. Similarly, the control function correction coefficient is not significant either. However, given $\sigma$ is positive, we can infer that $\alpha$ is positively biased without this correction. With a better IV approach, the control function should also produce more impactful effects. I am looking into factors like distribution networks, other product categories, as well as different sources of geographic variation to serve as instruments.
+Results are shown in table \ref{tab:res_tab}. Here, you can see mixed findings. Firstly, I find that $\gamma_i$ is statistically significant and negative with a value of $-1.23$. This finding points to consumers being less willing to switch flavors between trips. This estimate is at odds with what the data implies: more than half of houses are switchers, conditional on yogurt purchase, and houses switch 3 times on average if they do switch. This is likely a byproduct of not having random coefficients for utility from a given product. Further, I find a negative price coefficient $\alpha$, but am unable to claim statistical significance. This is fixable with a better instrumental variable, something which is actively being considered. Similarly, the control function correction coefficient is not significant either. However, given $\sigma$ is positive, we can infer that $\alpha$ is positively biased without this correction. With a better IV approach, the control function should also produce more impactful effects. I am looking into factors like distribution networks, other product categories, as well as different sources of geographic variation to serve as instruments.
 
 When looking at the characteristic coefficients, only berry, $\beta_i^b$, is statistically significant. This is, again, an issue with lack of observations. As table \ref{tab:stat_tab} shows, berry has over 2,000 observed times being chosen. When looking at plain's coefficient, $\beta_i^p$, I do not find significance. This makes total sense upon seeing it is only chosen 412 times. The constant is negative, which is to be expected with a high outside option uptake rate. It is close to fringe significance, but is not either. 
 
@@ -178,24 +175,7 @@ Overall, my findings suggest consumers prefer to stick on flavors, experiencing 
 \section{Counterfactuals}
 %============================================================%
 
-Now, suppose we introduce firm side dynamics. Here, the firm acts statically, taking the consumer's last observed action into account and deciding whether or not to offer a promotion to encourage switching. That is, in each period $t$, firm $f$ maximizes profits according to the following problem:
-
-    \begin{alignat*}{4}
-      V_{f,t} &= \max\{V_f^d, V_f^n\} \\
-      \text{subject to} \\
-      V_f^d  &= p'_js_j(x_j, p'_j) - MC_j \\
-      V_f^n &= p_js_j(x_j, p_j) - MC_j \\
-      p' &< p
-    \end{alignat*}
-
-The firm has to decide whether to offer a discount, $V_f^d$, or sell at the normal price, $V_f^n$. Prices are set at $p'$ when giving a discount, a level strictly lower than the baseline. I assume a flat marginal cost that does not change if a discount is offered. The firm has the following constraints:
-
-    \begin{alignat*}{5}
-      V_f^d &\geq V_f^n \\
-      p'_js_j(p'_j,x_j) &\geq p_js_j(p_j,x_j)
-    \end{alignat*}
-
-    That is, the firm will advertise when they gain market share under the new price, offsetting the lowered price. Because they can observe the consumer's choices and know their preferences, they can perfectly price-discriminate. For instance, if the firm $f$ knows that consumer $i$ is a plain yogurt person and wants them to switch to berry, the firm would need to offer some price $p'$ which is a large enough discount to offset the disutility of $-1.23$. 
+Now, suppose we introduce firm side dynamics. Here, the firm acts strategically, taking the consumer's last observed action into account and deciding whether or not to offer a promotion to encourage switching. This would lead to a dynamic pricing problem in which the firm is weighing the potential markup in the future against a lower price today. The firm will be able to oberve consumers' purchase histories, enabling them to first degree price discriminate. A firm would choose to discount a product $j$ if the future market share it obtains offsets the lowered profits today. This also leads to analysis of competitive behavior between firms and how they decide to price depending on the behavior of other suppliers.
 
 %============================================================%
 \section{Conclusion}

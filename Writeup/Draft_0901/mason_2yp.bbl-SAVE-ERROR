@@ -69,57 +69,6 @@
       \verb https://pubsonline.informs.org/doi/10.1287/mnsc.45.4.486
       \endverb
     \endentry
-    \entry{dube_multiple_2004}{article}{}{}
-      \name{author}{1}{}{%
-        {{hash=e6df3e1bdc4bf5bcb7a005f3a7f8b607}{%
-           family={Dubé},
-           familyi={D\bibinitperiod},
-           given={Jean-Pierre},
-           giveni={J\bibinithyphendelim P\bibinitperiod}}}%
-      }
-      \list{language}{1}{%
-        {en}%
-      }
-      \strng{namehash}{e6df3e1bdc4bf5bcb7a005f3a7f8b607}
-      \strng{fullhash}{e6df3e1bdc4bf5bcb7a005f3a7f8b607}
-      \strng{fullhashraw}{e6df3e1bdc4bf5bcb7a005f3a7f8b607}
-      \strng{bibnamehash}{e6df3e1bdc4bf5bcb7a005f3a7f8b607}
-      \strng{authorbibnamehash}{e6df3e1bdc4bf5bcb7a005f3a7f8b607}
-      \strng{authornamehash}{e6df3e1bdc4bf5bcb7a005f3a7f8b607}
-      \strng{authorfullhash}{e6df3e1bdc4bf5bcb7a005f3a7f8b607}
-      \strng{authorfullhashraw}{e6df3e1bdc4bf5bcb7a005f3a7f8b607}
-      \field{sortinit}{D}
-      \field{sortinithash}{6f385f66841fb5e82009dc833c761848}
-      \field{labelnamesource}{author}
-      \field{labeltitlesource}{shorttitle}
-      \field{abstract}{For several of the largest supermarket product categories, such as carbonated soft drinks, canned soups, ready-to-eat cereals, and cookies, consumers regularly purchase assortments of products. Within the category, consumers often purchase multiple products and multiple units of each alternative selected on a given trip. This multiple discreteness violates the single-unit purchase assumption of multinomial logit and probit models. The misspecification of such demand models in categories exhibiting multiple discreteness would produce incorrect measures of consumer response to marketing mix variables. In studying product strategy, these models would lead to misleading managerial conclusions. We use an alternative microeconomic model of demand for categories that exhibit the multiple discreteness problem. Recognizing the separation between the time of purchase and the time of consumption, we model consumers purchasing bundles of goods in anticipation of a stream of consumption occasions before the next trip. We apply the model to a panel of household purchases for carbonated soft drinks.}
-      \field{issn}{0732-2399, 1526-548X}
-      \field{journaltitle}{Marketing Science}
-      \field{month}{2}
-      \field{number}{1}
-      \field{shorttitle}{Multiple {Discreteness} and {Product} {Differentiation}}
-      \field{title}{Multiple {Discreteness} and {Product} {Differentiation}: {Demand} for {Carbonated} {Soft} {Drinks}}
-      \field{urlday}{5}
-      \field{urlmonth}{8}
-      \field{urlyear}{2026}
-      \field{volume}{23}
-      \field{year}{2004}
-      \field{urldateera}{ce}
-      \field{pages}{66\bibrangedash 81}
-      \range{pages}{16}
-      \verb{doi}
-      \verb 10.1287/mksc.1030.0041
-      \endverb
-      \verb{file}
-      \verb PDF:/Users/tate/Zotero/storage/VYI25TR6/Dubé - 2004 - Multiple Discreteness and Product Differentiation Demand for Carbonated Soft Drinks.pdf:application/pdf
-      \endverb
-      \verb{urlraw}
-      \verb https://pubsonline.informs.org/doi/10.1287/mksc.1030.0041
-      \endverb
-      \verb{url}
-      \verb https://pubsonline.informs.org/doi/10.1287/mksc.1030.0041
-      \endverb
-    \endentry
     \entry{erdem_decision-making_1996}{article}{}{}
       \name{author}{2}{}{%
         {{hash=58c0597ff7ed81bf65eb698096cb8866}{%
@@ -174,56 +123,6 @@
       \endverb
       \verb{url}
       \verb https://pubsonline.informs.org/doi/10.1287/mksc.15.1.1
-      \endverb
-    \endentry
-    \entry{givon_variety_1984}{article}{}{}
-      \name{author}{1}{}{%
-        {{hash=79caf15e2454489a39b1c7393ba87825}{%
-           family={Givon},
-           familyi={G\bibinitperiod},
-           given={Moshe},
-           giveni={M\bibinitperiod}}}%
-      }
-      \list{language}{1}{%
-        {en}%
-      }
-      \strng{namehash}{79caf15e2454489a39b1c7393ba87825}
-      \strng{fullhash}{79caf15e2454489a39b1c7393ba87825}
-      \strng{fullhashraw}{79caf15e2454489a39b1c7393ba87825}
-      \strng{bibnamehash}{79caf15e2454489a39b1c7393ba87825}
-      \strng{authorbibnamehash}{79caf15e2454489a39b1c7393ba87825}
-      \strng{authornamehash}{79caf15e2454489a39b1c7393ba87825}
-      \strng{authorfullhash}{79caf15e2454489a39b1c7393ba87825}
-      \strng{authorfullhashraw}{79caf15e2454489a39b1c7393ba87825}
-      \field{sortinit}{G}
-      \field{sortinithash}{32d67eca0634bf53703493fb1090a2e8}
-      \field{labelnamesource}{author}
-      \field{labeltitlesource}{title}
-      \field{abstract}{A concept of variety seeking behavior is modeled as a stochastic brand choice model. The model yields a measure of variety seeking for each individual consumer. Panel data for 28 products are analyzed for each household and the possibility of market segmentation by variety seeking behavior is explored.}
-      \field{issn}{0732-2399, 1526-548X}
-      \field{journaltitle}{Marketing Science}
-      \field{month}{2}
-      \field{number}{1}
-      \field{title}{Variety {Seeking} {Through} {Brand} {Switching}}
-      \field{urlday}{26}
-      \field{urlmonth}{4}
-      \field{urlyear}{2026}
-      \field{volume}{3}
-      \field{year}{1984}
-      \field{urldateera}{ce}
-      \field{pages}{1\bibrangedash 22}
-      \range{pages}{22}
-      \verb{doi}
-      \verb 10.1287/mksc.3.1.1
-      \endverb
-      \verb{file}
-      \verb PDF:/Users/tate/Zotero/storage/6CMERAQ8/Givon - 1984 - Variety Seeking Through Brand Switching.pdf:application/pdf
-      \endverb
-      \verb{urlraw}
-      \verb https://pubsonline.informs.org/doi/10.1287/mksc.3.1.1
-      \endverb
-      \verb{url}
-      \verb https://pubsonline.informs.org/doi/10.1287/mksc.3.1.1
       \endverb
     \endentry
     \entry{lattin_model_1987}{article}{}{}
@@ -360,6 +259,8 @@
       \endverb
     \endentry
   \enddatalist
+  \missing{chintagunta_2006}
+  \missing{dube_2004}
 \endrefsection
 \endinput
 

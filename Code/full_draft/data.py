@@ -207,6 +207,7 @@ Yogurt Only:
     - mean consecutive buys
 """
 
+agent_master['head_age'] = agent_master['male_head_age'].fillna(agent_master['female_head_age'])
 agent_yogurt = agent_master.copy() # copy full sample
 agent_yogurt = agent_yogurt[agent_yogurt['product_group_code'] == 2510] # subset to yogurt purchases
 multipack_pattern   = r'MULTI|MULTIPACK|\bPK\b|\bCT\b'
@@ -224,6 +225,7 @@ console.print(
     f'Percent taking outside option each trip:              {outside_option_rate:.2f}\n',
     f'Percent purchasing with coupon:                       {agent_yogurt.groupby(['household_code', 'trip_code_uc'])['deal_flag_uc'].max().mean()*100:.2f}\n',
     f'Gender makeup:                                        {agent_master['male_head_age'].value_counts()}\n',
+    f'Average Age (Overall):                                {agent_master['head_age'].mean()}\n',
     f'Average Age (Male):                                   {agent_master['male_head_age'].mean()}\n',
     f'Average Age (Female):                                 {agent_master['female_head_age'].mean()}\n',
 )

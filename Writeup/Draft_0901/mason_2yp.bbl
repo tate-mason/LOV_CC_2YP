@@ -1,365 +1,89 @@
-% $ biblatex auxiliary file $
-% $ biblatex bbl format version 3.3 $
-% Do not modify the above lines!
-%
-% This is an auxiliary file used by the 'biblatex' package.
-% This file may safely be deleted. It will be recreated by
-% biber as required.
-%
-\begingroup
-\makeatletter
-\@ifundefined{ver@biblatex.sty}
-  {\@latex@error
-     {Missing 'biblatex' package}
-     {The bibliography requires the 'biblatex' package.}
-      \aftergroup\endinput}
-  {}
-\endgroup
+\begin{thebibliography}{11}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
 
+\bibitem[Chintagunta(1999)]{chintagunta_variety_1999}
+Pradeep~K. Chintagunta.
+\newblock Variety {Seeking}, {Purchase} {Timing}, and the “{Lightning} {Bolt}” {Brand} {Choice} {Model}.
+\newblock \emph{Management Science}, 45\penalty0 (4):\penalty0 486--498, April 1999.
+\newblock ISSN 0025-1909, 1526-5501.
+\newblock \doi{10.1287/mnsc.45.4.486}.
+\newblock URL \url{https://pubsonline.informs.org/doi/10.1287/mnsc.45.4.486}.
 
-\refsection{0}
-  \datalist[entry]{nty/global//global/global/global}
-    \entry{chintagunta_variety_1999}{article}{}{}
-      \name{author}{1}{}{%
-        {{hash=5ec19291213bd0f6d7307df53bfe6e9a}{%
-           family={Chintagunta},
-           familyi={C\bibinitperiod},
-           given={Pradeep\bibnamedelima K.},
-           giveni={P\bibinitperiod\bibinitdelim K\bibinitperiod}}}%
-      }
-      \list{language}{1}{%
-        {en}%
-      }
-      \strng{namehash}{5ec19291213bd0f6d7307df53bfe6e9a}
-      \strng{fullhash}{5ec19291213bd0f6d7307df53bfe6e9a}
-      \strng{fullhashraw}{5ec19291213bd0f6d7307df53bfe6e9a}
-      \strng{bibnamehash}{5ec19291213bd0f6d7307df53bfe6e9a}
-      \strng{authorbibnamehash}{5ec19291213bd0f6d7307df53bfe6e9a}
-      \strng{authornamehash}{5ec19291213bd0f6d7307df53bfe6e9a}
-      \strng{authorfullhash}{5ec19291213bd0f6d7307df53bfe6e9a}
-      \strng{authorfullhashraw}{5ec19291213bd0f6d7307df53bfe6e9a}
-      \field{sortinit}{C}
-      \field{sortinithash}{4d103a86280481745c9c897c925753c0}
-      \field{labelnamesource}{author}
-      \field{labeltitlesource}{title}
-      \field{abstract}{The “Lightning Bolt” (LB) model provides a comprehensive framework for accommodating the effects of habit persistence, unobserved heterogeneity, and state dependence on household brand choice behavior. This paper presents a discrete, dynamic brand-choice model that belongs to the LB class of models. We propose a method for incorporating the effects of variety seeking into the LB model formulation. The proposed formulation explicitly links brand choice and purchase timing behavior via the effect of state dependence. This state-dependence based linkage between brand choice and purchase timing comes about due to the attribute satiation notion associated with household variety seeking behavior. Empirical implementation of the model specification requires recognizing that interpurchase times, like brand choices, also depend upon marketing variables and household characteristics. A hazard model is specified to capture this relationship. Empirical results are presented using household-level data for two different products. Our results reveal the following. (1) State dependence effects decline over time. Hence, households' brand switching and repeat purchase probabilities vary over time, independent of any variation in marketing mix activities. (2) Accounting for the effects of marketing variables on interpurchase times may be important when empirically estimating the proposed model. While the nature of substantive implications is largely unchanged, the magnitudes of the different effects are nevertheless affected. (3) We find evidence for purchase reinforcement (and its effects declining over time), but no evidence for attribute satiation based variety seeking behavior. (4) A comparison of the model's predictive ability with those from two extant specifications reveals that the proposed model outperforms rival specifications.}
-      \field{issn}{0025-1909, 1526-5501}
-      \field{journaltitle}{Management Science}
-      \field{month}{4}
-      \field{number}{4}
-      \field{title}{Variety {Seeking}, {Purchase} {Timing}, and the “{Lightning} {Bolt}” {Brand} {Choice} {Model}}
-      \field{urlday}{26}
-      \field{urlmonth}{4}
-      \field{urlyear}{2026}
-      \field{volume}{45}
-      \field{year}{1999}
-      \field{urldateera}{ce}
-      \field{pages}{486\bibrangedash 498}
-      \range{pages}{13}
-      \verb{doi}
-      \verb 10.1287/mnsc.45.4.486
-      \endverb
-      \verb{file}
-      \verb PDF:/Users/tate/Zotero/storage/I63MQ22F/Chintagunta - 1999 - Variety Seeking, Purchase Timing, and the “Lightning Bolt” Brand Choice Model.pdf:application/pdf
-      \endverb
-      \verb{urlraw}
-      \verb https://pubsonline.informs.org/doi/10.1287/mnsc.45.4.486
-      \endverb
-      \verb{url}
-      \verb https://pubsonline.informs.org/doi/10.1287/mnsc.45.4.486
-      \endverb
-    \endentry
-    \entry{dube_multiple_2004}{article}{}{}
-      \name{author}{1}{}{%
-        {{hash=e6df3e1bdc4bf5bcb7a005f3a7f8b607}{%
-           family={Dubé},
-           familyi={D\bibinitperiod},
-           given={Jean-Pierre},
-           giveni={J\bibinithyphendelim P\bibinitperiod}}}%
-      }
-      \list{language}{1}{%
-        {en}%
-      }
-      \strng{namehash}{e6df3e1bdc4bf5bcb7a005f3a7f8b607}
-      \strng{fullhash}{e6df3e1bdc4bf5bcb7a005f3a7f8b607}
-      \strng{fullhashraw}{e6df3e1bdc4bf5bcb7a005f3a7f8b607}
-      \strng{bibnamehash}{e6df3e1bdc4bf5bcb7a005f3a7f8b607}
-      \strng{authorbibnamehash}{e6df3e1bdc4bf5bcb7a005f3a7f8b607}
-      \strng{authornamehash}{e6df3e1bdc4bf5bcb7a005f3a7f8b607}
-      \strng{authorfullhash}{e6df3e1bdc4bf5bcb7a005f3a7f8b607}
-      \strng{authorfullhashraw}{e6df3e1bdc4bf5bcb7a005f3a7f8b607}
-      \field{sortinit}{D}
-      \field{sortinithash}{6f385f66841fb5e82009dc833c761848}
-      \field{labelnamesource}{author}
-      \field{labeltitlesource}{shorttitle}
-      \field{abstract}{For several of the largest supermarket product categories, such as carbonated soft drinks, canned soups, ready-to-eat cereals, and cookies, consumers regularly purchase assortments of products. Within the category, consumers often purchase multiple products and multiple units of each alternative selected on a given trip. This multiple discreteness violates the single-unit purchase assumption of multinomial logit and probit models. The misspecification of such demand models in categories exhibiting multiple discreteness would produce incorrect measures of consumer response to marketing mix variables. In studying product strategy, these models would lead to misleading managerial conclusions. We use an alternative microeconomic model of demand for categories that exhibit the multiple discreteness problem. Recognizing the separation between the time of purchase and the time of consumption, we model consumers purchasing bundles of goods in anticipation of a stream of consumption occasions before the next trip. We apply the model to a panel of household purchases for carbonated soft drinks.}
-      \field{issn}{0732-2399, 1526-548X}
-      \field{journaltitle}{Marketing Science}
-      \field{month}{2}
-      \field{number}{1}
-      \field{shorttitle}{Multiple {Discreteness} and {Product} {Differentiation}}
-      \field{title}{Multiple {Discreteness} and {Product} {Differentiation}: {Demand} for {Carbonated} {Soft} {Drinks}}
-      \field{urlday}{5}
-      \field{urlmonth}{8}
-      \field{urlyear}{2026}
-      \field{volume}{23}
-      \field{year}{2004}
-      \field{urldateera}{ce}
-      \field{pages}{66\bibrangedash 81}
-      \range{pages}{16}
-      \verb{doi}
-      \verb 10.1287/mksc.1030.0041
-      \endverb
-      \verb{file}
-      \verb PDF:/Users/tate/Zotero/storage/VYI25TR6/Dubé - 2004 - Multiple Discreteness and Product Differentiation Demand for Carbonated Soft Drinks.pdf:application/pdf
-      \endverb
-      \verb{urlraw}
-      \verb https://pubsonline.informs.org/doi/10.1287/mksc.1030.0041
-      \endverb
-      \verb{url}
-      \verb https://pubsonline.informs.org/doi/10.1287/mksc.1030.0041
-      \endverb
-    \endentry
-    \entry{erdem_decision-making_1996}{article}{}{}
-      \name{author}{2}{}{%
-        {{hash=58c0597ff7ed81bf65eb698096cb8866}{%
-           family={Erdem},
-           familyi={E\bibinitperiod},
-           given={Tülin},
-           giveni={T\bibinitperiod}}}%
-        {{hash=cc85af386098cb9c11d24d4ca26249ca}{%
-           family={Keane},
-           familyi={K\bibinitperiod},
-           given={Michael\bibnamedelima P.},
-           giveni={M\bibinitperiod\bibinitdelim P\bibinitperiod}}}%
-      }
-      \list{language}{1}{%
-        {en}%
-      }
-      \strng{namehash}{962dc557151720daec9cdccc170b092c}
-      \strng{fullhash}{962dc557151720daec9cdccc170b092c}
-      \strng{fullhashraw}{962dc557151720daec9cdccc170b092c}
-      \strng{bibnamehash}{962dc557151720daec9cdccc170b092c}
-      \strng{authorbibnamehash}{962dc557151720daec9cdccc170b092c}
-      \strng{authornamehash}{962dc557151720daec9cdccc170b092c}
-      \strng{authorfullhash}{962dc557151720daec9cdccc170b092c}
-      \strng{authorfullhashraw}{962dc557151720daec9cdccc170b092c}
-      \field{sortinit}{E}
-      \field{sortinithash}{8da8a182d344d5b9047633dfc0cc9131}
-      \field{labelnamesource}{author}
-      \field{labeltitlesource}{shorttitle}
-      \field{abstract}{We construct two models of the behavior of consumers in an environment where there is uncertainty about brand attributes. In our models, both usage experience and advertising exposure give consumers noisy signals about brand attributes. Consumers use these signals to update their expectations of brand attributes in a Bayesian manner. The two models are (1) a dynamic model with immediate utility maximization, and (2) a dynamic "forward-looking" model in which consumers maximize the expected present value of utility over a planning horizon. Given this theoretical framework, we derive from the Bayesian learning framework how brand choice probabilities depend on past usage experience and advertising exposures. We then form likelihood functions for the models and estimate them on Nielsen scanner data for detergent.}
-      \field{issn}{0732-2399, 1526-548X}
-      \field{journaltitle}{Marketing Science}
-      \field{month}{2}
-      \field{number}{1}
-      \field{shorttitle}{Decision-{Making} {Under} {Uncertainty}}
-      \field{title}{Decision-{Making} {Under} {Uncertainty}: {Capturing} {Dynamic} {Brand} {Choice} {Processes} in {Turbulent} {Consumer} {Goods} {Markets}}
-      \field{urlday}{26}
-      \field{urlmonth}{4}
-      \field{urlyear}{2026}
-      \field{volume}{15}
-      \field{year}{1996}
-      \field{urldateera}{ce}
-      \field{pages}{1\bibrangedash 20}
-      \range{pages}{20}
-      \verb{doi}
-      \verb 10.1287/mksc.15.1.1
-      \endverb
-      \verb{file}
-      \verb PDF:/Users/tate/Zotero/storage/R84VFSSE/Erdem and Keane - 1996 - Decision-Making Under Uncertainty Capturing Dynamic Brand Choice Processes in Turbulent Consumer Go.pdf:application/pdf
-      \endverb
-      \verb{urlraw}
-      \verb https://pubsonline.informs.org/doi/10.1287/mksc.15.1.1
-      \endverb
-      \verb{url}
-      \verb https://pubsonline.informs.org/doi/10.1287/mksc.15.1.1
-      \endverb
-    \endentry
-    \entry{givon_variety_1984}{article}{}{}
-      \name{author}{1}{}{%
-        {{hash=79caf15e2454489a39b1c7393ba87825}{%
-           family={Givon},
-           familyi={G\bibinitperiod},
-           given={Moshe},
-           giveni={M\bibinitperiod}}}%
-      }
-      \list{language}{1}{%
-        {en}%
-      }
-      \strng{namehash}{79caf15e2454489a39b1c7393ba87825}
-      \strng{fullhash}{79caf15e2454489a39b1c7393ba87825}
-      \strng{fullhashraw}{79caf15e2454489a39b1c7393ba87825}
-      \strng{bibnamehash}{79caf15e2454489a39b1c7393ba87825}
-      \strng{authorbibnamehash}{79caf15e2454489a39b1c7393ba87825}
-      \strng{authornamehash}{79caf15e2454489a39b1c7393ba87825}
-      \strng{authorfullhash}{79caf15e2454489a39b1c7393ba87825}
-      \strng{authorfullhashraw}{79caf15e2454489a39b1c7393ba87825}
-      \field{sortinit}{G}
-      \field{sortinithash}{32d67eca0634bf53703493fb1090a2e8}
-      \field{labelnamesource}{author}
-      \field{labeltitlesource}{title}
-      \field{abstract}{A concept of variety seeking behavior is modeled as a stochastic brand choice model. The model yields a measure of variety seeking for each individual consumer. Panel data for 28 products are analyzed for each household and the possibility of market segmentation by variety seeking behavior is explored.}
-      \field{issn}{0732-2399, 1526-548X}
-      \field{journaltitle}{Marketing Science}
-      \field{month}{2}
-      \field{number}{1}
-      \field{title}{Variety {Seeking} {Through} {Brand} {Switching}}
-      \field{urlday}{26}
-      \field{urlmonth}{4}
-      \field{urlyear}{2026}
-      \field{volume}{3}
-      \field{year}{1984}
-      \field{urldateera}{ce}
-      \field{pages}{1\bibrangedash 22}
-      \range{pages}{22}
-      \verb{doi}
-      \verb 10.1287/mksc.3.1.1
-      \endverb
-      \verb{file}
-      \verb PDF:/Users/tate/Zotero/storage/6CMERAQ8/Givon - 1984 - Variety Seeking Through Brand Switching.pdf:application/pdf
-      \endverb
-      \verb{urlraw}
-      \verb https://pubsonline.informs.org/doi/10.1287/mksc.3.1.1
-      \endverb
-      \verb{url}
-      \verb https://pubsonline.informs.org/doi/10.1287/mksc.3.1.1
-      \endverb
-    \endentry
-    \entry{lattin_model_1987}{article}{}{}
-      \name{author}{1}{}{%
-        {{hash=fe18af2a3559adc2aa3e16f550857149}{%
-           family={Lattin},
-           familyi={L\bibinitperiod},
-           given={James\bibnamedelima M.},
-           giveni={J\bibinitperiod\bibinitdelim M\bibinitperiod}}}%
-      }
-      \list{language}{1}{%
-        {en}%
-      }
-      \strng{namehash}{fe18af2a3559adc2aa3e16f550857149}
-      \strng{fullhash}{fe18af2a3559adc2aa3e16f550857149}
-      \strng{fullhashraw}{fe18af2a3559adc2aa3e16f550857149}
-      \strng{bibnamehash}{fe18af2a3559adc2aa3e16f550857149}
-      \strng{authorbibnamehash}{fe18af2a3559adc2aa3e16f550857149}
-      \strng{authornamehash}{fe18af2a3559adc2aa3e16f550857149}
-      \strng{authorfullhash}{fe18af2a3559adc2aa3e16f550857149}
-      \strng{authorfullhashraw}{fe18af2a3559adc2aa3e16f550857149}
-      \field{sortinit}{L}
-      \field{sortinithash}{7c47d417cecb1f4bd38d1825c427a61a}
-      \field{labelnamesource}{author}
-      \field{labeltitlesource}{title}
-      \field{abstract}{In some product categories, consumers appear to alternate among items in a consistent and purposeful, though not entirely deterministic, fashion. Such alternation occurs even in the absence of any apparent external influences on choice. To explain such balanced choice behavior, we present a model based upon the premise that past consumption influences the utility of items on subsequent choice occasions. Individuals may seek variety on certain product attributes and exhibit loyalty toward others. The model specification yields a logit choice model which may be calibrated using consumption diary panel data at the individual or cross-sectional level.}
-      \field{issn}{0732-2399, 1526-548X}
-      \field{journaltitle}{Marketing Science}
-      \field{month}{2}
-      \field{number}{1}
-      \field{title}{A {Model} of {Balanced} {Choice} {Behavior}}
-      \field{urlday}{26}
-      \field{urlmonth}{4}
-      \field{urlyear}{2026}
-      \field{volume}{6}
-      \field{year}{1987}
-      \field{urldateera}{ce}
-      \field{pages}{48\bibrangedash 65}
-      \range{pages}{18}
-      \verb{doi}
-      \verb 10.1287/mksc.6.1.48
-      \endverb
-      \verb{file}
-      \verb PDF:/Users/tate/Zotero/storage/MH5ZWDSM/Lattin - 1987 - A Model of Balanced Choice Behavior.pdf:application/pdf
-      \endverb
-      \verb{urlraw}
-      \verb https://pubsonline.informs.org/doi/10.1287/mksc.6.1.48
-      \endverb
-      \verb{url}
-      \verb https://pubsonline.informs.org/doi/10.1287/mksc.6.1.48
-      \endverb
-    \endentry
-    \entry{mcallister_1984}{article}{}{}
-      \name{author}{1}{}{%
-        {{hash=d711065b4b14a81dc744513fb96a448f}{%
-           family={McAlister},
-           familyi={M\bibinitperiod},
-           given={Leigh},
-           giveni={L\bibinitperiod}}}%
-      }
-      \strng{namehash}{d711065b4b14a81dc744513fb96a448f}
-      \strng{fullhash}{d711065b4b14a81dc744513fb96a448f}
-      \strng{fullhashraw}{d711065b4b14a81dc744513fb96a448f}
-      \strng{bibnamehash}{d711065b4b14a81dc744513fb96a448f}
-      \strng{authorbibnamehash}{d711065b4b14a81dc744513fb96a448f}
-      \strng{authornamehash}{d711065b4b14a81dc744513fb96a448f}
-      \strng{authorfullhash}{d711065b4b14a81dc744513fb96a448f}
-      \strng{authorfullhashraw}{d711065b4b14a81dc744513fb96a448f}
-      \field{sortinit}{M}
-      \field{sortinithash}{4625c616857f13d17ce56f7d4f97d451}
-      \field{labelnamesource}{author}
-      \field{labeltitlesource}{title}
-      \field{journaltitle}{Management Science}
-      \field{number}{2}
-      \field{title}{A Dynamic Attribute Satiation Model of Variety-Seeking Behavior}
-      \field{volume}{28}
-      \field{year}{1982}
-      \field{pages}{141\bibrangedash 150}
-      \range{pages}{10}
-    \endentry
-    \entry{train_2010}{article}{}{}
-      \name{author}{2}{}{%
-        {{hash=dd3b05febc0efc314cb149250e5eebbf}{%
-           family={Petrin},
-           familyi={P\bibinitperiod},
-           given={Amil},
-           giveni={A\bibinitperiod}}}%
-        {{hash=5b2e1829286c42e06ea22ce95f7792c5}{%
-           family={Train},
-           familyi={T\bibinitperiod},
-           given={Kenneth},
-           giveni={K\bibinitperiod}}}%
-      }
-      \list{language}{1}{%
-        {en}%
-      }
-      \strng{namehash}{7071c946f407198f82c15e8cbfa64839}
-      \strng{fullhash}{7071c946f407198f82c15e8cbfa64839}
-      \strng{fullhashraw}{7071c946f407198f82c15e8cbfa64839}
-      \strng{bibnamehash}{7071c946f407198f82c15e8cbfa64839}
-      \strng{authorbibnamehash}{7071c946f407198f82c15e8cbfa64839}
-      \strng{authornamehash}{7071c946f407198f82c15e8cbfa64839}
-      \strng{authorfullhash}{7071c946f407198f82c15e8cbfa64839}
-      \strng{authorfullhashraw}{7071c946f407198f82c15e8cbfa64839}
-      \field{sortinit}{P}
-      \field{sortinithash}{ff3bcf24f47321b42cb156c2cc8a8422}
-      \field{labelnamesource}{author}
-      \field{labeltitlesource}{title}
-      \field{abstract}{Endogeneity arises for numerous reasons in models of consumer choice. It leads to inconsistency with standard estimation methods that maintain independence between the model's error and the included variables. The authors describe a control function approach for handling endogeneity in choice models. Observed variables and economic theory are used to derive controls for the dependence between the endogenous variable and the demand error. The theory points to the relationships that contain information on the unobserved demand factor, such as the pricing equation and the advertising equation. The authors’ approach is an alternative to Berry, Levinsohn, and Pakes's (1995) product-market controls for unobserved quality. The authors apply both methods to examine households’ choices among television options, including basic and premium cable packages, in which unobserved attributes, such as quality of programming, are expected to be correlated with price. Without correcting for endogeneity, aggregate demand is estimated to be upward-sloping, suggesting that omitted attributes are positively correlated with demand. Both the control function method and the product-market controls method produce downward-sloping demand estimates that are similar.}
-      \field{issn}{0022-2437, 1547-7193}
-      \field{journaltitle}{Journal of Marketing Research}
-      \field{month}{2}
-      \field{number}{1}
-      \field{title}{A {Control} {Function} {Approach} to {Endogeneity} in {Consumer} {Choice} {Models}}
-      \field{urlday}{24}
-      \field{urlmonth}{8}
-      \field{urlyear}{2026}
-      \field{volume}{47}
-      \field{year}{2010}
-      \field{urldateera}{ce}
-      \field{pages}{3\bibrangedash 13}
-      \range{pages}{11}
-      \verb{doi}
-      \verb 10.1509/jmkr.47.1.3
-      \endverb
-      \verb{file}
-      \verb PDF:/Users/tate/Zotero/storage/I23QBVQV/Petrin and Train - 2010 - A Control Function Approach to Endogeneity in Consumer Choice Models.pdf:application/pdf
-      \endverb
-      \verb{urlraw}
-      \verb https://journals.sagepub.com/doi/10.1509/jmkr.47.1.3
-      \endverb
-      \verb{url}
-      \verb https://journals.sagepub.com/doi/10.1509/jmkr.47.1.3
-      \endverb
-    \endentry
-  \enddatalist
-\endrefsection
-\endinput
+\bibitem[Dub'{e} and Misra(2023)]{dube_personalized_2023}
+Jean-Pierre Dub'{e} and Sanjog Misra.
+\newblock Personalized pricing and consumer welfare.
+\newblock \emph{Journal of Political Economy}, 131\penalty0 (1):\penalty0 131--189, None 2023.
+\newblock \doi{10.1086/720793}.
+\newblock URL \url{https://ideas.repec.org/a/ucp/jpolec/doi10.1086-720793.html}.
 
+\bibitem[Dubé(2004)]{dube_multiple_2004}
+Jean-Pierre Dubé.
+\newblock Multiple {Discreteness} and {Product} {Differentiation}: {Demand} for {Carbonated} {Soft} {Drinks}.
+\newblock \emph{Marketing Science}, 23\penalty0 (1):\penalty0 66--81, February 2004.
+\newblock ISSN 0732-2399, 1526-548X.
+\newblock \doi{10.1287/mksc.1030.0041}.
+\newblock URL \url{https://pubsonline.informs.org/doi/10.1287/mksc.1030.0041}.
+
+\bibitem[Erdem and Keane(1996)]{erdem_decision-making_1996}
+Tülin Erdem and Michael~P. Keane.
+\newblock Decision-{Making} {Under} {Uncertainty}: {Capturing} {Dynamic} {Brand} {Choice} {Processes} in {Turbulent} {Consumer} {Goods} {Markets}.
+\newblock \emph{Marketing Science}, 15\penalty0 (1):\penalty0 1--20, February 1996.
+\newblock ISSN 0732-2399, 1526-548X.
+\newblock \doi{10.1287/mksc.15.1.1}.
+\newblock URL \url{https://pubsonline.informs.org/doi/10.1287/mksc.15.1.1}.
+
+\bibitem[Givon(1984)]{givon_variety_1984}
+Moshe Givon.
+\newblock Variety {Seeking} {Through} {Brand} {Switching}.
+\newblock \emph{Marketing Science}, 3\penalty0 (1):\penalty0 1--22, February 1984.
+\newblock ISSN 0732-2399, 1526-548X.
+\newblock \doi{10.1287/mksc.3.1.1}.
+\newblock URL \url{https://pubsonline.informs.org/doi/10.1287/mksc.3.1.1}.
+
+\bibitem[Grossman and Shapiro(1984)]{grossman_informative_1984}
+Gene~M. Grossman and Carl Shapiro.
+\newblock Informative {Advertising} with {Differentiated} {Products}.
+\newblock \emph{The Review of Economic Studies}, 51\penalty0 (1):\penalty0 63, January 1984.
+\newblock ISSN 00346527.
+\newblock \doi{10.2307/2297705}.
+\newblock URL \url{https://academic.oup.com/restud/article-lookup/doi/10.2307/2297705}.
+
+\bibitem[Karle and Reisinger()]{karle_imperfect_nodate}
+Heiko Karle and Markus Reisinger.
+\newblock Imperfect {Targeting} and {Advertising} {Strategies}.
+
+\bibitem[Lattin(1987)]{lattin_model_1987}
+James~M. Lattin.
+\newblock A {Model} of {Balanced} {Choice} {Behavior}.
+\newblock \emph{Marketing Science}, 6\penalty0 (1):\penalty0 48--65, February 1987.
+\newblock ISSN 0732-2399, 1526-548X.
+\newblock \doi{10.1287/mksc.6.1.48}.
+\newblock URL \url{https://pubsonline.informs.org/doi/10.1287/mksc.6.1.48}.
+
+\bibitem[McAlister(1982)]{mcalister_dynamic_2026}
+Leigh McAlister.
+\newblock A dynamic attribute satiation model of variety-seeking behavior.
+\newblock \emph{Journal of Consumer Research}, 9\penalty0 (2):\penalty0 141--50, 1982.
+\newblock URL \url{https://EconPapers.repec.org/RePEc:oup:jconrs:v:9:y:1982:i:2:p:141-50}.
+
+\bibitem[Moorthy and Shahrokhi~Tehrani(2023)]{moorthy_targeting_2023}
+Sridhar Moorthy and Shervin Shahrokhi~Tehrani.
+\newblock Targeting {Advertising} {Spending} and {Price} on the {Hotelling} {Line}.
+\newblock \emph{Marketing Science}, 42\penalty0 (6):\penalty0 1057--1079, November 2023.
+\newblock ISSN 0732-2399, 1526-548X.
+\newblock \doi{10.1287/mksc.2022.1422}.
+\newblock URL \url{https://pubsonline.informs.org/doi/10.1287/mksc.2022.1422}.
+
+\bibitem[Petrin and Train(2010)]{petrin_control_2010}
+Amil Petrin and Kenneth Train.
+\newblock A {Control} {Function} {Approach} to {Endogeneity} in {Consumer} {Choice} {Models}.
+\newblock \emph{Journal of Marketing Research}, 47\penalty0 (1):\penalty0 3--13, February 2010.
+\newblock ISSN 0022-2437, 1547-7193.
+\newblock \doi{10.1509/jmkr.47.1.3}.
+\newblock URL \url{https://journals.sagepub.com/doi/10.1509/jmkr.47.1.3}.
+
+\end{thebibliography}

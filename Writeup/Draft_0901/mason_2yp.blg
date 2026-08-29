@@ -1,15 +1,50 @@
-[0] Config.pm:328> INFO - This is Biber 2.21
-[0] Config.pm:331> INFO - Logfile is 'mason_2yp.blg'
-[29] biber-darwin:342> INFO - === Fri Aug 28, 2026, 14:25:58
-[35] Biber.pm:421> INFO - Reading 'mason_2yp.bcf'
-[69] Biber.pm:1002> INFO - Found 7 citekeys in bib section 0
-[75] Biber.pm:4487> INFO - Processing section 0
-[79] Biber.pm:4678> INFO - Looking for bibtex file 'lov_bib.bib' for section 0
-[81] bibtex.pm:1713> INFO - LaTeX decoding ...
-[102] bibtex.pm:1519> INFO - Found BibTeX data source 'lov_bib.bib'
-[131] UCollate.pm:68> INFO - Overriding locale 'en-US' defaults 'normalization = NFD' with 'normalization = prenormalized'
-[131] UCollate.pm:68> INFO - Overriding locale 'en-US' defaults 'variable = shifted' with 'variable = non-ignorable'
-[131] Biber.pm:4307> INFO - Sorting list 'nty/global//global/global/global' of type 'entry' with template 'nty' and locale 'en-US'
-[131] Biber.pm:4313> INFO - No sort tailoring available for locale 'en-US'
-[136] bbl.pm:676> INFO - Writing 'mason_2yp.bbl' with encoding 'UTF-8'
-[138] bbl.pm:779> INFO - Output to mason_2yp.bbl
+This is BibTeX, Version 0.99e (TeX Live 2026)
+Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
+The top-level auxiliary file: mason_2yp.aux
+The style file: plainnat.bst
+Database file #1: lov_bib/lov_bib.bib
+Warning--empty journal in karle_imperfect_nodate
+Warning--empty year in karle_imperfect_nodate
+Warning--empty year in karle_imperfect_nodate
+You've used 11 entries,
+            2773 wiz_defined-function locations,
+            682 strings with 7252 characters,
+and the built_in function-call counts, 4831 in all, are:
+= -- 493
+> -- 176
+< -- 11
++ -- 62
+- -- 51
+* -- 403
+:= -- 761
+add.period$ -- 59
+call.type$ -- 11
+change.case$ -- 50
+chr.to.int$ -- 11
+cite$ -- 25
+duplicate$ -- 219
+empty$ -- 414
+format.name$ -- 74
+if$ -- 1009
+int.to.chr$ -- 1
+int.to.str$ -- 1
+missing$ -- 11
+newline$ -- 89
+num.names$ -- 44
+pop$ -- 64
+preamble$ -- 1
+purify$ -- 39
+quote$ -- 0
+skip$ -- 150
+stack$ -- 0
+substring$ -- 209
+swap$ -- 19
+text.length$ -- 0
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 121
+warning$ -- 3
+while$ -- 50
+width$ -- 0
+write$ -- 200
+(There were 3 warnings)

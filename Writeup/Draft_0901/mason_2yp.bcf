@@ -2370,17 +2370,8 @@
   <!-- CITATION DATA -->
   <!-- SECTION 0 -->
   <bcf:bibdata section="0">
-    <bcf:datasource type="file" datatype="bibtex">lov_bib.bib</bcf:datasource>
   </bcf:bibdata>
   <bcf:section number="0">
-    <bcf:citekey order="1" intorder="1">mcallister_1984</bcf:citekey>
-    <bcf:citekey order="2" intorder="1">givon_variety_1984</bcf:citekey>
-    <bcf:citekey order="3" intorder="1">lattin_model_1987</bcf:citekey>
-    <bcf:citekey order="4" intorder="1">erdem_decision-making_1996</bcf:citekey>
-    <bcf:citekey order="5" intorder="1">chintagunta_variety_1999</bcf:citekey>
-    <bcf:citekey order="6" intorder="1">dube_multiple_2004</bcf:citekey>
-    <bcf:citekey order="7" intorder="1">train_2010</bcf:citekey>
-    <bcf:citekey order="8" intorder="1">train_2010</bcf:citekey>
   </bcf:section>
   <!-- SORTING TEMPLATES -->
   <bcf:sortingtemplate name="nty">
@@ -2412,14 +2403,4 @@
     </bcf:sort>
   </bcf:sortingtemplate>
   <!-- DATALISTS -->
-  <bcf:datalist section="0"
-                name="nty/global//global/global/global"
-                type="entry"
-                sortingtemplatename="nty"
-                sortingnamekeytemplatename="global"
-                labelprefix=""
-                uniquenametemplatename="global"
-                labelalphanametemplatename="global"
-                namehashtemplatename="global">
-  </bcf:datalist>
 </bcf:controlfile>

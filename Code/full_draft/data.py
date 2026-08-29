@@ -223,6 +223,9 @@ console.print(
     f'Racial makeup of sample:                              {agent_master.groupby('race')['household_code'].nunique()}\n',
     f'Percent taking outside option each trip:              {outside_option_rate:.2f}\n',
     f'Percent purchasing with coupon:                       {agent_yogurt.groupby(['household_code', 'trip_code_uc'])['deal_flag_uc'].max().mean()*100:.2f}\n',
+    f'Gender makeup:                                        {agent_master['male_head_age'].value_counts()}\n',
+    f'Average Age (Male):                                   {agent_master['male_head_age'].mean()}\n',
+    f'Average Age (Female):                                 {agent_master['female_head_age'].mean()}\n',
 )
 
 #=== Switching Stats ===#

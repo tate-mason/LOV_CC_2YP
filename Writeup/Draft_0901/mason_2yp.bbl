@@ -1,9 +1,17 @@
-\begin{thebibliography}{11}
+\begin{thebibliography}{12}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
   \providecommand{\doi}[1]{doi: #1}\else
   \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Ackerberg(2003)]{ackerberg_advertising_2003}
+Daniel~A. Ackerberg.
+\newblock Advertising, learning, and consumer choice in experience good markets: an empirical examination*.
+\newblock \emph{International Economic Review}, 44\penalty0 (3):\penalty0 1007--1040, August 2003.
+\newblock ISSN 0020-6598, 1468-2354.
+\newblock \doi{10.1111/1468-2354.t01-2-00098}.
+\newblock URL \url{https://onlinelibrary.wiley.com/doi/10.1111/1468-2354.t01-2-00098}.
 
 \bibitem[Chintagunta(1999)]{chintagunta_variety_1999}
 Pradeep~K. Chintagunta.
@@ -13,8 +21,8 @@ Pradeep~K. Chintagunta.
 \newblock \doi{10.1287/mnsc.45.4.486}.
 \newblock URL \url{https://pubsonline.informs.org/doi/10.1287/mnsc.45.4.486}.
 
-\bibitem[Dub'{e} and Misra(2023)]{dube_personalized_2023}
-Jean-Pierre Dub'{e} and Sanjog Misra.
+\bibitem[Dub\'{e} and Misra(2023)]{dube_personalized_2023}
+Jean-Pierre Dub\'{e} and Sanjog Misra.
 \newblock Personalized pricing and consumer welfare.
 \newblock \emph{Journal of Political Economy}, 131\penalty0 (1):\penalty0 131--189, None 2023.
 \newblock \doi{10.1086/720793}.

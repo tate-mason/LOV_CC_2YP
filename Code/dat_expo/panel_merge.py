@@ -11,7 +11,8 @@ year = [2017, 2018, 2019]
 frame = {}
 for d, y in product(dat, year):
     print(f'Loading {d}, {y}')
-    frame[(d,y)] = pl.scan_parquet(f'/scratch/dtm63837/Kilts_Panel/nielsen_extracts/{d}_{y}.parquet')
+    lazy_df = pl.scan_parquet(f'/scratch/dtm63837/Kilts_Panel/nielsen_extracts/{d}_{y}.parquet')
+    frame[(d,y)] = lazy_df
     print(f'{d} loaded')
 
     # print column names

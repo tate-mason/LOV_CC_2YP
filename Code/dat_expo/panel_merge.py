@@ -24,7 +24,7 @@ for d in dat:
 products  = pl.scan_parquet('/scratch/dtm63837/Kilts_Panel/nielsen_extracts/products.parquet').rename(str.lower)
 retailers = pl.scan_parquet('/scratch/dtm63837/Kilts_Panel/nielsen_extracts/retailers.parquet').rename(str.lower)
 # bring naming convention in line with other files
-panelists = panelists.rename({"Household_cd": "household_code"})
+panelists = panelists.rename({"household_cd": "household_code"})
 
 
 # merging trips and panelists

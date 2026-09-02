@@ -6,8 +6,8 @@ pyarrow
 
 # Estimation/Econometrics
 scipy
-scikit-learn
 statsmodels
+scikit-learn
 linearmodels
 pyblp
 pylogit

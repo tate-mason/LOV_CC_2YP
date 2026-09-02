@@ -1,4 +1,0 @@
-  File "/scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/full_draft/data.py", line 353
-    merged_master['market_name'] = merged_master['dma_code'].map(dma_map){
-                                                                         ^
-SyntaxError: invalid syntax

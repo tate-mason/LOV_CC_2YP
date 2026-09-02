@@ -4,14 +4,18 @@ import scipy as sp
 import gc
 
 # data sets being loaded
-dat = ['panelists', 'purchases', 'products', 'trips']
+dat = ['panelists', 'purchases', 'trips']
+year = [2017, 2018, 2019]
 
 # loop for loading all parquet
 frame = {}
-for d in dat:
-    print(f'Loading {d}')
-    frame[d] = pl.scan_parquet(f'/scratch/dtm63837/Kilts_Panel/nielsen_extracts/{d}.parquet')
+for d, y in zip(dat, year):
+    print(f'Loading {d}, {y}')
+    frame[d,y] = pl.scan_parquet(f'/scratch/dtm63837/Kilts_Panel/nielsen_extracts/{d}_{y}.parquet')
     print(f'{d} loaded')
+
+products  = pl.scan_parquet('/scratch/dtm63837/Kilts_Panel/nielsen_extracts/products.parquet')
+retailers = pl.scan_parquet('/scratch/dtm63837/Kilts_Panel/nielsen_extracts/retailers.parquet')
 
 # print column names
 for name, d in frame.items():
@@ -22,23 +26,26 @@ for name, d in frame.items():
 panelists = panelists.rename({"Household_Cd": "household_code"})
 
 
-# merging trips and purchases
-trip_purchase = trips.join(purchases, on='trip_code_uc', how='left')
-print('finished merging trips and purchases')
-# delete base dataset
-del trips, purchases
+# merging trips and panelists
+trip_panelists = trip.join(panelists, on = ['panel_year', 'household_code'], how='left')
+del trips, panelists
 gc.collect()
 
-# merge panelists and trip_purchases
+# merge purchases and trip_panelists
 
-tpp = trip_purchase.join(panelists, on='household_code', how = 'left')
-del panelists, trip_purchase
+tpp = trip_panelists.join(purchases, on = ['household_code', 'trip_code_uc'], how='left')
+del trip_panelists, purchases
 gc.collect()
 
-master = tpp.join(products, on='upc', how='left').sink_parquet('/scratch/dtm63837/Kilts_Panel/nielsen_extracts/master_panel.parquet')
-del products
+tpp_r = tpp.join(retailers, on = 'retailer_code', how='left')
+del tpp, retailers
 gc.collect()
 
-panel = pl.read_parquet('/scratch/dtm63837/Kilts_Panel/nielsen_extracts/master_panel.parquet')
-print(panel['purchase_date'].n_unique())
+master = (
+        tpp_r.join(products, on = ['upc', 'upc_ver_uck'])
+        .sink_parquet('/scratch/dtm63837/Kilts_Panel/nielsen_extracts/master_panel.parquet')
+)
+del tpp_r, products
+gc.collect()
+
 print("done")

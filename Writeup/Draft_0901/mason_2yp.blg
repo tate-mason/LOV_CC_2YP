@@ -6,45 +6,45 @@ Database file #1: lov_bib/lov_bib.bib
 Warning--empty journal in karle_imperfect_nodate
 Warning--empty year in karle_imperfect_nodate
 Warning--empty year in karle_imperfect_nodate
-You've used 11 entries,
+You've used 12 entries,
             2773 wiz_defined-function locations,
-            682 strings with 7252 characters,
-and the built_in function-call counts, 4831 in all, are:
-= -- 493
-> -- 176
-< -- 11
-+ -- 62
-- -- 51
-* -- 403
-:= -- 761
-add.period$ -- 59
-call.type$ -- 11
-change.case$ -- 50
-chr.to.int$ -- 11
-cite$ -- 25
-duplicate$ -- 219
-empty$ -- 414
-format.name$ -- 74
-if$ -- 1009
+            692 strings with 7554 characters,
+and the built_in function-call counts, 5283 in all, are:
+= -- 542
+> -- 186
+< -- 12
++ -- 66
+- -- 54
+* -- 441
+:= -- 831
+add.period$ -- 65
+call.type$ -- 12
+change.case$ -- 54
+chr.to.int$ -- 12
+cite$ -- 27
+duplicate$ -- 239
+empty$ -- 456
+format.name$ -- 78
+if$ -- 1104
 int.to.chr$ -- 1
 int.to.str$ -- 1
-missing$ -- 11
-newline$ -- 89
-num.names$ -- 44
-pop$ -- 64
+missing$ -- 12
+newline$ -- 97
+num.names$ -- 48
+pop$ -- 68
 preamble$ -- 1
-purify$ -- 39
+purify$ -- 42
 quote$ -- 0
-skip$ -- 150
+skip$ -- 162
 stack$ -- 0
-substring$ -- 209
-swap$ -- 19
+substring$ -- 242
+swap$ -- 21
 text.length$ -- 0
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 121
+type$ -- 132
 warning$ -- 3
-while$ -- 50
+while$ -- 55
 width$ -- 0
-write$ -- 200
+write$ -- 219
 (There were 3 warnings)

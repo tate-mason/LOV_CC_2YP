@@ -1,13 +1,13 @@
 # Fdb version 4
-["bibtex mason_2yp"] 1788039794.52452 "mason_2yp.aux" "mason_2yp.bbl" "mason_2yp" 1788040385.34988 0
-  "./lov_bib/lov_bib.bib" 1788039493.13779 48716 e3ab224398e78155e3b6476df91252c5 ""
+["bibtex mason_2yp"] 1788287572.49057 "mason_2yp.aux" "mason_2yp.bbl" "mason_2yp" 1788287573.82652 0
+  "./lov_bib/lov_bib.bib" 1788287570.25442 50242 d505f472afced587808ec3874b44509e ""
   "/usr/local/texlive/2026/texmf-dist/bibtex/bst/natbib/plainnat.bst" 1233624470 26816 ffe5423d2019860bad9f54bc402fac15 ""
-  "mason_2yp.aux" 1788040385.09173 3991 b8752fd1ba3756534c3fdc3e4201186c "pdflatex"
+  "mason_2yp.aux" 1788287573.55911 3932 176a13384a978164b9a4c6361cf8f58a "pdflatex"
   (generated)
   "mason_2yp.bbl"
   "mason_2yp.blg"
   (rewritten before read)
-["pdflatex"] 1788040384.08646 "mason_2yp.tex" "mason_2yp.pdf" "mason_2yp" 1788040385.34998 0
+["pdflatex"] 1788287572.57526 "mason_2yp.tex" "mason_2yp.pdf" "mason_2yp" 1788287573.82663 0
   "../../Output/Plots/3_flav_heatmap.pdf" 1787570951.18168 16303 5d30075b2524d4ac21bfc5bf9eba1d90 ""
   "../../Output/Plots/dma_price_time_series.pdf" 1787570951.18182 25649 ea34f46eaa5e97adfd55498083304540 ""
   "../../Output/Tables/dma_price_summary.tex" 1787570951.1821 298 6d635429697a57e8e2c540c33ed5cd20 ""
@@ -162,10 +162,10 @@
   "/usr/local/texlive/2026/texmf-var/fonts/map/pdftex/updmap/pdftex.map" 1779924663 5573038 b99aad5e4898a9034e953632f940512b ""
   "/usr/local/texlive/2026/texmf-var/web2c/pdftex/pdflatex.fmt" 1774209607 3636776 dc5fa9b6b1453b9d196cd42edf876004 ""
   "/usr/local/texlive/2026/texmf.cnf" 1774209515 577 648cd9f92f9c0eac486f4c71c85cfbbe ""
-  "mason_2yp.aux" 1788040385.09173 3991 b8752fd1ba3756534c3fdc3e4201186c "pdflatex"
-  "mason_2yp.bbl" 1788039794.61336 4402 55b31643891513461611768bb22cf1bc "bibtex mason_2yp"
-  "mason_2yp.out" 1788040385.0927 1120 f9c30b8efe0bddc859c5abdf57724d94 "pdflatex"
-  "mason_2yp.tex" 1788040383.98291 27519 26c84fbf3bd10541a9a042d68a89e1ff ""
+  "mason_2yp.aux" 1788287573.55911 3932 176a13384a978164b9a4c6361cf8f58a "pdflatex"
+  "mason_2yp.bbl" 1788287572.57303 4858 72f7ce145433891991b6647fa02ed987 "bibtex mason_2yp"
+  "mason_2yp.out" 1788287573.56181 891 4ac337dbc6a1a7a42efcbe3a40750e50 "pdflatex"
+  "mason_2yp.tex" 1788287543.07708 29202 31b7dd8f163668372a32d04c07a4f1c9 ""
   (generated)
   "mason_2yp.aux"
   "mason_2yp.log"

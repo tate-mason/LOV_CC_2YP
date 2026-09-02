@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.3.22)  29 AUG 2026 17:53
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.3.22)  1 SEP 2026 14:32
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -616,39 +616,39 @@ Package microtype Info: Loading generic protrusion settings for font family
 (microtype)             `zi4' (encoding: OT1).
 (microtype)             For optimal results, create family-specific settings.
 (microtype)             See the microtype manual for details.
-) [9{/usr/local/texlive/2026/texmf-dist/fonts/enc/dvips/inconsolata/i4-ot1-0.enc}]
-<../../Output/Plots/3_flav_heatmap.pdf, id=169, 662.63759pt x 569.1551pt>
+ [9{/usr/local/texlive/2026/texmf-dist/fonts/enc/dvips/inconsolata/i4-ot1-0.enc}]) [10]
+<../../Output/Plots/3_flav_heatmap.pdf, id=172, 662.63759pt x 569.1551pt>
 File: ../../Output/Plots/3_flav_heatmap.pdf Graphic file (type pdf)
 <use ../../Output/Plots/3_flav_heatmap.pdf>
 Package pdftex.def Info: ../../Output/Plots/3_flav_heatmap.pdf  used on input line 251.
 (pdftex.def)             Requested size: 469.75502pt x 403.48633pt.
- [10] [11 <../../Output/Plots/3_flav_heatmap.pdf>] (../../Output/Tables/dma_price_summary.tex)
-<../../Output/Plots/dma_price_time_series.pdf, id=221, 640.45903pt x 316.4598pt>
+ [11] [12 <../../Output/Plots/3_flav_heatmap.pdf>] (../../Output/Tables/dma_price_summary.tex)
+<../../Output/Plots/dma_price_time_series.pdf, id=224, 640.45903pt x 316.4598pt>
 File: ../../Output/Plots/dma_price_time_series.pdf Graphic file (type pdf)
 <use ../../Output/Plots/dma_price_time_series.pdf>
 Package pdftex.def Info: ../../Output/Plots/dma_price_time_series.pdf  used on input line 267.
 (pdftex.def)             Requested size: 469.75502pt x 232.1195pt.
- [12 <../../Output/Plots/dma_price_time_series.pdf>] [13] (./mason_2yp.aux)
+ [13 <../../Output/Plots/dma_price_time_series.pdf>] [14] (./mason_2yp.aux)
  ***********
 LaTeX2e <2025-11-01>
 L3 programming layer <2026-01-19>
  ***********
 Package rerunfilecheck Info: File `mason_2yp.out' has not changed.
-(rerunfilecheck)             Checksum: F9C30B8EFE0BDDC859C5ABDF57724D94;1120.
+(rerunfilecheck)             Checksum: 4AC337DBC6A1A7A42EFCBE3A40750E50;891.
  ) 
 Here is how much of TeX's memory you used:
- 22126 strings out of 467525
- 420782 string characters out of 5418982
- 846661 words of memory out of 5000000
- 50585 multiletter control sequences out of 15000+600000
- 642744 words of font info for 150 fonts, out of 8000000 for 9000
+ 22129 strings out of 467525
+ 420855 string characters out of 5418982
+ 846683 words of memory out of 5000000
+ 50584 multiletter control sequences out of 15000+600000
+ 642580 words of font info for 151 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 75i,13n,80p,1429b,1053s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 75i,13n,80p,1701b,1182s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </usr/local/texlive/2026/texmf-dist/fonts/type1/public/inconsolata/Inconsolata-zi4r.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi9.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr17.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy6.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy9.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/cm-super/sfbx1095.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/cm-super/sfrm1095.pfb>
-Output written on mason_2yp.pdf (13 pages, 298736 bytes).
+Output written on mason_2yp.pdf (14 pages, 301423 bytes).
 PDF statistics:
- 407 PDF objects out of 1000 (max. 8388607)
- 248 compressed objects within 3 object streams
+ 410 PDF objects out of 1000 (max. 8388607)
+ 250 compressed objects within 3 object streams
  43 named destinations out of 1000 (max. 500000)
- 29283 words of extra memory for PDF output out of 29859 (max. 10000000)
+ 27219 words of extra memory for PDF output out of 29859 (max. 10000000)
 

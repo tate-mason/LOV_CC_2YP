@@ -34,7 +34,7 @@ gc.collect()
 
 # merge purchases and trip_panelists
 
-tpp = trip_panelists.join(purchases, on = ['household_code', 'trip_code_uc'], how='left')
+tpp = trip_panelists.join(purchases, on = 'trip_code_uc', how='left')
 del trip_panelists, purchases
 gc.collect()
 

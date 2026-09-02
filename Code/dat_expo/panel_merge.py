@@ -1,4 +1,4 @@
-import pandas as pd
+from itertools import product
 import polars as pl
 import scipy as sp
 import gc
@@ -9,19 +9,19 @@ year = [2017, 2018, 2019]
 
 # loop for loading all parquet
 frame = {}
-for d, y in zip(dat, year):
+for d, y in product(dat, year):
     print(f'Loading {d}, {y}')
-    frame[d,y] = pl.scan_parquet(f'/scratch/dtm63837/Kilts_Panel/nielsen_extracts/{d}_{y}.parquet')
+    frame[(d,y)] = pl.scan_parquet(f'/scratch/dtm63837/Kilts_Panel/nielsen_extracts/{d}_{y}.parquet')
     print(f'{d} loaded')
+
+    # print column names
+    var_name = f"{d}_{y}"
+    globals()[var_name] = lazy_df
+    cols = lazy_df.collect_schema().names()
+    print(f'{d}_{y} loaded | columns:{cols}')
 
 products  = pl.scan_parquet('/scratch/dtm63837/Kilts_Panel/nielsen_extracts/products.parquet')
 retailers = pl.scan_parquet('/scratch/dtm63837/Kilts_Panel/nielsen_extracts/retailers.parquet')
-
-# print column names
-for name, d in frame.items():
-    print(name, d.columns)
-    globals()[name] = d
-
 # bring naming convention in line with other files
 panelists = panelists.rename({"Household_Cd": "household_code"})
 

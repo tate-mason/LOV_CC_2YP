@@ -14,12 +14,12 @@ for d, y in product(dat, year):
     lazy_df = pl.scan_parquet(f'/scratch/dtm63837/Kilts_Panel/nielsen_extracts/{d}_{y}.parquet')
     frame[(d,y)] = lazy_df
     print(f'{d} loaded')
-
-    # print column names
-    var_name = f"{d}_{y}"
-    globals()[var_name] = lazy_df
-    cols = lazy_df.collect_schema().names()
-    print(f'{d}_{y} loaded | columns:{cols}')
+combined_frame = {}
+for d in dat:
+    yearly_lfs   = [frame[(d,y)] for y in years]
+    combined_lfs = pl.concat(yearly_lfs, how='vertical')
+    combined_frames[d] = combined_lfs
+    globals()[f'{d}'] = combined_lfs 
 
 products  = pl.scan_parquet('/scratch/dtm63837/Kilts_Panel/nielsen_extracts/products.parquet')
 retailers = pl.scan_parquet('/scratch/dtm63837/Kilts_Panel/nielsen_extracts/retailers.parquet')

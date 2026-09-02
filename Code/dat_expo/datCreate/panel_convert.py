@@ -13,14 +13,14 @@ for y in years:
     print('loading purchases')
     purchases = (
         pl.scan_csv(f'/scratch/dtm63837/Kilts_Panel/nielsen_extracts/HMS/{y}/Annual_Files/purchases_{y}.tsv', separator='\t')
-        .sink_parquet('../../purchases.parquet')
+        .sink_parquet(f'../../nielsen_extracts/purchases_{y}.parquet')
     )
     print('Purchases converted')
 
     print('loading trips')
     trip = (
         pl.scan_csv(f'/scratch/dtm63837/Kilts_Panel/nielsen_extracts/HMS/{y}/Annual_Files/trips_{y}.tsv', separator='\t')
-        .sink_parquet('../../trips.parquet')
+        .sink_parquet(f'../../nielsen_extracts/trips_{y}.parquet')
     )
     print('Trips converted')
 
@@ -32,7 +32,7 @@ products = (
         quote_char=None,
         encoding='utf8-lossy'
     )
-    .sink_parquet('../../products.parquet')
+    .sink_parquet('../../nielsen_extracts/products.parquet')
 )
 print('Products converted')
 
@@ -44,7 +44,7 @@ retailers = (
         quote_char=None,
         encoding='utf8-lossy'
     )
-    .sink_parquet('../../retailers.parquet')
+    .sink_parquet('../../nielsen_extracts/retailers.parquet')
 )
 print('Retailers converted')
 

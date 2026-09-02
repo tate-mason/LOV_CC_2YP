@@ -9,7 +9,7 @@ years = [2017, 2018, 2019]
 
 # loop for loading all parquet
 frame = {}
-for d, y in product(dat, year):
+for d, y in product(dat, years):
     print(f'Loading {d}, {y}')
     lazy_df = pl.scan_parquet(f'/scratch/dtm63837/Kilts_Panel/nielsen_extracts/{d}_{y}.parquet')
     frame[(d,y)] = lazy_df

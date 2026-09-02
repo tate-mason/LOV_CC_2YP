@@ -11,7 +11,7 @@ years = [2017, 2018, 2019]
 frame = {}
 for d, y in product(dat, years):
     print(f'Loading {d}, {y}')
-    lazy_df = pl.scan_parquet(f'/scratch/dtm63837/Kilts_Panel/nielsen_extracts/{d}_{y}.parquet')
+    lazy_df = pl.scan_parquet(f'/scratch/dtm63837/Kilts_Panel/nielsen_extracts/{d}_{y}.parquet').rename(str.lower)
     frame[(d,y)] = lazy_df
     print(f'{d} loaded')
 combined_frame = {}
@@ -21,8 +21,8 @@ for d in dat:
     combined_frame[d] = combined_lfs
     globals()[f'{d}'] = combined_lfs 
 
-products  = pl.scan_parquet('/scratch/dtm63837/Kilts_Panel/nielsen_extracts/products.parquet')
-retailers = pl.scan_parquet('/scratch/dtm63837/Kilts_Panel/nielsen_extracts/retailers.parquet')
+products  = pl.scan_parquet('/scratch/dtm63837/Kilts_Panel/nielsen_extracts/products.parquet').rename(str.lower)
+retailers = pl.scan_parquet('/scratch/dtm63837/Kilts_Panel/nielsen_extracts/retailers.parquet').rename(str.lower)
 # bring naming convention in line with other files
 panelists = panelists.rename({"Household_Cd": "household_code"})
 

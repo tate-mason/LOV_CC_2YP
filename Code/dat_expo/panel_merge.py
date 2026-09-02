@@ -18,7 +18,7 @@ combined_frame = {}
 for d in dat:
     yearly_lfs   = [frame[(d,y)] for y in years]
     combined_lfs = pl.concat(yearly_lfs, how='vertical')
-    combined_frames[d] = combined_lfs
+    combined_frame[d] = combined_lfs
     globals()[f'{d}'] = combined_lfs 
 
 products  = pl.scan_parquet('/scratch/dtm63837/Kilts_Panel/nielsen_extracts/products.parquet')

@@ -28,7 +28,7 @@ panelists = panelists.rename({"Household_Cd": "household_code"})
 
 
 # merging trips and panelists
-trip_panelists = trip.join(panelists, on = ['panel_year', 'household_code'], how='left')
+trip_panelists = trips.join(panelists, on = ['panel_year', 'household_code'], how='left')
 del trips, panelists
 gc.collect()
 

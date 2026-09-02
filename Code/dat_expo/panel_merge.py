@@ -17,7 +17,7 @@ for d, y in product(dat, years):
 combined_frame = {}
 for d in dat:
     yearly_lfs   = [frame[(d,y)] for y in years]
-    combined_lfs = pl.concat(yearly_lfs, how='vertical')
+    combined_lfs = pl.concat(yearly_lfs, how='diagonal_relaxed')
     combined_frame[d] = combined_lfs
     globals()[f'{d}'] = combined_lfs 
 

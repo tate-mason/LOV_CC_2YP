@@ -4,6 +4,9 @@ import os
 
 outpath = '/scratch/dtm63837/Kilts_Panel/RMS/'
 
+years = [2017, 2018, 2019]
+markets = []
+
 print("Loading RMS Data:")
 rms = ( 
     pl.scan_csv('/scratch/dtm63837/Kilts_Panel/RMS/2014/Annual_Files/rms_versions_2014.tsv', separator = '\t', quote_char=None, encoding='utf8-lossy')
@@ -14,7 +17,6 @@ print("RMS Data Converted")
 print('Loading Store Data')
 stores = (
     pl.scan_csv('/scratch/dtm63837/Kilts_Panel/RMS/2014/Annual_Files/stores_2014.tsv', separator = '\t', quote_char=None, encoding='utf8-lossy')
-    .filter(pl.col('dma_code').is_in([524, 602, 751, 825]))
 )
 stores.sink_parquet(f'{outpath}stores.parquet')
 print('Store Data Converted')

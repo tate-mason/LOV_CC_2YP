@@ -6,7 +6,7 @@ for y in years:
     print(f"loading panelists {y}")
     panelists = (
         pl.scan_csv(f'/scratch/dtm63837/Kilts_Panel/nielsen_extracts/HMS/{y}/Annual_Files/panelists_{y}.tsv', separator='\t')
-        .sink_parquet(f'../../panelists_{y}.parquet')
+        .sink_parquet(f'../../nielsen_extracts/panelists_{y}.parquet')
     )
     print(f'Panelists converted for {y}')
 

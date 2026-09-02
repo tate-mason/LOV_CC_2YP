@@ -5,7 +5,7 @@ import gc
 
 # data sets being loaded
 dat = ['panelists', 'purchases', 'trips']
-year = [2017, 2018, 2019]
+years = [2017, 2018, 2019]
 
 # loop for loading all parquet
 frame = {}

@@ -24,7 +24,7 @@ for d in dat:
 products  = pl.scan_parquet('/scratch/dtm63837/Kilts_Panel/nielsen_extracts/products.parquet').rename(str.lower)
 retailers = pl.scan_parquet('/scratch/dtm63837/Kilts_Panel/nielsen_extracts/retailers.parquet').rename(str.lower)
 # bring naming convention in line with other files
-panelists = panelists.rename({"Household_Cd": "household_code"})
+panelists = panelists.rename({"Household_cd": "household_code"})
 
 
 # merging trips and panelists
@@ -43,7 +43,7 @@ del tpp, retailers
 gc.collect()
 
 master = (
-        tpp_r.join(products, on = ['upc', 'upc_ver_uck'])
+        tpp_r.join(products, on = ['upc', 'upc_ver_uc'])
         .sink_parquet('/scratch/dtm63837/Kilts_Panel/nielsen_extracts/master_panel.parquet')
 )
 del tpp_r, products

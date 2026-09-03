@@ -42,7 +42,8 @@ gc.collect()
 
 master = (
         tpp_r.join(products, on = 'upc')
-        .sink_parquet('/scratch/dtm63837/Kilts_Panel/nielsen_extracts/HMS/master_panel.parquet')
+        .collect(streaming=False)
+        .write_parquet('/scratch/dtm63837/Kilts_Panel/nielsen_extracts/HMS/master_panel.parquet')
 )
 del tpp_r, products
 gc.collect()

@@ -36,12 +36,12 @@ tpp_r = tpp.join(retailer, on = 'retailer_code', how='left')
 del tpp, retailer
 gc.collect()
 
-products = product_attr.join(product_desc, on = ['upc', 'upc_ver_uc'], how = 'left')
+products = product_attr.join(product_desc, on = 'upc', how = 'left')
 del product_attr, product_desc
 gc.collect()
 
 master = (
-        tpp_r.join(products, on = ['upc', 'upc_ver_uc'])
+        tpp_r.join(products, on = 'upc')
         .sink_parquet('/scratch/dtm63837/Kilts_Panel/nielsen_extracts/HMS/master_panel.parquet')
 )
 del tpp_r, products

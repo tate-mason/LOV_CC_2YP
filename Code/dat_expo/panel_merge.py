@@ -21,10 +21,6 @@ for d in dat:
     combined_frame[d] = combined_lfs
     globals()[f'{d}'] = combined_lfs 
 
-# bring naming convention in line with other files
-panelists = panelists.rename({"household_cd": "household_code"})
-
-
 # merging trips and panelists
 trip_panelists = trips.join(panelists, on = ['panel_year', 'household_code'], how='left')
 del trips, panelists

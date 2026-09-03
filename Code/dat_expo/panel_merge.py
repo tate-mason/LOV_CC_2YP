@@ -36,8 +36,8 @@ tpp = trip_panelists.join(purchases, on = 'trip_code_uc', how='left')
 del trip_panelists, purchases
 gc.collect()
 
-tpp_r = tpp.join(retailers, on = 'retailer_code', how='left')
-del tpp, retailers
+tpp_r = tpp.join(retailer, on = 'retailer_code', how='left')
+del tpp, retailer
 gc.collect()
 
 products = product_attr.join(product_desc, on = ['upc', 'upc_ver_uc'], how = 'left')

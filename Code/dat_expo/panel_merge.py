@@ -4,7 +4,7 @@ import scipy as sp
 import gc
 
 # data sets being loaded
-dat = ['panelists', 'purchases', 'trips', 'product_attr', 'product_desc', 'retailers']
+dat = ['panelists', 'purchases', 'trips', 'product_attr', 'product_desc', 'retailer']
 years = [2022, 2023, 2024]
 
 # loop for loading all parquet

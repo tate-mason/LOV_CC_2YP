@@ -4,14 +4,14 @@ import scipy as sp
 import gc
 
 # data sets being loaded
-dat = ['panelists', 'purchases', 'trips']
-years = [2017, 2018, 2019]
+dat = ['panelists', 'purchases', 'trips', 'product_attr', 'product_desc', 'retailers']
+years = [2022, 2023, 2024]
 
 # loop for loading all parquet
 frame = {}
 for d, y in product(dat, years):
     print(f'Loading {d}, {y}')
-    lazy_df = pl.scan_parquet(f'/scratch/dtm63837/Kilts_Panel/nielsen_extracts/{d}_{y}.parquet').rename(str.lower)
+    lazy_df = pl.scan_parquet(f'/scratch/dtm63837/Kilts_Panel/nielsen_extracts/HMS/{d}_{y}.parquet').rename(str.lower)
     frame[(d,y)] = lazy_df
     print(f'{d} loaded')
 combined_frame = {}
@@ -21,8 +21,6 @@ for d in dat:
     combined_frame[d] = combined_lfs
     globals()[f'{d}'] = combined_lfs 
 
-products  = pl.scan_parquet('/scratch/dtm63837/Kilts_Panel/nielsen_extracts/products.parquet').rename(str.lower)
-retailers = pl.scan_parquet('/scratch/dtm63837/Kilts_Panel/nielsen_extracts/retailers.parquet').rename(str.lower)
 # bring naming convention in line with other files
 panelists = panelists.rename({"household_cd": "household_code"})
 
@@ -42,9 +40,13 @@ tpp_r = tpp.join(retailers, on = 'retailer_code', how='left')
 del tpp, retailers
 gc.collect()
 
+products = product_attr.join(product_desc, on = ['upc', 'upc_ver_uc'], how = 'left')
+del product_attr, product_desc
+gc.collect()
+
 master = (
         tpp_r.join(products, on = ['upc', 'upc_ver_uc'])
-        .sink_parquet('/scratch/dtm63837/Kilts_Panel/nielsen_extracts/master_panel.parquet')
+        .sink_parquet('/scratch/dtm63837/Kilts_Panel/nielsen_extracts/HMS/master_panel.parquet')
 )
 del tpp_r, products
 gc.collect()

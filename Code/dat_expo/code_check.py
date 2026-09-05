@@ -1,6 +1,6 @@
 import polars as pl
 
-df = pl.scan_parquet(f'../../nielsen_extracts/HMS/panelists_2022.parquet')
+df = pl.scan_parquet(f'../../nielsen_extracts/HMS/trips_2022.parquet')
 
 print(df.columns)
 

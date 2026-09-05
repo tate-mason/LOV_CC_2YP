@@ -7,7 +7,8 @@ for y in years:
     panelists = (
         pl.scan_csv(f'/scratch/dtm63837/Kilts_Panel/nielsen_extracts/HMS/{y}/Annual_Files/panelist.tsv',
         separator='\t',
-        quote_char=None,		infer_schema_length=0).rename(str.lower)
+        quote_char=None,
+        infer_schema_length=0).rename(str.lower)
         .sink_parquet(f'../../nielsen_extracts/HMS/panelists_{y}.parquet')
     )
     print(f'Panelists converted for {y}')

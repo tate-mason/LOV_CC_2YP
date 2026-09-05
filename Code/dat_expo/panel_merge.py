@@ -22,7 +22,7 @@ for d in dat:
     globals()[f'{d}'] = combined_lfs 
 
 # merging trips and panelists
-trip_panelists = trips.join(panelists, on = ['panel_year', 'household_code'], how='left')
+trip_panelists = trips.join(panelists, on = ['panel_year', 'household_code'], how='left').filter(dma_code.is_in([]))
 del trips, panelists
 gc.collect()
 

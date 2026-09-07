@@ -21,7 +21,7 @@ res_DMA = (
     .group_by('DMA Name')
     .agg(
         pl.col('DMA code')
-        .filter(pl.col('colB').is_not_null() & (pl.col('colB') != ""))
+        .filter(pl.col('DMA code').is_not_null() & (pl.col('DMA code') != ""))
         .unique()
         .sort()
         .list.join(", ")

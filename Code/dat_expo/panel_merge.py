@@ -7,7 +7,7 @@ import gc
 output_dir = "/scratch/dtm63837/Kilts_Panel/nielsen_extracts/output_markets"
 os.makedirs(output_dir, exist_ok=True)
 # data sets being loaded
-dat = ['panelists', 'purchases', 'trips', 'product_attr', 'product_desc', 'retailer']
+dat = ['purchases', 'trips', 'product_attr', 'product_desc']
 years = [2022, 2023, 2024]
 valid_codes = {
     "Atlanta": [f'{x:05d}' for x in range(13010, 13300)],
@@ -26,11 +26,12 @@ valid_codes = {
 }
 
 market_dfs = {}
+dat_filter = ['panelists', 'retailer']
 
 for m, codes in valid_codes.items():
     market_dfs[m] = {}
 
-    for d in dat:
+    for d in dat_filter:
         yearly_lfs = []
         for y in years:
             file_path = f"/scratch/dtm63837/Kilts_Panel/nielsen_extracts/HMS/{d}_{y}.parquet"
@@ -46,8 +47,26 @@ for m, codes in valid_codes.items():
         market_dfs[m][d] = df_dataset 
 
         out_file = os.path.join(output_dir, f'{m}_{d}.parquet')
-        df_dataset.write_parquet(out_file)
+        df_dataset.sink_parquet(out_file)
         print(f'--> Saved {out_file} ({df_dataset.height:,} rows)')
+
+for d in dat:
+    yearly_lfs = []
+    for y in years:
+        file_path = f"/scratch/dtm63837/Kilts_Panel/nielsen_extracts/HMS/{d}_{y}.parquet"
+
+        lazy_df = (
+            pl.scan_parquet(file_path)
+            .rename(str.lower)
+        )
+        yearly_lfs.append(lazy_df)
+    combined_lazy = pl.concat(yearly_lfs, how='diagonal_relaxed')
+    df_dataset = combined_lazy.collect()
+    market_dfs[d] = df_dataset 
+
+    out_file = os.path.join(output_dir, f'{d}.parquet')
+    df_dataset.sink_parquet(out_file)
+    print(f'--> Saved {out_file} ({df_dataset.height:,} rows)')
 
 # merging trips and panelists
 # Build a single set containing all numbers across all ranges

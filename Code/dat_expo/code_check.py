@@ -17,7 +17,7 @@ res_DMA = (
     .group_by('DMA Name')
     .agg(
         pl.col('DMA code').drop_nulls().unique().alias('associated_dma'),
-        pl.col('dma code').drop_nulls().n_unique().alias('Unique_DMA')
+        pl.col('DMA code').drop_nulls().n_unique().alias('Unique_DMA')
     )
 )
 

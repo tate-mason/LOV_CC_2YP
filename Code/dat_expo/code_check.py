@@ -14,21 +14,43 @@ print(df.schema)
 
 res_DMA = (
     df 
-    .with_columns(pl.col('DMA Name').str.strip_chars())
+    .with_columns(
+        pl.col('DMA Name').str.strip_chars(),
+        pl.col('DMA code').str.strip_chars()
+    )
     .group_by('DMA Name')
     .agg(
-        pl.col('DMA code').drop_nulls().unique().alias('associated_dma'),
-        pl.col('DMA code').drop_nulls().n_unique().alias('Unique_DMA')
+        pl.col('DMA code')
+        .filter(pl.col('colB').is_not_null() & (pl.col('colB') != ""))
+        .unique()
+        .sort()
+        .list.join(", ")
+        .alias('associated_dma'),
+        # unique vals
+        pl.col('DMA code')
+        .n_unique()
+        .alias('Unique_DMA')
     )
 )
 
 res_FIPS = (
     df
-    .with_columns(pl.col('County Name').strip_chars())
+    .with_columns(
+        pl.col('County Name').str.strip_chars(),
+        pl.col('FIPS Code').str.strip_chars()
+    )
     .group_by('County Name')
     .agg(
-        pl.col('FIPS Code').drop_nulls().unique().alias('Associated_FIPS'),
-        pl.col('FIPS Code').drop_nulls().n_unique().alias('Unique_FIPS')
+        pl.col('FIPS Code')
+        .filter(pl.col('FIPS Code').is_not_null() & (pl.col('FIPS Code') != ""))
+        .unique()
+        .sort()
+        .list.join(", ")
+        .alias('Associated_FIPS'),
+        # unique vals
+        pl.col('FIPS Code')
+        .n_unique()
+        .alias('Unique_FIPS')
     )
 )
 

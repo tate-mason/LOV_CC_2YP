@@ -36,7 +36,8 @@ valid_codes = set().union(
     [6073],
     range(19001, 19198)
 )
-panelists = panelists.filter(pl.col('fips_county_code').is_in(valid_codes))
+str_codes = [f"{x:05d}" for x in int_codes]
+panelists = panelists.filter(pl.col('fips_county_code').is_in(str_codes))
 trip_panelists = trips.join(panelists, on = ['panel_year', 'household_code'], how='left')
 # Atlanta, Chicago, Denver, Des Moines, San Diego, Philly, Houston, Phoenix 
 # .is_in(13010:13299), (17031:18127), (48015:48481), (08001:08125), (04007:04025), ((34001:34003), (42017:42101)), 06073, (19001:19197)

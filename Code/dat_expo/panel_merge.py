@@ -22,7 +22,8 @@ for d in dat:
     globals()[f'{d}'] = combined_lfs 
 
 # merging trips and panelists
-trip_panelists = trips.join(panelists, on = ['panel_year', 'household_code'], how='left').filter(dma_code.is_in([]))
+trip_panelists = trips.join(panelists, on = ['panel_year', 'household_code'], how='left').filter(dma_code.is_in([524, 618, 751, 602, 753, 504, 825, 679]))
+# Atlanta, Chicago, Denver, Des Moines, San Diego, Philly, Houston, Phoenix 
 del trips, panelists
 gc.collect()
 

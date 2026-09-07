@@ -47,7 +47,7 @@ for m, codes in valid_codes.items():
         market_dfs[m][d] = df_dataset 
 
         out_file = os.path.join(output_dir, f'{m}_{d}.parquet')
-        df_dataset.sink_parquet(out_file)
+        df_dataset.write_parquet(out_file)
         print(f'--> Saved {out_file} ({df_dataset.height:,} rows)')
 
 for d in dat:
@@ -65,7 +65,7 @@ for d in dat:
     market_dfs[d] = df_dataset 
 
     out_file = os.path.join(output_dir, f'{d}.parquet')
-    df_dataset.sink_parquet(out_file)
+    df_dataset.write_parquet(out_file)
     print(f'--> Saved {out_file} ({df_dataset.height:,} rows)')
 
 # merging trips and panelists

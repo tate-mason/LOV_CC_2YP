@@ -7,7 +7,7 @@ import gc
 output_dir = "/scratch/dtm63837/Kilts_Panel/nielsen_extracts/output_markets"
 os.makedirs(output_dir, exist_ok=True)
 # data sets being loaded
-dat = ['purchases', 'trips', 'product_attr', 'product_desc']
+dat = ['purchases', 'trips', 'product_attr', 'product_desc', 'retailer']
 years = [2022, 2023, 2024]
 valid_codes = {
     "Atlanta": [f'{x:05d}' for x in range(13010, 13300)],
@@ -26,7 +26,7 @@ valid_codes = {
 }
 
 market_dfs = {}
-dat_filter = ['panelists', 'retailer']
+dat_filter = ['panelists']
 
 for m, codes in valid_codes.items():
     market_dfs[m] = {}

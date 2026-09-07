@@ -21,9 +21,24 @@ for d in dat:
     combined_frame[d] = combined_lfs
     globals()[f'{d}'] = combined_lfs 
 
+print(panelists.columns)
+
 # merging trips and panelists
-trip_panelists = trips.join(panelists, on = ['panel_year', 'household_code'], how='left').filter(dma_code.is_in([524, 618, 751, 602, 753, 504, 825, 679]))
+# Build a single set containing all numbers across all ranges
+valid_codes = set().union(
+    range(13010, 13300),
+    range(17031, 18128),
+    range(48015, 48482),
+    range(8001, 8126),
+    range(4007, 4026),
+    range(34001, 34004),
+    range(42017, 42102),
+    [6073],
+    range(19001, 19198)
+)
+trip_panelists = trips.join(panelists, on = ['panel_year', 'household_code'], how='left').filter(FIPS_code.is_in(valid_codes))
 # Atlanta, Chicago, Denver, Des Moines, San Diego, Philly, Houston, Phoenix 
+# .is_in(13010:13299), (17031:18127), (48015:48481), (08001:08125), (04007:04025), ((34001:34003), (42017:42101)), 06073, (19001:19197)
 del trips, panelists
 gc.collect()
 

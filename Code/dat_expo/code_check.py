@@ -14,7 +14,7 @@ print(df.columns)
 res_DMA = (
     df 
     .with_columns(pl.col('DMA Name').str.strip_chars())
-    .groupby('DMA Name')
+    .group_by('DMA Name')
     .agg(
         pl.col('DMA Code').drop_nulls().unique().alias('Associated_DMA'),
         pl.col('DMA Code').drop_nulls().n_unique().alias('Unique_DMA')
@@ -24,7 +24,7 @@ res_DMA = (
 res_FIPS = (
     df
     .with_columns(pl.col('County Name').strip_chars())
-    .groupby('County Name')
+    .group_by('County Name')
     .agg(
         pl.col('FIPS Code').drop_nulls().unique().alias('Associated_FIPS'),
         pl.col('FIPS Code').drop_nulls().n_unique().alias('Unique_FIPS')

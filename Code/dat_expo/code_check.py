@@ -1,5 +1,8 @@
 import pandas as pd
-pd.set_option('display.max_rows', None)
+pd.set_option(
+    'display.max_rows', None,
+    'display.max_columns', None
+)
 
 df = pd.read_excel('/scratch/dtm63837/Kilts_Panel/Reference_Documentation/2021-Onward_Documetation/FIPS-SMM-DMA-Conversion-Table-2021.xlsx', dtype=str)
 

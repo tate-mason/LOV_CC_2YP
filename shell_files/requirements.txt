@@ -24,3 +24,5 @@ seaborn
 # Utilities
 tqdm
 rich
+openpyxl
+fastexcel

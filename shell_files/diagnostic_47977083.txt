@@ -1,0 +1,16 @@
+Traceback (most recent call last):
+  File "/scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/dat_expo/code_check.py", line 3, in <module>
+    df = pl.read_excel('/scratch/dtm63837/Kilts_Panel/Reference_Documentation/2021-Onward_Documentation/FIPS-SMM-DMA-Conversion-Table-2021.xlsx')
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/dtm63837/.local/lib/python3.12/site-packages/polars/_utils/deprecation.py", line 128, in wrapper
+    return function(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/dtm63837/.local/lib/python3.12/site-packages/polars/_utils/deprecation.py", line 128, in wrapper
+    return function(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/dtm63837/.local/lib/python3.12/site-packages/polars/io/spreadsheet/functions.py", line 402, in read_excel
+    sources, read_multiple_workbooks = _sources(source)
+                                       ^^^^^^^^^^^^^^^^
+  File "/home/dtm63837/.local/lib/python3.12/site-packages/polars/io/spreadsheet/functions.py", line 72, in _sources
+    raise FileNotFoundError(msg)
+FileNotFoundError: no workbook found at path '/scratch/dtm63837/Kilts_Panel/Reference_Documentation/2021-Onward_Documentation/FIPS-SMM-DMA-Conversion-Table-2021.xlsx'

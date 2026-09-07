@@ -1,6 +1,6 @@
 import polars as pl
 
-df = pl.scan_parquet(f'../../nielsen_extracts/HMS/trips_2022.parquet')
+df = pl.read_excel('/scratch/dtm63837/Kilts_Panel/Reference_Documentation/2021-Onward_Documentation/FIPS-SMM-DMA-Conversion-Table-2021.xlsx')
 
 print(df.columns)
 

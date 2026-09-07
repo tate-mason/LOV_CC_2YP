@@ -25,7 +25,7 @@ valid_codes = {
     "Des Moines":[f'{x:05d}' for x in range(19001, 19199)]
 }
 
-market_df = {}
+market_dfs = {}
 
 for m, codes in valid_codes.items():
     market_dfs[m] = {}

@@ -7,7 +7,7 @@ pl.Config.set_tbl_rows(-1)       # Show ALL rows (-1 means unlimited)
 pl.Config.set_tbl_cols(-1)       # Show ALL columns
 pl.Config.set_fmt_table_cell_list_len(-1)  # Show ALL elements in a list column
 
-df = pl.read_excel('/scratch/dtm63837/Kilts_Panel/Reference_Documentation/2021-Onward_Documetation/FIPS-SMM-DMA-Conversion-Table-2021.xlsx')
+df = pl.read_excel('/scratch/dtm63837/Kilts_Panel/Reference_Documentation/2021-Onward_Documetation/FIPS-SMM-DMA-Conversion-Table-2021.xlsx', schema_overrides=pl.String)
 
 print(df.columns)
 

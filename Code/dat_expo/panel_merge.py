@@ -98,7 +98,7 @@ datasets = {
 }
 
 for name, d in datasets:
-    print(f"{d} cols:", d.collect_schema().names())
+    print(f"{name} cols:", d.collect_schema().names())
 
 for m in valid_codes:
     trip_panelists = trips.join(

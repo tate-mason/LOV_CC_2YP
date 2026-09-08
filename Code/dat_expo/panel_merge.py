@@ -106,7 +106,7 @@ for m in valid_codes:
     )
 
     tpp_r  = tpp.join(
-        retailer,
+        retailers,
         on    = 'retailer_code',
         how   = 'left'
     )

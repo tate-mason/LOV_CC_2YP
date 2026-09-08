@@ -69,14 +69,49 @@ for d in dat:
     print(f'--> Saved {out_file} ({df_dataset.height:,} rows)')
 
 # merging trips and panelists
+trips     = pl.scan_parquet(os.path.join(output_dir, 'trips.parquet'))
+purchases = pl.scan_parquet(os.path.join(output_dir, 'purchases.parquet'))
+products  = pl.scan_parquet(
+    os.path.join(output_dir, 'product_attr.parquet')
+    .join(os.path.join(output_dir, 'product_desc.parquet'), on='upc', how='left')
+)
+retailers = pl.scan_parquet(os.path.join(output_dir, 'retailer.parquet'))
 # Build a single set containing all numbers across all ranges
-#trip_panelists = trips.join(panelists, on = ['panel_year', 'household_code'], how='left')
-# Atlanta, Chicago, Denver, Des Moines, San Diego, Philly, Houston, Phoenix 
-# .is_in(13010:13299), (17031:18127), (48015:48481), (08001:08125), (04007:04025), ((34001:34003), (42017:42101)), 06073, (19001:19197)
-del trips, panelists
-gc.collect()
 
-# merge purchases and trip_panelists
+for m in valid_codes:
+    trip_panelists = trips.join(
+        pl.scan_parquet(
+            os.path.join(output_dir, f'{m}_panelists.parquet')
+        ), 
+        on    = 'household_code', 
+        how   = 'inner'
+    )
+
+    tpp    = trip_panelists.join(
+        purchases,
+        on    = 'trip_code_uc',
+        how   = 'inner'
+    )
+
+    tpp_r  = tpp.join(
+        retailer,
+        on    = 'retailer_code',
+        how   = 'left'
+    )
+
+    master    = (
+        tpp_r
+        .join(
+            products,
+            on    = 'upc',
+            how   = 'left'
+        )
+        .sink_parquet(
+            os.path.join(output_dir, f'master_{m}.parquet')
+        )
+    )
+
+
 
 #tpp = trip_panelists.join(purchases, on = 'trip_code_uc', how='left')
 #del trip_panelists, purchases

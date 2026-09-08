@@ -97,7 +97,7 @@ datasets = {
     'products': products
 }
 
-for name, d in datasets:
+for name, d in datasets.items():
     print(f"{name} cols:", d.collect_schema().names())
 
 for m in valid_codes:

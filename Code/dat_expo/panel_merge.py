@@ -90,6 +90,9 @@ products  = (
 retailers = pl.scan_parquet(os.path.join(output_dir, 'retailer.parquet'))
 # Build a single set containing all numbers across all ranges
 
+for d in dat:
+    print(d.columns)
+
 for m in valid_codes:
     trip_panelists = trips.join(
         pl.scan_parquet(

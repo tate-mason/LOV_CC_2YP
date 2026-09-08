@@ -71,9 +71,21 @@ for d in dat:
 # merging trips and panelists
 trips     = pl.scan_parquet(os.path.join(output_dir, 'trips.parquet'))
 purchases = pl.scan_parquet(os.path.join(output_dir, 'purchases.parquet'))
-products  = pl.scan_parquet(
-    os.path.join(output_dir, 'product_attr.parquet')
-    .join(os.path.join(output_dir, 'product_desc.parquet'), on='upc', how='left')
+products  = (
+    pl.scan_parquet(
+        os.path.join(
+            output_dir, 'product_attr.parquet'
+        )
+    )
+    .join(
+        pl.scan_parquet(
+            os.path.join(
+                output_dir, 'product_desc.parquet'
+            )
+        ),
+        on='upc',
+        how='left'
+    )
 )
 retailers = pl.scan_parquet(os.path.join(output_dir, 'retailer.parquet'))
 # Build a single set containing all numbers across all ranges

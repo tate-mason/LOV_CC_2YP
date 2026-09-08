@@ -93,7 +93,7 @@ retailers = pl.scan_parquet(os.path.join(output_dir, 'retailer.parquet'))
 datasets = {
     'trips': trips,
     'purchases': purchases,
-    'retailer': retailers',
+    'retailer': retailers,
     'products': products
 }
 

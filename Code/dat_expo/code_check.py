@@ -1,5 +1,7 @@
 from itertools import product
 import pandas as pd
+import polars as pl
+
 pd.set_option(
     'display.max_rows', None,
     'display.max_columns', None

@@ -1,3 +1,6 @@
+import polars as pl
+import os
+
 output_dir = "/scratch/dtm63837/Kilts_Panel/nielsen_extracts/output_markets"
 os.makedirs(output_dir, exist_ok=True)
 # data sets being loaded

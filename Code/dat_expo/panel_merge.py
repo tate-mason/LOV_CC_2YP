@@ -112,7 +112,7 @@ products  = (
                 'product_size',
                 'product_size_cd'
                 ])
-    .rename('year': 'panel_year')
+    .rename({'year': 'panel_year'})
     .join(
         pl.scan_parquet(
             os.path.join(

@@ -39,14 +39,6 @@ for m, codes in valid_codes.items():
             lazy_df = (
                 pl.scan_parquet(file_path)
                 .rename(str.lower)
-                .with_columns(
-                    (
-                        pl.col('fips_state_code').cast(pl.Utf8).str.zfill(2) +
-                        pl.col('fips_county_code').cast(pl.Utf8).str.zfill(3)
-                    ).alias('fips_full')
-                )
-                .filter(pl.col('fips_full').is_in(codes))
-                .drop('fips_full')  # Optional: drop the temp column
                 .select(['household_code',
                           'panel_year',
                           'projection_factor',
@@ -61,6 +53,14 @@ for m, codes in valid_codes.items():
                           'panelist_zip_code',
                           'fips_state_code',
                           'fips_county_code'])
+                .with_columns(
+                    (
+                        pl.col('fips_state_code').cast(pl.Utf8).str.zfill(2) +
+                        pl.col('fips_county_code').cast(pl.Utf8).str.zfill(3)
+                    ).alias('fips_full')
+                )
+                .filter(pl.col('fips_full').is_in(codes))
+                .drop('fips_full')  # Optional: drop the temp column
                 .filter(pl.col('fips_state_code').cast(pl.Utf8).is_in(codes))
             )
             yearly_lfs.append(lazy_df)

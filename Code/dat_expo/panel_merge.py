@@ -39,6 +39,28 @@ for m, codes in valid_codes.items():
             lazy_df = (
                 pl.scan_parquet(file_path)
                 .rename(str.lower)
+                .with_columns(
+                    (
+                        pl.col('fips_state_code').cast(pl.Utf8).str.zfill(2) +
+                        pl.col('fips_county_code').cast(pl.Utf8).str.zfill(3)
+                    ).alias('fips_full')
+                )
+                .filter(pl.col('fips_full').is_in(codes))
+                .drop('fips_full')  # Optional: drop the temp column
+                .select(['household_code',
+                          'panel_year',
+                          'projection_factor',
+                          'household_income',
+                          'household_size',
+                          'male_head_age',
+                          'female_head_age',
+                          'male_head_employment',
+                          'female_head_employment',
+                          'race',
+                          'hispanic_origin',
+                          'panelist_zip_code',
+                          'fips_state_code',
+                          'fips_county_code'])
                 .filter(pl.col('fips_state_code').cast(pl.Utf8).is_in(codes))
             )
             yearly_lfs.append(lazy_df)
@@ -77,13 +99,28 @@ products  = (
             output_dir, 'product_attr.parquet'
         )
     )
+    .select(['upc',
+                'year',
+                'brand',
+                'brand_cd',
+                'protein_gram',
+                'protein_gram_cd',
+                'total_fat_gram',
+                'total_fat_gram_cd',
+                'sugar_gram',
+                'sugar_gram_cd',
+                'product_size',
+                'product_size_cd'
+                ])
+    .rename('year': 'panel_year')
     .join(
         pl.scan_parquet(
             os.path.join(
                 output_dir, 'product_desc.parquet'
             )
-        ),
-        on='upc',
+        )
+        .rename('year': 'panel_year'),
+        on = 'upc',
         how='left'
     )
 )
@@ -105,13 +142,13 @@ for m in valid_codes:
         pl.scan_parquet(
             os.path.join(output_dir, f'{m}_panelists.parquet')
         ), 
-        on    = 'household_code', 
+        on    = ['panel_year','household_code'], 
         how   = 'inner'
     )
 
     tpp    = trip_panelists.join(
         purchases,
-        on    = 'trip_code_uc',
+        on    = ['panel_year','trip_code_uc'],
         how   = 'inner'
     )
 

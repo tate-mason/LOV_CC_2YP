@@ -21,8 +21,8 @@ valid_codes = {
             range(42017, 42102)
         )
     ],
-    "San Diego": ["06073"],
-    "Des Moines":[f'{x:05d}' for x in range(19001, 19199)]
+    "San_Diego": ["06073"],
+    "Des_Moines":[f'{x:05d}' for x in range(19001, 19199)]
 }
 
 market_dfs = {}
@@ -39,20 +39,21 @@ for m, codes in valid_codes.items():
             lazy_df = (
                 pl.scan_parquet(file_path)
                 .rename(str.lower)
-                .select(['household_code',
-                          'panel_year',
-                          'projection_factor',
-                          'household_income',
-                          'household_size',
-                          'male_head_age',
-                          'female_head_age',
-                          'male_head_employment',
-                          'female_head_employment',
-                          'race',
-                          'hispanic_origin',
-                          'panelist_zip_code',
-                          'fips_state_code',
-                          'fips_county_code'])
+                .select([
+                    'household_code',
+                    'panel_year',
+                    'projection_factor',
+                    'household_income',
+                    'household_size',
+                    'male_head_age',
+                    'female_head_age',
+                    'male_head_employment',
+                    'female_head_employment',
+                    'race',
+                    'hispanic_origin',
+                    'panelist_zip_code',
+                    'fips_state_code',
+                    'fips_county_code'])
                 .with_columns(
                     (
                         pl.col('fips_state_code').cast(pl.Utf8).str.zfill(2) +
@@ -60,10 +61,9 @@ for m, codes in valid_codes.items():
                     ).alias('fips_full')
                 )
                 .filter(pl.col('fips_full').is_in(codes))
+                .filter(pl.col('household_code').cast(pl.Int64)==1)
                 .drop('fips_full')  # Optional: drop the temp column
-            ).collect().to_pandas()
-            lazy_df = lazy_df[lazy_df['household_size'] == 1]
-            lazy_df = pl.from_pandas(lazy_df).lazy()
+            )
             yearly_lfs.append(lazy_df)
         combined_lazy = pl.concat(yearly_lfs, how='diagonal_relaxed')
         df_dataset = combined_lazy.collect()

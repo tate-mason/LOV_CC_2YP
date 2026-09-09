@@ -60,9 +60,10 @@ for m, codes in valid_codes.items():
                     ).alias('fips_full')
                 )
                 .filter(pl.col('fips_full').is_in(codes))
-                .filter(pl.col('household_size') == 1)
                 .drop('fips_full')  # Optional: drop the temp column
-            )
+            ).collect().to_pandas()
+            lazy_df = lazy_df[lazy_df['household_size'] == 1]
+            lazy_df = pl.from_pandas(lazy_df).lazy()
             yearly_lfs.append(lazy_df)
         combined_lazy = pl.concat(yearly_lfs, how='diagonal_relaxed')
         df_dataset = combined_lazy.collect()

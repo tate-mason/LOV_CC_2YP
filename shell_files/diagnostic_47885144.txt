@@ -1,7 +1,0 @@
-/scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/dat_expo/code_check.py:5: PerformanceWarning: Determining the column names of a LazyFrame requires resolving its schema, which is a potentially expensive operation. Use `LazyFrame.collect_schema().names()` to get the column names without this warning.
-  print(df.columns.to_list())
-Traceback (most recent call last):
-  File "/scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/dat_expo/code_check.py", line 5, in <module>
-    print(df.columns.to_list())
-          ^^^^^^^^^^^^^^^^^^
-AttributeError: 'list' object has no attribute 'to_list'

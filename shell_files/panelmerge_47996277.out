@@ -23,46 +23,23 @@ Requirement already satisfied: numpy<2.5,>=1.23.5 in /home/dtm63837/.local/lib/p
 
 [notice] A new release of pip is available: 24.0 -> 26.2.1
 [notice] To update, run: pip install --upgrade pip
-Loading panelists, 2022
-panelists loaded
-Loading panelists, 2023
-panelists loaded
-Loading panelists, 2024
-panelists loaded
-Loading purchases, 2022
-purchases loaded
-Loading purchases, 2023
-purchases loaded
-Loading purchases, 2024
-purchases loaded
-Loading trips, 2022
-trips loaded
-Loading trips, 2023
-trips loaded
-Loading trips, 2024
-trips loaded
-Loading product_attr, 2022
-product_attr loaded
-Loading product_attr, 2023
-product_attr loaded
-Loading product_attr, 2024
-product_attr loaded
-Loading product_desc, 2022
-product_desc loaded
-Loading product_desc, 2023
-product_desc loaded
-Loading product_desc, 2024
-product_desc loaded
-Loading retailers, 2022
-retailers loaded
-Loading retailers, 2023
-retailers loaded
-Loading retailers, 2024
-retailers loaded
+--> Saved /scratch/dtm63837/Kilts_Panel/nielsen_extracts/output_markets/Atlanta_panelists.parquet (0 rows)
+--> Saved /scratch/dtm63837/Kilts_Panel/nielsen_extracts/output_markets/Chicago_panelists.parquet (0 rows)
+--> Saved /scratch/dtm63837/Kilts_Panel/nielsen_extracts/output_markets/Houston_panelists.parquet (0 rows)
+--> Saved /scratch/dtm63837/Kilts_Panel/nielsen_extracts/output_markets/Denver_panelists.parquet (0 rows)
+--> Saved /scratch/dtm63837/Kilts_Panel/nielsen_extracts/output_markets/Phoenix_panelists.parquet (0 rows)
+--> Saved /scratch/dtm63837/Kilts_Panel/nielsen_extracts/output_markets/Philadelphia_panelists.parquet (0 rows)
+--> Saved /scratch/dtm63837/Kilts_Panel/nielsen_extracts/output_markets/San Diego_panelists.parquet (0 rows)
+--> Saved /scratch/dtm63837/Kilts_Panel/nielsen_extracts/output_markets/Des Moines_panelists.parquet (0 rows)
+--> Saved /scratch/dtm63837/Kilts_Panel/nielsen_extracts/output_markets/purchases.parquet (164,725,773 rows)
+--> Saved /scratch/dtm63837/Kilts_Panel/nielsen_extracts/output_markets/trips.parquet (28,545,736 rows)
+--> Saved /scratch/dtm63837/Kilts_Panel/nielsen_extracts/output_markets/product_attr.parquet (28,788,956 rows)
+--> Saved /scratch/dtm63837/Kilts_Panel/nielsen_extracts/output_markets/product_desc.parquet (28,789,632 rows)
+--> Saved /scratch/dtm63837/Kilts_Panel/nielsen_extracts/output_markets/retailer.parquet (4,934 rows)
 Traceback (most recent call last):
-  File "/scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/dat_expo/panel_merge.py", line 49, in <module>
-    .sink_parquet('/scratch/dtm63837/Kilts_Panel/nielsen_extracts/HMS/master_panel.parquet')
-     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/dat_expo/panel_merge.py", line 121, in <module>
+    .sink_parquet(
+     ^^^^^^^^^^^^^
   File "/home/dtm63837/.local/lib/python3.12/site-packages/polars/lazyframe/frame.py", line 2982, in sink_parquet
     ldf.collect(engine=engine)
   File "/home/dtm63837/.local/lib/python3.12/site-packages/polars/_utils/deprecation.py", line 97, in wrapper
@@ -74,4 +51,25 @@ Traceback (most recent call last):
   File "/home/dtm63837/.local/lib/python3.12/site-packages/polars/lazyframe/frame.py", line 2510, in collect
     return wrap_df(ldf.collect(engine, callback))
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-FileNotFoundError: No such file or directory (os error 2): /scratch/dtm63837/Kilts_Panel/nielsen_extracts/HMS/retailers_2024.parquet
+polars.exceptions.DuplicateError: column with name 'panel_year_right' already exists
+
+You may want to try:
+- renaming the column prior to joining
+- using the `suffix` parameter to specify a suffix different to the default one ('_right')
+
+Resolved plan until failure:
+
+	---> FAILED HERE RESOLVING 'sink' <---
+Parquet SCAN [/scratch/dtm63837/Kilts_Panel/nielsen_extracts/output_markets/purchases.parquet]
+PROJECT */12 COLUMNS
+ESTIMATED ROWS: 164725773
+
+This error occurred with the following context stack:
+	[1] 'join schema resolving'
+	[2] 'join'
+	[3] 'join left'
+	[4] 'join'
+	[5] 'join left'
+	[6] 'join'
+	[7] 'sink'
+

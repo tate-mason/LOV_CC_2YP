@@ -1,0 +1,42 @@
+Defaulting to user installation because normal site-packages is not writeable
+Requirement already satisfied: polars in /home/dtm63837/.local/lib/python3.12/site-packages (1.40.1)
+Requirement already satisfied: polars-runtime-32==1.40.1 in /home/dtm63837/.local/lib/python3.12/site-packages (from polars) (1.40.1)
+
+[notice] A new release of pip is available: 24.0 -> 26.2.1
+[notice] To update, run: pip install --upgrade pip
+Defaulting to user installation because normal site-packages is not writeable
+Requirement already satisfied: pandas in /home/dtm63837/.local/lib/python3.12/site-packages (3.0.3)
+Requirement already satisfied: numpy>=1.26.0 in /home/dtm63837/.local/lib/python3.12/site-packages (from pandas) (2.4.6)
+Requirement already satisfied: python-dateutil>=2.8.2 in /home/dtm63837/.local/lib/python3.12/site-packages (from pandas) (2.9.0.post0)
+Requirement already satisfied: six>=1.5 in /home/dtm63837/.local/lib/python3.12/site-packages (from python-dateutil>=2.8.2->pandas) (1.17.0)
+
+[notice] A new release of pip is available: 24.0 -> 26.2.1
+[notice] To update, run: pip install --upgrade pip
+Defaulting to user installation because normal site-packages is not writeable
+Requirement already satisfied: numpy in /home/dtm63837/.local/lib/python3.12/site-packages (2.4.6)
+
+[notice] A new release of pip is available: 24.0 -> 26.2.1
+[notice] To update, run: pip install --upgrade pip
+Defaulting to user installation because normal site-packages is not writeable
+Requirement already satisfied: scipy in /home/dtm63837/.local/lib/python3.12/site-packages (1.15.3)
+Requirement already satisfied: numpy<2.5,>=1.23.5 in /home/dtm63837/.local/lib/python3.12/site-packages (from scipy) (2.4.6)
+
+[notice] A new release of pip is available: 24.0 -> 26.2.1
+[notice] To update, run: pip install --upgrade pip
+--> Saved /scratch/dtm63837/Kilts_Panel/nielsen_extracts/output_markets/Atlanta_panelists.parquet (5,412 rows)
+--> Saved /scratch/dtm63837/Kilts_Panel/nielsen_extracts/output_markets/Chicago_panelists.parquet (9,681 rows)
+--> Saved /scratch/dtm63837/Kilts_Panel/nielsen_extracts/output_markets/Houston_panelists.parquet (12,174 rows)
+--> Saved /scratch/dtm63837/Kilts_Panel/nielsen_extracts/output_markets/Denver_panelists.parquet (3,139 rows)
+--> Saved /scratch/dtm63837/Kilts_Panel/nielsen_extracts/output_markets/Phoenix_panelists.parquet (3,612 rows)
+--> Saved /scratch/dtm63837/Kilts_Panel/nielsen_extracts/output_markets/Philadelphia_panelists.parquet (6,066 rows)
+--> Saved /scratch/dtm63837/Kilts_Panel/nielsen_extracts/output_markets/San Diego_panelists.parquet (1,298 rows)
+--> Saved /scratch/dtm63837/Kilts_Panel/nielsen_extracts/output_markets/Des Moines_panelists.parquet (1,961 rows)
+--> Saved /scratch/dtm63837/Kilts_Panel/nielsen_extracts/output_markets/purchases.parquet (164,725,773 rows)
+--> Saved /scratch/dtm63837/Kilts_Panel/nielsen_extracts/output_markets/trips.parquet (28,545,736 rows)
+--> Saved /scratch/dtm63837/Kilts_Panel/nielsen_extracts/output_markets/product_attr.parquet (28,788,956 rows)
+--> Saved /scratch/dtm63837/Kilts_Panel/nielsen_extracts/output_markets/product_desc.parquet (28,789,632 rows)
+--> Saved /scratch/dtm63837/Kilts_Panel/nielsen_extracts/output_markets/retailer.parquet (4,934 rows)
+trips cols: ['trip_code_uc', 'household_code', 'purchase_date', 'retailer_code', 'store_code_uc', 'panel_year', 'store_zip3', 'total_spent', 'method_of_payment_cd']
+purchases cols: ['trip_code_uc', 'upc', 'quantity', 'total_price_paid', 'coupon_value', 'deal_flag_uc', 'product_module_code_hms', 'size1_amount_hms', 'size1_unit_hms', 'brand_descr_hms', 'multi_hms', 'panel_year']
+retailer cols: ['retailer_code', 'channel_type']
+products cols: ['upc', 'panel_year', 'brand', 'brand_cd', 'protein_gram', 'protein_gram_cd', 'total_fat_gram', 'total_fat_gram_cd', 'sugar_gram', 'sugar_gram_cd', 'product_size', 'product_size_cd', 'product_descr', 'product_module_code', 'product_module_descr', 'multi', 'panel_year_prod', 'start_date']

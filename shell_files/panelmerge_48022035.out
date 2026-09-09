@@ -23,7 +23,7 @@ Requirement already satisfied: numpy<2.5,>=1.23.5 in /home/dtm63837/.local/lib/p
 
 [notice] A new release of pip is available: 24.0 -> 26.2.1
 [notice] To update, run: pip install --upgrade pip
-/scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/dat_expo/panel_merge.py:45: DeprecationWarning: the `streaming` parameter was deprecated in 1.25.0; use `engine` instead.
-  .collect(streaming=False)
-/var/spool/slurmd/job47859362/slurm_script: line 20: 1349113 Killed                  python /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/dat_expo/panel_merge.py
-slurmstepd: error: Detected 1 oom_kill event in StepId=47859362.batch. Some of the step tasks have been OOM Killed.
+  File "/scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/dat_expo/panel_merge.py", line 115
+    .rename('year': 'panel_year')
+                  ^
+SyntaxError: invalid syntax

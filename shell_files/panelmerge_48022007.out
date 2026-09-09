@@ -23,11 +23,7 @@ Requirement already satisfied: numpy<2.5,>=1.23.5 in /home/dtm63837/.local/lib/p
 
 [notice] A new release of pip is available: 24.0 -> 26.2.1
 [notice] To update, run: pip install --upgrade pip
-
-thread 'async-executor-0' (1309292) panicked at crates/polars-arrow/src/bitmap/immutable.rs:182:26:
-range end index 12501 out of range for slice of length 0
-note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
-
-thread 'async-executor-0' (1309292) panicked at crates/polars-arrow/src/array/builder.rs:177:62:
-called `Option::unwrap()` on a `None` value
-/var/spool/slurmd/job47857991/slurm_script: line 20: 1309287 Segmentation fault      (core dumped) python /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/dat_expo/panel_merge.py
+  File "/scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/dat_expo/panel_merge.py", line 115
+    .rename('year': 'panel_year')
+                  ^
+SyntaxError: invalid syntax

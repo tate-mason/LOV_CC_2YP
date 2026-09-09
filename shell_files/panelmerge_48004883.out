@@ -1,0 +1,79 @@
+Defaulting to user installation because normal site-packages is not writeable
+Requirement already satisfied: polars in /home/dtm63837/.local/lib/python3.12/site-packages (1.40.1)
+Requirement already satisfied: polars-runtime-32==1.40.1 in /home/dtm63837/.local/lib/python3.12/site-packages (from polars) (1.40.1)
+
+[notice] A new release of pip is available: 24.0 -> 26.2.1
+[notice] To update, run: pip install --upgrade pip
+Defaulting to user installation because normal site-packages is not writeable
+Requirement already satisfied: pandas in /home/dtm63837/.local/lib/python3.12/site-packages (3.0.3)
+Requirement already satisfied: numpy>=1.26.0 in /home/dtm63837/.local/lib/python3.12/site-packages (from pandas) (2.4.6)
+Requirement already satisfied: python-dateutil>=2.8.2 in /home/dtm63837/.local/lib/python3.12/site-packages (from pandas) (2.9.0.post0)
+Requirement already satisfied: six>=1.5 in /home/dtm63837/.local/lib/python3.12/site-packages (from python-dateutil>=2.8.2->pandas) (1.17.0)
+
+[notice] A new release of pip is available: 24.0 -> 26.2.1
+[notice] To update, run: pip install --upgrade pip
+Defaulting to user installation because normal site-packages is not writeable
+Requirement already satisfied: numpy in /home/dtm63837/.local/lib/python3.12/site-packages (2.4.6)
+
+[notice] A new release of pip is available: 24.0 -> 26.2.1
+[notice] To update, run: pip install --upgrade pip
+Defaulting to user installation because normal site-packages is not writeable
+Requirement already satisfied: scipy in /home/dtm63837/.local/lib/python3.12/site-packages (1.15.3)
+Requirement already satisfied: numpy<2.5,>=1.23.5 in /home/dtm63837/.local/lib/python3.12/site-packages (from scipy) (2.4.6)
+
+[notice] A new release of pip is available: 24.0 -> 26.2.1
+[notice] To update, run: pip install --upgrade pip
+--> Saved /scratch/dtm63837/Kilts_Panel/nielsen_extracts/output_markets/Atlanta_panelists.parquet (0 rows)
+--> Saved /scratch/dtm63837/Kilts_Panel/nielsen_extracts/output_markets/Chicago_panelists.parquet (0 rows)
+--> Saved /scratch/dtm63837/Kilts_Panel/nielsen_extracts/output_markets/Houston_panelists.parquet (0 rows)
+--> Saved /scratch/dtm63837/Kilts_Panel/nielsen_extracts/output_markets/Denver_panelists.parquet (0 rows)
+--> Saved /scratch/dtm63837/Kilts_Panel/nielsen_extracts/output_markets/Phoenix_panelists.parquet (0 rows)
+--> Saved /scratch/dtm63837/Kilts_Panel/nielsen_extracts/output_markets/Philadelphia_panelists.parquet (0 rows)
+--> Saved /scratch/dtm63837/Kilts_Panel/nielsen_extracts/output_markets/San Diego_panelists.parquet (0 rows)
+--> Saved /scratch/dtm63837/Kilts_Panel/nielsen_extracts/output_markets/Des Moines_panelists.parquet (0 rows)
+--> Saved /scratch/dtm63837/Kilts_Panel/nielsen_extracts/output_markets/purchases.parquet (164,725,773 rows)
+--> Saved /scratch/dtm63837/Kilts_Panel/nielsen_extracts/output_markets/trips.parquet (28,545,736 rows)
+--> Saved /scratch/dtm63837/Kilts_Panel/nielsen_extracts/output_markets/product_attr.parquet (28,788,956 rows)
+--> Saved /scratch/dtm63837/Kilts_Panel/nielsen_extracts/output_markets/product_desc.parquet (28,789,632 rows)
+--> Saved /scratch/dtm63837/Kilts_Panel/nielsen_extracts/output_markets/retailer.parquet (4,934 rows)
+trips cols: ['trip_code_uc', 'household_code', 'purchase_date', 'retailer_code', 'store_code_uc', 'panel_year', 'store_zip3', 'total_spent', 'method_of_payment_cd']
+purchases cols: ['trip_code_uc', 'upc', 'quantity', 'total_price_paid', 'coupon_value', 'deal_flag_uc', 'product_module_code_hms', 'size1_amount_hms', 'size1_unit_hms', 'brand_descr_hms', 'multi_hms', 'panel_year']
+retailer cols: ['retailer_code', 'channel_type']
+products cols: ['upc', 'year', 'brand', 'brand_cd', 'protein_gram', 'protein_gram_cd', 'commodity_group', 'commodity_group_cd', 'manufacturer_suggested_price_claim', 'manufacturer_suggested_price_claim_cd', 'cholesterol', 'cholesterol_cd', 'sodium_presence_claim', 'sodium_presence_claim_cd', 'fat_calorie_per_serving_size', 'fat_calorie_per_serving_size_cd', 'sugar_gram', 'sugar_gram_cd', 'competitive_category_ogrds', 'competitive_category_ogrds_cd', 'package_presentation_option', 'package_presentation_option_cd', 'additional_information', 'additional_information_cd', 'manufacturing_process', 'manufacturing_process_cd', 'serving_size_household', 'serving_size_household_cd', 'trans_fat_gram', 'trans_fat_gram_cd', 'serving_size_metric', 'serving_size_metric_cd', 'calories_per_serving_size', 'calories_per_serving_size_cd', 'secondary_size', 'secondary_size_cd', 'total_size', 'total_size_cd', 'organic_claim', 'organic_claim_cd', 'genetic_modification_claim', 'genetic_modification_claim_cd', 'total_carbohydrate_gram', 'total_carbohydrate_gram_cd', 'flavor', 'flavor_cd', 'target_group_gender', 'target_group_gender_cd', 'manufacturer_suggested_price', 'manufacturer_suggested_price_cd', 'prepriced', 'prepriced_cd', 'nutritional_health_claim', 'nutritional_health_claim_cd', 'usda_organic_seal', 'usda_organic_seal_cd', 'formulation', 'formulation_cd', 'strategic_ingredient_presence_claim', 'strategic_ingredient_presence_claim_cd', 'fat_presence_claim', 'fat_presence_claim_cd', 'price_reduction', 'price_reduction_cd', 'total_fat_gram', 'total_fat_gram_cd', 'serving_per_container', 'serving_per_container_cd', 'saturated_fat_gram', 'saturated_fat_gram_cd', 'form', 'form_cd', 'product_size', 'product_size_cd', 'base_size', 'base_size_cd', 'package_general_shape', 'package_general_shape_cd', 'calorie_claim', 'calorie_claim_cd', 'package_material_substance', 'package_material_substance_cd', 'sodium', 'sodium_cd', 'dietary_fiber', 'dietary_fiber_cd', 'claim', 'claim_cd', 'common_consumer_name', 'common_consumer_name_cd', 'deal_derived', 'deal_derived_cd', 'product_descr', 'product_module_code', 'product_module_descr', 'multi', 'year_right', 'start_date']
+Traceback (most recent call last):
+  File "/scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/dat_expo/panel_merge.py", line 131, in <module>
+    .sink_parquet(
+     ^^^^^^^^^^^^^
+  File "/home/dtm63837/.local/lib/python3.12/site-packages/polars/lazyframe/frame.py", line 2982, in sink_parquet
+    ldf.collect(engine=engine)
+  File "/home/dtm63837/.local/lib/python3.12/site-packages/polars/_utils/deprecation.py", line 97, in wrapper
+    return function(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/dtm63837/.local/lib/python3.12/site-packages/polars/lazyframe/opt_flags.py", line 343, in wrapper
+    return function(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/dtm63837/.local/lib/python3.12/site-packages/polars/lazyframe/frame.py", line 2510, in collect
+    return wrap_df(ldf.collect(engine, callback))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+polars.exceptions.DuplicateError: column with name 'panel_year_right' already exists
+
+You may want to try:
+- renaming the column prior to joining
+- using the `suffix` parameter to specify a suffix different to the default one ('_right')
+
+Resolved plan until failure:
+
+	---> FAILED HERE RESOLVING 'sink' <---
+Parquet SCAN [/scratch/dtm63837/Kilts_Panel/nielsen_extracts/output_markets/purchases.parquet]
+PROJECT */12 COLUMNS
+ESTIMATED ROWS: 164725773
+
+This error occurred with the following context stack:
+	[1] 'join schema resolving'
+	[2] 'join'
+	[3] 'join left'
+	[4] 'join'
+	[5] 'join left'
+	[6] 'join'
+	[7] 'sink'
+

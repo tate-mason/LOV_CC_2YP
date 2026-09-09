@@ -23,42 +23,21 @@ Requirement already satisfied: numpy<2.5,>=1.23.5 in /home/dtm63837/.local/lib/p
 
 [notice] A new release of pip is available: 24.0 -> 26.2.1
 [notice] To update, run: pip install --upgrade pip
-loading panelists 2022
-Panelists converted for 2022
-loading purchases
-Purchases converted
-loading trips
-Trips converted
-loading product attributes
-Product Attributes Converted
-loading product descriptions
-descriptions converted
-loading retailers
-retailers converted
-loading panelists 2023
-Panelists converted for 2023
-loading purchases
-Purchases converted
-loading trips
-Trips converted
-loading product attributes
-Product Attributes Converted
-loading product descriptions
-descriptions converted
-loading retailers
-retailers converted
-loading panelists 2024
-Panelists converted for 2024
-loading purchases
-Purchases converted
-loading trips
-Trips converted
-loading product attributes
-Product Attributes Converted
-loading product descriptions
-descriptions converted
-loading retailers
-retailers converted
-------------------------------------------------------------
-All Files Converted from .tsv to .parquet - Move to Merge
-------------------------------------------------------------
+--> Saved /scratch/dtm63837/Kilts_Panel/nielsen_extracts/output_markets/Atlanta_panelists.parquet (0 rows)
+--> Saved /scratch/dtm63837/Kilts_Panel/nielsen_extracts/output_markets/Chicago_panelists.parquet (0 rows)
+--> Saved /scratch/dtm63837/Kilts_Panel/nielsen_extracts/output_markets/Houston_panelists.parquet (0 rows)
+--> Saved /scratch/dtm63837/Kilts_Panel/nielsen_extracts/output_markets/Denver_panelists.parquet (0 rows)
+--> Saved /scratch/dtm63837/Kilts_Panel/nielsen_extracts/output_markets/Phoenix_panelists.parquet (0 rows)
+--> Saved /scratch/dtm63837/Kilts_Panel/nielsen_extracts/output_markets/Philadelphia_panelists.parquet (0 rows)
+--> Saved /scratch/dtm63837/Kilts_Panel/nielsen_extracts/output_markets/San Diego_panelists.parquet (0 rows)
+--> Saved /scratch/dtm63837/Kilts_Panel/nielsen_extracts/output_markets/Des Moines_panelists.parquet (0 rows)
+--> Saved /scratch/dtm63837/Kilts_Panel/nielsen_extracts/output_markets/purchases.parquet (164,725,773 rows)
+--> Saved /scratch/dtm63837/Kilts_Panel/nielsen_extracts/output_markets/trips.parquet (28,545,736 rows)
+--> Saved /scratch/dtm63837/Kilts_Panel/nielsen_extracts/output_markets/product_attr.parquet (28,788,956 rows)
+--> Saved /scratch/dtm63837/Kilts_Panel/nielsen_extracts/output_markets/product_desc.parquet (28,789,632 rows)
+--> Saved /scratch/dtm63837/Kilts_Panel/nielsen_extracts/output_markets/retailer.parquet (4,934 rows)
+Traceback (most recent call last):
+  File "/scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/dat_expo/panel_merge.py", line 100, in <module>
+    for name, d in datasets:
+        ^^^^^^^
+ValueError: too many values to unpack (expected 2)

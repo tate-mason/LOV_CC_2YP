@@ -23,34 +23,7 @@ Requirement already satisfied: numpy<2.5,>=1.23.5 in /home/dtm63837/.local/lib/p
 
 [notice] A new release of pip is available: 24.0 -> 26.2.1
 [notice] To update, run: pip install --upgrade pip
-loading panelists 2022
-Panelists converted for 2022
-loading purchases
-Traceback (most recent call last):
-  File "/scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/dat_expo/datCreate/panel_convert.py", line 16, in <module>
-    .sink_parquet(f'../../nielsen_extracts/purchases_{y}.parquet')
-     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/dtm63837/.local/lib/python3.12/site-packages/polars/lazyframe/frame.py", line 2982, in sink_parquet
-    ldf.collect(engine=engine)
-  File "/home/dtm63837/.local/lib/python3.12/site-packages/polars/_utils/deprecation.py", line 97, in wrapper
-    return function(*args, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/dtm63837/.local/lib/python3.12/site-packages/polars/lazyframe/opt_flags.py", line 343, in wrapper
-    return function(*args, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/dtm63837/.local/lib/python3.12/site-packages/polars/lazyframe/frame.py", line 2510, in collect
-    return wrap_df(ldf.collect(engine, callback))
-                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-polars.exceptions.ComputeError: could not parse `"THAT'S A PEPPERONI!" PIZZA BI` as dtype `str` at column 'brand_descr_hms' (column number 10)
-
-The current offset in the file is 445998 bytes.
-
-You might want to try:
-- increasing `infer_schema_length` (e.g. `infer_schema_length=10000`),
-- specifying correct dtype with the `schema_overrides` argument
-- setting `ignore_errors` to `True`,
-- adding `"THAT'S A PEPPERONI!" PIZZA BI` to the `null_values` list.
-
-Original error: ```invalid csv file
-
-Field `"THAT'S A PEPPERONI!" PIZZA BI` is not properly escaped.```
+  File "/scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/dat_expo/panel_merge.py", line 96
+    'retailer': retailers',
+                         ^
+SyntaxError: unterminated string literal (detected at line 96)

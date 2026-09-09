@@ -1,3 +1,0 @@
-/scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/dat_expo/code_check.py:5: PerformanceWarning: Determining the column names of a LazyFrame requires resolving its schema, which is a potentially expensive operation. Use `LazyFrame.collect_schema().names()` to get the column names without this warning.
-  print(df.columns)
-['trip_code_uc', 'household_code', 'purchase_date', 'retailer_code', 'store_code_uc', 'panel_year', 'store_zip3', 'total_spent', 'method_of_payment_cd']

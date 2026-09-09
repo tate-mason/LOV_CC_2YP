@@ -39,7 +39,7 @@ for m, codes in valid_codes.items():
             lazy_df = (
                 pl.scan_parquet(file_path)
                 .rename(str.lower)
-                .filter(pl.col('fips_county_code').cast(pl.Utf8).is_in(codes))
+                .filter(pl.col('fips_state_code').cast(pl.Utf8).is_in(codes))
             )
             yearly_lfs.append(lazy_df)
         combined_lazy = pl.concat(yearly_lfs, how='diagonal_relaxed')

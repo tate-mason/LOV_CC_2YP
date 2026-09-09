@@ -23,12 +23,10 @@ market_df = []
 for m in valid_codes:
     file_path = f'/scratch/dtm63837/Kilts_Panel/nielsen_extracts/output_markets/master_{m}.parquet'
 
-    lazy_df   = pl.scan_parquet(file_path)
+    lazy_df   = pl.scan_parquet(file_path).with_columns(pl.lit(m).alias("market_name"))
     market_df.append(lazy_df)
 
 combined_lazy = pl.concat(market_df, how='diagonal_relaxed')
-combined_df   = combined_lazy.collect()
-
 combined_df.sink_parquet(os.path.join(output_dir, 'full_panel.parquet'))
 print('--> Saved master panel parquet file')
 

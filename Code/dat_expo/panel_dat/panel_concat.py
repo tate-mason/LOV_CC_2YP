@@ -26,7 +26,17 @@ market_df = []
 for m in valid_codes:
     file_path = f'/scratch/dtm63837/Kilts_Panel/nielsen_extracts/output_markets/master_{m}.parquet'
 
-    lazy_df   = pl.scan_parquet(file_path).with_columns(pl.lit(m).alias("market_name"))
+    lazy_df   = (
+        pl.scan_parquet(file_path)
+        .rename(str.lower)
+        .with_columns(
+            pl.lit(m)
+            .alias("market_name")
+        )
+        .filter(
+            pl.col('household_size') == 1
+        )
+    )
     market_df.append(lazy_df)
 
 combined_lazy = pl.concat(market_df, how='diagonal_relaxed')

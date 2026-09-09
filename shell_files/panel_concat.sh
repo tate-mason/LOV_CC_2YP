@@ -14,4 +14,4 @@ ml Python/3.12.3-GCCcore-13.3.0 # Load software module and run bowtie2 below
 
 pip install -qqq -r /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/shell_files/requirements.txt
 
-python /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/dat_expo/code_check.py
+python /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/dat_expo/panel_dat/panel_concat.py

@@ -18,3 +18,8 @@ for d, y in product(dat, years):
     market_df = pd.read_parquet(f"/scratch/dtm63837/Kilts_Panel/nielsen_extracts/HMS/{d}_{y}.parquet")
     print(market_df.columns.to_list())
 
+
+df_panel = pd.read_parquet(f'/scratch/dtm63837/Kilts_Panel/nielsen_extracts/output_markets/full_panel.parquet')
+
+print(df_panel.shape)
+print(df_panel['household_code'].nunique())

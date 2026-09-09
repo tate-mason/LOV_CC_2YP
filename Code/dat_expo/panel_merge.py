@@ -120,7 +120,8 @@ products  = (
         )
         .rename({'year': 'panel_year'}),
         on = 'upc',
-        how='left'
+        how='left',
+        suffix = '_prod'
     )
 )
 retailers = pl.scan_parquet(os.path.join(output_dir, 'retailer.parquet'))
@@ -141,54 +142,35 @@ for m in valid_codes:
         pl.scan_parquet(
             os.path.join(output_dir, f'{m}_panelists.parquet')
         ), 
-        on    = ['panel_year','household_code'], 
-        how   = 'inner'
+        on     = ['panel_year','household_code'], 
+        how    = 'inner',
+        suffix = '_panelist'
+
     )
 
     tpp    = trip_panelists.join(
         purchases,
-        on    = ['panel_year','trip_code_uc'],
-        how   = 'inner'
+        on     = ['panel_year','trip_code_uc'],
+        how    = 'inner',
+        suffix = '_purchase'
     )
 
     tpp_r  = tpp.join(
         retailers,
         on    = 'retailer_code',
-        how   = 'left'
+        how   = 'left',
+        suffix = '_retailer'
     )
 
     master    = (
         tpp_r
         .join(
             products,
-            on    = 'upc',
-            how   = 'left'
+            on     = 'upc',
+            how    = 'left',
+            suffix = '_product'
         )
         .sink_parquet(
             os.path.join(output_dir, f'master_{m}.parquet')
         )
     )
-
-
-
-#tpp = trip_panelists.join(purchases, on = 'trip_code_uc', how='left')
-#del trip_panelists, purchases
-#gc.collect()
-#
-#tpp_r = tpp.join(retailer, on = 'retailer_code', how='left')
-#del tpp, retailer
-#gc.collect()
-#
-#products = product_attr.join(product_desc, on = 'upc', how = 'left')
-#del product_attr, product_desc
-#gc.collect()
-#
-#master = (
-#        tpp_r.join(products, on = 'upc')
-#        .collect(streaming=False)
-#        .write_parquet('/scratch/dtm63837/Kilts_Panel/nielsen_extracts/HMS/master_panel.parquet')
-#)
-#del tpp_r, products
-#gc.collect()
-#
-#print("done")

@@ -11,7 +11,7 @@ mapping_df = df.iloc[:,[1, 2, 3, 4,5]].drop_duplicates().reset_index(drop=True)
 
 print(mapping_df)
 
-dat   = ['panelists', 'trips', 'retailers', 'product_attr', 'product_desc', 'purchases']
+dat   = ['panelists', 'trips', 'retailer', 'product_attr', 'product_desc', 'purchases']
 years = [2022, 2023, 2024]
 
 for d, y in product(dat, years):

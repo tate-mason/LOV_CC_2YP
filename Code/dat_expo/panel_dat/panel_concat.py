@@ -33,9 +33,6 @@ for m in valid_codes:
             pl.lit(m)
             .alias("market_name")
         )
-        .filter(
-            pl.col('household_size') == 1
-        )
     )
     market_df.append(lazy_df)
 

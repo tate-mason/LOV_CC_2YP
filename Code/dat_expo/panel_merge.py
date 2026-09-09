@@ -119,7 +119,7 @@ products  = (
                 output_dir, 'product_desc.parquet'
             )
         )
-        .rename('year': 'panel_year'),
+        .rename({'year': 'panel_year'}),
         on = 'upc',
         how='left'
     )

@@ -30,7 +30,7 @@ for m in valid_codes:
     market_df.append(lazy_df)
 
 combined_lazy = pl.concat(market_df, how='diagonal_relaxed')
-combined_df.sink_parquet(os.path.join(output_dir, 'full_panel.parquet'))
+combined_lazy.sink_parquet(os.path.join(output_dir, 'full_panel.parquet'))
 print('--> Saved master panel parquet file')
 
 

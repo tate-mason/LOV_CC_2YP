@@ -58,7 +58,7 @@ for m, codes in valid_codes.items():
                 .with_columns([
                     pl.col('fips_state_code').cast(pl.Utf8),
                     pl.col('fips_county_code').cast(pl.Utf8),
-                    cs.integer().cast(pl.Int;64)
+                    cs.integer().cast(pl.Int64)
                 ])
                 .with_columns(
                     (

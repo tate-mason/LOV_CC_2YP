@@ -179,7 +179,7 @@ for m in valid_codes:
             suffix = '_product'
         )
         .join(
-            hieratchy,
+            hierarchy,
             on     =['panel_year', 'upc'],
             how    = 'left',
             suffix = '_hierarchy'

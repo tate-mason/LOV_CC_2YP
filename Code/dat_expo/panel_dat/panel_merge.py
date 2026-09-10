@@ -1,6 +1,7 @@
 import os
 from itertools import product
 import polars as pl
+import polars.selectors as cs
 import scipy as sp
 import gc
 
@@ -54,16 +55,24 @@ for m, codes in valid_codes.items():
                     'panelist_zip_code',
                     'fips_state_code',
                     'fips_county_code'])
+                .with_columns([
+                    pl.col('fips_state_code').cast(pl.Utf8),
+                    pl.col('fips_county_code').cast(pl.Utf8)
+                    cs.integer().cast(pl.Int;64)
+
+                ])
                 .with_columns(
                     (
-                        pl.col('fips_state_code').cast(pl.Utf8).str.zfill(2) +
-                        pl.col('fips_county_code').cast(pl.Utf8).str.zfill(3)
-                    ).alias('fips_full')
+                        pl.col('fips_state_code').str.zfill(2) +
+                        pl.col('fips_county_code').str.zfill(3)
+                    ).alias('fips_full'),
+                    pl.col('household_size').cast(pl.Int64)
                 )
                 .filter(pl.col('fips_full').is_in(codes))
-                .filter(pl.col('household_size').cast(pl.Int64)==1)
+                .filter(pl.col('household_size')==1)
                 .drop('fips_full')  # Optional: drop the temp column
             )
+            
             yearly_lfs.append(lazy_df)
         combined_lazy = pl.concat(yearly_lfs, how='diagonal_relaxed')
         df_dataset = combined_lazy.collect()
@@ -81,6 +90,7 @@ for d in dat:
         lazy_df = (
             pl.scan_parquet(file_path)
             .rename(str.lower)
+            .with_columns(cs.integer().cast(pl.Int64))
         )
         yearly_lfs.append(lazy_df)
     combined_lazy = pl.concat(yearly_lfs, how='diagonal_relaxed')

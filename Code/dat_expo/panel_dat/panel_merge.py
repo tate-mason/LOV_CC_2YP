@@ -92,8 +92,11 @@ retailers = pl.scan_parquet(os.path.join(output_dir, 'retailer.parquet'))
 
 hierarchy = (
     pl.scan_parquet(os.path.join(output_dir, 'hierarchy.parquet'))
-    .rename({'year': 'panel_year'}, missing_ok=True)
+    .with_columns(
+        pl.col('year').alias('panel_year') if 'year' in pl.scan_parquet(os.path.join(output_dir, 'hierarchy.parquet')).collect_schema().names() else pl.col('panel_year')
+    )
 )
+
 
 products = (
     pl.scan_parquet(os.path.join(output_dir, 'product_attr.parquet'))

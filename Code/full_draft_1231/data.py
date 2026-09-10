@@ -61,8 +61,8 @@ agent_panel.columns                     = agent_panel.columns.str.lower() # make
 
 agent_panel                    = agent_panel[agent_panel['household_size'] == 1] # subset to single agent hh
 agent_panel                    = agent_panel[agent_panel.groupby('household_code')['trip_code_uc'].transform('count') > 2] # at least 2 shopping trips
-agent_panel                    = agent_panel[agent_panel['size1_units'] == 'OZ'] # keep only yogurt measured in ounces
-agent_panel                    = agent_panel[agent_panel['size1_amount'].between(5,8)] # restrict to cups of yogurt
+agent_panel                    = agent_panel[agent_panel['size1_unit_hms'] == 'OZ'] # keep only yogurt measured in ounces
+agent_panel                    = agent_panel[agent_panel['size1_amount_hms'].between(5,8)] # restrict to cups of yogurt
 
 agent_panel['purchase_date']   = agent_panel['purchase_date'].str.replace('-','',regex=False)   # get rid of hyphens in purchase date
 agent_panel['purchase_date']   = pd.to_datetime(agent_panel['purchase_date'], format='%Y%m%d')  # convert to YearMonthDay format

@@ -66,7 +66,7 @@ for d in general_dats:
     yearly_lfs = []
     for y in years:
         file_path = f"{hms_dir}/{d}_{y}.parquet"
-        lazy_df = pl.scan_parquet(file_path).rename(str.lower())
+        lazy_df = pl.scan_parquet(file_path).rename(str.lower)
         
         # Explicitly cast common join keys to Int64 if they exist
         cols = lazy_df.collect_schema().names()

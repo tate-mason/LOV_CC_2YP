@@ -9,7 +9,7 @@ for y in years:
         separator='\t',
         quote_char=None,
         infer_schema_length=0).rename(str.lower)
-        .sink_parquet(f'../../nielsen_extracts/HMS/panelists_{y}.parquet')
+        .sink_parquet(f'/scratch/dtm63837/Kilts_Panel/nielsen_extracts/HMS/panelists_{y}.parquet')
     )
     print(f'Panelists converted for {y}')
 
@@ -19,7 +19,7 @@ for y in years:
         separator='\t',
         quote_char=None,
         infer_schema_length=0).rename(str.lower)
-        .sink_parquet(f'../../nielsen_extracts/HMS/purchases_{y}.parquet')
+        .sink_parquet(f'/scratch/dtm63837/Kilts_Panel/nielsen_extracts/HMS/purchases_{y}.parquet')
     )
     print('Purchases converted')
 
@@ -29,7 +29,7 @@ for y in years:
         separator='\t',
         quote_char=None,
         infer_schema_length=0).rename(str.lower)
-        .sink_parquet(f'../../nielsen_extracts/HMS/trips_{y}.parquet')
+        .sink_parquet(f'/scratch/dtm63837/Kilts_Panel/nielsen_extracts/HMS/trips_{y}.parquet')
     )
     print('Trips converted')
     
@@ -39,7 +39,7 @@ for y in years:
             separator='\t',
             quote_char=None,
             infer_schema_length=0).rename(str.lower)
-        .sink_parquet(f'../../nielsen_extracts/HMS/product_attr_{y}.parquet')
+        .sink_parquet(f'/scratch/dtm63837/Kilts_Panel/nielsen_extracts/HMS/product_attr_{y}.parquet')
     )
     print('Product Attributes Converted')
     

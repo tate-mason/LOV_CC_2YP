@@ -209,8 +209,10 @@ Yogurt Only:
 
 agent_master['quantity'] = pd.to_numeric(agent_master['quantity'], errors='coerce')
 agent_master['household_income'] = pd.to_numeric(agent_master['household_income'], errors='coerce')
-
+agent_master['deal_flag_uc'] = pd.to_numeric(agent_master['deal_flag_uc'], errors='coerce')
 agent_master['male_head_age'] = agent_master['male_head_age'].replace(0, np.nan)
+agent_master['male_head_age'] = pd.to_numeric(agent_master['male_head_age'], errors='coerce')
+agent_master['female_head_age'] = pd.to_numeric(agent_master['female_head_age'], errors='coerce')
 agent_master['head_age'] = agent_master['male_head_age'].fillna(agent_master['female_head_age'])
 agent_yogurt = agent_master.copy() # copy full sample
 agent_yogurt = agent_yogurt[agent_yogurt['product_module_code'] == 2510] # subset to yogurt purchases

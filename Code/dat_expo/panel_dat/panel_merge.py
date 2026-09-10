@@ -7,7 +7,7 @@ import gc
 output_dir = "/scratch/dtm63837/Kilts_Panel/nielsen_extracts/output_markets"
 os.makedirs(output_dir, exist_ok=True)
 # data sets being loaded
-dat = ['purchases', 'trips', 'product_attr', 'product_desc', 'retailer']
+dat = ['purchases', 'trips', 'product_attr', 'product_desc', 'retailer', 'hierarchy']
 years = [2022, 2023, 2024]
 valid_codes = {
     "Atlanta": [f'{x:05d}' for x in range(13010, 13301)],
@@ -127,6 +127,12 @@ products  = (
     )
 )
 retailers = pl.scan_parquet(os.path.join(output_dir, 'retailer.parquet'))
+
+hierarchy = (
+        pl.scan_parquet(os.path.join(output_dir, 'hierarchy.parquet')),
+        .rename({'year': 'panel_year'})
+)
+
 # Build a single set containing all numbers across all ranges
 
 datasets = {
@@ -171,6 +177,12 @@ for m in valid_codes:
             on     = 'upc',
             how    = 'left',
             suffix = '_product'
+        )
+        .join(
+            hieratchy,
+            on     =['panel_year', 'upc'],
+            how    = 'left',
+            suffix = '_hierarchy'
         )
         .sink_parquet(
             os.path.join(output_dir, f'master_{m}.parquet')

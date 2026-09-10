@@ -63,6 +63,17 @@ for y in years:
     )
     print('retailers converted')
 
+    print('loading product hierarchy')
+    hierarchy = (
+        pl.scan_csv(f'/scratch/dtm63837/Kilts_Panel/nielsen_extracts/HMS/{y}/Annual_Files/producthierarchy.tsv',
+        separator='\t',
+        quote_char=None,
+        infer_schema_length=0
+        ).rename(str.lower)
+        .sink_parquet(f'/scratch/dtm63837/Kilts_Panel/nielsen_extracts/HMS/hierarchy_{y}.parquet')
+    )
+    print('hierarchy converted')
+
 
 
 

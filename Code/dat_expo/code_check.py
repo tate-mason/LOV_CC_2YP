@@ -21,7 +21,8 @@ import polars as pl
 #    print(market_df.columns.to_list())
 
 
-df_panel = pl.scan_parquet(f'/scratch/dtm63837/Kilts_Panel/nielsen_extracts/output_markets/full_panel.parquet').collect().to_pandas()
+df_panel = (
+        pl.scan_parquet(f'/scratch/dtm63837/Kilts_Panel/nielsen_extracts/output_markets/full_panel.parquet').collect().to_pandas()
 
 print(df_panel.shape)
 print(df_panel['household_code'].nunique())

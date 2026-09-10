@@ -10,19 +10,19 @@ os.makedirs(output_dir, exist_ok=True)
 dat = ['purchases', 'trips', 'product_attr', 'product_desc', 'retailer']
 years = [2022, 2023, 2024]
 valid_codes = {
-    "Atlanta": [f'{x:05d}' for x in range(13010, 13300)],
-    "Chicago": [f'{x:05d}' for x in range(17031, 18128)],
-    "Houston": [f'{x:05d}' for x in range(48015, 48482)],
-    "Denver":  [f'{x:05d}' for x in range(8001, 8126)],
-    "Phoenix": [f'{x:05d}' for x in range(4007, 4026)],
+    "Atlanta": [f'{x:05d}' for x in range(13010, 13301)],
+    "Chicago": [f'{x:05d}' for x in range(17031, 18129)],
+    "Houston": [f'{x:05d}' for x in range(48015, 48483)],
+    "Denver":  [f'{x:05d}' for x in range(8001, 8127)],
+    "Phoenix": [f'{x:05d}' for x in range(4007, 4027)],
     "Philadelphia": [
         f'{x:05d}' for x in set().union(
-            range(34001, 34004),
-            range(42017, 42102)
+            range(34001, 34005),
+            range(42017, 42103)
         )
     ],
     "San_Diego": ["06073"],
-    "Des_Moines":[f'{x:05d}' for x in range(19001, 19199)]
+    "Des_Moines":[f'{x:05d}' for x in range(19001, 19200)]
 }
 
 market_dfs = {}

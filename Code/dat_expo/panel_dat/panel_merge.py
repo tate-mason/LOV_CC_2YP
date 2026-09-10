@@ -129,7 +129,7 @@ products  = (
 retailers = pl.scan_parquet(os.path.join(output_dir, 'retailer.parquet'))
 
 hierarchy = (
-        pl.scan_parquet(os.path.join(output_dir, 'hierarchy.parquet')),
+        pl.scan_parquet(os.path.join(output_dir, 'hierarchy.parquet'))
         .rename({'year': 'panel_year'})
 )
 

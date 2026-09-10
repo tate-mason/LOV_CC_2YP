@@ -54,6 +54,7 @@ agent_panel   = (
     .to_pandas()                   # convert from LazyFrame to pandas DataFrame
 )
 
+console.print(agent_panel.loc['product_module_code', 'product_module_descr'])
 
 # Agent panel cleaning
 agent_panel                             = agent_panel.convert_dtypes(dtype_backend = 'numpy_nullable') # make data numpy compatible
@@ -99,7 +100,7 @@ print("Columns in flavors.csv:", flavors.columns.tolist())
 #print("dtypes:", merged_panel['upc'].dtype, flavors['upc'].dtype)
 
 agent_master  = agent_panel.merge(flavors, on='upc', how='left') # merge flavors on UPC codes with a left join
-agent_master  = agent_master.dropna(subset=['quantity', 'product_group_code', 'flavor_code', 'flavor_descr']) # drop NA for key var after merge
+agent_master  = agent_master.dropna(subset=['quantity', 'product_module_code', 'flavor_code', 'flavor_descr']) # drop NA for key var after merge
 agent_master  = agent_master.assign(
     flavor_class = np.select(
         [
@@ -209,7 +210,7 @@ Yogurt Only:
 agent_master['male_head_age'] = agent_master['male_head_age'].replace(0, np.nan)
 agent_master['head_age'] = agent_master['male_head_age'].fillna(agent_master['female_head_age'])
 agent_yogurt = agent_master.copy() # copy full sample
-agent_yogurt = agent_yogurt[agent_yogurt['product_group_code'] == 2510] # subset to yogurt purchases
+agent_yogurt = agent_yogurt[agent_yogurt['product_module_code'] == 2510] # subset to yogurt purchases
 multipack_pattern   = r'MULTI|MULTIPACK|\bPK\b|\bCT\b'
 agent_yogurt = agent_yogurt[
     ~agent_yogurt['upc_descr'].str.contains(multipack_pattern,case=False, na=False)

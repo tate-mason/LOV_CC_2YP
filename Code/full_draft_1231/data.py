@@ -54,7 +54,7 @@ agent_panel   = (
     .to_pandas()                   # convert from LazyFrame to pandas DataFrame
 )
 
-console.print(agent_panel.loc['category', 'category_cd'])
+console.print(agent_panel.shape)
 
 # Agent panel cleaning
 agent_panel                             = agent_panel.convert_dtypes(dtype_backend = 'numpy_nullable') # make data numpy compatible

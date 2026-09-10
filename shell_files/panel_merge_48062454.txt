@@ -1,0 +1,4 @@
+  File "/scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/dat_expo/panel_dat/panel_merge.py", line 133
+    .rename({'year': 'panel_year'})
+    ^
+SyntaxError: invalid syntax

@@ -1,0 +1,25 @@
+Columns in flavors.csv: ['upc', 'module', 'flavor_code', 'flavor_descr', 'num_flavor']
+╭───────────────────── Traceback (most recent call last) ──────────────────────╮
+│ /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/full_draft_1231/data.py:102 in │
+│ <module>                                                                     │
+│                                                                              │
+│    99 #print("dtypes:", merged_panel['upc'].dtype, flavors['upc'].dtype)     │
+│   100                                                                        │
+│   101 agent_master  = agent_panel.merge(flavors, on='upc', how='left') # mer │
+│ ❱ 102 agent_master  = agent_master.dropna(subset=['quantity', 'product_group │
+│   103 agent_master  = agent_master.assign(                                   │
+│   104 │   flavor_class = np.select(                                          │
+│   105 │   │   [                                                              │
+│                                                                              │
+│ /home/dtm63837/.local/lib/python3.12/site-packages/pandas/core/frame.py:7801 │
+│ in dropna                                                                    │
+│                                                                              │
+│    7798 │   │   │   indices = ax.get_indexer_for(subset)                     │
+│    7799 │   │   │   check = indices == -1                                    │
+│    7800 │   │   │   if check.any():                                          │
+│ ❱  7801 │   │   │   │   raise KeyError(np.array(subset)[check].tolist())     │
+│    7802 │   │   │   agg_obj = self.take(indices, axis=agg_axis)              │
+│    7803 │   │                                                                │
+│    7804 │   │   if thresh is not lib.no_default:                             │
+╰──────────────────────────────────────────────────────────────────────────────╯
+KeyError: ['product_group_code']

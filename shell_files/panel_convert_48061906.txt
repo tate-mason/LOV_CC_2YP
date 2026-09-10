@@ -1,0 +1,45 @@
+loading panelists 2022
+Panelists converted for 2022
+loading purchases
+Purchases converted
+loading trips
+Trips converted
+loading product attributes
+Product Attributes Converted
+loading product descriptions
+descriptions converted
+loading retailers
+retailers converted
+loading product hierarchy
+hierarchy converted
+loading panelists 2023
+Panelists converted for 2023
+loading purchases
+Purchases converted
+loading trips
+Trips converted
+loading product attributes
+Product Attributes Converted
+loading product descriptions
+descriptions converted
+loading retailers
+retailers converted
+loading product hierarchy
+hierarchy converted
+loading panelists 2024
+Panelists converted for 2024
+loading purchases
+Purchases converted
+loading trips
+Trips converted
+loading product attributes
+Product Attributes Converted
+loading product descriptions
+descriptions converted
+loading retailers
+retailers converted
+loading product hierarchy
+hierarchy converted
+------------------------------------------------------------
+All Files Converted from .tsv to .parquet - Move to Merge
+------------------------------------------------------------

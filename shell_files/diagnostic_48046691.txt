@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/dat_expo/code_check.py", line 24, in <module>
+    df_panel = pl.scan_parquet(f'/scratch/dtm63837/Kilts_Panel/nielsen_extracts/output_markets/full_panel.parquet').to_pandas()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'LazyFrame' object has no attribute 'to_pandas'

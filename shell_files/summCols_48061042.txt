@@ -1,0 +1,14 @@
+Columns in flavors.csv: ['upc', 'module', 'flavor_code', 'flavor_descr', 'num_flavor']
+╭───────────────────── Traceback (most recent call last) ──────────────────────╮
+│ /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/full_draft_1231/data.py:98 in  │
+│ <module>                                                                     │
+│                                                                              │
+│    95                                                                        │
+│    96 # Agent merge and clean                                                │
+│    97 print("Columns in flavors.csv:", flavors.columns.tolist())             │
+│ ❱  98 print("Columns in merged_panel:", merged_panel.columns.tolist())       │
+│    99 print("dtypes:", merged_panel['upc'].dtype, flavors['upc'].dtype)      │
+│   100                                                                        │
+│   101 agent_master  = agent_panel.merge(flavors, on='upc', how='left') # mer │
+╰──────────────────────────────────────────────────────────────────────────────╯
+NameError: name 'merged_panel' is not defined

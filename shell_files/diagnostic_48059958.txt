@@ -1,0 +1,4 @@
+  File "/scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/dat_expo/code_check.py", line 24
+    df_panel = (
+               ^
+SyntaxError: '(' was never closed

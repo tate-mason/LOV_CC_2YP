@@ -1,0 +1,20 @@
+Traceback (most recent call last):
+  File "/scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/dat_expo/panel_dat/panel_merge.py", line 68, in <module>
+    df_dataset = combined_lazy.collect()
+                 ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/dtm63837/.local/lib/python3.12/site-packages/polars/_utils/deprecation.py", line 97, in wrapper
+    return function(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/dtm63837/.local/lib/python3.12/site-packages/polars/lazyframe/opt_flags.py", line 343, in wrapper
+    return function(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/dtm63837/.local/lib/python3.12/site-packages/polars/lazyframe/frame.py", line 2510, in collect
+    return wrap_df(ldf.collect(engine, callback))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+polars.exceptions.ComputeError: cannot compare string with numeric type (i32)
+
+This error occurred in the following expression:
+	[(col("household_size_min")) > (dyn int: 1)]
+while evaluating this larger expression:
+	[([([(col("household_size_nc")) == (col("len"))]) | ([([(col("household_size_min")) > (dyn int: 1)]) & (col("household_size_min").alias("").is_not_null())])]) | ([([(col("household_size_max")) < (dyn int: 1)]) & (col("household_size_max").alias("").is_not_null())])]
+

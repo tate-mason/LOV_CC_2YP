@@ -207,8 +207,8 @@ Yogurt Only:
     - mean consecutive buys
 """
 
-agent_master['quantity'] = pd.to_numeric(df['quantity'], errors='coerce')
-agent_master['household_income'] = pd.to_numeric(df['household_income'], errors='coerce')
+agent_master['quantity'] = pd.to_numeric(agent_master['quantity'], errors='coerce')
+agent_master['household_income'] = pd.to_numeric(agent_master['household_income'], errors='coerce')
 
 agent_master['male_head_age'] = agent_master['male_head_age'].replace(0, np.nan)
 agent_master['head_age'] = agent_master['male_head_age'].fillna(agent_master['female_head_age'])

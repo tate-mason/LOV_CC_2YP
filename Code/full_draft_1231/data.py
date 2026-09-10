@@ -211,10 +211,10 @@ agent_master['male_head_age'] = agent_master['male_head_age'].replace(0, np.nan)
 agent_master['head_age'] = agent_master['male_head_age'].fillna(agent_master['female_head_age'])
 agent_yogurt = agent_master.copy() # copy full sample
 agent_yogurt = agent_yogurt[agent_yogurt['product_module_code'] == 2510] # subset to yogurt purchases
-multipack_pattern   = r'MULTI|MULTIPACK|\bPK\b|\bCT\b'
-agent_yogurt = agent_yogurt[
-    ~agent_yogurt['upc_descr'].str.contains(multipack_pattern,case=False, na=False)
-]
+#multipack_pattern   = r'MULTI|MULTIPACK|\bPK\b|\bCT\b'
+#agent_yogurt = agent_yogurt[
+#    ~agent_yogurt['upc_descr'].str.contains(multipack_pattern,case=False, na=False)
+#]
 console.print(
     f'Number of households in full sample:                  {agent_master['household_code'].nunique()}\n',
     f'Number of yogurt purchasing households:               {agent_yogurt['household_code'].nunique()}\n',

@@ -98,20 +98,19 @@ hierarchy = (
 )
 
 
-products = (
-    pl.scan_parquet(os.path.join(output_dir, 'product_attr.parquet'))
-    .with_columns(
-        pl.col('year').alias('panel_year') if 'year' in pl.scan_parquet(os.path.join(output_dir, 'product_attr.parquet')).collect_schema().names() else pl.col('panel_year')
-    )
-    .join(
-        pl.scan_parquet(os.path.join(output_dir, 'product_desc.parquet'))
-    .with_columns(
-        pl.col('year').alias('panel_year') if 'year' in pl.scan_parquet(os.path.join(output_dir, 'product_desc.parquet')).collect_schema().names() else pl.col('panel_year')
-    )
-        on=['panel_year', 'upc'],
-        how='left',
-        suffix='_prod'
-    )
+attr_lf = pl.scan_parquet(os.path.join(output_dir, 'product_attr.parquet'))
+if 'year' in attr_lf.collect_schema().names():
+    attr_lf = attr_lf.rename({'year': 'panel_year'})
+
+desc_lf = pl.scan_parquet(os.path.join(output_dir, 'product_desc.parquet'))
+if 'year' in desc_lf.collect_schema().names():
+    desc_lf = desc_lf.rename({'year': 'panel_year'})
+
+products = attr_lf.join(
+    desc_lf,
+    on=['panel_year', 'upc'],
+    how='left',
+    suffix='_prod'
 )
 
 for m in valid_codes:

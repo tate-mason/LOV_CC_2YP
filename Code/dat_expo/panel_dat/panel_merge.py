@@ -100,10 +100,14 @@ hierarchy = (
 
 products = (
     pl.scan_parquet(os.path.join(output_dir, 'product_attr.parquet'))
-    .rename({'year': 'panel_year'}, missing_ok=True)
+    .with_columns(
+        pl.col('year').alias('panel_year') if 'year' in pl.scan_parquet(os.path.join(output_dir, 'product_attr.parquet')).collect_schema().names() else pl.col('panel_year')
+    )
     .join(
         pl.scan_parquet(os.path.join(output_dir, 'product_desc.parquet'))
-        .rename({'year': 'panel_year'}, missing_ok=True),
+    .with_columns(
+        pl.col('year').alias('panel_year') if 'year' in pl.scan_parquet(os.path.join(output_dir, 'product_desc.parquet')).collect_schema().names() else pl.col('panel_year')
+    )
         on=['panel_year', 'upc'],
         how='left',
         suffix='_prod'

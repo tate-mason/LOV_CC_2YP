@@ -99,7 +99,7 @@ agent_panel['upc']             = agent_panel['upc'].astype('Int64')           # 
 
 #=== Merging Flavor Data ===#
 
-agent_master  = agent_master.dropna(subset=['quantity', 'product_module_code_hms', 'flavor_cd', 'flavor']) # drop NA for key var after merge
+agent_master  = agent_master.dropna(subset=['quantity', 'product_module_code', 'flavor_cd', 'flavor']) # drop NA for key var after merge
 agent_master  = agent_master.assign(
     flavor_class = np.select(
         [
@@ -133,7 +133,7 @@ agent_master = agent_master.assign(
 )
 
 agent_master['yogurt_purchase'] = (
-    (agent_master['product_module_code_hms'].isin([3612,3603]) & (agent_master['quantity']>0)) # create dummy for HH who bought at least one yogurt product
+    (agent_master['product_module_code'].isin([3612,3603]) & (agent_master['quantity']>0)) # create dummy for HH who bought at least one yogurt product
 ).astype(int)
 agent_master['no_yogurt']       = (
     1 - agent_master['yogurt_purchase'] # 0 when purchased, 1 when no purchase

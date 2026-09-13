@@ -59,7 +59,8 @@ agent_panel   = (
 )
 
 console.print(agent_panel.shape)
-console.print(agent_panel[['flavor', 'flavor_cd']].drop_duplicates())
+console.print(agent_panel[['product_module_code', 'product_module_desc']].drop_duplicates())
+#console.print(agent_panel[['flavor', 'flavor_cd']].drop_duplicates())
 console.print(agent_panel.columns.tolist())
 
 # Agent panel cleaning

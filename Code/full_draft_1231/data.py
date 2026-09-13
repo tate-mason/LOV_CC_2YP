@@ -31,7 +31,6 @@ console=Console() # alias for function
 hms_path  = '/scratch/dtm63837/Kilts_Panel/nielsen_extracts/output_markets/full_panel.parquet' # HomeScan
 #rms_path  = '/scratch/dtm63837/Kilts_Panel/RMS/master_retail.parquet' # MarketScan
 #out_path  = '/scratch/dtm63837/Kilts_Panel/nielsen_extracts/master.parquet' # Merged
-flav_path = '/scratch/dtm63837/Kilts_Panel/Reference_Documentation/2004-2020_Documentation/Latest_Flavor_2010.csv' # Flavors
 
 #=== Agent Panel Operations ===#
 
@@ -55,6 +54,7 @@ agent_panel   = (
 )
 
 console.print(agent_panel.shape)
+console.print(agent_panel.loc['flavor, flavor_cd'])
 console.print(agent_panel.columns.tolist())
 
 # Agent panel cleaning
@@ -93,16 +93,7 @@ agent_panel['upc']             = agent_panel['upc'].astype('Int64')           # 
 
 #=== Merging Flavor Data ===#
 
-flavors      = pd.read_csv(flav_path) # load in flavors documentation
-
-# Agent merge and clean
-print("Columns in flavors.csv:", flavors.columns.tolist())
-#print("Columns in merged_panel:", merged_panel.columns.tolist())
-#print("dtypes:", merged_panel['upc'].dtype, flavors['upc'].dtype)
-
-agent_master  = agent_panel.merge(flavors, on='upc', how='left') # merge flavors on UPC codes with a left join
-console.print(agent_master.shape)
-agent_master  = agent_master.dropna(subset=['quantity', 'product_module_code_hms', 'flavor_code', 'flavor_descr']) # drop NA for key var after merge
+agent_master  = agent_master.dropna(subset=['quantity', 'product_module_code_hms', 'flavor_cd', 'flavor']) # drop NA for key var after merge
 agent_master  = agent_master.assign(
     flavor_class = np.select(
         [

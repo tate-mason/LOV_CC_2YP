@@ -55,7 +55,7 @@ agent_panel   = (
 )
 
 console.print(agent_panel.shape)
-console.print(agent_panel.columns.to_list())
+console.print(agent_panel.columns.tolist())
 
 # Agent panel cleaning
 agent_panel                             = agent_panel.convert_dtypes(dtype_backend = 'numpy_nullable') # make data numpy compatible
@@ -101,6 +101,7 @@ print("Columns in flavors.csv:", flavors.columns.tolist())
 #print("dtypes:", merged_panel['upc'].dtype, flavors['upc'].dtype)
 
 agent_master  = agent_panel.merge(flavors, on='upc', how='left') # merge flavors on UPC codes with a left join
+console.print(agent_master.shape)
 agent_master  = agent_master.dropna(subset=['quantity', 'product_module_code_hms', 'flavor_code', 'flavor_descr']) # drop NA for key var after merge
 agent_master  = agent_master.assign(
     flavor_class = np.select(

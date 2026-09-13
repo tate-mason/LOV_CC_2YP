@@ -59,8 +59,8 @@ agent_panel   = (
 )
 
 console.print(agent_panel.shape)
-console.print(agent_panel[['product_module_code', 'product_module_descr']].drop_duplicates())
-#console.print(agent_panel[['flavor', 'flavor_cd']].drop_duplicates())
+yogurt = agent_panel[agent_panel['product_module_code'].is_in([3603, 3612])]
+console.print(yogurt[['flavor', 'flavor_cd']].drop_duplicates())
 console.print(agent_panel.columns.tolist())
 
 # Agent panel cleaning

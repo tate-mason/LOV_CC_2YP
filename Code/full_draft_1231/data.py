@@ -101,7 +101,7 @@ print("Columns in flavors.csv:", flavors.columns.tolist())
 #print("dtypes:", merged_panel['upc'].dtype, flavors['upc'].dtype)
 
 agent_master  = agent_panel.merge(flavors, on='upc', how='left') # merge flavors on UPC codes with a left join
-agent_master  = agent_master.dropna(subset=['quantity', 'product_module_code_hms' 'flavor_code', 'flavor_descr']) # drop NA for key var after merge
+agent_master  = agent_master.dropna(subset=['quantity', 'product_module_code_hms', 'flavor_code', 'flavor_descr']) # drop NA for key var after merge
 agent_master  = agent_master.assign(
     flavor_class = np.select(
         [

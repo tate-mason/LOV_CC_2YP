@@ -28,6 +28,11 @@ console=Console() # alias for function
 # Loading Data                     #
 #==================================#
 
+pd.set_option(
+    'display.max_rows', None,
+    'display.max_columns', None
+)
+
 hms_path  = '/scratch/dtm63837/Kilts_Panel/nielsen_extracts/output_markets/full_panel.parquet' # HomeScan
 #rms_path  = '/scratch/dtm63837/Kilts_Panel/RMS/master_retail.parquet' # MarketScan
 #out_path  = '/scratch/dtm63837/Kilts_Panel/nielsen_extracts/master.parquet' # Merged

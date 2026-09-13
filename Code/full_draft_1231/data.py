@@ -99,7 +99,7 @@ agent_panel['upc']             = agent_panel['upc'].astype('Int64')           # 
 
 #=== Merging Flavor Data ===#
 
-agent_master  = agent_master.dropna(subset=['quantity', 'product_module_code', 'flavor_cd', 'flavor']) # drop NA for key var after merge
+agent_master  = agent_panel.dropna(subset=['quantity', 'product_module_code', 'flavor_cd', 'flavor']) # drop NA for key var after merge
 agent_master  = agent_master.assign(
     flavor_class = np.select(
         [

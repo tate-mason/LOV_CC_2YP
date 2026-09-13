@@ -55,6 +55,7 @@ agent_panel   = (
 )
 
 console.print(agent_panel.shape)
+console.print(agent_panel.columns.to_list())
 
 # Agent panel cleaning
 agent_panel                             = agent_panel.convert_dtypes(dtype_backend = 'numpy_nullable') # make data numpy compatible

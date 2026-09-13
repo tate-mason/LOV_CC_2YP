@@ -59,7 +59,7 @@ agent_panel   = (
 )
 
 console.print(agent_panel.shape)
-yogurt = agent_panel[agent_panel['product_module_code'].is_in([3603, 3612])]
+yogurt = agent_panel[agent_panel['product_module_code'].isin([3603, 3612])]
 console.print(yogurt[['flavor', 'flavor_cd']].drop_duplicates())
 console.print(agent_panel.columns.tolist())
 

@@ -1,0 +1,44 @@
+Already up to date.
+--- Converting year 2022 ---
+Converted panelist.tsv -> panelists_2022.parquet
+Converted purchase.tsv -> purchases_2022.parquet
+Converted trip.tsv -> trips_2022.parquet
+Converted productattributes.tsv -> product_attr_2022.parquet
+Converted productdesc.tsv -> product_desc_2022.parquet
+Converted retailer.tsv -> retailer_2022.parquet
+Converted producthierarchy.tsv -> hierarchy_2022.parquet
+--- Converting year 2023 ---
+Converted panelist.tsv -> panelists_2023.parquet
+Converted purchase.tsv -> purchases_2023.parquet
+Converted trip.tsv -> trips_2023.parquet
+Converted productattributes.tsv -> product_attr_2023.parquet
+Converted productdesc.tsv -> product_desc_2023.parquet
+Converted retailer.tsv -> retailer_2023.parquet
+Converted producthierarchy.tsv -> hierarchy_2023.parquet
+--- Converting year 2024 ---
+Converted panelist.tsv -> panelists_2024.parquet
+Converted purchase.tsv -> purchases_2024.parquet
+Converted trip.tsv -> trips_2024.parquet
+Converted productattributes.tsv -> product_attr_2024.parquet
+Converted productdesc.tsv -> product_desc_2024.parquet
+Converted retailer.tsv -> retailer_2024.parquet
+Converted producthierarchy.tsv -> hierarchy_2024.parquet
+--> Saved market panelists for Atlanta
+--> Saved market panelists for Chicago
+--> Saved market panelists for Houston
+--> Saved market panelists for Denver
+--> Saved market panelists for Phoenix
+--> Saved market panelists for Philadelphia
+--> Saved market panelists for San_Diego
+--> Saved market panelists for Des_Moines
+--> Saved combined purchases.parquet
+--> Saved combined trips.parquet
+--> Saved combined product_attr.parquet
+--> Saved combined product_desc.parquet
+--> Saved combined retailer.parquet
+--> Saved combined hierarchy.parquet
+Traceback (most recent call last):
+  File "/scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/dat_expo/panel_dat/panel_merge.py", line 103, in <module>
+    .rename({'year': 'panel_year'}, missing_ok=True)
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: LazyFrame.rename() got an unexpected keyword argument 'missing_ok'

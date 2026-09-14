@@ -1,0 +1,25 @@
+(26304702, 139)
+╭───────────────────── Traceback (most recent call last) ──────────────────────╮
+│ /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/full_draft_1231/data.py:62 in  │
+│ <module>                                                                     │
+│                                                                              │
+│    59 )                                                                      │
+│    60                                                                        │
+│    61 console.print(agent_panel.shape)                                       │
+│ ❱  62 yogurt = agent_panel[agent_panel['product_module_code'].is_in([3603, 3 │
+│    63 console.print(yogurt[['flavor', 'flavor_cd']].drop_duplicates())       │
+│    64 console.print(agent_panel.columns.tolist())                            │
+│    65                                                                        │
+│                                                                              │
+│ /home/dtm63837/.local/lib/python3.12/site-packages/pandas/core/generic.py:62 │
+│ 06 in __getattr__                                                            │
+│                                                                              │
+│    6203 │   │   │   and self._info_axis._can_hold_identifiers_and_holds_name │
+│    6204 │   │   ):                                                           │
+│    6205 │   │   │   return self[name]                                        │
+│ ❱  6206 │   │   return object.__getattribute__(self, name)                   │
+│    6207 │                                                                    │
+│    6208 │   @final                                                           │
+│    6209 │   def __setattr__(self, name: str, value) -> None:                 │
+╰──────────────────────────────────────────────────────────────────────────────╯
+AttributeError: 'Series' object has no attribute 'is_in'

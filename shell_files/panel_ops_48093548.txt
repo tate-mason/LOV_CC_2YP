@@ -1,0 +1,65 @@
+Already up to date.
+--- Converting year 2022 ---
+Converted panelist.tsv -> panelists_2022.parquet
+Converted purchase.tsv -> purchases_2022.parquet
+Converted trip.tsv -> trips_2022.parquet
+Converted productattributes.tsv -> product_attr_2022.parquet
+Converted productdesc.tsv -> product_desc_2022.parquet
+Converted retailer.tsv -> retailer_2022.parquet
+Converted producthierarchy.tsv -> hierarchy_2022.parquet
+--- Converting year 2023 ---
+Converted panelist.tsv -> panelists_2023.parquet
+Converted purchase.tsv -> purchases_2023.parquet
+Converted trip.tsv -> trips_2023.parquet
+Converted productattributes.tsv -> product_attr_2023.parquet
+Converted productdesc.tsv -> product_desc_2023.parquet
+Converted retailer.tsv -> retailer_2023.parquet
+Converted producthierarchy.tsv -> hierarchy_2023.parquet
+--- Converting year 2024 ---
+Converted panelist.tsv -> panelists_2024.parquet
+Converted purchase.tsv -> purchases_2024.parquet
+Converted trip.tsv -> trips_2024.parquet
+Converted productattributes.tsv -> product_attr_2024.parquet
+Converted productdesc.tsv -> product_desc_2024.parquet
+Converted retailer.tsv -> retailer_2024.parquet
+Converted producthierarchy.tsv -> hierarchy_2024.parquet
+--> Saved market panelists for Atlanta
+--> Saved market panelists for Chicago
+--> Saved market panelists for Houston
+--> Saved market panelists for Denver
+--> Saved market panelists for Phoenix
+--> Saved market panelists for Philadelphia
+--> Saved market panelists for San_Diego
+--> Saved market panelists for Des_Moines
+--> Saved combined purchases.parquet
+--> Saved combined trips.parquet
+--> Saved combined product_attr.parquet
+--> Saved combined product_desc.parquet
+--> Saved combined retailer.parquet
+--> Saved combined hierarchy.parquet
+--> Finished master build for Atlanta
+--> Finished master build for Chicago
+--> Finished master build for Houston
+--> Finished master build for Denver
+--> Finished master build for Phoenix
+--> Finished master build for Philadelphia
+--> Finished master build for San_Diego
+--> Finished master build for Des_Moines
+============================================================
+RUNNING JOIN DIAGNOSTIC TRACER FOR: Atlanta
+============================================================
+
+1. Market Panelists (Atlanta): 1,457 rows
+2. Total Raw Trips: 28,545,736 rows
+3. Trips + Panelists Inner Join: 233,675 rows
+4. Total Raw Purchases: 164,725,773 rows
+5. Trips + Panelists + Purchases Inner Join: 1,092,519 rows
+
+Checking Left Join Targets...
+6. Retailer Table Rows: 4,934
+7. Product Master Table Rows: 28,788,956
+
+✅ MASTER TABLE BUILD SUCCESSFUL!
+   Final Master Dataset Rows: 3,277,547
+============================================================
+--> Saved master panel parquet file (full_panel.parquet)

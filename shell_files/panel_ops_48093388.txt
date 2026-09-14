@@ -1,0 +1,34 @@
+From github.com:tate-mason/LOV_CC_2YP
+   87e13ba..51c3d86  main       -> origin/main
+Updating 87e13ba..51c3d86
+Fast-forward
+ Code/dat_expo/panel_dat/panel_merge.py | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
+--- Converting year 2022 ---
+Converted panelist.tsv -> panelists_2022.parquet
+Converted purchase.tsv -> purchases_2022.parquet
+Converted trip.tsv -> trips_2022.parquet
+Converted productattributes.tsv -> product_attr_2022.parquet
+Converted productdesc.tsv -> product_desc_2022.parquet
+Converted retailer.tsv -> retailer_2022.parquet
+Converted producthierarchy.tsv -> hierarchy_2022.parquet
+--- Converting year 2023 ---
+Converted panelist.tsv -> panelists_2023.parquet
+Converted purchase.tsv -> purchases_2023.parquet
+Converted trip.tsv -> trips_2023.parquet
+Converted productattributes.tsv -> product_attr_2023.parquet
+Converted productdesc.tsv -> product_desc_2023.parquet
+Converted retailer.tsv -> retailer_2023.parquet
+Converted producthierarchy.tsv -> hierarchy_2023.parquet
+--- Converting year 2024 ---
+Converted panelist.tsv -> panelists_2024.parquet
+Converted purchase.tsv -> purchases_2024.parquet
+Converted trip.tsv -> trips_2024.parquet
+Converted productattributes.tsv -> product_attr_2024.parquet
+Converted productdesc.tsv -> product_desc_2024.parquet
+Converted retailer.tsv -> retailer_2024.parquet
+Converted producthierarchy.tsv -> hierarchy_2024.parquet
+  File "/scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/dat_expo/panel_dat/panel_merge.py", line 107
+    pl.scan_parquet(os.path.join(output_dir, 'product_desc.parquet'))
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+SyntaxError: invalid syntax. Perhaps you forgot a comma?

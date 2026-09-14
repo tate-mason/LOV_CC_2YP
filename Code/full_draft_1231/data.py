@@ -68,7 +68,8 @@ agent_panel['size1_amount_hms']  = pd.to_numeric(
     agent_panel['size1_amount_hms'], errors='coerce'
 )
 # Make unit matching case-insensitive and handle whitespace
-agent_panel                    = agent_panel[agent_panel['size1_unit_hms'].astype(str).str.upper().str.strip() == 'OZ']agent_panel                    = agent_panel[agent_panel['size1_unit_hms'] == 'OZ'] # keep only yogurt measured in ounces
+agent_panel                    = agent_panel[agent_panel['size1_unit_hms'].astype(str).str.upper().str.strip() == 'OZ']
+agent_panel                    = agent_panel[agent_panel['size1_unit_hms'] == 'OZ'] # keep only yogurt measured in ounces
 agent_panel                    = agent_panel[agent_panel['size1_amount_hms'].between(5,8)] # restrict to cups of yogurt
 
 agent_panel['purchase_date']   = agent_panel['purchase_date'].str.replace('-','',regex=False)   # get rid of hyphens in purchase date

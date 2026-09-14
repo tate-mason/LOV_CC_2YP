@@ -63,7 +63,7 @@ agent_panel['product_module_code_hms'] = pd.to_numeric(
     agent_panel['product_module_code_hms'], errors = 'coerce'
 )
 yogurt = agent_panel[agent_panel['product_module_code_hms'].isin([3603, 3612])]
-console.print(yogurt[['flavor', 'flavor_cd']])
+console.print(yogurt[['flavor', 'flavor_cd']].drop_duplicates())
 console.print(agent_panel.columns.tolist())
 
 # Agent panel cleaning
@@ -103,31 +103,21 @@ agent_panel['upc']             = agent_panel['upc'].astype('Int64')           # 
 #=== Merging Flavor Data ===#
 
 agent_master  = agent_panel.dropna(subset=['quantity', 'product_module_code', 'flavor_cd', 'flavor']) # drop NA for key var after merge
-agent_master  = agent_master.assign(
-    flavor_class = np.select(
-        [
-            agent_master['flavor_code'].isin([139, 44642, 75721, 2180]), # apple
-            agent_master['flavor_code'].isin([22053, 24357, 52953, 74408, 17159, 23721]), # blueberry
-            agent_master['flavor_code'].isin([11214, 20888, 17849, 17849]), # banana
-            agent_master['flavor_code'].isin([904, 13314, 1169, 1174, 5651]), # cherry
-            agent_master['flavor_code'].isin([73560, 3075, 73560]), # key lime
-            agent_master['flavor_code'].isin([3107, 22916, 3122, 6061]), # lemon
-            agent_master['flavor_code'].isin([3943, 3060, 70529, 10808, 3985, 23346]), # peach
-            agent_master['flavor_code'].isin([6352, 41654, 41681, 78681, 41634, 6912]), # raspberry
-            agent_master['flavor_code'].isin([23344, 16007, 16102, 66438, 16194, 30581, 45574, 72000, 17110]), # strawberry
-            agent_master['flavor_code'].isin([5537, 5539, 66938, 5658, 72317]), # vanilla
-            agent_master['flavor_code'].isin([66438, 66684, 71101, 72483,19061, 16102,  61082, 61487, 57428, 67420, 78857, 1154, 26050, 1216]), # mixed flavors
-            agent_master['flavor_code'].isin([57129, 76690, 16200, 62349, 16199, 16182, 72290, 32300, 72289, 16102, 72292, 3465, 68109, 52953, 72288]), # mixed berry
-            agent_master['flavor_code'].isin([4167]) # flavor
-        ],
-        [1,2,3,4,5,6,7,8,9,10,11,12,13],
-        default=np.nan
-    )
-)
 agent_master = agent_master.assign(
     flavor = np.select(
         [
-            agent_master['flavor_class'].isin([2,8,9,12]), # berry
+            agent_master['flavor_cd'].isin([67445851,
+                                            65715877,
+                                            65015964,
+                                            68017074,
+                                            64746913,
+                                            67983851,
+                                            65100796,
+                                            67299396,
+                                            67580869,
+                                            64649088,
+                                            ]), # berry
+
             agent_master['flavor_class'] == 13,
         ],
         [1,2],

@@ -72,6 +72,9 @@ agent_panel.columns                     = agent_panel.columns.str.lower() # make
 
 agent_panel                    = agent_panel[agent_panel['household_size'] == 1] # subset to single agent hh
 agent_panel                    = agent_panel[agent_panel.groupby('household_code')['trip_code_uc'].transform('count') > 2] # at least 2 shopping trips
+agent_panel['size1_unit_hms']  = pd.to_numeric(
+    agent_panel['size1_unit_hms'], errors='coerce'
+)
 agent_panel                    = agent_panel[agent_panel['size1_unit_hms'] == 'OZ'] # keep only yogurt measured in ounces
 agent_panel                    = agent_panel[agent_panel['size1_amount_hms'].between(5,8)] # restrict to cups of yogurt
 

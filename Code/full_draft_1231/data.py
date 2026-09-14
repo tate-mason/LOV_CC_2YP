@@ -106,19 +106,8 @@ agent_master  = agent_panel.dropna(subset=['quantity', 'product_module_code', 'f
 agent_master = agent_master.assign(
     flavor = np.select(
         [
-            agent_master['flavor_cd'].isin([67445851,
-                                            65715877,
-                                            65015964,
-                                            68017074,
-                                            64746913,
-                                            67983851,
-                                            65100796,
-                                            67299396,
-                                            67580869,
-                                            64649088,
-                                            ]), # berry
-
-            agent_master['flavor_class'] == 13,
+            agent_master['flavor'].str.contains('berry', case=False, na=False),
+            agent_master['flavor_cd'].isin([67676592, 66987057]),
         ],
         [1,2],
         default=0

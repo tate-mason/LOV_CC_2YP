@@ -102,7 +102,7 @@ agent_panel['upc']             = agent_panel['upc'].astype('Int64')           # 
 
 #=== Merging Flavor Data ===#
 
-agent_master  = agent_panel.dropna(subset=['quantity', 'product_module_code', 'flavor_cd', 'flavor']) # drop NA for key var after merge
+agent_master  = agent_panel.dropna(subset=['quantity', 'product_module_code_hms', 'flavor_cd', 'flavor']) # drop NA for key var after merge
 agent_master = agent_master.assign(
     flavor = np.select(
         [
@@ -115,7 +115,7 @@ agent_master = agent_master.assign(
 )
 
 agent_master['yogurt_purchase'] = (
-    (agent_master['product_module_code'].isin([3612,3603]) & (agent_master['quantity']>0)) # create dummy for HH who bought at least one yogurt product
+    (agent_master['product_module_code_hms'].isin([3612,3603]) & (agent_master['quantity']>0)) # create dummy for HH who bought at least one yogurt product
 ).astype(int)
 agent_master['no_yogurt']       = (
     1 - agent_master['yogurt_purchase'] # 0 when purchased, 1 when no purchase
@@ -196,7 +196,6 @@ agent_master['male_head_age'] = pd.to_numeric(agent_master['male_head_age'], err
 agent_master['female_head_age'] = pd.to_numeric(agent_master['female_head_age'], errors='coerce')
 agent_master['head_age'] = agent_master['male_head_age'].fillna(agent_master['female_head_age'])
 agent_yogurt = agent_master.copy() # copy full sample
-agent_yogurt = agent_yogurt[agent_yogurt['product_module_code_hms'] == 2510] # subset to yogurt purchases
 #multipack_pattern   = r'MULTI|MULTIPACK|\bPK\b|\bCT\b'
 #agent_yogurt = agent_yogurt[
 #    ~agent_yogurt['upc_descr'].str.contains(multipack_pattern,case=False, na=False)

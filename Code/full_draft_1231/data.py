@@ -41,7 +41,6 @@ raw_scan = (
         pl.col("deal_flag_uc").cast(pl.Int64, strict=False),
     ])
 )
-console.print(raw_scan.collect().value_counts("size1_unit_hms"))
 # 1. Calculate trip counts across the UNFILTERED dataset per household
 active_hhs = (
     raw_scan.group_by("household_code")
@@ -62,7 +61,7 @@ lazy_panel = (
 )
 
 agent_panel = lazy_panel.collect().to_pandas()
-
+console.print(agent_panel["size1_unit_hms"].value_counts(dropna=False))
 console.print(
     f"Filtered panel loaded: {len(agent_panel):,} rows | "
     f"{agent_panel['household_code'].nunique():,} unique single-person HHs"

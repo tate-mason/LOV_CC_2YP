@@ -26,17 +26,34 @@ os.makedirs(PLOT_OUTPUT_DIR, exist_ok=True)
 # ==============================================================================
 # 1. DATA LOADING & POLARS FILTER PUSHDOWN
 # ==============================================================================
-console.print("[bold green]Loading and filtering data with Polars...[/bold green]")
+console.print("[bold green]Loading data with Polars...[/bold green]")
 
-# Leverage Polars lazy pushdown filtering before converting to Pandas
-lazy_panel = (
+# Lazy scan of the raw parquet panel
+raw_scan = (
     pl.scan_parquet(HMS_PATH)
     .with_columns(pl.all().name.to_lowercase())
     .with_columns([
         pl.col("product_module_code_hms").cast(pl.Utf8).cast(pl.Int64, strict=False),
         pl.col("size1_amount_hms").cast(pl.Float64, strict=False),
         pl.col("size1_unit_hms").cast(pl.Utf8).str.strip_chars().str.to_uppercase(),
+        pl.col("household_size").cast(pl.Int64, strict=False),
+        pl.col("quantity").cast(pl.Int64, strict=False),
+        pl.col("deal_flag_uc").cast(pl.Int64, strict=False),
     ])
+)
+
+# 1. Calculate trip counts across the UNFILTERED dataset per household
+active_hhs = (
+    raw_scan.group_by("household_code")
+    .agg(pl.col("trip_code_uc").n_unique().alias("total_trips"))
+    .filter(pl.col("total_trips") > 2)
+    .select("household_code")
+)
+
+# 2. Filter dataset for single HHs + active trip condition + yogurt specs
+lazy_panel = (
+    raw_scan
+    .join(active_hhs, on="household_code", how="inner")
     .filter(
         (pl.col("household_size") == 1) &
         (pl.col("size1_unit_hms") == "OZ") &
@@ -44,26 +61,18 @@ lazy_panel = (
     )
 )
 
-# Filter for households with > 2 shopping trips
-hh_trip_counts = (
-    lazy_panel.group_by("household_code")
-    .agg(pl.col("trip_code_uc").n_unique().alias("num_trips"))
-    .filter(pl.col("num_trips") > 2)
+agent_panel = lazy_panel.collect().to_pandas()
+
+console.print(
+    f"Filtered panel loaded: {len(agent_panel):,} rows | "
+    f"{agent_panel['household_code'].nunique():,} unique single-person HHs"
 )
 
-agent_panel = (
-    lazy_panel.join(hh_trip_counts, on="household_code", how="inner")
-    .collect()
-    .to_pandas()
-)
-
-console.print(f"Filtered panel loaded: {len(agent_panel):,} rows | {agent_panel['household_code'].nunique():,} unique single-person HHs")
-
 # ==============================================================================
-# 2. DATA CLEANING & RECODING (PANDAS)
+# 2. DATA CLEANING & SAFE TYPE CASTING
 # ==============================================================================
 
-# Parse dates robustly
+# Parse dates
 agent_panel["purchase_date"] = pd.to_datetime(
     agent_panel["purchase_date"].astype(str).str.replace("-", "", regex=False),
     format="%Y%m%d",
@@ -71,11 +80,18 @@ agent_panel["purchase_date"] = pd.to_datetime(
 )
 agent_panel["week_end"] = agent_panel["purchase_date"] + pd.offsets.Week(weekday=5, n=0)
 
-# ID types
-agent_panel["store_code_uc"] = agent_panel["store_code_uc"].astype("Int64")
-agent_panel["upc"] = agent_panel["upc"].astype("Int64")
+# Explicit numeric casting for Pandas/PyArrow safety
+numeric_cols = ["quantity", "household_income", "deal_flag_uc", "male_head_age", "female_head_age"]
+for col in numeric_cols:
+    if col in agent_panel.columns:
+        agent_panel[col] = pd.to_numeric(agent_panel[col], errors="coerce").fillna(0)
 
-# Safe Flavor Encoding (1 = Berry, 2 = Plain/Other Specific, 0 = Other)
+# Re-evaluate age logic safely
+agent_panel["male_head_age"] = agent_panel["male_head_age"].replace(0, np.nan)
+agent_panel["female_head_age"] = agent_panel["female_head_age"].replace(0, np.nan)
+agent_panel["head_age"] = agent_panel["male_head_age"].fillna(agent_panel["female_head_age"])
+
+# Safe Flavor Encoding
 agent_panel["flavor_str"] = agent_panel["flavor"].fillna("").astype(str)
 agent_panel["flavor_cd"] = pd.to_numeric(agent_panel["flavor_cd"], errors="coerce").fillna(0)
 
@@ -89,9 +105,10 @@ agent_master["flavor"] = np.select(
     default=0
 )
 
-# Mark Yogurt Purchases
+# Yogurt Purchase Dummy (both quantity and module code comparisons are now safe ints)
 agent_master["yogurt_purchase"] = (
-    agent_master["product_module_code_hms"].isin([3612, 3603]) & (agent_master["quantity"] > 0)
+    agent_master["product_module_code_hms"].isin([3612, 3603]) & 
+    (agent_master["quantity"] > 0)
 ).astype(int)
 
 # Outside Option Analysis
@@ -106,8 +123,22 @@ for col in ["quantity", "household_income", "deal_flag_uc", "male_head_age", "fe
 agent_master["male_head_age"] = agent_master["male_head_age"].replace(0, np.nan)
 agent_master["head_age"] = agent_master["male_head_age"].fillna(agent_master["female_head_age"])
 
-# Filter down to yogurt purchases for switching statistics
+# Filter for yogurt purchases safely
 agent_yogurt = agent_master[agent_master["yogurt_purchase"] == 1].copy()
+
+# Sort chronologically for switching metrics
+agent_yogurt = agent_yogurt.sort_values(["household_code", "purchase_date", "trip_code_uc"])
+
+# Trip sequence numbers per household
+agent_yogurt["trip_seq"] = agent_yogurt.groupby("household_code").cumcount() + 1
+agent_yogurt["prev_flavor"] = agent_yogurt.groupby("household_code")["flavor"].shift(1)
+
+# Switching dummy (only valid from trip 2 onwards)
+agent_yogurt["switched"] = np.where(
+    agent_yogurt["trip_seq"] > 1,
+    (agent_yogurt["flavor"] != agent_yogurt["prev_flavor"]).astype(int),
+    0
+)
 
 # ==============================================================================
 # 3. SUMMARY STATISTICS

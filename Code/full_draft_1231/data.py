@@ -41,7 +41,7 @@ raw_scan = (
         pl.col("deal_flag_uc").cast(pl.Int64, strict=False),
     ])
 )
-
+console.print(raw_scan.select("size1_unit_hms").collect().value_counts())
 # 1. Calculate trip counts across the UNFILTERED dataset per household
 active_hhs = (
     raw_scan.group_by("household_code")

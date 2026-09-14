@@ -35,20 +35,8 @@ pd.set_option(
 
 hms_path  = '/scratch/dtm63837/Kilts_Panel/nielsen_extracts/output_markets/full_panel.parquet' # HomeScan
 #rms_path  = '/scratch/dtm63837/Kilts_Panel/RMS/master_retail.parquet' # MarketScan
-#out_path  = '/scratch/dtm63837/Kilts_Panel/nielsen_extracts/master.parquet' # Merged
 
 #=== Agent Panel Operations ===#
-
-# Loading merged panel
-
-#merged_panel = (
-#    pl.read_parquet(out_path)
-#    .rename({'dma_code_x': 'dma_code',
-#             'product_group_code_y': 'product_group_code'}) # Clean it up first
-#    .filter(pl.col('size1_amount').is_between(5, 8))
-#    .filter(pl.col('dma_code').is_in([524, 602, 751, 825]))
-#    .to_pandas()
-#)
 
 # Loading agent panel
 
@@ -64,16 +52,16 @@ agent_panel['product_module_code_hms'] = pd.to_numeric(
 )
 yogurt = agent_panel[agent_panel['product_module_code_hms'].isin([3603, 3612])]
 #console.print(yogurt[['flavor', 'flavor_cd']].drop_duplicates())
-console.print(agent_panel.columns.tolist())
+#console.print(agent_panel.columns.tolist())
 
 # Agent panel cleaning
-agent_panel                             = agent_panel.convert_dtypes(dtype_backend = 'numpy_nullable') # make data numpy compatible
-agent_panel.columns                     = agent_panel.columns.str.lower() # make column names lowercase
+agent_panel                    = agent_panel.convert_dtypes(dtype_backend = 'numpy_nullable') # make data numpy compatible
+agent_panel.columns            = agent_panel.columns.str.lower() # make column names lowercase
 
 agent_panel                    = agent_panel[agent_panel['household_size'] == 1] # subset to single agent hh
 agent_panel                    = agent_panel[agent_panel.groupby('household_code')['trip_code_uc'].transform('count') > 2] # at least 2 shopping trips
-agent_panel['size1_unit_hms']  = pd.to_numeric(
-    agent_panel['size1_unit_hms'], errors='coerce'
+agent_panel['size1_amount_hms']  = pd.to_numeric(
+    agent_panel['size1_amount_hms'], errors='coerce'
 )
 agent_panel                    = agent_panel[agent_panel['size1_unit_hms'] == 'OZ'] # keep only yogurt measured in ounces
 agent_panel                    = agent_panel[agent_panel['size1_amount_hms'].between(5,8)] # restrict to cups of yogurt
@@ -84,26 +72,6 @@ agent_panel['week_end']        = agent_panel['purchase_date'] + pd.offsets.Week(
 
 agent_panel['store_code_uc']   = agent_panel['store_code_uc'].astype('Int64') # convert code to Int64 datatype to match RMS
 agent_panel['upc']             = agent_panel['upc'].astype('Int64')           # same as above
-
-#=== Product Panel Operations ===#
-
-# Loading product panel
-
-#product_panel = (
-#    pl.read_parquet(rms_path) # load data in via local path
-#    .filter((pl.col('product_module_code')==3612) | (pl.col('product_module_code')==3603)) # filter to yogurt
-#    .to_pandas()              # convert from LazyFrame to DataFrame
-#) 
-#
-## Product panel cleaning
-#
-#product_panel['week_end']      = pd.to_datetime(product_panel['week_end'], format='%Y%m%d') # convert date format
-#product_panel                  = product_panel.dropna(subset=['week_end'])                  # drop NA values for dates
-#
-#product_panel['store_code_uc'] = product_panel['store_code_uc'].astype('Int64')             # convert store code to Int64 type
-#product_panel['upc']           = product_panel['upc'].astype('Int64')                       # same as above
-
-#=== Merging Flavor Data ===#
 
 agent_master  = agent_panel.dropna(subset=['quantity', 'product_module_code_hms', 'flavor_cd', 'flavor']) # drop NA for key var after merge
 agent_master = agent_master.assign(
@@ -131,43 +99,6 @@ trip_yogurt['chose_outside_option'] = (trip_yogurt['yogurt_purchase'] == 0).asty
 
 # 3. Overall rate of taking the outside option across all trips
 outside_option_rate = trip_yogurt['chose_outside_option'].mean()
-
-# Merged merge and clean
-
-#merged_master  = merged_panel.merge(flavors, on='upc', how='left') # merge flavors on UPC codes with a left join
-#merged_master = merged_master.loc[:, ~merged_master.columns.duplicated()]
-#merged_master = merged_master.dropna(subset=['quantity', 'product_group_code'])
-#merged_master  = merged_master.assign(
-#    flavor_class = np.select(
-#        [
-#            merged_master['flavor_code'].isin([139, 44642, 75721, 2180]), # apple
-#            merged_master['flavor_code'].isin([22053, 24357, 52953, 74408, 17159, 23721]), # blueberry
-#            merged_master['flavor_code'].isin([11214, 20888, 17849, 17849]), # banana
-#            merged_master['flavor_code'].isin([904, 13314, 1169, 1174, 5651]), # cherry
-#            merged_master['flavor_code'].isin([73560, 3075, 73560]), # key lime
-#            merged_master['flavor_code'].isin([3107, 22916, 3122, 6061]), # lemon
-#            merged_master['flavor_code'].isin([3943, 3060, 70529, 10808, 3985, 23346]), # peach
-#            merged_master['flavor_code'].isin([6352, 41654, 41681, 78681, 41634, 6912]), # raspberry
-#            merged_master['flavor_code'].isin([23344, 16007, 16102, 66438, 16194, 30581, 45574, 72000, 17110]), # strawberry
-#            merged_master['flavor_code'].isin([5537, 5539, 66938, 5658, 72317]), # vanilla
-#            merged_master['flavor_code'].isin([66438, 66684, 71101, 72483,19061, 16102,  61082, 61487, 57428, 67420, 78857, 1154, 26050, 1216]), # mixed flavors
-#            merged_master['flavor_code'].isin([57129, 76690, 16200, 62349, 16199, 16182, 72290, 32300, 72289, 16102, 72292, 3465, 68109, 52953, 72288]), # mixed berry
-#            merged_master['flavor_code'].isin([4167]) # flavor
-#        ],
-#        [1,2,3,4,5,6,7,8,9,10,11,12,13],
-#        default=np.nan
-#    )
-#)
-#merged_master = merged_master.assign(
-#    flavor = np.select(
-#        [
-#            merged_master['flavor_class'].isin([2,8,9,12]), # berry
-#            merged_master['flavor_class'] == 13,
-#        ],
-#        [1,2],
-#        default=0
-#    )
-#)
 
 #==========================#
 # Summary Statistics       #

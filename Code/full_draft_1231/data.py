@@ -45,7 +45,11 @@ agent_panel   = (
     .collect()
     .to_pandas()                   # convert from LazyFrame to pandas DataFrame
 )
-
+console.print(f"Raw loaded rows: {len(agent_panel)}")
+agent_panel = agent_panel[agent_panel['household_size'] == 1]
+console.print(f"After single HH filter: {len(agent_panel)}")
+agent_panel = agent_panel[agent_panel['size1_unit_hms'].astype(str).str.upper().str.strip() == 'OZ']
+console.print(f"After OZ filter: {len(agent_panel)}")
 console.print(agent_panel.shape)
 agent_panel['product_module_code_hms'] = pd.to_numeric(
     agent_panel['product_module_code_hms'], errors = 'coerce'
@@ -63,7 +67,8 @@ agent_panel                    = agent_panel[agent_panel.groupby('household_code
 agent_panel['size1_amount_hms']  = pd.to_numeric(
     agent_panel['size1_amount_hms'], errors='coerce'
 )
-agent_panel                    = agent_panel[agent_panel['size1_unit_hms'] == 'OZ'] # keep only yogurt measured in ounces
+# Make unit matching case-insensitive and handle whitespace
+agent_panel                    = agent_panel[agent_panel['size1_unit_hms'].astype(str).str.upper().str.strip() == 'OZ']agent_panel                    = agent_panel[agent_panel['size1_unit_hms'] == 'OZ'] # keep only yogurt measured in ounces
 agent_panel                    = agent_panel[agent_panel['size1_amount_hms'].between(5,8)] # restrict to cups of yogurt
 
 agent_panel['purchase_date']   = agent_panel['purchase_date'].str.replace('-','',regex=False)   # get rid of hyphens in purchase date
@@ -73,16 +78,19 @@ agent_panel['week_end']        = agent_panel['purchase_date'] + pd.offsets.Week(
 agent_panel['store_code_uc']   = agent_panel['store_code_uc'].astype('Int64') # convert code to Int64 datatype to match RMS
 agent_panel['upc']             = agent_panel['upc'].astype('Int64')           # same as above
 
-agent_master  = agent_panel.dropna(subset=['quantity', 'product_module_code_hms', 'flavor_cd', 'flavor']) # drop NA for key var after merge
-agent_master = agent_master.assign(
-    flavor = np.select(
-        [
-            agent_master['flavor'].str.contains('berry', case=False, na=False),
-            agent_master['flavor_cd'].isin([67676592, 66987057]),
-        ],
-        [1,2],
-        default=0
-    )
+# 1. Fill NA values for flavor columns so dropna doesn't wipe out the dataset
+agent_panel['flavor'] = agent_panel['flavor'].fillna('')
+agent_panel['flavor_cd'] = pd.to_numeric(agent_panel['flavor_cd'], errors='coerce').fillna(0)
+
+# 2. Assign flavor codes (1 = Berry, 2 = Plain/Other Specific, 0 = Other)
+agent_master = agent_panel.copy()
+agent_master['flavor'] = np.select(
+    [
+        agent_master['flavor'].astype(str).str.contains('berry', case=False, na=False),
+        agent_master['flavor_cd'].isin([67676592, 66987057]),
+    ],
+    [1, 2],
+    default=0
 )
 
 agent_master['yogurt_purchase'] = (

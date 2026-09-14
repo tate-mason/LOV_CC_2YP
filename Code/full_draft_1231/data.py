@@ -1,318 +1,206 @@
 """
-    Code for data section
-    - Summ stats for full sample
-    - Summ stats for yogurt sample
-    - Switching heatmaps 
-    - Switching behavior over time graph
+Data Processing & Summary Statistics Pipeline
+- Full sample summary statistics
+- Yogurt purchasers summary statistics
+- Flavor switching analysis & heatmaps
 """
 
-#===================================#
-# Loading Packages & Dependencies   #
-#===================================#
-
-# Data management
-import polars as pl
-import pandas as pd
-# Numerical manipulation
-import scipy as sp
+import os
 import numpy as np
-# Graphing
+import pandas as pd
+import polars as pl
 import matplotlib.pyplot as plt
 import seaborn as sns
-# Output formatting
-from rich.traceback import install; install()
 from rich.console import Console
-console=Console() # alias for function
+from rich.traceback import install
 
-#==================================#
-# Loading Data                     #
-#==================================#
+install()
+console = Console()
 
-pd.set_option(
-    'display.max_rows', None,
-    'display.max_columns', None
+pd.set_option("display.max_rows", None, "display.max_columns", None)
+
+HMS_PATH = "/scratch/dtm63837/Kilts_Panel/nielsen_extracts/output_markets/full_panel.parquet"
+PLOT_OUTPUT_DIR = "../Output/Plots"
+os.makedirs(PLOT_OUTPUT_DIR, exist_ok=True)
+
+# ==============================================================================
+# 1. DATA LOADING & POLARS FILTER PUSHDOWN
+# ==============================================================================
+console.print("[bold green]Loading and filtering data with Polars...[/bold green]")
+
+# Leverage Polars lazy pushdown filtering before converting to Pandas
+lazy_panel = (
+    pl.scan_parquet(HMS_PATH)
+    .with_columns(pl.all().name.to_lowercase())
+    .with_columns([
+        pl.col("product_module_code_hms").cast(pl.Utf8).cast(pl.Int64, strict=False),
+        pl.col("size1_amount_hms").cast(pl.Float64, strict=False),
+        pl.col("size1_unit_hms").cast(pl.Utf8).str.strip_chars().str.to_uppercase(),
+    ])
+    .filter(
+        (pl.col("household_size") == 1) &
+        (pl.col("size1_unit_hms") == "OZ") &
+        (pl.col("size1_amount_hms").is_between(5, 8))
+    )
 )
 
-hms_path  = '/scratch/dtm63837/Kilts_Panel/nielsen_extracts/output_markets/full_panel.parquet' # HomeScan
-#rms_path  = '/scratch/dtm63837/Kilts_Panel/RMS/master_retail.parquet' # MarketScan
+# Filter for households with > 2 shopping trips
+hh_trip_counts = (
+    lazy_panel.group_by("household_code")
+    .agg(pl.col("trip_code_uc").n_unique().alias("num_trips"))
+    .filter(pl.col("num_trips") > 2)
+)
 
-#=== Agent Panel Operations ===#
-
-# Loading agent panel
-
-agent_panel   = (
-    pl.scan_parquet(hms_path)      # call the local path set above
+agent_panel = (
+    lazy_panel.join(hh_trip_counts, on="household_code", how="inner")
     .collect()
-    .to_pandas()                   # convert from LazyFrame to pandas DataFrame
+    .to_pandas()
 )
-console.print(f"Raw loaded rows: {len(agent_panel)}")
-agent_panel = agent_panel[agent_panel['household_size'] == 1]
-console.print(f"After single HH filter: {len(agent_panel)}")
-agent_panel = agent_panel[agent_panel['size1_unit_hms'].astype(str).str.upper().str.strip() == 'OZ']
-console.print(f"After OZ filter: {len(agent_panel)}")
-console.print(agent_panel.shape)
-agent_panel['product_module_code_hms'] = pd.to_numeric(
-    agent_panel['product_module_code_hms'], errors = 'coerce'
+
+console.print(f"Filtered panel loaded: {len(agent_panel):,} rows | {agent_panel['household_code'].nunique():,} unique single-person HHs")
+
+# ==============================================================================
+# 2. DATA CLEANING & RECODING (PANDAS)
+# ==============================================================================
+
+# Parse dates robustly
+agent_panel["purchase_date"] = pd.to_datetime(
+    agent_panel["purchase_date"].astype(str).str.replace("-", "", regex=False),
+    format="%Y%m%d",
+    errors="coerce"
 )
-yogurt = agent_panel[agent_panel['product_module_code_hms'].isin([3603, 3612])]
-#console.print(yogurt[['flavor', 'flavor_cd']].drop_duplicates())
-#console.print(agent_panel.columns.tolist())
+agent_panel["week_end"] = agent_panel["purchase_date"] + pd.offsets.Week(weekday=5, n=0)
 
-# Agent panel cleaning
-agent_panel                    = agent_panel.convert_dtypes(dtype_backend = 'numpy_nullable') # make data numpy compatible
-agent_panel.columns            = agent_panel.columns.str.lower() # make column names lowercase
+# ID types
+agent_panel["store_code_uc"] = agent_panel["store_code_uc"].astype("Int64")
+agent_panel["upc"] = agent_panel["upc"].astype("Int64")
 
-agent_panel                    = agent_panel[agent_panel['household_size'] == 1] # subset to single agent hh
-agent_panel                    = agent_panel[agent_panel.groupby('household_code')['trip_code_uc'].transform('count') > 2] # at least 2 shopping trips
-agent_panel['size1_amount_hms']  = pd.to_numeric(
-    agent_panel['size1_amount_hms'], errors='coerce'
-)
-# Make unit matching case-insensitive and handle whitespace
-agent_panel                    = agent_panel[agent_panel['size1_unit_hms'].astype(str).str.upper().str.strip() == 'OZ']
-agent_panel                    = agent_panel[agent_panel['size1_unit_hms'] == 'OZ'] # keep only yogurt measured in ounces
-agent_panel                    = agent_panel[agent_panel['size1_amount_hms'].between(5,8)] # restrict to cups of yogurt
+# Safe Flavor Encoding (1 = Berry, 2 = Plain/Other Specific, 0 = Other)
+agent_panel["flavor_str"] = agent_panel["flavor"].fillna("").astype(str)
+agent_panel["flavor_cd"] = pd.to_numeric(agent_panel["flavor_cd"], errors="coerce").fillna(0)
 
-agent_panel['purchase_date']   = agent_panel['purchase_date'].str.replace('-','',regex=False)   # get rid of hyphens in purchase date
-agent_panel['purchase_date']   = pd.to_datetime(agent_panel['purchase_date'], format='%Y%m%d')  # convert to YearMonthDay format
-agent_panel['week_end']        = agent_panel['purchase_date'] + pd.offsets.Week(weekday=5, n=0) # create a week_end variable like RMS has 
-
-agent_panel['store_code_uc']   = agent_panel['store_code_uc'].astype('Int64') # convert code to Int64 datatype to match RMS
-agent_panel['upc']             = agent_panel['upc'].astype('Int64')           # same as above
-
-# 1. Fill NA values for flavor columns so dropna doesn't wipe out the dataset
-agent_panel['flavor'] = agent_panel['flavor'].fillna('')
-agent_panel['flavor_cd'] = pd.to_numeric(agent_panel['flavor_cd'], errors='coerce').fillna(0)
-
-# 2. Assign flavor codes (1 = Berry, 2 = Plain/Other Specific, 0 = Other)
 agent_master = agent_panel.copy()
-agent_master['flavor'] = np.select(
+agent_master["flavor"] = np.select(
     [
-        agent_master['flavor'].astype(str).str.contains('berry', case=False, na=False),
-        agent_master['flavor_cd'].isin([67676592, 66987057]),
+        agent_master["flavor_str"].str.contains("berry", case=False, na=False),
+        agent_master["flavor_cd"].isin([67676592, 66987057]),
     ],
     [1, 2],
     default=0
 )
 
-agent_master['yogurt_purchase'] = (
-    (agent_master['product_module_code_hms'].isin([3612,3603]) & (agent_master['quantity']>0)) # create dummy for HH who bought at least one yogurt product
+# Mark Yogurt Purchases
+agent_master["yogurt_purchase"] = (
+    agent_master["product_module_code_hms"].isin([3612, 3603]) & (agent_master["quantity"] > 0)
 ).astype(int)
-agent_master['no_yogurt']       = (
-    1 - agent_master['yogurt_purchase'] # 0 when purchased, 1 when no purchase
-)
-# 1. Identify if ANY yogurt was purchased on a given store trip
-trip_yogurt = agent_master.groupby(['household_code', 'trip_code_uc'])['yogurt_purchase'].max().reset_index()
 
-# 2. A trip took the outside option if max(yogurt_purchase) == 0
-trip_yogurt['chose_outside_option'] = (trip_yogurt['yogurt_purchase'] == 0).astype(int)
+# Outside Option Analysis
+trip_yogurt = agent_master.groupby(["household_code", "trip_code_uc"])["yogurt_purchase"].max().reset_index()
+trip_yogurt["chose_outside_option"] = (trip_yogurt["yogurt_purchase"] == 0).astype(int)
+outside_option_rate = trip_yogurt["chose_outside_option"].mean()
 
-# 3. Overall rate of taking the outside option across all trips
-outside_option_rate = trip_yogurt['chose_outside_option'].mean()
+# Numeric conversions for statistics
+for col in ["quantity", "household_income", "deal_flag_uc", "male_head_age", "female_head_age"]:
+    agent_master[col] = pd.to_numeric(agent_master[col], errors="coerce")
 
-#==========================#
-# Summary Statistics       #
-#==========================#
+agent_master["male_head_age"] = agent_master["male_head_age"].replace(0, np.nan)
+agent_master["head_age"] = agent_master["male_head_age"].fillna(agent_master["female_head_age"])
 
-#=== Agent Data Stats ===#
+# Filter down to yogurt purchases for switching statistics
+agent_yogurt = agent_master[agent_master["yogurt_purchase"] == 1].copy()
 
-"""
-Full Household:
-    - n. HH
-    - mean trip number per HH
-    - mean yogurt purchases per HH
-    - mean/median income per HH
-    - n. each race
-    - mean taking outside option
-    - coupon users
-Yogurt Only:
-    - percent ever-switch 
-    - average time on a flavor
-    - mean times switching
-    - mean consecutive buys
-"""
-
-agent_master['quantity'] = pd.to_numeric(agent_master['quantity'], errors='coerce')
-agent_master['household_income'] = pd.to_numeric(agent_master['household_income'], errors='coerce')
-agent_master['deal_flag_uc'] = pd.to_numeric(agent_master['deal_flag_uc'], errors='coerce')
-agent_master['male_head_age'] = agent_master['male_head_age'].replace(0, np.nan)
-agent_master['male_head_age'] = pd.to_numeric(agent_master['male_head_age'], errors='coerce')
-agent_master['female_head_age'] = pd.to_numeric(agent_master['female_head_age'], errors='coerce')
-agent_master['head_age'] = agent_master['male_head_age'].fillna(agent_master['female_head_age'])
-agent_yogurt = agent_master.copy() # copy full sample
-#multipack_pattern   = r'MULTI|MULTIPACK|\bPK\b|\bCT\b'
-#agent_yogurt = agent_yogurt[
-#    ~agent_yogurt['upc_descr'].str.contains(multipack_pattern,case=False, na=False)
-#]
-console.print(
-    f'Number of households in full sample:                  {agent_master['household_code'].nunique()}\n',
-    f'Number of yogurt purchasing households:               {agent_yogurt['household_code'].nunique()}\n',
-    f'Mean number of trips per HH:                          {agent_master.groupby('household_code')['trip_code_uc'].nunique().mean()}\n',
-    f'Number of yogurt purchases among purchasers per trip: {agent_yogurt.groupby(['household_code', 'trip_code_uc'])['quantity'].sum().mean()}\n',
-    f'Mean household income:                                {agent_master['household_income'].mean()}\n',
-    f'Median household income:                              {agent_master['household_income'].median()}\n',
-    f'Racial makeup of sample:                              {agent_master.groupby('race')['household_code'].nunique()}\n',
-    f'Percent taking outside option each trip:              {outside_option_rate:.2f}\n',
-    f'Percent purchasing with coupon:                       {agent_yogurt.groupby(['household_code', 'trip_code_uc'])['deal_flag_uc'].max().mean()*100:.2f}\n',
-    f'Gender makeup:                                        {agent_master['male_head_age'].value_counts()}\n',
-    f'Average Age (Overall):                                {agent_master['head_age'].mean()}\n',
-    f'Average Age (Male):                                   {agent_master['male_head_age'].mean()}\n',
-    f'Average Age (Female):                                 {agent_master['female_head_age'].mean()}\n',
-)
-
-#=== Switching Stats ===#
-
-agent_yogurt = agent_yogurt.sort_values(['household_code', 'trip_code_uc']) # sort by time and household
-agent_yogurt['new_flavor'] = (
-    (agent_yogurt['flavor']          != agent_yogurt.groupby('household_code')['flavor'].shift(1)) |
-    (agent_yogurt['household_code'] != agent_yogurt['household_code'].shift(1))
-).astype(int) # dummy for if a household switched flavors between trips 
-agent_yogurt['flavor_spell_id']      = agent_yogurt.groupby('household_code')['new_flavor'].cumsum() # count of periods on new flavor
-agent_yogurt['flavor_spell_buys']    = agent_yogurt.groupby(['household_code','flavor_spell_id']).cumcount() + 1 # consecutive periods on flavor
-agent_yogurt['prev_flavor']          = agent_yogurt.groupby('household_code')['flavor'].shift(1) # last purchased flavor
-agent_yogurt['spell_length']         = agent_yogurt.groupby(['household_code', 'flavor_spell_id'])['flavor_spell_buys'].transform('max') # get the number of buys in the flavor spell
-agent_yogurt['switched']             = (
-    agent_yogurt['flavor']           != agent_yogurt['prev_flavor']
-).astype(int) # ever-switch indicator
-agent_yogurt['returned']             = agent_yogurt.groupby('household_code')['flavor'].transform(
-        lambda x: x.shift(1).isin(x.shift(-1))
-) # indicator for returning to a previous flavor
-agent_yogurt['next_flavor']          = agent_yogurt.groupby('household_code')['flavor'].shift(-1) # get the next flavor
-
-switching_sample = agent_yogurt[agent_yogurt['switched'] == 1][[
-    'household_code',
-    'trip_code_uc',
-    'flavor',
-    'prev_flavor',
-    'next_flavor',
-    'spell_length'
-]] # filter to switchers
-switches_coupon = agent_yogurt[(agent_yogurt['switched'] == 1) & (agent_yogurt['deal_flag_uc'] == 1)][[
-    'household_code',
-    'trip_code_uc',
-    'flavor',
-    'prev_flavor',
-    'next_flavor',
-    'spell_length'
-]] # filtering to HH who switched and used a deal in purchase
+# ==============================================================================
+# 3. SUMMARY STATISTICS
+# ==============================================================================
+console.print("\n[bold yellow]=== FULL SAMPLE SUMMARY STATISTICS ===[/bold yellow]")
 
 console.print(
-    f'Mean consecutive buys by flavor x hh: {agent_yogurt['spell_length'].mean()}\n',
-    f'Mean times switching by flavor x hh:  {agent_yogurt.groupby(['household_code', 'flavor'])['switched'].sum().mean()}\n',
-    f'Percent of HH who ever-switch:        {(agent_yogurt.groupby('household_code')['flavor'].nunique()>1).mean()*100}\n',
-    f'Average time spent on each flavor:    {agent_yogurt['spell_length'].mean()}\n'
-    f'Percent switching due to coupon:      {len(switches_coupon)/(len(switching_sample))}\n',
+    f"Number of households in full sample:                  {agent_master['household_code'].nunique():,}\n"
+    f"Number of yogurt-purchasing households:               {agent_yogurt['household_code'].nunique():,}\n"
+    f"Mean number of trips per HH:                          {agent_master.groupby('household_code')['trip_code_uc'].nunique().mean():.2f}\n"
+    f"Number of yogurt purchases per trip (purchasers):     {agent_yogurt.groupby(['household_code', 'trip_code_uc'])['quantity'].sum().mean():.2f}\n"
+    f"Mean household income:                                ${agent_master['household_income'].mean():,.2f}\n"
+    f"Median household income:                              ${agent_master['household_income'].median():,.2f}\n"
+    f"Percent taking outside option each trip:              {outside_option_rate * 100:.2f}%\n"
+    f"Percent purchasing with coupon:                       {agent_yogurt.groupby(['household_code', 'trip_code_uc'])['deal_flag_uc'].max().mean() * 100:.2f}%\n"
+    f"Average Age (Overall):                                {agent_master['head_age'].mean():.1f}\n"
+    f"Average Age (Male):                                   {agent_master['male_head_age'].mean():.1f}\n"
+    f"Average Age (Female):                                 {agent_master['female_head_age'].mean():.1f}"
 )
 
-#=== Switching Graphs for Agents ===#
+# ==============================================================================
+# 4. FLAVOR SWITCHING METRICS
+# ==============================================================================
+agent_yogurt = agent_yogurt.sort_values(["household_code", "purchase_date", "trip_code_uc"])
 
-# t-1 --> t
+# Sequence indicators
+agent_yogurt["prev_flavor"] = agent_yogurt.groupby("household_code")["flavor"].shift(1)
+agent_yogurt["next_flavor"] = agent_yogurt.groupby("household_code")["flavor"].shift(-1)
 
-heat_flav = (
-        switching_sample.groupby(['prev_flavor', 'flavor'])['spell_length']
+# Trip count per household to prevent false switch on trip 1
+agent_yogurt["trip_seq"] = agent_yogurt.groupby("household_code").cumcount() + 1
+
+# Identify switches (trip 2+)
+agent_yogurt["switched"] = np.where(
+    agent_yogurt["trip_seq"] > 1,
+    (agent_yogurt["flavor"] != agent_yogurt["prev_flavor"]).astype(int),
+    0
+)
+
+# Flavor spells
+agent_yogurt["flavor_spell_id"] = agent_yogurt.groupby("household_code")["switched"].cumsum()
+agent_yogurt["flavor_spell_buys"] = agent_yogurt.groupby(["household_code", "flavor_spell_id"]).cumcount() + 1
+agent_yogurt["spell_length"] = agent_yogurt.groupby(["household_code", "flavor_spell_id"])["flavor_spell_buys"].transform("max")
+
+# Filtered Switch Datasets
+switching_sample = agent_yogurt[agent_yogurt["switched"] == 1]
+switches_coupon = switching_sample[switching_sample["deal_flag_uc"] == 1]
+
+# Guarded percent calculation to avoid ZeroDivisionError
+coupon_switch_pct = (len(switches_coupon) / len(switching_sample) * 100) if len(switching_sample) > 0 else 0.0
+
+console.print("\n[bold yellow]=== FLAVOR SWITCHING METRICS ===[/bold yellow]")
+console.print(
+    f"Mean consecutive buys by flavor x HH:                 {agent_yogurt['spell_length'].mean():.2f}\n"
+    f"Mean times switching by flavor x HH:                  {agent_yogurt.groupby(['household_code', 'flavor'])['switched'].sum().mean():.2f}\n"
+    f"Percent of HH who ever-switch flavors:                 {(agent_yogurt.groupby('household_code')['flavor'].nunique() > 1).mean() * 100:.2f}%\n"
+    f"Percent switching due to coupon/deal:                 {coupon_switch_pct:.2f}%"
+)
+
+# ==============================================================================
+# 5. HEATMAP VISUALIZATION
+# ==============================================================================
+if not switching_sample.empty:
+    console.print("\n[bold green]Generating flavor switching heatmap...[/bold green]")
+    
+    heat_flav = (
+        switching_sample.groupby(["prev_flavor", "flavor"])["spell_length"]
         .mean()
         .unstack()
-) # grouping switchers by flavor sequence, taking the mean, and then pivoting rows to columns, like a matrix
-heat_flav = heat_flav.rename(columns={0:"Other", 1:"Berry", 2:"Plain"}) # labeling columns with flavor names
-cell_labs = np.array(
-    [[f'{val:.1f} trips' for val in row] for row in heat_flav.to_numpy()]
-) # applying cell labels applying the word 'trips' after the spell value 
-fig, ax   = plt.subplots(figsize=(10,8)) # defining the canvas and plot area
-sns.heatmap(heat_flav,
-            yticklabels=['Other', 'Berry', 'Plain'],
-            annot   =cell_labs,
-            fmt     ='',
-            cmap    ='YlOrRd',
-            ax      =ax,
-            ) # heatmap using spell lengths, labeling y axis, applying cell labels, no formatting, color specification (Yellow,Orange,Red gradient), axis
-ax.set_xlabel('Flavor Switched To') # x label
-ax.set_ylabel('Flavor Switched From') # y label
-ax.set_title('Mean Spell Length Upon Switching') # title: plot shows how long you stay on the switched to flavor
-plt.tight_layout() # auto adjusts the spacing and margins
-plt.savefig('../Output/Plots/3_flav_heatmap.pdf', format='pdf', bbox_inches='tight') # save the heatmap to output/plots
-plt.close() # close the plot in python
+        .rename(columns={0: "Other", 1: "Berry", 2: "Plain"}, index={0: "Other", 1: "Berry", 2: "Plain"})
+    )
 
-##=== Product Stats ===#
-#
-## Mapping Nielsen DMA Codes to Market Names
-#dma_map = {
-#    524: 'Atlanta',
-#    602: 'Chicago',
-#    751: 'Denver',
-#    825: 'San Diego'
-#}
-#
-#merged_master['market_name'] = merged_master['dma_code'].map(dma_map)
-#
-## 1. Generate Summary Table (LaTeX & Console Output)
-#dma_price_stats = (
-#    merged_master.groupby(['market_name', 'flavor'])['price']
-#    .agg(
-#        Mean_Price='mean',
-#        Std_Dev='std',
-#        Min_Price='min',
-#        Max_Price='max',
-#        Obs='count'
-#    )
-#    .reset_index()
-#)
-#
-## Format flavor labels
-#flavor_map = {0: 'Other', 1: 'Berry', 2: 'Plain'}
-#dma_price_stats['flavor_label'] = dma_price_stats['flavor'].map(flavor_map)
-#
-## Pivot table for clean LaTeX formatting
-#dma_pivot = dma_price_stats.pivot(index='market_name', columns='flavor_label', values='Mean_Price')
-#dma_pivot.columns = [f'Mean Price ({col})' for col in dma_pivot.columns]
-#
-#console.print("\n=== DMA PRICE VARIATION SUMMARY ===")
-#console.print(dma_pivot)
-#
-## Save as LaTeX Table for paper
-#dma_pivot.to_latex('../Output/Tables/dma_price_summary.tex', float_format="%.3f")
-#
-#
-## 2. Plot DMA Cross-Market Price Time Series
-#weekly_dma_price = (
-#    merged_master.groupby(['week_end', 'market_name'])['price']
-#    .mean()
-#    .reset_index()
-#)
-#
-#dma_map = {
-#    524: 'Atlanta',
-#    602: 'Chicago',
-#    751: 'Denver',
-#    825: 'San Diego'
-#}
-#
-#merged_master['market_name'] = merged_master['dma_code'].map(dma_map)
-#
-#custom_colors = {
-#    'Atlanta': 'firebrick',
-#    'Chicago': 'navy',
-#    'Denver': 'forestgreen',
-#    'San Diego': 'darkorange'
-#}
-#
-#fig, ax = plt.subplots(figsize=(9, 4.5))
-#sns.lineplot(
-#    data=weekly_dma_price,
-#    x='week_end',
-#    y='price',
-#    hue='market_name',
-#    style='market_name',
-#    palette=custom_colors,
-#    linewidth=1.8,
-#    ax=ax
-#)
-#
-#ax.set_xlabel('Week', fontsize=11)
-#ax.set_ylabel('Mean Unit Price ($)', fontsize=11)
-#ax.set_title('Weekly Yogurt Price Variation Across Markets (2014)', fontsize=12, fontweight='bold')
-#ax.legend(title='Market (DMA)', frameon=True)
-#ax.grid(True, linestyle='--', alpha=0.5)
-#
-#plt.tight_layout()
-#plt.savefig('../Output/Plots/dma_price_time_series.pdf', format='pdf', bbox_inches='tight')
-#plt.close()
-#
+    cell_labs = np.array([[f"{val:.1f} trips" if not np.isnan(val) else "" for val in row] for row in heat_flav.to_numpy()])
+
+    fig, ax = plt.subplots(figsize=(8, 6))
+    sns.heatmap(
+        heat_flav,
+        annot=cell_labs,
+        fmt="",
+        cmap="YlOrRd",
+        cbar_kws={"label": "Mean Spell Length (Trips)"},
+        ax=ax
+    )
+
+    ax.set_xlabel("Flavor Switched To", fontsize=11, fontweight="bold")
+    ax.set_ylabel("Flavor Switched From", fontsize=11, fontweight="bold")
+    ax.set_title("Mean Spell Length Upon Switching Flavors", fontsize=12, fontweight="bold")
+    
+    plt.tight_layout()
+    output_path = os.path.join(PLOT_OUTPUT_DIR, "3_flav_heatmap.pdf")
+    plt.savefig(output_path, format="pdf", bbox_inches="tight")
+    plt.close()
+    
+    console.print(f"[bold green]Heatmap successfully saved to: {output_path}[/bold green]")
+else:
+    console.print("[bold red]No switching records found to generate heatmap.[/bold red]")

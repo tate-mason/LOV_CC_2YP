@@ -63,7 +63,7 @@ agent_panel['product_module_code_hms'] = pd.to_numeric(
     agent_panel['product_module_code_hms'], errors = 'coerce'
 )
 yogurt = agent_panel[agent_panel['product_module_code_hms'].isin([3603, 3612])]
-console.print(yogurt[['flavor', 'flavor_cd']].drop_duplicates())
+#console.print(yogurt[['flavor', 'flavor_cd']].drop_duplicates())
 console.print(agent_panel.columns.tolist())
 
 # Agent panel cleaning

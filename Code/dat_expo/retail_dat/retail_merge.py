@@ -32,7 +32,7 @@ files_to_merge = {
 for m, codes in market_codes.items():
     yearly_lfs = []
 
-    for f, name in files_to_merge:
+    for f, name in files_to_merge.items():
         for y in years:
             file_path = f"{rms_dir}/{name}_{y}.parquet"
 

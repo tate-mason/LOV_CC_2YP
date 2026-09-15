@@ -41,7 +41,8 @@ raw_scan = (
         pl.col("deal_flag_uc").cast(pl.Int64, strict=False),
     ])
 )
-# 1. Calculate trip counts across the UNFILTERED dataset per household
+
+# 1. Active Households (> 2 trips in raw data)
 active_hhs = (
     raw_scan.group_by("household_code")
     .agg(pl.col("trip_code_uc").n_unique().alias("total_trips"))
@@ -49,22 +50,23 @@ active_hhs = (
     .select("household_code")
 )
 
-# 2. Filter dataset for single HHs + active trip condition + yogurt specs
+# 2. Filter for Single Households + Yogurt Module + Yogurt Sizing (5-8 OZ)
 lazy_panel = (
     raw_scan
     .join(active_hhs, on="household_code", how="inner")
     .filter(
         (pl.col("household_size") == 1) &
+        (pl.col("product_module_code_hms").isin([3603, 3612])) &
         (pl.col("size1_unit_hms") == "OZ") &
         (pl.col("size1_amount_hms").is_between(5, 8))
     )
 )
 
 agent_panel = lazy_panel.collect().to_pandas()
-console.print(agent_panel["size1_unit_hms"].value_counts(dropna=False))
+
 console.print(
     f"Filtered panel loaded: {len(agent_panel):,} rows | "
-    f"{agent_panel['household_code'].nunique():,} unique single-person HHs"
+    f"{agent_panel['household_code'].nunique():,} unique single-person yogurt-purchasing HHs"
 )
 
 # ==============================================================================
@@ -104,7 +106,7 @@ agent_master["flavor"] = np.select(
     default=0
 )
 
-# Yogurt Purchase Dummy (both quantity and module code comparisons are now safe ints)
+# Yogurt Purchase Dummy
 agent_master["yogurt_purchase"] = (
     agent_master["product_module_code_hms"].isin([3612, 3603]) & 
     (agent_master["quantity"] > 0)
@@ -114,13 +116,6 @@ agent_master["yogurt_purchase"] = (
 trip_yogurt = agent_master.groupby(["household_code", "trip_code_uc"])["yogurt_purchase"].max().reset_index()
 trip_yogurt["chose_outside_option"] = (trip_yogurt["yogurt_purchase"] == 0).astype(int)
 outside_option_rate = trip_yogurt["chose_outside_option"].mean()
-
-# Numeric conversions for statistics
-for col in ["quantity", "household_income", "deal_flag_uc", "male_head_age", "female_head_age"]:
-    agent_master[col] = pd.to_numeric(agent_master[col], errors="coerce")
-
-agent_master["male_head_age"] = agent_master["male_head_age"].replace(0, np.nan)
-agent_master["head_age"] = agent_master["male_head_age"].fillna(agent_master["female_head_age"])
 
 # Filter for yogurt purchases safely
 agent_yogurt = agent_master[agent_master["yogurt_purchase"] == 1].copy()
@@ -161,21 +156,8 @@ console.print(
 # ==============================================================================
 # 4. FLAVOR SWITCHING METRICS
 # ==============================================================================
-agent_yogurt = agent_yogurt.sort_values(["household_code", "purchase_date", "trip_code_uc"])
-
 # Sequence indicators
-agent_yogurt["prev_flavor"] = agent_yogurt.groupby("household_code")["flavor"].shift(1)
 agent_yogurt["next_flavor"] = agent_yogurt.groupby("household_code")["flavor"].shift(-1)
-
-# Trip count per household to prevent false switch on trip 1
-agent_yogurt["trip_seq"] = agent_yogurt.groupby("household_code").cumcount() + 1
-
-# Identify switches (trip 2+)
-agent_yogurt["switched"] = np.where(
-    agent_yogurt["trip_seq"] > 1,
-    (agent_yogurt["flavor"] != agent_yogurt["prev_flavor"]).astype(int),
-    0
-)
 
 # Flavor spells
 agent_yogurt["flavor_spell_id"] = agent_yogurt.groupby("household_code")["switched"].cumsum()

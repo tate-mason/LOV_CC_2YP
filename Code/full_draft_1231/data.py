@@ -108,7 +108,7 @@ agent_master["flavor"] = np.select(
 
 # Yogurt Purchase Dummy
 agent_master["yogurt_purchase"] = (
-    agent_master["product_module_code_hms"].isin([3612, 3603]) & 
+    agent_master["product_module_code_hms"].isin(["3603", "3612"]) &
     (agent_master["quantity"] > 0)
 ).astype(int)
 

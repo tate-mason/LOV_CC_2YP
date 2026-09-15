@@ -56,7 +56,7 @@ lazy_panel = (
     .join(active_hhs, on="household_code", how="inner")
     .filter(
         (pl.col("household_size") == 1) &
-        (pl.col("product_module_code_hms").isin([3603, 3612])) &
+        (pl.col("product_module_code_hms").is_in([3603, 3612])) &
         (pl.col("size1_unit_hms") == "OZ") &
         (pl.col("size1_amount_hms").is_between(5, 8))
     )

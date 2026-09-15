@@ -58,8 +58,8 @@ console.print("Rows after household join:", lazy_panel.select(pl.len()).collect(
 lazy_panel = lazy_panel.filter(pl.col("household_size") == 1)
 console.print("Rows after household size filter:", lazy_panel.select(pl.len()).collect().item())
 
-lazy_panel = lazy_panel.filter(pl.col("product_module_code_hms").is_in(["3603", "3612"]))
-console.print("Rows after module code filter:", lazy_panel.select(pl.len()).collect().item())
+#lazy_panel = lazy_panel.filter(pl.col("product_module_code_hms").is_in(["3603", "3612"]))
+#console.print("Rows after module code filter:", lazy_panel.select(pl.len()).collect().item())
 
 lazy_panel = lazy_panel.filter(pl.col("size1_unit_hms") == "OZ")
 console.print("Rows after OZ filter:", lazy_panel.select(pl.len()).collect().item())

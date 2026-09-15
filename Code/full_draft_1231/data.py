@@ -5,6 +5,7 @@ Data Processing & Summary Statistics Pipeline
 - Flavor switching analysis & heatmaps
 """
 
+
 import os
 import numpy as np
 import pandas as pd
@@ -68,7 +69,6 @@ console.print(
     lazy_panel.group_by("size1_amount_hms")
     .len()
     .sort("len", descending=True)
-    .head(20)
     .collect()
 )
 

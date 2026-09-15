@@ -63,6 +63,15 @@ console.print("Rows after module code filter:", lazy_panel.select(pl.len()).coll
 lazy_panel = lazy_panel.filter(pl.col("size1_unit_hms") == "OZ")
 console.print("Rows after OZ filter:", lazy_panel.select(pl.len()).collect().item())
 
+console.print("Most common size amounts before the 5–8 filter:")
+console.print(
+    lazy_panel.group_by("size1_amount_hms")
+    .len()
+    .sort("len", descending=True)
+    .head(20)
+    .collect()
+)
+
 lazy_panel = lazy_panel.filter(pl.col("size1_amount_hms").is_between(5, 8))
 console.print("Rows after size amount filter:", lazy_panel.select(pl.len()).collect().item())
 

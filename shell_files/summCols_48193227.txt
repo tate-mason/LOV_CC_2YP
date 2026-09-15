@@ -1,0 +1,2 @@
+couldn't read file "/usr/share/Modules/libexec/modulecmd.tcl": no such file or directory
+/var/spool/slurmd/job48193227/slurm_script: line 17: python: command not found

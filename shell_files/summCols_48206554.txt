@@ -1,0 +1,31 @@
+Loading data with Polars...
+Rows after household join: 26304702
+Rows after household size filter: 26304702
+Rows after module code filter: 362337
+Rows after OZ filter: 356304
+Most common size amounts before the 5–8 filter:
+Rows after size amount filter: 235854
+Filtered panel loaded: 235,854 rows | 3,378 unique single-person 
+yogurt-purchasing HHs
+
+=== FULL SAMPLE SUMMARY STATISTICS ===
+Number of households in full sample:                  3,378
+Number of yogurt-purchasing households:               3,378
+Mean number of trips per HH:                          12.76
+Number of yogurt purchases per trip (purchasers):     10.68
+Mean household income:                                $19.02
+Median household income:                              $19.00
+Percent taking outside option each trip:              0.00%
+Percent purchasing with coupon:                       27.87%
+Average Age (Overall):                                7.9
+Average Age (Male):                                   7.8
+Average Age (Female):                                 8.0
+
+=== FLAVOR SWITCHING METRICS ===
+Mean consecutive buys by flavor x HH:                 28.31
+Mean times switching by flavor x HH:                  4.84
+Percent of HH who ever-switch flavors:                 69.18%
+Percent switching due to coupon/deal:                 30.56%
+
+Generating flavor switching heatmap...
+Heatmap successfully saved to: ../Output/Plots/3_flav_heatmap.pdf

@@ -1,0 +1,14 @@
+Loading data with Polars...
+╭───────────────────── Traceback (most recent call last) ──────────────────────╮
+│ /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/full_draft_1231/data.py:59 in  │
+│ <module>                                                                     │
+│                                                                              │
+│    56 │   .join(active_hhs, on="household_code", how="inner")                │
+│    57 │   .filter(                                                           │
+│    58 │   │   (pl.col("household_size") == 1) &                              │
+│ ❱  59 │   │   (pl.col("product_module_code_hms").isin([3603, 3612])) &       │
+│    60 │   │   (pl.col("size1_unit_hms") == "OZ") &                           │
+│    61 │   │   (pl.col("size1_amount_hms").is_between(5, 8))                  │
+│    62 │   )                                                                  │
+╰──────────────────────────────────────────────────────────────────────────────╯
+AttributeError: 'Expr' object has no attribute 'isin'

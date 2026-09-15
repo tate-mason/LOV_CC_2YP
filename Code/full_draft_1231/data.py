@@ -28,12 +28,12 @@ os.makedirs(PLOT_OUTPUT_DIR, exist_ok=True)
 # ==============================================================================
 console.print("[bold green]Loading data with Polars...[/bold green]")
 
-# Lazy scan of the raw parquet panel
+# Scan raw parquet with strict string formatting for module codes
 raw_scan = (
     pl.scan_parquet(HMS_PATH)
     .with_columns(pl.all().name.to_lowercase())
     .with_columns([
-        pl.col("product_module_code_hms").cast(pl.Utf8).cast(pl.Int64, strict=False),
+        pl.col("product_module_code_hms").cast(pl.Utf8).str.strip_chars(),
         pl.col("size1_amount_hms").cast(pl.Float64, strict=False),
         pl.col("size1_unit_hms").cast(pl.Utf8).str.strip_chars().str.to_uppercase(),
         pl.col("household_size").cast(pl.Int64, strict=False),
@@ -42,7 +42,7 @@ raw_scan = (
     ])
 )
 
-# 1. Active Households (> 2 trips in raw data)
+# 1. Household trip thresholds across the entire dataset
 active_hhs = (
     raw_scan.group_by("household_code")
     .agg(pl.col("trip_code_uc").n_unique().alias("total_trips"))
@@ -50,13 +50,13 @@ active_hhs = (
     .select("household_code")
 )
 
-# 2. Filter for Single Households + Yogurt Module + Yogurt Sizing (5-8 OZ)
+# 2. Filter using STRING representations for module codes
 lazy_panel = (
     raw_scan
     .join(active_hhs, on="household_code", how="inner")
     .filter(
         (pl.col("household_size") == 1) &
-        (pl.col("product_module_code_hms").is_in([3603, 3612])) &
+        (pl.col("product_module_code_hms").is_in(["3603", "3612"])) &
         (pl.col("size1_unit_hms") == "OZ") &
         (pl.col("size1_amount_hms").is_between(5, 8))
     )

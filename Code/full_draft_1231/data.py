@@ -50,17 +50,21 @@ active_hhs = (
     .select("household_code")
 )
 
-# 2. Filter using STRING representations for module codes
-lazy_panel = (
-    raw_scan
-    .join(active_hhs, on="household_code", how="inner")
-    .filter(
-        (pl.col("household_size") == 1) &
-        (pl.col("product_module_code_hms").is_in(["3603", "3612"])) &
-        (pl.col("size1_unit_hms") == "OZ") &
-        (pl.col("size1_amount_hms").is_between(5, 8))
-    )
-)
+# 2. Apply filters one at a time to see where rows disappear
+lazy_panel = raw_scan.join(active_hhs, on="household_code", how="inner")
+console.print("Rows after household join:", lazy_panel.select(pl.len()).collect().item())
+
+lazy_panel = lazy_panel.filter(pl.col("household_size") == 1)
+console.print("Rows after household size filter:", lazy_panel.select(pl.len()).collect().item())
+
+lazy_panel = lazy_panel.filter(pl.col("product_module_code_hms").is_in(["3603", "3612"]))
+console.print("Rows after module code filter:", lazy_panel.select(pl.len()).collect().item())
+
+lazy_panel = lazy_panel.filter(pl.col("size1_unit_hms") == "OZ")
+console.print("Rows after OZ filter:", lazy_panel.select(pl.len()).collect().item())
+
+lazy_panel = lazy_panel.filter(pl.col("size1_amount_hms").is_between(5, 8))
+console.print("Rows after size amount filter:", lazy_panel.select(pl.len()).collect().item())
 
 agent_panel = lazy_panel.collect().to_pandas()
 

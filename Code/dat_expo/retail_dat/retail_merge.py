@@ -1,68 +1,51 @@
+import os
 import polars as pl
-import gc
 
-# Loading data
+rms_dir    = "/scratch/dtm63837/Kilts_Panel/nielsen_extracts/RMS"
+output_dir = f"{rms_dir}/output_markets"
 
-dat = [
-    'rms',
-    'products',
-    'movement',
-    'stores'
-]
+os.makedirs(output_dir, exist_ok=True)
 
-# loop for loading all
-frame = {}
-for d in dat:
-    print(f'loading {d}')
-    frame[d] = pl.scan_parquet(f'/scratch/dtm63837/Kilts_Panel/RMS/{d}.parquet')
-    print(f'{d} loaded')
+years = [2022,2023,2024]
+market_codes = {
+    "Atlanta": [f'{x:05d}' for x in range(13010, 13301)],
+    "Chicago": [f'{x:05d}' for x in range(17031, 18129)],
+    "Houston": [f'{x:05d}' for x in range(48015, 48483)],
+    "Denver":  [f'{x:05d}' for x in range(8001, 8127)],
+    "Phoenix": [f'{x:05d}' for x in range(4007, 4027)],
+    "Philadelphia": [
+        f'{x:05d}' for x in set().union(
+            range(34001, 34005),
+            range(42017, 42103)
+        )
+    ],
+    "San_Diego": ["06073"],
+    "Des_Moines": [f'{x:05d}' for x in range(19001, 19200)]
+}
 
-for name, d in frame.items():
-    print(name, d.collect_schema().names())
-    globals()[name] = d
+files_to_merge = {
+    'productattributes.parquet': 'attributes',
+    'productdesc.parquet': 'description',
+    'producthierarchy.parquet': 'hierarchy',
+    'stores.parquet':           'stores'
+}
+for m, codes in market_codes.items():
+    yearly_lfs = []
 
-# Merge RMS and products
+    for f, name in files_to_merge:
+        for y in years:
+            file_path = f"{rms_dir}/{name}_{y}.parquet"
 
-stores   = stores.rename({'year':'panel_year'})
-market_stores = stores.select('store_code_uc').unique()
-filtered_movement = movement.join(market_stores, on='store_code_uc', how='inner')
-
-del movement
-gc.collect()
-
-step1 = products.join(rms, on=['upc', 'upc_ver_uc'], how='inner')
-n1    = step1.select(pl.len()).collect(engine='streaming').item()
-print('step1 rows:', n1)
-
-step1.sink_parquet('/scratch/dtm63837/Kilts_Panel/RMS/step1.parquet')
-
-del products, rms
-gc.collect()
-
-step2 = pl.scan_parquet('/scratch/dtm63837/Kilts_Panel/RMS/step1.parquet').join(filtered_movement, on = 'upc', how='left')
-n2    = step2.select(pl.len()).collect(engine='streaming').item()
-print('step2 rows:', n2)
-
-step2.sink_parquet('/scratch/dtm63837/Kilts_Panel/RMS/step2.parquet')
-
-del step2, filtered_movement
-gc.collect()
-
-master = pl.scan_parquet('/scratch/dtm63837/Kilts_Panel/RMS/step2.parquet').join(stores, on = ['panel_year', 'store_code_uc'], how='left')
-n3     = master.select(pl.len()).collect(engine='streaming').item()
-print('master rows:', n3)
-
-master.sink_parquet('/scratch/dtm63837/Kilts_Panel/RMS/master_retail.parquet')
-# does step1 have multiple upc_ver_uc rows per upc?
-print(step1.group_by('upc').agg(pl.col('upc_ver_uc').n_unique().alias('n_versions')).filter(pl.col('n_versions') > 1).collect().shape)
-
-# does master_retail.parquet have duplicate (store_code_uc, week_end, upc) rows?
-master_retail = pl.read_parquet('/scratch/dtm63837/Kilts_Panel/RMS/master_retail.parquet')
-print(master_retail.shape)
-print(master_retail.select(['store_code_uc','week_end','upc']).unique().shape)
-del master, stores
-gc.collect()
-
-print('-'*60)
-print('Retail Data Merged')
-print('-'*60)
+            lazy_df = (
+                pl.scan_parquet(file_path)
+                .with_columns(
+                    (pl.col('fips_state_code') + pl.col('fips_county_code')).alias('fips_code')
+                )
+                .filter(pl.col('fips_full').is_in(codes))
+                .drop('fips_full')
+            )
+            yearly_lfs.append(lazy_df)
+        combined_lazy = pl.concat(yearly_lfs, how='diagonal_relaxed')
+        out_file = os.path.join(output_dir, f'{m}_{name}.parquet')
+        combined_lazy.sink_parquet(out_file)
+        print(f'--> Saved market data for {name} in {m}')

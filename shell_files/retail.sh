@@ -19,5 +19,5 @@ set -e
 git pull
 
 python /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/dat_expo/retail_dat/retail_convert.py
-#python /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/dat_expo/retail_dat/retail_merge.py
+python /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/dat_expo/retail_dat/retail_merge.py
 #python /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/dat_expo/retail_dat/retail_concat.py

@@ -43,7 +43,7 @@ for f, name in files_to_merge.items():
     combined_lazy.sink_parquet(out_file)
     print(f'--> Saved data for {name}')
 
-for m, codes in valid_codes.items():
+for m, codes in market_codes.items():
     yearly_lfs = []
     for y in years:
         file_path = f"{rms_dir}/stores_{y}.parquet"

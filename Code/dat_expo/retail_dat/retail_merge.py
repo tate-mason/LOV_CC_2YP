@@ -30,6 +30,7 @@ files_to_merge = {
     'movement.parquet': 'movement'
 }
 for f, name in files_to_merge.items():
+    yearly_lfs = []
     for y in years:
         file_path = f"{rms_dir}/{name}_{y}.parquet"
 

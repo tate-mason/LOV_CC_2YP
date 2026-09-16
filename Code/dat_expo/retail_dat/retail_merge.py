@@ -39,9 +39,9 @@ for f, name in files_to_merge.items():
         )
         yearly_lfs.append(lazy_df)
     combined_lazy = pl.concat(yearly_lfs, how='diagonal_relaxed')
-    out_file = os.path.join(output_dir, f'{m}_{name}.parquet')
+    out_file = os.path.join(output_dir, f'{name}.parquet')
     combined_lazy.sink_parquet(out_file)
-    print(f'--> Saved market data for {name} in {m}')
+    print(f'--> Saved data for {name}')
 
 for m, codes in valid_codes.items():
     yearly_lfs = []

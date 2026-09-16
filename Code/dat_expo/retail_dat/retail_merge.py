@@ -27,25 +27,43 @@ files_to_merge = {
     'productattributes.parquet': 'attributes',
     'productdesc.parquet': 'description',
     'producthierarchy.parquet': 'hierarchy',
-    'stores.parquet':           'stores'
+    'movement.parquet': 'movement'
 }
-for m, codes in market_codes.items():
+for f, name in files_to_merge.items():
+    for y in years:
+        file_path = f"{rms_dir}/{name}_{y}.parquet"
+
+        lazy_df = (
+            pl.scan_parquet(file_path)
+        )
+        yearly_lfs.append(lazy_df)
+    combined_lazy = pl.concat(yearly_lfs, how='diagonal_relaxed')
+    out_file = os.path.join(output_dir, f'{m}_{name}.parquet')
+    combined_lazy.sink_parquet(out_file)
+    print(f'--> Saved market data for {name} in {m}')
+
+for m, codes in valid_codes.items():
     yearly_lfs = []
+    for y in years:
+        file_path = f"{rms_dir}/stores_{y}.parquet"
 
-    for f, name in files_to_merge.items():
-        for y in years:
-            file_path = f"{rms_dir}/{name}_{y}.parquet"
-
-            lazy_df = (
-                pl.scan_parquet(file_path)
-                .with_columns(
-                    (pl.col('fips_state_code') + pl.col('fips_county_code')).alias('fips_code')
-                )
-                .filter(pl.col('fips_full').is_in(codes))
-                .drop('fips_full')
+        lazy_df = (
+            pl.scan_parquet(file_path)
+            .rename(str.lower)
+            .with_columns([
+                pl.col('fips_state_code').cast(pl.Utf8).str.zfill(2),
+                pl.col('fips_county_code').cast(pl.Utf8).str.zfill(3),
+            ])
+            .with_columns(
+                (pl.col('fips_state_code') + pl.col('fips_county_code')).alias('fips_full')
             )
-            yearly_lfs.append(lazy_df)
-        combined_lazy = pl.concat(yearly_lfs, how='diagonal_relaxed')
-        out_file = os.path.join(output_dir, f'{m}_{name}.parquet')
-        combined_lazy.sink_parquet(out_file)
-        print(f'--> Saved market data for {name} in {m}')
+            .filter(pl.col('fips_full').is_in(codes))
+            .drop('fips_full')
+        )
+        yearly_lfs.append(lazy_df)
+
+    combined_lazy = pl.concat(yearly_lfs, how='diagonal_relaxed')
+    out_file = os.path.join(output_dir, f'{m}_stores.parquet')
+    combined_lazy.sink_parquet(out_file)
+    print(f'--> Saved market stores for {m}')
+

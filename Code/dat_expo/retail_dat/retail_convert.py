@@ -22,10 +22,6 @@ for y in years:
         tsv_path    = f"{base_raw_dir}/{y}/Annual_Files/{tsv_name}"
         parquet_out = f"{base_out_dir}/{out_name}_{y}.parquet"
 
-        cols = pl.scan_csv(tsv_path).schema.names()
-        print(f'=== {out_name} ({tsv_path}) ===')
-        print(cols)
-        print()
         if os.path.exists(tsv_path):
             (pl.scan_csv(
                 tsv_path,

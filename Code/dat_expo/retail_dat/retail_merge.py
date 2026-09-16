@@ -100,7 +100,7 @@ for m in market_codes:
 
     store_movement = stores.join(
         movement,
-        on     = ['panel_year', 'store_code_uc'],
+        on     = 'store_code_uc',
         how    = 'left',
         suffix = '_mvmt'
     )

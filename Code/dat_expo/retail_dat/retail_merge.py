@@ -68,3 +68,61 @@ for m, codes in valid_codes.items():
     combined_lazy.sink_parquet(out_file)
     print(f'--> Saved market stores for {m}')
 
+attr_lf = pl.scan_parquet(os.path.join(output_dir, 'attributes.parquet'))
+if 'year' in attr_lf.collect_schema().names():
+    attr_lf = attr_lf.rename({'year': 'panel_year'})
+
+desc_lf = pl.scan_parquet(os.path.join(output_dir, 'description.parquet'))
+if 'year' in desc_lf.collect_schema().names():
+    desc_lf = desc_lf.rename({'year': 'panel_year'})
+hierarchy   = (
+        pl.scan_parquet(os.path.join(output_dir, 'hierarchy.parquet'))
+        .with_columns(
+            pl.col('year').alias('panel_year') if 'year' in pl.scan_parquet(os.path.join(output_dir, 'hierarchy.parquet')).collect_schema().names() else pl.col('panel_year')
+        )
+)
+movement    = pl.scan_parquet(os.path.join(output_dir, 'movement.parquet'))
+
+products    = attr_lf.join(
+    desc_lf,
+    on     = ['panel_year', 'upc'],
+    how    = 'left',
+    suffix = '_prod' 
+)
+
+for m in market_codes:
+    stores = (
+            pl.scan_parquet(os.path.join(output_dir, f'{m}_stores.parquet'))
+            .with_columns(
+                pl.col('year').alias('panel_year') if 'year' in pl.scan_parquet(os.path.join(output_dir, f'{m}_stores.parquet')).collect_schema().names() else pl.col('panel_year')
+            )
+    )
+
+    store_movement = stores.join(
+        movement,
+        on     = ['panel_year', 'store_code_uc'],
+        how    = 'left',
+        suffix = '_mvmt'
+    )
+
+    sm_p           = store_movement.join(
+        products,
+        on     = ['upc', 'panel_year'],
+        how    = 'left',
+        suffix = '_p'
+    )
+
+    smp_h          = sm_p.join(
+        hierarchy,
+        on     = ['upc', 'panel_year'],
+        how    = 'left',
+        suffix = '_hier'
+    ).sink_parquet(
+        os.path.join(
+            output_dir, f'retail_{m}.parquet'
+        )
+    )
+
+
+
+

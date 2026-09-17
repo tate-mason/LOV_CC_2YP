@@ -7,7 +7,7 @@ market_codes = [
 ]
 for m in market_codes:
     retail_m = (
-        pl.scan_parquet(f'/scratch/dtm63837/Kilts_Panel/nielsen_extracts/RMS/output_markets/retail_{m}')
+        pl.scan_parquet(f'/scratch/dtm63837/Kilts_Panel/nielsen_extracts/RMS/output_markets/retail_{m}.parquet')
         .rename(str.lower)
         .collect()
     )

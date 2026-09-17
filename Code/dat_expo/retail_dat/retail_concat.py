@@ -10,7 +10,7 @@ market_codes = [
 
 market_dfs = []
 for m in market_codes:
-    file_path = os.path.join(output_dir, f'master_retail_{m}.parquet')
+    file_path = os.path.join(output_dir, f'retail_{m}.parquet')
 
     if os.path.exists(file_path):
         lazy_df = (

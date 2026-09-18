@@ -7,19 +7,15 @@ Data Processing & Summary Statistics Pipeline
 
 # Tools
 import os
-from rich.console import Console
-from rich.traceback import install
 
-# Data
+import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 import polars as pl
-
-# Plotting
-import matplotlib.pyplot as plt
+from rich.console import Console
+from rich.traceback import install
 import seaborn as sns
 
-# Other
-import numpy as np
 
 install()
 console = Console()
@@ -240,7 +236,7 @@ if not switching_sample.empty:
         .mean()
         .unstack()
         .rename(
-            columns={0: "Other", 1: "Berry", 2: "Plain"},
+            columns={0: "Other", 1: "Berry", 2: "Plain"},  # type: ignore
             index={0: "Other", 1: "Berry", 2: "Plain"},
         )
     )

@@ -6,7 +6,7 @@ Data Processing & Summary Statistics Pipeline
 """
 
 # Tools
-import os
+import os  # type:ignore
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -111,7 +111,7 @@ numeric_cols = [
 ]
 for col in numeric_cols:
     if col in agent_panel.columns:
-        agent_panel[col] = pd.to_numeric(agent_panel[col], errors="coerce").fillna(0)
+        agent_panel[col] = pd.to_numeric(agent_panel[col], errors="coerce").fillna(0)  # type:ignore
 
 # Re-evaluate age logic safely
 agent_panel["male_head_age"] = agent_panel["male_head_age"].replace(0, np.nan)
@@ -124,7 +124,7 @@ agent_panel["head_age"] = agent_panel["male_head_age"].fillna(
 agent_panel["flavor_str"] = agent_panel["flavor"].fillna("").astype(str)
 agent_panel["flavor_cd"] = pd.to_numeric(
     agent_panel["flavor_cd"], errors="coerce"
-).fillna(0)
+).fillna(0)  # type:ignore
 
 agent_master = agent_panel.copy()
 agent_master["flavor"] = np.select(
@@ -156,7 +156,7 @@ agent_yogurt = agent_master[agent_master["yogurt_purchase"] == 1].copy()
 
 # Sort chronologically for switching metrics
 agent_yogurt = agent_yogurt.sort_values(
-    ["household_code", "purchase_date", "trip_code_uc"]
+    ["household_code", "purchase_date", "trip_code_uc"]  # type:ignore
 )
 
 # Trip sequence numbers per household

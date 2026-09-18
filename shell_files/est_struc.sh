@@ -14,4 +14,7 @@ ml Python/3.12.3-GCCcore-13.3.0 # Load software module and run bowtie2 below
 
 pip install -qqq -r /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/shell_files/requirements.txt
 
+set -e
+git pull
+
 python /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/full_draft/estimation.py

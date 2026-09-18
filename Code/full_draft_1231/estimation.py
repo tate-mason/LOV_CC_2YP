@@ -24,9 +24,9 @@ console.print("Data Loading and Manipulation")
 console.print("=" * 60)
 
 hms_path = (
-    "/scratch/dtm63837/Kilts_Panel/nielsen_extracts/output_markets/master_panel.parquet"
+    "/scratch/dtm63837/Kilts_Panel/nielsen_extracts/output_markets/full_panel.parquet"
 )
-rms_path = "/scratch/dtm63837/Kilts_Panel/nielsen_extracts/RMS/output_markets/master_retail.parquet"
+rms_path = "/scratch/dtm63837/Kilts_Panel/nielsen_extracts/RMS/output_markets/full_retail.parquet"
 out_path = "/scratch/dtm63837/Kilts_Panel/nielsen_extracts/master.parquet"
 
 # Building the merged dataset from HMS and RMS

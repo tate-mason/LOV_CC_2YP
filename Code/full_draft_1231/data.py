@@ -5,7 +5,6 @@ Data Processing & Summary Statistics Pipeline
 - Flavor switching analysis & heatmaps
 """
 
-
 import os
 import numpy as np
 import pandas as pd
@@ -20,7 +19,9 @@ console = Console()
 
 pd.set_option("display.max_rows", None, "display.max_columns", None)
 
-HMS_PATH = "/scratch/dtm63837/Kilts_Panel/nielsen_extracts/output_markets/full_panel.parquet"
+HMS_PATH = (
+    "/scratch/dtm63837/Kilts_Panel/nielsen_extracts/output_markets/full_panel.parquet"
+)
 RMS_PATH = "/scratch/dtm63837/Kilts_Panel/nielsen_extracts/RMS/output_markets/full_retail.parquet"
 PLOT_OUTPUT_DIR = "../Output/Plots"
 os.makedirs(PLOT_OUTPUT_DIR, exist_ok=True)
@@ -34,14 +35,16 @@ console.print("[bold green]Loading data with Polars...[/bold green]")
 raw_panel = (
     pl.scan_parquet(HMS_PATH)
     .with_columns(pl.all().name.to_lowercase())
-    .with_columns([
-        pl.col("product_module_code_hms").cast(pl.Utf8).str.strip_chars(),
-        pl.col("size1_amount_hms").cast(pl.Float64, strict=False),
-        pl.col("size1_unit_hms").cast(pl.Utf8).str.strip_chars().str.to_uppercase(),
-        pl.col("household_size").cast(pl.Int64, strict=False),
-        pl.col("quantity").cast(pl.Int64, strict=False),
-        pl.col("deal_flag_uc").cast(pl.Int64, strict=False),
-    ])
+    .with_columns(
+        [
+            pl.col("product_module_code_hms").cast(pl.Utf8).str.strip_chars(),
+            pl.col("size1_amount_hms").cast(pl.Float64, strict=False),
+            pl.col("size1_unit_hms").cast(pl.Utf8).str.strip_chars().str.to_uppercase(),
+            pl.col("household_size").cast(pl.Int64, strict=False),
+            pl.col("quantity").cast(pl.Int64, strict=False),
+            pl.col("deal_flag_uc").cast(pl.Int64, strict=False),
+        ]
+    )
 )
 
 # 1. Household trip thresholds across the entire dataset
@@ -54,13 +57,17 @@ active_hhs = (
 
 # 2. Apply filters one at a time to see where rows disappear
 lazy_panel = raw_panel.join(active_hhs, on="household_code", how="inner")
-console.print("Rows after household join:", lazy_panel.select(pl.len()).collect().item())
+console.print(
+    "Rows after household join:", lazy_panel.select(pl.len()).collect().item()
+)
 
 lazy_panel = lazy_panel.filter(pl.col("household_size") == 1)
-console.print("Rows after household size filter:", lazy_panel.select(pl.len()).collect().item())
+console.print(
+    "Rows after household size filter:", lazy_panel.select(pl.len()).collect().item()
+)
 
-#lazy_panel = lazy_panel.filter(pl.col("product_module_code_hms").is_in(["3603", "3612"]))
-#console.print("Rows after module code filter:", lazy_panel.select(pl.len()).collect().item())
+# lazy_panel = lazy_panel.filter(pl.col("product_module_code_hms").is_in(["3603", "3612"]))
+# console.print("Rows after module code filter:", lazy_panel.select(pl.len()).collect().item())
 
 lazy_panel = lazy_panel.filter(pl.col("size1_unit_hms") == "OZ")
 console.print("Rows after OZ filter:", lazy_panel.select(pl.len()).collect().item())
@@ -68,7 +75,9 @@ console.print("Rows after OZ filter:", lazy_panel.select(pl.len()).collect().ite
 console.print("Most common size amounts before the 5–8 filter:")
 
 lazy_panel = lazy_panel.filter(pl.col("size1_amount_hms").is_between(5000, 8001))
-console.print("Rows after size amount filter:", lazy_panel.select(pl.len()).collect().item())
+console.print(
+    "Rows after size amount filter:", lazy_panel.select(pl.len()).collect().item()
+)
 
 agent_panel = lazy_panel.collect().to_pandas()
 
@@ -85,12 +94,18 @@ console.print(
 agent_panel["purchase_date"] = pd.to_datetime(
     agent_panel["purchase_date"].astype(str).str.replace("-", "", regex=False),
     format="%Y%m%d",
-    errors="coerce"
+    errors="coerce",
 )
 agent_panel["week_end"] = agent_panel["purchase_date"] + pd.offsets.Week(weekday=5, n=0)
 
 # Explicit numeric casting for Pandas/PyArrow safety
-numeric_cols = ["quantity", "household_income", "deal_flag_uc", "male_head_age", "female_head_age"]
+numeric_cols = [
+    "quantity",
+    "household_income",
+    "deal_flag_uc",
+    "male_head_age",
+    "female_head_age",
+]
 for col in numeric_cols:
     if col in agent_panel.columns:
         agent_panel[col] = pd.to_numeric(agent_panel[col], errors="coerce").fillna(0)
@@ -98,11 +113,15 @@ for col in numeric_cols:
 # Re-evaluate age logic safely
 agent_panel["male_head_age"] = agent_panel["male_head_age"].replace(0, np.nan)
 agent_panel["female_head_age"] = agent_panel["female_head_age"].replace(0, np.nan)
-agent_panel["head_age"] = agent_panel["male_head_age"].fillna(agent_panel["female_head_age"])
+agent_panel["head_age"] = agent_panel["male_head_age"].fillna(
+    agent_panel["female_head_age"]
+)
 
 # Safe Flavor Encoding
 agent_panel["flavor_str"] = agent_panel["flavor"].fillna("").astype(str)
-agent_panel["flavor_cd"] = pd.to_numeric(agent_panel["flavor_cd"], errors="coerce").fillna(0)
+agent_panel["flavor_cd"] = pd.to_numeric(
+    agent_panel["flavor_cd"], errors="coerce"
+).fillna(0)
 
 agent_master = agent_panel.copy()
 agent_master["flavor"] = np.select(
@@ -111,17 +130,21 @@ agent_master["flavor"] = np.select(
         agent_master["flavor_cd"].isin([67676592, 66987057]),
     ],
     [1, 2],
-    default=0
+    default=0,
 )
 
 # Yogurt Purchase Dummy
 agent_master["yogurt_purchase"] = (
-    agent_master["product_module_code_hms"].isin(["3603", "3612"]) &
-    (agent_master["quantity"] > 0)
+    agent_master["product_module_code_hms"].isin(["3603", "3612"])
+    & (agent_master["quantity"] > 0)
 ).astype(int)
 
 # Outside Option Analysis
-trip_yogurt = agent_master.groupby(["household_code", "trip_code_uc"])["yogurt_purchase"].max().reset_index()
+trip_yogurt = (
+    agent_master.groupby(["household_code", "trip_code_uc"])["yogurt_purchase"]
+    .max()
+    .reset_index()
+)
 trip_yogurt["chose_outside_option"] = (trip_yogurt["yogurt_purchase"] == 0).astype(int)
 outside_option_rate = trip_yogurt["chose_outside_option"].mean()
 
@@ -129,7 +152,9 @@ outside_option_rate = trip_yogurt["chose_outside_option"].mean()
 agent_yogurt = agent_master[agent_master["yogurt_purchase"] == 1].copy()
 
 # Sort chronologically for switching metrics
-agent_yogurt = agent_yogurt.sort_values(["household_code", "purchase_date", "trip_code_uc"])
+agent_yogurt = agent_yogurt.sort_values(
+    ["household_code", "purchase_date", "trip_code_uc"]
+)
 
 # Trip sequence numbers per household
 agent_yogurt["trip_seq"] = agent_yogurt.groupby("household_code").cumcount() + 1
@@ -139,7 +164,7 @@ agent_yogurt["prev_flavor"] = agent_yogurt.groupby("household_code")["flavor"].s
 agent_yogurt["switched"] = np.where(
     agent_yogurt["trip_seq"] > 1,
     (agent_yogurt["flavor"] != agent_yogurt["prev_flavor"]).astype(int),
-    0
+    0,
 )
 
 # ==============================================================================
@@ -168,16 +193,26 @@ console.print(
 agent_yogurt["next_flavor"] = agent_yogurt.groupby("household_code")["flavor"].shift(-1)
 
 # Flavor spells
-agent_yogurt["flavor_spell_id"] = agent_yogurt.groupby("household_code")["switched"].cumsum()
-agent_yogurt["flavor_spell_buys"] = agent_yogurt.groupby(["household_code", "flavor_spell_id"]).cumcount() + 1
-agent_yogurt["spell_length"] = agent_yogurt.groupby(["household_code", "flavor_spell_id"])["flavor_spell_buys"].transform("max")
+agent_yogurt["flavor_spell_id"] = agent_yogurt.groupby("household_code")[
+    "switched"
+].cumsum()
+agent_yogurt["flavor_spell_buys"] = (
+    agent_yogurt.groupby(["household_code", "flavor_spell_id"]).cumcount() + 1
+)
+agent_yogurt["spell_length"] = agent_yogurt.groupby(
+    ["household_code", "flavor_spell_id"]
+)["flavor_spell_buys"].transform("max")
 
 # Filtered Switch Datasets
 switching_sample = agent_yogurt[agent_yogurt["switched"] == 1]
 switches_coupon = switching_sample[switching_sample["deal_flag_uc"] == 1]
 
 # Guarded percent calculation to avoid ZeroDivisionError
-coupon_switch_pct = (len(switches_coupon) / len(switching_sample) * 100) if len(switching_sample) > 0 else 0.0
+coupon_switch_pct = (
+    (len(switches_coupon) / len(switching_sample) * 100)
+    if len(switching_sample) > 0
+    else 0.0
+)
 
 console.print("\n[bold yellow]=== FLAVOR SWITCHING METRICS ===[/bold yellow]")
 console.print(
@@ -192,15 +227,23 @@ console.print(
 # ==============================================================================
 if not switching_sample.empty:
     console.print("\n[bold green]Generating flavor switching heatmap...[/bold green]")
-    
+
     heat_flav = (
         switching_sample.groupby(["prev_flavor", "flavor"])["spell_length"]
         .mean()
         .unstack()
-        .rename(columns={0: "Other", 1: "Berry", 2: "Plain"}, index={0: "Other", 1: "Berry", 2: "Plain"})
+        .rename(
+            columns={0: "Other", 1: "Berry", 2: "Plain"},
+            index={0: "Other", 1: "Berry", 2: "Plain"},
+        )
     )
 
-    cell_labs = np.array([[f"{val:.1f} trips" if not np.isnan(val) else "" for val in row] for row in heat_flav.to_numpy()])
+    cell_labs = np.array(
+        [
+            [f"{val:.1f} trips" if not np.isnan(val) else "" for val in row]
+            for row in heat_flav.to_numpy()
+        ]
+    )
 
     fig, ax = plt.subplots(figsize=(8, 6))
     sns.heatmap(
@@ -209,29 +252,33 @@ if not switching_sample.empty:
         fmt="",
         cmap="YlOrRd",
         cbar_kws={"label": "Mean Spell Length (Trips)"},
-        ax=ax
+        ax=ax,
     )
 
     ax.set_xlabel("Flavor Switched To", fontsize=11, fontweight="bold")
     ax.set_ylabel("Flavor Switched From", fontsize=11, fontweight="bold")
-    ax.set_title("Mean Spell Length Upon Switching Flavors", fontsize=12, fontweight="bold")
-    
+    ax.set_title(
+        "Mean Spell Length Upon Switching Flavors", fontsize=12, fontweight="bold"
+    )
+
     plt.tight_layout()
     output_path = os.path.join(PLOT_OUTPUT_DIR, "3_flav_heatmap.pdf")
     plt.savefig(output_path, format="pdf", bbox_inches="tight")
     plt.close()
-    
-    console.print(f"[bold green]Heatmap successfully saved to: {output_path}[/bold green]")
+
+    console.print(
+        f"[bold green]Heatmap successfully saved to: {output_path}[/bold green]"
+    )
 else:
-    console.print("[bold red]No switching records found to generate heatmap.[/bold red]")
+    console.print(
+        "[bold red]No switching records found to generate heatmap.[/bold red]"
+    )
 
 # ===========================================================================
 # 6. RETAIL LOAD AND FILTER
 # ===========================================================================
 
-raw_retail = (
-    pl.scan_parquet(RMS_PATH)
-    .with_columns(pl.all().name.to_lowercase())
-)
+raw_retail = pl.scan_parquet(RMS_PATH).with_columns(pl.all().name.to_lowercase())
 
+console.print(raw_retail.collect().height())
 console.print(raw_retail.collect_schema())

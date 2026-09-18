@@ -17,4 +17,4 @@ pip install -qqq -r /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/shell_files/require
 set -e
 git pull
 
-python /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/full_draft/estimation.py
+python /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/full_draft_1231/estimation.py

@@ -1,7 +1,7 @@
 import os
 import polars as pl
 
-output_dir = "/scratch/dtm63837/Kilts_Panel/nielsen_extracts/output_markets"
+output_dir = "/scratch/dtm63837/Kilts_Panel/nielsen_extracts/RMS/output_markets"
 
 market_codes = [
     "Atlanta", "Chicago", "Houston", "Denver", 

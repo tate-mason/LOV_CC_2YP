@@ -5,14 +5,21 @@ Data Processing & Summary Statistics Pipeline
 - Flavor switching analysis & heatmaps
 """
 
+# Tools
 import os
-import numpy as np
-import pandas as pd
-import polars as pl
-import matplotlib.pyplot as plt
-import seaborn as sns
 from rich.console import Console
 from rich.traceback import install
+
+# Data
+import pandas as pd
+import polars as pl
+
+# Plotting
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Other
+import numpy as np
 
 install()
 console = Console()
@@ -279,6 +286,6 @@ else:
 # ===========================================================================
 
 raw_retail = pl.scan_parquet(RMS_PATH).with_columns(pl.all().name.to_lowercase())
-
-console.print(raw_retail.collect().height())
+rows_retail = raw_retail.select(pl.len()).collect().item()
+console.print(rows_retail)
 console.print(raw_retail.collect_schema())

@@ -281,7 +281,15 @@ else:
 # 6. RETAIL LOAD AND FILTER
 # ===========================================================================
 
-raw_retail = pl.scan_parquet(RMS_PATH).with_columns(pl.all().name.to_lowercase())
-rows_retail = raw_retail.select(pl.len()).collect().item()
-console.print(rows_retail)
-console.print(raw_retail.collect_schema())
+raw_retail = (
+    pl.scan_parquet(RMS_PATH)
+    .with_columns(pl.all().name.to_lowercase())
+    .collect()
+    .to_pandas()
+)
+
+master_df = agent_master.merge(
+    raw_retail, on=["panel_year", "store_code_uc"], how="left"
+)
+
+console.print(master_df.shape)

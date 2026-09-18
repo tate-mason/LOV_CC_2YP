@@ -10,6 +10,8 @@
 #SBATCH --mail-user=dtm63837@uga.edu    # Where to send mail
 #SBATCH --mail-type=END,FAIL            # Mail events (BEGIN, END, FAIL, ALL)
 
+git pull
+
 ml Python/3.13.5-GCCcore-14.3.0 # Load software module and run bowtie2 below
 
 pip install -qqq -r /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/shell_files/requirements.txt

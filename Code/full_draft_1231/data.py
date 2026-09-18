@@ -21,6 +21,7 @@ console = Console()
 pd.set_option("display.max_rows", None, "display.max_columns", None)
 
 HMS_PATH = "/scratch/dtm63837/Kilts_Panel/nielsen_extracts/output_markets/full_panel.parquet"
+RMS_PATH = "/scratch/dtm63837/Kilts_Panel/nielsen_extracts/RMS/output_markets/full_retail.parquet"
 PLOT_OUTPUT_DIR = "../Output/Plots"
 os.makedirs(PLOT_OUTPUT_DIR, exist_ok=True)
 
@@ -30,7 +31,7 @@ os.makedirs(PLOT_OUTPUT_DIR, exist_ok=True)
 console.print("[bold green]Loading data with Polars...[/bold green]")
 
 # Scan raw parquet with strict string formatting for module codes
-raw_scan = (
+raw_panel = (
     pl.scan_parquet(HMS_PATH)
     .with_columns(pl.all().name.to_lowercase())
     .with_columns([
@@ -45,14 +46,14 @@ raw_scan = (
 
 # 1. Household trip thresholds across the entire dataset
 active_hhs = (
-    raw_scan.group_by("household_code")
+    raw_panel.group_by("household_code")
     .agg(pl.col("trip_code_uc").n_unique().alias("total_trips"))
     .filter(pl.col("total_trips") > 2)
     .select("household_code")
 )
 
 # 2. Apply filters one at a time to see where rows disappear
-lazy_panel = raw_scan.join(active_hhs, on="household_code", how="inner")
+lazy_panel = raw_panel.join(active_hhs, on="household_code", how="inner")
 console.print("Rows after household join:", lazy_panel.select(pl.len()).collect().item())
 
 lazy_panel = lazy_panel.filter(pl.col("household_size") == 1)
@@ -223,3 +224,14 @@ if not switching_sample.empty:
     console.print(f"[bold green]Heatmap successfully saved to: {output_path}[/bold green]")
 else:
     console.print("[bold red]No switching records found to generate heatmap.[/bold red]")
+
+# ===========================================================================
+# 6. RETAIL LOAD AND FILTER
+# ===========================================================================
+
+raw_retail = (
+    pl.scan_parquet(RMS_PATH)
+    .with_columns(pl.all().name.to_lowercase())
+)
+
+console.print(raw_retail.collect_schema())

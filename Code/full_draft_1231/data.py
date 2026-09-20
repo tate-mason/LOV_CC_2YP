@@ -281,10 +281,18 @@ else:
 # 6. RETAIL LOAD AND FILTER
 # ===========================================================================
 
-raw_retail = pl.scan_parquet(RMS_PATH).with_columns(pl.all().name.to_lowercase())
+raw_retail = (
+        pl.scan_parquet(RMS_PATH)
+        .with_columns(pl.all().name.to_lowercase())
+        .with_columns(
+            [
+                pl.col('week_end').cast(pl.Int64)
+            ]
+        )
+)
 
 master_df = raw_panel.join(
-    raw_retail, on=["panel_year", "store_code_uc", "upc"], how="inner"
+    raw_retail, on=["week_end", "store_code_uc", "upc"], how="inner"
 )
 
 console.print(master_df.collect_schema())

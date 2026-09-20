@@ -282,14 +282,12 @@ else:
 # ===========================================================================
 
 raw_retail = (
-        pl.scan_parquet(RMS_PATH)
-        .with_columns(pl.all().name.to_lowercase())
-        .with_columns(
-            [
-                pl.col('week_end').cast(pl.Int64)
-            ]
-        )
+    pl.scan_parquet(RMS_PATH)
+    .with_columns(pl.all().name.to_lowercase())
+    .with_columns([pl.col("week_end").cast(pl.Int64)])
 )
+
+lazy_panel = agent_panel.from_pandas().lazy()
 
 master_df = raw_panel.join(
     raw_retail, on=["week_end", "store_code_uc", "upc"], how="inner"

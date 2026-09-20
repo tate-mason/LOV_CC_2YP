@@ -289,7 +289,7 @@ raw_retail = (
 
 lazy_panel = agent_panel.from_pandas().lazy()
 
-master_df = raw_panel.join(
+master_df = lazy_panel.join(
     raw_retail, on=["week_end", "store_code_uc", "upc"], how="inner"
 )
 

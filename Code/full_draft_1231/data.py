@@ -288,6 +288,9 @@ raw_retail = (
 )
 
 lazy_panel = pl.from_pandas(agent_panel).lazy()
+lazy_panel = lazy_panel.with_columns(
+    pl.col("week_end").dt.strftime("%Y%m%d").cast(pl.Int64)
+)
 
 master_df = lazy_panel.join(
     raw_retail, on=["week_end", "store_code_uc", "upc"], how="inner"

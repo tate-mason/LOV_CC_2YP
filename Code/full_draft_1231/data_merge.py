@@ -1,84 +1,55 @@
-"""
-Data Processing & Merge Pipeline
-Pure Polars Native / SLURM Optimized
+"""Merge HMS and RMS by year, with diagnostics for large SLURM jobs.
 
-Main memory strategy:
-    1. Keep all large datasets lazy.
-    2. Project narrow columns for expensive intermediate calculations.
-    3. Filter RMS by year BEFORE deduplicating.
-    4. Join and immediately stream each year to disk.
-    5. Never collect the full HMS/RMS merge into memory.
+Run: python -u data_merge_diagnostics.py
+Optional: RUN_KEY_AUDIT=0 python -u data_merge_diagnostics.py
+
+The key audit counts distinct RMS join keys and can itself be expensive.
+Set RUN_KEY_AUDIT=0 to proceed directly to the merge if that audit fails.
 """
 
 import os
+import time
+import traceback
 
-# ==============================================================================
-# 0. SLURM / POLARS CONFIGURATION
-# ==============================================================================
-
-# Respect the CPU allocation given by SLURM.
-#
-# IMPORTANT:
-# This must happen BEFORE importing Polars.
-slurm_cpus = os.environ.get("SLURM_CPUS_PER_TASK")
-
-if slurm_cpus is not None:
-    os.environ["POLARS_MAX_THREADS"] = slurm_cpus
-else:
-    # Sensible fallback for running interactively / outside SLURM
-    os.environ.setdefault("POLARS_MAX_THREADS", "8")
-
+# Set before importing Polars. Fewer threads can lower peak memory; override
+# POLARS_MAX_THREADS explicitly if the full SLURM CPU allocation is too much.
+os.environ.setdefault(
+    "POLARS_MAX_THREADS", os.environ.get("SLURM_CPUS_PER_TASK") or "8"
+)
+os.environ.setdefault("RUST_BACKTRACE", "1")
 
 import polars as pl
 
 
-# ==============================================================================
-# 1. PATHS / SETTINGS
-# ==============================================================================
-
 HMS_PATH = (
     "/scratch/dtm63837/Kilts_Panel/nielsen_extracts/output_markets/full_panel.parquet"
 )
-
-RMS_PATH = (
-    "/scratch/dtm63837/Kilts_Panel/"
-    "nielsen_extracts/RMS/output_markets/full_retail.parquet"
-)
-
+RMS_PATH = "/scratch/dtm63837/Kilts_Panel/nielsen_extracts/RMS/output_markets/full_retail.parquet"
 OUTPUT_DIR = "/scratch/dtm63837/Kilts_Panel/nielsen_extracts"
-
-OUTPUT_GLOB = os.path.join(
-    OUTPUT_DIR,
-    "scanner_panel_*.parquet",
-)
-
-YEARS = [2022, 2023, 2024]
+YEARS = (2022, 2023, 2024)
+JOIN_KEYS = ["week_end", "store_code_uc", "upc"]
+RUN_KEY_AUDIT = os.environ.get("RUN_KEY_AUDIT", "1") == "1"
 
 
-print("=" * 80)
-print("POLARS / SLURM CONFIGURATION")
-print("=" * 80)
-print(f"SLURM_CPUS_PER_TASK: {slurm_cpus}")
-print(f"POLARS_MAX_THREADS: {os.environ.get('POLARS_MAX_THREADS')}")
-print()
+def log(message):
+    print(message, flush=True)
 
 
-# ==============================================================================
-# 2. LAZY PANEL LOADING
-# ==============================================================================
+def count(label, frame):
+    """Execute a narrow, scalar count, never collecting the underlying rows."""
+    started = time.monotonic()
+    log(f"START {label}")
+    result = frame.select(pl.len().alias("n")).collect(engine="streaming")
+    n = result.item(0, 0)
+    log(f"DONE  {label}: {n:,} rows ({time.monotonic() - started:.1f}s)")
+    return n
 
-print("=" * 80)
-print("SCANNING HMS PANEL")
-print("=" * 80)
 
-
-raw_panel = (
-    pl.scan_parquet(HMS_PATH)
-    # Normalize column names
-    .with_columns(pl.all().name.to_lowercase())
-    # Normalize key variables / variables used downstream
-    .with_columns(
-        [
+def build_panel():
+    panel = (
+        pl.scan_parquet(HMS_PATH)
+        .with_columns(pl.all().name.to_lowercase())
+        .with_columns(
             pl.col("product_module_code_hms").cast(pl.Utf8).str.strip_chars(),
             pl.col("size1_amount_hms").cast(pl.Float64, strict=False),
             pl.col("size1_unit_hms").cast(pl.Utf8).str.strip_chars().str.to_uppercase(),
@@ -88,457 +59,156 @@ raw_panel = (
             pl.col("household_code").cast(pl.Int64, strict=False),
             pl.col("store_code_uc").cast(pl.Int64, strict=False),
             pl.col("upc").cast(pl.Int64, strict=False),
-        ]
-    )
-)
-
-
-# ==============================================================================
-# 3. IDENTIFY ACTIVE HOUSEHOLDS
-# ==============================================================================
-
-print("Building active-household filter...")
-
-
-# IMPORTANT:
-#
-# We only need household_code and trip_code_uc to determine whether a household
-# has >2 unique trips.
-#
-# Explicitly narrowing the query here prevents the group-by from carrying
-# irrelevant columns through this portion of the execution plan.
-#
-# The calculation is intentionally done BEFORE the other sample restrictions.
-# This preserves the semantics of your original script:
-#
-#     "active" = >2 trips in the original HMS panel
-#
-# rather than:
-#
-#     "active" = >2 trips after applying the yogurt/sample filters.
-#
-
-active_hhs = (
-    raw_panel.select(
-        [
-            "household_code",
-            "trip_code_uc",
-        ]
-    )
-    .group_by("household_code")
-    .agg(pl.col("trip_code_uc").n_unique().alias("total_trips"))
-    .filter(pl.col("total_trips") > 2)
-    .select("household_code")
-)
-
-
-# ==============================================================================
-# 4. APPLY PANEL SAMPLE FILTERS
-# ==============================================================================
-
-print("Applying HMS sample restrictions...")
-
-
-# A semi join is all we need here:
-#
-#     retain rows whose household_code occurs in active_hhs
-#
-# We do not need to physically attach anything from active_hhs to raw_panel.
-# This is cleaner than an inner join for a pure membership restriction.
-
-lazy_panel = (
-    raw_panel.join(
-        active_hhs,
-        on="household_code",
-        how="semi",
-    )
-    # Original sample restrictions
-    .filter(pl.col("household_size") == 1)
-    .filter(pl.col("size1_unit_hms") == "OZ")
-    .filter(
-        pl.col("size1_amount_hms").is_between(
-            5000,
-            8001,
         )
     )
-)
 
+    # Activity is measured in the entire original HMS panel, before restrictions.
+    active_hhs = (
+        panel.select("household_code", "trip_code_uc")
+        .group_by("household_code")
+        .agg(pl.col("trip_code_uc").n_unique().alias("total_trips"))
+        .filter(pl.col("total_trips") > 2)
+        .select("household_code")
+    )
 
-# ==============================================================================
-# 5. PANEL CLEANING / DATE ALIGNMENT
-# ==============================================================================
-
-print("Cleaning HMS variables and constructing week_end...")
-
-
-# ------------------------------------------------------------------------------
-# Parse purchase date
-# ------------------------------------------------------------------------------
-
-lazy_panel = lazy_panel.with_columns(
-    [
-        pl.col("purchase_date")
-        .cast(pl.Utf8)
-        .str.replace_all("-", "")
-        .str.to_date(
-            "%Y%m%d",
-            strict=False,
+    panel = (
+        panel.join(active_hhs, on="household_code", how="semi")
+        .filter(pl.col("household_size") == 1)
+        .filter(pl.col("size1_unit_hms") == "OZ")
+        .filter(pl.col("size1_amount_hms").is_between(5000, 8001))
+        .with_columns(
+            pl.col("purchase_date")
+            .cast(pl.Utf8)
+            .str.replace_all("-", "")
+            .str.to_date("%Y%m%d", strict=False)
+            .alias("parsed_date"),
+            pl.col("household_income").cast(pl.Float64, strict=False).fill_null(0.0),
+            pl.col("male_head_age").cast(pl.Float64, strict=False).replace(0, None),
+            pl.col("female_head_age").cast(pl.Float64, strict=False).replace(0, None),
         )
-        .alias("parsed_date"),
-        pl.col("household_income")
-        .cast(
-            pl.Float64,
-            strict=False,
-        )
-        .fill_null(0.0),
-        pl.col("male_head_age")
-        .cast(
-            pl.Float64,
-            strict=False,
-        )
-        .replace(0, None),
-        pl.col("female_head_age")
-        .cast(
-            pl.Float64,
-            strict=False,
-        )
-        .replace(0, None),
-    ]
-)
-
-
-# ------------------------------------------------------------------------------
-# Align purchase date to Saturday week-end
-# ------------------------------------------------------------------------------
-
-lazy_panel = lazy_panel.with_columns(
-    [
-        pl.col("parsed_date")
-        .dt.offset_by(
-            pl.format(
-                "{}d",
-                (6 - pl.col("parsed_date").dt.weekday()) % 7,
+        .with_columns(
+            # ISO weekday is Monday=1 through Sunday=7. Saturday=6;
+            # (13 - weekday) % 7 maps Saturday to 0 and Sunday to 6.
+            (
+                pl.col("parsed_date")
+                + pl.duration(days=(13 - pl.col("parsed_date").dt.weekday()) % 7)
             )
+            .cast(pl.Datetime("ms"))
+            .alias("week_end"),
+            pl.coalesce("male_head_age", "female_head_age").alias("head_age"),
         )
-        .cast(pl.Datetime("ms"))
-        .alias("week_end"),
-        pl.coalesce(
-            [
-                "male_head_age",
-                "female_head_age",
-            ]
-        ).alias("head_age"),
-    ]
-)
-
-
-# ==============================================================================
-# 6. FLAVOR / PURCHASE VARIABLES
-# ==============================================================================
-
-print("Constructing flavor and yogurt purchase indicators...")
-
-
-# First normalize the raw flavor variables.
-
-lazy_panel = lazy_panel.with_columns(
-    [
-        pl.col("flavor").cast(pl.Utf8).fill_null("").alias("flavor_str"),
-        pl.col("flavor_cd")
-        .cast(
-            pl.Int64,
-            strict=False,
+        .with_columns(
+            pl.col("flavor").cast(pl.Utf8).fill_null("").alias("flavor_str"),
+            pl.col("flavor_cd").cast(pl.Int64, strict=False).fill_null(0),
         )
-        .fill_null(0),
-    ]
-)
-
-
-# Then construct the variables used in the analysis.
-
-lazy_panel = lazy_panel.with_columns(
-    [
-        # ----------------------------------------------------------------------
-        # Flavor
-        #
-        # 0 = other
-        # 1 = berry
-        # 2 = flavor codes identified below
-        # ----------------------------------------------------------------------
-        pl.when(pl.col("flavor_str").str.contains("(?i)berry"))
-        .then(1)
-        .when(
-            pl.col("flavor_cd").is_in(
-                [
-                    67676592,
-                    66987057,
-                ]
+        .with_columns(
+            pl.when(pl.col("flavor_str").str.contains("(?i)berry"))
+            .then(1)
+            .when(pl.col("flavor_cd").is_in([67676592, 66987057]))
+            .then(2)
+            .otherwise(0)
+            .alias("flavor"),
+            pl.when(
+                pl.col("product_module_code_hms").is_in(["3603", "3612"])
+                & (pl.col("quantity") > 0)
             )
+            .then(1)
+            .otherwise(0)
+            .alias("yogurt_purchase"),
         )
-        .then(2)
-        .otherwise(0)
-        .alias("flavor"),
-        # ----------------------------------------------------------------------
-        # Yogurt purchase indicator
-        # ----------------------------------------------------------------------
-        pl.when(
-            pl.col("product_module_code_hms").is_in(
-                [
-                    "3603",
-                    "3612",
-                ]
-            )
-            & (pl.col("quantity") > 0)
-        )
-        .then(1)
-        .otherwise(0)
-        .alias("yogurt_purchase"),
-    ]
-)
+    )
+    return panel
 
 
-# ==============================================================================
-# 7. LAZY RMS SCAN
-# ==============================================================================
-
-print("=" * 80)
-print("SCANNING RMS")
-print("=" * 80)
-
-
-# IMPORTANT:
-#
-# DO NOT call .unique() here.
-#
-# The previous version effectively did:
-#
-#     entire RMS
-#        -> parse
-#        -> unique entire RMS
-#        -> select year
-#
-# For a huge scanner dataset, that requires Polars to build deduplication state
-# for the entire RMS extract.
-#
-# Instead we keep this as an un-deduplicated lazy scan and perform:
-#
-#     entire RMS
-#        -> select year
-#        -> unique that year
-#        -> join that year
-#        -> sink
-#
-# This substantially reduces the peak state needed by unique() and the join.
-
-raw_retail = (
-    pl.scan_parquet(RMS_PATH)
-    # Normalize names
-    .with_columns(pl.all().name.to_lowercase())
-    # Normalize join keys
-    .with_columns(
-        [
+def build_retail():
+    return (
+        pl.scan_parquet(RMS_PATH)
+        .with_columns(pl.all().name.to_lowercase())
+        .with_columns(
             pl.col("week_end")
-            .str.to_datetime(
-                "%Y-%m-%d",
-                strict=False,
-            )
+            .str.to_datetime("%Y-%m-%d", strict=False)
             .dt.cast_time_unit("ms"),
-            pl.col("store_code_uc").cast(
-                pl.Int64,
-                strict=False,
-            ),
-            pl.col("upc").cast(
-                pl.Int64,
-                strict=False,
-            ),
-        ]
-    )
-    .filter(pl.col("week_end").is_not_null())
-)
-
-
-# ==============================================================================
-# 8. YEAR-BY-YEAR RMS / HMS MERGE
-# ==============================================================================
-
-print()
-print("=" * 80)
-print("BEGINNING YEARLY MERGE")
-print("=" * 80)
-
-
-JOIN_KEYS = [
-    "week_end",
-    "store_code_uc",
-    "upc",
-]
-
-
-for yr in sorted(YEARS):
-    print()
-    print("-" * 80)
-    print(f"YEAR: {yr}")
-    print("-" * 80)
-
-    output_path = os.path.join(
-        OUTPUT_DIR,
-        f"scanner_panel_{yr}.parquet",
-    )
-
-    # ==========================================================================
-    # 8A. FILTER HMS TO YEAR
-    # ==========================================================================
-
-    print(f"[{yr}] Building HMS lazy query...")
-
-    panel_sub = lazy_panel.filter(pl.col("week_end").dt.year() == yr)
-
-    # ==========================================================================
-    # 8B. FILTER RMS TO YEAR *BEFORE* DEDUPLICATION
-    # ==========================================================================
-
-    print(f"[{yr}] Building RMS lazy query...")
-
-    retail_sub = (
-        raw_retail
-        # --------------------------------------------------------------
-        # CRITICAL MEMORY OPTIMIZATION:
-        #
-        # Cut RMS down to this year before unique().
-        # --------------------------------------------------------------
-        .filter(pl.col("week_end").dt.year() == yr)
-        # --------------------------------------------------------------
-        # Guarantee one RMS observation per join key.
-        #
-        # This is deliberately AFTER the year restriction.
-        # --------------------------------------------------------------
-        .unique(
-            subset=JOIN_KEYS,
+            pl.col("store_code_uc").cast(pl.Int64, strict=False),
+            pl.col("upc").cast(pl.Int64, strict=False),
         )
+        .filter(pl.col("week_end").is_not_null())
     )
 
-    # ==========================================================================
-    # OPTIONAL FURTHER OPTIMIZATION
-    # ==========================================================================
-    #
-    # If you know exactly which RMS columns you eventually need, add a .select()
-    # BEFORE .unique().
-    #
-    # For example:
-    #
-    # retail_sub = (
-    #     raw_retail
-    #     .filter(
-    #         pl.col("week_end").dt.year() == yr
-    #     )
-    #     .select(
-    #         [
-    #             "week_end",
-    #             "store_code_uc",
-    #             "upc",
-    #             "price",
-    #             "feature",
-    #             "display",
-    #         ]
-    #     )
-    #     .unique(
-    #         subset=JOIN_KEYS,
-    #     )
-    # )
-    #
-    # This can save a VERY large amount of memory if full_retail.parquet is wide.
-    #
-    # For now I leave every RMS variable intact because I do not want to silently
-    # change the contents of your merged dataset.
 
-    # ==========================================================================
-    # 8C. JOIN
-    # ==========================================================================
+def main():
+    log(f"Polars version: {pl.__version__}; index type: {pl.get_index_type()}")
+    log(f"SLURM_JOB_ID: {os.environ.get('SLURM_JOB_ID', 'none')}")
+    log(f"SLURM_MEM_PER_NODE: {os.environ.get('SLURM_MEM_PER_NODE', 'unset')} MB")
+    log(f"POLARS_MAX_THREADS: {os.environ['POLARS_MAX_THREADS']}")
+    log(f"RUN_KEY_AUDIT: {RUN_KEY_AUDIT}")
+    log(f"HMS: {HMS_PATH}")
+    log(f"RMS: {RMS_PATH}")
 
-    print(f"[{yr}] Constructing HMS x RMS join...")
+    # These counts are on the original files; unlike a full collect they only
+    # return one number each. They help assess whether rt64 is worth testing.
+    count("HMS source", pl.scan_parquet(HMS_PATH))
+    count("RMS source", pl.scan_parquet(RMS_PATH))
 
-    master_sub = panel_sub.join(
-        retail_sub,
-        on=JOIN_KEYS,
-        how="left",
-    )
+    panel = build_panel()
+    retail = build_retail()
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-    # ==========================================================================
-    # 8D. IMMEDIATELY STREAM RESULT TO DISK
-    # ==========================================================================
+    for year in YEARS:
+        log(f"========== YEAR {year} ==========")
+        panel_year = panel.filter(pl.col("week_end").dt.year() == year)
+        retail_year = retail.filter(pl.col("week_end").dt.year() == year)
 
-    print(f"[{yr}] Streaming merged data to:")
-    print(f"       {output_path}")
+        panel_rows = count(f"{year} filtered HMS", panel_year)
+        retail_rows = count(f"{year} parsed RMS", retail_year)
 
-    master_sub.sink_parquet(
-        output_path,
-        engine="streaming",
-    )
+        if RUN_KEY_AUDIT:
+            # Project ONLY the three keys. This still builds distinct-key state:
+            # if it is too large, rerun with RUN_KEY_AUDIT=0.
+            distinct_keys = count(
+                f"{year} distinct RMS join keys",
+                retail_year.select(JOIN_KEYS).unique(subset=JOIN_KEYS),
+            )
+            log(
+                f"{year} RMS duplicate key rows: "
+                f"{retail_rows - distinct_keys:,} of {retail_rows:,}"
+            )
+            if distinct_keys >= 2**32 and pl.get_index_type() == pl.UInt32:
+                log(
+                    f"{year} WARNING: distinct keys exceed UInt32 index range; test polars[rt64]."
+                )
 
-    print(f"[{yr}] Complete.")
+        # Do not drop RMS variables: output retains the original set of columns.
+        # The yearly restriction precedes the wide unique and join.
+        retail_unique = retail_year.unique(subset=JOIN_KEYS)
+        merged = panel_year.join(retail_unique, on=JOIN_KEYS, how="left")
+        output_path = os.path.join(OUTPUT_DIR, f"scanner_panel_{year}.parquet")
+        temp_path = output_path + ".incomplete"
 
+        log(f"START {year} streaming join and parquet sink -> {temp_path}")
+        started = time.monotonic()
+        # An abort leaves only .incomplete; a completed year is not overwritten
+        # until its new output file has been fully written.
+        merged.sink_parquet(temp_path, engine="streaming")
+        os.replace(temp_path, output_path)
+        log(f"DONE  {year} parquet sink ({time.monotonic() - started:.1f}s)")
 
-# ==============================================================================
-# 9. COMBINED LAZY DATASET
-# ==============================================================================
+        output_rows = count(f"{year} written output", pl.scan_parquet(output_path))
+        if output_rows != panel_rows:
+            raise RuntimeError(
+                f"{year}: output has {output_rows:,} rows but HMS has {panel_rows:,}; "
+                "inspect the join keys and RMS deduplication"
+            )
 
-print()
-print("=" * 80)
-print("BUILDING COMBINED LAZY SCAN")
-print("=" * 80)
-
-
-# This does NOT load the yearly files into RAM.
-#
-# Polars treats the glob as one logical lazy dataset. Any downstream filters,
-# selects, group-bys, etc. can continue to take advantage of predicate and
-# projection pushdown.
-
-combined_lazy = pl.scan_parquet(OUTPUT_GLOB)
+    # Continue analysis here. The combined scan remains lazy.
+    combined_lazy = pl.scan_parquet(os.path.join(OUTPUT_DIR, "scanner_panel_*.parquet"))
+    log("MERGE COMPLETE; combined_lazy is ready for downstream analysis")
+    return combined_lazy
 
 
-print(f"Combined scan: {OUTPUT_GLOB}")
-
-
-# ==============================================================================
-# 10. DOWNSTREAM ANALYSIS
-# ==============================================================================
-#
-# Add the rest of your analysis below this point.
-#
-# Examples:
-#
-#
-# summary = (
-#     combined_lazy
-#     .group_by("year")
-#     .agg(
-#         [
-#             pl.len().alias("n"),
-#         ]
-#     )
-#     .collect(engine="streaming")
-# )
-#
-#
-# or:
-#
-#
-# analysis_sample = (
-#     combined_lazy
-#     .filter(pl.col("yogurt_purchase") == 1)
-# )
-#
-#
-# Keep analysis lazy for as long as possible. In particular, avoid:
-#
-#     combined_lazy.collect()
-#
-# on the full dataset unless you actually need the entire merged dataset
-# materialized in memory.
-
-
-print()
-print("=" * 80)
-print("MERGE COMPLETE")
-print("=" * 80)
+if __name__ == "__main__":
+    try:
+        main()
+    except Exception:
+        log("PYTHON EXCEPTION (the preceding START line identifies the stage)")
+        traceback.print_exc()
+        raise

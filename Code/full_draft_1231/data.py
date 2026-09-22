@@ -312,6 +312,7 @@ raw_retail = (
     .with_columns(
         [pl.col("week_end").str.to_datetime("%Y-%m-%d"), pl.col("upc").cast(pl.Int64)]
     )
+    .filter(pl.col("week_end").is_not_null())
 )
 
 

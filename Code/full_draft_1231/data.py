@@ -26,6 +26,7 @@ HMS_PATH = (
     "/scratch/dtm63837/Kilts_Panel/nielsen_extracts/output_markets/full_panel.parquet"
 )
 RMS_PATH = "/scratch/dtm63837/Kilts_Panel/nielsen_extracts/RMS/output_markets/full_retail.parquet"
+OUT_PATH = "/scratch/dtm63837/Kilts_Panel/nielsen_extracts/scanner_panel.parquet"
 PLOT_OUTPUT_DIR = "../Output/Plots"
 os.makedirs(PLOT_OUTPUT_DIR, exist_ok=True)
 
@@ -323,7 +324,5 @@ lazy_panel = pl.from_pandas(agent_panel).lazy()
 master_df = lazy_panel.join(
     raw_retail, on=["week_end", "store_code_uc", "upc"], how="left"
 )
-# Perform a left join and check null counts for retail columns
-console.print(master_df.columns)
-master_df_res = master_df.collect(streaming=True)
-console.print(master_df_res.shape)
+
+master_df.sink_parquet(OUT_PATH)

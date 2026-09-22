@@ -322,4 +322,5 @@ master_df = lazy_panel.join(
 )
 
 console.print(master_df.columns)
-console.print(master_df.select(pl.len()).collect())
+master_df_res = master_df.collect()
+console.print(master_df_res.shape)

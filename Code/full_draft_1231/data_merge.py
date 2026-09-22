@@ -61,6 +61,7 @@ lazy_panel = (
 # 2. NATIVE POLARS CLEANING & DATE ALIGNMENT
 # ==============================================================================
 # Native Date parsing & Saturday Week-End calculation
+# 1. Parse date to Date type first
 lazy_panel = lazy_panel.with_columns(
     [
         pl.col("purchase_date")
@@ -72,14 +73,14 @@ lazy_panel = lazy_panel.with_columns(
         pl.col("male_head_age").cast(pl.Float64, strict=False).replace(0, None),
         pl.col("female_head_age").cast(pl.Float64, strict=False).replace(0, None),
     ]
-).with_columns(
+)
+
+# 2. Calculate Saturday offset using string duration with dt.offset_by()
+lazy_panel = lazy_panel.with_columns(
     [
-        # Offset date to Saturday week-end (Weekday 6 in Polars) and standardize to Datetime[ms]
-        (
-            pl.col("parsed_date")
-            + pl.duration(days=(6 - pl.col("parsed_date").dt.weekday()) % 7)
-        )
-        .dt.cast_time_unit("ms")
+        pl.col("parsed_date")
+        .dt.offset_by((6 - pl.col("parsed_date").dt.weekday()) % 7, "d")
+        .cast(pl.Datetime("ms"))
         .alias("week_end"),
         pl.coalesce(["male_head_age", "female_head_age"]).alias("head_age"),
     ]

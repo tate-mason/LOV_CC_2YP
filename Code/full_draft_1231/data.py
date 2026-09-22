@@ -42,8 +42,7 @@ raw_panel = (
         [
             pl.col("product_module_code_hms").cast(pl.Utf8).str.strip_chars(),
             pl.col("size1_amount_hms").cast(pl.Float64, strict=False),
-            pl.col("size1_unit_hms").cast(
-                pl.Utf8).str.strip_chars().str.to_uppercase(),
+            pl.col("size1_unit_hms").cast(pl.Utf8).str.strip_chars().str.to_uppercase(),
             pl.col("household_size").cast(pl.Int64, strict=False),
             pl.col("quantity").cast(pl.Int64, strict=False),
             pl.col("deal_flag_uc").cast(pl.Int64, strict=False),
@@ -67,24 +66,20 @@ console.print(
 
 lazy_panel = lazy_panel.filter(pl.col("household_size") == 1)
 console.print(
-    "Rows after household size filter:", lazy_panel.select(
-        pl.len()).collect().item()
+    "Rows after household size filter:", lazy_panel.select(pl.len()).collect().item()
 )
 
 # lazy_panel = lazy_panel.filter(pl.col("product_module_code_hms").is_in(["3603", "3612"]))
 # console.print("Rows after module code filter:", lazy_panel.select(pl.len()).collect().item())
 
 lazy_panel = lazy_panel.filter(pl.col("size1_unit_hms") == "OZ")
-console.print("Rows after OZ filter:",
-              lazy_panel.select(pl.len()).collect().item())
+console.print("Rows after OZ filter:", lazy_panel.select(pl.len()).collect().item())
 
 console.print("Most common size amounts before the 5–8 filter:")
 
-lazy_panel = lazy_panel.filter(
-    pl.col("size1_amount_hms").is_between(5000, 8001))
+lazy_panel = lazy_panel.filter(pl.col("size1_amount_hms").is_between(5000, 8001))
 console.print(
-    "Rows after size amount filter:", lazy_panel.select(
-        pl.len()).collect().item()
+    "Rows after size amount filter:", lazy_panel.select(pl.len()).collect().item()
 )
 
 agent_panel = lazy_panel.collect().to_pandas()
@@ -107,8 +102,7 @@ agent_panel["purchase_date"] = pd.to_datetime(
     format="%Y%m%d",
     errors="coerce",
 )
-agent_panel["week_end"] = agent_panel["purchase_date"] + \
-    pd.offsets.Week(weekday=5, n=0)
+agent_panel["week_end"] = agent_panel["purchase_date"] + pd.offsets.Week(weekday=5, n=0)
 
 # Explicit numeric casting for Pandas/PyArrow safety
 numeric_cols = [
@@ -120,13 +114,11 @@ numeric_cols = [
 ]
 for col in numeric_cols:
     if col in agent_panel.columns:
-        agent_panel[col] = pd.to_numeric(
-            agent_panel[col], errors="coerce").fillna(0)  # type:ignore
+        agent_panel[col] = pd.to_numeric(agent_panel[col], errors="coerce").fillna(0)  # type:ignore
 
 # Re-evaluate age logic safely
 agent_panel["male_head_age"] = agent_panel["male_head_age"].replace(0, np.nan)
-agent_panel["female_head_age"] = agent_panel["female_head_age"].replace(
-    0, np.nan)
+agent_panel["female_head_age"] = agent_panel["female_head_age"].replace(0, np.nan)
 agent_panel["head_age"] = agent_panel["male_head_age"].fillna(
     agent_panel["female_head_age"]
 )
@@ -159,8 +151,7 @@ trip_yogurt = (
     .max()
     .reset_index()
 )
-trip_yogurt["chose_outside_option"] = (
-    trip_yogurt["yogurt_purchase"] == 0).astype(int)
+trip_yogurt["chose_outside_option"] = (trip_yogurt["yogurt_purchase"] == 0).astype(int)
 outside_option_rate = trip_yogurt["chose_outside_option"].mean()
 
 # Filter for yogurt purchases safely
@@ -172,10 +163,8 @@ agent_yogurt = agent_yogurt.sort_values(
 )
 
 # Trip sequence numbers per household
-agent_yogurt["trip_seq"] = agent_yogurt.groupby(
-    "household_code").cumcount() + 1
-agent_yogurt["prev_flavor"] = agent_yogurt.groupby("household_code")[
-    "flavor"].shift(1)
+agent_yogurt["trip_seq"] = agent_yogurt.groupby("household_code").cumcount() + 1
+agent_yogurt["prev_flavor"] = agent_yogurt.groupby("household_code")["flavor"].shift(1)
 
 # Switching dummy (only valid from trip 2 onwards)
 agent_yogurt["switched"] = np.where(
@@ -187,8 +176,7 @@ agent_yogurt["switched"] = np.where(
 # ==============================================================================
 # 3. SUMMARY STATISTICS
 # ==============================================================================
-console.print(
-    "\n[bold yellow]=== FULL SAMPLE SUMMARY STATISTICS ===[/bold yellow]")
+console.print("\n[bold yellow]=== FULL SAMPLE SUMMARY STATISTICS ===[/bold yellow]")
 
 console.print(
     f"Number of households in full sample:                  {
@@ -208,8 +196,7 @@ console.print(
     f"Percent taking outside option each trip:              {
         outside_option_rate * 100:.2f}%\n"
     f"Percent purchasing with coupon:                       {
-        agent_yogurt.groupby(['household_code', 'trip_code_uc'])[
-            'deal_flag_uc']
+        agent_yogurt.groupby(['household_code', 'trip_code_uc'])['deal_flag_uc']
         .max()
         .mean()
         * 100:.2f}%\n"
@@ -225,8 +212,7 @@ console.print(
 # 4. FLAVOR SWITCHING METRICS
 # ==============================================================================
 # Sequence indicators
-agent_yogurt["next_flavor"] = agent_yogurt.groupby("household_code")[
-    "flavor"].shift(-1)
+agent_yogurt["next_flavor"] = agent_yogurt.groupby("household_code")["flavor"].shift(-1)
 
 # Flavor spells
 agent_yogurt["flavor_spell_id"] = agent_yogurt.groupby("household_code")[
@@ -261,16 +247,14 @@ console.print(
     f"Percent of HH who ever-switch flavors:                 {
         (agent_yogurt.groupby('household_code')['flavor'].nunique() > 1).mean()
         * 100:.2f}%\n"
-    f"Percent switching due to coupon/deal:                 {
-        coupon_switch_pct:.2f}%"
+    f"Percent switching due to coupon/deal:                 {coupon_switch_pct:.2f}%"
 )
 
 # ==============================================================================
 # 5. HEATMAP VISUALIZATION
 # ==============================================================================
 if not switching_sample.empty:
-    console.print(
-        "\n[bold green]Generating flavor switching heatmap...[/bold green]")
+    console.print("\n[bold green]Generating flavor switching heatmap...[/bold green]")
 
     heat_flav = (
         switching_sample.groupby(["prev_flavor", "flavor"])["spell_length"]
@@ -311,8 +295,7 @@ if not switching_sample.empty:
     plt.close()
 
     console.print(
-        f"[bold green]Heatmap successfully saved to: {
-            output_path}[/bold green]"
+        f"[bold green]Heatmap successfully saved to: {output_path}[/bold green]"
     )
 else:
     console.print(
@@ -336,6 +319,7 @@ lazy_panel = lazy_panel.with_columns(
 
 master_df = lazy_panel.join(
     raw_retail, on=["week_end", "store_code_uc", "upc"], how="inner"
-)
+).sink_par
 
 console.print(master_df.collect_schema())
+console.print(master_df.select(pl.len()).collect())

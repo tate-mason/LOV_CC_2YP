@@ -319,7 +319,7 @@ lazy_panel = lazy_panel.with_columns(
 
 master_df = lazy_panel.join(
     raw_retail, on=["week_end", "store_code_uc", "upc"], how="inner"
-).sink_par
+)
 
 console.print(master_df.columns)
 console.print(master_df.select(pl.len()).collect())

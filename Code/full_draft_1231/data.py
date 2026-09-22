@@ -325,4 +325,4 @@ master_df = lazy_panel.join(
     raw_retail, on=["week_end", "store_code_uc", "upc"], how="left"
 )
 
-master_df.sink_parquet(OUT_PATH)
+master_df.sink_parquet(OUT_PATH, engine="streaming")

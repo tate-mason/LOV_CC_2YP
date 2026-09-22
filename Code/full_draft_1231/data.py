@@ -320,6 +320,26 @@ lazy_panel = pl.from_pandas(agent_panel).lazy()
 master_df = lazy_panel.join(
     raw_retail, on=["week_end", "store_code_uc", "upc"], how="inner"
 )
+panel_dates = lazy_panel.select("week_end").unique().collect()["week_end"].sort()
+retail_dates = raw_retail.select("week_end").unique().collect()["week_end"].sort()
+
+print("Panel dates sample:", panel_dates.head(5))
+print("Retail dates sample:", retail_dates.head(5))
+
+# Perform a left join and check null counts for retail columns
+drop_analysis = (
+    lazy_panel.join(raw_retail, on=["week_end", "store_code_uc", "upc"], how="left")
+    .select(
+        [
+            pl.len().alias("total_rows"),
+            # Count missing matches for retail data
+            pl.col("upc_right").null_count().alias("missing_upc_matches"),
+        ]
+    )
+    .collect(streaming=True)
+)
+
+console.print(drop_analysis)
 
 console.print(master_df.columns)
 master_df_res = master_df.collect(streaming=True)

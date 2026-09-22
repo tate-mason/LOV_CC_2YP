@@ -3,6 +3,7 @@
 Run: python -u data_merge_diagnostics.py
 The RMS selection stage writes one numeric row ID per distinct join key.
 This avoids wide unique(), which triggered a Polars first/last reducer panic.
+The audit checks every RMS value column using two row fingerprints.
 """
 
 import os
@@ -136,6 +137,71 @@ def build_retail():
     )
 
 
+def audit_merge(year, panel_rows, output_path, ids_path, retail_year, value_columns):
+    """Check actual output match coverage and conflicting RMS values."""
+    written = pl.scan_parquet(output_path)
+    selected = pl.scan_parquet(ids_path)
+
+    # A left join retains unmatched HMS rows. Count real key matches separately.
+    matched = count(
+        f"{year} HMS rows with an RMS key match",
+        written.select(JOIN_KEYS).join(
+            selected.select(JOIN_KEYS), on=JOIN_KEYS, how="semi"
+        ),
+    )
+    log(
+        f"{year} RMS match rate: {matched / panel_rows:.1%} "
+        f"({panel_rows - matched:,} unmatched HMS rows)"
+        if panel_rows
+        else f"{year} RMS match rate: n/a (no HMS rows)"
+    )
+
+    # Restrict the large RMS scan to keys appearing in the actual HMS output.
+    # Hash ALL RMS value columns, then check whether fingerprints differ within
+    # each key. Two seeds make an undetected hash collision extremely unlikely.
+    # Min/max of two UInt64 hashes avoids aggregating the wide value rows.
+    output_keys = written.select(JOIN_KEYS).unique(subset=JOIN_KEYS)
+    values = pl.struct(value_columns)
+    grouped = (
+        retail_year.select(
+            JOIN_KEYS
+            + [
+                values.hash(seed=0).alias("_rms_hash_0"),
+                values.hash(seed=1).alias("_rms_hash_1"),
+            ]
+        )
+        .join(output_keys, on=JOIN_KEYS, how="semi")
+        .group_by(JOIN_KEYS)
+        .agg(
+            pl.len().alias("rms_rows"),
+            pl.col("_rms_hash_0").min().alias("hash_0_min"),
+            pl.col("_rms_hash_0").max().alias("hash_0_max"),
+            pl.col("_rms_hash_1").min().alias("hash_1_min"),
+            pl.col("_rms_hash_1").max().alias("hash_1_max"),
+        )
+        .with_columns(
+            (
+                (pl.col("hash_0_min") != pl.col("hash_0_max"))
+                | (pl.col("hash_1_min") != pl.col("hash_1_max"))
+            ).alias("values_disagree")
+        )
+    )
+
+    log(f"START {year} RMS duplicate-value audit across {len(value_columns)} columns")
+    summary = grouped.select(
+        pl.len().alias("matched_rms_keys"),
+        (pl.col("rms_rows") > 1).sum().alias("keys_with_multiple_rms_rows"),
+        pl.col("values_disagree").sum().alias("keys_with_conflicting_values"),
+    ).collect(engine="streaming")
+    log(f"DONE  {year} RMS duplicate-value audit:\n{summary}")
+
+    conflicting = grouped.filter(pl.col("values_disagree")).select(
+        JOIN_KEYS + ["rms_rows"]
+    )
+    log(f"START {year} sample of up to 10 conflicting RMS keys")
+    log(str(conflicting.head(10).collect(engine="streaming")))
+
+
 def main():
     log(f"Polars version: {pl.__version__}; index type: {pl.get_index_type()}")
     log(f"SLURM_JOB_ID: {os.environ.get('SLURM_JOB_ID', 'none')}")
@@ -151,6 +217,14 @@ def main():
 
     panel = build_panel()
     retail = build_retail()
+    value_columns = [
+        column
+        for column in retail.collect_schema().names()
+        if column not in JOIN_KEYS and column != ROW_ID
+    ]
+    if not value_columns:
+        raise ValueError("RMS has no non-key value columns to audit")
+    log(f"RMS value columns audited ({len(value_columns)}): {', '.join(value_columns)}")
     os.makedirs(OUTPUT_DIR, exist_ok=True)
 
     for year in YEARS:
@@ -169,7 +243,6 @@ def main():
             retail_year.select(JOIN_KEYS + [ROW_ID])
             .group_by(JOIN_KEYS)
             .agg(pl.col(ROW_ID).min().alias(ROW_ID))
-            .select(ROW_ID)
         )
         log(f"START {year} selecting one RMS row ID per key -> {ids_temp_path}")
         chosen_ids.sink_parquet(ids_temp_path, engine="streaming")
@@ -181,7 +254,7 @@ def main():
 
         # Semi join recovers ALL columns of exactly the chosen RMS rows.
         retail_unique = retail_year.join(
-            pl.scan_parquet(ids_path), on=ROW_ID, how="semi"
+            pl.scan_parquet(ids_path).select(ROW_ID), on=ROW_ID, how="semi"
         ).drop(ROW_ID)
         merged = panel_year.join(retail_unique, on=JOIN_KEYS, how="left")
         output_path = os.path.join(OUTPUT_DIR, f"scanner_panel_{year}.parquet")
@@ -201,6 +274,7 @@ def main():
                 f"{year}: output has {output_rows:,} rows but HMS has {panel_rows:,}; "
                 "inspect the join keys and RMS deduplication"
             )
+        audit_merge(year, panel_rows, output_path, ids_path, retail_year, value_columns)
         os.remove(ids_path)
 
     # Continue analysis here. The combined scan remains lazy.

@@ -315,6 +315,8 @@ raw_retail = (
     .filter(pl.col("week_end").is_not_null())
 )
 
+raw_retail = raw_retail.unique(subset=["week_end", "store_code_uc", "upc"])
+
 
 lazy_panel = pl.from_pandas(agent_panel).lazy()
 

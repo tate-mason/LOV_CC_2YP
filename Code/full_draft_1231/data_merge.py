@@ -62,6 +62,7 @@ lazy_panel = (
 # ==============================================================================
 # Native Date parsing & Saturday Week-End calculation
 # 1. Parse date to Date type first
+# 1. Parse date to Date type first
 lazy_panel = lazy_panel.with_columns(
     [
         pl.col("purchase_date")
@@ -75,11 +76,11 @@ lazy_panel = lazy_panel.with_columns(
     ]
 )
 
-# 2. Calculate Saturday offset using string duration with dt.offset_by()
+# 2. Format the calculated days into a duration string for offset_by()
 lazy_panel = lazy_panel.with_columns(
     [
         pl.col("parsed_date")
-        .dt.offset_by((6 - pl.col("parsed_date").dt.weekday()) % 7, "d")
+        .dt.offset_by(pl.format("{}d", (6 - pl.col("parsed_date").dt.weekday()) % 7))
         .cast(pl.Datetime("ms"))
         .alias("week_end"),
         pl.coalesce(["male_head_age", "female_head_age"]).alias("head_age"),

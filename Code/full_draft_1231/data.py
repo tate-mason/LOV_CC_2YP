@@ -310,14 +310,10 @@ raw_retail = (
     pl.scan_parquet(RMS_PATH)
     .with_columns(pl.all().name.to_lowercase())
     .with_columns(
-        [
-            # pl.col("week_end").cast(pl.String).str.to_date("%Y%m%d").cast(pl.Datetime),
-            pl.col("upc").cast(pl.Int64),
-        ]
+        [pl.col("week_end").str.to_datetime("%Y-%m-%d"), pl.col("upc").cast(pl.Int64)]
     )
 )
 
-console.print(raw_retail.collect_schema()["week_end"])  # Datetime
 
 lazy_panel = pl.from_pandas(agent_panel).lazy()
 

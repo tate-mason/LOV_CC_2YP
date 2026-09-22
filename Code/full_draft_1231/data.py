@@ -8,6 +8,8 @@ Data Processing & Summary Statistics Pipeline
 # Tools
 import os  # type:ignore
 
+os.environ["POLARS_MAX_THREADS"] = "1"
+
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd

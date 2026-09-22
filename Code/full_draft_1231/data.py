@@ -319,7 +319,7 @@ raw_retail = (
 lazy_panel = pl.from_pandas(agent_panel).lazy()
 
 master_df = lazy_panel.join(
-    raw_retail, on=["week_end", "store_code_uc", "upc"], how="inner"
+    raw_retail, on=["week_end", "store_code_uc", "upc"], how="left"
 )
 # Perform a left join and check null counts for retail columns
 console.print(master_df.columns)

@@ -1,10 +1,8 @@
 """Merge HMS and RMS by year, with diagnostics for large SLURM jobs.
 
 Run: python -u data_merge_diagnostics.py
-Optional: RUN_KEY_AUDIT=0 python -u data_merge_diagnostics.py
-
-The key audit counts distinct RMS join keys and can itself be expensive.
-Set RUN_KEY_AUDIT=0 to proceed directly to the merge if that audit fails.
+The RMS selection stage writes one numeric row ID per distinct join key.
+This avoids wide unique(), which triggered a Polars first/last reducer panic.
 """
 
 import os
@@ -28,7 +26,7 @@ RMS_PATH = "/scratch/dtm63837/Kilts_Panel/nielsen_extracts/RMS/output_markets/fu
 OUTPUT_DIR = "/scratch/dtm63837/Kilts_Panel/nielsen_extracts"
 YEARS = (2022, 2023, 2024)
 JOIN_KEYS = ["week_end", "store_code_uc", "upc"]
-RUN_KEY_AUDIT = os.environ.get("RUN_KEY_AUDIT", "1") == "1"
+ROW_ID = "__rms_row_id"
 
 
 def log(message):
@@ -123,6 +121,9 @@ def build_panel():
 def build_retail():
     return (
         pl.scan_parquet(RMS_PATH)
+        # Assigned before filtering; both branches of the later semi join use
+        # the same source row IDs. The source has fewer than 2**32 rows.
+        .with_row_index(ROW_ID)
         .with_columns(pl.all().name.to_lowercase())
         .with_columns(
             pl.col("week_end")
@@ -140,7 +141,6 @@ def main():
     log(f"SLURM_JOB_ID: {os.environ.get('SLURM_JOB_ID', 'none')}")
     log(f"SLURM_MEM_PER_NODE: {os.environ.get('SLURM_MEM_PER_NODE', 'unset')} MB")
     log(f"POLARS_MAX_THREADS: {os.environ['POLARS_MAX_THREADS']}")
-    log(f"RUN_KEY_AUDIT: {RUN_KEY_AUDIT}")
     log(f"HMS: {HMS_PATH}")
     log(f"RMS: {RMS_PATH}")
 
@@ -161,25 +161,28 @@ def main():
         panel_rows = count(f"{year} filtered HMS", panel_year)
         retail_rows = count(f"{year} parsed RMS", retail_year)
 
-        if RUN_KEY_AUDIT:
-            # Project ONLY the three keys. This still builds distinct-key state:
-            # if it is too large, rerun with RUN_KEY_AUDIT=0.
-            distinct_keys = count(
-                f"{year} distinct RMS join keys",
-                retail_year.select(JOIN_KEYS).unique(subset=JOIN_KEYS),
-            )
-            log(
-                f"{year} RMS duplicate key rows: "
-                f"{retail_rows - distinct_keys:,} of {retail_rows:,}"
-            )
-            if distinct_keys >= 2**32 and pl.get_index_type() == pl.UInt32:
-                log(
-                    f"{year} WARNING: distinct keys exceed UInt32 index range; test polars[rt64]."
-                )
+        # Only group the keys and a numeric row ID. min() chooses a consistent
+        # source row without aggregating all the wide RMS value columns.
+        ids_path = os.path.join(OUTPUT_DIR, f"scanner_panel_{year}.rms_ids.parquet")
+        ids_temp_path = ids_path + ".incomplete"
+        chosen_ids = (
+            retail_year.select(JOIN_KEYS + [ROW_ID])
+            .group_by(JOIN_KEYS)
+            .agg(pl.col(ROW_ID).min().alias(ROW_ID))
+            .select(ROW_ID)
+        )
+        log(f"START {year} selecting one RMS row ID per key -> {ids_temp_path}")
+        chosen_ids.sink_parquet(ids_temp_path, engine="streaming")
+        os.replace(ids_temp_path, ids_path)
+        distinct_keys = count(f"{year} selected RMS keys", pl.scan_parquet(ids_path))
+        log(
+            f"{year} RMS duplicate key rows: {retail_rows - distinct_keys:,} of {retail_rows:,}"
+        )
 
-        # Do not drop RMS variables: output retains the original set of columns.
-        # The yearly restriction precedes the wide unique and join.
-        retail_unique = retail_year.unique(subset=JOIN_KEYS)
+        # Semi join recovers ALL columns of exactly the chosen RMS rows.
+        retail_unique = retail_year.join(
+            pl.scan_parquet(ids_path), on=ROW_ID, how="semi"
+        ).drop(ROW_ID)
         merged = panel_year.join(retail_unique, on=JOIN_KEYS, how="left")
         output_path = os.path.join(OUTPUT_DIR, f"scanner_panel_{year}.parquet")
         temp_path = output_path + ".incomplete"
@@ -198,6 +201,7 @@ def main():
                 f"{year}: output has {output_rows:,} rows but HMS has {panel_rows:,}; "
                 "inspect the join keys and RMS deduplication"
             )
+        os.remove(ids_path)
 
     # Continue analysis here. The combined scan remains lazy.
     combined_lazy = pl.scan_parquet(os.path.join(OUTPUT_DIR, "scanner_panel_*.parquet"))

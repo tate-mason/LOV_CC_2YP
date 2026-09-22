@@ -131,19 +131,24 @@ raw_retail = (
     .filter(pl.col("week_end").is_not_null())
     .unique(subset=["week_end", "store_code_uc", "upc"])
 )
+years = [2022, 2023, 2024]
+# 1. Stream each year out safely
+for yr in sorted(years):
+    print(f"Streaming year {yr}...")
 
-# Join LazyFrames directly
-master_df = lazy_panel.join(
-    raw_retail, on=["week_end", "store_code_uc", "upc"], how="left"
+    panel_sub = lazy_panel.filter(pl.col("week_end").dt.year() == yr)
+    retail_sub = raw_retail.filter(pl.col("week_end").dt.year() == yr)
+
+    master_sub = panel_sub.join(
+        retail_sub, on=["week_end", "store_code_uc", "upc"], how="left"
+    )
+
+    master_sub.sink_parquet(
+        f"/scratch/dtm63837/Kilts_Panel/nielsen_extracts/scanner_panel_{yr}.parquet",
+        engine="streaming",
+    )
+
+# 2. Downstream analysis using glob pattern (treated seamlessly as 1 dataset)
+combined_lazy = pl.scan_parquet(
+    "/scratch/dtm63837/Kilts_Panel/nielsen_extracts/scanner_panel_*.parquet"
 )
-
-# ==============================================================================
-# 4. STREAM DIRECTLY TO PARQUET
-# ==============================================================================
-print(f"Streaming final joined data directly to {OUT_PATH}...")
-
-# Because both sides are LazyFrames with identical primitive schema types,
-# Polars can now stream this to disk without in-memory conversion spikes.
-master_df.sink_parquet(OUT_PATH, engine="streaming")
-
-print("Done! Streaming write completed successfully.")

@@ -1,0 +1,85 @@
+Already up to date.
+============================================================
+Data Loading and Manipulation
+============================================================
+╭───────────────────── Traceback (most recent call last) ──────────────────────╮
+│ /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/full_draft_1231/estimation.py: │
+│ 35 in <module>                                                               │
+│                                                                              │
+│    32 # Building the merged dataset from HMS and RMS                         │
+│    33                                                                        │
+│    34 agent_panel = (                                                        │
+│ ❱  35 │   pl.read_parquet(hms_path)                                          │
+│    36 │   .with_columns(pl.all().name.to_lowercase())                        │
+│    37 │   .with_columns(                                                     │
+│    38 │   │   [                                                              │
+│                                                                              │
+│ /home/dtm63837/.local/lib/python3.12/site-packages/polars/_utils/deprecation │
+│ .py:128 in wrapper                                                           │
+│                                                                              │
+│   125 │   │   │   _rename_keyword_argument(                                  │
+│   126 │   │   │   │   old_name, new_name, kwargs, function.__qualname__, ver │
+│   127 │   │   │   )                                                          │
+│ ❱ 128 │   │   │   return function(*args, **kwargs)                           │
+│   129 │   │                                                                  │
+│   130 │   │   wrapper.__signature__ = inspect.signature(function)  # type: i │
+│   131 │   │   return wrapper                                                 │
+│                                                                              │
+│ /home/dtm63837/.local/lib/python3.12/site-packages/polars/_utils/deprecation │
+│ .py:128 in wrapper                                                           │
+│                                                                              │
+│   125 │   │   │   _rename_keyword_argument(                                  │
+│   126 │   │   │   │   old_name, new_name, kwargs, function.__qualname__, ver │
+│   127 │   │   │   )                                                          │
+│ ❱ 128 │   │   │   return function(*args, **kwargs)                           │
+│   129 │   │                                                                  │
+│   130 │   │   wrapper.__signature__ = inspect.signature(function)  # type: i │
+│   131 │   │   return wrapper                                                 │
+│                                                                              │
+│ /home/dtm63837/.local/lib/python3.12/site-packages/polars/io/parquet/functio │
+│ ns.py:293 in read_parquet                                                    │
+│                                                                              │
+│   290 │   │   else:                                                          │
+│   291 │   │   │   lf = lf.select(columns)                                    │
+│   292 │                                                                      │
+│ ❱ 293 │   return lf.collect()                                                │
+│   294                                                                        │
+│   295                                                                        │
+│   296 def _read_parquet_with_pyarrow(                                        │
+│                                                                              │
+│ /home/dtm63837/.local/lib/python3.12/site-packages/polars/_utils/deprecation │
+│ .py:97 in wrapper                                                            │
+│                                                                              │
+│    94 │   │   │   │                                                          │
+│    95 │   │   │   │   del kwargs["streaming"]                                │
+│    96 │   │   │                                                              │
+│ ❱  97 │   │   │   return function(*args, **kwargs)                           │
+│    98 │   │                                                                  │
+│    99 │   │   wrapper.__signature__ = inspect.signature(function)  # type: i │
+│   100 │   │   return wrapper                                                 │
+│                                                                              │
+│ /home/dtm63837/.local/lib/python3.12/site-packages/polars/lazyframe/opt_flag │
+│ s.py:343 in wrapper                                                          │
+│                                                                              │
+│   340 │   │   │   │   │   optflags = cb(optflags, kwargs.pop(key))  # type:  │
+│   341 │   │   │                                                              │
+│   342 │   │   │   kwargs["optimizations"] = optflags                         │
+│ ❱ 343 │   │   │   return function(*args, **kwargs)                           │
+│   344 │   │                                                                  │
+│   345 │   │   wrapper.__signature__ = inspect.signature(function)  # type: i │
+│   346 │   │   return wrapper                                                 │
+│                                                                              │
+│ /home/dtm63837/.local/lib/python3.12/site-packages/polars/lazyframe/frame.py │
+│ :2510 in collect                                                             │
+│                                                                              │
+│   2507 │   │                                                                 │
+│   2508 │   │   # Only for testing purposes                                   │
+│   2509 │   │   callback = _kwargs.get("post_opt_callback", callback)         │
+│ ❱ 2510 │   │   return wrap_df(ldf.collect(engine, callback))                 │
+│   2511 │                                                                     │
+│   2512 │   @overload                                                         │
+│   2513 │   def collect_async(                                                │
+╰──────────────────────────────────────────────────────────────────────────────╯
+FileNotFoundError: No such file or directory (os error 2): 
+/scratch/dtm63837/Kilts_Panel/nielsen_extracts/output_markets/master_panel.parqu
+et

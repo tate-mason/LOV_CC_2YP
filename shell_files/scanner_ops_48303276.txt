@@ -1,0 +1,7 @@
+From github.com:tate-mason/LOV_CC_2YP
+   196ed25..39b965b  main       -> origin/main
+Updating 196ed25..39b965b
+Fast-forward
+ Code/dat_expo/retail_dat/retail_concat.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+--> Saved master retail parquet file (full_retail.parquet

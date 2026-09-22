@@ -1,0 +1,150 @@
+From github.com:tate-mason/LOV_CC_2YP
+   03724c9..e707f7c  main       -> origin/main
+Updating 03724c9..e707f7c
+Fast-forward
+ Code/full_draft_1231/data_merge.py | 78 +++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 76 insertions(+), 2 deletions(-)
+Polars version: 1.44.2; index type: UInt32
+SLURM_JOB_ID: 48453570
+SLURM_MEM_PER_NODE: 921600 MB
+POLARS_MAX_THREADS: 8
+HMS: /scratch/dtm63837/Kilts_Panel/nielsen_extracts/output_markets/full_panel.parquet
+RMS: /scratch/dtm63837/Kilts_Panel/nielsen_extracts/RMS/output_markets/full_retail.parquet
+START HMS source
+DONE  HMS source: 26,304,702 rows (0.0s)
+START RMS source
+DONE  RMS source: 407,160,560 rows (0.1s)
+RMS value columns audited (121): year, retailer_code, parent_code, channel_code, store_zip3, fips_state_code, fips_county_code, acv, panel_year, units, prmult, price, feature, display, brand, brand_cd, protein_gram, protein_gram_cd, commodity_group, commodity_group_cd, manufacturer_suggested_price_claim, manufacturer_suggested_price_claim_cd, cholesterol, cholesterol_cd, sodium_presence_claim, sodium_presence_claim_cd, fat_calorie_per_serving_size, fat_calorie_per_serving_size_cd, sugar_gram, sugar_gram_cd, competitive_category_ogrds, competitive_category_ogrds_cd, package_presentation_option, package_presentation_option_cd, additional_information, additional_information_cd, manufacturing_process, manufacturing_process_cd, serving_size_household, serving_size_household_cd, trans_fat_gram, trans_fat_gram_cd, serving_size_metric, serving_size_metric_cd, calories_per_serving_size, calories_per_serving_size_cd, secondary_size, secondary_size_cd, total_size, total_size_cd, organic_claim, organic_claim_cd, genetic_modification_claim, genetic_modification_claim_cd, total_carbohydrate_gram, total_carbohydrate_gram_cd, flavor, flavor_cd, target_group_gender, target_group_gender_cd, manufacturer_suggested_price, manufacturer_suggested_price_cd, prepriced, prepriced_cd, nutritional_health_claim, nutritional_health_claim_cd, usda_organic_seal, usda_organic_seal_cd, formulation, formulation_cd, strategic_ingredient_presence_claim, strategic_ingredient_presence_claim_cd, fat_presence_claim, fat_presence_claim_cd, price_reduction, price_reduction_cd, total_fat_gram, total_fat_gram_cd, serving_per_container, serving_per_container_cd, saturated_fat_gram, saturated_fat_gram_cd, form, form_cd, product_size, product_size_cd, base_size, base_size_cd, package_general_shape, package_general_shape_cd, calorie_claim, calorie_claim_cd, package_material_substance, package_material_substance_cd, sodium, sodium_cd, dietary_fiber, dietary_fiber_cd, claim, claim_cd, common_consumer_name, common_consumer_name_cd, deal_derived, deal_derived_cd, product_descr, product_module_code, product_module_descr, multi, start_date, year_hier, super_category, super_category_cd, category, category_cd, sub_category, sub_category_cd, segment, segment_cd, department, department_cd, market_name
+========== YEAR 2022 ==========
+START 2022 filtered HMS
+DONE  2022 filtered HMS: 979,386 rows (0.8s)
+START 2022 parsed RMS
+DONE  2022 parsed RMS: 131,287,819 rows (2.0s)
+START 2022 selecting one RMS row ID per key -> /scratch/dtm63837/Kilts_Panel/nielsen_extracts/scanner_panel_2022.rms_ids.parquet.incomplete
+START 2022 selected RMS keys
+DONE  2022 selected RMS keys: 43,907,945 rows (0.0s)
+2022 RMS duplicate key rows: 87,379,874 of 131,287,819
+START 2022 streaming join and parquet sink -> /scratch/dtm63837/Kilts_Panel/nielsen_extracts/scanner_panel_2022.parquet.incomplete
+DONE  2022 parquet sink (33.2s)
+START 2022 written output
+DONE  2022 written output: 979,386 rows (0.0s)
+START 2022 HMS rows with an RMS key match
+DONE  2022 HMS rows with an RMS key match: 39,849 rows (1.2s)
+2022 RMS match rate: 4.1% (939,537 unmatched HMS rows)
+START 2022 RMS duplicate-value audit across 121 columns
+DONE  2022 RMS duplicate-value audit:
+shape: (1, 3)
+┌──────────────────┬─────────────────────────────┬──────────────────────────────┐
+│ matched_rms_keys ┆ keys_with_multiple_rms_rows ┆ keys_with_conflicting_values │
+│ ---              ┆ ---                         ┆ ---                          │
+│ u32              ┆ u32                         ┆ u32                          │
+╞══════════════════╪═════════════════════════════╪══════════════════════════════╡
+│ 12538            ┆ 12528                       ┆ 12528                        │
+└──────────────────┴─────────────────────────────┴──────────────────────────────┘
+START 2022 sample of up to 10 conflicting RMS keys
+shape: (10, 4)
+┌─────────────────────┬───────────────┬─────────────┬──────────┐
+│ week_end            ┆ store_code_uc ┆ upc         ┆ rms_rows │
+│ ---                 ┆ ---           ┆ ---         ┆ ---      │
+│ datetime[ms]        ┆ i64           ┆ i64         ┆ u32      │
+╞═════════════════════╪═══════════════╪═════════════╪══════════╡
+│ 2022-07-30 00:00:00 ┆ 530502        ┆ 81829001147 ┆ 3        │
+│ 2022-01-15 00:00:00 ┆ 7921282       ┆ 81590902088 ┆ 3        │
+│ 2022-02-26 00:00:00 ┆ 1477113       ┆ 81590902030 ┆ 3        │
+│ 2022-03-12 00:00:00 ┆ 1255816       ┆ 81829001271 ┆ 3        │
+│ 2022-02-05 00:00:00 ┆ 7921282       ┆ 7047000665  ┆ 3        │
+│ 2022-08-20 00:00:00 ┆ 4707475       ┆ 7047000323  ┆ 3        │
+│ 2022-09-10 00:00:00 ┆ 5974159       ┆ 81829001466 ┆ 3        │
+│ 2022-01-08 00:00:00 ┆ 5462190       ┆ 81829001466 ┆ 3        │
+│ 2022-04-30 00:00:00 ┆ 5523586       ┆ 89470001004 ┆ 3        │
+│ 2022-01-22 00:00:00 ┆ 3651905       ┆ 89470001033 ┆ 3        │
+└─────────────────────┴───────────────┴─────────────┴──────────┘
+========== YEAR 2023 ==========
+START 2023 filtered HMS
+DONE  2023 filtered HMS: 961,897 rows (0.9s)
+START 2023 parsed RMS
+DONE  2023 parsed RMS: 137,359,561 rows (2.1s)
+START 2023 selecting one RMS row ID per key -> /scratch/dtm63837/Kilts_Panel/nielsen_extracts/scanner_panel_2023.rms_ids.parquet.incomplete
+START 2023 selected RMS keys
+DONE  2023 selected RMS keys: 46,258,075 rows (0.0s)
+2023 RMS duplicate key rows: 91,101,486 of 137,359,561
+START 2023 streaming join and parquet sink -> /scratch/dtm63837/Kilts_Panel/nielsen_extracts/scanner_panel_2023.parquet.incomplete
+DONE  2023 parquet sink (35.2s)
+START 2023 written output
+DONE  2023 written output: 961,897 rows (0.0s)
+START 2023 HMS rows with an RMS key match
+DONE  2023 HMS rows with an RMS key match: 38,553 rows (1.1s)
+2023 RMS match rate: 4.0% (923,344 unmatched HMS rows)
+START 2023 RMS duplicate-value audit across 121 columns
+DONE  2023 RMS duplicate-value audit:
+shape: (1, 3)
+┌──────────────────┬─────────────────────────────┬──────────────────────────────┐
+│ matched_rms_keys ┆ keys_with_multiple_rms_rows ┆ keys_with_conflicting_values │
+│ ---              ┆ ---                         ┆ ---                          │
+│ u32              ┆ u32                         ┆ u32                          │
+╞══════════════════╪═════════════════════════════╪══════════════════════════════╡
+│ 12086            ┆ 12086                       ┆ 12086                        │
+└──────────────────┴─────────────────────────────┴──────────────────────────────┘
+START 2023 sample of up to 10 conflicting RMS keys
+shape: (10, 4)
+┌─────────────────────┬───────────────┬─────────────┬──────────┐
+│ week_end            ┆ store_code_uc ┆ upc         ┆ rms_rows │
+│ ---                 ┆ ---           ┆ ---         ┆ ---      │
+│ datetime[ms]        ┆ i64           ┆ i64         ┆ u32      │
+╞═════════════════════╪═══════════════╪═════════════╪══════════╡
+│ 2023-09-16 00:00:00 ┆ 69470         ┆ 68954408020 ┆ 3        │
+│ 2023-07-01 00:00:00 ┆ 5954452       ┆ 81829001280 ┆ 3        │
+│ 2023-12-02 00:00:00 ┆ 7162972       ┆ 3663203255  ┆ 3        │
+│ 2023-08-12 00:00:00 ┆ 10560         ┆ 3663203968  ┆ 3        │
+│ 2023-08-05 00:00:00 ┆ 7588703       ┆ 3663203968  ┆ 3        │
+│ 2023-08-12 00:00:00 ┆ 5954452       ┆ 89470001033 ┆ 3        │
+│ 2023-04-22 00:00:00 ┆ 7497607       ┆ 7047000325  ┆ 3        │
+│ 2023-08-19 00:00:00 ┆ 4082046       ┆ 7047000325  ┆ 3        │
+│ 2023-03-04 00:00:00 ┆ 7507238       ┆ 68954408060 ┆ 3        │
+│ 2023-07-22 00:00:00 ┆ 5290806       ┆ 81829001902 ┆ 3        │
+└─────────────────────┴───────────────┴─────────────┴──────────┘
+========== YEAR 2024 ==========
+START 2024 filtered HMS
+DONE  2024 filtered HMS: 895,754 rows (0.8s)
+START 2024 parsed RMS
+DONE  2024 parsed RMS: 138,508,689 rows (2.1s)
+START 2024 selecting one RMS row ID per key -> /scratch/dtm63837/Kilts_Panel/nielsen_extracts/scanner_panel_2024.rms_ids.parquet.incomplete
+START 2024 selected RMS keys
+DONE  2024 selected RMS keys: 46,751,442 rows (0.0s)
+2024 RMS duplicate key rows: 91,757,247 of 138,508,689
+START 2024 streaming join and parquet sink -> /scratch/dtm63837/Kilts_Panel/nielsen_extracts/scanner_panel_2024.parquet.incomplete
+DONE  2024 parquet sink (35.5s)
+START 2024 written output
+DONE  2024 written output: 895,754 rows (0.0s)
+START 2024 HMS rows with an RMS key match
+DONE  2024 HMS rows with an RMS key match: 37,890 rows (1.3s)
+2024 RMS match rate: 4.2% (857,864 unmatched HMS rows)
+START 2024 RMS duplicate-value audit across 121 columns
+DONE  2024 RMS duplicate-value audit:
+shape: (1, 3)
+┌──────────────────┬─────────────────────────────┬──────────────────────────────┐
+│ matched_rms_keys ┆ keys_with_multiple_rms_rows ┆ keys_with_conflicting_values │
+│ ---              ┆ ---                         ┆ ---                          │
+│ u32              ┆ u32                         ┆ u32                          │
+╞══════════════════╪═════════════════════════════╪══════════════════════════════╡
+│ 11850            ┆ 11850                       ┆ 11850                        │
+└──────────────────┴─────────────────────────────┴──────────────────────────────┘
+START 2024 sample of up to 10 conflicting RMS keys
+shape: (10, 4)
+┌─────────────────────┬───────────────┬──────────────┬──────────┐
+│ week_end            ┆ store_code_uc ┆ upc          ┆ rms_rows │
+│ ---                 ┆ ---           ┆ ---          ┆ ---      │
+│ datetime[ms]        ┆ i64           ┆ i64          ┆ u32      │
+╞═════════════════════╪═══════════════╪══════════════╪══════════╡
+│ 2024-04-06 00:00:00 ┆ 5628674       ┆ 81829001158  ┆ 3        │
+│ 2024-09-28 00:00:00 ┆ 5401228       ┆ 7047000323   ┆ 3        │
+│ 2024-10-05 00:00:00 ┆ 3941499       ┆ 200175800347 ┆ 3        │
+│ 2024-04-06 00:00:00 ┆ 8244738       ┆ 3663200839   ┆ 3        │
+│ 2024-07-06 00:00:00 ┆ 2754650       ┆ 7047000300   ┆ 3        │
+│ 2024-06-22 00:00:00 ┆ 5015205       ┆ 81829001902  ┆ 3        │
+│ 2024-11-09 00:00:00 ┆ 5242546       ┆ 81829001279  ┆ 3        │
+│ 2024-09-28 00:00:00 ┆ 5015205       ┆ 89470001032  ┆ 3        │
+│ 2024-02-17 00:00:00 ┆ 6039526       ┆ 7047000655   ┆ 3        │
+│ 2024-03-02 00:00:00 ┆ 5016363       ┆ 7047000330   ┆ 3        │
+└─────────────────────┴───────────────┴──────────────┴──────────┘
+MERGE COMPLETE; combined_lazy is ready for downstream analysis

@@ -1,0 +1,56 @@
+From github.com:tate-mason/LOV_CC_2YP
+   4f5fc39..03724c9  main       -> origin/main
+Updating 4f5fc39..03724c9
+Fast-forward
+ Code/full_draft_1231/data_merge.py | 54 ++++++++++++++++++++------------------
+ 1 file changed, 29 insertions(+), 25 deletions(-)
+Polars version: 1.44.2; index type: UInt32
+SLURM_JOB_ID: 48451878
+SLURM_MEM_PER_NODE: 921600 MB
+POLARS_MAX_THREADS: 8
+HMS: /scratch/dtm63837/Kilts_Panel/nielsen_extracts/output_markets/full_panel.parquet
+RMS: /scratch/dtm63837/Kilts_Panel/nielsen_extracts/RMS/output_markets/full_retail.parquet
+START HMS source
+DONE  HMS source: 26,304,702 rows (0.2s)
+START RMS source
+DONE  RMS source: 407,160,560 rows (0.3s)
+========== YEAR 2022 ==========
+START 2022 filtered HMS
+DONE  2022 filtered HMS: 979,386 rows (1.8s)
+START 2022 parsed RMS
+DONE  2022 parsed RMS: 131,287,819 rows (5.1s)
+START 2022 selecting one RMS row ID per key -> /scratch/dtm63837/Kilts_Panel/nielsen_extracts/scanner_panel_2022.rms_ids.parquet.incomplete
+START 2022 selected RMS keys
+DONE  2022 selected RMS keys: 43,907,945 rows (0.0s)
+2022 RMS duplicate key rows: 87,379,874 of 131,287,819
+START 2022 streaming join and parquet sink -> /scratch/dtm63837/Kilts_Panel/nielsen_extracts/scanner_panel_2022.parquet.incomplete
+DONE  2022 parquet sink (38.8s)
+START 2022 written output
+DONE  2022 written output: 979,386 rows (0.0s)
+========== YEAR 2023 ==========
+START 2023 filtered HMS
+DONE  2023 filtered HMS: 961,897 rows (0.8s)
+START 2023 parsed RMS
+DONE  2023 parsed RMS: 137,359,561 rows (2.1s)
+START 2023 selecting one RMS row ID per key -> /scratch/dtm63837/Kilts_Panel/nielsen_extracts/scanner_panel_2023.rms_ids.parquet.incomplete
+START 2023 selected RMS keys
+DONE  2023 selected RMS keys: 46,258,075 rows (0.0s)
+2023 RMS duplicate key rows: 91,101,486 of 137,359,561
+START 2023 streaming join and parquet sink -> /scratch/dtm63837/Kilts_Panel/nielsen_extracts/scanner_panel_2023.parquet.incomplete
+DONE  2023 parquet sink (35.2s)
+START 2023 written output
+DONE  2023 written output: 961,897 rows (0.0s)
+========== YEAR 2024 ==========
+START 2024 filtered HMS
+DONE  2024 filtered HMS: 895,754 rows (0.8s)
+START 2024 parsed RMS
+DONE  2024 parsed RMS: 138,508,689 rows (2.1s)
+START 2024 selecting one RMS row ID per key -> /scratch/dtm63837/Kilts_Panel/nielsen_extracts/scanner_panel_2024.rms_ids.parquet.incomplete
+START 2024 selected RMS keys
+DONE  2024 selected RMS keys: 46,751,442 rows (0.0s)
+2024 RMS duplicate key rows: 91,757,247 of 138,508,689
+START 2024 streaming join and parquet sink -> /scratch/dtm63837/Kilts_Panel/nielsen_extracts/scanner_panel_2024.parquet.incomplete
+DONE  2024 parquet sink (35.2s)
+START 2024 written output
+DONE  2024 written output: 895,754 rows (0.0s)
+MERGE COMPLETE; combined_lazy is ready for downstream analysis

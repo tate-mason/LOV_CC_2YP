@@ -1,0 +1,155 @@
+Already up to date.
+============================================================
+Data Loading and Manipulation
+============================================================
+╭───────────────────── Traceback (most recent call last) ──────────────────────╮
+│ /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/full_draft_1231/estimation.py: │
+│ 55 in <module>                                                               │
+│                                                                              │
+│    52 │   .to_pandas()                                                       │
+│    53 )                                                                      │
+│    54                                                                        │
+│ ❱  55 agent_panel["week_end"] = agent_panel["purchase_date"] + pd.offsets.We │
+│    56                                                                        │
+│    57 product_panel = (                                                      │
+│    58 │   pl.read_parquet(rms_path)                                          │
+│                                                                              │
+│ /home/dtm63837/.local/lib/python3.12/site-packages/pandas/core/ops/common.py │
+│ :85 in new_method                                                            │
+│                                                                              │
+│    82 │   │   │   other = sanitize_array(other, None)                        │
+│    83 │   │   │   other = ensure_wrapped_if_datetimelike(other)              │
+│    84 │   │                                                                  │
+│ ❱  85 │   │   return method(self, other)                                     │
+│    86 │                                                                      │
+│    87 │   # error: Incompatible return value type (got "Callable[[Any, Any], │
+│    88 │   # expected "F")                                                    │
+│                                                                              │
+│ /home/dtm63837/.local/lib/python3.12/site-packages/pandas/core/arraylike.py: │
+│ 190 in __add__                                                               │
+│                                                                              │
+│   187 │   │   elk       1.7     NaN                                          │
+│   188 │   │   moose     3.0     NaN                                          │
+│   189 │   │   """                                                            │
+│ ❱ 190 │   │   return self._arith_method(other, operator.add)                 │
+│   191 │                                                                      │
+│   192 │   @unpack_zerodim_and_defer("__radd__")                              │
+│   193 │   def __radd__(self, other):                                         │
+│                                                                              │
+│ /home/dtm63837/.local/lib/python3.12/site-packages/pandas/core/series.py:675 │
+│ 1 in _arith_method                                                           │
+│                                                                              │
+│   6748 │                                                                     │
+│   6749 │   def _arith_method(self, other, op):                               │
+│   6750 │   │   self, other = self._align_for_op(other)                       │
+│ ❱ 6751 │   │   return base.IndexOpsMixin._arith_method(self, other, op)      │
+│   6752 │                                                                     │
+│   6753 │   def _align_for_op(self, right, align_asobject: bool = False):     │
+│   6754 │   │   """align lhs and rhs Series"""                                │
+│                                                                              │
+│ /home/dtm63837/.local/lib/python3.12/site-packages/pandas/core/base.py:1644  │
+│ in _arith_method                                                             │
+│                                                                              │
+│   1641 │   │   │   rvalues = np.arange(rvalues.start, rvalues.stop, rvalues. │
+│   1642 │   │                                                                 │
+│   1643 │   │   with np.errstate(all="ignore"):                               │
+│ ❱ 1644 │   │   │   result = ops.arithmetic_op(lvalues, rvalues, op)          │
+│   1645 │   │                                                                 │
+│   1646 │   │   return self._construct_result(result, name=res_name, other=ot │
+│   1647                                                                       │
+│                                                                              │
+│ /home/dtm63837/.local/lib/python3.12/site-packages/pandas/core/ops/array_ops │
+│ .py:279 in arithmetic_op                                                     │
+│                                                                              │
+│   276 │   ):                                                                 │
+│   277 │   │   # Timedelta/Timestamp and other custom scalars are included in │
+│   278 │   │   # because numexpr will fail on it, see GH#31457                │
+│ ❱ 279 │   │   res_values = op(left, right)                                   │
+│   280 │   else:                                                              │
+│   281 │   │   # TODO we should handle EAs consistently and move this check b │
+│   282 │   │   # (https://github.com/pandas-dev/pandas/issues/41165)          │
+│                                                                              │
+│ /home/dtm63837/.local/lib/python3.12/site-packages/pandas/core/ops/common.py │
+│ :85 in new_method                                                            │
+│                                                                              │
+│    82 │   │   │   other = sanitize_array(other, None)                        │
+│    83 │   │   │   other = ensure_wrapped_if_datetimelike(other)              │
+│    84 │   │                                                                  │
+│ ❱  85 │   │   return method(self, other)                                     │
+│    86 │                                                                      │
+│    87 │   # error: Incompatible return value type (got "Callable[[Any, Any], │
+│    88 │   # expected "F")                                                    │
+│                                                                              │
+│ /home/dtm63837/.local/lib/python3.12/site-packages/pandas/core/arraylike.py: │
+│ 190 in __add__                                                               │
+│                                                                              │
+│   187 │   │   elk       1.7     NaN                                          │
+│   188 │   │   moose     3.0     NaN                                          │
+│   189 │   │   """                                                            │
+│ ❱ 190 │   │   return self._arith_method(other, operator.add)                 │
+│   191 │                                                                      │
+│   192 │   @unpack_zerodim_and_defer("__radd__")                              │
+│   193 │   def __radd__(self, other):                                         │
+│                                                                              │
+│ /home/dtm63837/.local/lib/python3.12/site-packages/pandas/core/arrays/arrow/ │
+│ array.py:1091 in _arith_method                                               │
+│                                                                              │
+│   1088 │   │   │   │   dtype=object,                                         │
+│   1089 │   │   │   )                                                         │
+│   1090 │   │                                                                 │
+│ ❱ 1091 │   │   result = self._evaluate_op_method(other, op, ARROW_ARITHMETIC │
+│   1092 │   │   if is_nan_na() and result.dtype.kind == "f":                  │
+│   1093 │   │   │   parr = result._pa_array                                   │
+│   1094 │   │   │   mask = pc.is_nan(parr).fill_null(False).to_numpy()        │
+│                                                                              │
+│ /home/dtm63837/.local/lib/python3.12/site-packages/pandas/core/arrays/arrow/ │
+│ array.py:975 in _evaluate_op_method                                          │
+│                                                                              │
+│    972 │   def _evaluate_op_method(self, other, op, arrow_funcs) -> Self:    │
+│    973 │   │   pa_type = self._pa_array.type                                 │
+│    974 │   │   other_original = other                                        │
+│ ❱  975 │   │   other = self._box_pa(other)                                   │
+│    976 │   │                                                                 │
+│    977 │   │   if (                                                          │
+│    978 │   │   │   pa.types.is_string(pa_type)                               │
+│                                                                              │
+│ /home/dtm63837/.local/lib/python3.12/site-packages/pandas/core/arrays/arrow/ │
+│ array.py:527 in _box_pa                                                      │
+│                                                                              │
+│    524 │   │   pa.Array or pa.ChunkedArray or pa.Scalar                      │
+│    525 │   │   """                                                           │
+│    526 │   │   if isinstance(value, pa.Scalar) or not is_list_like(value):   │
+│ ❱  527 │   │   │   return cls._box_pa_scalar(value, pa_type)                 │
+│    528 │   │   return cls._box_pa_array(value, pa_type)                      │
+│    529 │                                                                     │
+│    530 │   @classmethod                                                      │
+│                                                                              │
+│ /home/dtm63837/.local/lib/python3.12/site-packages/pandas/core/arrays/string │
+│ _arrow.py:171 in _box_pa_scalar                                              │
+│                                                                              │
+│   168 │                                                                      │
+│   169 │   @classmethod                                                       │
+│   170 │   def _box_pa_scalar(cls, value, pa_type: pa.DataType | None = None) │
+│ ❱ 171 │   │   pa_scalar = super()._box_pa_scalar(value, pa_type)             │
+│   172 │   │   if pa.types.is_string(pa_scalar.type) and pa_type is None:     │
+│   173 │   │   │   pa_scalar = pc.cast(pa_scalar, pa.large_string())          │
+│   174 │   │   return pa_scalar                                               │
+│                                                                              │
+│ /home/dtm63837/.local/lib/python3.12/site-packages/pandas/core/arrays/arrow/ │
+│ array.py:563 in _box_pa_scalar                                               │
+│                                                                              │
+│    560 │   │   │   │   │   value = value.as_unit(pa_type.unit)               │
+│    561 │   │   │   │   value = value._value                                  │
+│    562 │   │   │                                                             │
+│ ❱  563 │   │   │   pa_scalar = pa.scalar(value, type=pa_type)                │
+│    564 │   │                                                                 │
+│    565 │   │   if pa_type is not None and pa_scalar.type != pa_type:         │
+│    566 │   │   │   pa_scalar = pa_scalar.cast(pa_type)                       │
+│                                                                              │
+│ in pyarrow.lib.scalar:1736                                                   │
+│                                                                              │
+│ in pyarrow.lib.pyarrow_internal_check_status:155                             │
+│                                                                              │
+│ in pyarrow.lib.check_status:92                                               │
+╰──────────────────────────────────────────────────────────────────────────────╯
+ArrowTypeError: No temporal attributes found on object.

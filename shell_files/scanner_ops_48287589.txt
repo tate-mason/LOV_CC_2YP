@@ -1,0 +1,39 @@
+Already up to date.
+=== Converting files for 2022 ===
+Converted productattributes.tsv -> attributes_2022.parquet
+Converted productdesc.tsv -> description_2022.parquet
+Converted producthierarchy.tsv -> hierarchy_2022.parquet
+Converted stores.tsv -> stores_2022.parquet
+===Converting Movement Files===
+=== Converting files for 2023 ===
+Converted productattributes.tsv -> attributes_2023.parquet
+Converted productdesc.tsv -> description_2023.parquet
+Converted producthierarchy.tsv -> hierarchy_2023.parquet
+Converted stores.tsv -> stores_2023.parquet
+===Converting Movement Files===
+=== Converting files for 2024 ===
+Converted productattributes.tsv -> attributes_2024.parquet
+Converted productdesc.tsv -> description_2024.parquet
+Converted producthierarchy.tsv -> hierarchy_2024.parquet
+Converted stores.tsv -> stores_2024.parquet
+===Converting Movement Files===
+--> Saved data for attributes
+--> Saved data for description
+--> Saved data for hierarchy
+--> Saved data for movement
+--> Saved market stores for Atlanta
+--> Saved market stores for Chicago
+--> Saved market stores for Houston
+--> Saved market stores for Denver
+--> Saved market stores for Phoenix
+--> Saved market stores for Philadelphia
+--> Saved market stores for San_Diego
+--> Saved market stores for Des_Moines
+Skipping missing file: /scratch/dtm63837/Kilts_Panel/nielsen_extracts/output_markets/master_retail_Atlanta.parquet
+Skipping missing file: /scratch/dtm63837/Kilts_Panel/nielsen_extracts/output_markets/master_retail_Chicago.parquet
+Skipping missing file: /scratch/dtm63837/Kilts_Panel/nielsen_extracts/output_markets/master_retail_Houston.parquet
+Skipping missing file: /scratch/dtm63837/Kilts_Panel/nielsen_extracts/output_markets/master_retail_Denver.parquet
+Skipping missing file: /scratch/dtm63837/Kilts_Panel/nielsen_extracts/output_markets/master_retail_Phoenix.parquet
+Skipping missing file: /scratch/dtm63837/Kilts_Panel/nielsen_extracts/output_markets/master_retail_Philadelphia.parquet
+Skipping missing file: /scratch/dtm63837/Kilts_Panel/nielsen_extracts/output_markets/master_retail_San_Diego.parquet
+Skipping missing file: /scratch/dtm63837/Kilts_Panel/nielsen_extracts/output_markets/master_retail_Des_Moines.parquet

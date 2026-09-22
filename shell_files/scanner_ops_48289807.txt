@@ -1,0 +1,14 @@
+From github.com:tate-mason/LOV_CC_2YP
+   7b8dddf..196ed25  main       -> origin/main
+Updating 7b8dddf..196ed25
+Fast-forward
+ Code/dat_expo/retail_dat/retail_concat.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+Skipping missing file: /scratch/dtm63837/Kilts_Panel/nielsen_extracts/output_markets/retail_Atlanta.parquet
+Skipping missing file: /scratch/dtm63837/Kilts_Panel/nielsen_extracts/output_markets/retail_Chicago.parquet
+Skipping missing file: /scratch/dtm63837/Kilts_Panel/nielsen_extracts/output_markets/retail_Houston.parquet
+Skipping missing file: /scratch/dtm63837/Kilts_Panel/nielsen_extracts/output_markets/retail_Denver.parquet
+Skipping missing file: /scratch/dtm63837/Kilts_Panel/nielsen_extracts/output_markets/retail_Phoenix.parquet
+Skipping missing file: /scratch/dtm63837/Kilts_Panel/nielsen_extracts/output_markets/retail_Philadelphia.parquet
+Skipping missing file: /scratch/dtm63837/Kilts_Panel/nielsen_extracts/output_markets/retail_San_Diego.parquet
+Skipping missing file: /scratch/dtm63837/Kilts_Panel/nielsen_extracts/output_markets/retail_Des_Moines.parquet

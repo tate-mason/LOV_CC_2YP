@@ -1,0 +1,115 @@
+From github.com:tate-mason/LOV_CC_2YP
+   ec1ff45..4f5fc39  main       -> origin/main
+Updating ec1ff45..4f5fc39
+Fast-forward
+ Code/full_draft_1231/data_merge.py | 660 ++++++++++---------------------------
+ 1 file changed, 165 insertions(+), 495 deletions(-)
+Polars version: 1.44.2; index type: UInt32
+SLURM_JOB_ID: 48449213
+SLURM_MEM_PER_NODE: 921600 MB
+POLARS_MAX_THREADS: 8
+RUN_KEY_AUDIT: True
+HMS: /scratch/dtm63837/Kilts_Panel/nielsen_extracts/output_markets/full_panel.parquet
+RMS: /scratch/dtm63837/Kilts_Panel/nielsen_extracts/RMS/output_markets/full_retail.parquet
+START HMS source
+DONE  HMS source: 26,304,702 rows (0.2s)
+START RMS source
+DONE  RMS source: 407,160,560 rows (0.3s)
+========== YEAR 2022 ==========
+START 2022 filtered HMS
+DONE  2022 filtered HMS: 979,386 rows (2.1s)
+START 2022 parsed RMS
+DONE  2022 parsed RMS: 131,287,819 rows (9.0s)
+START 2022 distinct RMS join keys
+DONE  2022 distinct RMS join keys: 43,907,945 rows (16.3s)
+2022 RMS duplicate key rows: 87,379,874 of 131,287,819
+START 2022 streaming join and parquet sink -> /scratch/dtm63837/Kilts_Panel/nielsen_extracts/scanner_panel_2022.parquet.incomplete
+
+thread 'async-executor-5' (3295511) panicked at crates/polars-expr/src/reduce/mod.rs:333:9:
+assertion failed: self.in_dtype == other.in_dtype
+stack backtrace:
+   0: __rustc::rust_begin_unwind
+   1: core::panicking::panic_fmt
+   2: core::panicking::panic
+   3: <polars_expr::reduce::VecGroupedReduction<polars_expr::reduce::first_last::BinaryFirstLastReducer<polars_expr::reduce::first_last::First>> as polars_expr::reduce::GroupedReduction>::combine_subset
+   4: <polars_async::executor::task::Task<<polars_stream::nodes::group_by::GroupBySinkState>::combine_locals::{closure#3}::{closure#0}, <polars_async::executor::TaskScope>::spawn_task<<polars_stream::nodes::group_by::GroupBySinkState>::combine_locals::{closure#3}::{closure#0}>::{closure#0}::{closure#0}, polars_async::executor::TaskMetadata> as polars_async::executor::task::Runnable<polars_async::executor::TaskMetadata>>::run
+   5: <polars_async::executor::Executor>::runner
+note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+
+thread 'async-executor-8' (3295524) panicked at crates/polars-expr/src/reduce/mod.rs:333:9:
+assertion failed: self.in_dtype == other.in_dtype
+stack backtrace:
+   0: __rustc::rust_begin_unwind
+   1: core::panicking::panic_fmt
+   2: core::panicking::panic
+   3: <polars_expr::reduce::VecGroupedReduction<polars_expr::reduce::first_last::BinaryFirstLastReducer<polars_expr::reduce::first_last::First>> as polars_expr::reduce::GroupedReduction>::combine_subset
+   4: <polars_async::executor::task::Task<<polars_stream::nodes::group_by::GroupBySinkState>::combine_locals::{closure#3}::{closure#0}, <polars_async::executor::TaskScope>::spawn_task<<polars_stream::nodes::group_by::GroupBySinkState>::combine_locals::{closure#3}::{closure#0}>::{closure#0}::{closure#0}, polars_async::executor::TaskMetadata> as polars_async::executor::task::Runnable<polars_async::executor::TaskMetadata>>::run
+   5: <polars_async::executor::Executor>::runner
+note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+
+thread 'async-executor-10' (3295629) panicked at crates/polars-expr/src/reduce/mod.rs:333:9:
+assertion failed: self.in_dtype == other.in_dtype
+stack backtrace:
+   0: __rustc::rust_begin_unwind
+   1: core::panicking::panic_fmt
+   2: core::panicking::panic
+   3: <polars_expr::reduce::VecGroupedReduction<polars_expr::reduce::first_last::BinaryFirstLastReducer<polars_expr::reduce::first_last::First>> as polars_expr::reduce::GroupedReduction>::combine_subset
+   4: <polars_async::executor::task::Task<<polars_stream::nodes::group_by::GroupBySinkState>::combine_locals::{closure#3}::{closure#0}, <polars_async::executor::TaskScope>::spawn_task<<polars_stream::nodes::group_by::GroupBySinkState>::combine_locals::{closure#3}::{closure#0}>::{closure#0}::{closure#0}, polars_async::executor::TaskMetadata> as polars_async::executor::task::Runnable<polars_async::executor::TaskMetadata>>::run
+   5: <polars_async::executor::Executor>::runner
+note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+
+thread 'async-executor-7' (3295513) panicked at crates/polars-expr/src/reduce/mod.rs:333:9:
+assertion failed: self.in_dtype == other.in_dtype
+stack backtrace:
+   0: __rustc::rust_begin_unwind
+   1: core::panicking::panic_fmt
+   2: core::panicking::panic
+   3: <polars_expr::reduce::VecGroupedReduction<polars_expr::reduce::first_last::BinaryFirstLastReducer<polars_expr::reduce::first_last::First>> as polars_expr::reduce::GroupedReduction>::combine_subset
+   4: <polars_async::executor::task::Task<<polars_stream::nodes::group_by::GroupBySinkState>::combine_locals::{closure#3}::{closure#0}, <polars_async::executor::TaskScope>::spawn_task<<polars_stream::nodes::group_by::GroupBySinkState>::combine_locals::{closure#3}::{closure#0}>::{closure#0}::{closure#0}, polars_async::executor::TaskMetadata> as polars_async::executor::task::Runnable<polars_async::executor::TaskMetadata>>::run
+   5: <polars_async::executor::Executor>::runner
+note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+
+thread 'async-executor-2' (3295508) panicked at crates/polars-expr/src/reduce/mod.rs:333:9:
+assertion failed: self.in_dtype == other.in_dtype
+stack backtrace:
+   0: __rustc::rust_begin_unwind
+   1: core::panicking::panic_fmt
+   2: core::panicking::panic
+   3: <polars_expr::reduce::VecGroupedReduction<polars_expr::reduce::first_last::BinaryFirstLastReducer<polars_expr::reduce::first_last::First>> as polars_expr::reduce::GroupedReduction>::combine_subset
+   4: <polars_async::executor::task::Task<<polars_stream::nodes::group_by::GroupBySinkState>::combine_locals::{closure#3}::{closure#0}, <polars_async::executor::TaskScope>::spawn_task<<polars_stream::nodes::group_by::GroupBySinkState>::combine_locals::{closure#3}::{closure#0}>::{closure#0}::{closure#0}, polars_async::executor::TaskMetadata> as polars_async::executor::task::Runnable<polars_async::executor::TaskMetadata>>::run
+   5: <polars_async::executor::Executor>::runner
+note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+
+thread 'async-executor-9' (3295525) panicked at crates/polars-expr/src/reduce/mod.rs:333:9:
+assertion failed: self.in_dtype == other.in_dtype
+stack backtrace:
+   0: __rustc::rust_begin_unwind
+   1: core::panicking::panic_fmt
+   2: core::panicking::panic
+   3: <polars_expr::reduce::VecGroupedReduction<polars_expr::reduce::first_last::BinaryFirstLastReducer<polars_expr::reduce::first_last::First>> as polars_expr::reduce::GroupedReduction>::combine_subset
+   4: <polars_async::executor::task::Task<<polars_stream::nodes::group_by::GroupBySinkState>::combine_locals::{closure#3}::{closure#0}, <polars_async::executor::TaskScope>::spawn_task<<polars_stream::nodes::group_by::GroupBySinkState>::combine_locals::{closure#3}::{closure#0}>::{closure#0}::{closure#0}, polars_async::executor::TaskMetadata> as polars_async::executor::task::Runnable<polars_async::executor::TaskMetadata>>::run
+   5: <polars_async::executor::Executor>::runner
+note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+
+thread 'async-executor-4' (3295510) panicked at crates/polars-expr/src/reduce/mod.rs:333:9:
+assertion failed: self.in_dtype == other.in_dtype
+stack backtrace:
+   0: __rustc::rust_begin_unwind
+   1: core::panicking::panic_fmt
+   2: core::panicking::panic
+   3: <polars_expr::reduce::VecGroupedReduction<polars_expr::reduce::first_last::BinaryFirstLastReducer<polars_expr::reduce::first_last::First>> as polars_expr::reduce::GroupedReduction>::combine_subset
+   4: <polars_async::executor::task::Task<<polars_stream::nodes::group_by::GroupBySinkState>::combine_locals::{closure#3}::{closure#0}, <polars_async::executor::TaskScope>::spawn_task<<polars_stream::nodes::group_by::GroupBySinkState>::combine_locals::{closure#3}::{closure#0}>::{closure#0}::{closure#0}, polars_async::executor::TaskMetadata> as polars_async::executor::task::Runnable<polars_async::executor::TaskMetadata>>::run
+   5: <polars_async::executor::Executor>::runner
+note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+
+thread 'async-executor-0' (3295506) panicked at crates/polars-expr/src/reduce/mod.rs:333:9:
+assertion failed: self.in_dtype == other.in_dtype
+stack backtrace:
+   0: __rustc::rust_begin_unwind
+   1: core::panicking::panic_fmt
+   2: core::panicking::panic
+   3: <polars_expr::reduce::VecGroupedReduction<polars_expr::reduce::first_last::BinaryFirstLastReducer<polars_expr::reduce::first_last::First>> as polars_expr::reduce::GroupedReduction>::combine_subset
+   4: <polars_async::executor::task::Task<<polars_stream::nodes::group_by::GroupBySinkState>::combine_locals::{closure#3}::{closure#0}, <polars_async::executor::TaskScope>::spawn_task<<polars_stream::nodes::group_by::GroupBySinkState>::combine_locals::{closure#3}::{closure#0}>::{closure#0}::{closure#0}, polars_async::executor::TaskMetadata> as polars_async::executor::task::Runnable<polars_async::executor::TaskMetadata>>::run
+   5: <polars_async::executor::Executor>::runner
+note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+/var/spool/slurmd/job48449213/slurm_script: line 21: 3295492 Segmentation fault      (core dumped) python /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/full_draft_1231/data_merge.py

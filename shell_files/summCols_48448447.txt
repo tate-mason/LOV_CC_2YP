@@ -1,0 +1,13 @@
+From github.com:tate-mason/LOV_CC_2YP
+   0520473..ec1ff45  main       -> origin/main
+Updating 0520473..ec1ff45
+Fast-forward
+ Code/full_draft_1231/data_merge.py | 486 +++++++++++++++++++++++++++++++++----
+ 1 file changed, 438 insertions(+), 48 deletions(-)
+memory allocation of memory allocation of memory allocation of 376056749254081173137605674925408117313760567492540811731 bytes failed
+ bytes failed
+skipping backtrace printing to avoid potential recursion
+ bytes failed
+skipping backtrace printing to avoid potential recursion
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+/var/spool/slurmd/job48448447/slurm_script: line 21: 3294767 Aborted                 (core dumped) python /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/full_draft_1231/data_merge.py

@@ -7,9 +7,6 @@ Data Processing & Summary Statistics Pipeline
 
 # Tools
 import os  # type:ignore
-
-os.environ["POLARS_MAX_THREADS"] = "1"
-
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -306,25 +303,51 @@ else:
     )
 
 # ===========================================================================
-# 6. RETAIL LOAD AND FILTER
+# 6. RETAIL LOAD, KEY ALIGNMENT & STREAMING SINK
 # ===========================================================================
+console.print("\n[bold green]Preparing Left Join and Streaming Output...[/bold green]")
 
+# 1. Standardize Retail Keys (Int64 + Clean Datetime)
 raw_retail = (
     pl.scan_parquet(RMS_PATH)
     .with_columns(pl.all().name.to_lowercase())
     .with_columns(
-        [pl.col("week_end").str.to_datetime("%Y-%m-%d"), pl.col("upc").cast(pl.Int64)]
+        [
+            # Cast week_end to Datetime and truncate precision to match PyArrow/Pandas
+            pl.col("week_end")
+            .str.to_datetime("%Y-%m-%d", strict=False)
+            .dt.cast_time_unit("ms"),
+            pl.col("store_code_uc").cast(pl.Int64, strict=False),
+            pl.col("upc").cast(pl.Int64, strict=False),
+        ]
     )
     .filter(pl.col("week_end").is_not_null())
+    # Ensure retail is strictly unique on the join keys to avoid Cartesian explosion
+    .unique(subset=["week_end", "store_code_uc", "upc"])
 )
 
-raw_retail = raw_retail.unique(subset=["week_end", "store_code_uc", "upc"])
+# 2. Re-lazyify Panel Data with STRICT Key Type Alignment
+lazy_panel = (
+    pl.from_pandas(agent_panel)
+    .lazy()
+    .with_columns(
+        [
+            # Force week_end to matching Datetime precision
+            pl.col("week_end").dt.cast_time_unit("ms"),
+            pl.col("store_code_uc").cast(pl.Int64, strict=False),
+            pl.col("upc").cast(pl.Int64, strict=False),
+        ]
+    )
+)
 
-
-lazy_panel = pl.from_pandas(agent_panel).lazy()
-
+# 3. Perform Left Join
 master_df = lazy_panel.join(
     raw_retail, on=["week_end", "store_code_uc", "upc"], how="left"
 )
 
+# 4. Stream output directly to Parquet
 master_df.sink_parquet(OUT_PATH, engine="streaming")
+
+console.print(
+    f"[bold green]Successfully streamed merged dataset to {OUT_PATH}[/bold green]"
+)

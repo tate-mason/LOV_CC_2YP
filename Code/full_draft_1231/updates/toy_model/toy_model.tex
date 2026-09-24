@@ -1,0 +1,308 @@
+\documentclass[12pt]{article}
+
+% -------------------------------------------------
+% Encoding, fonts, and typography
+% -------------------------------------------------
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+
+% -------------------------------------------------
+% Page layout
+% -------------------------------------------------
+\usepackage[
+  margin=1in
+]{geometry}
+
+\usepackage{setspace}
+\onehalfspacing
+
+% -------------------------------------------------
+% Mathematics
+% -------------------------------------------------
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{mathtools}
+\usepackage{bm}
+\usepackage{bbm}
+
+% -------------------------------------------------
+% Tables
+% -------------------------------------------------
+\usepackage{booktabs}
+\usepackage{threeparttable}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{makecell}
+\usepackage{siunitx}
+
+\sisetup{
+  detect-all,
+  group-separator = {,},
+  group-minimum-digits = 4
+}
+
+% -------------------------------------------------
+% Figures
+% -------------------------------------------------
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{float}
+
+% -------------------------------------------------
+% Lists and formatting
+% -------------------------------------------------
+\usepackage{enumitem}
+\usepackage{xcolor}
+
+% -------------------------------------------------
+% References and citations
+% -------------------------------------------------
+\usepackage[
+  authoryear,
+  round
+]{natbib}
+
+\bibliographystyle{aer}
+
+% -------------------------------------------------
+% Hyperlinks and cross-references
+% -------------------------------------------------
+\usepackage[
+  colorlinks=true,
+  linkcolor=blue,
+  citecolor=blue,
+  urlcolor=blue
+]{hyperref}
+
+\usepackage[nameinlink,noabbrev]{cleveref}
+
+% -------------------------------------------------
+% Headers and footers
+% -------------------------------------------------
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0pt}
+
+% -------------------------------------------------
+% Section formatting
+% -------------------------------------------------
+\usepackage{titlesec}
+
+\titleformat{\section}
+  {\large\bfseries}
+  {\thesection.}
+  {0.5em}
+  {}
+
+\titleformat{\subsection}
+  {\normalsize\bfseries}
+  {\thesubsection.}
+  {0.5em}
+  {}
+
+% -------------------------------------------------
+% Theorem environments
+% -------------------------------------------------
+\newtheorem{proposition}{Proposition}
+\newtheorem{lemma}{Lemma}
+\newtheorem{corollary}{Corollary}
+\newtheorem{assumption}{Assumption}
+
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+
+\theoremstyle{remark}
+\newtheorem{remark}{Remark}
+
+% -------------------------------------------------
+% Common economics/math operators
+% -------------------------------------------------
+\DeclareMathOperator{\E}{\mathbb{E}}
+\DeclareMathOperator{\Var}{Var}
+\DeclareMathOperator{\Cov}{Cov}
+\DeclareMathOperator{\Corr}{Corr}
+\DeclareMathOperator{\argmax}{arg\,max}
+\DeclareMathOperator{\argmin}{arg\,min}
+
+% -------------------------------------------------
+% Common shortcuts
+% -------------------------------------------------
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\ind}{\mathbbm{1}}
+\newcommand{\eps}{\varepsilon}
+\newcommand{\dd}{\,\mathrm{d}}
+
+% -------------------------------------------------
+% Equation numbering
+% -------------------------------------------------
+\numberwithin{equation}{section}
+
+% -------------------------------------------------
+% Paragraph formatting
+% -------------------------------------------------
+\setlength{\parindent}{1.5em}
+\setlength{\parskip}{0pt}
+
+% -------------------------------------------------
+% Document
+% -------------------------------------------------
+\begin{document}
+
+\section{Demand Side}
+Suppose there are $N$ consumers, each endowed with a type $\gamma_r$ for $r\in\{H,L\}$, corresponding to high or low utility from variety in products consumed. As such, there are $N_r\in N$ consumers of each type, $r\in\{H,L\}$. Consumers maximize utility according to the following:
+
+\begin{gather*}
+  U_{irjt} = \beta_0 + \gamma_r\ind\{j_t\ne j_{t-1}\} + \alpha(p_{jt} - d_{rjt}) +
+  \varepsilon_{irjt}
+\end{gather*}
+
+Where utility is over individuals $i\in N$, type $r\in\{H,L\}$, products $j\in J$, and time $t\in T$. $\beta_0$ is an intercept, representing the baseline utility from consuming. $\gamma_i$ is the consumer's utility from consuming different products, and is active if they switched products from one period to the next. $\alpha$ is disutility of price, which can be lowered via a discount from advertising. Finally, $\varepsilon_{ijt}$ is the Gumbel error, giving us a closed form Logit.
+
+This equation can be written in terms of deterministic vs. random utility:
+
+\begin{gather*}
+  U_{irjt} = V_{irjt} + \varepsilon_{irjt} \\
+ \text{s.t.} \\
+  V_{irjt} = \beta_0 + \gamma_r\ind\{j_t\ne j_{t-1}\} + \alpha(p_{jt} - d_{rjt})
+\end{gather*}
+
+Next, choice probabilities of consuming the inside option(s) is written as such:
+
+\begin{gather*}
+  P_{irjt} = \frac{e^{V_{irjt}}}{1 + \sum_ke^{V_{irkt}}}
+\end{gather*}
+
+Where we normalize the outside option utility to be zero, with a choice
+probability of:
+
+\begin{gather*}
+  P_{ir0t} = \frac{1}{1+\sum_ke^{V_{irkt}}}
+\end{gather*}
+
+Next, because consumers of the same type $r$ are homogenous, we can say:
+
+\begin{gather*}
+  s_{rjt} = P_{irjt} \ \text{for r $\in$ \{H,L\}}
+\end{gather*}
+
+Taking the derivative with respect to prices, we can get the own and cross price
+elasticities:
+
+\begin{gather*}
+  \epsilon_{jj}^p = \alpha p_{jt}(1-s_{rjt}) \\
+  \epsilon_{jk}^p = -\alpha p_{kt}s_{rkt} \ \ \text{for
+  k$\ne$j}
+\end{gather*}
+
+Thus, since $\alpha<0$, we can see that own price elasticity is negative and
+cross-price is positive. 
+
+\section{Supply Side}
+
+Now, a supermarket is in the market. The supermarket is able to control prices
+$\bar{p}_j$ for a product $j$. The supermarket can also offer a discount
+$d_{rjt}$ which is tailored to our switching types $r\in\{H,L\}$. The firm's
+actual price is written as:
+
+\begin{gather*}
+  p_{rjt} = \bar{p}_j - d_{rjt} \\
+  \text{s.t.} \\
+  d_{rjt}>0
+\end{gather*}
+
+So, as we raise the discount, we raise utility as $\alpha<0$ so $-\alpha d_{rjt}>0$. It is through this discounting that firm can induce switching. The firm's profit margin for a product j is given by
+\begin{gather*}
+  m_{rjt} = p_{rjt} - c_j \\
+  = \bar{p}_j - d_{rjt} - c_j
+\end{gather*}
+
+This says that as we raise the discount, we raise market share on the product being discounted but lose profit margin. 
+
+With these definitions in mind, we can get into two scenarios. We will be looking at a two period model in, first, the case where the firm has perfect information on the consumers' types and can thus perfcectly price. In the second case, we will look at the case of imperfect information, where the firm is using Bayesian updating to approximate the type distribution.
+
+\subsection{Perfect Information}
+
+Here, we assume the firm has perfect information over the distribution of types. That is, the supermarket perfectly observes each consumer type $r$ and thus knows the mass $N_r$ of each type. Define period one profit, $\pi_1$ as such:
+
+\begin{gather*}
+  \pi_1 = \sum_rN_r\sum_js_{rj1}(m_{rj1}) \\
+  \text{s.t.} \\
+  s_{rj1} = P_{irj1} \\
+  m_{rj1} = \bar{p}_j - d_{rj1} - c_j
+\end{gather*}
+
+Here, the firm is understanding how each type's market share for each product impacts their market share. We can similarly define period two profits, $\pi_2$ like so:
+
+\begin{gather*}
+  \pi_2 = \sum_rN_r\sum_js_{rj1}[\sum_ks_{rk2}(j)(m_{rk2}(j))]
+\end{gather*}
+
+Here, the only addition is the firm now understands all of the possible margins for a consumer of type $r$ who chose product $j$ in period 1, and product $k$ in period 2. For the sake of conciseness in notation, $w_r(j) = \sum_ks_{rk2}(j)(m_rk2(j))$. We can now write total profit, $\Pi$,
+
+\begin{gather*}
+  \Pi = \pi_1 + \pi_2 \\
+  = \sum_rN_r\sum_js_{rj1}(m_{rj1} + \delta w_r(j))
+\end{gather*}
+
+Where $\delta$ is a discount factor. Taking the derivative with respect to period one prices for a product $j$ yields:
+\begin{gather*}
+  \frac{\partial \Pi}{\partial p_{rj1}}: 0 = 1 + \alpha\sum_{k\ne j}s_{rk1}[(m_{rj1} - m_{rk1}) + \delta(w_r(j) - w_r(k))]
+\end{gather*}
+
+Here, the firm sets prices according to the current margin difference and the future profit difference between switching a consumer between product $j$ vs. product $k$. When we do the same for period two, we recover the following:
+
+\begin{gather*}
+  \frac{\partial \Pi}{\partial p_{rk2}}: 0= 1+\alpha\sum_{l\ne k}s_{rl2}(j)[(m_{rk2}(j) - m_{rl2}(j))]
+\end{gather*}
+
+Here, the firm again thinks of the tradeoff, without having to think about future profit as period two is terminal. Under perfect information, the supermarket chooses its prices by evaluating the current margin and future profit associated with reallocating consumers across products. Now, we move to the case of imperfect information.
+
+\subsection{Imperfect Information}
+
+In this case, the supermarket does not know consumer types with certainty, nor do they know the mass of either type. So, they must infer the distribution from from consumer purchases. Define the following objects:
+\begin{gather*}
+  \lambda_1 = Pr(r = H) \\
+  \lambda_2 = Pr(r=H|j) \Rightarrow \lambda_2(j) = \frac{\lambda_1s_{Hj1}}{\lambda_1s_{Hj1} + (1-\lambda_1)s_{Lj1}} \\
+  \tilde{s}_{j1} = \lambda_1s_{Hj1} + (1-\lambda_1)s_{Lj1} \\
+  \tilde{s}_{k2}(j) = \lambda_2(j)s_{Hk2}(j) + (1-\lambda_2(j))s_{Lk2}(j)
+\end{gather*}
+
+Now, we can define the profit functions much like we did before:
+\begin{gather*}
+  \pi_1 = N\sum_j\tilde{s}_{j1}m_{j1} \\
+  \pi_2 = N\sum_j\tilde{s}_{j1}\sum_k\tilde{s}_{k2}(j)m_{k2}(j)
+\end{gather*}
+
+The key difference here is that the firm must now update their beliefs from period to period rather than being able to discount according to the tradeoffs between two products. This implies that there is room for error in discounting. When combining the two into overall profit, we get:
+
+\begin{gather*}
+  \Pi = N\sum_j\tilde{s}_{j1}[m_{j1} + \delta\sum_k\tilde{s}_{k2}(j)m_{k2}(j)]
+\end{gather*}
+Now, we can take the derivative with respect to period one prices for product $j$:
+
+\begin{align*}
+  \frac{\partial \Pi}{\partial p_{j1}}: 0 &= N\tilde{s}_{j1}+\alpha N[\lambda_1s_{Hj1}(1-s_{Hj1}) + (1-\lambda_1)s_{Lj1}(1-s_{Lj1})][m_{j1}+\delta\sum_k\tilde{s}_{k2}(j)m_{k2}(j)] \\
+  &- \alpha N\sum_{h\ne j}[\lambda_1s_{Hh1}s_{Hj1} + (1-\lambda_1)s_{Lh1}s_{Lj1}][m_{h1} + \delta\sum_k\tilde{s}_{k2}(h)m_{k2}(h)] \\
+  &+\delta\sum_k\tilde{s}_{h1}\frac{\partial\lambda_2(h)}{\partial p_{j1}}[\pi_{H2}(h) - \pi_{L2}(h)]
+\end{align*}
+
+This is much the same as the perfect information case. However, looking at the third line, we can see where the firm incorporates their belief updating. Define the derivative in the third line as such:
+
+\begin{gather*}
+  \frac{\partial\lambda_2(h)}{\partial p_{j1}} = 
+  \begin{cases}
+    0 = \frac{\alpha\lambda_1(1-\lambda_1)}{\tilde{s}_{j1}^2}[s_{Hj1}s_{Lj1}(s_{Lj1}-s_{Hj1})] \ \text{if $h=j$} \\
+    0 = \frac{\alpha\lambda_1(1-\lambda_1)}{\tilde{s}_{h1}^2}[s_{Hh1}s_{Lh1}(s_{Lj1}-s_{Hj1})] \ \text{if $h\ne j$} \\
+  \end{cases}
+\end{gather*}
+
+So, the firm updates its belief about the distribution of consumer types upon observing period one consumption. The magnitude and direction of this update depends on how likely that choice is for each type. In total, the third line of the derivative interacts the parobability of purchasing item $h$ with the effect of price on the firm's posterior belief and the value of believing in one type or the other.
+
+
+\end{document}

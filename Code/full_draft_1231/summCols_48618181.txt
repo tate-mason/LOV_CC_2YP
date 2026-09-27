@@ -1,45 +1,14 @@
-From github.com:tate-mason/LOV_CC_2YP
-   07cc5d4..294b347  main       -> origin/main
-Updating 07cc5d4..294b347
-Fast-forward
- .DS_Store                                          | Bin 18436 -> 18436 bytes
- Code/.DS_Store                                     | Bin 8196 -> 8196 bytes
- Code/MonteCarlo/updated_model/test.py              |  49 ++
- Code/full_draft_1231/.DS_Store                     | Bin 6148 -> 6148 bytes
- .../__pycache__/data_merge.cpython-314.pyc         | Bin 0 -> 20288 bytes
- Code/full_draft_1231/data_merge.py                 |  64 +-
- Code/full_draft_1231/tests/test_merge_synthetic.py |  43 ++
- Code/full_draft_1231/updates/.DS_Store             | Bin 6148 -> 8196 bytes
- .../updates/toy_model/toy_model.aux                |  10 +
- .../updates/toy_model/toy_model.fdb_latexmk        | 162 +++++
- .../updates/toy_model/toy_model.fls                | 289 ++++++++
- .../updates/toy_model/toy_model.log                | 744 +++++++++++++++++++++
- .../updates/toy_model/toy_model.out                |   4 +
- .../updates/toy_model/toy_model.pdf                | Bin 0 -> 145495 bytes
- .../updates/toy_model/toy_model.synctex.gz         | Bin 0 -> 34348 bytes
- .../updates/toy_model/toy_model.tex                | 308 +++++++++
- 16 files changed, 1653 insertions(+), 20 deletions(-)
- create mode 100644 Code/MonteCarlo/updated_model/test.py
- create mode 100644 Code/full_draft_1231/__pycache__/data_merge.cpython-314.pyc
- create mode 100644 Code/full_draft_1231/tests/test_merge_synthetic.py
- create mode 100644 Code/full_draft_1231/updates/toy_model/toy_model.aux
- create mode 100644 Code/full_draft_1231/updates/toy_model/toy_model.fdb_latexmk
- create mode 100644 Code/full_draft_1231/updates/toy_model/toy_model.fls
- create mode 100644 Code/full_draft_1231/updates/toy_model/toy_model.log
- create mode 100644 Code/full_draft_1231/updates/toy_model/toy_model.out
- create mode 100644 Code/full_draft_1231/updates/toy_model/toy_model.pdf
- create mode 100644 Code/full_draft_1231/updates/toy_model/toy_model.synctex.gz
- create mode 100644 Code/full_draft_1231/updates/toy_model/toy_model.tex
+Already up to date.
 Polars version: 1.44.2; index type: UInt32
-SLURM_JOB_ID: 48618067
+SLURM_JOB_ID: 48618181
 SLURM_MEM_PER_NODE: 921600 MB
-POLARS_MAX_THREADS: 8
+POLARS_MAX_THREADS: 4
 HMS: /scratch/dtm63837/Kilts_Panel/nielsen_extracts/output_markets/full_panel.parquet
 RMS: /scratch/dtm63837/Kilts_Panel/nielsen_extracts/RMS/output_markets/full_retail.parquet
 START HMS source
-DONE  HMS source: 26,304,702 rows (0.2s)
+DONE  HMS source: 26,304,702 rows (0.0s)
 START RMS source
-DONE  RMS source: 407,160,560 rows (0.5s)
+DONE  RMS source: 407,160,560 rows (0.1s)
 RMS value columns audited (121): year, retailer_code, parent_code, channel_code, store_zip3, fips_state_code, fips_county_code, acv, panel_year, units, prmult, price, feature, display, brand, brand_cd, protein_gram, protein_gram_cd, commodity_group, commodity_group_cd, manufacturer_suggested_price_claim, manufacturer_suggested_price_claim_cd, cholesterol, cholesterol_cd, sodium_presence_claim, sodium_presence_claim_cd, fat_calorie_per_serving_size, fat_calorie_per_serving_size_cd, sugar_gram, sugar_gram_cd, competitive_category_ogrds, competitive_category_ogrds_cd, package_presentation_option, package_presentation_option_cd, additional_information, additional_information_cd, manufacturing_process, manufacturing_process_cd, serving_size_household, serving_size_household_cd, trans_fat_gram, trans_fat_gram_cd, serving_size_metric, serving_size_metric_cd, calories_per_serving_size, calories_per_serving_size_cd, secondary_size, secondary_size_cd, total_size, total_size_cd, organic_claim, organic_claim_cd, genetic_modification_claim, genetic_modification_claim_cd, total_carbohydrate_gram, total_carbohydrate_gram_cd, flavor, flavor_cd, target_group_gender, target_group_gender_cd, manufacturer_suggested_price, manufacturer_suggested_price_cd, prepriced, prepriced_cd, nutritional_health_claim, nutritional_health_claim_cd, usda_organic_seal, usda_organic_seal_cd, formulation, formulation_cd, strategic_ingredient_presence_claim, strategic_ingredient_presence_claim_cd, fat_presence_claim, fat_presence_claim_cd, price_reduction, price_reduction_cd, total_fat_gram, total_fat_gram_cd, serving_per_container, serving_per_container_cd, saturated_fat_gram, saturated_fat_gram_cd, form, form_cd, product_size, product_size_cd, base_size, base_size_cd, package_general_shape, package_general_shape_cd, calorie_claim, calorie_claim_cd, package_material_substance, package_material_substance_cd, sodium, sodium_cd, dietary_fiber, dietary_fiber_cd, claim, claim_cd, common_consumer_name, common_consumer_name_cd, deal_derived, deal_derived_cd, product_descr, product_module_code, product_module_descr, multi, start_date, year_hier, super_category, super_category_cd, category, category_cd, sub_category, sub_category_cd, segment, segment_cd, department, department_cd, market_name
 START materializing filtered HMS
 START filtered HMS with invalid purchase dates
@@ -48,13 +17,13 @@ DONE  filtered HMS with invalid purchase dates: 0 rows (0.0s)
 START 2022 filtered HMS
 DONE  2022 filtered HMS: 979,386 rows (0.0s)
 START 2022 RMS rows matching panel keys
-DONE  2022 RMS rows matching panel keys: 37,576 rows (16.0s)
+DONE  2022 RMS rows matching panel keys: 37,576 rows (10.4s)
 START 2022 selecting one RMS row ID per key -> /scratch/dtm63837/Kilts_Panel/nielsen_extracts/scanner_panel_2022.rms_ids.parquet.incomplete
 START 2022 selected RMS keys
 DONE  2022 selected RMS keys: 12,538 rows (0.0s)
 2022 RMS duplicate key rows: 25,038 of 37,576
 START 2022 streaming join and parquet sink -> /scratch/dtm63837/Kilts_Panel/nielsen_extracts/scanner_panel_2022.parquet.incomplete
-DONE  2022 parquet sink (21.5s)
+DONE  2022 parquet sink (31.4s)
 START 2022 written output
 DONE  2022 written output: 979,386 rows (0.0s)
 START 2022 HMS rows with an RMS key match
@@ -95,3 +64,91 @@ Traceback (most recent call last):
     ...<2 lines>...
     )
 RuntimeError: 2022: RMS has conflicting values for the same join key. Resolve the scanner observation grain before using the merge.
+START 2022 filtered panel rows
+DONE  2022 filtered panel rows: 979,386 rows (0.0s)
+START Panel rows matching scanner on store_code_uc
+DONE  Panel rows matching scanner on store_code_uc: 385,917 rows (9.0s)
+Coverage: 39.40%
+START Panel rows matching scanner on upc
+DONE  Panel rows matching scanner on upc: 73,560 rows (8.7s)
+Coverage: 7.51%
+START Panel rows matching scanner on week_end
+DONE  Panel rows matching scanner on week_end: 979,386 rows (7.6s)
+Coverage: 100.00%
+START Panel rows matching scanner on week_end, store_code_uc, upc
+DONE  Panel rows matching scanner on week_end, store_code_uc, upc: 39,849 rows (14.6s)
+Coverage: 4.07%
+START saving scanner rows matching panel keys for diagnosis
+shape: (1, 3)
+┌──────────────┬────────────────┬──────────────────┐
+│ matched_keys ┆ duplicate_keys ┆ max_rows_per_key │
+│ ---          ┆ ---            ┆ ---              │
+│ u32          ┆ u32            ┆ u32              │
+╞══════════════╪════════════════╪══════════════════╡
+│ 12538        ┆ 12528          ┆ 3                │
+└──────────────┴────────────────┴──────────────────┘
+Column -> number of matched scanner keys with differing values
+panel_year: 12,528
+start_date: 12,528
+year: 12,528
+year_hier: 12,528
+product_descr: 2,152
+brand_cd: 2,130
+serving_size_household: 1,755
+serving_size_household_cd: 1,755
+claim: 1,604
+claim_cd: 1,604
+strategic_ingredient_presence_claim: 987
+strategic_ingredient_presence_claim_cd: 987
+serving_per_container: 953
+serving_per_container_cd: 953
+fat_presence_claim: 925
+fat_presence_claim_cd: 925
+genetic_modification_claim: 827
+genetic_modification_claim_cd: 827
+package_general_shape: 750
+package_general_shape_cd: 750
+sodium: 741
+sodium_cd: 741
+brand: 648
+total_carbohydrate_gram: 630
+total_carbohydrate_gram_cd: 630
+manufacturing_process: 580
+manufacturing_process_cd: 580
+dietary_fiber: 540
+dietary_fiber_cd: 540
+calories_per_serving_size: 523
+calories_per_serving_size_cd: 523
+fat_calorie_per_serving_size: 472
+fat_calorie_per_serving_size_cd: 472
+cholesterol: 458
+cholesterol_cd: 458
+flavor: 456
+flavor_cd: 456
+sugar_gram: 421
+sugar_gram_cd: 421
+protein_gram: 395
+protein_gram_cd: 395
+acv: 345
+saturated_fat_gram: 299
+saturated_fat_gram_cd: 299
+category: 284
+category_cd: 284
+package_material_substance: 267
+package_material_substance_cd: 267
+total_fat_gram: 231
+total_fat_gram_cd: 231
+calorie_claim: 202
+calorie_claim_cd: 202
+retailer_code: 87
+segment: 77
+segment_cd: 77
+nutritional_health_claim: 33
+nutritional_health_claim_cd: 33
+serving_size_metric: 3
+serving_size_metric_cd: 3
+sub_category: 1
+sub_category_cd: 1
+Columns with no conflicts: 60
+DONE diagnostics; no merge outputs changed
+Merge exit status: 1; diagnostic exit status: 0

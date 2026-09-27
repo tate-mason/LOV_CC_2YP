@@ -37,6 +37,9 @@ for f, name in files_to_merge.items():
         lazy_df = (
             pl.scan_parquet(file_path)
         )
+        if name == 'movement':
+            # Use source-file year, including weeks that cross calendar years.
+            lazy_df = lazy_df.with_columns(pl.lit(str(y)).alias('__movement_year'))
         yearly_lfs.append(lazy_df)
     combined_lazy = pl.concat(yearly_lfs, how='diagonal_relaxed')
     out_file = os.path.join(output_dir, f'{name}.parquet')
@@ -100,7 +103,8 @@ for m in market_codes:
 
     store_movement = stores.join(
         movement,
-        on     = 'store_code_uc',
+        left_on = ['store_code_uc', 'panel_year'],
+        right_on = ['store_code_uc', '__movement_year'],
         how    = 'left',
         suffix = '_mvmt'
     )

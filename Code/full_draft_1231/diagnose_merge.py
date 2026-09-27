@@ -44,6 +44,19 @@ def main(year):
     retail = merge.build_retail().filter(pl.col("week_end").dt.year() == year)
     panel_rows = merge.count(f"{year} filtered panel rows", panel)
 
+    # Scanner conversion reads YOGURT_{year}.tsv; report its target category
+    # separately from the broader panel sample used for outside-option work.
+    yogurt = panel.filter(pl.col("yogurt_purchase") == 1)
+    yogurt_rows = merge.count("Panel yogurt purchase rows", yogurt)
+    yogurt_matches = merge.count(
+        "Panel yogurt purchase rows with full scanner key match",
+        yogurt.select(merge.JOIN_KEYS).join(
+            retail.select(merge.JOIN_KEYS).unique(), on=merge.JOIN_KEYS, how="semi"
+        ),
+    )
+    if yogurt_rows:
+        merge.log(f"Yogurt full-key coverage: {yogurt_matches / yogurt_rows:.2%}")
+
     # These marginal matches help locate mismatches but do not validate a
     # crosswalk or justify dropping any key from the actual merge.
     for subset in [["store_code_uc"], ["upc"], ["week_end"], merge.JOIN_KEYS]:

@@ -10,12 +10,28 @@
 #SBATCH --mail-user=dtm63837@uga.edu    # Where to send mail
 #SBATCH --mail-type=END,FAIL            # Mail events (BEGIN, END, FAIL, ALL)
 
-ml Python/3.13.5-GCCcore-14.3.0 # Load software module and run bowtie2 below
+set -euo pipefail
+
+ml Python/3.13.5-GCCcore-14.3.0 # Load Python
 
 pip install -qqq -r /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/shell_files/requirements.txt
 
-set -e
 
 git pull
 
-python /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/full_draft_1231/data_merge.py
+SCRIPT_DIR=/scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/full_draft_1231
+export POLARS_MAX_THREADS=4
+
+# Run diagnostics even if the merge exits at its duplicate-value audit.
+merge_status=0
+python -u "$SCRIPT_DIR/data_merge.py" || merge_status=$?
+
+diagnostic_status=0
+python -u "$SCRIPT_DIR/diagnose_merge.py" --year 2022 || diagnostic_status=$?
+
+echo "Merge exit status: $merge_status; diagnostic exit status: $diagnostic_status"
+# Preserve failure status so SLURM does not report an unsuccessful merge as OK.
+if [ "$merge_status" -ne 0 ]; then
+    exit "$merge_status"
+fi
+exit "$diagnostic_status"

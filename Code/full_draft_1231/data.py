@@ -307,7 +307,22 @@ else:
 # ===========================================================================
 console.print("\n[bold green]Preparing Left Join and Streaming Output...[/bold green]")
 
+years = [2022, 2023, 2024]
+for y in years:
+    yearly_merge = []
+    merged_df = pl.scan_parquet(
+        f"/scratch/dtm63837/Kilts_Panel/nielsen_extracts/scanner_panel_{y}.parquet"
+    )
+    yearly_merge.append(merged_df)
+
+    combined_merged = pl.concat(yearly_merge, how="diagonal_relaxed")
+    combined_merged.sink_parquet(OUT_PATH)
+
 merged_df = pl.scan_parquet(OUT_PATH).collect().to_pandas()
+
+console.print(merged_df.shape)
+console.print(merged_df.describe())
+
 
 console.print(merged_df.shape)
 console.print(merged_df.describe())

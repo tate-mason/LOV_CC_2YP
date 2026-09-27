@@ -17,10 +17,23 @@ ml Python/3.13.5-GCCcore-14.3.0 # Load Python
 pip install -qqq -r /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/shell_files/requirements.txt
 
 
-git pull
+REPO_DIR=/scratch/dtm63837/Kilts_Panel/LOV_CC_2YP
+git -C "$REPO_DIR" pull --ff-only
+echo "Code revision: $(git -C "$REPO_DIR" rev-parse --short HEAD)"
 
 SCRIPT_DIR=/scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/full_draft_1231
 export POLARS_MAX_THREADS=4
+RETAIL_DIR="$REPO_DIR/Code/dat_expo/retail_dat"
+
+# Rebuild the existing scanner extract with the corrected annual join first.
+# set -e stops the job if either rebuild fails, avoiding a stale-input merge.
+echo "START rebuilding scanner market files with store-and-year join"
+python -u "$RETAIL_DIR/retail_merge.py"
+echo "DONE rebuilding scanner market files"
+echo "START rebuilding full_retail.parquet"
+python -u "$RETAIL_DIR/retail_concat.py"
+echo "DONE rebuilding full_retail.parquet"
+echo "START panel-scanner merge"
 
 # Run diagnostics even if the merge exits at its duplicate-value audit.
 merge_status=0

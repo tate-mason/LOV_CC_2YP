@@ -1,6 +1,6 @@
 """Merge HMS and RMS by year, with diagnostics for large SLURM jobs.
 
-Run: python -u data_merge_diagnostics.py
+Run: python -u data_merge.py
 The RMS selection stage writes one numeric row ID per distinct join key.
 This avoids wide unique(), which triggered a Polars first/last reducer panic.
 The audit checks every RMS value column using two row fingerprints.
@@ -44,6 +44,15 @@ def count(label, frame):
     return n
 
 
+def parse_date(column):
+    """Accept ISO dates/timestamps, compact dates, and native temporal columns."""
+    text = pl.col(column).cast(pl.String).str.strip_chars()
+    return pl.coalesce(
+        text.str.slice(0, 10).str.to_date("%Y-%m-%d", strict=False),
+        text.str.to_date("%Y%m%d", strict=False),
+    )
+
+
 def build_panel():
     panel = (
         pl.scan_parquet(HMS_PATH)
@@ -76,10 +85,7 @@ def build_panel():
         .filter(pl.col("size1_unit_hms") == "OZ")
         .filter(pl.col("size1_amount_hms").is_between(5000, 8001))
         .with_columns(
-            pl.col("purchase_date")
-            .cast(pl.Utf8)
-            .str.replace_all("-", "")
-            .str.to_date("%Y%m%d", strict=False)
+            parse_date("purchase_date")
             .alias("parsed_date"),
             pl.col("household_income").cast(pl.Float64, strict=False).fill_null(0.0),
             pl.col("male_head_age").cast(pl.Float64, strict=False).replace(0, None),
@@ -127,9 +133,7 @@ def build_retail():
         .with_row_index(ROW_ID)
         .with_columns(pl.all().name.to_lowercase())
         .with_columns(
-            pl.col("week_end")
-            .str.to_datetime("%Y-%m-%d", strict=False)
-            .dt.cast_time_unit("ms"),
+            parse_date("week_end").cast(pl.Datetime("ms")),
             pl.col("store_code_uc").cast(pl.Int64, strict=False),
             pl.col("upc").cast(pl.Int64, strict=False),
         )
@@ -195,11 +199,16 @@ def audit_merge(year, panel_rows, output_path, ids_path, retail_year, value_colu
     ).collect(engine="streaming")
     log(f"DONE  {year} RMS duplicate-value audit:\n{summary}")
 
-    conflicting = grouped.filter(pl.col("values_disagree")).select(
-        JOIN_KEYS + ["rms_rows"]
-    )
-    log(f"START {year} sample of up to 10 conflicting RMS keys")
-    log(str(conflicting.head(10).collect(engine="streaming")))
+    if summary.item(0, "keys_with_conflicting_values"):
+        raise RuntimeError(
+            f"{year}: RMS has conflicting values for the same join key. "
+            "Resolve the scanner observation grain before using the merge."
+        )
+    if panel_rows and not matched:
+        raise RuntimeError(
+            f"{year}: no RMS matches. Check shared store identifiers, UPC coding, "
+            "and the assumed Saturday week ending."
+        )
 
 
 def main():
@@ -227,13 +236,27 @@ def main():
     log(f"RMS value columns audited ({len(value_columns)}): {', '.join(value_columns)}")
     os.makedirs(OUTPUT_DIR, exist_ok=True)
 
+    # Materialize expensive household restrictions once rather than rescanning
+    # the entire panel for every count, join, and year.
+    panel_cache = os.path.join(OUTPUT_DIR, "merge_filtered_hms.parquet")
+    log("START materializing filtered HMS")
+    panel.sink_parquet(panel_cache + ".incomplete", engine="streaming")
+    os.replace(panel_cache + ".incomplete", panel_cache)
+    panel = pl.scan_parquet(panel_cache)
+    invalid_dates = count("filtered HMS with invalid purchase dates", panel.filter(pl.col("week_end").is_null()))
+    if invalid_dates:
+        raise ValueError("Filtered HMS contains unparseable purchase dates")
+    outputs = []
     for year in YEARS:
         log(f"========== YEAR {year} ==========")
         panel_year = panel.filter(pl.col("week_end").dt.year() == year)
-        retail_year = retail.filter(pl.col("week_end").dt.year() == year)
+        panel_keys = panel_year.select(JOIN_KEYS).unique()
+        retail_year = retail.filter(pl.col("week_end").dt.year() == year).join(
+            panel_keys, on=JOIN_KEYS, how="semi"
+        )
 
         panel_rows = count(f"{year} filtered HMS", panel_year)
-        retail_rows = count(f"{year} parsed RMS", retail_year)
+        retail_rows = count(f"{year} RMS rows matching panel keys", retail_year)
 
         # Only group the keys and a numeric row ID. min() chooses a consistent
         # source row without aggregating all the wide RMS value columns.
@@ -263,22 +286,23 @@ def main():
         log(f"START {year} streaming join and parquet sink -> {temp_path}")
         started = time.monotonic()
         # An abort leaves only .incomplete; a completed year is not overwritten
-        # until its new output file has been fully written.
+        # until its new output file has been written and audited.
         merged.sink_parquet(temp_path, engine="streaming")
-        os.replace(temp_path, output_path)
         log(f"DONE  {year} parquet sink ({time.monotonic() - started:.1f}s)")
 
-        output_rows = count(f"{year} written output", pl.scan_parquet(output_path))
+        output_rows = count(f"{year} written output", pl.scan_parquet(temp_path))
         if output_rows != panel_rows:
             raise RuntimeError(
                 f"{year}: output has {output_rows:,} rows but HMS has {panel_rows:,}; "
                 "inspect the join keys and RMS deduplication"
             )
-        audit_merge(year, panel_rows, output_path, ids_path, retail_year, value_columns)
+        audit_merge(year, panel_rows, temp_path, ids_path, retail_year, value_columns)
+        os.replace(temp_path, output_path)
+        outputs.append(output_path)
         os.remove(ids_path)
 
     # Continue analysis here. The combined scan remains lazy.
-    combined_lazy = pl.scan_parquet(os.path.join(OUTPUT_DIR, "scanner_panel_*.parquet"))
+    combined_lazy = pl.scan_parquet(outputs)
     log("MERGE COMPLETE; combined_lazy is ready for downstream analysis")
     return combined_lazy
 

@@ -23,63 +23,16 @@ console.print("=" * 60)
 console.print("Data Loading and Manipulation")
 console.print("=" * 60)
 
-hms_path = (
+merged_path = "/scratch/dtm63837/Kilts_Panel/nielsen_extracts/scanner_panel.parquet"
+agent_path = (
     "/scratch/dtm63837/Kilts_Panel/nielsen_extracts/output_markets/full_panel.parquet"
 )
-rms_path = "/scratch/dtm63837/Kilts_Panel/nielsen_extracts/RMS/output_markets/full_retail.parquet"
-out_path = "/scratch/dtm63837/Kilts_Panel/nielsen_extracts/master.parquet"
 
 # Building the merged dataset from HMS and RMS
 
-agent_panel = (
-    pl.read_parquet(hms_path)
-    .with_columns(pl.all().name.to_lowercase())
-    .with_columns(
-        [
-            pl.col("product_module_code_hms").cast(pl.Utf8).str.strip_chars(),
-            pl.col("size1_amount_hms").cast(pl.Float64, strict=False),
-            pl.col("size1_unit_hms").cast(pl.Utf8).str.strip_chars().str.to_uppercase(),
-            pl.col("household_size").cast(pl.Int64, strict=False),
-            pl.col("quantity").cast(pl.Int64, strict=False),
-            pl.col("deal_flag_uc").cast(pl.Int64, strict=False),
-        ]
-    )
-    .filter(
-        pl.col("household_size") == 1,
-        pl.col("size1_unit_hms") == "OZ",
-        pl.col("size1_amount_hms").is_between(5000, 8001),
-    )
-    .to_pandas()
-)
+agent_panel = pl.scan_parquet(agent_path).collect().to_pandas()
+master_df = pl.scan_parquet(merged_path).collect().to_pandas()
 
-agent_panel["week_end"] = agent_panel["purchase_date"] + pd.offsets.Week(weekday=5, n=0)
-
-product_panel = (
-    pl.read_parquet(rms_path)
-    .with_columns(
-        [
-            pl.col("week_end").cast(pl.String).str.to_date("%Y%m%d"),
-            pl.col("store_code_uc").cast(pl.Int64),
-            pl.col("upc").cast(pl.Int64),
-        ]
-    )
-    .to_pandas()
-    .dropna(subset=["week_end"])
-)
-
-master_df = agent_panel.merge(
-    product_panel, on=["store_code_uc", "week_end", "upc"], how="left"
-)
-
-master_df = master_df.rename(
-    columns={
-        "product_module_code_x": "product_module_code",
-        "product_group_code_x": "product_group_code",
-        "size1_code_uc_x": "size1_code_uc",
-        "size1_units_x": "size1_units",
-        "dma_code_x": "dma_code",
-    }
-)
 master_df.columns = master_df.columns.str.lower()
 
 agent_panel["male_head_age"] = agent_panel["male_head_age"].replace(0, np.nan)

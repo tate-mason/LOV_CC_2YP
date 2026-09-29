@@ -105,7 +105,7 @@ def load_and_preprocess():
     ]
 
     iv_res = smf.ols(
-        "price ~ price_iv + size1_amount + C(week_end)",
+        "price ~ price_iv + brand_cd + C(week_end)",
         data=merged_master,
         missing="drop",
     ).fit()

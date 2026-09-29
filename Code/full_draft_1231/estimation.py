@@ -360,7 +360,7 @@ def total_objective_mixed(params, hh_packed_data, n_draws=50):
     return -total_ll
 
 
-def estimate_mixed_logit(hh_packed_data, n_draws=50):
+def estimate_mixed_model(hh_packed_data, n_draws=50):
     x0 = np.zeros(10)
     x0[4] = -0.5  # starting price sens mean
 

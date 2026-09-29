@@ -202,7 +202,7 @@ def load_and_preprocess():
         choices = group["choice_idx"].to_numpy(dtype=np.int64)
         thetas = group["theta_prev"].to_numpy(dtype=np.float64)
 
-        raw_inc = group["houeshold_income"].iloc[0]
+        raw_inc = group["household_income"].iloc[0]
         log_inc = np.log(max(float(raw_inc), 1.0))
 
         valid_mask = np.array(

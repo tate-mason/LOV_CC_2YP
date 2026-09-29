@@ -216,5 +216,152 @@ def load_and_preprocess():
     return hh_packed_data
 
 
+# =================================================
+# CORE LOGIC / PROCESSING
+# =================================================
+
+
+def total_objective(params, hh_packed_data):
+    const, beta_ber, beta_pl, gamma, alpha, sigma = params
+
+    d_berry = np.array([0.0, 1.0, 0.0])
+    d_plain = np.array([0.0, 0.0, 1.0])
+    cat_flavors = np.array([0.0, 1.0, 2.0])
+
+    total_ll = 0.0
+
+    for hh_data in hh_packed_data.values():
+        matrices = hh_data["matrices"]
+        choices = hh_data["choices"]
+        thetas = hh_data["thetas"]
+
+        for X_mat, y_idx, theta in zip(matrices, choices, thetas):
+            prices = X_mat[:, 0]
+            resids = X_mat[:, 1]
+
+            Xi = np.abs(cat_flavors - theta)
+
+            u = np.zeros(4)
+            u[:3] = (
+                const
+                + beta_ber * d_berry
+                + beta_pl * d_plain
+                + gamma * Xi
+                + alpha * prices[:3]
+                + sigma * resids[:3]
+            )
+            u[3] = 0.0
+
+            u_max = np.max(u)
+            log_prob = u[y_idx] - logsumexp(u - u_max)
+
+            if not np.isfinite(log_prob):
+                log_prob = -700.0
+
+            total_ll += log_prob
+    return -total_ll
+
+
+def estimate_model(hh_packed_data):
+    x0 = np.zeros(6)
+    bounds = [
+        (None, None),
+        (None, None),
+        (None, None),
+        (None, None),
+        (None, 0.0),
+        (None, None),
+    ]
+
+    res = minimize(
+        total_objective,
+        x0=x0,
+        args=(hh_packed_data),
+        method="L-BFGS-B",
+        bounds=bounds,
+        options={"ftol": 1e-8},
+    )
+
+    cov_matrix = res.hess_inv.todense()
+    se = np.sqrt(np.diag(cov_matrix))
+    z = res.x / se
+    p = 2 * (1 - sp.stats.norm.cdf(np.abs(z)))
+
+    return {
+        "params": res.x,
+        "se": se,
+        "z_stat": z,
+        "p_val": p,
+        "success": res.success,
+        "fun": res.fun,
+    }
+
+
+def display_results(results):
+    table = Table(
+        title="LOV SIMPLE SPEC RESULTS",
+        show_header=True,
+        header_style="bold_magenta",
+    )
+    table.add_column("Parameter", style="cyan", justify="left")
+    table.add_column("Estimate", justify="right")
+    table.add_column("Std. Error", justify="right")
+    table.add_column("z-stat", justify="right")
+    table.add_column("p-value", justify="right")
+
+    param_names = [
+        "beta_0",
+        "beta_ber",
+        "beta_pl",
+        "LOV",
+        "Price",
+        "Control Func.",
+    ]
+
+    for name, val, se, z, p in zip(
+        param_names,
+        results["params"],
+        results["se"],
+        results["z_stat"],
+        results["p_val"],
+    ):
+        p_str = f"{p:.4f}" if not np.isnan(p) else "NA"
+        if not np.isnan(p):
+            if p < 0.001:
+                p_str += " ***"
+            elif p < 0.05:
+                p_str += " **"
+        table.add_row(
+            name,
+            f"{val:.4f}",
+            f"{se:.4f}" if not np.isnan(se) else "NA",
+            f"{z:.3f}" if not np.isnan(z) else "NA",
+            p_str,
+        )
+
+        console.print(table)
+        console.print(f"[bold]Optimization Success:[/bold] {results['success']}")
+        console.print(f"[bold]Final LL Objective:[/bold] {results['fun']:.4f}")
+
+        alpha = results["params"][4]
+        wtp_results = {
+            "Intercept": -1 * (results["params"][0] / alpha),
+            "Berry Flavor": -1 * (results["params"][1] / alpha),
+            "Plain": -1 * (results["params"] / alpha),
+            "LOV": -1 * (results["params"][3] / alpha),
+        }
+        console.print(
+            "\n[bold yellow]WTP Relative to Other Flavors Relative to Outside:[/bold yellow]"
+        )
+        for param, wtp in wtp_results.items():
+            console.print(f"  {param}: ${wtp:.4f}")
+
+
 def main():
     hh_packed_data = load_and_preprocess()
+    results = estimate_model(hh_packed_data)
+    display_results(results)
+
+
+if __name__ == "__main__":
+    main()

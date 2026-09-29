@@ -13,6 +13,10 @@ from scipy.optimize import minimize
 from scipy.special import logsumexp, expit
 import statsmodels.formula.api as smf
 
+# graphing
+import matplotlib.pyplot as plt
+import seaborn as sns
+
 # output
 from rich.console import Console
 from rich.traceback import install
@@ -646,6 +650,59 @@ def display_type_distribution(df_types):
 
     console.print(table)
 
+def display_type_distribution(df_types, save_path=None):
+    sns.set_theme("whitegrid")
+    fig, axes = plt.subplots(2, 3, figsize=(16, 10))
+    fig.suptitle(
+        "Density Distribution of Household Types",
+        fontsize=16, 
+        fontweight="bold"
+    )
+
+    plots_config = [
+        ("beta_berry", "Berry Preference Relative to Other Flavors", "skyblue", axes=[0,0]),
+        ("beta_plain", "Plain Preference Relative to Other Flavors", "salmon", axes=[0,1]),
+        ("gamma_lov", "Love of Variety", "mediumpurple", axes[0,2]),
+        ("alpha_price", "Price Sensitivity", "gold", axes[1,0])
+    ]
+
+    for col, title, color, ax in plots_config:
+        sns.kdeplot(
+            df_types[col],
+            ax=ax,
+            color=color,
+            fill=True,
+            alpha=0.3,
+            linewidth=2.5,
+            bw_adjust=0.8
+        )
+
+        ax.set_title(title, fontsize=12, fontweight="bold")
+        ax.set_xlabel("Parameter Value")
+        ax.set_ylabel("Density")
+
+        mean_val = df_types[col].mean()
+
+        ax.axvline(
+            mean_val,
+            color="red",
+            linestyle="--",
+            linewidth=1.5,
+            label=f"Mean: {mean_val:.2f}",
+        )
+        ax.legend(loc="upper right", frameon=True)
+
+    plt.tight_layout(rect[0, 0, 1, 0.95])
+
+    if save_path:
+        plt.savefig(
+            save_path,
+            format="pdf",
+            dpi=300,
+            bbox_inches="tight"
+        )
+        console.print(f"[bold green]Saved Plot to PDF:[/bold green] {save_path}")
+
 
 def main():
     hh_packed_data = load_and_preprocess()
@@ -655,6 +712,9 @@ def main():
 
     display_results(results)
     display_type_distribution(df_types)
+
+    plot_path = OUT_PATH + "type_distribution_density.pdf"
+    display_type_distribution(df_types, save_path=plot_path)
 
 
 if __name__ == "__main__":

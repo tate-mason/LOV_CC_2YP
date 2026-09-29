@@ -205,6 +205,10 @@ def load_and_preprocess():
         raw_inc = group["household_income"].iloc[0]
         log_inc = np.log(max(float(raw_inc), 1.0))
 
+        mean_log_inc = np.mean([d["log_inc"] for d in hh_packed_data.values()])
+        for hh_id in hh_packed_data:
+            hh_packed_data[hh_id]["log_inc"] -= mean_log_inc
+
         valid_mask = np.array(
             [(s, w) in choice_set_matrix for s, w in zip(stores, weeks)]
         )
@@ -355,37 +359,36 @@ def total_objective_mixed(params, hh_packed_data, n_draws=50):
 
             u = np.hstack([u_inside, np.zeros((n_draws, 1))])
 
-            u_max = np.max(u, axis=1, keepdims=True)
-            exp_u = np.exp(u - u_max)
-            probs = exp_u / np.sum(exp_u, axis=1, keepdims=True)
+            log_probs = u[:, y_idx] - logsumexp(u, axis=1)
+            draw_probs += log_probs
 
-            chosen_probs = probs[:, y_idx]
-            draw_probs *= chosen_probs
+        # Integrate out draws in log space: log( 1/N * sum(exp(log_draw_probs)) )
+        hh_ll = logsumexp(draw_probs) - np.log(n_draws)
 
-        mean_hh_prob = np.mean(draw_probs)
-        if mean_hh_prob <= 0 or not np.isfinite(mean_hh_prob):
-            total_ll += -700.0
+        if not np.isfinite(hh_ll):
+            total_ll += -1000.0
         else:
-            total_ll += np.log(mean_hh_prob)
+            total_ll += hh_ll
+
     return -total_ll
 
 
 def estimate_mixed_model(hh_packed_data, n_draws=50):
-    x0 = np.zeros(10)
-    x0[4] = -0.5  # starting price sens mean
-    x0[5] = 0.01
+    # Pass explicit parameter scaling via 'eps' or use ' Nelder-Mead ' / 'BFGS' without tight bounds
+    x0 = np.array([0.0, 0.0, 0.0, 0.0, -1.5, 0.05, 0.0, 0.1, 0.1, 0.1])
 
+    # Unbound alpha_0 to allow negative values, use exponential for alpha_inc constraint if needed
     bounds = [
-        (None, None),
-        (None, None),
-        (None, None),
-        (None, None),
-        (None, 0.0),  # alpha_0
-        (0.0, None),  # income effect
-        (None, None),
-        (0.0, None),
-        (0.0, None),
-        (0.0, None),
+        (None, None),  # const
+        (None, None),  # mu_b_ber
+        (None, None),  # mu_b_pl
+        (None, None),  # mu_gamma
+        (None, 0.0),  # alpha_0 (Must be negative)
+        (None, None),  # alpha_inc (unbounded, let log-likelihood pull it)
+        (None, None),  # sigma_cf
+        (1e-4, None),  # sd_b_ber (strictly positive)
+        (1e-4, None),  # sd_b_pl
+        (1e-4, None),  # sd_gamma
     ]
 
     res = minimize(
@@ -394,22 +397,12 @@ def estimate_mixed_model(hh_packed_data, n_draws=50):
         args=(hh_packed_data, n_draws),
         method="L-BFGS-B",
         bounds=bounds,
-        options={"ftol": 1e-8},
+        options={
+            "ftol": 1e-10,
+            "gtol": 1e-6,
+            "maxiter": 1000,
+        },  # Tighter convergence criterion
     )
-
-    cov_matrix = res.hess_inv.todense()
-    se = np.sqrt(np.diag(cov_matrix))
-    z = res.x / se
-    p = 2 * (1 - sp.stats.norm.cdf(np.abs(z)))
-
-    return {
-        "params": res.x,
-        "se": se,
-        "z_stat": z,
-        "p_val": p,
-        "success": res.success,
-        "fun": res.fun,
-    }
 
 
 def display_results(results):

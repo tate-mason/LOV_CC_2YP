@@ -316,7 +316,6 @@ def total_objective_mixed(params, hh_packed_data, n_draws=50):
         sd_b_berry,
         sd_b_pl,
         sd_gamma,
-        sd_alpha,
     ) = params
 
     d_berry = np.array([0.0, 1.0, 0.0])
@@ -350,7 +349,7 @@ def total_objective_mixed(params, hh_packed_data, n_draws=50):
                 + np.outer(draws_b_ber, d_berry)
                 + np.outer(draws_b_pl, d_plain)
                 + np.outer(draws_gamma, Xi)
-                + np.outer(alpha_i, prices)
+                + alpha_i * prices
                 + sigma_cf * resids
             )
 
@@ -710,11 +709,14 @@ def plot_type_distribution(df_types, save_path=None):
 
 def main():
     hh_packed_data = load_and_preprocess()
+    console.print("\n--- Estimating Standard Logit ---")
     results = estimate_model(hh_packed_data)
-    mixed_results = estimate_mixed_model(hh_packed_data, n_draws=50)
-    df_types = extract_individual_parameters(mixed_results, hh_packed_data, n_draws=50)
-
     display_results(results)
+
+    console.print("\n--- Estimating Mixed Logit ---")
+    mixed_results = estimate_mixed_model(hh_packed_data, n_draws=50)
+
+    df_types = extract_individual_parameters(mixed_results, hh_packed_data, n_draws=50)
     display_type_distribution(df_types)
 
     plot_path = OUT_PATH + "type_distribution_density.pdf"

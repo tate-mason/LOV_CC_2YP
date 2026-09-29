@@ -387,7 +387,6 @@ def estimate_mixed_model(hh_packed_data, n_draws=50):
         (0.0, None),
         (0.0, None),
         (0.0, None),
-        (0.0, None),
     ]
 
     res = minimize(

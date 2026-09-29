@@ -328,12 +328,4 @@ console.print(merged_df.columns.to_list())
 unique_combos = merged_df[
     ["serving_per_container", "serving_per_container_cd"]
 ].drop_duplicates()
-
-table = Table(title="Serving Size Combos", show_header=True)
-table.add_column("serving_per_container", style="cyan")
-table.add_column("serving_per_container_cd", style="magenta")
-
-for row in unique_combos.iter_rows():
-    table.add_row(str(row[0]), str(row[1]))
-
-console.print(table)
+console.print(unique_combos)

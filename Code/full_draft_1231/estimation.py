@@ -205,10 +205,6 @@ def load_and_preprocess():
         raw_inc = group["household_income"].iloc[0]
         log_inc = np.log(max(float(raw_inc), 1.0))
 
-        mean_log_inc = np.mean([d["log_inc"] for d in hh_packed_data.values()])
-        for hh_id in hh_packed_data:
-            hh_packed_data[hh_id]["log_inc"] -= mean_log_inc
-
         valid_mask = np.array(
             [(s, w) in choice_set_matrix for s, w in zip(stores, weeks)]
         )

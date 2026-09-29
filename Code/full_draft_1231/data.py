@@ -6,6 +6,7 @@ Data Processing & Summary Statistics Pipeline
 """
 
 # Tools
+from enum import unique
 import os  # type:ignore
 import matplotlib.pyplot as plt
 import numpy as np
@@ -13,6 +14,7 @@ import pandas as pd
 import polars as pl
 from rich.console import Console
 from rich.traceback import install
+from rich.table import Table
 import seaborn as sns
 
 
@@ -323,4 +325,13 @@ merged_df = pl.scan_parquet(OUT_PATH).collect().to_pandas()
 console.print(merged_df.shape)
 console.print(merged_df.describe())
 console.print(merged_df.columns.to_list())
-console.print(merged_df["serving_per_container", "serving_per_container_cd"])
+unique_combos = merged_df.select(["serving_per_container", "serving_per_container_cd"])
+
+table = Table(title="Serving Size Combos", show_header=True)
+table.add_column("serving_per_container", style="cyan")
+table.add_column("serving_per_container_cd", style="magenta")
+
+for row in unique_combos.iter_rows():
+    table.add_row(str(row[0]), str(row[1]))
+
+console.print(table)

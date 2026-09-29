@@ -322,7 +322,4 @@ merged_df = pl.scan_parquet(OUT_PATH).collect().to_pandas()
 
 console.print(merged_df.shape)
 console.print(merged_df.describe())
-
-
-console.print(merged_df.shape)
-console.print(merged_df.describe())
+console.print(merged_df.columns)

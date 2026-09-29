@@ -174,7 +174,7 @@ def load_and_preprocess():
         for row in group.itertuples():
             if row.category in cat_map and row.category != "outside":
                 idx = cat_map[row.category]
-                res_val = 0.0 if np.isnan(row.iv_resid) else row.iv_resid
+                res_val = 0.0 if np.isnan(row.iv_res) else row.iv_res
                 mat[idx] = [row.price, res_val]
         choice_set_matrix[(store, week)] = mat
 

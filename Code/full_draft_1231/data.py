@@ -325,9 +325,9 @@ merged_df = pl.scan_parquet(OUT_PATH).collect().to_pandas()
 console.print(merged_df.shape)
 console.print(merged_df.describe())
 console.print(merged_df.columns.to_list())
-unique_combos = merged_df.select(
+unique_combos = merged_df[
     ["serving_per_container", "serving_per_container_cd"]
-).unique()
+].drop_duplicates()
 
 table = Table(title="Serving Size Combos", show_header=True)
 table.add_column("serving_per_container", style="cyan")

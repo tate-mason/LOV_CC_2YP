@@ -650,20 +650,29 @@ def display_type_distribution(df_types):
 
     console.print(table)
 
-def display_type_distribution(df_types, save_path=None):
-    sns.set_theme("whitegrid")
+
+def plot_type_distribution(df_types, save_path=None):
+    sns.set_theme(style="whitegrid")
     fig, axes = plt.subplots(2, 3, figsize=(16, 10))
     fig.suptitle(
-        "Density Distribution of Household Types",
-        fontsize=16, 
-        fontweight="bold"
+        "Density Distribution of Household Types", fontsize=16, fontweight="bold"
     )
 
     plots_config = [
-        ("beta_berry", "Berry Preference Relative to Other Flavors", "skyblue", axes=[0,0]),
-        ("beta_plain", "Plain Preference Relative to Other Flavors", "salmon", axes=[0,1]),
-        ("gamma_lov", "Love of Variety", "mediumpurple", axes[0,2]),
-        ("alpha_price", "Price Sensitivity", "gold", axes[1,0])
+        (
+            "beta_berry",
+            "Berry Preference Relative to Other Flavors",
+            "skyblue",
+            axes[0, 0],
+        ),
+        (
+            "beta_plain",
+            "Plain Preference Relative to Other Flavors",
+            "salmon",
+            axes[0, 1],
+        ),
+        ("gamma_lov", "Love of Variety", "mediumpurple", axes[0, 2]),
+        ("alpha_price", "Price Sensitivity", "gold", axes[1, 0]),
     ]
 
     for col, title, color, ax in plots_config:
@@ -674,7 +683,7 @@ def display_type_distribution(df_types, save_path=None):
             fill=True,
             alpha=0.3,
             linewidth=2.5,
-            bw_adjust=0.8
+            bw_adjust=0.8,
         )
 
         ax.set_title(title, fontsize=12, fontweight="bold")
@@ -692,15 +701,10 @@ def display_type_distribution(df_types, save_path=None):
         )
         ax.legend(loc="upper right", frameon=True)
 
-    plt.tight_layout(rect[0, 0, 1, 0.95])
+    plt.tight_layout(rect=[0, 0, 1, 0.95])
 
     if save_path:
-        plt.savefig(
-            save_path,
-            format="pdf",
-            dpi=300,
-            bbox_inches="tight"
-        )
+        plt.savefig(save_path, format="pdf", dpi=300, bbox_inches="tight")
         console.print(f"[bold green]Saved Plot to PDF:[/bold green] {save_path}")
 
 
@@ -714,7 +718,7 @@ def main():
     display_type_distribution(df_types)
 
     plot_path = OUT_PATH + "type_distribution_density.pdf"
-    display_type_distribution(df_types, save_path=plot_path)
+    plot_type_distribution(df_types, save_path=plot_path)
 
 
 if __name__ == "__main__":

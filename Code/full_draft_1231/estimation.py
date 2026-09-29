@@ -300,7 +300,7 @@ def display_results(results):
     table = Table(
         title="LOV SIMPLE SPEC RESULTS",
         show_header=True,
-        header_style="bold_magenta",
+        header_style="bold magenta",
     )
     table.add_column("Parameter", style="cyan", justify="left")
     table.add_column("Estimate", justify="right")
@@ -338,22 +338,22 @@ def display_results(results):
             p_str,
         )
 
-        console.print(table)
-        console.print(f"[bold]Optimization Success:[/bold] {results['success']}")
-        console.print(f"[bold]Final LL Objective:[/bold] {results['fun']:.4f}")
+    console.print(table)
+    console.print(f"[bold]Optimization Success:[/bold] {results['success']}")
+    console.print(f"[bold]Final LL Objective:[/bold] {results['fun']:.4f}")
 
-        alpha = results["params"][4]
-        wtp_results = {
-            "Intercept": -1 * (results["params"][0] / alpha),
-            "Berry Flavor": -1 * (results["params"][1] / alpha),
-            "Plain": -1 * (results["params"][2] / alpha),
-            "LOV": -1 * (results["params"][3] / alpha),
-        }
-        console.print(
-            "\n[bold yellow]WTP Relative to Other Flavors Relative to Outside:[/bold yellow]"
-        )
-        for param, wtp in wtp_results.items():
-            console.print(f"  {param}: ${wtp:.4f}")
+    alpha = results["params"][4]
+    wtp_results = {
+        "Intercept": -1 * (results["params"][0] / alpha),
+        "Berry Flavor": -1 * (results["params"][1] / alpha),
+        "Plain": -1 * (results["params"][2] / alpha),
+        "LOV": -1 * (results["params"][3] / alpha),
+    }
+    console.print(
+        "\n[bold yellow]WTP Relative to Other Flavors Relative to Outside:[/bold yellow]"
+    )
+    for param, wtp in wtp_results.items():
+        console.print(f"  {param}: ${wtp:.4f}")
 
 
 def main():

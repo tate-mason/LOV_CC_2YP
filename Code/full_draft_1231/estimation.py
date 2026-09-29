@@ -296,6 +296,111 @@ def estimate_model(hh_packed_data):
     }
 
 
+def total_objective_mixed(params, hh_packed_data, n_draws=50):
+    (
+        const,
+        mu_b_berry,
+        mu_b_pl,
+        mu_gamma,
+        mu_alpha,
+        sigma_cf,
+        sd_b_berry,
+        sd_b_pl,
+        sd_gamma,
+        sd_alpha,
+    ) = params
+
+    d_berry = np.array([0.0, 1.0, 0.0])
+    d_plain = np.array([0.0, 0.0, 1.0])
+    cat_flavors = np.array([0.0, 1.0, 2.0])
+
+    rng_sim = np.random.default_rng(306)
+    total_ll = 0.0
+
+    for hh_data in hh_packed_data.values():
+        matrices = hh_data["matrices"]
+        choices = hh_data["choices"]
+        thetas = hh_data["thetas"]
+
+        draws_b_ber = mu_b_berry + sd_b_berry * rng_sim.standard_normal(n_draws)
+        draws_b_pl = mu_b_pl + sd_b_pl * rng_sim.standard_normal(n_draws)
+        draws_gamma = mu_gamma + sd_gamma * rng_sim.standard_normal(n_draws)
+        draws_alpha = mu_alpha + sd_alpha * rng_sim.standard_normal(n_draws)
+
+        draw_probs = np.ones(n_draws)
+
+        for X_mat, y_idx, theta in zip(matrices, choices, thetas):
+            prices = X_mat[:3, 0]
+            resids = X_mat[:3, 1]
+            Xi = np.abs(cat_flavors - theta)
+
+            u_inside = (
+                const
+                + np.outer(draws_b_ber, d_berry)
+                + np.outer(draws_b_pl, d_plain)
+                + np.outer(draws_gamma, Xi)
+                + np.outer(draws_alpha, prices)
+                + sigma_cf * resids
+            )
+
+            u = np.hstack([u_inside, np.zeros((n_draws, 1))])
+
+            u_max = np.max(u, axis=1, keepdims=True)
+            exp_u = np.exp(u - u_max)
+            probs = exp_u / np.sum(exp_u, axis=1, keepdims=True)
+
+            chosen_probs = probs[:, y_idx]
+            draw_probs *= chosen_probs
+
+        mean_hh_prob = np.mean(draw_probs)
+        if mean_hh_prob <= 0 or not np.isfinite(mean_hh_prob):
+            total_ll += -700.0
+        else:
+            total_ll += np.log(mean_hh_prob)
+    return -total_ll
+
+
+def estimate_mixed_logit(hh_packed_data, n_draws=50):
+    x0 = np.zeros(10)
+    x0[4] = -0.5  # starting price sens mean
+
+    bounds = [
+        (None, None),
+        (None, None),
+        (None, None),
+        (None, None),
+        (None, 0.0),
+        (None, None),
+        (0.0, None),
+        (0.0, None),
+        (0.0, None),
+        (0.0, None),
+    ]
+
+    res = minimize(
+        total_objective_mixed,
+        x0=x0,
+        args=(hh_packed_data, n_draws),
+        method="L-BFGS-B",
+        bounds=bounds,
+        options={"ftol": 1e-8},
+    )
+
+    cov_matrix = res.hess_inv.todense()
+    se = np.sqrt(np.diag(cov_matrix))
+    z = res.x / se
+    p = 2 * (1 - sp.stats.norm.cdf(np.abs(z)))
+
+    return {
+        "params": res.x,
+        "se": se,
+        "z_stat": z,
+        "p_val": p,
+        "success": res.success,
+        "fun": res.fun,
+    }
+
+
 def display_results(results):
     table = Table(
         title="LOV SIMPLE SPEC RESULTS",
@@ -356,10 +461,192 @@ def display_results(results):
         console.print(f"  {param}: ${wtp:.4f}")
 
 
+def display_mixed_results(results):
+    table = Table(
+        title="MIXED LOGIT (RANDOM COEFFICIENTS) RESULTS",
+        show_header=True,
+        header_style="bold magenta",
+    )
+    table.add_column("Parameter", style="cyan", justify="left")
+    table.add_column("Estimate", justify="right")
+    table.add_column("Std. Error", justify="right")
+    table.add_column("z-stat", justify="right")
+    table.add_column("p-value", justify="right")
+
+    param_names = [
+        "μ_beta_0",
+        "μ_beta_ber",
+        "μ_beta_pl",
+        "μ_LOV",
+        "μ_Price",
+        "σ_Control_Func",
+        "σ_beta_ber (SD)",
+        "σ_beta_pl (SD)",
+        "σ_LOV (SD)",
+        "σ_Price (SD)",
+    ]
+
+    for name, val, se, z, p in zip(
+        param_names,
+        results["params"],
+        results["se"],
+        results["z_stat"],
+        results["p_val"],
+    ):
+        p_str = f"{p:.4f}" if not np.isnan(p) else "NA"
+        if not np.isnan(p):
+            if p < 0.001:
+                p_str += " ***"
+            elif p < 0.05:
+                p_str += " **"
+        table.add_row(
+            name,
+            f"{val:.4f}",
+            f"{se:.4f}" if not np.isnan(se) else "NA",
+            f"{z:.3f}" if not np.isnan(z) else "NA",
+            p_str,
+        )
+
+    console.print(table)
+    console.print(f"[bold]Optimization Success:[/bold] {results['success']}")
+    console.print(f"[bold]Final LL Objective:[/bold] {results['fun']:.4f}")
+
+
+def extract_individual_parameters(results, hh_packed_data, n_draws=500):
+    """
+    Computes household-level posterior means for alpha, beta, and gamma
+    to recover the empirical distribution of types across households.
+    """
+    params = results["params"]
+    (
+        const,
+        mu_b_ber,
+        mu_b_pl,
+        mu_gamma,
+        mu_alpha,
+        sigma_cf,
+        sd_b_ber,
+        sd_b_pl,
+        sd_gamma,
+        sd_alpha,
+    ) = params
+
+    d_berry = np.array([0.0, 1.0, 0.0])
+    d_plain = np.array([0.0, 0.0, 1.0])
+    cat_flavors = np.array([0.0, 1.0, 2.0])
+
+    rng_sim = np.random.default_rng(123)
+    hh_posterior_means = []
+
+    for hh_id, hh_data in hh_packed_data.items():
+        matrices = hh_data["matrices"]
+        choices = hh_data["choices"]
+        thetas_lag = hh_data["thetas"]
+
+        # 1. Draw candidate types from population distribution: shape (n_draws,)
+        draws_b_ber = mu_b_ber + sd_b_ber * rng_sim.standard_normal(n_draws)
+        draws_b_pl = mu_b_pl + sd_b_pl * rng_sim.standard_normal(n_draws)
+        draws_gamma = mu_gamma + sd_gamma * rng_sim.standard_normal(n_draws)
+        draws_alpha = mu_alpha + sd_alpha * rng_sim.standard_normal(n_draws)
+
+        draw_probabilities = np.ones(n_draws)
+
+        # 2. Compute likelihood of household choices given each draw
+        for X_mat, y_idx, theta in zip(matrices, choices, thetas_lag):
+            prices = X_mat[:3, 0]
+            resids = X_mat[:3, 1]
+            Xi = np.abs(cat_flavors - theta)
+
+            u_inside = (
+                const
+                + np.outer(draws_b_ber, d_berry)
+                + np.outer(draws_b_pl, d_plain)
+                + np.outer(draws_gamma, Xi)
+                + np.outer(draws_alpha, prices)
+                + sigma_cf * resids
+            )
+            u = np.hstack([u_inside, np.zeros((n_draws, 1))])
+
+            u_max = np.max(u, axis=1, keepdims=True)
+            exp_u = np.exp(u - u_max)
+            probs = exp_u / np.sum(exp_u, axis=1, keepdims=True)
+
+            chosen_probs = probs[:, y_idx]
+            draw_probabilities *= chosen_probs
+
+        # 3. Bayes' Rule weights for this household's draws
+        total_prob = np.sum(draw_probabilities)
+        if total_prob > 0:
+            weights = draw_probabilities / total_prob
+        else:
+            weights = np.ones(n_draws) / n_draws
+
+        # 4. Posterior expectation (individual type estimate)
+        hh_posterior_means.append(
+            {
+                "household_code": hh_id,
+                "beta_berry": np.sum(weights * draws_b_ber),
+                "beta_plain": np.sum(weights * draws_b_pl),
+                "gamma_lov": np.sum(weights * draws_gamma),
+                "alpha_price": np.sum(weights * draws_alpha),
+                "wtp_berry": -1
+                * (np.sum(weights * draws_b_ber) / np.sum(weights * draws_alpha)),
+                "wtp_plain": -1
+                * (np.sum(weights * draws_b_pl) / np.sum(weights * draws_alpha)),
+            }
+        )
+
+    return pd.DataFrame(hh_posterior_means)
+
+
+def display_type_distribution(df_types):
+    """
+    Prints descriptive stats (percentiles) showing the empirical distribution
+    of household-level preference parameters and WTPs.
+    """
+    table = Table(
+        title="EMPIRICAL DISTRIBUTION OF HOUSEHOLD TYPES (POSTERIOR MEANS)",
+        show_header=True,
+        header_style="bold magenta",
+    )
+    table.add_column("Parameter / Type", style="cyan", justify="left")
+    table.add_column("Mean", justify="right")
+    table.add_column("10th Pctl", justify="right")
+    table.add_column("50th (Median)", justify="right")
+    table.add_column("90th Pctl", justify="right")
+    table.add_column("Std Dev", justify="right")
+
+    cols_to_summarize = [
+        ("β_berry (Berry Preference)", "beta_berry"),
+        ("β_plain (Plain Preference)", "beta_plain"),
+        ("γ (LOV / Habit)", "gamma_lov"),
+        ("α (Price Sensitivity)", "alpha_price"),
+        ("WTP Berry ($)", "wtp_berry"),
+        ("WTP Plain ($)", "wtp_plain"),
+    ]
+
+    for label, col in cols_to_summarize:
+        vals = df_types[col].to_numpy()
+        table.add_row(
+            label,
+            f"{np.mean(vals):.4f}",
+            f"{np.percentile(vals, 10):.4f}",
+            f"{np.median(vals):.4f}",
+            f"{np.percentile(vals, 90):.4f}",
+            f"{np.std(vals):.4f}",
+        )
+
+    console.print(table)
+
+
 def main():
     hh_packed_data = load_and_preprocess()
     results = estimate_model(hh_packed_data)
+    mixed_results = estimate_mixed_model(hh_packed_data, n_draws=50)
+    df_types = extract_individual_parameters(mixed_results, hh_packed_data, n_draws=50)
+
     display_results(results)
+    display_type_distribution(df_types)
 
 
 if __name__ == "__main__":

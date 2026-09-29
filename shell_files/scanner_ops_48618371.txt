@@ -1,2 +1,0 @@
-Already up to date.
---> Saved master retail parquet file (full_retail.parquet

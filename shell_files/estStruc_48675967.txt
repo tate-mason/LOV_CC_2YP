@@ -1,1 +1,0 @@
-slurmstepd: error: *** JOB 48675967 ON b6-15 CANCELLED AT 2026-09-29T18:01:36 ***

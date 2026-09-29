@@ -1,0 +1,145 @@
+Already up to date.
+Code revision: 3c8a968
+START rebuilding scanner market files with store-and-year join
+--> Saved data for attributes
+--> Saved data for description
+--> Saved data for hierarchy
+--> Saved data for movement
+--> Saved market stores for Atlanta
+--> Saved market stores for Chicago
+--> Saved market stores for Houston
+--> Saved market stores for Denver
+--> Saved market stores for Phoenix
+--> Saved market stores for Philadelphia
+--> Saved market stores for San_Diego
+--> Saved market stores for Des_Moines
+DONE rebuilding scanner market files
+START rebuilding full_retail.parquet
+--> Saved master retail parquet file (full_retail.parquet
+DONE rebuilding full_retail.parquet
+START panel-scanner merge
+Polars version: 1.44.2; index type: UInt32
+SLURM_JOB_ID: 48618576
+SLURM_MEM_PER_NODE: 921600 MB
+POLARS_MAX_THREADS: 4
+HMS: /scratch/dtm63837/Kilts_Panel/nielsen_extracts/output_markets/full_panel.parquet
+RMS: /scratch/dtm63837/Kilts_Panel/nielsen_extracts/RMS/output_markets/full_retail.parquet
+START HMS source
+DONE  HMS source: 26,304,702 rows (0.0s)
+START RMS source
+DONE  RMS source: 136,926,089 rows (0.1s)
+RMS value columns audited (121): year, retailer_code, parent_code, channel_code, store_zip3, fips_state_code, fips_county_code, acv, panel_year, units, prmult, price, feature, display, brand, brand_cd, protein_gram, protein_gram_cd, commodity_group, commodity_group_cd, manufacturer_suggested_price_claim, manufacturer_suggested_price_claim_cd, cholesterol, cholesterol_cd, sodium_presence_claim, sodium_presence_claim_cd, fat_calorie_per_serving_size, fat_calorie_per_serving_size_cd, sugar_gram, sugar_gram_cd, competitive_category_ogrds, competitive_category_ogrds_cd, package_presentation_option, package_presentation_option_cd, additional_information, additional_information_cd, manufacturing_process, manufacturing_process_cd, serving_size_household, serving_size_household_cd, trans_fat_gram, trans_fat_gram_cd, serving_size_metric, serving_size_metric_cd, calories_per_serving_size, calories_per_serving_size_cd, secondary_size, secondary_size_cd, total_size, total_size_cd, organic_claim, organic_claim_cd, genetic_modification_claim, genetic_modification_claim_cd, total_carbohydrate_gram, total_carbohydrate_gram_cd, flavor, flavor_cd, target_group_gender, target_group_gender_cd, manufacturer_suggested_price, manufacturer_suggested_price_cd, prepriced, prepriced_cd, nutritional_health_claim, nutritional_health_claim_cd, usda_organic_seal, usda_organic_seal_cd, formulation, formulation_cd, strategic_ingredient_presence_claim, strategic_ingredient_presence_claim_cd, fat_presence_claim, fat_presence_claim_cd, price_reduction, price_reduction_cd, total_fat_gram, total_fat_gram_cd, serving_per_container, serving_per_container_cd, saturated_fat_gram, saturated_fat_gram_cd, form, form_cd, product_size, product_size_cd, base_size, base_size_cd, package_general_shape, package_general_shape_cd, calorie_claim, calorie_claim_cd, package_material_substance, package_material_substance_cd, sodium, sodium_cd, dietary_fiber, dietary_fiber_cd, claim, claim_cd, common_consumer_name, common_consumer_name_cd, deal_derived, deal_derived_cd, product_descr, product_module_code, product_module_descr, multi, start_date, year_hier, super_category, super_category_cd, category, category_cd, sub_category, sub_category_cd, segment, segment_cd, department, department_cd, market_name
+START materializing filtered HMS
+START filtered HMS with invalid purchase dates
+DONE  filtered HMS with invalid purchase dates: 0 rows (0.0s)
+========== YEAR 2022 ==========
+START 2022 filtered HMS
+DONE  2022 filtered HMS: 979,386 rows (0.0s)
+START 2022 RMS rows matching panel keys
+DONE  2022 RMS rows matching panel keys: 12,538 rows (4.1s)
+START 2022 selecting one RMS row ID per key -> /scratch/dtm63837/Kilts_Panel/nielsen_extracts/scanner_panel_2022.rms_ids.parquet.incomplete
+START 2022 selected RMS keys
+DONE  2022 selected RMS keys: 12,538 rows (0.0s)
+2022 RMS duplicate key rows: 0 of 12,538
+START 2022 streaming join and parquet sink -> /scratch/dtm63837/Kilts_Panel/nielsen_extracts/scanner_panel_2022.parquet.incomplete
+DONE  2022 parquet sink (9.5s)
+START 2022 written output
+DONE  2022 written output: 979,386 rows (0.0s)
+START 2022 HMS rows with an RMS key match
+DONE  2022 HMS rows with an RMS key match: 39,849 rows (0.0s)
+2022 RMS match rate: 4.1% (939,537 unmatched HMS rows)
+START 2022 RMS duplicate-value audit across 121 columns
+DONE  2022 RMS duplicate-value audit:
+shape: (1, 3)
+┌──────────────────┬─────────────────────────────┬──────────────────────────────┐
+│ matched_rms_keys ┆ keys_with_multiple_rms_rows ┆ keys_with_conflicting_values │
+│ ---              ┆ ---                         ┆ ---                          │
+│ u32              ┆ u32                         ┆ u32                          │
+╞══════════════════╪═════════════════════════════╪══════════════════════════════╡
+│ 12538            ┆ 0                           ┆ 0                            │
+└──────────────────┴─────────────────────────────┴──────────────────────────────┘
+========== YEAR 2023 ==========
+START 2023 filtered HMS
+DONE  2023 filtered HMS: 961,897 rows (0.0s)
+START 2023 RMS rows matching panel keys
+DONE  2023 RMS rows matching panel keys: 12,086 rows (3.5s)
+START 2023 selecting one RMS row ID per key -> /scratch/dtm63837/Kilts_Panel/nielsen_extracts/scanner_panel_2023.rms_ids.parquet.incomplete
+START 2023 selected RMS keys
+DONE  2023 selected RMS keys: 12,086 rows (0.0s)
+2023 RMS duplicate key rows: 0 of 12,086
+START 2023 streaming join and parquet sink -> /scratch/dtm63837/Kilts_Panel/nielsen_extracts/scanner_panel_2023.parquet.incomplete
+DONE  2023 parquet sink (9.7s)
+START 2023 written output
+DONE  2023 written output: 961,897 rows (0.0s)
+START 2023 HMS rows with an RMS key match
+DONE  2023 HMS rows with an RMS key match: 38,553 rows (0.0s)
+2023 RMS match rate: 4.0% (923,344 unmatched HMS rows)
+START 2023 RMS duplicate-value audit across 121 columns
+DONE  2023 RMS duplicate-value audit:
+shape: (1, 3)
+┌──────────────────┬─────────────────────────────┬──────────────────────────────┐
+│ matched_rms_keys ┆ keys_with_multiple_rms_rows ┆ keys_with_conflicting_values │
+│ ---              ┆ ---                         ┆ ---                          │
+│ u32              ┆ u32                         ┆ u32                          │
+╞══════════════════╪═════════════════════════════╪══════════════════════════════╡
+│ 12086            ┆ 0                           ┆ 0                            │
+└──────────────────┴─────────────────────────────┴──────────────────────────────┘
+========== YEAR 2024 ==========
+START 2024 filtered HMS
+DONE  2024 filtered HMS: 895,754 rows (0.0s)
+START 2024 RMS rows matching panel keys
+DONE  2024 RMS rows matching panel keys: 11,850 rows (3.3s)
+START 2024 selecting one RMS row ID per key -> /scratch/dtm63837/Kilts_Panel/nielsen_extracts/scanner_panel_2024.rms_ids.parquet.incomplete
+START 2024 selected RMS keys
+DONE  2024 selected RMS keys: 11,850 rows (0.0s)
+2024 RMS duplicate key rows: 0 of 11,850
+START 2024 streaming join and parquet sink -> /scratch/dtm63837/Kilts_Panel/nielsen_extracts/scanner_panel_2024.parquet.incomplete
+DONE  2024 parquet sink (9.7s)
+START 2024 written output
+DONE  2024 written output: 895,754 rows (0.0s)
+START 2024 HMS rows with an RMS key match
+DONE  2024 HMS rows with an RMS key match: 37,890 rows (0.0s)
+2024 RMS match rate: 4.2% (857,864 unmatched HMS rows)
+START 2024 RMS duplicate-value audit across 121 columns
+DONE  2024 RMS duplicate-value audit:
+shape: (1, 3)
+┌──────────────────┬─────────────────────────────┬──────────────────────────────┐
+│ matched_rms_keys ┆ keys_with_multiple_rms_rows ┆ keys_with_conflicting_values │
+│ ---              ┆ ---                         ┆ ---                          │
+│ u32              ┆ u32                         ┆ u32                          │
+╞══════════════════╪═════════════════════════════╪══════════════════════════════╡
+│ 11850            ┆ 0                           ┆ 0                            │
+└──────────────────┴─────────────────────────────┴──────────────────────────────┘
+MERGE COMPLETE; combined_lazy is ready for downstream analysis
+START 2022 filtered panel rows
+DONE  2022 filtered panel rows: 979,386 rows (0.0s)
+START Panel yogurt purchase rows
+DONE  Panel yogurt purchase rows: 82,863 rows (0.0s)
+START Panel yogurt purchase rows with full scanner key match
+DONE  Panel yogurt purchase rows with full scanner key match: 39,840 rows (5.7s)
+Yogurt full-key coverage: 48.08%
+START Panel rows matching scanner on store_code_uc
+DONE  Panel rows matching scanner on store_code_uc: 385,917 rows (3.0s)
+Coverage: 39.40%
+START Panel rows matching scanner on upc
+DONE  Panel rows matching scanner on upc: 73,560 rows (2.9s)
+Coverage: 7.51%
+START Panel rows matching scanner on week_end
+DONE  Panel rows matching scanner on week_end: 979,386 rows (2.6s)
+Coverage: 100.00%
+START Panel rows matching scanner on week_end, store_code_uc, upc
+DONE  Panel rows matching scanner on week_end, store_code_uc, upc: 39,849 rows (5.7s)
+Coverage: 4.07%
+START saving scanner rows matching panel keys for diagnosis
+shape: (1, 3)
+┌──────────────┬────────────────┬──────────────────┐
+│ matched_keys ┆ duplicate_keys ┆ max_rows_per_key │
+│ ---          ┆ ---            ┆ ---              │
+│ u32          ┆ u32            ┆ u32              │
+╞══════════════╪════════════════╪══════════════════╡
+│ 12538        ┆ 0              ┆ 1                │
+└──────────────┴────────────────┴──────────────────┘
+Column -> number of matched scanner keys with differing values
+Columns with no conflicts: 121
+DONE diagnostics; no merge outputs changed
+Merge exit status: 0; diagnostic exit status: 0

@@ -1,0 +1,116 @@
+From github.com:tate-mason/LOV_CC_2YP
+   46ab4b5..c44a167  main       -> origin/main
+Updating 46ab4b5..c44a167
+Fast-forward
+ Code/full_draft_1231/estimation.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+╭───────────────────── Traceback (most recent call last) ──────────────────────╮
+│ /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/full_draft_1231/estimation.py: │
+│ 725 in <module>                                                              │
+│                                                                              │
+│   722                                                                        │
+│   723                                                                        │
+│   724 if __name__ == "__main__":                                             │
+│ ❱ 725 │   main()                                                             │
+│   726                                                                        │
+│                                                                              │
+│ /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/full_draft_1231/estimation.py: │
+│ 714 in main                                                                  │
+│                                                                              │
+│   711 def main():                                                            │
+│   712 │   hh_packed_data = load_and_preprocess()                             │
+│   713 │   results = estimate_model(hh_packed_data)                           │
+│ ❱ 714 │   mixed_results = estimate_mixed_model(hh_packed_data, n_draws=50)   │
+│   715 │   df_types = extract_individual_parameters(mixed_results, hh_packed_ │
+│   716 │                                                                      │
+│   717 │   display_results(results)                                           │
+│                                                                              │
+│ /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/full_draft_1231/estimation.py: │
+│ 392 in estimate_mixed_model                                                  │
+│                                                                              │
+│   389 │   │   (0.0, None),                                                   │
+│   390 │   ]                                                                  │
+│   391 │                                                                      │
+│ ❱ 392 │   res = minimize(                                                    │
+│   393 │   │   total_objective_mixed,                                         │
+│   394 │   │   x0=x0,                                                         │
+│   395 │   │   args=(hh_packed_data, n_draws),                                │
+│                                                                              │
+│ /home/dtm63837/.local/lib/python3.12/site-packages/scipy/optimize/_minimize. │
+│ py:738 in minimize                                                           │
+│                                                                              │
+│    735 │   │   res = _minimize_newtoncg(fun, x0, args, jac, hess, hessp, cal │
+│    736 │   │   │   │   │   │   │   │    **options)                           │
+│    737 │   elif meth == 'l-bfgs-b':                                          │
+│ ❱  738 │   │   res = _minimize_lbfgsb(fun, x0, args, jac, bounds,            │
+│    739 │   │   │   │   │   │   │      callback=callback, **options)          │
+│    740 │   elif meth == 'tnc':                                               │
+│    741 │   │   res = _minimize_tnc(fun, x0, args, jac, bounds, callback=call │
+│                                                                              │
+│ /home/dtm63837/.local/lib/python3.12/site-packages/scipy/optimize/_lbfgsb_py │
+│ .py:386 in _minimize_lbfgsb                                                  │
+│                                                                              │
+│   383 │   │   x0 = np.clip(x0, bounds[0], bounds[1])                         │
+│   384 │                                                                      │
+│   385 │   # _prepare_scalar_function can use bounds=None to represent no bou │
+│ ❱ 386 │   sf = _prepare_scalar_function(fun, x0, jac=jac, args=args, epsilon │
+│   387 │   │   │   │   │   │   │   │     bounds=bounds,                       │
+│   388 │   │   │   │   │   │   │   │     finite_diff_rel_step=finite_diff_rel │
+│   389                                                                        │
+│                                                                              │
+│ /home/dtm63837/.local/lib/python3.12/site-packages/scipy/optimize/_optimize. │
+│ py:291 in _prepare_scalar_function                                           │
+│                                                                              │
+│    288 │                                                                     │
+│    289 │   # ScalarFunction caches. Reuse of fun(x) during grad              │
+│    290 │   # calculation reduces overall function evaluations.               │
+│ ❱  291 │   sf = ScalarFunction(fun, x0, args, grad, hess,                    │
+│    292 │   │   │   │   │   │   finite_diff_rel_step, bounds, epsilon=epsilon │
+│    293 │                                                                     │
+│    294 │   return sf                                                         │
+│                                                                              │
+│ /home/dtm63837/.local/lib/python3.12/site-packages/scipy/optimize/_different │
+│ iable_functions.py:223 in __init__                                           │
+│                                                                              │
+│   220 │   │   │   finite_diff_options["as_linear_operator"] = True           │
+│   221 │   │                                                                  │
+│   222 │   │   # Initial function evaluation                                  │
+│ ❱ 223 │   │   self._update_fun()                                             │
+│   224 │   │                                                                  │
+│   225 │   │   # Initial gradient evaluation                                  │
+│   226 │   │   self._wrapped_grad, self._ngev = _wrapper_grad(                │
+│                                                                              │
+│ /home/dtm63837/.local/lib/python3.12/site-packages/scipy/optimize/_different │
+│ iable_functions.py:295 in _update_fun                                        │
+│                                                                              │
+│   292 │                                                                      │
+│   293 │   def _update_fun(self):                                             │
+│   294 │   │   if not self.f_updated:                                         │
+│ ❱ 295 │   │   │   fx = self._wrapped_fun(self.x)                             │
+│   296 │   │   │   if fx < self._lowest_f:                                    │
+│   297 │   │   │   │   self._lowest_x = self.x                                │
+│   298 │   │   │   │   self._lowest_f = fx                                    │
+│                                                                              │
+│ /home/dtm63837/.local/lib/python3.12/site-packages/scipy/optimize/_different │
+│ iable_functions.py:21 in wrapped                                             │
+│                                                                              │
+│    18 │   │   # Send a copy because the user may overwrite it.               │
+│    19 │   │   # Overwriting results in undefined behaviour because           │
+│    20 │   │   # fun(self.x) will change self.x, with the two no longer linke │
+│ ❱  21 │   │   fx = fun(np.copy(x), *args)                                    │
+│    22 │   │   # Make sure the function returns a true scalar                 │
+│    23 │   │   if not np.isscalar(fx):                                        │
+│    24 │   │   │   try:                                                       │
+│                                                                              │
+│ /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/full_draft_1231/estimation.py: │
+│ 308 in total_objective_mixed                                                 │
+│                                                                              │
+│   305                                                                        │
+│   306                                                                        │
+│   307 def total_objective_mixed(params, hh_packed_data, n_draws=50):         │
+│ ❱ 308 │   (                                                                  │
+│   309 │   │   const,                                                         │
+│   310 │   │   mu_b_berry,                                                    │
+│   311 │   │   mu_b_pl,                                                       │
+╰──────────────────────────────────────────────────────────────────────────────╯
+ValueError: not enough values to unpack (expected 11, got 10)

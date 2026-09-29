@@ -1,0 +1,90 @@
+Loading data with Polars...
+Rows after household join: 26304702
+Rows after household size filter: 26304702
+Rows after OZ filter: 15753354
+Most common size amounts before the 5–8 filter:
+Rows after size amount filter: 2837037
+Filtered panel loaded: 2,837,037 rows | 5,397 unique single-person 
+yogurt-purchasing HHs
+
+=== FULL SAMPLE SUMMARY STATISTICS ===
+Number of households in full sample:                  5,397
+Number of yogurt-purchasing households:               3,378
+Mean number of trips per HH:                          84.47
+Number of yogurt purchases per trip (purchasers):     10.68
+Mean household income:                                $18.18
+Median household income:                              $18.00
+Percent taking outside option each trip:              90.54%
+Percent purchasing with coupon:                       27.87%
+Average Age (Overall):                                7.9
+Average Age (Male):                                   7.8
+Average Age (Female):                                 7.9
+
+=== FLAVOR SWITCHING METRICS ===
+Mean consecutive buys by flavor x HH:                 28.31
+Mean times switching by flavor x HH:                  4.84
+Percent of HH who ever-switch flavors:                 69.18%
+Percent switching due to coupon/deal:                 30.56%
+
+Generating flavor switching heatmap...
+Heatmap successfully saved to: ../Output/Plots/3_flav_heatmap.pdf
+
+Preparing Left Join and Streaming Output...
+╭───────────────────── Traceback (most recent call last) ──────────────────────╮
+│ /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/full_draft_1231/data.py:310 in │
+│ <module>                                                                     │
+│                                                                              │
+│   307 # ==================================================================== │
+│   308 console.print("\n[bold green]Preparing Left Join and Streaming Output. │
+│   309                                                                        │
+│ ❱ 310 merged_df = pl.scan_parquet(OUT_PATH).collect().to_pandas()            │
+│   311                                                                        │
+│   312 console.print(merged_df.shape)                                         │
+│   313 console.print(merged_df.describe())                                    │
+│                                                                              │
+│ /home/dtm63837/.local/lib/python3.13/site-packages/polars/_utils/deprecation │
+│ .py:97 in wrapper                                                            │
+│                                                                              │
+│    94 │   │   │   │                                                          │
+│    95 │   │   │   │   del kwargs["streaming"]                                │
+│    96 │   │   │                                                              │
+│ ❱  97 │   │   │   return function(*args, **kwargs)                           │
+│    98 │   │                                                                  │
+│    99 │   │   wrapper.__signature__ = inspect.signature(function)  # type: i │
+│   100 │   │   return wrapper                                                 │
+│                                                                              │
+│ /home/dtm63837/.local/lib/python3.13/site-packages/polars/lazyframe/opt_flag │
+│ s.py:361 in wrapper                                                          │
+│                                                                              │
+│   358 │   │   │   │   │   optflags = cb(optflags, kwargs.pop(key))  # type:  │
+│   359 │   │   │                                                              │
+│   360 │   │   │   kwargs["optimizations"] = optflags                         │
+│ ❱ 361 │   │   │   return function(*args, **kwargs)                           │
+│   362 │   │                                                                  │
+│   363 │   │   wrapper.__signature__ = inspect.signature(function)  # type: i │
+│   364 │   │   return wrapper                                                 │
+│                                                                              │
+│ /home/dtm63837/.local/lib/python3.13/site-packages/polars/lazyframe/frame.py │
+│ :2591 in collect                                                             │
+│                                                                              │
+│    2588 │   │   engine_ = _select_engine(engine)                             │
+│    2589 │   │   post_opt_callback = _kwargs.get("post_opt_callback")         │
+│    2590 │   │                                                                │
+│ ❱  2591 │   │   return engine_.collect(                                      │
+│    2592 │   │   │   self,                                                    │
+│    2593 │   │   │   optimizations=optimizations,                             │
+│    2594 │   │   │   background=background,                                   │
+│                                                                              │
+│ /home/dtm63837/.local/lib/python3.13/site-packages/polars/lazyframe/engine.p │
+│ y:443 in collect                                                             │
+│                                                                              │
+│   440 │   │                                                                  │
+│   441 │   │   if post_opt_callback is not None:                              │
+│   442 │   │   │   callback = post_opt_callback                               │
+│ ❱ 443 │   │   return wrap_df(ldf.collect(self.name, callback))               │
+│   444 │                                                                      │
+│   445 │   def collect_async(                                                 │
+│   446 │   │   self,                                                          │
+╰──────────────────────────────────────────────────────────────────────────────╯
+FileNotFoundError: No such file or directory (os error 2): 
+/scratch/dtm63837/Kilts_Panel/nielsen_extracts/scanner_panel.parquet

@@ -1,0 +1,404 @@
+Loading data with Polars...
+Rows after household join: 26304702
+Rows after household size filter: 26304702
+Rows after OZ filter: 15753354
+Most common size amounts before the 5–8 filter:
+Rows after size amount filter: 2837037
+Filtered panel loaded: 2,837,037 rows | 5,397 unique single-person 
+yogurt-purchasing HHs
+
+=== FULL SAMPLE SUMMARY STATISTICS ===
+Number of households in full sample:                  5,397
+Number of yogurt-purchasing households:               3,378
+Mean number of trips per HH:                          84.47
+Number of yogurt purchases per trip (purchasers):     10.68
+Mean household income:                                $18.18
+Median household income:                              $18.00
+Percent taking outside option each trip:              90.54%
+Percent purchasing with coupon:                       27.87%
+Average Age (Overall):                                7.9
+Average Age (Male):                                   7.8
+Average Age (Female):                                 7.9
+
+=== FLAVOR SWITCHING METRICS ===
+Mean consecutive buys by flavor x HH:                 28.31
+Mean times switching by flavor x HH:                  4.84
+Percent of HH who ever-switch flavors:                 69.18%
+Percent switching due to coupon/deal:                 30.56%
+
+Generating flavor switching heatmap...
+Heatmap successfully saved to: ../Output/Plots/3_flav_heatmap.pdf
+
+Preparing Left Join and Streaming Output...
+(895754, 265)
+       trip_code_uc  household_code  retailer_code  store_code_uc  panel_year  \
+count  8.957540e+05    8.957540e+05  895754.000000   8.957540e+05    895754.0   
+mean   4.670019e+06    1.482810e+07    2684.737853   3.399623e+06      2024.0   
+min    1.880000e+02    1.000658e+06       2.000000   0.000000e+00      2024.0   
+25%    2.330443e+06    4.895302e+06     128.000000   7.694320e+05      2024.0   
+50%    4.672685e+06    8.599898e+06     408.000000   3.251599e+06      2024.0   
+75%    7.004751e+06    2.110463e+07    6901.000000   5.611355e+06      2024.0   
+max    9.333940e+06    6.003794e+07    9999.000000   8.386344e+06      2024.0   
+std    2.694675e+06    1.224923e+07    3143.979062   2.663095e+06         0.0   
+
+       household_income  household_size  male_head_age  female_head_age  \
+count     895754.000000        895754.0  197851.000000    697903.000000   
+mean          18.449692             1.0       7.793152         7.997104   
+min            3.000000             1.0       1.000000         1.000000   
+25%           15.000000             1.0       8.000000         8.000000   
+50%           18.000000             1.0       8.000000         9.000000   
+75%           23.000000             1.0       9.000000         9.000000   
+max           27.000000             1.0       9.000000         9.000000   
+std            6.257493             0.0       1.622980         1.511290   
+
+                upc       quantity   deal_flag_uc  size1_amount_hms  \
+count  8.957540e+05  895754.000000  895754.000000     895754.000000   
+mean   7.955840e+10       1.440659       0.220798       6767.051686   
+min    1.091615e+07       1.000000       0.000000       5000.000000   
+25%    3.810053e+09       1.000000       0.000000       5930.000000   
+50%    7.920093e+09       1.000000       0.000000       7000.000000   
+75%    2.000291e+11       1.000000       0.000000       8000.000000   
+max    9.421016e+11      96.000000       1.000000       8000.000000   
+std    9.531433e+10       1.335586       0.414785       1116.964400   
+
+              flavor     flavor_cd      year                 parsed_date  \
+count  895754.000000  8.957540e+05  895703.0                      895754   
+mean        0.555513  4.206130e+07    2024.0  2024-06-29 07:27:46.011000   
+min         0.000000  0.000000e+00    2024.0         2023-12-31 00:00:00   
+25%         0.000000  0.000000e+00    2024.0         2024-03-28 00:00:00   
+50%         0.000000  6.548702e+07    2024.0         2024-06-29 00:00:00   
+75%         2.000000  6.698706e+07    2024.0         2024-09-30 00:00:00   
+max         2.000000  2.860682e+08    2024.0         2024-12-28 00:00:00   
+std         0.872411  3.721090e+07       0.0                         NaN   
+
+                         week_end       head_age  yogurt_purchase  
+count                      895754  895754.000000    895754.000000  
+mean   2024-07-02 04:42:17.314000       7.952056         0.083491  
+min           2024-01-06 00:00:00       1.000000         0.000000  
+25%           2024-03-30 00:00:00       8.000000         0.000000  
+50%           2024-06-29 00:00:00       9.000000         0.000000  
+75%           2024-10-05 00:00:00       9.000000         0.000000  
+max           2024-12-28 00:00:00       9.000000         1.000000  
+std                           NaN       1.538985         0.276622  
+[
+    'trip_code_uc',
+    'household_code',
+    'purchase_date',
+    'retailer_code',
+    'store_code_uc',
+    'panel_year',
+    'store_zip3',
+    'total_spent',
+    'method_of_payment_cd',
+    'projection_factor',
+    'household_income',
+    'household_size',
+    'male_head_age',
+    'female_head_age',
+    'male_head_employment',
+    'female_head_employment',
+    'race',
+    'hispanic_origin',
+    'panelist_zip_code',
+    'fips_state_code',
+    'fips_county_code',
+    'upc',
+    'quantity',
+    'total_price_paid',
+    'coupon_value',
+    'deal_flag_uc',
+    'product_module_code_hms',
+    'size1_amount_hms',
+    'size1_unit_hms',
+    'brand_descr_hms',
+    'multi_hms',
+    'channel_type',
+    'brand',
+    'brand_cd',
+    'protein_gram',
+    'protein_gram_cd',
+    'commodity_group',
+    'commodity_group_cd',
+    'manufacturer_suggested_price_claim',
+    'manufacturer_suggested_price_claim_cd',
+    'cholesterol',
+    'cholesterol_cd',
+    'sodium_presence_claim',
+    'sodium_presence_claim_cd',
+    'fat_calorie_per_serving_size',
+    'fat_calorie_per_serving_size_cd',
+    'sugar_gram',
+    'sugar_gram_cd',
+    'competitive_category_ogrds',
+    'competitive_category_ogrds_cd',
+    'package_presentation_option',
+    'package_presentation_option_cd',
+    'additional_information',
+    'additional_information_cd',
+    'manufacturing_process',
+    'manufacturing_process_cd',
+    'serving_size_household',
+    'serving_size_household_cd',
+    'trans_fat_gram',
+    'trans_fat_gram_cd',
+    'serving_size_metric',
+    'serving_size_metric_cd',
+    'calories_per_serving_size',
+    'calories_per_serving_size_cd',
+    'secondary_size',
+    'secondary_size_cd',
+    'total_size',
+    'total_size_cd',
+    'organic_claim',
+    'organic_claim_cd',
+    'genetic_modification_claim',
+    'genetic_modification_claim_cd',
+    'total_carbohydrate_gram',
+    'total_carbohydrate_gram_cd',
+    'flavor',
+    'flavor_cd',
+    'target_group_gender',
+    'target_group_gender_cd',
+    'manufacturer_suggested_price',
+    'manufacturer_suggested_price_cd',
+    'prepriced',
+    'prepriced_cd',
+    'nutritional_health_claim',
+    'nutritional_health_claim_cd',
+    'usda_organic_seal',
+    'usda_organic_seal_cd',
+    'formulation',
+    'formulation_cd',
+    'strategic_ingredient_presence_claim',
+    'strategic_ingredient_presence_claim_cd',
+    'fat_presence_claim',
+    'fat_presence_claim_cd',
+    'price_reduction',
+    'price_reduction_cd',
+    'total_fat_gram',
+    'total_fat_gram_cd',
+    'serving_per_container',
+    'serving_per_container_cd',
+    'saturated_fat_gram',
+    'saturated_fat_gram_cd',
+    'form',
+    'form_cd',
+    'product_size',
+    'product_size_cd',
+    'base_size',
+    'base_size_cd',
+    'package_general_shape',
+    'package_general_shape_cd',
+    'calorie_claim',
+    'calorie_claim_cd',
+    'package_material_substance',
+    'package_material_substance_cd',
+    'sodium',
+    'sodium_cd',
+    'dietary_fiber',
+    'dietary_fiber_cd',
+    'claim',
+    'claim_cd',
+    'common_consumer_name',
+    'common_consumer_name_cd',
+    'deal_derived',
+    'deal_derived_cd',
+    'product_descr',
+    'product_module_code',
+    'product_module_descr',
+    'multi',
+    'start_date',
+    'year',
+    'super_category',
+    'super_category_cd',
+    'category',
+    'category_cd',
+    'sub_category',
+    'sub_category_cd',
+    'segment',
+    'segment_cd',
+    'department',
+    'department_cd',
+    'market_name',
+    'parsed_date',
+    'week_end',
+    'head_age',
+    'flavor_str',
+    'yogurt_purchase',
+    'year_right',
+    'retailer_code_right',
+    'parent_code',
+    'channel_code',
+    'store_zip3_right',
+    'fips_state_code_right',
+    'fips_county_code_right',
+    'acv',
+    'panel_year_right',
+    'units',
+    'prmult',
+    'price',
+    'feature',
+    'display',
+    'brand_right',
+    'brand_cd_right',
+    'protein_gram_right',
+    'protein_gram_cd_right',
+    'commodity_group_right',
+    'commodity_group_cd_right',
+    'manufacturer_suggested_price_claim_right',
+    'manufacturer_suggested_price_claim_cd_right',
+    'cholesterol_right',
+    'cholesterol_cd_right',
+    'sodium_presence_claim_right',
+    'sodium_presence_claim_cd_right',
+    'fat_calorie_per_serving_size_right',
+    'fat_calorie_per_serving_size_cd_right',
+    'sugar_gram_right',
+    'sugar_gram_cd_right',
+    'competitive_category_ogrds_right',
+    'competitive_category_ogrds_cd_right',
+    'package_presentation_option_right',
+    'package_presentation_option_cd_right',
+    'additional_information_right',
+    'additional_information_cd_right',
+    'manufacturing_process_right',
+    'manufacturing_process_cd_right',
+    'serving_size_household_right',
+    'serving_size_household_cd_right',
+    'trans_fat_gram_right',
+    'trans_fat_gram_cd_right',
+    'serving_size_metric_right',
+    'serving_size_metric_cd_right',
+    'calories_per_serving_size_right',
+    'calories_per_serving_size_cd_right',
+    'secondary_size_right',
+    'secondary_size_cd_right',
+    'total_size_right',
+    'total_size_cd_right',
+    'organic_claim_right',
+    'organic_claim_cd_right',
+    'genetic_modification_claim_right',
+    'genetic_modification_claim_cd_right',
+    'total_carbohydrate_gram_right',
+    'total_carbohydrate_gram_cd_right',
+    'flavor_right',
+    'flavor_cd_right',
+    'target_group_gender_right',
+    'target_group_gender_cd_right',
+    'manufacturer_suggested_price_right',
+    'manufacturer_suggested_price_cd_right',
+    'prepriced_right',
+    'prepriced_cd_right',
+    'nutritional_health_claim_right',
+    'nutritional_health_claim_cd_right',
+    'usda_organic_seal_right',
+    'usda_organic_seal_cd_right',
+    'formulation_right',
+    'formulation_cd_right',
+    'strategic_ingredient_presence_claim_right',
+    'strategic_ingredient_presence_claim_cd_right',
+    'fat_presence_claim_right',
+    'fat_presence_claim_cd_right',
+    'price_reduction_right',
+    'price_reduction_cd_right',
+    'total_fat_gram_right',
+    'total_fat_gram_cd_right',
+    'serving_per_container_right',
+    'serving_per_container_cd_right',
+    'saturated_fat_gram_right',
+    'saturated_fat_gram_cd_right',
+    'form_right',
+    'form_cd_right',
+    'product_size_right',
+    'product_size_cd_right',
+    'base_size_right',
+    'base_size_cd_right',
+    'package_general_shape_right',
+    'package_general_shape_cd_right',
+    'calorie_claim_right',
+    'calorie_claim_cd_right',
+    'package_material_substance_right',
+    'package_material_substance_cd_right',
+    'sodium_right',
+    'sodium_cd_right',
+    'dietary_fiber_right',
+    'dietary_fiber_cd_right',
+    'claim_right',
+    'claim_cd_right',
+    'common_consumer_name_right',
+    'common_consumer_name_cd_right',
+    'deal_derived_right',
+    'deal_derived_cd_right',
+    'product_descr_right',
+    'product_module_code_right',
+    'product_module_descr_right',
+    'multi_right',
+    'start_date_right',
+    'year_hier',
+    'super_category_right',
+    'super_category_cd_right',
+    'category_right',
+    'category_cd_right',
+    'sub_category_right',
+    'sub_category_cd_right',
+    'segment_right',
+    'segment_cd_right',
+    'department_right',
+    'department_cd_right',
+    'market_name_right'
+]
+╭───────────────────── Traceback (most recent call last) ──────────────────────╮
+│ /home/dtm63837/.local/lib/python3.13/site-packages/pandas/core/indexes/base. │
+│ py:3641 in get_loc                                                           │
+│                                                                              │
+│   3638 │   │   """                                                           │
+│   3639 │   │   casted_key = self._maybe_cast_indexer(key)                    │
+│   3640 │   │   try:                                                          │
+│ ❱ 3641 │   │   │   return self._engine.get_loc(casted_key)                   │
+│   3642 │   │   except KeyError as err:                                       │
+│   3643 │   │   │   if isinstance(casted_key, slice) or (                     │
+│   3644 │   │   │   │   isinstance(casted_key, abc.Iterable)                  │
+│                                                                              │
+│ in pandas._libs.index.IndexEngine.get_loc:168                                │
+│                                                                              │
+│ in pandas._libs.index.IndexEngine.get_loc:176                                │
+│                                                                              │
+│ in pandas._libs.index.StringObjectEngine._check_type:583                     │
+╰──────────────────────────────────────────────────────────────────────────────╯
+KeyError: ('serving_per_container', 'serving_per_container_cd')
+
+The above exception was the direct cause of the following exception:
+
+╭───────────────────── Traceback (most recent call last) ──────────────────────╮
+│ /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/full_draft_1231/data.py:326 in │
+│ <module>                                                                     │
+│                                                                              │
+│   323 console.print(merged_df.shape)                                         │
+│   324 console.print(merged_df.describe())                                    │
+│   325 console.print(merged_df.columns.to_list())                             │
+│ ❱ 326 console.print(merged_df["serving_per_container", "serving_per_containe │
+│   327                                                                        │
+│                                                                              │
+│ /home/dtm63837/.local/lib/python3.13/site-packages/pandas/core/frame.py:4378 │
+│ in __getitem__                                                               │
+│                                                                              │
+│    4375 │   │   if is_single_key:                                            │
+│    4376 │   │   │   if self.columns.nlevels > 1:                             │
+│    4377 │   │   │   │   return self._getitem_multilevel(key)                 │
+│ ❱  4378 │   │   │   indexer = self.columns.get_loc(key)                      │
+│    4379 │   │   │   if is_integer(indexer):                                  │
+│    4380 │   │   │   │   indexer = [indexer]                                  │
+│    4381 │   │   else:                                                        │
+│                                                                              │
+│ /home/dtm63837/.local/lib/python3.13/site-packages/pandas/core/indexes/base. │
+│ py:3648 in get_loc                                                           │
+│                                                                              │
+│   3645 │   │   │   │   and any(isinstance(x, slice) for x in casted_key)     │
+│   3646 │   │   │   ):                                                        │
+│   3647 │   │   │   │   raise InvalidIndexError(key) from err                 │
+│ ❱ 3648 │   │   │   raise KeyError(key) from err                              │
+│   3649 │   │   except TypeError:                                             │
+│   3650 │   │   │   # If we have a listlike key, _check_indexing_error will r │
+│   3651 │   │   │   #  InvalidIndexError. Otherwise we fall through and re-ra │
+╰──────────────────────────────────────────────────────────────────────────────╯
+KeyError: ('serving_per_container', 'serving_per_container_cd')

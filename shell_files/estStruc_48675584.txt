@@ -1,0 +1,28 @@
+From github.com:tate-mason/LOV_CC_2YP
+   95cdc6f..a60668e  main       -> origin/main
+Updating 95cdc6f..a60668e
+Fast-forward
+ Code/full_draft_1231/estimation.py | 287 +++++++++++++++++++++++++++++++++++++
+ 1 file changed, 287 insertions(+)
+╭───────────────────── Traceback (most recent call last) ──────────────────────╮
+│ /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/full_draft_1231/estimation.py: │
+│ 653 in <module>                                                              │
+│                                                                              │
+│   650                                                                        │
+│   651                                                                        │
+│   652 if __name__ == "__main__":                                             │
+│ ❱ 653 │   main()                                                             │
+│   654                                                                        │
+│                                                                              │
+│ /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/full_draft_1231/estimation.py: │
+│ 645 in main                                                                  │
+│                                                                              │
+│   642 def main():                                                            │
+│   643 │   hh_packed_data = load_and_preprocess()                             │
+│   644 │   results = estimate_model(hh_packed_data)                           │
+│ ❱ 645 │   mixed_results = estimate_mixed_model(hh_packed_data, n_draws=50)   │
+│   646 │   df_types = extract_individual_parameters(mixed_results, hh_packed_ │
+│   647 │                                                                      │
+│   648 │   display_results(results)                                           │
+╰──────────────────────────────────────────────────────────────────────────────╯
+NameError: name 'estimate_mixed_model' is not defined

@@ -1,0 +1,5 @@
+error: Your local changes to the following files would be overwritten by merge:
+	Code/full_draft_1231/estimation.py
+Please commit your changes or stash them before you merge.
+Aborting
+Updating 95cdc6f..a60668e

@@ -1,0 +1,25 @@
+From github.com:tate-mason/LOV_CC_2YP
+   03296bb..95cdc6f  main       -> origin/main
+Updating 03296bb..95cdc6f
+Fast-forward
+ Code/full_draft_1231/estimation.py | 32 ++++++++++++++++----------------
+ 1 file changed, 16 insertions(+), 16 deletions(-)
+                    LOV SIMPLE SPEC RESULTS                    
+┏━━━━━━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━━━━┓
+┃ Parameter     ┃ Estimate ┃ Std. Error ┃ z-stat ┃    p-value ┃
+┡━━━━━━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━━━━┩
+│ beta_0        │  19.5370 │   334.3259 │  0.058 │     0.9534 │
+│ beta_ber      │ -18.2883 │   342.9413 │ -0.053 │     0.9575 │
+│ beta_pl       │  -1.1199 │     1.5055 │ -0.744 │     0.4570 │
+│ LOV           │  -0.9245 │     0.2781 │ -3.324 │ 0.0009 *** │
+│ Price         │  -0.1393 │     1.7394 │ -0.080 │     0.9362 │
+│ Control Func. │  -0.0735 │     1.8487 │ -0.040 │     0.9683 │
+└───────────────┴──────────┴────────────┴────────┴────────────┘
+Optimization Success: True
+Final LL Objective: 897.6444
+
+WTP Relative to Other Flavors Relative to Outside:
+  Intercept: $140.2992
+  Berry Flavor: $-131.3318
+  Plain: $-8.0421
+  LOV: $-6.6388

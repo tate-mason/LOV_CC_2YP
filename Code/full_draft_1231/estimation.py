@@ -198,6 +198,9 @@ def load_and_preprocess():
         choices = group["choice_idx"].to_numpy(dtype=np.int64)
         thetas = group["theta_prev"].to_numpy(dtype=np.float64)
 
+        raw_inc = group["houeshold_income"].iloc[0]
+        log_inc = np.log(max(float(raw_inc), 1.0))
+
         valid_mask = np.array(
             [(s, w) in choice_set_matrix for s, w in zip(stores, weeks)]
         )
@@ -211,6 +214,7 @@ def load_and_preprocess():
             ],
             "choices": choices[valid_mask],
             "thetas": thetas[valid_mask],
+            "log_income": log_inc,
         }
 
     return hh_packed_data
@@ -302,7 +306,8 @@ def total_objective_mixed(params, hh_packed_data, n_draws=50):
         mu_b_berry,
         mu_b_pl,
         mu_gamma,
-        mu_alpha,
+        alpha_0,
+        alpha_inc,
         sigma_cf,
         sd_b_berry,
         sd_b_pl,
@@ -321,11 +326,13 @@ def total_objective_mixed(params, hh_packed_data, n_draws=50):
         matrices = hh_data["matrices"]
         choices = hh_data["choices"]
         thetas = hh_data["thetas"]
+        log_inc = hh_data["log_income"]
+
+        alpha_i = alpha_0 + alpha_inc * log_inc
 
         draws_b_ber = mu_b_berry + sd_b_berry * rng_sim.standard_normal(n_draws)
         draws_b_pl = mu_b_pl + sd_b_pl * rng_sim.standard_normal(n_draws)
         draws_gamma = mu_gamma + sd_gamma * rng_sim.standard_normal(n_draws)
-        draws_alpha = mu_alpha + sd_alpha * rng_sim.standard_normal(n_draws)
 
         draw_probs = np.ones(n_draws)
 
@@ -339,7 +346,7 @@ def total_objective_mixed(params, hh_packed_data, n_draws=50):
                 + np.outer(draws_b_ber, d_berry)
                 + np.outer(draws_b_pl, d_plain)
                 + np.outer(draws_gamma, Xi)
-                + np.outer(draws_alpha, prices)
+                + np.outer(alpha_i, prices)
                 + sigma_cf * resids
             )
 
@@ -369,7 +376,8 @@ def estimate_mixed_model(hh_packed_data, n_draws=50):
         (None, None),
         (None, None),
         (None, None),
-        (None, 0.0),
+        (None, 0.0),  # alpha_0
+        (0.0, None),  # income effect
         (None, None),
         (0.0, None),
         (0.0, None),

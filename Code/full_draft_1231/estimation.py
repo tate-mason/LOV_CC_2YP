@@ -195,7 +195,7 @@ def load_and_preprocess():
     for hh_id, group in trips_processed.groupby("household_code"):
         stores = group["store_code_uc"].to_numpy()
         weeks = group["week_end"].to_numpy()
-        choices = group["choice_idx"].to_numpy(dtype=np.float64)
+        choices = group["choice_idx"].to_numpy(dtype=np.int64)
         thetas = group["theta_prev"].to_numpy(dtype=np.float64)
 
         valid_mask = np.array(
@@ -252,8 +252,7 @@ def total_objective(params, hh_packed_data):
             )
             u[3] = 0.0
 
-            u_max = np.max(u)
-            log_prob = u[y_idx] - logsumexp(u - u_max)
+            log_prob = u[y_idx] - logsumexp(u)
 
             if not np.isfinite(log_prob):
                 log_prob = -700.0
@@ -347,7 +346,7 @@ def display_results(results):
         wtp_results = {
             "Intercept": -1 * (results["params"][0] / alpha),
             "Berry Flavor": -1 * (results["params"][1] / alpha),
-            "Plain": -1 * (results["params"] / alpha),
+            "Plain": -1 * (results["params"][2] / alpha),
             "LOV": -1 * (results["params"][3] / alpha),
         }
         console.print(

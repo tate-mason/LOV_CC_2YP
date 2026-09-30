@@ -53,6 +53,7 @@ def load_and_preprocess(weekly_capacity=7):
             ]
         )
         .filter(pl.col("household_size") == 1)
+        .filter(pl.col("serving_per_container_cd").is_in([67181961, 65622705]))
         .collect()
         .to_pandas()
     )
@@ -202,7 +203,7 @@ def load_and_preprocess(weekly_capacity=7):
         .reset_index(name="modal_x")
     )
     weekly_modal["theta_prev"] = (
-        weekly_modal.gorupby("household_code")["modal_x"].shift(1).fillna(0.0)
+        weekly_modal.groupby("household_code")["modal_x"].shift(1).fillna(0.0)
     )
     hh_weeks = hh_weeks.merge(
         weekly_modal[["household_code", "week_end", "theta_prev"]],

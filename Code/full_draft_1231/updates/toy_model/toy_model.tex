@@ -289,7 +289,7 @@ Now, we can take the derivative with respect to period one prices for product $j
 \begin{align*}
   \frac{\partial \Pi}{\partial p_{j1}}: 0 &= N\tilde{s}_{j1}+\alpha N[\lambda_1s_{Hj1}(1-s_{Hj1}) + (1-\lambda_1)s_{Lj1}(1-s_{Lj1})][m_{j1}+\delta\sum_k\tilde{s}_{k2}(j)m_{k2}(j)] \\
   &- \alpha N\sum_{h\ne j}[\lambda_1s_{Hh1}s_{Hj1} + (1-\lambda_1)s_{Lh1}s_{Lj1}][m_{h1} + \delta\sum_k\tilde{s}_{k2}(h)m_{k2}(h)] \\
-  &+\delta\sum_k\tilde{s}_{h1}\frac{\partial\lambda_2(h)}{\partial p_{j1}}[\pi_{H2}(h) - \pi_{L2}(h)]
+  &+\delta\sum_h\tilde{s}_{h1}\frac{\partial\lambda_2(h)}{\partial p_{j1}}[\pi_{H2}(h) - \pi_{L2}(h)]
 \end{align*}
 
 This is much the same as the perfect information case. However, looking at the third line, we can see where the firm incorporates their belief updating. Define the derivative in the third line as such:
@@ -304,5 +304,95 @@ This is much the same as the perfect information case. However, looking at the t
 
 So, the firm updates its belief about the distribution of consumer types upon observing period one consumption. The magnitude and direction of this update depends on how likely that choice is for each type. In total, the third line of the derivative interacts the parobability of purchasing item $h$ with the effect of price on the firm's posterior belief and the value of believing in one type or the other.
 
+\section{Solving for Optimal Prices}
+
+I can solve for optimal prices in both cases, beginning with the simpler perfect information specification.
+
+\subsection{Perfect Information}
+
+We begin from our derivative with respect to prices as recovered in the previous section. Remember that is given by:
+
+\newpage
+
+\begin{gather*}
+  0 = 1 + \alpha[\sum_{k\ne j}s_{rk1}(m_{rj1} - m_{rk1}) + \delta(w_r(j) - w_r(k))] \\
+  \shortintertext{s.t.} \\
+  m_{rj1} = p_{rj1} - c_j \\
+  m_{rk1} = p_{rk1} - c_k
+\end{gather*}
+
+Now, expanding the expression and solving:
+
+\begin{gather*}
+  0 = 1 + \alpha[\sum_{k\ne j}s_{rk1}((p_{rj1} - c_j) - (p_{rk1} - c_k) + \delta(w_r(j) - w_r(k)))] \\
+  0 = 1 + \alpha(p_{rj1} - c_j)\sum_{k\ne j}s_{rk1} - \alpha\sum_{k\ne j}s_{rk1}(p_{rk1} - c_k) + \alpha\delta\sum_{k\ne j}s_{rk1}(w_r(j) - w_r(k)) \\
+  \alpha(p_{rj1} - c_j)\sum_{k\ne j}s_{rk1} = -1 + \alpha\sum_{k\ne j}s_{rk1}(p_{rk1} - c_k) - \alpha\delta\sum_{k\ne j}s_{rk1}(w_r(j) - w_r(k)) \\
+  \alpha p_{rj1}\sum_{k\ne j}s_{rk1} = \alpha c_j\sum_{k\ne j}s_{rk1} - 1 + \alpha\sum_{k\ne j}s_{rk1}(p_{rk1} - c_k) - \alpha\delta\sum_{k\ne j}s_{rk1}(w_r(j) - w_r(k)) \\
+  p^*_{rj1} = c_j - \frac{1}{\alpha\sum_{k\ne j}s_{rk1}} + \frac{\sum_{k\ne j}s_{rk1}(p_{rk1} - c_k)}{\sum_{k\ne j}s_{rk1}} - \delta\frac{\sum_{k\ne j}s_{rk1}(w_r(j) - w_r(k))}{\sum_{k\ne j}s_{rk1}} \\
+  p^*_{rj1} = c_j - \frac{1}{\alpha(1-s_{rj1})} + \frac{\sum_{k\ne j}s_{rk1}m_{rk1}}{1-s_{rj1}} - \delta\frac{\sum_{k\ne j}s_{rk1}(w_r(j) - w_r(k))}{1-s_{rj1}} \\
+\end{gather*}
+
+From this, the firm with perfect information sets each type $r$'s price to equal the cost plus some logit markup plus the share weighted average margin of alternatives $k\ne j$ minus the intertemporal tradeoff. Here, the firm will be willing to lower the price of good $j$ today if it implies higher profits tomorrow ($w_r(j) > w_r(k)$), increasing probability of purchase. In the opposite case, the firm would raise prices on product $j$ to encourage shifting from product $j$ to product $k$ tomorrow. That is, they use the past choice to determine consumer state and thus future profits for each product.
+
+\subsection{Imperfect Information}
+
+\newpage
+\begin{align*}
+  0 &= N\tilde{s}_{j1}
+  + \alpha N[\lambda_1s_{Hj1}(1-s_{Hj1}) + (1-\lambda_1)s_{Lj1}(1-s_{Lj1})]
+  [m_{j1}+\delta\sum_k\tilde{s}_{k2}(j)m_{k2}(j)] \\
+  &\quad - \alpha N\sum_{h\ne j}
+  [\lambda_1s_{Hh1}s_{Hj1} + (1-\lambda_1)s_{Lh1}s_{Lj1}]
+  [m_{h1} + \delta\sum_k\tilde{s}_{k2}(h)m_{k2}(h)] \\
+  &\quad + \delta\sum_h\tilde{s}_{h1}
+  \frac{\partial\lambda_2(h)}{\partial p_{j1}}
+  [\pi_{H2}(h) - \pi_{L2}(h)] \\
+  \shortintertext{s.t.}
+  m_{j1} &= p_{j1} - c_j \\
+  \lambda_1 &= \Pr(r = H) \\
+  \lambda_2 &= \Pr(r=H|j)
+  \Rightarrow
+  \lambda_2(j) =
+  \frac{\lambda_1s_{Hj1}}
+  {\lambda_1s_{Hj1} + (1-\lambda_1)s_{Lj1}} \\
+  \tilde{s}_{j1} &= \lambda_1s_{Hj1} + (1-\lambda_1)s_{Lj1} \\
+  \tilde{s}_{k2}(j) &= \lambda_2(j)s_{Hk2}(j) + (1-\lambda_2(j))s_{Lk2}(j) \\
+  \pi_2 &= N\sum_j\tilde{s}_{j1}\sum_k\tilde{s}_{k2}(j)m_{k2}(j) \\
+  \mathbb{A} &= [\lambda_1s_{Hj1}(1-s_{Hj1}) + (1-\lambda_1)s_{Lj1}(1-s_{Lj1})] \\
+  \mathbb{B} &= \sum_{h\ne j}[\lambda_1s_{Hh1}s_{Hj1} + (1-\lambda_1)s_{Lh1}s_{Lj1}]
+\end{align*}
+
+Now, we can solve for $p_{j1}$ via the following steps. First,
+
+\begin{align*}
+  \alpha N\mathbb{A}[p_{j1} - c_j &+ \delta\sum_k\tilde{s}_{k2}(j)m_{k2}(j)] =\\
+  &- N\tilde{s}_{j1} + \alpha N\mathbb{B}[m_{h1} + \delta\sum_{k}\tilde{s}_{k2}(h)m_{k2}(h)]
+  -\delta\sum_h\tilde{s}_{h1}\frac{\partial\lambda_2(h)}{\partial p_{j1}}[\pi_{H2}(h) - \pi_{L2}(h)]
+\end{align*}
+
+Now, we isolate $p_{j1}$:
+
+\begin{align*}
+  \alpha N\mathbb{A}p_{j1} &= \alpha N\mathbb{A}c_j - \alpha N\mathbb{A}\delta\sum_k\tilde{s}_{k2}(j)m_{k2}(j) \\
+  &- N\tilde{s}_{j1} + \alpha N\mathbb{B}[m_{h1}+\delta\sum_k\tilde{s}_{k2}(h)m_{k2}(h)] \\
+  &- \delta\sum_h\tilde{s}_{h1}[\frac{\partial\lambda_2(h)}{\partial p_{j1}}(\pi_{2H}(h) - \pi_{2L}(h))]
+\end{align*}
+
+And simplify:
+
+\begin{align*}
+  p_{j1} &= c_j -\delta\sum_k\tilde{s}_{k2}(j)m_{k2}(j) - \frac{\tilde{s}_{j1}}{\alpha A}
+  + \frac{\mathbb{B}}{\mathbb{A}}[m_{h1} + \delta\sum_k\tilde{s}_{k2}(h)m_{k2}(h)] \\
+  &- \frac{\delta}{\alpha N\mathbb{A}}[\sum_h\tilde{s}_{h1}\frac{\partial\lambda_2(h)}{\partial   p_{j1}}(\pi_{2H}(h) - \pi_{2L}(h))]
+\end{align*}
+
+If we expand the terms out:
+
+\begin{align*}
+  p^*_{j1} &= c_j - \delta\sum_k\tilde{s}_{k2}(j)m_{k2}(j) \\
+  &- \frac{\lambda_1s_{Hj1} + (1-\lambda_1)s_{Lj1}}{\alpha(\lambda_1s_{Hj1}(1-s_{Hj1}) + (1-\lambda_1)s_{Lj1}(1-s_{Lj1}))} \\
+  &+ \frac{\sum_{h\ne j}[\lambda_1s_{Hh1}s_{Hj1} + (1-\lambda_1)s_{Lh1}s_{Lj1}]}{\lambda_1s_{Hj1}(1-s_{Hj1}) + (1-\lambda_1)s_{Lj1}(1-s_{Lj1})}[m_{h1} + \delta\sum_k\tilde{s}_{k2}(h)m_{k2}(h)] \\
+  &- \frac{\delta[\sum_h[\lambda_1s_{Hh1} + (1-\lambda_1)s_{Lh1}]\frac{\partial\lambda_2(h)}{\partial p_{j1}}(\pi_{2H}(h) - \pi_{2L}(h))]}{\alpha N(\lambda_1s_{Hj1}(1-s_{Hj1}) + (1-\lambda_1)s_{Lj1}(1-s_{Lj1}))}
+\end{align*}
 
 \end{document}

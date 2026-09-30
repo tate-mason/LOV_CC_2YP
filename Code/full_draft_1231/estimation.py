@@ -37,7 +37,7 @@ rng = np.random.default_rng(219)
 # =================================================
 
 
-def load_and_preprocess():
+def load_and_preprocess(weekly_capacity=7):
     merged_df = (
         pl.scan_parquet(MERGED_PATH)
         .with_columns(
@@ -141,27 +141,36 @@ def load_and_preprocess():
     # State Update (theta)
     # ---------------------------------------------
 
-    trip_level = merged_master.copy()
-    trip_level["category_chosen"] = trip_level["flavor"].map(map_flavor_category)
-    trip_level = trip_level.drop_duplicates(subset=["household_code", "trip_code_uc"])
+    # trip_level = merged_master.copy()
+    # trip_level["category_chosen"] = trip_level["flavor"].map(map_flavor_category)
+    # trip_level = trip_level.drop_duplicates(subset=["household_code", "trip_code_uc"])
 
-    modal_choices = (
-        trip_level.sort_values(["household_code", "week_end", "trip_code_uc"])
-        .groupby(["household_code", "trip_code_uc", "week_end"])
-        .apply(get_modal_flavor)
-        .reset_index(name="modal_x")
-    )
+    # modal_choices = (
+    #    trip_level.sort_values(["household_code", "week_end", "trip_code_uc"])
+    #    .groupby(["household_code", "trip_code_uc", "week_end"])
+    #    .apply(get_modal_flavor)
+    #    .reset_index(name="modal_x")
+    # )
 
-    modal_choices = modal_choices.sort_values(["household_code", "week_end"])
-    modal_choices["theta_prev"] = (
-        modal_choices.groupby("household_code")["modal_x"].shift(1).fillna(0.0)
-    )
+    # modal_choices = modal_choices.sort_values(["household_code", "week_end"])
+    # modal_choices["theta_prev"] = (
+    #    modal_choices.groupby("household_code")["modal_x"].shift(1).fillna(0.0)
+    # )
 
     # -------------------------------------------
     # Choice Set Construction
     # -------------------------------------------
 
     merged_master["category"] = merged_master["flavor"].map(map_flavor_category)
+
+    weekly_purchases = (
+        merged_master[merged_master["category"] != "outside"]
+        .groupby(["household_code", "store_code_uc", "week_end", "category"])
+        .agg(units_bought=("quantity", "sum"))
+        .reset_index()
+    )
+
+    weekly_purchases["choice_idx"] = weekly_purchases["category"].map(cat_map)
 
     cat_choice_sets = (
         merged_master.groupby(["store_code_uc", "week_end", "category"])
@@ -182,24 +191,42 @@ def load_and_preprocess():
                 mat[idx] = [row.price, res_val]
         choice_set_matrix[(store, week)] = mat
 
+    hh_weeks = weekly_purchases[
+        ["household_code", "store_code_uc", "week_end"]
+    ].drop_duplicates()
+    hh_weeks = hh_weeks.sort_values(["household_code", "week_end"])
+
+    weekly_modal = (
+        merged_master.groupby(["household_code", "week_end"])
+        .apply(get_modal_flavor)
+        .reset_index(name="modal_x")
+    )
+    weekly_modal["theta_prev"] = (
+        weekly_modal.gorupby("household_code")["modal_x"].shift(1).fillna(0.0)
+    )
+    hh_weeks = hh_weeks.merge(
+        weekly_modal[["household_code", "week_end", "theta_prev"]],
+        on=["household_code", "week_end"],
+        how="left",
+    )
+
     # ------------------------------------------
     # Data Packing
     # ------------------------------------------
 
-    trips_processed = trip_level.merge(
-        modal_choices[["household_code", "trip_code_uc", "theta_prev"]],
-        on=["household_code", "trip_code_uc"],
-        how="left",
-    )
-    trips_processed["choice_idx"] = (
-        trips_processed["category_chosen"].map(cat_map).fillna(3).astype(np.int64)
-    )
+    # trips_processed = trip_level.merge(
+    #    modal_choices[["household_code", "trip_code_uc", "theta_prev"]],
+    #    on=["household_code", "trip_code_uc"],
+    #    how="left",
+    # )
+    # trips_processed["choice_idx"] = (
+    #    trips_processed["category_chosen"].map(cat_map).fillna(3).astype(np.int64)
+    # )
 
     hh_packed_data = {}
-    for hh_id, group in trips_processed.groupby("household_code"):
+    for hh_id, group in hh_weeks.groupby("household_code"):
         stores = group["store_code_uc"].to_numpy()
         weeks = group["week_end"].to_numpy()
-        choices = group["choice_idx"].to_numpy(dtype=np.int64)
         thetas = group["theta_prev"].to_numpy(dtype=np.float64)
 
         raw_inc = group["household_income"].iloc[0]
@@ -211,13 +238,33 @@ def load_and_preprocess():
         if not valid_mask.any():
             continue
 
+        matrices_list = []
+        choice_counts_list = []
+        thetas_list = []
+
+        for store, week, theta in zip(
+            stores[valid_mask], week[valid_mask], thetas[valid_mask]
+        ):
+            sub = weekly_purchases[
+                (weekly_purchases["household_code"] == hh_id)
+                & (weekly_purchases["week_end"] == week)
+            ]
+            counts = np.zeros(4, dtype=np.int64)
+            for row in sub.itertuples():
+                counts[row.choice_idx] += row.units_bought
+
+            inside_units = np.sum(counts[:3])
+            outside_count = max(0, weekly_capacity - inside_units)
+            counts[3] = outside_count
+
+            matrices_list.append(choice_set_matrix[(store, week)])
+            choice_counts_list.append(counts)
+            thetas_list.append(theta)
+
         hh_packed_data[hh_id] = {
-            "matrices": [
-                choice_set_matrix[(s, w)]
-                for s, w in zip(stores[valid_mask], weeks[valid_mask])
-            ],
-            "choices": choices[valid_mask],
-            "thetas": thetas[valid_mask],
+            "matrices": matrices_list,
+            "choices": choice_counts_list,
+            "thetas": thetas_list,
             "log_income": log_inc,
         }
 
@@ -327,7 +374,7 @@ def total_objective_mixed(params, hh_packed_data, n_draws=50):
 
     for hh_data in hh_packed_data.values():
         matrices = hh_data["matrices"]
-        choices = hh_data["choices"]
+        choices = hh_data["choice_counts"]
         thetas = hh_data["thetas"]
         log_inc = hh_data["log_income"]
 
@@ -337,9 +384,9 @@ def total_objective_mixed(params, hh_packed_data, n_draws=50):
         draws_b_pl = mu_b_pl + sd_b_pl * rng_sim.standard_normal(n_draws)
         draws_gamma = mu_gamma + sd_gamma * rng_sim.standard_normal(n_draws)
 
-        draw_probs = np.ones(n_draws)
+        log_draw_probs = np.ones(n_draws)
 
-        for X_mat, y_idx, theta in zip(matrices, choices, thetas):
+        for X_mat, counts, theta in zip(matrices, choices, thetas):
             prices = X_mat[:3, 0]
             resids = X_mat[:3, 1]
             Xi = np.abs(cat_flavors - theta)
@@ -355,11 +402,11 @@ def total_objective_mixed(params, hh_packed_data, n_draws=50):
 
             u = np.hstack([u_inside, np.zeros((n_draws, 1))])
 
-            log_probs = u[:, y_idx] - logsumexp(u, axis=1)
-            draw_probs += log_probs
+            log_probs = u - logsumexp(u, axis=1, keepdims=True)
+            log_draw_probs += np.dot(log_probs, counts)
 
         # Integrate out draws in log space: log( 1/N * sum(exp(log_draw_probs)) )
-        hh_ll = logsumexp(draw_probs) - np.log(n_draws)
+        hh_ll = logsumexp(log_draw_probs) - np.log(n_draws)
 
         if not np.isfinite(hh_ll):
             total_ll += -1000.0

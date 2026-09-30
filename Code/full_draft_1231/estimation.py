@@ -400,6 +400,23 @@ def estimate_mixed_model(hh_packed_data, n_draws=50):
         },  # Tighter convergence criterion
     )
 
+    cov_matrix = (
+        res.hess_inv.todense() if hasattr(res.hess_inv, "todense") else res.hess_inv
+    )
+    se = np.sqrt(np.diag(cov_matrix))
+    z = res.x / se
+    p = 2 * (1 - sp.stats.norm.cdf(np.abs(z)))
+
+    # ADD THIS RETURN DICTIONARY AT THE VERY END
+    return {
+        "params": res.x,
+        "se": se,
+        "z_stat": z,
+        "p_val": p,
+        "success": res.success,
+        "fun": res.fun,
+    }
+
 
 def display_results(results):
     table = Table(

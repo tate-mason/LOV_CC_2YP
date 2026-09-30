@@ -53,7 +53,6 @@ def load_and_preprocess(weekly_capacity=7):
             ]
         )
         .filter(pl.col("household_size") == 1)
-        .filter(pl.col("serving_per_container_cd").is_in([67181961]))
         .collect()
         .to_pandas()
     )

@@ -382,7 +382,7 @@ def total_objective_mixed(params, hh_packed_data, n_draws=50):
 
     for hh_data in hh_packed_data.values():
         matrices = hh_data["matrices"]
-        choices = hh_data["choice_counts"]
+        choices = hh_data["choices"]
         thetas = hh_data["thetas"]
         log_inc = hh_data["log_income"]
 

@@ -774,7 +774,7 @@ def plot_type_distribution(df_types, save_path=None):
 
 
 def plot_lov_vs_outside_option(df_types, save_path=None):
-    sns.set_theme("whitegrid")
+    sns.set_theme(style="whitegrid")
     fig, axes = plt.subplots(1, 2, figsize=(14, 6))
     fig.suptitle("Outside Option Consumption vs LOV", fontsize=16, fontweight="bold")
     sns.kdeplot(

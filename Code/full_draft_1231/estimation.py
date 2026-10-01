@@ -53,6 +53,7 @@ def load_and_preprocess(weekly_capacity=7):
             ]
         )
         .filter(pl.col("household_size") == 1)
+        .filter(pl.col("serving_per_container_cd").is_in([67181961, 65622705]))
         .collect()
         .to_pandas()
     )
@@ -223,14 +224,20 @@ def load_and_preprocess(weekly_capacity=7):
     #    trips_processed["category_chosen"].map(cat_map).fillna(3).astype(np.int64)
     # )
 
+    hh_income_map = (
+        merged_df.drop_duplicates(subset=["household_code"])
+        .set_index("household_code")["household_income"]
+        .to_dict()
+    )
+
     hh_packed_data = {}
     for hh_id, group in hh_weeks.groupby("household_code"):
         stores = group["store_code_uc"].to_numpy()
         weeks = group["week_end"].to_numpy()
         thetas = group["theta_prev"].to_numpy(dtype=np.float64)
 
-        raw_inc = group["household_income"].iloc[0]
-        log_inc = np.log(max(float(raw_inc), 1.0))
+        raw_inc = hh_income_map.get(hh_id, 1)
+        log_inc = np.log(max(float(raw_inc) if pd.notna(raw_inc) else 1.0, 1.0))
 
         valid_mask = np.array(
             [(s, w) in choice_set_matrix for s, w in zip(stores, weeks)]
@@ -243,7 +250,7 @@ def load_and_preprocess(weekly_capacity=7):
         thetas_list = []
 
         for store, week, theta in zip(
-            stores[valid_mask], week[valid_mask], thetas[valid_mask]
+            stores[valid_mask], weeks[valid_mask], thetas[valid_mask]
         ):
             sub = weekly_purchases[
                 (weekly_purchases["household_code"] == hh_id)

@@ -1,0 +1,47 @@
+From github.com:tate-mason/LOV_CC_2YP
+   9285c1a..9f09500  main       -> origin/main
+Updating 9285c1a..9f09500
+Fast-forward
+ Code/full_draft_1231/estimation.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- Estimating Standard Logit ---
+                   LOV SIMPLE SPEC RESULTS                    
+┏━━━━━━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━━━┓
+┃ Parameter     ┃ Estimate ┃ Std. Error ┃ z-stat ┃   p-value ┃
+┡━━━━━━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━━━┩
+│ beta_0        │   1.8591 │     0.9055 │  2.053 │ 0.0401 ** │
+│ beta_ber      │ -15.3377 │    46.2191 │ -0.332 │    0.7400 │
+│ beta_pl       │   0.1716 │     1.3392 │  0.128 │    0.8980 │
+│ LOV           │  -1.0869 │     0.7962 │ -1.365 │    0.1722 │
+│ Price         │  -0.5154 │     0.6945 │ -0.742 │    0.4580 │
+│ Control Func. │   0.2033 │     1.1040 │  0.184 │    0.8539 │
+└───────────────┴──────────┴────────────┴────────┴───────────┘
+Optimization Success: True
+Final LL Objective: 5073.5376
+
+WTP Relative to Other Flavors Relative to Outside:
+  Intercept: $3.6072
+  Berry Flavor: $-29.7588
+  Plain: $0.3329
+  LOV: $-2.1088
+
+--- Estimating Mixed Logit ---
+          EMPIRICAL DISTRIBUTION OF HOUSEHOLD TYPES (POSTERIOR MEANS)           
+┏━━━━━━━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━┓
+┃ Parameter /    ┃          ┃           ┃               ┃           ┃          ┃
+┃ Type           ┃     Mean ┃ 10th Pctl ┃ 50th (Median) ┃ 90th Pctl ┃  Std Dev ┃
+┡━━━━━━━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━━╇━━━━━━━━━━━━━━━╇━━━━━━━━━━━╇━━━━━━━━━━┩
+│ β_berry (Berry │ -15.6213 │  -15.6477 │      -15.6214 │  -15.5982 │   0.0249 │
+│ Preference)    │          │           │               │           │          │
+│ β_plain (Plain │   0.7212 │    0.5508 │        0.7260 │    0.8721 │   0.1498 │
+│ Preference)    │          │           │               │           │          │
+│ γ (LOV /       │  -2.7960 │   -4.3884 │       -3.5520 │    0.5414 │   1.9104 │
+│ Habit)         │          │           │               │           │          │
+│ α (Price       │  -0.2541 │   -2.4790 │       -0.6285 │    2.7894 │   1.9859 │
+│ Sensitivity)   │          │           │               │           │          │
+│ WTP Berry ($)  │   5.7317 │  -28.8061 │       -7.2137 │   20.2356 │ 438.0137 │
+│ WTP Plain ($)  │  -0.2131 │   -0.8261 │        0.3027 │    1.2148 │  19.9024 │
+└────────────────┴──────────┴───────────┴───────────────┴───────────┴──────────┘
+Saved Plot to PDF: 
+/scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Output/type_distribution_density.pdf

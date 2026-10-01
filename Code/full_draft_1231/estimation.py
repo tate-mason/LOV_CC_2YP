@@ -297,7 +297,7 @@ def total_objective(params, hh_packed_data):
         choices = hh_data["choices"]
         thetas = hh_data["thetas"]
 
-        for X_mat, y_idx, theta in zip(matrices, choices, thetas):
+        for X_mat, counts, theta in zip(matrices, choices, thetas):
             prices = X_mat[:, 0]
             resids = X_mat[:, 1]
 
@@ -314,12 +314,13 @@ def total_objective(params, hh_packed_data):
             )
             u[3] = 0.0
 
-            log_prob = u[y_idx] - logsumexp(u)
+            log_prob = u - logsumexp(u)
+            week_ll = np.dot(log_prob, counts)
 
-            if not np.isfinite(log_prob):
+            if not np.isfinite(week_ll):
                 log_prob = -700.0
 
-            total_ll += log_prob
+            total_ll += week_ll
     return -total_ll
 
 
@@ -623,7 +624,7 @@ def extract_individual_parameters(results, hh_packed_data, n_draws=500):
         draw_probabilities = np.ones(n_draws)
 
         # 2. Compute likelihood of household choices given each draw
-        for X_mat, y_idx, theta in zip(matrices, choices, thetas_lag):
+        for X_mat, counts, theta in zip(matrices, choices, thetas_lag):
             prices = X_mat[:3, 0]
             resids = X_mat[:3, 1]
             Xi = np.abs(cat_flavors - theta)
@@ -638,12 +639,10 @@ def extract_individual_parameters(results, hh_packed_data, n_draws=500):
             )
             u = np.hstack([u_inside, np.zeros((n_draws, 1))])
 
-            u_max = np.max(u, axis=1, keepdims=True)
-            exp_u = np.exp(u - u_max)
-            probs = exp_u / np.sum(exp_u, axis=1, keepdims=True)
+            log_probs = u - logsumexp(u, axis=1, keepdims=True)
+            week_log_ll = np.dot(log_probs, counts)
 
-            chosen_probs = probs[:, y_idx]
-            draw_probabilities *= chosen_probs
+            draw_probabilities *= np.exp(week_log_ll)
 
         # 3. Bayes' Rule weights for this household's draws
         total_prob = np.sum(draw_probabilities)

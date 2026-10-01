@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=estimation		# Job name (testBowtie2)
+#SBATCH --job-name=estimation_satiation # Job name (testBowtie2)
 #SBATCH --partition=highmem_p		# Partition name (batch, highmem_p, or gpu_p)
 #SBATCH --nodes=1			# Number of compute nodes for resources to be spread out over (increase only if using MPI enabled software)
 #SBATCH --ntasks=1			# 1 task (process) for below commands
@@ -18,4 +18,4 @@ set -e
 
 git pull
 
-python /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/full_draft_1231/estimation_simple.py
+python /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/full_draft_1231/estimation_satiation.py

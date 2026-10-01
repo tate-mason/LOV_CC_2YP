@@ -3,6 +3,7 @@
 # =================================================
 
 # data loading
+from pandas.core.dtypes.cast import np_can_hold_element
 import polars as pl
 import pandas as pd
 
@@ -234,7 +235,9 @@ def load_and_preprocess(weekly_capacity=7):
     for hh_id, group in hh_weeks.groupby("household_code"):
         stores = group["store_code_uc"].to_numpy()
         weeks = group["week_end"].to_numpy()
-        thetas = group["theta_prev"].to_numpy(dtype=np.float64)
+        c_0_vals = group["C_sat_0"].to_numpy(dtype=np.float64)
+        c_1_vals = group["C_sat_1"].to_numpy(dtype=np.float64)
+        c_2_vals = group["C_sat_2"].to_numpy(dtype=np.float64)
 
         raw_inc = hh_income_map.get(hh_id, 1)
         log_inc = np.log(max(float(raw_inc) if pd.notna(raw_inc) else 1.0, 1.0))
@@ -247,10 +250,14 @@ def load_and_preprocess(weekly_capacity=7):
 
         matrices_list = []
         choice_counts_list = []
-        thetas_list = []
+        c_states_list = []
 
-        for store, week, theta in zip(
-            stores[valid_mask], weeks[valid_mask], thetas[valid_mask]
+        for store, week, c0, c1, c2 in zip(
+            stores[valid_mask],
+            weeks[valid_mask],
+            c_0_vals[valid_mask],
+            c_1_vals[valid_mask],
+            c_2_vals[valid_mask],
         ):
             sub = weekly_purchases[
                 (weekly_purchases["household_code"] == hh_id)
@@ -266,12 +273,12 @@ def load_and_preprocess(weekly_capacity=7):
 
             matrices_list.append(choice_set_matrix[(store, week)])
             choice_counts_list.append(counts)
-            thetas_list.append(theta)
+            c_states_list.append(np.array([c0, c1, c2]))
 
         hh_packed_data[hh_id] = {
             "matrices": matrices_list,
             "choices": choice_counts_list,
-            "thetas": thetas_list,
+            "c_states": c_states_list,
             "log_income": log_inc,
         }
 
@@ -462,7 +469,6 @@ def estimate_mixed_model(hh_packed_data, n_draws=50):
     z = res.x / se
     p = 2 * (1 - sp.stats.norm.cdf(np.abs(z)))
 
-    # ADD THIS RETURN DICTIONARY AT THE VERY END
     return {
         "params": res.x,
         "se": se,

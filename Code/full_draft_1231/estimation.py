@@ -615,6 +615,11 @@ def extract_individual_parameters(results, hh_packed_data, n_draws=500):
         choices = hh_data["choices"]
         thetas_lag = hh_data["thetas"]
 
+        total_counts = np.sum(choices, axis=0)
+        total_units = np.sum(total_counts)
+        outside_units = total_counts[3]
+        outside_share = outside_units / total_units if total_units > 0 else 0.0
+
         # 1. Draw candidate types from population distribution: shape (n_draws,)
         draws_b_ber = mu_b_ber + sd_b_ber * rng_sim.standard_normal(n_draws)
         draws_b_pl = mu_b_pl + sd_b_pl * rng_sim.standard_normal(n_draws)
@@ -663,6 +668,8 @@ def extract_individual_parameters(results, hh_packed_data, n_draws=500):
                 * (np.sum(weights * draws_b_ber) / np.sum(weights * draws_alpha)),
                 "wtp_plain": -1
                 * (np.sum(weights * draws_b_pl) / np.sum(weights * draws_alpha)),
+                "outside_units": outside_units,
+                "outside_share": outside_share,
             }
         )
 
@@ -766,6 +773,58 @@ def plot_type_distribution(df_types, save_path=None):
         console.print(f"[bold green]Saved Plot to PDF:[/bold green] {save_path}")
 
 
+def plot_lov_vs_outside_option(df_types, save_path=None):
+    sns.set_theme("whitegrid")
+    fig, axes = plt.subplots(1, 2, figsize=(14, 6))
+    fig.suptitle("Outside Option Consumption vs LOV", fontsize=16, fontweight="bold")
+    sns.kdeplot(
+        df_types["outside_share"],
+        ax=axes[0],
+        color="slategray",
+        fill=True,
+        alpha=0.4,
+        linewidth=2,
+        label="Outside Option Share",
+    )
+    ax0_twin = axes[0].twinx()
+    sns.kdeplot(
+        df_types["gamma_lov"],
+        ax=ax0_twin,
+        color="mediumpurple",
+        fill=True,
+        alpha=0.3,
+        linewidth=2,
+        label="gamma",
+    )
+    axes[0].set_title("Marginal Density Distributions", fontsize=12, fontweight="bold")
+    axes[0].set_xlabel("Value")
+    axes[0].set_ylabel("Density (Outside Share)", color="slategray")
+    ax0_twin.set_ylabel("Density (Gamma)", color="mediumpurple")
+    ax0_twin.grid = False
+
+    sns.regplot(
+        data=df_types,
+        x="gamma_lov",
+        y="outside_share",
+        ax=axes[1],
+        color="mediumpurple",
+        scatter_kws={"alpha": 0.5, "s": 30, "color": "darkslateblue"},
+        line_kws={"color": "crimson", "linewidth": 2},
+    )
+    corr = df_types["gamma_lov"].corr(df_types["outside_share"])
+    axes[1].set_title(
+        f"LOV Parameter vs Outside Choice Share (r={corr:.3f})",
+        fontsize=12,
+        fontweight="bold",
+    )
+    axes[1].set_xlabel("Gamma")
+    axes[1].set_ylabel("HH Outside Option Share")
+    plt.tight_layout(rect=[0, 0, 1, 0.95])
+
+    if save_path:
+        plt.savefig(save_path, format="pdf", dpi=300, bbox_inches="tight")
+
+
 def main():
     hh_packed_data = load_and_preprocess()
     console.print("\n--- Estimating Standard Logit ---")
@@ -780,6 +839,9 @@ def main():
 
     plot_path = OUT_PATH + "type_distribution_density.pdf"
     plot_type_distribution(df_types, save_path=plot_path)
+
+    plot_path_lov_vs = OUT_PATH + "lov_vs_oo.pdf"
+    plot_lov_vs_outside_option(df_types, save_path=plot_path_lov_vs)
 
 
 if __name__ == "__main__":

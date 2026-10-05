@@ -450,7 +450,7 @@ def total_objective_mixed(params, hh_packed_data, n_draws=50):
 
 
 def estimate_mixed_model(hh_packed_data, n_draws=50):
-    x0 = np.array([0.0, 0.0, 0.0, 0.0, -1.5, 0.05, 0.0, 0.1, 0.1, 0.1])
+    x0 = np.array([0.0, 0.0, 0.0, 0.0, -1.5, 0.05, 0.0, 0.1, 0.1, 0.1, 0.1])
 
     bounds = [
         (None, None),  # mu_b_oth
@@ -509,7 +509,7 @@ def display_results(results):
     table.add_column("p-value", justify="right")
 
     param_names = [
-        "beta_0",
+        "beta_oth",
         "beta_ber",
         "beta_pl",
         "gamma (Satiation)",
@@ -556,13 +556,14 @@ def display_mixed_results(results):
     table.add_column("p-value", justify="right")
 
     param_names = [
-        "μ_beta_0",
+        "μ_beta_oth",
         "μ_beta_ber",
         "μ_beta_pl",
         "μ_gamma (Satiation)",
         "α_0 (Base Price)",
         "α_inc (Price x Inc)",
         "σ_Control_Func",
+        "σ_beta_oth (SD)",
         "σ_beta_ber (SD)",
         "σ_beta_pl (SD)",
         "σ_gamma (SD)",
@@ -689,6 +690,7 @@ def display_type_distribution(df_types):
     table.add_column("Std Dev", justify="right")
 
     cols_to_summarize = [
+        ("β_other (Other Preference)", "beta_oth"),
         ("β_berry (Berry Preference)", "beta_berry"),
         ("β_plain (Plain Preference)", "beta_plain"),
         ("γ (Satiation / Habit)", "gamma_satiation"),

@@ -2,29 +2,20 @@
 # 1. SETUP AND CONFIG
 # =================================================
 
-# data loading
-from pandas.core.dtypes.cast import np_can_hold_element
-import polars as pl
-import pandas as pd
-
-# numerical and statistical analysis
+import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
+import polars as pl
+from rich.console import Console
+from rich.table import Table
+from rich.traceback import install
 import scipy as sp
 from scipy.optimize import minimize
-from scipy.special import logsumexp, expit
+from scipy.special import logsumexp
+import seaborn as sns
 import statsmodels.formula.api as smf
 
-# graphing
-import matplotlib.pyplot as plt
-import seaborn as sns
-
-# output
-from rich.console import Console
-from rich.traceback import install
-
 install()
-from rich.table import Table
-
 console = Console()
 
 MERGED_PATH = "/scratch/dtm63837/Kilts_Panel/nielsen_extracts/scanner_panel.parquet"
@@ -32,6 +23,7 @@ OUT_PATH = "/scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Output/"
 CATEGORIES = ["other", "berry", "plain", "outside"]
 cat_map = {c: i for i, c in enumerate(CATEGORIES)}
 rng = np.random.default_rng(219)
+
 
 # =================================================
 # 2. DATA / INPUT HANDLING
@@ -74,11 +66,7 @@ def load_and_preprocess(weekly_capacity=7):
         default=0,
     )
 
-    yogurt_df = merged_master[merged_master["yogurt_purchase"] == 1]
-    yogurt_df = yogurt_df[
-        yogurt_df["serving_per_container_cd"].isin([65622705, 67181961])
-    ]
-
+    # Petrin & Train Instrument Construction (1st Stage OLS)
     market_price = (
         merged_master.groupby(["upc", "week_end", "market_name"])["price"]
         .mean()
@@ -139,30 +127,6 @@ def load_and_preprocess(weekly_capacity=7):
         top_modes = counts[counts == max_count].index.to_numpy()
         return rng.choice(top_modes)
 
-    # ---------------------------------------------
-    # State Update (theta)
-    # ---------------------------------------------
-
-    # trip_level = merged_master.copy()
-    # trip_level["category_chosen"] = trip_level["flavor"].map(map_flavor_category)
-    # trip_level = trip_level.drop_duplicates(subset=["household_code", "trip_code_uc"])
-
-    # modal_choices = (
-    #    trip_level.sort_values(["household_code", "week_end", "trip_code_uc"])
-    #    .groupby(["household_code", "trip_code_uc", "week_end"])
-    #    .apply(get_modal_flavor)
-    #    .reset_index(name="modal_x")
-    # )
-
-    # modal_choices = modal_choices.sort_values(["household_code", "week_end"])
-    # modal_choices["theta_prev"] = (
-    #    modal_choices.groupby("household_code")["modal_x"].shift(1).fillna(0.0)
-    # )
-
-    # -------------------------------------------
-    # Choice Set Construction
-    # -------------------------------------------
-
     merged_master["category"] = merged_master["flavor"].map(map_flavor_category)
 
     weekly_purchases = (
@@ -171,7 +135,6 @@ def load_and_preprocess(weekly_capacity=7):
         .agg(units_bought=("quantity", "sum"))
         .reset_index()
     )
-
     weekly_purchases["choice_idx"] = weekly_purchases["category"].map(cat_map)
 
     cat_choice_sets = (
@@ -200,30 +163,18 @@ def load_and_preprocess(weekly_capacity=7):
 
     weekly_modal = (
         merged_master.groupby(["household_code", "week_end"])
-        .apply(get_modal_flavor)
+        .apply(get_modal_flavor, include_groups=False)
         .reset_index(name="modal_x")
     )
     weekly_modal["theta_prev"] = (
         weekly_modal.groupby("household_code")["modal_x"].shift(1).fillna(0.0)
     )
+
     hh_weeks = hh_weeks.merge(
         weekly_modal[["household_code", "week_end", "theta_prev"]],
         on=["household_code", "week_end"],
         how="left",
     )
-
-    # ------------------------------------------
-    # Data Packing
-    # ------------------------------------------
-
-    # trips_processed = trip_level.merge(
-    #    modal_choices[["household_code", "trip_code_uc", "theta_prev"]],
-    #    on=["household_code", "trip_code_uc"],
-    #    how="left",
-    # )
-    # trips_processed["choice_idx"] = (
-    #    trips_processed["category_chosen"].map(cat_map).fillna(3).astype(np.int64)
-    # )
 
     hh_income_map = (
         merged_df.drop_duplicates(subset=["household_code"])
@@ -235,9 +186,7 @@ def load_and_preprocess(weekly_capacity=7):
     for hh_id, group in hh_weeks.groupby("household_code"):
         stores = group["store_code_uc"].to_numpy()
         weeks = group["week_end"].to_numpy()
-        c_0_vals = group["C_sat_0"].to_numpy(dtype=np.float64)
-        c_1_vals = group["C_sat_1"].to_numpy(dtype=np.float64)
-        c_2_vals = group["C_sat_2"].to_numpy(dtype=np.float64)
+        thetas = group["theta_prev"].to_numpy(dtype=np.float64)
 
         raw_inc = hh_income_map.get(hh_id, 1)
         log_inc = np.log(max(float(raw_inc) if pd.notna(raw_inc) else 1.0, 1.0))
@@ -250,14 +199,10 @@ def load_and_preprocess(weekly_capacity=7):
 
         matrices_list = []
         choice_counts_list = []
-        c_states_list = []
+        thetas_list = []
 
-        for store, week, c0, c1, c2 in zip(
-            stores[valid_mask],
-            weeks[valid_mask],
-            c_0_vals[valid_mask],
-            c_1_vals[valid_mask],
-            c_2_vals[valid_mask],
+        for store, week, theta in zip(
+            stores[valid_mask], weeks[valid_mask], thetas[valid_mask]
         ):
             sub = weekly_purchases[
                 (weekly_purchases["household_code"] == hh_id)
@@ -273,28 +218,52 @@ def load_and_preprocess(weekly_capacity=7):
 
             matrices_list.append(choice_set_matrix[(store, week)])
             choice_counts_list.append(counts)
-            c_states_list.append(np.array([c0, c1, c2]))
+            thetas_list.append(theta)
 
         hh_packed_data[hh_id] = {
             "matrices": matrices_list,
             "choices": choice_counts_list,
-            "c_states": c_states_list,
+            "thetas": thetas_list,
             "log_income": log_inc,
         }
+
+    # Clean execution diagnostics
+    all_inside_units = [
+        np.sum(hh_data["choices"][t][:3])
+        for hh_data in hh_packed_data.values()
+        for t in range(len(hh_data["choices"]))
+    ]
+    all_outside_counts = [
+        hh_data["choices"][t][3]
+        for hh_data in hh_packed_data.values()
+        for t in range(len(hh_data["choices"]))
+    ]
+
+    console.print(
+        f"[bold cyan]Mean inside units per week:[/bold cyan] {np.mean(all_inside_units):.2f}"
+    )
+    console.print(
+        f"[bold cyan]Mean outside count:[/bold cyan]          {np.mean(all_outside_counts):.2f}"
+    )
+    console.print(
+        f"[bold cyan]Inside choice share:[/bold cyan]         {np.mean(all_inside_units) / float(weekly_capacity):.1%}"
+    )
+    console.print(
+        f"[bold cyan]Zero outside count share:[/bold cyan]    {np.mean(np.array(all_outside_counts) == 0):.1%}"
+    )
 
     return hh_packed_data
 
 
 # =================================================
-# CORE LOGIC / PROCESSING
+# 3. CORE ESTIMATION LOGIC
 # =================================================
 
 
 def total_objective(params, hh_packed_data):
-    const, beta_ber, beta_pl, gamma, alpha, sigma = params
+    beta_oth, beta_ber, beta_pl, gamma, alpha, sigma = params
 
-    d_berry = np.array([0.0, 1.0, 0.0])
-    d_plain = np.array([0.0, 0.0, 1.0])
+    beta_vec = np.array([beta_oth, beta_ber, beta_pl])
     cat_flavors = np.array([0.0, 1.0, 2.0])
 
     total_ll = 0.0
@@ -305,29 +274,23 @@ def total_objective(params, hh_packed_data):
         thetas = hh_data["thetas"]
 
         for X_mat, counts, theta in zip(matrices, choices, thetas):
-            prices = X_mat[:, 0]
-            resids = X_mat[:, 1]
+            prices = X_mat[:3, 0]
+            resids = X_mat[:3, 1]
 
             Xi = np.abs(cat_flavors - theta)
 
             u = np.zeros(4)
-            u[:3] = (
-                const
-                + beta_ber * d_berry
-                + beta_pl * d_plain
-                + gamma * Xi
-                + alpha * prices[:3]
-                + sigma * resids[:3]
-            )
+            u[:3] = beta_vec + gamma * Xi + alpha * prices + sigma * resids
             u[3] = 0.0
 
             log_prob = u - logsumexp(u)
             week_ll = np.dot(log_prob, counts)
 
             if not np.isfinite(week_ll):
-                log_prob = -700.0
+                week_ll = -700.0
 
             total_ll += week_ll
+
     return -total_ll
 
 
@@ -345,121 +308,10 @@ def estimate_model(hh_packed_data):
     res = minimize(
         total_objective,
         x0=x0,
-        args=(hh_packed_data),
+        args=(hh_packed_data,),
         method="L-BFGS-B",
         bounds=bounds,
         options={"ftol": 1e-8},
-    )
-
-    cov_matrix = res.hess_inv.todense()
-    se = np.sqrt(np.diag(cov_matrix))
-    z = res.x / se
-    p = 2 * (1 - sp.stats.norm.cdf(np.abs(z)))
-
-    return {
-        "params": res.x,
-        "se": se,
-        "z_stat": z,
-        "p_val": p,
-        "success": res.success,
-        "fun": res.fun,
-    }
-
-
-def total_objective_mixed(params, hh_packed_data, n_draws=50):
-    (
-        const,
-        mu_b_berry,
-        mu_b_pl,
-        mu_gamma,
-        alpha_0,
-        alpha_inc,
-        sigma_cf,
-        sd_b_berry,
-        sd_b_pl,
-        sd_gamma,
-    ) = params
-
-    d_berry = np.array([0.0, 1.0, 0.0])
-    d_plain = np.array([0.0, 0.0, 1.0])
-    cat_flavors = np.array([0.0, 1.0, 2.0])
-
-    rng_sim = np.random.default_rng(306)
-    total_ll = 0.0
-
-    for hh_data in hh_packed_data.values():
-        matrices = hh_data["matrices"]
-        choices = hh_data["choices"]
-        thetas = hh_data["thetas"]
-        log_inc = hh_data["log_income"]
-
-        alpha_i = alpha_0 + alpha_inc * log_inc
-
-        draws_b_ber = mu_b_berry + sd_b_berry * rng_sim.standard_normal(n_draws)
-        draws_b_pl = mu_b_pl + sd_b_pl * rng_sim.standard_normal(n_draws)
-        draws_gamma = mu_gamma + sd_gamma * rng_sim.standard_normal(n_draws)
-
-        log_draw_probs = np.ones(n_draws)
-
-        for X_mat, counts, theta in zip(matrices, choices, thetas):
-            prices = X_mat[:3, 0]
-            resids = X_mat[:3, 1]
-            Xi = np.abs(cat_flavors - theta)
-
-            u_inside = (
-                const
-                + np.outer(draws_b_ber, d_berry)
-                + np.outer(draws_b_pl, d_plain)
-                + np.outer(draws_gamma, Xi)
-                + alpha_i * prices
-                + sigma_cf * resids
-            )
-
-            u = np.hstack([u_inside, np.zeros((n_draws, 1))])
-
-            log_probs = u - logsumexp(u, axis=1, keepdims=True)
-            log_draw_probs += np.dot(log_probs, counts)
-
-        # Integrate out draws in log space: log( 1/N * sum(exp(log_draw_probs)) )
-        hh_ll = logsumexp(log_draw_probs) - np.log(n_draws)
-
-        if not np.isfinite(hh_ll):
-            total_ll += -1000.0
-        else:
-            total_ll += hh_ll
-
-    return -total_ll
-
-
-def estimate_mixed_model(hh_packed_data, n_draws=50):
-    # Pass explicit parameter scaling via 'eps' or use ' Nelder-Mead ' / 'BFGS' without tight bounds
-    x0 = np.array([0.0, 0.0, 0.0, 0.0, -1.5, 0.05, 0.0, 0.1, 0.1, 0.1])
-
-    # Unbound alpha_0 to allow negative values, use exponential for alpha_inc constraint if needed
-    bounds = [
-        (None, None),  # const
-        (None, None),  # mu_b_ber
-        (None, None),  # mu_b_pl
-        (None, None),  # mu_gamma
-        (None, 0.0),  # alpha_0 (Must be negative)
-        (None, None),  # alpha_inc (unbounded, let log-likelihood pull it)
-        (None, None),  # sigma_cf
-        (1e-4, None),  # sd_b_ber (strictly positive)
-        (1e-4, None),  # sd_b_pl
-        (1e-4, None),  # sd_gamma
-    ]
-
-    res = minimize(
-        total_objective_mixed,
-        x0=x0,
-        args=(hh_packed_data, n_draws),
-        method="L-BFGS-B",
-        bounds=bounds,
-        options={
-            "ftol": 1e-10,
-            "gtol": 1e-6,
-            "maxiter": 1000,
-        },  # Tighter convergence criterion
     )
 
     cov_matrix = (
@@ -479,375 +331,126 @@ def estimate_mixed_model(hh_packed_data, n_draws=50):
     }
 
 
-def display_results(results):
-    table = Table(
-        title="LOV SIMPLE SPEC RESULTS",
-        show_header=True,
-        header_style="bold magenta",
-    )
-    table.add_column("Parameter", style="cyan", justify="left")
-    table.add_column("Estimate", justify="right")
-    table.add_column("Std. Error", justify="right")
-    table.add_column("z-stat", justify="right")
-    table.add_column("p-value", justify="right")
-
-    param_names = [
-        "beta_0",
-        "beta_ber",
-        "beta_pl",
-        "LOV",
-        "Price",
-        "Control Func.",
-    ]
-
-    for name, val, se, z, p in zip(
-        param_names,
-        results["params"],
-        results["se"],
-        results["z_stat"],
-        results["p_val"],
-    ):
-        p_str = f"{p:.4f}" if not np.isnan(p) else "NA"
-        if not np.isnan(p):
-            if p < 0.001:
-                p_str += " ***"
-            elif p < 0.05:
-                p_str += " **"
-        table.add_row(
-            name,
-            f"{val:.4f}",
-            f"{se:.4f}" if not np.isnan(se) else "NA",
-            f"{z:.3f}" if not np.isnan(z) else "NA",
-            p_str,
-        )
-
-    console.print(table)
-    console.print(f"[bold]Optimization Success:[/bold] {results['success']}")
-    console.print(f"[bold]Final LL Objective:[/bold] {results['fun']:.4f}")
-
-    alpha = results["params"][4]
-    wtp_results = {
-        "Intercept": -1 * (results["params"][0] / alpha),
-        "Berry Flavor": -1 * (results["params"][1] / alpha),
-        "Plain": -1 * (results["params"][2] / alpha),
-        "LOV": -1 * (results["params"][3] / alpha),
-    }
-    console.print(
-        "\n[bold yellow]WTP Relative to Other Flavors Relative to Outside:[/bold yellow]"
-    )
-    for param, wtp in wtp_results.items():
-        console.print(f"  {param}: ${wtp:.4f}")
-
-
-def display_mixed_results(results):
-    table = Table(
-        title="MIXED LOGIT (RANDOM COEFFICIENTS) RESULTS",
-        show_header=True,
-        header_style="bold magenta",
-    )
-    table.add_column("Parameter", style="cyan", justify="left")
-    table.add_column("Estimate", justify="right")
-    table.add_column("Std. Error", justify="right")
-    table.add_column("z-stat", justify="right")
-    table.add_column("p-value", justify="right")
-
-    param_names = [
-        "μ_beta_0",
-        "μ_beta_ber",
-        "μ_beta_pl",
-        "μ_LOV",
-        "μ_Price",
-        "σ_Control_Func",
-        "σ_beta_ber (SD)",
-        "σ_beta_pl (SD)",
-        "σ_LOV (SD)",
-        "σ_Price (SD)",
-    ]
-
-    for name, val, se, z, p in zip(
-        param_names,
-        results["params"],
-        results["se"],
-        results["z_stat"],
-        results["p_val"],
-    ):
-        p_str = f"{p:.4f}" if not np.isnan(p) else "NA"
-        if not np.isnan(p):
-            if p < 0.001:
-                p_str += " ***"
-            elif p < 0.05:
-                p_str += " **"
-        table.add_row(
-            name,
-            f"{val:.4f}",
-            f"{se:.4f}" if not np.isnan(se) else "NA",
-            f"{z:.3f}" if not np.isnan(z) else "NA",
-            p_str,
-        )
-
-    console.print(table)
-    console.print(f"[bold]Optimization Success:[/bold] {results['success']}")
-    console.print(f"[bold]Final LL Objective:[/bold] {results['fun']:.4f}")
-
-
-def extract_individual_parameters(results, hh_packed_data, n_draws=500):
-    """
-    Computes household-level posterior means for alpha, beta, and gamma
-    to recover the empirical distribution of types across households.
-    """
-    params = results["params"]
+def total_objective_mixed(params, hh_packed_data, n_draws=50):
     (
-        const,
-        mu_b_ber,
+        mu_b_oth,
+        mu_b_berry,
         mu_b_pl,
         mu_gamma,
-        mu_alpha,
+        alpha_0,
+        alpha_inc,
         sigma_cf,
-        sd_b_ber,
+        sd_b_oth,
+        sd_b_berry,
         sd_b_pl,
         sd_gamma,
-        sd_alpha,
     ) = params
 
-    d_berry = np.array([0.0, 1.0, 0.0])
-    d_plain = np.array([0.0, 0.0, 1.0])
     cat_flavors = np.array([0.0, 1.0, 2.0])
+    rng_sim = np.random.default_rng(306)
+    total_ll = 0.0
 
-    rng_sim = np.random.default_rng(123)
-    hh_posterior_means = []
-
-    for hh_id, hh_data in hh_packed_data.items():
+    for hh_data in hh_packed_data.values():
         matrices = hh_data["matrices"]
         choices = hh_data["choices"]
-        thetas_lag = hh_data["thetas"]
+        thetas = hh_data["thetas"]
+        log_inc = hh_data["log_income"]
 
-        total_counts = np.sum(choices, axis=0)
-        total_units = np.sum(total_counts)
-        outside_units = total_counts[3]
-        outside_share = outside_units / total_units if total_units > 0 else 0.0
+        alpha_i = alpha_0 + alpha_inc * log_inc
 
-        # 1. Draw candidate types from population distribution: shape (n_draws,)
-        draws_b_ber = mu_b_ber + sd_b_ber * rng_sim.standard_normal(n_draws)
+        draws_b_oth = mu_b_oth + sd_b_oth * rng_sim.standard_normal(n_draws)
+        draws_b_ber = mu_b_berry + sd_b_berry * rng_sim.standard_normal(n_draws)
         draws_b_pl = mu_b_pl + sd_b_pl * rng_sim.standard_normal(n_draws)
         draws_gamma = mu_gamma + sd_gamma * rng_sim.standard_normal(n_draws)
-        draws_alpha = mu_alpha + sd_alpha * rng_sim.standard_normal(n_draws)
 
-        draw_probabilities = np.ones(n_draws)
+        beta_matrix = np.column_stack([draws_b_oth, draws_b_ber, draws_b_pl])
+        log_draw_probs = np.zeros(n_draws)
 
-        # 2. Compute likelihood of household choices given each draw
-        for X_mat, counts, theta in zip(matrices, choices, thetas_lag):
+        for X_mat, counts, theta in zip(matrices, choices, thetas):
             prices = X_mat[:3, 0]
             resids = X_mat[:3, 1]
             Xi = np.abs(cat_flavors - theta)
 
             u_inside = (
-                const
-                + np.outer(draws_b_ber, d_berry)
-                + np.outer(draws_b_pl, d_plain)
+                beta_matrix
                 + np.outer(draws_gamma, Xi)
-                + np.outer(draws_alpha, prices)
+                + alpha_i * prices
                 + sigma_cf * resids
             )
+
             u = np.hstack([u_inside, np.zeros((n_draws, 1))])
 
             log_probs = u - logsumexp(u, axis=1, keepdims=True)
-            week_log_ll = np.dot(log_probs, counts)
+            log_draw_probs += np.dot(log_probs, counts)
 
-            draw_probabilities *= np.exp(week_log_ll)
+        hh_ll = logsumexp(log_draw_probs) - np.log(n_draws)
 
-        # 3. Bayes' Rule weights for this household's draws
-        total_prob = np.sum(draw_probabilities)
-        if total_prob > 0:
-            weights = draw_probabilities / total_prob
+        if not np.isfinite(hh_ll):
+            total_ll += -1000.0
         else:
-            weights = np.ones(n_draws) / n_draws
+            total_ll += hh_ll
 
-        # 4. Posterior expectation (individual type estimate)
-        hh_posterior_means.append(
-            {
-                "household_code": hh_id,
-                "beta_berry": np.sum(weights * draws_b_ber),
-                "beta_plain": np.sum(weights * draws_b_pl),
-                "gamma_lov": np.sum(weights * draws_gamma),
-                "alpha_price": np.sum(weights * draws_alpha),
-                "wtp_berry": -1
-                * (np.sum(weights * draws_b_ber) / np.sum(weights * draws_alpha)),
-                "wtp_plain": -1
-                * (np.sum(weights * draws_b_pl) / np.sum(weights * draws_alpha)),
-                "outside_units": outside_units,
-                "outside_share": outside_share,
-            }
-        )
-
-    return pd.DataFrame(hh_posterior_means)
+    return -total_ll
 
 
-def display_type_distribution(df_types):
-    """
-    Prints descriptive stats (percentiles) showing the empirical distribution
-    of household-level preference parameters and WTPs.
-    """
-    table = Table(
-        title="EMPIRICAL DISTRIBUTION OF HOUSEHOLD TYPES (POSTERIOR MEANS)",
-        show_header=True,
-        header_style="bold magenta",
-    )
-    table.add_column("Parameter / Type", style="cyan", justify="left")
-    table.add_column("Mean", justify="right")
-    table.add_column("10th Pctl", justify="right")
-    table.add_column("50th (Median)", justify="right")
-    table.add_column("90th Pctl", justify="right")
-    table.add_column("Std Dev", justify="right")
+def estimate_mixed_model(hh_packed_data, n_draws=50):
+    x0 = np.array([0.0, 0.0, 0.0, 0.0, -1.5, 0.05, 0.0, 0.1, 0.1, 0.1, 0.1])
 
-    cols_to_summarize = [
-        ("β_berry (Berry Preference)", "beta_berry"),
-        ("β_plain (Plain Preference)", "beta_plain"),
-        ("γ (LOV / Habit)", "gamma_lov"),
-        ("α (Price Sensitivity)", "alpha_price"),
-        ("WTP Berry ($)", "wtp_berry"),
-        ("WTP Plain ($)", "wtp_plain"),
+    bounds = [
+        (None, None),  # mu_b_oth
+        (None, None),  # mu_b_ber
+        (None, None),  # mu_b_pl
+        (None, None),  # mu_gamma
+        (None, 0.0),  # alpha_0
+        (None, None),  # alpha_inc
+        (None, None),  # sigma_cf
+        (1e-4, None),  # sd_b_oth
+        (1e-4, None),  # sd_b_ber
+        (1e-4, None),  # sd_b_pl
+        (1e-4, None),  # sd_gamma
     ]
 
-    for label, col in cols_to_summarize:
-        vals = df_types[col].to_numpy()
-        table.add_row(
-            label,
-            f"{np.mean(vals):.4f}",
-            f"{np.percentile(vals, 10):.4f}",
-            f"{np.median(vals):.4f}",
-            f"{np.percentile(vals, 90):.4f}",
-            f"{np.std(vals):.4f}",
-        )
-
-    console.print(table)
-
-
-def plot_type_distribution(df_types, save_path=None):
-    sns.set_theme(style="whitegrid")
-    fig, axes = plt.subplots(2, 3, figsize=(16, 10))
-    fig.suptitle(
-        "Density Distribution of Household Types", fontsize=16, fontweight="bold"
+    res = minimize(
+        total_objective_mixed,
+        x0=x0,
+        args=(hh_packed_data, n_draws),
+        method="L-BFGS-B",
+        bounds=bounds,
+        options={
+            "ftol": 1e-10,
+            "gtol": 1e-6,
+            "maxiter": 1000,
+        },
     )
 
-    plots_config = [
-        (
-            "beta_berry",
-            "Berry Preference Relative to Other Flavors",
-            "skyblue",
-            axes[0, 0],
-        ),
-        (
-            "beta_plain",
-            "Plain Preference Relative to Other Flavors",
-            "salmon",
-            axes[0, 1],
-        ),
-        ("gamma_lov", "Love of Variety", "mediumpurple", axes[0, 2]),
-        ("alpha_price", "Price Sensitivity", "gold", axes[1, 0]),
-    ]
-
-    for col, title, color, ax in plots_config:
-        sns.kdeplot(
-            df_types[col],
-            ax=ax,
-            color=color,
-            fill=True,
-            alpha=0.3,
-            linewidth=2.5,
-            bw_adjust=0.8,
-        )
-
-        ax.set_title(title, fontsize=12, fontweight="bold")
-        ax.set_xlabel("Parameter Value")
-        ax.set_ylabel("Density")
-
-        mean_val = df_types[col].mean()
-
-        ax.axvline(
-            mean_val,
-            color="red",
-            linestyle="--",
-            linewidth=1.5,
-            label=f"Mean: {mean_val:.2f}",
-        )
-        ax.legend(loc="upper right", frameon=True)
-
-    plt.tight_layout(rect=[0, 0, 1, 0.95])
-
-    if save_path:
-        plt.savefig(save_path, format="pdf", dpi=300, bbox_inches="tight")
-        console.print(f"[bold green]Saved Plot to PDF:[/bold green] {save_path}")
-
-
-def plot_lov_vs_outside_option(df_types, save_path=None):
-    sns.set_theme(style="whitegrid")
-    fig, axes = plt.subplots(1, 2, figsize=(14, 6))
-    fig.suptitle("Outside Option Consumption vs LOV", fontsize=16, fontweight="bold")
-    sns.kdeplot(
-        df_types["outside_share"],
-        ax=axes[0],
-        color="slategray",
-        fill=True,
-        alpha=0.4,
-        linewidth=2,
-        label="Outside Option Share",
+    cov_matrix = (
+        res.hess_inv.todense() if hasattr(res.hess_inv, "todense") else res.hess_inv
     )
-    ax0_twin = axes[0].twinx()
-    sns.kdeplot(
-        df_types["gamma_lov"],
-        ax=ax0_twin,
-        color="mediumpurple",
-        fill=True,
-        alpha=0.3,
-        linewidth=2,
-        label="gamma",
-    )
-    axes[0].set_title("Marginal Density Distributions", fontsize=12, fontweight="bold")
-    axes[0].set_xlabel("Value")
-    axes[0].set_ylabel("Density (Outside Share)", color="slategray")
-    ax0_twin.set_ylabel("Density (Gamma)", color="mediumpurple")
-    ax0_twin.grid = False
+    se = np.sqrt(np.diag(cov_matrix))
+    z = res.x / se
+    p = 2 * (1 - sp.stats.norm.cdf(np.abs(z)))
 
-    sns.regplot(
-        data=df_types,
-        x="gamma_lov",
-        y="outside_share",
-        ax=axes[1],
-        color="mediumpurple",
-        scatter_kws={"alpha": 0.5, "s": 30, "color": "darkslateblue"},
-        line_kws={"color": "crimson", "linewidth": 2},
-    )
-    corr = df_types["gamma_lov"].corr(df_types["outside_share"])
-    axes[1].set_title(
-        f"LOV Parameter vs Outside Choice Share (r={corr:.3f})",
-        fontsize=12,
-        fontweight="bold",
-    )
-    axes[1].set_xlabel("Gamma")
-    axes[1].set_ylabel("HH Outside Option Share")
-    plt.tight_layout(rect=[0, 0, 1, 0.95])
-
-    if save_path:
-        plt.savefig(save_path, format="pdf", dpi=300, bbox_inches="tight")
+    return {
+        "params": res.x,
+        "se": se,
+        "z_stat": z,
+        "p_val": p,
+        "success": res.success,
+        "fun": res.fun,
+    }
 
 
 def main():
     hh_packed_data = load_and_preprocess()
-    console.print("\n--- Estimating Standard Logit ---")
+    console.print("\n--- Estimating LOV Simple Logit (Occasion-to-Occasion Only) ---")
     results = estimate_model(hh_packed_data)
-    display_results(results)
+    console.print(f"Optimization Success: {results['success']}")
+    console.print(f"Final Objective Value: {results['fun']:.4f}")
 
-    console.print("\n--- Estimating Mixed Logit ---")
+    console.print("\n--- Estimating LOV Mixed Logit (Occasion-to-Occasion Only) ---")
     mixed_results = estimate_mixed_model(hh_packed_data, n_draws=50)
-
-    df_types = extract_individual_parameters(mixed_results, hh_packed_data, n_draws=50)
-    display_type_distribution(df_types)
-
-    plot_path = OUT_PATH + "type_distribution_density.pdf"
-    plot_type_distribution(df_types, save_path=plot_path)
-
-    plot_path_lov_vs = OUT_PATH + "lov_vs_oo.pdf"
-    plot_lov_vs_outside_option(df_types, save_path=plot_path_lov_vs)
+    console.print(f"Mixed Optimization Success: {mixed_results['success']}")
+    console.print(f"Mixed Final Objective Value: {mixed_results['fun']:.4f}")
 
 
 if __name__ == "__main__":

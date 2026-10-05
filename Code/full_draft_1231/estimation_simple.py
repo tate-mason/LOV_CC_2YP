@@ -227,7 +227,7 @@ def load_and_preprocess(weekly_capacity=7):
             "log_income": log_inc,
         }
 
-    # Clean execution diagnostics
+    # Diagnostics
     all_inside_units = [
         np.sum(hh_data["choices"][t][:3])
         for hh_data in hh_packed_data.values()
@@ -440,17 +440,88 @@ def estimate_mixed_model(hh_packed_data, n_draws=50):
     }
 
 
+# =================================================
+# 4. MAIN & PRINTING
+# =================================================
+
+
+def print_simple_results(results):
+    param_names = [
+        "beta_other",
+        "beta_berry",
+        "beta_plain",
+        "gamma (switching)",
+        "alpha (price)",
+        "sigma (control_func)",
+    ]
+
+    table = Table(title="Simple Logit Estimation Results (Occasion-to-Occasion Only)")
+    table.add_column("Parameter", style="cyan", no_wrap=True)
+    table.add_column("Estimate", justify="right", style="green")
+    table.add_column("Std. Error", justify="right")
+    table.add_column("z-stat", justify="right")
+    table.add_column("p-value", justify="right")
+
+    for name, est, se, z, p in zip(
+        param_names,
+        results["params"],
+        results["se"],
+        results["z_stat"],
+        results["p_val"],
+    ):
+        table.add_row(name, f"{est:.4f}", f"{se:.4f}", f"{z:.3f}", f"{p:.4f}")
+
+    console.print(table)
+
+
+def print_mixed_results(results):
+    param_names = [
+        "mu_beta_other",
+        "mu_beta_berry",
+        "mu_beta_plain",
+        "mu_gamma (switching)",
+        "alpha_0 (base price)",
+        "alpha_inc (inc price interaction)",
+        "sigma_cf (control_func)",
+        "sd_beta_other",
+        "sd_beta_berry",
+        "sd_beta_plain",
+        "sd_gamma",
+    ]
+
+    table = Table(title="Mixed Logit Estimation Results (Occasion-to-Occasion Only)")
+    table.add_column("Parameter", style="cyan", no_wrap=True)
+    table.add_column("Estimate", justify="right", style="green")
+    table.add_column("Std. Error", justify="right")
+    table.add_column("z-stat", justify="right")
+    table.add_column("p-value", justify="right")
+
+    for name, est, se, z, p in zip(
+        param_names,
+        results["params"],
+        results["se"],
+        results["z_stat"],
+        results["p_val"],
+    ):
+        table.add_row(name, f"{est:.4f}", f"{se:.4f}", f"{z:.3f}", f"{p:.4f}")
+
+    console.print(table)
+
+
 def main():
     hh_packed_data = load_and_preprocess()
-    console.print("\n--- Estimating LOV Simple Logit (Occasion-to-Occasion Only) ---")
-    results = estimate_model(hh_packed_data)
-    console.print(f"Optimization Success: {results['success']}")
-    console.print(f"Final Objective Value: {results['fun']:.4f}")
 
-    console.print("\n--- Estimating LOV Mixed Logit (Occasion-to-Occasion Only) ---")
+    console.print("\n[bold yellow]--- Estimating LOV Simple Logit ---[/bold yellow]")
+    simple_results = estimate_model(hh_packed_data)
+    console.print(f"Optimization Success: {simple_results['success']}")
+    console.print(f"Final Log-Likelihood: {-simple_results['fun']:.4f}\n")
+    print_simple_results(simple_results)
+
+    console.print("\n[bold yellow]--- Estimating LOV Mixed Logit ---[/bold yellow]")
     mixed_results = estimate_mixed_model(hh_packed_data, n_draws=50)
     console.print(f"Mixed Optimization Success: {mixed_results['success']}")
-    console.print(f"Mixed Final Objective Value: {mixed_results['fun']:.4f}")
+    console.print(f"Final Log-Likelihood: {-mixed_results['fun']:.4f}\n")
+    print_mixed_results(mixed_results)
 
 
 if __name__ == "__main__":

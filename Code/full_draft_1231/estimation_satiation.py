@@ -124,20 +124,25 @@ def load_and_preprocess(weekly_capacity=28):
     merged_df["flavor_cd"] = pd.to_numeric(
         merged_df["flavor_cd"], errors="coerce"
     ).fillna(0)
-
-    merged_master = merged_df.copy()
-    # Define berry flavor keywords via regex
-    BERRY_PATTERN = r"\b(berry|strawberry|blueberry|raspberry|blackberry|cranberry|cherry|wildberry|mixed\s*berry)\b"
-
-    # Identify Plain using exact codes, and Berry via regex
-    is_plain = merged_master["flavor_cd"].isin([67676592, 66987057])
-    is_berry = merged_master["flavor_str"].str.contains(
-        BERRY_PATTERN, case=False, na=False
+    # 1. Dynamically extract all numeric flavor codes containing berry strings
+    berry_regex = r"berry|straw|blue|rasp|black|cran|cherry|wildberry"
+    berry_codes = (
+        merged_df[
+            merged_df["flavor_str"].str.contains(berry_regex, case=False, na=False)
+        ]["flavor_cd"]
+        .unique()
+        .tolist()
     )
 
-    # Plain takes priority over Berry text to prevent misclassification
+    PLAIN_CODES = [67676592, 66987057]
+
+    # Ensure Plain overrides Berry if any overlap exists
+    berry_codes = [c for c in berry_codes if c not in PLAIN_CODES]
+
+    merged_master = merged_df.copy()
     merged_master["flavor"] = np.select(
-        [is_plain, is_berry],
+        merged_master["flavor_cd"].isin(PLAIN_CODES),
+        merged_master["flavor_cd"].isin(berry_codes),
         [2, 1],  # 2 = Plain, 1 = Berry
         default=0,  # 0 = Other
     )

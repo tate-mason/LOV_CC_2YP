@@ -140,9 +140,12 @@ def load_and_preprocess(weekly_capacity=28):
     berry_codes = [c for c in berry_codes if c not in PLAIN_CODES]
 
     merged_master = merged_df.copy()
+
     merged_master["flavor"] = np.select(
-        merged_master["flavor_cd"].isin(PLAIN_CODES),
-        merged_master["flavor_cd"].isin(berry_codes),
+        [
+            merged_master["flavor_cd"].isin(PLAIN_CODES),
+            merged_master["flavor_cd"].isin(berry_codes),
+        ],
         [2, 1],  # 2 = Plain, 1 = Berry
         default=0,  # 0 = Other
     )

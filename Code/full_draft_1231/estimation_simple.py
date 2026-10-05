@@ -56,28 +56,22 @@ def load_and_preprocess(weekly_capacity=7):
         merged_df["flavor_cd"], errors="coerce"
     ).fillna(0)
 
+    merged_master = merged_df.copy()
     # Revised String + Numeric Approach
-    is_plain = merged_df["flavor_cd"].isin([67676592, 66987057])
-    is_berry = merged_df["flavor_str"].str.contains(
+    is_plain = merged_master["flavor_cd"].isin([67676592, 66987057])
+    is_berry = merged_master["flavor_str"].str.contains(
         r"\b(berry|strawberry|blueberry|raspberry|blackberry)\b",
         case=False,
         na=False,
     )
 
-    merged_df["flavor"] = np.select(
+    merged_master["flavor"] = np.select(
         [
             is_plain,  # Check Plain first
             is_berry,  # Check Berry regex second
         ],
         [2, 1],
         default=0,
-    )
-
-    # Petrin & Train Instrument Construction (1st Stage OLS)
-    market_price = (
-        merged_df.groupby(["upc", "week_end", "market_name"])["price"]
-        .mean()
-        .reset_index()
     )
 
     totals = (

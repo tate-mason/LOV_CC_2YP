@@ -30,7 +30,7 @@ rng = np.random.default_rng(219)
 # =================================================
 
 
-def load_and_preprocess(weekly_capacity=7):
+def load_and_preprocess(weekly_capacity=28):
     merged_df = (
         pl.scan_parquet(MERGED_PATH)
         .with_columns(
@@ -220,7 +220,8 @@ def load_and_preprocess(weekly_capacity=7):
                 counts[row.choice_idx] += row.units_bought
 
             inside_units = np.sum(counts[:3])
-            outside_count = max(0, weekly_capacity - inside_units)
+            effective_capacity = max(weekly_capacity, inside_units + 1)
+            outside_count = effective_capacity - inside_units
             counts[3] = outside_count
 
             matrices_list.append(choice_set_matrix[(store, week)])
@@ -257,6 +258,40 @@ def load_and_preprocess(weekly_capacity=7):
     )
     console.print(
         f"[bold cyan]Zero outside count share:[/bold cyan]    {np.mean(np.array(all_outside_counts) == 0):.1%}"
+    )
+
+    # -------------------------------------------------------------
+    # ADDED DIAGNOSTICS: Check choice counts and parameter variation
+    # -------------------------------------------------------------
+    all_counts = np.sum(
+        [counts for hh in hh_packed_data.values() for counts in hh["choices"]],
+        axis=0,
+    )
+    console.print("\n[bold yellow]--- CHOICE CATEGORY TOTALS ---[/bold yellow]")
+    console.print(
+        f"Other: [cyan]{all_counts[0]}[/cyan] | "
+        f"Berry: [cyan]{all_counts[1]}[/cyan] | "
+        f"Plain: [cyan]{all_counts[2]}[/cyan] | "
+        f"Outside: [cyan]{all_counts[3]}[/cyan]"
+    )
+
+    prices = [
+        X[i, 0]
+        for hh in hh_packed_data.values()
+        for X in hh["matrices"]
+        for i in range(3)
+    ]
+    resids = [
+        X[i, 1]
+        for hh in hh_packed_data.values()
+        for X in hh["matrices"]
+        for i in range(3)
+    ]
+    console.print(
+        f"[bold yellow]Price Range:[/bold yellow] {np.min(prices):.2f} to {np.max(prices):.2f} (Std: {np.std(prices):.2f})"
+    )
+    console.print(
+        f"[bold yellow]Resid Range:[/bold yellow] {np.min(resids):.2f} to {np.max(resids):.2f} (Std: {np.std(resids):.2f})\n"
     )
 
     return hh_packed_data

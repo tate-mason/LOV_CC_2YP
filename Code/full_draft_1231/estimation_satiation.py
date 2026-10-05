@@ -99,7 +99,7 @@ def compute_satiation_state(
     return pd.DataFrame(inventory_records)
 
 
-def load_and_preprocess(weekly_capacity=7):
+def load_and_preprocess(weekly_capacity=21):
     merged_df = (
         pl.scan_parquet(MERGED_PATH)
         .with_columns(

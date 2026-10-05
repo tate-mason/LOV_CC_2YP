@@ -74,6 +74,13 @@ def load_and_preprocess(weekly_capacity=7):
         default=0,
     )
 
+    # Petrin & Train Instrument Construction (1st Stage OLS)
+    market_price = (
+        merged_master.groupby(["upc", "week_end", "market_name"])["price"]
+        .mean()
+        .reset_index()
+    )
+
     totals = (
         market_price.groupby(["upc", "week_end"])["price"]
         .agg(["sum", "count"])

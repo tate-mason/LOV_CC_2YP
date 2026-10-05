@@ -287,6 +287,31 @@ def load_and_preprocess(weekly_capacity=7):
             "log_income": log_inc,
         }
 
+    # Summary diagnostics executed AFTER dataset is fully packed
+    all_inside_units = [
+        np.sum(hh_data["choices"][t][:3])
+        for hh_data in hh_packed_data.values()
+        for t in range(len(hh_data["choices"]))
+    ]
+    all_outside_counts = [
+        hh_data["choices"][t][3]
+        for hh_data in hh_packed_data.values()
+        for t in range(len(hh_data["choices"]))
+    ]
+
+    console.print(
+        f"[bold cyan]Mean inside units per week:[/bold cyan] {np.mean(all_inside_units):.2f}"
+    )
+    console.print(
+        f"[bold cyan]Mean outside count:[/bold cyan]          {np.mean(all_outside_counts):.2f}"
+    )
+    console.print(
+        f"[bold cyan]Inside choice share:[/bold cyan]         {np.mean(all_inside_units) / float(weekly_capacity):.1%}"
+    )
+    console.print(
+        f"[bold cyan]Zero outside count share:[/bold cyan]    {np.mean(np.array(all_outside_counts) == 0):.1%}"
+    )
+
     return hh_packed_data
 
 
@@ -296,10 +321,9 @@ def load_and_preprocess(weekly_capacity=7):
 
 
 def total_objective(params, hh_packed_data):
-    const, beta_ber, beta_pl, gamma, alpha, sigma = params
+    beta_oth, beta_ber, beta_pl, gamma, alpha, sigma = params
 
-    d_berry = np.array([0.0, 1.0, 0.0])
-    d_plain = np.array([0.0, 0.0, 1.0])
+    beta_vec = np.array([beta_oth, beta_ber, beta_pl])
 
     total_ll = 0.0
 
@@ -313,14 +337,7 @@ def total_objective(params, hh_packed_data):
             resids = X_mat[:3, 1]
 
             u = np.zeros(4)
-            u[:3] = (
-                const
-                + beta_ber * d_berry
-                + beta_pl * d_plain
-                + gamma * C_jt
-                + alpha * prices
-                + sigma * resids
-            )
+            u[:3] = beta_vec + gamma * C_jt + alpha * prices + sigma * resids
             u[3] = 0.0
 
             log_prob = u - logsumexp(u)
@@ -373,20 +390,18 @@ def estimate_model(hh_packed_data):
 
 def total_objective_mixed(params, hh_packed_data, n_draws=50):
     (
-        const,
+        mu_b_oth,
         mu_b_berry,
         mu_b_pl,
         mu_gamma,
         alpha_0,
         alpha_inc,
         sigma_cf,
+        sd_b_oth,
         sd_b_berry,
         sd_b_pl,
         sd_gamma,
     ) = params
-
-    d_berry = np.array([0.0, 1.0, 0.0])
-    d_plain = np.array([0.0, 0.0, 1.0])
 
     rng_sim = np.random.default_rng(306)
     total_ll = 0.0
@@ -399,9 +414,12 @@ def total_objective_mixed(params, hh_packed_data, n_draws=50):
 
         alpha_i = alpha_0 + alpha_inc * log_inc
 
+        draws_b_oth = mu_b_oth + sd_b_oth * rng_sim.standard_normal(n_draws)
         draws_b_ber = mu_b_berry + sd_b_berry * rng_sim.standard_normal(n_draws)
         draws_b_pl = mu_b_pl + sd_b_pl * rng_sim.standard_normal(n_draws)
         draws_gamma = mu_gamma + sd_gamma * rng_sim.standard_normal(n_draws)
+
+        beta_matrix = np.column_stack([draws_b_oth, draws_b_ber, draws_b_pl])
 
         log_draw_probs = np.zeros(n_draws)
 
@@ -410,9 +428,7 @@ def total_objective_mixed(params, hh_packed_data, n_draws=50):
             resids = X_mat[:3, 1]
 
             u_inside = (
-                const
-                + np.outer(draws_b_ber, d_berry)
-                + np.outer(draws_b_pl, d_plain)
+                beta_matrix
                 + np.outer(draws_gamma, C_jt)
                 + alpha_i * prices
                 + sigma_cf * resids
@@ -437,13 +453,14 @@ def estimate_mixed_model(hh_packed_data, n_draws=50):
     x0 = np.array([0.0, 0.0, 0.0, 0.0, -1.5, 0.05, 0.0, 0.1, 0.1, 0.1])
 
     bounds = [
-        (None, None),  # const
+        (None, None),  # mu_b_oth
         (None, None),  # mu_b_ber
         (None, None),  # mu_b_pl
         (None, None),  # mu_gamma
         (None, 0.0),  # alpha_0 (Must be non-positive)
         (None, None),  # alpha_inc
         (None, None),  # sigma_cf
+        (1e-4, None),  # sd_b_oth
         (1e-4, None),  # sd_b_ber
         (1e-4, None),  # sd_b_pl
         (1e-4, None),  # sd_gamma

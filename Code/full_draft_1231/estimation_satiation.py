@@ -489,7 +489,7 @@ def estimate_model(hh_packed_data):
     }
 
 
-def total_objective_mixed(params, hh_packed_data, static_draws=STATIC_DRAWS):
+def total_objective_mixed(params, hh_packed_data, static_draws):
     (
         mu_b_oth,
         mu_b_berry,
@@ -549,7 +549,7 @@ def total_objective_mixed(params, hh_packed_data, static_draws=STATIC_DRAWS):
     return -total_ll
 
 
-def estimate_mixed_model(hh_packed_data, n_draws=50):
+def estimate_mixed_model(hh_packed_data, static_draws=STATIC_DRAWS):
     x0 = np.array([0.0, 0.0, 0.0, 0.0, -1.5, 0.05, 0.0, 0.1, 0.1, 0.1, 0.1])
 
     bounds = [
@@ -569,7 +569,7 @@ def estimate_mixed_model(hh_packed_data, n_draws=50):
     res = minimize(
         total_objective_mixed,
         x0=x0,
-        args=(hh_packed_data, n_draws),
+        args=(hh_packed_data, static_draws),
         method="L-BFGS-B",
         bounds=bounds,
         options={

@@ -354,6 +354,7 @@ merged_df = (
     )
     .filter(pl.col("household_size") == 1)
     .filter(pl.col("serving_per_container_cd").is_in([67181961, 65622705]))
+    .filter(pl.col("product_module_code_hms").is_in([3612, 3603]))
     .collect()
     .to_pandas()
 )

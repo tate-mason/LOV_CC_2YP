@@ -1,0 +1,57 @@
+From github.com:tate-mason/LOV_CC_2YP
+   83e4e26..8659575  main       -> origin/main
+Updating 83e4e26..8659575
+Fast-forward
+ Code/full_draft_1231/estimation_satiation.py | 39 ++++++++++++++++++++++------
+ 1 file changed, 31 insertions(+), 8 deletions(-)
+Mean inside units per week: 7.84
+Mean outside count:          20.46
+Inside choice share:         28.0%
+Zero outside count share:    0.0%
+
+--- CHOICE CATEGORY TOTALS ---
+Other: 110336 | Berry: 11280 | Plain: 14397 | Outside: 354931
+Price Range: 0.28 to 3.49 (Std: 0.14)
+Resid Range: -3.26 to 3.53 (Std: 0.12)
+
+
+--- Estimating Standard Satiation Logit ---
+Gradient Norm at convergence: 16.423004
+Hessian Condition Number: 1.27e+06
+             MCALLISTER & LATTIN SATIATION RESULTS              
+┏━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━┓
+┃ Parameter         ┃ Estimate ┃ Std. Error ┃ z-stat ┃ p-value ┃
+┡━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━┩
+│ beta_oth          │  -0.1111 │     1.8035 │ -0.062 │  0.9509 │
+│ beta_ber          │  -2.4380 │     1.4072 │ -1.733 │  0.0832 │
+│ beta_pl           │  -2.0146 │     1.7224 │ -1.170 │  0.2421 │
+│ gamma (Satiation) │  -0.0330 │     0.1597 │ -0.206 │  0.8365 │
+│ Price             │  -0.8076 │     1.3460 │ -0.600 │  0.5485 │
+│ Control Func.     │   0.1397 │     1.4867 │  0.094 │  0.9251 │
+└───────────────────┴──────────┴────────────┴────────┴─────────┘
+Optimization Success: True
+Final LL Objective: 372749.6064
+
+--- Estimating Mixed Satiation Logit ---
+╭───────────────────── Traceback (most recent call last) ──────────────────────╮
+│ /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/full_draft_1231/estimation_sat │
+│ iation.py:954 in <module>                                                    │
+│                                                                              │
+│   951                                                                        │
+│   952                                                                        │
+│   953 if __name__ == "__main__":                                             │
+│ ❱ 954 │   main()                                                             │
+│   955                                                                        │
+│                                                                              │
+│ /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/full_draft_1231/estimation_sat │
+│ iation.py:940 in main                                                        │
+│                                                                              │
+│   937 │   display_results(results)                                           │
+│   938 │                                                                      │
+│   939 │   console.print("\n--- Estimating Mixed Satiation Logit ---")        │
+│ ❱ 940 │   mixed_results = estimate_mixed_model(hh_packed_data, n_draws=50)   │
+│   941 │   display_mixed_results(mixed_results)                               │
+│   942 │                                                                      │
+│   943 │   df_types = extract_individual_parameters(mixed_results, hh_packed_ │
+╰──────────────────────────────────────────────────────────────────────────────╯
+TypeError: estimate_mixed_model() got an unexpected keyword argument 'n_draws'

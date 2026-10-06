@@ -1,0 +1,54 @@
+From github.com:tate-mason/LOV_CC_2YP
+   83a4450..2c4cb0c  main       -> origin/main
+Updating 83a4450..2c4cb0c
+Fast-forward
+ Code/full_draft_1231/estimation_satiation.py | 25 +++++++++++++++----------
+ Code/full_draft_1231/estimation_simple.py    | 26 +++++++++++++++++---------
+ 2 files changed, 32 insertions(+), 19 deletions(-)
+Mean inside units per week: 7.15
+Mean outside count:          21.00
+Inside choice share:         25.5%
+Zero outside count share:    0.0%
+
+--- CHOICE CATEGORY TOTALS ---
+Other: 3810 | Berry: 0 | Plain: 1164 | Outside: 14616
+Price Range: 0.28 to 2.89 (Std: 0.49)
+Resid Range: -0.85 to 0.92 (Std: 0.15)
+
+
+--- Estimating LOV Simple Logit ---
+Optimization Success: True
+Final Log-Likelihood: -12815.9657
+
+    Simple Logit Estimation Results (Occasion-to-Occasion Only)    
+┏━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━┓
+┃ Parameter            ┃ Estimate ┃ Std. Error ┃ z-stat ┃ p-value ┃
+┡━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━┩
+│ beta_other           │  -0.6890 │     1.1833 │ -0.582 │  0.5604 │
+│ beta_berry           │ -17.8137 │   237.0991 │ -0.075 │  0.9401 │
+│ beta_plain           │  -0.5471 │     2.5858 │ -0.212 │  0.8324 │
+│ gamma (switching)    │  -1.0747 │     1.7168 │ -0.626 │  0.5313 │
+│ alpha (price)        │  -0.3799 │     1.1342 │ -0.335 │  0.7377 │
+│ sigma (control_func) │   0.2041 │     1.5674 │  0.130 │  0.8964 │
+└──────────────────────┴──────────┴────────────┴────────┴─────────┘
+
+--- Estimating LOV Mixed Logit ---
+Mixed Optimization Success: True
+Final Log-Likelihood: -10848.1931
+
+           Mixed Logit Estimation Results (Occasion-to-Occasion Only)           
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━┓
+┃ Parameter                         ┃ Estimate ┃ Std. Error ┃ z-stat ┃ p-value ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━┩
+│ mu_beta_other                     │  -0.3839 │     1.2934 │ -0.297 │  0.7666 │
+│ mu_beta_berry                     │ -16.0188 │     7.4437 │ -2.152 │  0.0314 │
+│ mu_beta_plain                     │  -2.0469 │     1.1175 │ -1.832 │  0.0670 │
+│ mu_gamma (switching)              │  -0.7227 │     0.4015 │ -1.800 │  0.0718 │
+│ alpha_0 (base price)              │  -1.4006 │     2.1533 │ -0.650 │  0.5154 │
+│ alpha_inc (inc price interaction) │   0.1983 │     0.8494 │  0.233 │  0.8154 │
+│ sigma_cf (control_func)           │   0.5960 │     1.6047 │  0.371 │  0.7103 │
+│ sd_beta_other                     │   1.5054 │     0.2862 │  5.260 │  0.0000 │
+│ sd_beta_berry                     │   0.2147 │     1.1108 │  0.193 │  0.8467 │
+│ sd_beta_plain                     │   2.3002 │     1.4755 │  1.559 │  0.1190 │
+│ sd_gamma                          │   0.6346 │     0.5649 │  1.123 │  0.2613 │
+└───────────────────────────────────┴──────────┴────────────┴────────┴─────────┘

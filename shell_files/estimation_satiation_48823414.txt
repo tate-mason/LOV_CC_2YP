@@ -1,0 +1,19 @@
+From github.com:tate-mason/LOV_CC_2YP
+   18830ba..a4de0a7  main       -> origin/main
+Updating 18830ba..a4de0a7
+Fast-forward
+ Code/full_draft_1231/estimation_satiation.py | 125 +++++++++++++++------------
+ 1 file changed, 71 insertions(+), 54 deletions(-)
+Mean inside units per week: 7.84
+Mean outside count:          20.46
+Inside choice share:         28.0%
+Zero outside count share:    0.0%
+
+--- CHOICE CATEGORY TOTALS ---
+Other: 110336 | Berry: 11280 | Plain: 14397 | Outside: 354931
+Price Range: 0.28 to 3.49 (Std: 0.14)
+Resid Range: -3.26 to 3.53 (Std: 0.12)
+
+
+--- Estimating Standard Satiation Logit ---
+slurmstepd: error: *** JOB 48823414 ON b5-23 CANCELLED AT 2026-10-06T11:18:14 ***

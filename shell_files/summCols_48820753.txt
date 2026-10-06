@@ -1,0 +1,660 @@
+Loading data with Polars...
+Rows after household join: 26304702
+Rows after household size filter: 26304702
+Rows after OZ filter: 15753354
+Most common size amounts before the 5–8 filter:
+Rows after size amount filter: 2837037
+Filtered panel loaded: 2,837,037 rows | 5,397 unique single-person 
+yogurt-purchasing HHs
+
+=== FULL SAMPLE SUMMARY STATISTICS ===
+Number of households in full sample:                  5,397
+Number of yogurt-purchasing households:               3,378
+Mean number of trips per HH:                          84.47
+Number of yogurt purchases per trip (purchasers):     10.68
+Mean household income:                                $18.18
+Median household income:                              $18.00
+Percent taking outside option each trip:              90.54%
+Percent purchasing with coupon:                       27.87%
+Average Age (Overall):                                7.9
+Average Age (Male):                                   7.8
+Average Age (Female):                                 7.9
+
+=== FLAVOR SWITCHING METRICS ===
+Mean consecutive buys by flavor x HH:                 28.31
+Mean times switching by flavor x HH:                  4.84
+Percent of HH who ever-switch flavors:                 69.18%
+Percent switching due to coupon/deal:                 30.56%
+
+Generating flavor switching heatmap...
+Heatmap successfully saved to: ../Output/Plots/3_flav_heatmap.pdf
+
+Preparing Left Join and Streaming Output...
+(895754, 265)
+       trip_code_uc  household_code  retailer_code  store_code_uc  panel_year  \
+count  8.957540e+05    8.957540e+05  895754.000000   8.957540e+05    895754.0   
+mean   4.670019e+06    1.482810e+07    2684.737853   3.399623e+06      2024.0   
+min    1.880000e+02    1.000658e+06       2.000000   0.000000e+00      2024.0   
+25%    2.330443e+06    4.895302e+06     128.000000   7.694320e+05      2024.0   
+50%    4.672685e+06    8.599898e+06     408.000000   3.251599e+06      2024.0   
+75%    7.004751e+06    2.110463e+07    6901.000000   5.611355e+06      2024.0   
+max    9.333940e+06    6.003794e+07    9999.000000   8.386344e+06      2024.0   
+std    2.694675e+06    1.224923e+07    3143.979062   2.663095e+06         0.0   
+
+       household_income  household_size  male_head_age  female_head_age  \
+count     895754.000000        895754.0  197851.000000    697903.000000   
+mean          18.449692             1.0       7.793152         7.997104   
+min            3.000000             1.0       1.000000         1.000000   
+25%           15.000000             1.0       8.000000         8.000000   
+50%           18.000000             1.0       8.000000         9.000000   
+75%           23.000000             1.0       9.000000         9.000000   
+max           27.000000             1.0       9.000000         9.000000   
+std            6.257493             0.0       1.622980         1.511290   
+
+                upc       quantity   deal_flag_uc  size1_amount_hms  \
+count  8.957540e+05  895754.000000  895754.000000     895754.000000   
+mean   7.955840e+10       1.440659       0.220798       6767.051686   
+min    1.091615e+07       1.000000       0.000000       5000.000000   
+25%    3.810053e+09       1.000000       0.000000       5930.000000   
+50%    7.920093e+09       1.000000       0.000000       7000.000000   
+75%    2.000291e+11       1.000000       0.000000       8000.000000   
+max    9.421016e+11      96.000000       1.000000       8000.000000   
+std    9.531433e+10       1.335586       0.414785       1116.964400   
+
+              flavor     flavor_cd      year                 parsed_date  \
+count  895754.000000  8.957540e+05  895703.0                      895754   
+mean        0.555513  4.206130e+07    2024.0  2024-06-29 07:27:46.011000   
+min         0.000000  0.000000e+00    2024.0         2023-12-31 00:00:00   
+25%         0.000000  0.000000e+00    2024.0         2024-03-28 00:00:00   
+50%         0.000000  6.548702e+07    2024.0         2024-06-29 00:00:00   
+75%         2.000000  6.698706e+07    2024.0         2024-09-30 00:00:00   
+max         2.000000  2.860682e+08    2024.0         2024-12-28 00:00:00   
+std         0.872411  3.721090e+07       0.0                         NaN   
+
+                         week_end       head_age  yogurt_purchase  
+count                      895754  895754.000000    895754.000000  
+mean   2024-07-02 04:42:17.314000       7.952056         0.083491  
+min           2024-01-06 00:00:00       1.000000         0.000000  
+25%           2024-03-30 00:00:00       8.000000         0.000000  
+50%           2024-06-29 00:00:00       9.000000         0.000000  
+75%           2024-10-05 00:00:00       9.000000         0.000000  
+max           2024-12-28 00:00:00       9.000000         1.000000  
+std                           NaN       1.538985         0.276622  
+[
+    'trip_code_uc',
+    'household_code',
+    'purchase_date',
+    'retailer_code',
+    'store_code_uc',
+    'panel_year',
+    'store_zip3',
+    'total_spent',
+    'method_of_payment_cd',
+    'projection_factor',
+    'household_income',
+    'household_size',
+    'male_head_age',
+    'female_head_age',
+    'male_head_employment',
+    'female_head_employment',
+    'race',
+    'hispanic_origin',
+    'panelist_zip_code',
+    'fips_state_code',
+    'fips_county_code',
+    'upc',
+    'quantity',
+    'total_price_paid',
+    'coupon_value',
+    'deal_flag_uc',
+    'product_module_code_hms',
+    'size1_amount_hms',
+    'size1_unit_hms',
+    'brand_descr_hms',
+    'multi_hms',
+    'channel_type',
+    'brand',
+    'brand_cd',
+    'protein_gram',
+    'protein_gram_cd',
+    'commodity_group',
+    'commodity_group_cd',
+    'manufacturer_suggested_price_claim',
+    'manufacturer_suggested_price_claim_cd',
+    'cholesterol',
+    'cholesterol_cd',
+    'sodium_presence_claim',
+    'sodium_presence_claim_cd',
+    'fat_calorie_per_serving_size',
+    'fat_calorie_per_serving_size_cd',
+    'sugar_gram',
+    'sugar_gram_cd',
+    'competitive_category_ogrds',
+    'competitive_category_ogrds_cd',
+    'package_presentation_option',
+    'package_presentation_option_cd',
+    'additional_information',
+    'additional_information_cd',
+    'manufacturing_process',
+    'manufacturing_process_cd',
+    'serving_size_household',
+    'serving_size_household_cd',
+    'trans_fat_gram',
+    'trans_fat_gram_cd',
+    'serving_size_metric',
+    'serving_size_metric_cd',
+    'calories_per_serving_size',
+    'calories_per_serving_size_cd',
+    'secondary_size',
+    'secondary_size_cd',
+    'total_size',
+    'total_size_cd',
+    'organic_claim',
+    'organic_claim_cd',
+    'genetic_modification_claim',
+    'genetic_modification_claim_cd',
+    'total_carbohydrate_gram',
+    'total_carbohydrate_gram_cd',
+    'flavor',
+    'flavor_cd',
+    'target_group_gender',
+    'target_group_gender_cd',
+    'manufacturer_suggested_price',
+    'manufacturer_suggested_price_cd',
+    'prepriced',
+    'prepriced_cd',
+    'nutritional_health_claim',
+    'nutritional_health_claim_cd',
+    'usda_organic_seal',
+    'usda_organic_seal_cd',
+    'formulation',
+    'formulation_cd',
+    'strategic_ingredient_presence_claim',
+    'strategic_ingredient_presence_claim_cd',
+    'fat_presence_claim',
+    'fat_presence_claim_cd',
+    'price_reduction',
+    'price_reduction_cd',
+    'total_fat_gram',
+    'total_fat_gram_cd',
+    'serving_per_container',
+    'serving_per_container_cd',
+    'saturated_fat_gram',
+    'saturated_fat_gram_cd',
+    'form',
+    'form_cd',
+    'product_size',
+    'product_size_cd',
+    'base_size',
+    'base_size_cd',
+    'package_general_shape',
+    'package_general_shape_cd',
+    'calorie_claim',
+    'calorie_claim_cd',
+    'package_material_substance',
+    'package_material_substance_cd',
+    'sodium',
+    'sodium_cd',
+    'dietary_fiber',
+    'dietary_fiber_cd',
+    'claim',
+    'claim_cd',
+    'common_consumer_name',
+    'common_consumer_name_cd',
+    'deal_derived',
+    'deal_derived_cd',
+    'product_descr',
+    'product_module_code',
+    'product_module_descr',
+    'multi',
+    'start_date',
+    'year',
+    'super_category',
+    'super_category_cd',
+    'category',
+    'category_cd',
+    'sub_category',
+    'sub_category_cd',
+    'segment',
+    'segment_cd',
+    'department',
+    'department_cd',
+    'market_name',
+    'parsed_date',
+    'week_end',
+    'head_age',
+    'flavor_str',
+    'yogurt_purchase',
+    'year_right',
+    'retailer_code_right',
+    'parent_code',
+    'channel_code',
+    'store_zip3_right',
+    'fips_state_code_right',
+    'fips_county_code_right',
+    'acv',
+    'panel_year_right',
+    'units',
+    'prmult',
+    'price',
+    'feature',
+    'display',
+    'brand_right',
+    'brand_cd_right',
+    'protein_gram_right',
+    'protein_gram_cd_right',
+    'commodity_group_right',
+    'commodity_group_cd_right',
+    'manufacturer_suggested_price_claim_right',
+    'manufacturer_suggested_price_claim_cd_right',
+    'cholesterol_right',
+    'cholesterol_cd_right',
+    'sodium_presence_claim_right',
+    'sodium_presence_claim_cd_right',
+    'fat_calorie_per_serving_size_right',
+    'fat_calorie_per_serving_size_cd_right',
+    'sugar_gram_right',
+    'sugar_gram_cd_right',
+    'competitive_category_ogrds_right',
+    'competitive_category_ogrds_cd_right',
+    'package_presentation_option_right',
+    'package_presentation_option_cd_right',
+    'additional_information_right',
+    'additional_information_cd_right',
+    'manufacturing_process_right',
+    'manufacturing_process_cd_right',
+    'serving_size_household_right',
+    'serving_size_household_cd_right',
+    'trans_fat_gram_right',
+    'trans_fat_gram_cd_right',
+    'serving_size_metric_right',
+    'serving_size_metric_cd_right',
+    'calories_per_serving_size_right',
+    'calories_per_serving_size_cd_right',
+    'secondary_size_right',
+    'secondary_size_cd_right',
+    'total_size_right',
+    'total_size_cd_right',
+    'organic_claim_right',
+    'organic_claim_cd_right',
+    'genetic_modification_claim_right',
+    'genetic_modification_claim_cd_right',
+    'total_carbohydrate_gram_right',
+    'total_carbohydrate_gram_cd_right',
+    'flavor_right',
+    'flavor_cd_right',
+    'target_group_gender_right',
+    'target_group_gender_cd_right',
+    'manufacturer_suggested_price_right',
+    'manufacturer_suggested_price_cd_right',
+    'prepriced_right',
+    'prepriced_cd_right',
+    'nutritional_health_claim_right',
+    'nutritional_health_claim_cd_right',
+    'usda_organic_seal_right',
+    'usda_organic_seal_cd_right',
+    'formulation_right',
+    'formulation_cd_right',
+    'strategic_ingredient_presence_claim_right',
+    'strategic_ingredient_presence_claim_cd_right',
+    'fat_presence_claim_right',
+    'fat_presence_claim_cd_right',
+    'price_reduction_right',
+    'price_reduction_cd_right',
+    'total_fat_gram_right',
+    'total_fat_gram_cd_right',
+    'serving_per_container_right',
+    'serving_per_container_cd_right',
+    'saturated_fat_gram_right',
+    'saturated_fat_gram_cd_right',
+    'form_right',
+    'form_cd_right',
+    'product_size_right',
+    'product_size_cd_right',
+    'base_size_right',
+    'base_size_cd_right',
+    'package_general_shape_right',
+    'package_general_shape_cd_right',
+    'calorie_claim_right',
+    'calorie_claim_cd_right',
+    'package_material_substance_right',
+    'package_material_substance_cd_right',
+    'sodium_right',
+    'sodium_cd_right',
+    'dietary_fiber_right',
+    'dietary_fiber_cd_right',
+    'claim_right',
+    'claim_cd_right',
+    'common_consumer_name_right',
+    'common_consumer_name_cd_right',
+    'deal_derived_right',
+    'deal_derived_cd_right',
+    'product_descr_right',
+    'product_module_code_right',
+    'product_module_descr_right',
+    'multi_right',
+    'start_date_right',
+    'year_hier',
+    'super_category_right',
+    'super_category_cd_right',
+    'category_right',
+    'category_cd_right',
+    'sub_category_right',
+    'sub_category_cd_right',
+    'segment_right',
+    'segment_cd_right',
+    'department_right',
+    'department_cd_right',
+    'market_name_right'
+]
+       serving_per_container serving_per_container_cd
+0                     VARIED                 65030957
+3                 16 SERVING                 64860779
+6                 23 SERVING                 67558897
+9                  8 SERVING                 67832622
+18               3.5 SERVING                 65314236
+30                40 SERVING                 66174719
+36                NOT STATED                 67164551
+48               2.5 SERVING                 67879044
+51                 6 SERVING                 65400655
+63                 5 SERVING                 66578558
+249                7 SERVING                 65567225
+1473            1130 SERVING                 66846074
+1479               4 SERVING                 66820375
+1500               9 SERVING                 66252116
+1548           NOT COLLECTED                 67372024
+1572               1 SERVING                 65622705
+1626             5.5 SERVING                 66880672
+1629              30 SERVING                 66841674
+1641               2 SERVING                 66013484
+1650                     NaN                      NaN
+1740              12 SERVING                 66222091
+1749             1 CONTAINER                 67181961
+2076              20 SERVING                 67276531
+2079              28 SERVING                 67478317
+2118               3 SERVING                 65160789
+2148             403 SERVING                 66643429
+2169              45 SERVING                 65401488
+2190             205 SERVING                 66190111
+2205              15 SERVING                 67934287
+2310             151 SERVING                 66305020
+2403              14 SERVING                 65924702
+2454              10 SERVING                 66879291
+2475              24 SERVING                 66380348
+2556              13 SERVING                 66484741
+2604             4.5 SERVING                 66781653
+3717             142 SERVING                 64956106
+3723              17 SERVING                 66932148
+4131              11 SERVING                 66238410
+4197             684 SERVING                 67861598
+4203              34 SERVING                 65240729
+4206              25 SERVING                 65180622
+5409              35 SERVING                 66051375
+5748             163 SERVING                 65480165
+5799             189 SERVING                 66233235
+5802              50 SERVING                 65269711
+5868              36 SERVING                 66028543
+5883              75 SERVING                 64745972
+6234              18 SERVING                 65610708
+6372             7.5 SERVING                 65210693
+8664             220 SERVING                 65022180
+8676             195 SERVING                 66582035
+8790             157 SERVING                 66670211
+9126              99 SERVING                 65356934
+10200            227 SERVING                 66451534
+10407             22 SERVING                 67142204
+11109            359 SERVING                 64891938
+11112            350 SERVING                 67414044
+13860            1.5 SERVING                 65535780
+15165                 VARIES                 67979536
+15252            284 SERVING                 66550628
+17151            180 SERVING                 67980649
+17529             31 SERVING                 66506882
+17805             32 SERVING                 65347941
+22185            141 SERVING                 66641035
+23748            6.5 SERVING                 67722729
+24699             38 SERVING                 66783389
+25581            252 SERVING                 64913595
+25584            173 SERVING                 66751535
+26337             56 SERVING                 67842178
+29067             26 SERVING                 67980651
+31877            113 SERVING                 65870682
+34961            221 SERVING                 65009843
+34991             29 SERVING                 67170822
+36212             64 SERVING                 65505089
+38354            177 SERVING                 66667188
+40676            106 SERVING                 67836347
+40691            374 SERVING                 66771643
+41210            558 SERVING                 66578012
+41234            746 SERVING                 66996239
+41255            463 SERVING                 64834907
+41270            473 SERVING                 67244987
+41327            5.2 SERVING                 65971933
+41477            428 SERVING                 65314699
+41534            665 SERVING                 65780364
+41726             37 SERVING                 66322467
+41756            283 SERVING                 64975531
+42755             41 SERVING                 67759408
+48212            170 SERVING                 65416723
+48536            331 SERVING                 66652516
+51791           3.78 SERVING                100185756
+52526            149 SERVING                 66349898
+53240            529 SERVING                 65088427
+53669            128 SERVING                 67955845
+55778            191 SERVING                 68026371
+57322             85 SERVING                 65576208
+58129            201 SERVING                 64747054
+65943            236 SERVING                 67238116
+69357            156 SERVING                 65743214
+69627            188 SERVING                 67715492
+72960            158 SERVING                 66874697
+72963            275 SERVING                 64948709
+73059            204 SERVING                 65136375
+73065            144 SERVING                 67884939
+76563            500 SERVING                 65833932
+78402             33 SERVING                 67087441
+82535           10.5 SERVING                 67168318
+82886            222 SERVING                 65947814
+82916            155 SERVING                 67838125
+87857             39 SERVING                 66482516
+90467            219 SERVING                 66523087
+90611            228 SERVING                 65833577
+92998            424 SERVING                 65516018
+93781            320 SERVING                 67961998
+96513               1 BOTTLE                 66567639
+97023            360 SERVING                 65589879
+98292            206 SERVING                 67159922
+98718            557 SERVING                 66034444
+98901           12.5 SERVING                 66552819
+99261            425 SERVING                 66445571
+99264            136 SERVING                 65304101
+99273            148 SERVING                 65034667
+101034           250 SERVING                 65777091
+101202           355 SERVING                 64891028
+101331           160 SERVING                 66306531
+101931           210 SERVING                 67387006
+102171          5.25 SERVING                 65477758
+102300                  VARY                 66953403
+102321           159 SERVING                 66880720
+102870             7 CRACKER                151103933
+103218             0 SERVING                 67174405
+104015           431 SERVING                 65759274
+104183           114 SERVING                 65056640
+104237           172 SERVING                 66404565
+104762            19 SERVING                 67053469
+105665           753 SERVING                 66158525
+106016           565 SERVING                 67527645
+106127           264 SERVING                 66268814
+107552            .5 SERVING                 65134750
+108710           115 SERVING                 67826226
+109157           248 SERVING                 66327343
+110264          1314 SERVING                205325609
+110594           470 SERVING                 64933472
+110618           125 SERVING                 66280937
+111167           5.3 SERVING                 67220949
+111842                 1 CAN                 65397262
+112664          2.75 SERVING                 64974514
+113936            48 SERVING                 64756985
+114452            51 SERVING                 65353096
+114527            43 SERVING                 65795728
+115952           212 SERVING                 65122839
+117140           482 SERVING                 65399384
+118583           251 SERVING                 65864523
+118721           198 SERVING                 65791004
+121268           575 SERVING                 66515746
+121538           477 SERVING                 64907322
+121733           2.6 SERVING                 65926823
+122300           207 SERVING                 65275452
+122549           181 SERVING                 65516312
+122906           175 SERVING                 66132616
+123512           6.7 SERVING                 65420671
+124334           213 SERVING                 65793412
+124625           190 SERVING                 66936052
+124628           187 SERVING                 66626921
+126296           741 SERVING                 67655242
+127040           226 SERVING                 67146752
+127481           657 SERVING                 65919586
+129959           564 SERVING                 68061245
+131999           567 SERVING                 65078236
+132254           200 SERVING                 67704096
+132665           224 SERVING                 65674529
+132929           908 SERVING                 67098084
+134632               2.5 CUP                 65781842
+137326           313 SERVING                 65069094
+140794            46 SERVING                 65634705
+142666            80 SERVING                 67287934
+142912           176 SERVING                 67328764
+142918            68 SERVING                 66204557
+143005           6.6 SERVING                 65763171
+143113           185 SERVING                 67961076
+143158            47 SERVING                 64709039
+143878           123 SERVING                 64896319
+144025           1.7 SERVING                 66477338
+144586            21 SERVING                 67472304
+145165           3.2 SERVING                 64710845
+149488           464 SERVING                 64883549
+152308           273 SERVING                 67157794
+152932           237 SERVING                 66953705
+160189           336 SERVING                 65959465
+160192           135 SERVING                 65234217
+162319            76 SERVING                 64912162
+162859           238 SERVING                 66135455
+163264           550 SERVING                 65045964
+169522           124 SERVING                 67233477
+172906           108 SERVING                 66524334
+178683           5.7 SERVING                 64894233
+183728           164 SERVING                 67752152
+184330           568 SERVING                 66502107
+185626           1.6 SERVING                 65923518
+186682           154 SERVING                 66102600
+197169           462 SERVING                 66406670
+199866           150 SERVING                 65915548
+200643            96 SERVING                 67255235
+202173           179 SERVING                 67431322
+205796           139 SERVING                 65124808
+207689           1.8 SERVING                 64867527
+211937           260 SERVING                 64848478
+212432           263 SERVING                 67794598
+220301           280 SERVING                 67815806
+220888           184 SERVING                 67460286
+224434          4.25 SERVING                 67234319
+226591           282 SERVING                 66970077
+227221           192 SERVING                 67810373
+229249            71 SERVING                 67173395
+229702           215 SERVING                 66903427
+239125           167 SERVING                 66554380
+241866           153 SERVING                 67137083
+241983           162 SERVING                 65052226
+247391           243 SERVING                 65083792
+248488           2.3 SERVING                 67214041
+250495           147 SERVING                 67579114
+250501           266 SERVING                 66950731
+253135           526 SERVING                 65354799
+253296            90 SERVING                 65109723
+254140               1 PIECE                 67646107
+254572           379 SERVING                 66734567
+261298            57 SERVING                 65216262
+264910           659 SERVING                 66459742
+276613            54 SERVING                 65211249
+279853           126 SERVING                 65411660
+287569           378 SERVING                 65605202
+288082           744 SERVING                 65758443
+299724            70 SERVING                 67333006
+303114           183 SERVING                 64657843
+314535           178 SERVING                 67312944
+322733           648 SERVING                 66797457
+331166           7.6 SERVING                 65061607
+337427           104 SERVING                 65362929
+338615           304 SERVING                 67862854
+358628           465 SERVING                 67151162
+359846            62 SERVING                 65145780
+364328           132 SERVING                 67792659
+366068                1 LINK                 66194565
+373106           199 SERVING                 65978707
+391115           109 SERVING                 66147584
+392440           680 SERVING                 65582842
+403891           396 SERVING                 66702661
+406297           418 SERVING                 66339184
+408322           354 SERVING                 66638070
+416371            53 SERVING                 64871961
+422818           241 SERVING                 65271084
+429295           202 SERVING                 67233409
+429301           233 SERVING                 66765317
+433864           376 SERVING                 65310656
+434698           3.6 SERVING                 65785886
+435595           395 SERVING                 67290955
+442453           209 SERVING                 65961567
+442753          7.75 SERVING                 66401372
+459268            44 SERVING                 67867908
+459907            55 SERVING                 65735292
+460402           218 SERVING                 66083739
+468778           323 SERVING                 66880542
+474733           6.4 SERVING                 65640142
+509320           255 SERVING                 65145443
+532375         10 TABLESPOON                 67528624
+535027           7.1 SERVING                 66925801
+542200           4.8 SERVING                 66806867
+543604           3.9 SERVING                 65097535
+545146           169 SERVING                 66886871
+551572           780 SERVING                 66112573
+559165          5.66 SERVING                 64897933
+559312           5.6 SERVING                 66436347
+560077           145 SERVING                 66455271
+560293           6.9 SERVING                 64986169
+561448           340 SERVING                 67207640
+561502          1823 SERVING                 64795081
+566551           223 SERVING                 66876751
+567928        0 TO 4 SERVING                 67171137
+575755        0 TO 6 SERVING                 65223379
+588130           100 SERVING                 66523391
+593521            42 SERVING                 66477978
+604897           4.7 SERVING                 66347547
+604939           6.3 SERVING                 67586197
+624230          4.69 SERVING                 64731653
+639227      0 TO 3.5 SERVING                 64689769
+643154            60 SERVING                 65669805
+674900           322 SERVING                 67002747
+678572           186 SERVING                 67291625
+694097           645 SERVING                 66287090
+694166            81 SERVING                 65236219
+698645           324 SERVING                 65493082
+710777          1.42 SERVING                 65810531
+713369            27 SERVING                 68020048
+714365           107 SERVING                 65599705
+747887           152 SERVING                 65497502
+760643             1 PACKAGE                 64794409
+774659               VARIOUS                 67265621
+798080            1 SANDWICH                 64808931
+803411           102 SERVING                 64916757
+805268            82 SERVING                 65284171
+809269            66 SERVING                 64663834
+821518           235 SERVING                 66570867
+828115          5.15 SERVING                 66178617
+838942          1516 SERVING                218064882
+840052           792 SERVING                 65129872
+855639           296 SERVING                 67836404
+861756           288 SERVING                 65419707
+864969           3.7 SERVING                 67185012
+Empty DataFrame
+Columns: [flavor_str, flavor_cd]
+Index: []

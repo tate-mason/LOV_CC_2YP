@@ -264,7 +264,7 @@ def load_and_preprocess(weekly_capacity=14):
             effective_capacity = max(weekly_capacity, inside_units + 1)
             outside_count = effective_capacity - inside_units
 
-            full_counts = np.append(inside_units, outside_count)
+            full_counts = np.hstack([inside_units, outside_count])
             c_vec = np.array([row.C_sat_0, row.C_sat_1, row.C_sat_2], dtype=np.float64)
 
             matrices_list.append(choice_set_matrix[(store, week)])

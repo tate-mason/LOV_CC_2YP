@@ -331,5 +331,5 @@ unique_combos = merged_df[
 console.print(unique_combos)
 
 yog = merged_df[merged_df["product_module_code_hms"].isin([3603, 3612])]
-unique_flav = merged_df[["flavor_str", "flavor_cd"]].drop_duplicates()
+unique_flav = yog[["flavor_str", "flavor_cd"]].drop_duplicates()
 console.print(unique_flav)

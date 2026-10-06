@@ -31,6 +31,7 @@ OUT_PATH = "/scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Output/"
 CATEGORIES = ["other", "berry", "plain", "outside"]
 cat_map = {c: i for i, c in enumerate(CATEGORIES)}
 rng = np.random.default_rng(219)
+STATIC_DRAWS = np.random.default_rng(306).standard_normal((50, 4))
 
 
 # =================================================
@@ -465,7 +466,7 @@ def estimate_model(hh_packed_data):
     }
 
 
-def total_objective_mixed(params, hh_packed_data, n_draws=50):
+def total_objective_mixed(params, hh_packed_data, static_draws=STATIC_DRAWS):
     (
         mu_b_oth,
         mu_b_berry,
@@ -480,7 +481,14 @@ def total_objective_mixed(params, hh_packed_data, n_draws=50):
         sd_gamma,
     ) = params
 
-    rng_sim = np.random.default_rng(306)
+    n_draws = static_draws.shape[0]
+
+    draws_b_oth = mu_b_oth + sd_b_oth * static_draws[:, 0]
+    draws_b_ber = mu_b_berry + sd_b_berry * static_draws[:, 1]
+    draws_b_pl = mu_b_pl + sd_b_pl * static_draws[:, 2]
+    draws_gamma = mu_gamma + sd_gamma * static_draws[:, 3]
+
+    beta_matrix = np.column_stack([draws_b_oth, draws_b_ber, draws_b_pl])
     total_ll = 0.0
 
     for hh_data in hh_packed_data.values():
@@ -490,14 +498,6 @@ def total_objective_mixed(params, hh_packed_data, n_draws=50):
         log_inc = hh_data["log_income"]
 
         alpha_i = alpha_0 + alpha_inc * log_inc
-
-        draws_b_oth = mu_b_oth + sd_b_oth * rng_sim.standard_normal(n_draws)
-        draws_b_ber = mu_b_berry + sd_b_berry * rng_sim.standard_normal(n_draws)
-        draws_b_pl = mu_b_pl + sd_b_pl * rng_sim.standard_normal(n_draws)
-        draws_gamma = mu_gamma + sd_gamma * rng_sim.standard_normal(n_draws)
-
-        beta_matrix = np.column_stack([draws_b_oth, draws_b_ber, draws_b_pl])
-
         log_draw_probs = np.zeros(n_draws)
 
         for X_mat, counts, C_jt in zip(matrices, choices, c_states):

@@ -409,20 +409,19 @@ def total_objective_het_gamma(params, vec_data, draws):
     choices = vec_data["choices"]
     c_state = vec_data["c_states"]
 
-    n_obs = prices.shape[0]
-    n_draws = draws.shape[0]
+    draws_1d = np.asarray(draws).ravel()
+    n_draws = len(draws_1d)
 
-    gamma_draws = mu_gamma + sd_gamma * draws
+    gamma_draws = mu_gamma + sd_gamma * draws_1d
 
     u_base = const + beta_vec + alpha * prices + sigma * resids
     u_inside = u_base[:, None, :] + gamma_draws[None, :, None] * c_state[:, None, :]
-    u_out = np.zeros((u_inside.shape[0], u_inside.shape[1], 1))
+    u_out = np.zeros((u_inside.shape[0], n_draws, 1))
     u = np.concatenate([u_inside, u_out], axis=2)
 
     log_probs = u - logsumexp(u, axis=2, keepdims=True)
-    obs_ll_draws = np.sum(log_probs * choices[:, None, :], axis=2)
-    obs_ll = logsumexp(obs_ll_draws, axis=1) - np.log(n_draws)
-    total_ll = np.sum(obs_ll)
+    obs_ll = logsumexp(log_probs, axis=1) - np.log(n_draws)
+    total_ll = np.sum(choices * obs_ll)
 
     return -total_ll if np.isfinite(total_ll) else 1e10
 
@@ -482,16 +481,16 @@ def estimate_model(vec_data):
 
 
 def estimate_het_model(vec_data, draws=GAMMA_DRAWS):
-    x0 = np.array([0.9, -0.7, -1.3, -0.15, 0.1, -0.98, 0.16])
+    x0 = np.array([0.95, -0.76, -1.39, -0.15, 0.20, -0.98, 0.16])
 
     bounds = [
-        (-10.0, 10.0),  # const
-        (-10.0, 10.0),  # beta_ber
-        (-10.0, 10.0),  # beta_pl
-        (-10.0, 10.0),  # mu_gamma
-        (1e-4, 5.0),  # sd_gamma bounded between 0 and 5
-        (-10.0, 0.0),  # alpha (Price <= 0)
-        (-10.0, 10.0),  # sigma (Control Func)
+        (-5.0, 5.0),  # const
+        (-5.0, 5.0),  # beta_ber
+        (-5.0, 5.0),  # beta_pl
+        (-5.0, 5.0),  # mu_gamma
+        (0.001, 3.0),  # sd_gamma
+        (-5.0, 0.0),  # alpha (Price <= 0)
+        (-5.0, 5.0),  # sigma (Control Func)
     ]
 
     res = minimize(
@@ -547,13 +546,14 @@ def estimate_het_model(vec_data, draws=GAMMA_DRAWS):
 def display_results(results, title="SATIATION SPECIFICATION RESULTS", param_names=None):
     if param_names is None:
         param_names = [
-            "constant",
+            "Constant",
             "beta_ber",
             "beta_pl",
             "gamma",
-            "price",
-            "control function",
+            "Price",
+            "Control Func.",
         ]
+
     table = Table(
         title=title,
         show_header=True,
@@ -564,15 +564,6 @@ def display_results(results, title="SATIATION SPECIFICATION RESULTS", param_name
     table.add_column("Std. Error", justify="right")
     table.add_column("z-stat", justify="right")
     table.add_column("p-value", justify="right")
-
-    param_names = [
-        "Constant",
-        "beta_ber",
-        "beta_pl",
-        "gamma",
-        "Price",
-        "Control Func.",
-    ]
 
     for name, val, se, z, p in zip(
         param_names,

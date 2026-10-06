@@ -18,4 +18,4 @@ set -e
 
 git pull
 
-python /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/full_draft_1231/estimation_simple.py
+python /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/full_draft_1231/estimation_step1.py

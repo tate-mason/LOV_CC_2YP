@@ -348,7 +348,7 @@ merged_df = (
             pl.col("protein_gram_cd").cast(pl.Int64),
             pl.col("sugar_gram_cd").cast(pl.Int64),
             pl.col("total_carbohydrate_gram_cd").cast(pl.Int64),
-            pl.col("total_fat_gram_cd").cast(pl.Int64)
+            pl.col("total_fat_gram_cd").cast(pl.Int64),
             pl.col("organic_claim_cd").cast(pl.Int64),
         ]
     )
@@ -359,7 +359,9 @@ merged_df = (
 )
 
 protein_combos = merged_df[["protein_gram", "protein_gram_cd"]].drop_duplicates()
-sugar_combos   = merged_df[["sugar_gram", "sugar_gram_cd"]].drop_duplicates()
-carb_combos    = merged_df[["total_carbohydrate_gram", "total_carbohydrate_gram_cd"]].drop_duplicates()
-fat_combos     = merged_df[["total_fat_gram", "total_fat_gram_cd"]].drop_duplicates()
+sugar_combos = merged_df[["sugar_gram", "sugar_gram_cd"]].drop_duplicates()
+carb_combos = merged_df[
+    ["total_carbohydrate_gram", "total_carbohydrate_gram_cd"]
+].drop_duplicates()
+fat_combos = merged_df[["total_fat_gram", "total_fat_gram_cd"]].drop_duplicates()
 organic_combos = merged_df[["organic_claim", "organic_claim_cd"]].drop_duplicates()

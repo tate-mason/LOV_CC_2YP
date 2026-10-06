@@ -3,8 +3,8 @@
 # =================================================
 
 # data loading
-import polars as pl
 import pandas as pd
+import polars as pl
 
 # numerical and statistical analysis
 import numpy as np
@@ -19,10 +19,10 @@ import seaborn as sns
 
 # output
 from rich.console import Console
+from rich.table import Table
 from rich.traceback import install
 
 install()
-from rich.table import Table
 
 console = Console()
 
@@ -127,20 +127,21 @@ def load_and_preprocess(weekly_capacity=28):
     ).fillna(0)
 
     merged_master = merged_df.copy()
-    # 1. Gather all potential description columns present in dataset
+
+    # 1. Gather description columns
     descr_cols = [
         c
         for c in merged_df.columns
         if any(k in c.lower() for k in ["descr", "flavor", "brand", "product", "upc"])
     ]
 
-    # 2. Combine into a single lowercase text column
+    # 2. Combine text
     merged_df["full_text"] = ""
     for c in descr_cols:
         merged_df["full_text"] += " " + merged_df[c].fillna("").astype(str)
     merged_df["full_text"] = merged_df["full_text"].str.lower()
 
-    # 3. Apply regex across combined text
+    # 3. Regex matching
     berry_regex = r"berry|straw|blue|rasp|black|cran|cherry|wildberry"
     plain_regex = r"plain|unflavored"
 
@@ -213,44 +214,35 @@ def load_and_preprocess(weekly_capacity=28):
 
     merged_master["category"] = merged_master["flavor"].map(map_flavor_category)
 
-    # Choice Sets & Weekly Purchases
+    # Choice Sets & Weekly Purchases (Inside Categories Only)
+    inside_df = merged_master[merged_master["category"] != "outside"].copy()
+
     weekly_purchases = (
-        merged_master[merged_master["category"] != "outside"]
-        .groupby(["household_code", "store_code_uc", "week_end", "category"])
+        inside_df.groupby(["household_code", "store_code_uc", "week_end", "category"])
         .agg(units_bought=("quantity", "sum"))
         .reset_index()
     )
     weekly_purchases["choice_idx"] = weekly_purchases["category"].map(cat_map)
 
-    # Filter to inside categories only before calculating choice set prices
+    # Calculate choice sets excluding 'outside' to prevent NaN prices
     cat_choice_sets = (
-        merged_master[merged_master["category"] != "outside"]
-        .groupby(["store_code_uc", "week_end", "category"])
+        inside_df.groupby(["store_code_uc", "week_end", "category"])
         .agg(price=("price", "mean"), iv_res=("iv_res", "mean"))
         .reset_index()
     )
 
-    overall_cat_prices = (
-        merged_master[merged_master["category"] != "outside"]
-        .groupby("category")["price"]
-        .mean()
-        .to_dict()
-    )
+    overall_cat_prices = inside_df.groupby("category")["price"].mean().to_dict()
 
     choice_set_matrix = {}
     for (store, week), group in cat_choice_sets.groupby(["store_code_uc", "week_end"]):
         mat = np.zeros((4, 2))
-
-        # Calculate mean price across observed inside categories only
         valid_prices = group["price"].dropna()
         mean_store_prices = valid_prices.mean() if len(valid_prices) > 0 else 1.50
 
-        # Fill default prices for all 3 inside options
         for c_name, c_idx in cat_map.items():
             if c_idx < 3:
                 mat[c_idx, 0] = overall_cat_prices.get(c_name, mean_store_prices)
 
-        # Overwrite with store-week specific observed prices & residuals
         for row in group.itertuples():
             if row.category in cat_map and row.category != "outside":
                 idx = cat_map[row.category]
@@ -341,7 +333,7 @@ def load_and_preprocess(weekly_capacity=28):
             "log_income": log_inc,
         }
 
-    # Summary diagnostics executed AFTER dataset is fully packed
+    # Print summary statistics
     all_inside_units = [
         np.sum(hh_data["choices"][t][:3])
         for hh_data in hh_packed_data.values()
@@ -366,9 +358,6 @@ def load_and_preprocess(weekly_capacity=28):
         f"[bold cyan]Zero outside count share:[/bold cyan]    {np.mean(np.array(all_outside_counts) == 0):.1%}"
     )
 
-    # -------------------------------------------------------------
-    # ADDED DIAGNOSTICS: Check choice counts and parameter variation
-    # -------------------------------------------------------------
     all_counts = np.sum(
         [counts for hh in hh_packed_data.values() for counts in hh["choices"]],
         axis=0,
@@ -400,46 +389,59 @@ def load_and_preprocess(weekly_capacity=28):
         f"[bold yellow]Resid Range:[/bold yellow] {np.min(resids):.2f} to {np.max(resids):.2f} (Std: {np.std(resids):.2f})\n"
     )
 
-    return hh_packed_data
+    # Pre-pack flat contiguous arrays for vectorized likelihood evaluation
+    all_prices = []
+    all_resids = []
+    all_choices = []
+    all_c_states = []
+    all_log_inc = []
+
+    for hh_id, hh_data in hh_packed_data.items():
+        for m, c, cs in zip(
+            hh_data["matrices"], hh_data["choices"], hh_data["c_states"]
+        ):
+            all_prices.append(m[:3, 0])
+            all_resids.append(m[:3, 1])
+            all_choices.append(c)
+            all_c_states.append(cs)
+            all_log_inc.append(hh_data["log_income"])
+
+    vec_data = {
+        "prices": np.array(all_prices, dtype=np.float64),
+        "resids": np.array(all_resids, dtype=np.float64),
+        "choices": np.array(all_choices, dtype=np.int64),
+        "c_states": np.array(all_c_states, dtype=np.float64),
+        "log_inc": np.array(all_log_inc, dtype=np.float64),
+    }
+
+    return hh_packed_data, vec_data
 
 
 # =================================================
-# CORE LOGIC / PROCESSING
+# 3. CORE ESTIMATION LOGIC (VECTORIZED)
 # =================================================
 
 
-def total_objective(params, hh_packed_data):
+def total_objective(params, vec_data):
     beta_oth, beta_ber, beta_pl, gamma, alpha, sigma = params
-
     beta_vec = np.array([beta_oth, beta_ber, beta_pl])
 
-    total_ll = 0.0
+    prices = vec_data["prices"]
+    resids = vec_data["resids"]
+    choices = vec_data["choices"]
+    c_states = vec_data["c_states"]
 
-    for hh_data in hh_packed_data.values():
-        matrices = hh_data["matrices"]
-        choices = hh_data["choices"]
-        c_states = hh_data["c_states"]
+    u_inside = beta_vec + gamma * c_states + alpha * prices + sigma * resids
+    u_outside = np.zeros((u_inside.shape[0], 1))
+    u = np.hstack([u_inside, u_outside])
 
-        for X_mat, counts, C_jt in zip(matrices, choices, c_states):
-            prices = X_mat[:3, 0]
-            resids = X_mat[:3, 1]
+    log_probs = u - logsumexp(u, axis=1, keepdims=True)
+    total_ll = np.sum(log_probs * choices)
 
-            u = np.zeros(4)
-            u[:3] = beta_vec + gamma * C_jt + alpha * prices + sigma * resids
-            u[3] = 0.0
-
-            log_prob = u - logsumexp(u)
-            week_ll = np.dot(log_prob, counts)
-
-            if not np.isfinite(week_ll):
-                week_ll = -700.0
-
-            total_ll += week_ll
-
-    return -total_ll
+    return -total_ll if np.isfinite(total_ll) else 1e10
 
 
-def estimate_model(hh_packed_data):
+def estimate_model(vec_data):
     x0 = np.zeros(6)
     bounds = [
         (None, None),
@@ -453,32 +455,44 @@ def estimate_model(hh_packed_data):
     res = minimize(
         total_objective,
         x0=x0,
-        args=(hh_packed_data,),
+        args=(vec_data,),
         method="L-BFGS-B",
         bounds=bounds,
-        options={"ftol": 1e-8},
+        options={"ftol": 1e-8, "gtol": 1e-5},
     )
 
-    cov_matrix = (
-        res.hess_inv.todense() if hasattr(res.hess_inv, "todense") else res.hess_inv
-    )
-    se = np.sqrt(np.diag(cov_matrix))
+    # Finite-difference Hessian for reliable standard errors
+    eps = 1e-5
+    n = len(res.x)
+    hessian = np.zeros((n, n))
+    for i in range(n):
+        for j in range(i, n):
+            x1, x2, x3, x4 = res.x.copy(), res.x.copy(), res.x.copy(), res.x.copy()
+            x1[i] += eps
+            x1[j] += eps
+            x2[i] += eps
+            x2[j] -= eps
+            x3[i] -= eps
+            x3[j] += eps
+            x4[i] -= eps
+            x4[j] -= eps
+
+            f1 = total_objective(x1, vec_data)
+            f2 = total_objective(x2, vec_data)
+            f3 = total_objective(x3, vec_data)
+            f4 = total_objective(x4, vec_data)
+
+            hessian[i, j] = (f1 - f2 - f3 + f4) / (4 * eps * eps)
+            hessian[j, i] = hessian[i, j]
+
+    try:
+        se = np.sqrt(np.diag(np.linalg.inv(hessian)))
+    except np.linalg.LinAlgError:
+        se = np.full(n, np.nan)
+
     z = res.x / se
     p = 2 * (1 - sp.stats.norm.cdf(np.abs(z)))
 
-    # Check gradient magnitude at optimum
-    grad = res.jac
-    grad_norm = np.linalg.norm(grad)
-    print(f"Gradient Norm at convergence: {grad_norm:.6f}")
-
-    # Check Hessian condition number
-    if hasattr(res, "hess_inv"):
-        if hasattr(res.hess_inv, "todense"):
-            hess_inv = res.hess_inv.todense()
-        else:
-            hess_inv = res.hess_inv
-        cond = np.linalg.cond(hess_inv)
-        print(f"Hessian Condition Number: {cond:.2e}")
     return {
         "params": res.x,
         "se": se,
@@ -489,7 +503,7 @@ def estimate_model(hh_packed_data):
     }
 
 
-def total_objective_mixed(params, hh_packed_data, static_draws):
+def total_objective_mixed_vec(params, vec_data, static_draws):
     (
         mu_b_oth,
         mu_b_berry,
@@ -506,124 +520,100 @@ def total_objective_mixed(params, hh_packed_data, static_draws):
 
     n_draws = static_draws.shape[0]
 
-    draws_b_oth = mu_b_oth + sd_b_oth * static_draws[:, 0]
-    draws_b_ber = mu_b_berry + sd_b_berry * static_draws[:, 1]
-    draws_b_pl = mu_b_pl + sd_b_pl * static_draws[:, 2]
-    draws_gamma = mu_gamma + sd_gamma * static_draws[:, 3]
+    beta_draws = np.column_stack(
+        [
+            mu_b_oth + sd_b_oth * static_draws[:, 0],
+            mu_b_berry + sd_b_berry * static_draws[:, 1],
+            mu_b_pl + sd_b_pl * static_draws[:, 2],
+        ]
+    )
+    gamma_draws = mu_gamma + sd_gamma * static_draws[:, 3]
 
-    beta_matrix = np.column_stack([draws_b_oth, draws_b_ber, draws_b_pl])
-    total_ll = 0.0
+    prices = vec_data["prices"]
+    resids = vec_data["resids"]
+    choices = vec_data["choices"]
+    c_states = vec_data["c_states"]
+    log_inc = vec_data["log_inc"]
 
-    for hh_data in hh_packed_data.values():
-        matrices = hh_data["matrices"]
-        choices = hh_data["choices"]
-        c_states = hh_data["c_states"]
-        log_inc = hh_data["log_income"]
+    alpha_i = alpha_0 + alpha_inc * log_inc
 
-        alpha_i = alpha_0 + alpha_inc * log_inc
-        log_draw_probs = np.zeros(n_draws)
+    u_inside = (
+        beta_draws[None, :, :]
+        + gamma_draws[None, :, None] * c_states[:, None, :]
+        + (alpha_i[:, None] * prices + sigma_cf * resids)[:, None, :]
+    )
 
-        for X_mat, counts, C_jt in zip(matrices, choices, c_states):
-            prices = X_mat[:3, 0]
-            resids = X_mat[:3, 1]
+    u_outside = np.zeros((u_inside.shape[0], n_draws, 1))
+    u = np.concatenate([u_inside, u_outside], axis=2)
 
-            u_inside = (
-                beta_matrix
-                + np.outer(draws_gamma, C_jt)
-                + alpha_i * prices
-                + sigma_cf * resids
-            )
+    log_probs = u - logsumexp(u, axis=2, keepdims=True)
+    obs_ll_draws = np.sum(log_probs * choices[:, None, :], axis=2)
 
-            u = np.hstack([u_inside, np.zeros((n_draws, 1))])
+    obs_ll = logsumexp(obs_ll_draws, axis=1) - np.log(n_draws)
+    total_ll = np.sum(obs_ll)
 
-            log_probs = u - logsumexp(u, axis=1, keepdims=True)
-            log_draw_probs += np.dot(log_probs, counts)
-
-        hh_ll = logsumexp(log_draw_probs) - np.log(n_draws)
-
-        if not np.isfinite(hh_ll):
-            total_ll += -1000.0
-        else:
-            total_ll += hh_ll
-
-    return -total_ll
+    return -total_ll if np.isfinite(total_ll) else 1e10
 
 
-def compute_finite_diff_se(func, x_opt, args):
-    """
-    Computes standard errors via finite-difference approximation
-    of the Hessian at the estimated parameter vector.
-    """
-    n = len(x_opt)
-    eps = 1e-4
+def estimate_mixed_model(vec_data, static_draws=STATIC_DRAWS[:30]):
+    x0 = np.array([0.0, 0.0, 0.0, 0.0, -1.5, 0.05, 0.0, 0.1, 0.1, 0.1, 0.1])
+
+    bounds = [
+        (None, None),
+        (None, None),
+        (None, None),
+        (None, None),
+        (None, 0.0),
+        (None, None),
+        (None, None),
+        (1e-4, None),
+        (1e-4, None),
+        (1e-4, None),
+        (1e-4, None),
+    ]
+
+    res = minimize(
+        total_objective_mixed_vec,
+        x0=x0,
+        args=(vec_data, static_draws),
+        method="L-BFGS-B",
+        bounds=bounds,
+        options={
+            "ftol": 1e-6,
+            "gtol": 1e-3,
+            "maxiter": 200,
+        },
+    )
+
+    # Finite-difference Hessian for Mixed Model SEs
+    eps = 1e-5
+    n = len(res.x)
     hessian = np.zeros((n, n))
-
     for i in range(n):
         for j in range(i, n):
-            x_1 = x_opt.copy()
-            x_1[i] += eps
-            x_1[j] += eps
-            x_2 = x_opt.copy()
-            x_2[i] += eps
-            x_2[j] -= eps
-            x_3 = x_opt.copy()
-            x_3[i] -= eps
-            x_3[j] += eps
-            x_4 = x_opt.copy()
-            x_4[i] -= eps
-            x_4[j] -= eps
+            x1, x2, x3, x4 = res.x.copy(), res.x.copy(), res.x.copy(), res.x.copy()
+            x1[i] += eps
+            x1[j] += eps
+            x2[i] += eps
+            x2[j] -= eps
+            x3[i] -= eps
+            x3[j] += eps
+            x4[i] -= eps
+            x4[j] -= eps
 
-            f1 = func(x_1, *args)
-            f2 = func(x_2, *args)
-            f3 = func(x_3, *args)
-            f4 = func(x_4, *args)
+            f1 = total_objective_mixed_vec(x1, vec_data, static_draws)
+            f2 = total_objective_mixed_vec(x2, vec_data, static_draws)
+            f3 = total_objective_mixed_vec(x3, vec_data, static_draws)
+            f4 = total_objective_mixed_vec(x4, vec_data, static_draws)
 
             hessian[i, j] = (f1 - f2 - f3 + f4) / (4 * eps * eps)
             hessian[j, i] = hessian[i, j]
 
     try:
-        inv_hessian = np.linalg.inv(hessian)
-        se = np.sqrt(np.abs(np.diag(inv_hessian)))
+        se = np.sqrt(np.diag(np.linalg.inv(hessian)))
     except np.linalg.LinAlgError:
         se = np.full(n, np.nan)
 
-    return se
-
-
-def estimate_mixed_model(hh_packed_data, static_draws=STATIC_DRAWS):
-    x0 = np.array([0.0, 0.0, 0.0, 0.0, -1.5, 0.05, 0.0, 0.1, 0.1, 0.1, 0.1])
-
-    bounds = [
-        (None, None),  # mu_b_oth
-        (None, None),  # mu_b_ber
-        (None, None),  # mu_b_pl
-        (None, None),  # mu_gamma
-        (None, 0.0),  # alpha_0
-        (None, None),  # alpha_inc
-        (None, None),  # sigma_cf
-        (1e-4, None),  # sd_b_oth
-        (1e-4, None),  # sd_b_ber
-        (1e-4, None),  # sd_b_pl
-        (1e-4, None),  # sd_gamma
-    ]
-
-    res = minimize(
-        total_objective_mixed,
-        x0=x0,
-        args=(hh_packed_data, static_draws),
-        method="L-BFGS-B",
-        bounds=bounds,
-        options={
-            "ftol": 1e-8,
-            "gtol": 1e-4,
-            "maxiter": 300,
-        },
-    )
-
-    # Compute robust standard errors from finite-difference Hessian
-    se = compute_finite_diff_se(
-        total_objective_mixed, res.x, (hh_packed_data, static_draws)
-    )
     z = res.x / se
     p = 2 * (1 - sp.stats.norm.cdf(np.abs(z)))
 
@@ -635,6 +625,11 @@ def estimate_mixed_model(hh_packed_data, static_draws=STATIC_DRAWS):
         "success": res.success,
         "fun": res.fun,
     }
+
+
+# =================================================
+# 4. RESULTS DISPLAY AND POST-ESTIMATION
+# =================================================
 
 
 def display_results(results):
@@ -736,25 +731,29 @@ def display_mixed_results(results):
     console.print(f"[bold]Final LL Objective:[/bold] {results['fun']:.4f}")
 
 
-def extract_individual_parameters(results, hh_packed_data, n_draws=500):
+def extract_individual_parameters(results, hh_packed_data, n_draws=100):
     params = results["params"]
     (
-        const,
+        mu_b_oth,
         mu_b_ber,
         mu_b_pl,
         mu_gamma,
         alpha_0,
         alpha_inc,
         sigma_cf,
+        sd_b_oth,
         sd_b_ber,
         sd_b_pl,
         sd_gamma,
     ) = params
 
-    d_berry = np.array([0.0, 1.0, 0.0])
-    d_plain = np.array([0.0, 0.0, 1.0])
+    sim_draws = np.random.default_rng(123).standard_normal((n_draws, 4))
+    draws_b_oth = mu_b_oth + sd_b_oth * sim_draws[:, 0]
+    draws_b_ber = mu_b_ber + sd_b_ber * sim_draws[:, 1]
+    draws_b_pl = mu_b_pl + sd_b_pl * sim_draws[:, 2]
+    draws_gamma = mu_gamma + sd_gamma * sim_draws[:, 3]
 
-    rng_sim = np.random.default_rng(123)
+    beta_matrix = np.column_stack([draws_b_oth, draws_b_ber, draws_b_pl])
     hh_posterior_means = []
 
     for hh_id, hh_data in hh_packed_data.items():
@@ -769,21 +768,14 @@ def extract_individual_parameters(results, hh_packed_data, n_draws=500):
         outside_share = outside_units / total_units if total_units > 0 else 0.0
 
         alpha_i = alpha_0 + alpha_inc * log_inc
-
-        draws_b_ber = mu_b_ber + sd_b_ber * rng_sim.standard_normal(n_draws)
-        draws_b_pl = mu_b_pl + sd_b_pl * rng_sim.standard_normal(n_draws)
-        draws_gamma = mu_gamma + sd_gamma * rng_sim.standard_normal(n_draws)
-
-        draw_probabilities = np.ones(n_draws)
+        draw_log_probs = np.zeros(n_draws)
 
         for X_mat, counts, C_jt in zip(matrices, choices, c_states):
             prices = X_mat[:3, 0]
             resids = X_mat[:3, 1]
 
             u_inside = (
-                const
-                + np.outer(draws_b_ber, d_berry)
-                + np.outer(draws_b_pl, d_plain)
+                beta_matrix
                 + np.outer(draws_gamma, C_jt)
                 + alpha_i * prices
                 + sigma_cf * resids
@@ -791,18 +783,16 @@ def extract_individual_parameters(results, hh_packed_data, n_draws=500):
             u = np.hstack([u_inside, np.zeros((n_draws, 1))])
 
             log_probs = u - logsumexp(u, axis=1, keepdims=True)
-            week_log_ll = np.dot(log_probs, counts)
-            draw_probabilities *= np.exp(week_log_ll)
+            draw_log_probs += np.dot(log_probs, counts)
 
-        total_prob = np.sum(draw_probabilities)
-        if total_prob > 0:
-            weights = draw_probabilities / total_prob
-        else:
-            weights = np.ones(n_draws) / n_draws
+        max_log_p = np.max(draw_log_probs)
+        weights = np.exp(draw_log_probs - max_log_p)
+        weights /= np.sum(weights)
 
         hh_posterior_means.append(
             {
                 "household_code": hh_id,
+                "beta_oth": np.sum(weights * draws_b_oth),
                 "beta_berry": np.sum(weights * draws_b_ber),
                 "beta_plain": np.sum(weights * draws_b_pl),
                 "gamma_satiation": np.sum(weights * draws_gamma),
@@ -958,17 +948,23 @@ def plot_lov_vs_outside_option(df_types, save_path=None):
         plt.savefig(save_path, format="pdf", dpi=300, bbox_inches="tight")
 
 
+# =================================================
+# 5. ENTRY POINT
+# =================================================
+
+
 def main():
-    hh_packed_data = load_and_preprocess()
+    hh_packed_data, vec_data = load_and_preprocess()
+
     console.print("\n--- Estimating Standard Satiation Logit ---")
-    results = estimate_model(hh_packed_data)
+    results = estimate_model(vec_data)
     display_results(results)
 
     console.print("\n--- Estimating Mixed Satiation Logit ---")
-    mixed_results = estimate_mixed_model(hh_packed_data, STATIC_DRAWS)
+    mixed_results = estimate_mixed_model(vec_data, static_draws=STATIC_DRAWS[:30])
     display_mixed_results(mixed_results)
 
-    df_types = extract_individual_parameters(mixed_results, hh_packed_data, n_draws=50)
+    df_types = extract_individual_parameters(mixed_results, hh_packed_data, n_draws=100)
     display_type_distribution(df_types)
 
     plot_path = OUT_PATH + "type_distribution_satiation.pdf"

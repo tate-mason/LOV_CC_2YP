@@ -506,40 +506,51 @@ def total_objective_mixed(params, hh_packed_data, static_draws):
 
     n_draws = static_draws.shape[0]
 
-    draws_b_oth = mu_b_oth + sd_b_oth * static_draws[:, 0]
-    draws_b_ber = mu_b_berry + sd_b_berry * static_draws[:, 1]
-    draws_b_pl = mu_b_pl + sd_b_pl * static_draws[:, 2]
-    draws_gamma = mu_gamma + sd_gamma * static_draws[:, 3]
+    # Parameter draws (N_draws, 3) and (N_draws,)
+    beta_draws = np.column_stack(
+        [
+            mu_b_oth + sd_b_oth * static_draws[:, 0],
+            mu_b_berry + sd_b_berry * static_draws[:, 1],
+            mu_b_pl + sd_b_pl * static_draws[:, 2],
+        ]
+    )
+    gamma_draws = mu_gamma + sd_gamma * static_draws[:, 3]
 
-    beta_matrix = np.column_stack([draws_b_oth, draws_b_ber, draws_b_pl])
     total_ll = 0.0
 
     for hh_data in hh_packed_data.values():
-        matrices = hh_data["matrices"]
-        choices = hh_data["choices"]
-        c_states = hh_data["c_states"]
+        matrices = np.array(hh_data["matrices"])  # Shape: (T, 4, 2)
+        choices = np.array(hh_data["choices"])  # Shape: (T, 4)
+        c_states = np.array(hh_data["c_states"])  # Shape: (T, 3)
         log_inc = hh_data["log_income"]
 
         alpha_i = alpha_0 + alpha_inc * log_inc
-        log_draw_probs = np.zeros(n_draws)
 
-        for X_mat, counts, C_jt in zip(matrices, choices, c_states):
-            prices = X_mat[:3, 0]
-            resids = X_mat[:3, 1]
+        prices = matrices[:, :3, 0]  # (T, 3)
+        resids = matrices[:, :3, 1]  # (T, 3)
 
-            u_inside = (
-                beta_matrix
-                + np.outer(draws_gamma, C_jt)
-                + alpha_i * prices
-                + sigma_cf * resids
-            )
+        # Vectorized utility across all T weeks and N_draws
+        # u_inside shape: (T, N_draws, 3)
+        u_inside = (
+            beta_draws[None, :, :]
+            + gamma_draws[None, :, None] * c_states[:, None, :]
+            + (alpha_i * prices + sigma_cf * resids)[:, None, :]
+        )
 
-            u = np.hstack([u_inside, np.zeros((n_draws, 1))])
+        u_outside = np.zeros((u_inside.shape[0], n_draws, 1))
+        u = np.concatenate([u_inside, u_outside], axis=2)  # (T, N_draws, 4)
 
-            log_probs = u - logsumexp(u, axis=1, keepdims=True)
-            log_draw_probs += np.dot(log_probs, counts)
+        # Log-probabilities: (T, N_draws, 4)
+        log_probs = u - logsumexp(u, axis=2, keepdims=True)
 
-        hh_ll = logsumexp(log_draw_probs) - np.log(n_draws)
+        # Multiply by choice counts and sum across choices: (T, N_draws)
+        week_ll = np.einsum("tdk,tk->td", log_probs, choices)
+
+        # Integrate log-likelihood across time for this household: (N_draws,)
+        hh_log_draw_probs = np.sum(week_ll, axis=0)
+
+        # Log-sum-exp over simulation draws
+        hh_ll = logsumexp(hh_log_draw_probs) - np.log(n_draws)
 
         if not np.isfinite(hh_ll):
             total_ll += -1000.0

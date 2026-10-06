@@ -222,23 +222,46 @@ def load_and_preprocess(weekly_capacity=28):
     )
     weekly_purchases["choice_idx"] = weekly_purchases["category"].map(cat_map)
 
+    # Filter to inside categories only before calculating choice set prices
     cat_choice_sets = (
-        merged_master.groupby(["store_code_uc", "week_end", "category"])
+        merged_master[merged_master["category"] != "outside"]
+        .groupby(["store_code_uc", "week_end", "category"])
         .agg(price=("price", "mean"), iv_res=("iv_res", "mean"))
         .reset_index()
+    )
+
+    overall_cat_prices = (
+        merged_master[merged_master["category"] != "outside"]
+        .groupby("category")["price"]
+        .mean()
+        .to_dict()
     )
 
     choice_set_matrix = {}
     for (store, week), group in cat_choice_sets.groupby(["store_code_uc", "week_end"]):
         mat = np.zeros((4, 2))
-        mean_store_prices = group["price"].mean()
-        mat[:3, 0] = mean_store_prices
 
+        # Calculate mean price across observed inside categories only
+        valid_prices = group["price"].dropna()
+        mean_store_prices = valid_prices.mean() if len(valid_prices) > 0 else 1.50
+
+        # Fill default prices for all 3 inside options
+        for c_name, c_idx in cat_map.items():
+            if c_idx < 3:
+                mat[c_idx, 0] = overall_cat_prices.get(c_name, mean_store_prices)
+
+        # Overwrite with store-week specific observed prices & residuals
         for row in group.itertuples():
             if row.category in cat_map and row.category != "outside":
                 idx = cat_map[row.category]
-                res_val = 0.0 if np.isnan(row.iv_res) else row.iv_res
-                mat[idx] = [row.price, res_val]
+                p_val = (
+                    row.price
+                    if pd.notna(row.price)
+                    else overall_cat_prices.get(row.category, mean_store_prices)
+                )
+                r_val = row.iv_res if pd.notna(row.iv_res) else 0.0
+                mat[idx] = [p_val, r_val]
+
         choice_set_matrix[(store, week)] = mat
 
     # Compute dynamic Satiation States C_jt

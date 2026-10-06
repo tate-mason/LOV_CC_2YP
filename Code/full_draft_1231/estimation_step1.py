@@ -482,16 +482,16 @@ def estimate_model(vec_data):
 
 
 def estimate_het_model(vec_data, draws=GAMMA_DRAWS):
-    x0 = np.array([0.0, 0.0, 0.0, 0.0, 0.1, -0.5, 0.0])
+    x0 = np.array([0.9, -0.7, -1.3, -0.15, 0.1, -0.98, 0.16])
 
     bounds = [
-        (None, None),
-        (None, None),
-        (None, None),
-        (None, None),
-        (1e-4, None),
-        (None, 0.0),
-        (None, None),
+        (-10.0, 10.0),  # const
+        (-10.0, 10.0),  # beta_ber
+        (-10.0, 10.0),  # beta_pl
+        (-10.0, 10.0),  # mu_gamma
+        (1e-4, 5.0),  # sd_gamma bounded between 0 and 5
+        (-10.0, 0.0),  # alpha (Price <= 0)
+        (-10.0, 10.0),  # sigma (Control Func)
     ]
 
     res = minimize(

@@ -1,7 +1,0 @@
-Loading data with Polars...
-Rows after household join: 26304702
-Rows after household size filter: 26304702
-Rows after OZ filter: 15753354
-Most common size amounts before the 5–8 filter:
-Rows after size amount filter: 2837037
-slurmstepd: error: *** JOB 48831160 ON ra4-5 CANCELLED AT 2026-10-06T12:54:10 ***

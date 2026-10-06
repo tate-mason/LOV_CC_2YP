@@ -1,4 +1,0 @@
-  File "/scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/full_draft_1231/data.py", line 351
-    pl.col("total_fat_gram_cd").cast(pl.Int64)
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-SyntaxError: invalid syntax. Perhaps you forgot a comma?

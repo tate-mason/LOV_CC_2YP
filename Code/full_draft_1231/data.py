@@ -332,31 +332,53 @@ console.print(unique_combos)
 
 MERGED_PATH = "/scratch/dtm63837/Kilts_Panel/nielsen_extracts/scanner_panel.parquet"
 
-# 1. Load Parquet Data
+# 1. Load Parquet Data with Type Casts
 df = (
     pl.scan_parquet(MERGED_PATH)
+    .with_columns(
+        [
+            pl.col("household_size").cast(pl.Int64, strict=False),
+            pl.col("serving_per_container_cd").cast(pl.Int64, strict=False),
+        ]
+    )
     .filter(pl.col("household_size") == 1)
     .filter(pl.col("serving_per_container_cd").is_in([67181961, 65622705]))
     .collect()
     .to_pandas()
 )
 
-# 2. Identify potential description columns
+# 2. Identify all text/string columns in the dataset
 string_cols = df.select_dtypes(include=["object", "string"]).columns.tolist()
 console.print(
     f"[bold yellow]Available text columns in dataset:[/bold yellow] {string_cols}\n"
 )
 
 # Clean flavor_cd
-df["flavor_cd"] = pd.to_numeric(df["flavor_cd"], errors="coerce").fillna(0).astype(int)
+if "flavor_cd" in df.columns:
+    df["flavor_cd"] = (
+        pd.to_numeric(df["flavor_cd"], errors="coerce").fillna(0).astype(int)
+    )
+else:
+    df["flavor_cd"] = 0
 
-# Fill flavor_str or default string column
-if "flavor_str" not in df.columns and "flavor" in df.columns:
-    df["flavor_str"] = df["flavor"].fillna("").astype(str)
+# Determine best description column to inspect
+descr_col = None
+for col_candidate in ["flavor_str", "flavor", "product_descr", "upc_descr"]:
+    if col_candidate in df.columns:
+        descr_col = col_candidate
+        break
+
+if descr_col is None and len(string_cols) > 0:
+    descr_col = string_cols[0]
+
+# Ensure description column is clean string
+if descr_col:
+    df[descr_col] = df[descr_col].fillna("").astype(str)
+else:
+    descr_col = "description"
+    df[descr_col] = ""
 
 # 3. Group by flavor_cd and capture text descriptions
-descr_col = "flavor_str" if "flavor_str" in df.columns else string_cols[0]
-
 summary = (
     df.groupby(["flavor_cd", descr_col])
     .size()
@@ -366,7 +388,7 @@ summary = (
 
 # 4. Display Results in a Rich Table
 table = Table(
-    title=f"ALL FLAVOR CODES AND ASSOCIATED STRINGS (Total Rows: {len(df)})",
+    title=f"ALL FLAVOR CODES AND ASSOCIATED STRINGS (Total Rows: {len(df):,})",
     show_header=True,
     header_style="bold magenta",
 )
@@ -382,7 +404,7 @@ for rank, row in enumerate(summary.itertuples(), start=1):
     f_code = str(row.flavor_cd)
     f_str = str(getattr(row, descr_col))
     count = row.obs_count
-    share = (count / total_obs) * 100
+    share = (count / total_obs) * 100 if total_obs > 0 else 0
 
     table.add_row(
         str(rank),
@@ -392,13 +414,12 @@ for rank, row in enumerate(summary.itertuples(), start=1):
         f"{share:.2f}%",
     )
 
-    # Print top 40 flavor codes to prevent terminal overflow
     if rank >= 40:
         break
 
 console.print(table)
 
-# 5. Search specifically for Berry keywords across all string columns
+# 5. Search specifically for Berry keywords across all text columns
 console.print(
     "\n[bold yellow]--- SEARCHING FOR BERRY KEYWORDS ACROSS ALL TEXT COLUMNS ---[/bold yellow]"
 )
@@ -407,7 +428,7 @@ berry_regex = r"berry|straw|blue|rasp|black|cran|cherry|wildberry"
 for col in string_cols:
     matches = df[df[col].astype(str).str.contains(berry_regex, case=False, na=False)]
     console.print(
-        f"Column '[cyan]{col}[/cyan]': Found [green]{len(matches)}[/green] matching rows."
+        f"Column '[cyan]{col}[/cyan]': Found [green]{len(matches):,}[/green] matching rows."
     )
     if len(matches) > 0:
         top_matches = matches[col].value_counts().head(5).to_dict()

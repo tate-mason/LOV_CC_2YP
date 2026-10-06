@@ -285,7 +285,7 @@ def load_and_preprocess(weekly_capacity=14):
         for t in range(len(hh_data["choices"]))
     ]
     all_outside_counts = [
-        hh_data["choices"][t][3]
+        hh_data["choices"][t][-1]
         for hh_data in hh_packed_data.values()
         for t in range(len(hh_data["choices"]))
     ]

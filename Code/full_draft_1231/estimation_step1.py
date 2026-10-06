@@ -24,7 +24,7 @@ CATEGORIES = ["other", "berry", "plain", "outside"]
 
 cat_map = {c: i for i, c in enumerate(CATEGORIES)}
 rng = np.random.default_rng(219)
-STATIC_DRAWS = np.random.default_rng(306).standard_normal((50, 4))
+GAMMA_DRAWS = np.random.default_rng(306).standard_normal((50, 4))
 
 
 def compute_satiation_state(
@@ -400,6 +400,33 @@ def total_objective(params, vec_data):
     return -total_ll if np.isfinite(total_ll) else 1e10
 
 
+def total_objective_het_gamma(params, vec_data, draws):
+    const, beta_ber, beta_pl, mu_gamma, sd_gamma, alpha, sigma = params
+    beta_vec = np.array([0.0, beta_ber, beta_pl])
+
+    prices = vec_data["prices"]
+    resids = vec_data["resids"]
+    choices = vec_data["choices"]
+    c_state = vec_data["c_states"]
+
+    n_obs = prices.shape[0]
+    n_draws = prices.shape[0]
+
+    gamma_draws = mu_gamma + sd_gamma * draws
+
+    u_base = const + beta_vec + alpha * prices + sigma * resids
+    u_inside = u_base[:, None, :] + gamma_draws[None, :, None] * c_state[:, None, :]
+    u_out = np.zeros((n_obs, n_draws, 1))
+    u = np.concatenate([u_inside, u_out], axis=2)
+
+    log_probs = u - logsumexp(u, axis=2, keepdims=True)
+    obs_ll_draws = np.sum(log_probs * choices[:, None, :], axis=2)
+    obs_ll = logsumexp(obs_ll_draws, axis=1) - np.log(n_draws)
+    total_ll = np.sum(obs_ll)
+
+    return -total_ll if np.isfinite(total_ll) else 1e10
+
+
 def estimate_model(vec_data):
     x0 = np.array([0.0, 0.0, 0.0, 0.0, -0.5, 0.0])
     bounds = [(None, None)] * 4 + [(None, 0.0), (None, None)]
@@ -454,7 +481,70 @@ def estimate_model(vec_data):
     }
 
 
-def display_results(results):
+def estimate_het_model(vec_data, draws=GAMMA_DRAWS):
+    x0 = np.array([0.0, 0.0, 0.0, 0.0, 0.1, -0.5, 0.0])
+
+    bounds = [
+        (None, None),
+        (None, None),
+        (None, None),
+        (None, None),
+        (1e-4, None),
+        (None, 0.0),
+        (None, None),
+    ]
+
+    res = minimize(
+        total_objective_het_gamma,
+        x0=x0,
+        args=(vec_data, draws),
+        method="L-BFGS-B",
+        bounds=bounds,
+        options={"ftol": 1e-6, "gtol": 1e-4},
+    )
+
+    eps = 1e-5
+    n = len(res.x)
+    hessian = np.zeros((n, n))
+    for i in range(n):
+        for j in range(i, n):
+            x1, x2, x3, x4 = res.x.copy(), res.x.copy(), res.x.copy(), res.x.copy()
+            x1[i] += eps
+            x1[j] += eps
+            x2[i] += eps
+            x2[j] -= eps
+            x3[i] -= eps
+            x3[j] += eps
+            x4[i] -= eps
+            x4[j] -= eps
+
+            f1 = total_objective_het_gamma(x1, vec_data, draws)
+            f2 = total_objective_het_gamma(x2, vec_data, draws)
+            f3 = total_objective_het_gamma(x3, vec_data, draws)
+            f4 = total_objective_het_gamma(x4, vec_data, draws)
+
+            hessian[i, j] = (f1 - f2 - f3 + f4) / (4 * eps * eps)
+            hessian[j, i] = hessian[i, j]
+
+            try:
+                se = np.sqrt(np.diag(np.linalg.inv(hessian)))
+            except np.linalg.LinAlgError:
+                se = np.full(n, np.nan)
+
+            z = res.x / se
+            p = 2 * (1 - sp.stats.norm.cdf(np.abs(z)))
+
+            return {
+                "params": res.x,
+                "se": se,
+                "z_stat": z,
+                "p_val": p,
+                "success": res.success,
+                "fun": res.fun,
+            }
+
+
+def display_results(results, title="SATIATION SPECIFICATION RESULTS", param_names=None):
     table = Table(
         title="SIMPLE SATIATION SPECIFICATION RESULTS",
         show_header=True,
@@ -506,7 +596,20 @@ def main():
 
     console.print("\n--- Estimating Standard Satiation Logit ---")
     results = estimate_model(vec_data)
-    display_results(results)
+    display_results(results, title="STANDARD SATIATION LOGIT")
+
+    console.print("\n--- Estimating Random Coefficient for LOV ---")
+    rc_results = estimate_het_model(vec_data, draws=GAMMA_DRAWS)
+    rc_params = [
+        "Constant",
+        "beta_berry",
+        "beta_plain",
+        "Mean Satiation",
+        "SD Satiation",
+        "Price",
+        "Control Func.",
+    ]
+    display_results(rc_results, title="RANDOM COEFFICIENT LOGIT", param_names=rc_params)
 
 
 if __name__ == "__main__":

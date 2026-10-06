@@ -158,7 +158,7 @@
 Suppose there are $N$ consumers, each endowed with a type $\gamma_r$ for $r\in\{H,L\}$, corresponding to high or low utility from variety in products consumed. As such, there are $N_r\in N$ consumers of each type, $r\in\{H,L\}$. Consumers maximize utility according to the following:
 
 \begin{gather*}
-  U_{irjt} = \beta_0 + \gamma_r\ind\{j_t\ne j_{t-1}\} + \alpha(p_{jt} - d_{rjt}) +
+  U_{irjt} = \beta_0 + \gamma_r\ind\{j_t\ne j_{t-1}\} + \alpha p_{rjt} +
   \varepsilon_{irjt}
 \end{gather*}
 
@@ -211,7 +211,7 @@ $d_{rjt}$ which is tailored to our switching types $r\in\{H,L\}$. The firm's
 actual price is written as:
 
 \begin{gather*}
-  p_{rjt} = \bar{p}_j - d_{rjt} \\
+  p_{rjt} \equiv \bar{p}_j - d_{rjt} \\
   \text{s.t.} \\
   d_{rjt}>0
 \end{gather*}
@@ -224,7 +224,7 @@ So, as we raise the discount, we raise utility as $\alpha<0$ so $-\alpha d_{rjt}
 
 This says that as we raise the discount, we raise market share on the product being discounted but lose profit margin. 
 
-With these definitions in mind, we can get into two scenarios. We will be looking at a two period model in, first, the case where the firm has perfect information on the consumers' types and can thus perfcectly price. In the second case, we will look at the case of imperfect information, where the firm is using Bayesian updating to approximate the type distribution.
+With these definitions in mind, we can get into two scenarios. We will be looking at a two period model in, first, the case where the firm has perfect information on the consumers' types and can thus perfectly price. In the second case, we will look at the case of imperfect information, where the firm is using Bayesian updating to approximate the type distribution.
 
 \subsection{Perfect Information}
 
@@ -302,7 +302,7 @@ This is much the same as the perfect information case. However, looking at the t
   \end{cases}
 \end{gather*}
 
-So, the firm updates its belief about the distribution of consumer types upon observing period one consumption. The magnitude and direction of this update depends on how likely that choice is for each type. In total, the third line of the derivative interacts the parobability of purchasing item $h$ with the effect of price on the firm's posterior belief and the value of believing in one type or the other.
+So, the firm updates its belief about the distribution of consumer types upon observing period one consumption. The magnitude and direction of this update depends on how likely that choice is for each type. In total, the third line of the derivative interacts the probability of purchasing item $h$ with the effect of price on the firm's posterior belief and the value of believing in one type or the other.
 
 \section{Solving for Optimal Prices}
 
@@ -358,41 +358,58 @@ From this, the firm with perfect information sets each type $r$'s price to equal
   \tilde{s}_{j1} &= \lambda_1s_{Hj1} + (1-\lambda_1)s_{Lj1} \\
   \tilde{s}_{k2}(j) &= \lambda_2(j)s_{Hk2}(j) + (1-\lambda_2(j))s_{Lk2}(j) \\
   \pi_2 &= N\sum_j\tilde{s}_{j1}\sum_k\tilde{s}_{k2}(j)m_{k2}(j) \\
-  \mathbb{A} &= [\lambda_1s_{Hj1}(1-s_{Hj1}) + (1-\lambda_1)s_{Lj1}(1-s_{Lj1})] \\
-  \mathbb{B} &= \sum_{h\ne j}[\lambda_1s_{Hh1}s_{Hj1} + (1-\lambda_1)s_{Lh1}s_{Lj1}]
+  \mathbb{A} &= [\lambda_1s_{Hj1}(1-s_{Hj1}) + (1-\lambda_1)s_{Lj1}(1-s_{Lj1})]
 \end{align*}
 
 Now, we can solve for $p_{j1}$ via the following steps. First,
 
 \begin{align*}
   \alpha N\mathbb{A}[p_{j1} - c_j &+ \delta\sum_k\tilde{s}_{k2}(j)m_{k2}(j)] =\\
-  &- N\tilde{s}_{j1} + \alpha N\mathbb{B}[m_{h1} + \delta\sum_{k}\tilde{s}_{k2}(h)m_{k2}(h)]
-  -\delta\sum_h\tilde{s}_{h1}\frac{\partial\lambda_2(h)}{\partial p_{j1}}[\pi_{H2}(h) - \pi_{L2}(h)]
+  &- N\tilde{s}_{j1} + \alpha N\sum_{h\ne j}[\lambda_1s_{Hh1}s_{Hj1} + (1-\lambda_1)s_{Lh1}s_{Lj1}][m_{h1} + \delta\sum_{k}\tilde{s}_{k2}(h)m_{k2}(h)] \\
+  &-N\delta\sum_h\tilde{s}_{h1}\frac{\partial\lambda_2(h)}{\partial p_{j1}}[\pi_{H2}(h) - \pi_{L2}(h)]
 \end{align*}
 
 Now, we isolate $p_{j1}$:
 
 \begin{align*}
   \alpha N\mathbb{A}p_{j1} &= \alpha N\mathbb{A}c_j - \alpha N\mathbb{A}\delta\sum_k\tilde{s}_{k2}(j)m_{k2}(j) \\
-  &- N\tilde{s}_{j1} + \alpha N\mathbb{B}[m_{h1}+\delta\sum_k\tilde{s}_{k2}(h)m_{k2}(h)] \\
-  &- \delta\sum_h\tilde{s}_{h1}[\frac{\partial\lambda_2(h)}{\partial p_{j1}}(\pi_{2H}(h) - \pi_{2L}(h))]
+  &- N\tilde{s}_{j1} + \alpha N\sum_{h\ne j}[\lambda_1s_{Hh1}s_{Hj1} + (1-\lambda_1)s_{Lh1}s_{Lj1}][m_{h1}+\delta\sum_k\tilde{s}_{k2}(h)m_{k2}(h)] \\
+  &- N\delta\sum_h\tilde{s}_{h1}[\frac{\partial\lambda_2(h)}{\partial p_{j1}}(\pi_{2H}(h) - \pi_{2L}(h))]
 \end{align*}
 
 And simplify:
 
 \begin{align*}
-  p_{j1} &= c_j -\delta\sum_k\tilde{s}_{k2}(j)m_{k2}(j) - \frac{\tilde{s}_{j1}}{\alpha A}
-  + \frac{\mathbb{B}}{\mathbb{A}}[m_{h1} + \delta\sum_k\tilde{s}_{k2}(h)m_{k2}(h)] \\
-  &- \frac{\delta}{\alpha N\mathbb{A}}[\sum_h\tilde{s}_{h1}\frac{\partial\lambda_2(h)}{\partial   p_{j1}}(\pi_{2H}(h) - \pi_{2L}(h))]
+  p_{j1} &= c_j -\delta\sum_k\tilde{s}_{k2}(j)m_{k2}(j) - \frac{\tilde{s}_{j1}}{\alpha A} \\
+  &+ \frac{\sum_{h\ne j}[\lambda_1s_{Hh1}s_{Hj1} + (1-\lambda_1)s_{Lh1}s_{Lj1}]}{\mathbb{A}}[m_{h1} + \delta\sum_k\tilde{s}_{k2}(h)m_{k2}(h)] \\
+  &- \frac{\delta}{\alpha \mathbb{A}}[\sum_h\tilde{s}_{h1}\frac{\partial\lambda_2(h)}{\partial   p_{j1}}(\pi_{2H}(h) - \pi_{2L}(h))] \\
 \end{align*}
 
-If we expand the terms out:
 
-\begin{align*}
-  p^*_{j1} &= c_j - \delta\sum_k\tilde{s}_{k2}(j)m_{k2}(j) \\
-  &- \frac{\lambda_1s_{Hj1} + (1-\lambda_1)s_{Lj1}}{\alpha(\lambda_1s_{Hj1}(1-s_{Hj1}) + (1-\lambda_1)s_{Lj1}(1-s_{Lj1}))} \\
-  &+ \frac{\sum_{h\ne j}[\lambda_1s_{Hh1}s_{Hj1} + (1-\lambda_1)s_{Lh1}s_{Lj1}]}{\lambda_1s_{Hj1}(1-s_{Hj1}) + (1-\lambda_1)s_{Lj1}(1-s_{Lj1})}[m_{h1} + \delta\sum_k\tilde{s}_{k2}(h)m_{k2}(h)] \\
-  &- \frac{\delta[\sum_h[\lambda_1s_{Hh1} + (1-\lambda_1)s_{Lh1}]\frac{\partial\lambda_2(h)}{\partial p_{j1}}(\pi_{2H}(h) - \pi_{2L}(h))]}{\alpha N(\lambda_1s_{Hj1}(1-s_{Hj1}) + (1-\lambda_1)s_{Lj1}(1-s_{Lj1}))}
-\end{align*}
+So, breaking down the optimal price term-by-term, we have that optimal price is made up of the marginal cost, minus the own-product discounted continuation value, plus a markup term and the the value of alternative products, and lastly a term referring to the learning adjustment from period one behavior. In the imperfect-information specification, today's prices affect current demand and the distribution of future states as well as the information that can be learned from consumer purchases. Period one prices alter the likelihood of purchase, thus affecting the posterior over consumer type and, by extension, optimal pricing in period two.
+
+\section{Difference from Two Period Pricing}
+
+I will briefly show how this differs from a normal two-period pricing game without state dependence. The perfect information case is easier to show this with, so I will proceed with it. Recall from the optimal pricing:
+
+\begin{gather*}
+  p^*_{rj1} = c_j - \frac{1}{\alpha(1-s_{rj1})} + \frac{\sum_{k\ne j}s_{rk1}m_{rk1}}{1-s_{rj1}} - \delta\frac{\sum_{k\ne j}s_{rk1}(w_r(j) - w_r(k))}{1-s_{rj1}} \\
+\end{gather*}
+
+In the traditional pricing game, the firm would not track past purchases, only types $r$. Thus, period two demand does not depend on period one purchases. That is, $w_r(j) = w_r(k)$ and we would lose the last term resulting in
+
+\begin{gather*}
+  p^*_{rj1} = c_j - \frac{1}{\alpha(1-s_{rj1})} + \frac{\sum_{k\ne j}s_{rk1}m_{rk1}}{1-s_{rj1}} \\
+\end{gather*}
+
+Or marginal cost plus a markup plus the value of alternatives. To put it simply, the profit function for the traditional game is:
+
+\begin{gather*}
+  \Pi = \pi_1(p_{rj1}) + \delta\pi_2(p_{rj2}) \\
+  \shortintertext{s.t.} \\
+  \frac{\partial\pi_2}{\partial p_{rj1}} = 0
+\end{gather*}
+
+Where prices can be set independently of each other. In the model proposed above, period two is directly influenced by period one since the firm is keeping track of past purchases. 
 
 \end{document}

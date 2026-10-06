@@ -187,8 +187,8 @@ def load_and_preprocess(weekly_capacity=28):
         missing="drop",
     ).fit()
 
-    merged_master["iv_res"] = iv_res.resid
-    merged_master = merged_master.dropna(subset=["iv_res"])
+    merged_master["iv_res"] = np.nan
+    merged_master.loc[iv_res.model.data.row_labels, "iv_res"] = iv_res.resid
 
     def map_flavor_category(flavor):
         if pd.isna(flavor):
@@ -427,6 +427,19 @@ def estimate_model(hh_packed_data):
     z = res.x / se
     p = 2 * (1 - sp.stats.norm.cdf(np.abs(z)))
 
+    # Check gradient magnitude at optimum
+    grad = result.jac
+    grad_norm = np.linalg.norm(grad)
+    print(f"Gradient Norm at convergence: {grad_norm:.6f}")
+
+    # Check Hessian condition number
+    if hasattr(result, "hess_inv"):
+        if hasattr(result.hess_inv, "todense"):
+            hess_inv = result.hess_inv.todense()
+        else:
+            hess_inv = result.hess_inv
+        cond = np.linalg.cond(hess_inv)
+        print(f"Hessian Condition Number: {cond:.2e}")
     return {
         "params": res.x,
         "se": se,
@@ -535,6 +548,19 @@ def estimate_mixed_model(hh_packed_data, n_draws=50):
     z = res.x / se
     p = 2 * (1 - sp.stats.norm.cdf(np.abs(z)))
 
+    # Check gradient magnitude at optimum
+    grad = result.jac
+    grad_norm = np.linalg.norm(grad)
+    print(f"Gradient Norm at convergence: {grad_norm:.6f}")
+
+    # Check Hessian condition number
+    if hasattr(result, "hess_inv"):
+        if hasattr(result.hess_inv, "todense"):
+            hess_inv = result.hess_inv.todense()
+        else:
+            hess_inv = result.hess_inv
+        cond = np.linalg.cond(hess_inv)
+        print(f"Hessian Condition Number: {cond:.2e}")
     return {
         "params": res.x,
         "se": se,

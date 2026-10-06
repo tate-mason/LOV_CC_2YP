@@ -201,6 +201,16 @@ def load_and_preprocess(weekly_capacity=14):
         .reset_index()
     )
 
+    cat_choice_sets["price"] = cat_choice_sets.groupby(["store_code_uc", "category"])[
+        "price"
+    ].transform(lambda x: x.fillna(x.mean()))
+
+    cat_choice_sets["price"] = cat_choice_sets.groupby("category")["price"].transform(
+        lambda x: x.fillna(x.mean())
+    )
+
+    cat_choice_sets["iv_res"] = cat_choice_sets["iv_res"].fillna(0.0)
+
     choice_set_matrix = {}
     for (store, week), group in cat_choice_sets.groupby(["store_code_uc", "week_end"]):
         mat = np.zeros((4, 2), dtype=np.float64)

@@ -478,3 +478,15 @@ def display_results(results):
     console.print(table)
     console.print(f"[bold]Optimization Success:[/bold] {results['success']}")
     console.print(f"[bold]Final LL Objective:[/bold] {results['fun']:.4f}")
+
+
+def main():
+    hh_packed_data, vec_data = load_and_preprocess()
+
+    console.print("\n--- Estimating Standard Satiation Logit ---")
+    results = estimate_model(vec_data)
+    display_results(results)
+
+
+if __name__ == "__main__":
+    main()

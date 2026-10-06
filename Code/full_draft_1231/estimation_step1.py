@@ -416,7 +416,7 @@ def total_objective_het_gamma(params, vec_data, draws):
 
     u_base = const + beta_vec + alpha * prices + sigma * resids
     u_inside = u_base[:, None, :] + gamma_draws[None, :, None] * c_state[:, None, :]
-    u_out = np.zeros((n_obs, n_draws, 1))
+    u_out = np.zeros((u_inside.shape[0], u_inside.shape[1], 1))
     u = np.concatenate([u_inside, u_out], axis=2)
 
     log_probs = u - logsumexp(u, axis=2, keepdims=True)

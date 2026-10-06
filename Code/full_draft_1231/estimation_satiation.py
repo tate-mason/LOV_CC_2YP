@@ -190,6 +190,16 @@ def load_and_preprocess(weekly_capacity=28):
     merged_master["iv_res"] = np.nan
     merged_master.loc[iv_res.model.data.row_labels, "iv_res"] = iv_res.resid
 
+    valid_resids = merged_master["iv_res"].dropna()
+    if len(valid_resids) > 0:
+        res_mean = valid_resids.mean()
+        res_std = valid_resids.std()
+        merged_master["iv_res"] = (merged_master["iv_res"] - res_mean) / (
+            res_std if res_std > 0 else 1.0
+        )
+
+    merged_master["iv_res"] = merged_master["iv_res"].fillna(0.0)
+
     def map_flavor_category(flavor):
         if pd.isna(flavor):
             return "outside"
@@ -234,6 +244,11 @@ def load_and_preprocess(weekly_capacity=28):
     df_sat = compute_satiation_state(
         weekly_purchases, lambda_mem=0.7, delta_discount=0.9
     )
+    for j in range(3):
+        c_col = f"C_sat_{j}"
+        c_sd = df_sat[c_col].std()
+        if c_sd > 0:
+            df_sat[c_col] = df_sat[c_col] / c_sd
 
     hh_weeks = weekly_purchases[
         ["household_code", "store_code_uc", "week_end"]

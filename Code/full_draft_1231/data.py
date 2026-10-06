@@ -329,3 +329,6 @@ unique_combos = merged_df[
     ["serving_per_container", "serving_per_container_cd"]
 ].drop_duplicates()
 console.print(unique_combos)
+
+unique_flav = merged_df[["flavor_str", "flavor_cd"]].drop_duplicates()
+console.print(unique_flav)

@@ -90,7 +90,7 @@ def load_and_preprocess(weekly_capacity=14):
                 pl.col("yogurt_purchase").cast(pl.Int64),
                 pl.col("serving_per_container_cd").cast(pl.Int64),
                 pl.col("product_module_code_hms").cast(pl.Int64),
-                pl.col("price").cast(pl.Int64),
+                pl.col("price").cast(pl.Float64),
             ]
         )
         .filter(pl.col("product_module_code_hms").is_in([3612, 3603]))

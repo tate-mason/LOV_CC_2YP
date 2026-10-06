@@ -264,7 +264,7 @@ def load_and_preprocess(weekly_capacity=14):
             effective_capacity = max(weekly_capacity, inside_units + 1)
             outside_count = effective_capacity - inside_units
 
-            full_counts = np.hstack([inside_units, outside_count])
+            full_counts = np.append(inside_counts, outside_count)
             c_vec = np.array([row.C_sat_0, row.C_sat_1, row.C_sat_2], dtype=np.float64)
 
             matrices_list.append(choice_set_matrix[(store, week)])
@@ -364,7 +364,7 @@ def load_and_preprocess(weekly_capacity=14):
 
 def total_objective(params, vec_data):
     const, beta_ber, beta_pl, alpha, sigma = params
-    beta_vec = np.array([beta_ber, beta_pl])
+    beta_vec = np.array([0.0, beta_ber, beta_pl])
 
     prices = vec_data["prices"]
     resids = vec_data["resids"]

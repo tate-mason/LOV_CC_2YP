@@ -365,3 +365,9 @@ carb_combos = merged_df[
 ].drop_duplicates()
 fat_combos = merged_df[["total_fat_gram", "total_fat_gram_cd"]].drop_duplicates()
 organic_combos = merged_df[["organic_claim", "organic_claim_cd"]].drop_duplicates()
+
+console.print(protein_combos)
+console.print(sugar_combos)
+console.print(carb_combos)
+console.print(fat_combos)
+console.print(organic_combos)

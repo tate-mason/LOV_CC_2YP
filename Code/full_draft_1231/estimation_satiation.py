@@ -563,19 +563,19 @@ def estimate_mixed_model(hh_packed_data, n_draws=50):
     z = res.x / se
     p = 2 * (1 - sp.stats.norm.cdf(np.abs(z)))
 
-    # Check gradient magnitude at optimum
-    grad = res.jac
-    grad_norm = np.linalg.norm(grad)
-    print(f"Gradient Norm at convergence: {grad_norm:.6f}")
+    ## Check gradient magnitude at optimum
+    # grad = res.jac
+    # grad_norm = np.linalg.norm(grad)
+    # print(f"Gradient Norm at convergence: {grad_norm:.6f}")
 
-    # Check Hessian condition number
-    if hasattr(res, "hess_inv"):
-        if hasattr(res.hess_inv, "todense"):
-            hess_inv = res.hess_inv.todense()
-        else:
-            hess_inv = res.hess_inv
-        cond = np.linalg.cond(hess_inv)
-        print(f"Hessian Condition Number: {cond:.2e}")
+    ## Check Hessian condition number
+    # if hasattr(res, "hess_inv"):
+    #    if hasattr(res.hess_inv, "todense"):
+    #        hess_inv = res.hess_inv.todense()
+    #    else:
+    #        hess_inv = res.hess_inv
+    #    cond = np.linalg.cond(hess_inv)
+    #    print(f"Hessian Condition Number: {cond:.2e}")
     return {
         "params": res.x,
         "se": se,

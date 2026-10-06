@@ -325,20 +325,31 @@ merged_df = pl.scan_parquet(OUT_PATH).collect().to_pandas()
 console.print(merged_df.shape)
 console.print(merged_df.describe())
 console.print(merged_df.columns.to_list())
-unique_combos = merged_df[
-    ["serving_per_container", "serving_per_container_cd"]
-].drop_duplicates()
-console.print(unique_combos)
+# unique_combos = merged_df[
+#    ["serving_per_container", "serving_per_container_cd"]
+# ].drop_duplicates()
+# console.print(unique_combos)
 
 MERGED_PATH = "/scratch/dtm63837/Kilts_Panel/nielsen_extracts/scanner_panel.parquet"
 
 # 1. Load Parquet Data with Type Casts
-df = (
+merged_df = (
     pl.scan_parquet(MERGED_PATH)
     .with_columns(
         [
-            pl.col("household_size").cast(pl.Int64, strict=False),
-            pl.col("serving_per_container_cd").cast(pl.Int64, strict=False),
+            pl.col("quantity").cast(pl.Int64),
+            pl.col("head_age").cast(pl.Int64),
+            pl.col("household_income").cast(pl.Int64),
+            pl.col("household_size").cast(pl.Int64),
+            pl.col("yogurt_purchase").cast(pl.Int64),
+            pl.col("serving_per_container_cd").cast(pl.Int64),
+            pl.col("product_module_code_hms").cast(pl.Int64),
+            pl.col("price").cast(pl.Float64),
+            pl.col("protein_gram_cd").cast(pl.Int64),
+            pl.col("sugar_gram_cd").cast(pl.Int64),
+            pl.col("total_carbohydrate_gram_cd").cast(pl.Int64),
+            pl.col("total_fat_gram_cd").cast(pl.Int64)
+            pl.col("organic_claim_cd").cast(pl.Int64),
         ]
     )
     .filter(pl.col("household_size") == 1)
@@ -347,89 +358,8 @@ df = (
     .to_pandas()
 )
 
-# 2. Identify all text/string columns in the dataset
-string_cols = df.select_dtypes(include=["object", "string"]).columns.tolist()
-console.print(
-    f"[bold yellow]Available text columns in dataset:[/bold yellow] {string_cols}\n"
-)
-
-# Clean flavor_cd
-if "flavor_cd" in df.columns:
-    df["flavor_cd"] = (
-        pd.to_numeric(df["flavor_cd"], errors="coerce").fillna(0).astype(int)
-    )
-else:
-    df["flavor_cd"] = 0
-
-# Determine best description column to inspect
-descr_col = None
-for col_candidate in ["flavor_str", "flavor", "product_descr", "upc_descr"]:
-    if col_candidate in df.columns:
-        descr_col = col_candidate
-        break
-
-if descr_col is None and len(string_cols) > 0:
-    descr_col = string_cols[0]
-
-# Ensure description column is clean string
-if descr_col:
-    df[descr_col] = df[descr_col].fillna("").astype(str)
-else:
-    descr_col = "description"
-    df[descr_col] = ""
-
-# 3. Group by flavor_cd and capture text descriptions
-summary = (
-    df.groupby(["flavor_cd", descr_col])
-    .size()
-    .reset_index(name="obs_count")
-    .sort_values(by="obs_count", ascending=False)
-)
-
-# 4. Display Results in a Rich Table
-table = Table(
-    title=f"ALL FLAVOR CODES AND ASSOCIATED STRINGS (Total Rows: {len(df):,})",
-    show_header=True,
-    header_style="bold magenta",
-)
-table.add_column("Rank", justify="right", style="dim")
-table.add_column("Flavor Code (flavor_cd)", justify="right", style="cyan")
-table.add_column(f"Description ({descr_col})", justify="left", style="green")
-table.add_column("Observation Count", justify="right", style="yellow")
-table.add_column("Share (%)", justify="right")
-
-total_obs = len(df)
-
-for rank, row in enumerate(summary.itertuples(), start=1):
-    f_code = str(row.flavor_cd)
-    f_str = str(getattr(row, descr_col))
-    count = row.obs_count
-    share = (count / total_obs) * 100 if total_obs > 0 else 0
-
-    table.add_row(
-        str(rank),
-        f_code,
-        f_str if f_str.strip() else "[EMPTY / NULL]",
-        f"{count:,}",
-        f"{share:.2f}%",
-    )
-
-    if rank >= 40:
-        break
-
-console.print(table)
-
-# 5. Search specifically for Berry keywords across all text columns
-console.print(
-    "\n[bold yellow]--- SEARCHING FOR BERRY KEYWORDS ACROSS ALL TEXT COLUMNS ---[/bold yellow]"
-)
-berry_regex = r"berry|straw|blue|rasp|black|cran|cherry|wildberry"
-
-for col in string_cols:
-    matches = df[df[col].astype(str).str.contains(berry_regex, case=False, na=False)]
-    console.print(
-        f"Column '[cyan]{col}[/cyan]': Found [green]{len(matches):,}[/green] matching rows."
-    )
-    if len(matches) > 0:
-        top_matches = matches[col].value_counts().head(5).to_dict()
-        console.print(f"   Top values: {top_matches}")
+protein_combos = merged_df[["protein_gram", "protein_gram_cd"]].drop_duplicates()
+sugar_combos   = merged_df[["sugar_gram", "sugar_gram_cd"]].drop_duplicates()
+carb_combos    = merged_df[["total_carbohydrate_gram", "total_carbohydrate_gram_cd"]].drop_duplicates()
+fat_combos     = merged_df[["total_fat_gram", "total_fat_gram_cd"]].drop_duplicates()
+organic_combos = merged_df[["organic_claim", "organic_claim_cd"]].drop_duplicates()

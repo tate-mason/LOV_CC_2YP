@@ -24,7 +24,7 @@ CATEGORIES = ["other", "berry", "plain", "outside"]
 
 cat_map = {c: i for i, c in enumerate(CATEGORIES)}
 rng = np.random.default_rng(219)
-GAMMA_DRAWS = np.random.default_rng(306).standard_normal((50, 4))
+GAMMA_DRAWS = np.random.default_rng(306).standard_normal(50)
 
 
 def compute_satiation_state(
@@ -410,7 +410,7 @@ def total_objective_het_gamma(params, vec_data, draws):
     c_state = vec_data["c_states"]
 
     n_obs = prices.shape[0]
-    n_draws = prices.shape[0]
+    n_draws = draws.shape[0]
 
     gamma_draws = mu_gamma + sd_gamma * draws
 
@@ -526,27 +526,36 @@ def estimate_het_model(vec_data, draws=GAMMA_DRAWS):
             hessian[i, j] = (f1 - f2 - f3 + f4) / (4 * eps * eps)
             hessian[j, i] = hessian[i, j]
 
-            try:
-                se = np.sqrt(np.diag(np.linalg.inv(hessian)))
-            except np.linalg.LinAlgError:
-                se = np.full(n, np.nan)
+    try:
+        se = np.sqrt(np.diag(np.linalg.inv(hessian)))
+    except np.linalg.LinAlgError:
+        se = np.full(n, np.nan)
 
-            z = res.x / se
-            p = 2 * (1 - sp.stats.norm.cdf(np.abs(z)))
+    z = res.x / se
+    p = 2 * (1 - sp.stats.norm.cdf(np.abs(z)))
 
-            return {
-                "params": res.x,
-                "se": se,
-                "z_stat": z,
-                "p_val": p,
-                "success": res.success,
-                "fun": res.fun,
-            }
+    return {
+        "params": res.x,
+        "se": se,
+        "z_stat": z,
+        "p_val": p,
+        "success": res.success,
+        "fun": res.fun,
+    }
 
 
 def display_results(results, title="SATIATION SPECIFICATION RESULTS", param_names=None):
+    if param_names is None:
+        param_names = [
+            "constant",
+            "beta_ber",
+            "beta_pl",
+            "gamma",
+            "price",
+            "control function",
+        ]
     table = Table(
-        title="SIMPLE SATIATION SPECIFICATION RESULTS",
+        title=title,
         show_header=True,
         header_style="bold magenta",
     )

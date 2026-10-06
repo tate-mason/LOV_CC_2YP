@@ -211,14 +211,23 @@ def load_and_preprocess(weekly_capacity=14):
 
     cat_choice_sets["iv_res"] = cat_choice_sets["iv_res"].fillna(0.0)
 
+    # Category mean prices for store-weeks missing an entire category row
+    overall_cat_prices = inside_df.groupby("category")["price"].mean().to_dict()
+
     choice_set_matrix = {}
     for (store, week), group in cat_choice_sets.groupby(["store_code_uc", "week_end"]):
         mat = np.zeros((4, 2), dtype=np.float64)
+
+        # Pre-fill unobserved options with overall category mean price
+        for cat, idx in cat_map.items():
+            if cat != "outside" and cat in overall_cat_prices:
+                mat[idx, 0] = overall_cat_prices[cat]
 
         for row in group.itertuples():
             if row.category in cat_map and row.category != "outside":
                 idx = cat_map[row.category]
                 mat[idx] = [row.price, row.iv_res]
+
         choice_set_matrix[(store, week)] = mat
 
     df_sat = compute_satiation_state(
@@ -391,7 +400,7 @@ def total_objective(params, vec_data):
 
 
 def estimate_model(vec_data):
-    x0 = np.zeros(5)
+    x0 = np.array([0.0, 0.0, 0.0, -0.5, 0.0])
     bounds = [(None, None)] * 3 + [(None, 0.0), (None, None)]
 
     res = minimize(
@@ -411,9 +420,9 @@ def estimate_model(vec_data):
             x1, x2, x3, x4 = res.x.copy(), res.x.copy(), res.x.copy(), res.x.copy()
             x1[i] += eps
             x1[j] += eps
-            x2[i] -= eps
+            x2[i] += eps
             x2[j] -= eps
-            x3[i] += eps
+            x3[i] -= eps
             x3[j] += eps
             x4[i] -= eps
             x4[j] -= eps

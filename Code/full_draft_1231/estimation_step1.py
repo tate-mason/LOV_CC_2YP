@@ -382,14 +382,15 @@ def load_and_preprocess(weekly_capacity=14):
 
 
 def total_objective(params, vec_data):
-    const, beta_ber, beta_pl, alpha, sigma = params
+    const, beta_ber, beta_pl, gamma, alpha, sigma = params
     beta_vec = np.array([0.0, beta_ber, beta_pl])
 
     prices = vec_data["prices"]
     resids = vec_data["resids"]
     choices = vec_data["choices"]
+    c_state = vec_data["c_states"]
 
-    u_inside = const + beta_vec + alpha * prices + sigma * resids
+    u_inside = const + beta_vec + gamma * c_state + alpha * prices + sigma * resids
     u_outside = np.zeros((u_inside.shape[0], 1))
     u = np.hstack([u_inside, u_outside])
 
@@ -400,8 +401,8 @@ def total_objective(params, vec_data):
 
 
 def estimate_model(vec_data):
-    x0 = np.array([0.0, 0.0, 0.0, -0.5, 0.0])
-    bounds = [(None, None)] * 3 + [(None, 0.0), (None, None)]
+    x0 = np.array([0.0, 0.0, 0.0, 0.0, -0.5, 0.0])
+    bounds = [(None, None)] * 4 + [(None, 0.0), (None, None)]
 
     res = minimize(
         total_objective,
@@ -469,6 +470,7 @@ def display_results(results):
         "Constant",
         "beta_ber",
         "beta_pl",
+        "gamma",
         "Price",
         "Control Func.",
     ]

@@ -937,7 +937,7 @@ def main():
     display_results(results)
 
     console.print("\n--- Estimating Mixed Satiation Logit ---")
-    mixed_results = estimate_mixed_model(hh_packed_data, n_draws=50)
+    mixed_results = estimate_mixed_model(hh_packed_data, static_draws=STATIC_DRAWS)
     display_mixed_results(mixed_results)
 
     df_types = extract_individual_parameters(mixed_results, hh_packed_data, n_draws=50)

@@ -1,0 +1,47 @@
+From github.com:tate-mason/LOV_CC_2YP
+   398cb29..6a84b85  main       -> origin/main
+Updating 398cb29..6a84b85
+Fast-forward
+ Code/full_draft_1231/estimation_step1.py | 45 +++++++++++++-------------------
+ 1 file changed, 18 insertions(+), 27 deletions(-)
+Mean inside units per week: 8.34
+Mean outside count:          6.80
+Inside choice share:         59.6%
+Zero outside count share:    0.0%
+
+--- CHOICE CATEGORY TOTALS ---
+Other: 19575 | Berry: 9588 | Plain: 4128 | Outside: 27156
+Price Range: 0.28 to 3.49 (Std: 0.24)
+Resid Range: -3.26 to 3.53 (Std: 0.24)
+
+
+--- Estimating Standard Satiation Logit ---
+                    STANDARD SATIATION LOGIT                    
+┏━━━━━━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━━━━┓
+┃ Parameter     ┃ Estimate ┃ Std. Error ┃  z-stat ┃    p-value ┃
+┡━━━━━━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━━━━━┩
+│ Constant      │   0.9474 │     0.0396 │  23.901 │ 0.0000 *** │
+│ beta_ber      │  -0.7631 │     0.0126 │ -60.366 │ 0.0000 *** │
+│ beta_pl       │  -1.3898 │     0.0179 │ -77.580 │ 0.0000 *** │
+│ gamma         │  -0.1485 │     0.0207 │  -7.167 │ 0.0000 *** │
+│ Price         │  -0.9819 │     0.0299 │ -32.842 │ 0.0000 *** │
+│ Control Func. │   0.1665 │     0.0292 │   5.710 │ 0.0000 *** │
+└───────────────┴──────────┴────────────┴─────────┴────────────┘
+Optimization Success: True
+Final LL Objective: 71893.9007
+
+--- Estimating Random Coefficient for LOV ---
+                    RANDOM COEFFICIENT LOGIT                     
+┏━━━━━━━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━━━━┓
+┃ Parameter      ┃ Estimate ┃ Std. Error ┃  z-stat ┃    p-value ┃
+┡━━━━━━━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━━━━━┩
+│ Constant       │   0.9469 │     0.0396 │  23.890 │ 0.0000 *** │
+│ beta_berry     │  -0.7629 │     0.0126 │ -60.340 │ 0.0000 *** │
+│ beta_plain     │  -1.3884 │     0.0179 │ -77.522 │ 0.0000 *** │
+│ Mean Satiation │  -0.2393 │     0.0666 │  -3.595 │ 0.0003 *** │
+│ SD Satiation   │   0.0933 │     0.0434 │   2.150 │  0.0315 ** │
+│ Price          │  -0.9815 │     0.0299 │ -32.831 │ 0.0000 *** │
+│ Control Func.  │   0.1601 │     0.0292 │   5.487 │ 0.0000 *** │
+└────────────────┴──────────┴────────────┴─────────┴────────────┘
+Optimization Success: True
+Final LL Objective: 71893.7591

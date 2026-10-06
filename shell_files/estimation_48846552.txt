@@ -1,0 +1,30 @@
+From github.com:tate-mason/LOV_CC_2YP
+   6041b2f..a55daf0  main       -> origin/main
+Updating 6041b2f..a55daf0
+Fast-forward
+ Code/full_draft_1231/estimation_step1.py | 15 ++++++++++++---
+ 1 file changed, 12 insertions(+), 3 deletions(-)
+Mean inside units per week: 8.34
+Mean outside count:          6.80
+Inside choice share:         59.6%
+Zero outside count share:    0.0%
+
+--- CHOICE CATEGORY TOTALS ---
+Other: 19575 | Berry: 9588 | Plain: 4128 | Outside: 27156
+Price Range: 0.28 to 3.49 (Std: 0.24)
+Resid Range: -3.26 to 3.53 (Std: 0.24)
+
+
+--- Estimating Standard Satiation Logit ---
+             SIMPLE SATIATION SPECIFICATION RESULTS             
+┏━━━━━━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━━━━┓
+┃ Parameter     ┃ Estimate ┃ Std. Error ┃  z-stat ┃    p-value ┃
+┡━━━━━━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━━━━━┩
+│ Constant      │   0.9462 │     0.0397 │  23.860 │ 0.0000 *** │
+│ beta_ber      │  -0.7634 │     0.0126 │ -60.396 │ 0.0000 *** │
+│ beta_pl       │  -1.3892 │     0.0179 │ -77.562 │ 0.0000 *** │
+│ Price         │  -0.9843 │     0.0299 │ -32.907 │ 0.0000 *** │
+│ Control Func. │   0.1671 │     0.0292 │   5.726 │ 0.0000 *** │
+└───────────────┴──────────┴────────────┴─────────┴────────────┘
+Optimization Success: True
+Final LL Objective: 71955.7267

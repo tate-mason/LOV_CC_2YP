@@ -124,31 +124,30 @@ def load_and_preprocess(weekly_capacity=28):
     merged_df["flavor_cd"] = pd.to_numeric(
         merged_df["flavor_cd"], errors="coerce"
     ).fillna(0)
-    # 1. Dynamically extract all numeric flavor codes containing berry strings
-    berry_regex = r"berry|straw|blue|rasp|black|cran|cherry|wildberry"
-    berry_codes = (
-        merged_df[
-            merged_df["flavor_str"].str.contains(berry_regex, case=False, na=False)
-        ]["flavor_cd"]
-        .unique()
-        .tolist()
-    )
-
-    PLAIN_CODES = [67676592, 66987057]
-
-    # Ensure Plain overrides Berry if any overlap exists
-    berry_codes = [c for c in berry_codes if c not in PLAIN_CODES]
 
     merged_master = merged_df.copy()
+    # 1. Gather all potential description columns present in dataset
+    descr_cols = [
+        c
+        for c in merged_df.columns
+        if any(k in c.lower() for k in ["descr", "flavor", "brand", "product", "upc"])
+    ]
 
-    merged_master["flavor"] = np.select(
-        [
-            merged_master["flavor_cd"].isin(PLAIN_CODES),
-            merged_master["flavor_cd"].isin(berry_codes),
-        ],
-        [2, 1],  # 2 = Plain, 1 = Berry
-        default=0,  # 0 = Other
-    )
+    # 2. Combine into a single lowercase text column
+    merged_df["full_text"] = ""
+    for c in descr_cols:
+        merged_df["full_text"] += " " + merged_df[c].fillna("").astype(str)
+    merged_df["full_text"] = merged_df["full_text"].str.lower()
+
+    # 3. Apply regex across combined text
+    berry_regex = r"berry|straw|blue|rasp|black|cran|cherry|wildberry"
+    plain_regex = r"plain|unflavored"
+
+    is_plain = merged_df["full_text"].str.contains(plain_regex, na=False)
+    is_berry = merged_df["full_text"].str.contains(berry_regex, na=False) & (~is_plain)
+
+    # 4. Assign Flavor Categories (2: Plain, 1: Berry, 0: Other)
+    merged_master["flavor"] = np.select([is_plain, is_berry], [2, 1], default=0)
 
     # Petrin & Train Instrument Construction (1st Stage OLS)
     market_price = (

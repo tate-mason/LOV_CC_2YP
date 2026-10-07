@@ -1,5 +1,11 @@
 import numpy as np
 from scipy.optimize import minimize
+from rich.traceback import install
+
+install()
+from rich.console import Console
+
+console = Console()
 
 # Plug in Recovered Parameter Estimates
 
@@ -90,7 +96,7 @@ def imperfect_info_profit(params):
 ## PERFECT
 
 init_p1_perf = np.tile(costs + 1.0, (2, 1))
-init_p2_perf = np.tile(costs + 1.0, (2, J, J))
+init_p2_perf = np.tile(costs + 1.0, (2, J, 1))
 
 init_params_perf = np.concatenate([init_p1_perf.flatten(), init_p2_perf.flatten()])
 
@@ -105,10 +111,10 @@ res_perfect = minimize(perfect_info_obj, init_params_perf, method="L-BFGS-B")
 p1_opt_perf = res_perfect.x[: 2 * J].reshape((2, J))
 p2_opt_perf = res_perfect.x[2 * J :].reshpae((2, J, J))
 
-print("--- PERFECT INFORMATION OPTIMAL PRICES AND PROFIT ---")
-print("PERIOD 1 PRICES TYPE H:", p1_opt_perf[0])
-print("PERIOD 1 PRICES TYPE L:", p1_opt_perf[1])
-print("MAX PROFIT (PERFECT INFO)", -res_perfect.fun)
+console.print("--- PERFECT INFORMATION OPTIMAL PRICES AND PROFIT ---")
+console.print("PERIOD 1 PRICES TYPE H:", p1_opt_perf[0])
+console.print("PERIOD 1 PRICES TYPE L:", p1_opt_perf[1])
+console.print("MAX PROFIT (PERFECT INFO)", -res_perfect.fun)
 
 
 ## IMPERFECT
@@ -117,6 +123,6 @@ init_p2 = np.tile(costs + 1.0, (J, 1))
 init_params = np.concatenate([init_p1, init_p2.flatten()])
 
 res_imperfect = minimize(imperfect_info_profit, init_params, method="L-BFGS-B")
-print("--- IMPERFECT INFORMATION OPTIMAL PRICES AND PROFIT ---")
-print("PERIOD 1 PRICES", res_imperfect.x[:J])
-print("MAX PROFIT", -res_imperfect.fun)
+console.print("--- IMPERFECT INFORMATION OPTIMAL PRICES AND PROFIT ---")
+console.print("PERIOD 1 PRICES", res_imperfect.x[:J])
+console.print("MAX PROFIT", -res_imperfect.fun)

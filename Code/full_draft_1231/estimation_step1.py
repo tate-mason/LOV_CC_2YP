@@ -418,12 +418,11 @@ def total_objective_het_gamma(params, vec_data, draws):
     choices = vec_data["choices"]
     c_state = vec_data["c_states"]
 
-    draws_1d = np.asarray(draws).ravel()
-    n_draws = len(draws_1d)
+    n_draws = draws.shape[0]
 
-    b_ber_draws = mu_beta_ber + sd_beta_ber * draws_1d[:, 0]
-    b_pl_draws = mu_beta_pl + sd_beta_pl * draws_1d[:, 1]
-    gamma_draws = mu_gamma + sd_gamma * draws_1d[:, 2]
+    b_ber_draws = mu_beta_ber + sd_beta_ber * draws[:, 0]
+    b_pl_draws = mu_beta_pl + sd_beta_pl * draws[:, 1]
+    gamma_draws = mu_gamma + sd_gamma * draws[:, 2]
 
     beta_draws_matrix = np.column_stack([np.zeros(n_draws), b_ber_draws, b_pl_draws])
 

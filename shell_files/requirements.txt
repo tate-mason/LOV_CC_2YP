@@ -27,3 +27,4 @@ rich
 openpyxl
 fastexcel
 joblib
+tabulate

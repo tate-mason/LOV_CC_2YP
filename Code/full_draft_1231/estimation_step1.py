@@ -401,8 +401,17 @@ def total_objective(params, vec_data):
 
 
 def total_objective_het_gamma(params, vec_data, draws):
-    const, beta_ber, beta_pl, mu_gamma, sd_gamma, alpha, sigma = params
-    beta_vec = np.array([0.0, beta_ber, beta_pl])
+    (
+        const,
+        mu_beta_ber,
+        mu_beta_pl,
+        mu_gamma,
+        sd_beta_ber,
+        sd_beta_pl,
+        sd_gamma,
+        alpha,
+        sigma,
+    ) = params
 
     prices = vec_data["prices"]
     resids = vec_data["resids"]
@@ -412,10 +421,17 @@ def total_objective_het_gamma(params, vec_data, draws):
     draws_1d = np.asarray(draws).ravel()
     n_draws = len(draws_1d)
 
+    b_ber_draws = mu_beta_ber + sd_beta_ber * draws_1d
+    b_pl_draws = mu_beta_pl + sd_beta_pl * draws_1d
     gamma_draws = mu_gamma + sd_gamma * draws_1d
 
-    u_base = const + beta_vec + alpha * prices + sigma * resids
-    u_inside = u_base[:, None, :] + gamma_draws[None, :, None] * c_state[:, None, :]
+    u_base = const + alpha * prices + sigma * resids
+    u_inside = (
+        u_base[:, None, :]
+        + b_ber_draws[:, None, :]
+        + b_pl_draws[:, None, :]
+        + gamma_draws[None, :, None] * c_state[:, None, :]
+    )
     u_out = np.zeros((u_inside.shape[0], n_draws, 1))
     u = np.concatenate([u_inside, u_out], axis=2)
 
@@ -481,14 +497,16 @@ def estimate_model(vec_data):
 
 
 def estimate_het_model(vec_data, draws=GAMMA_DRAWS):
-    x0 = np.array([0.95, -0.76, -1.39, -0.15, 0.20, -0.98, 0.16])
+    x0 = np.array([0.95, 0.0, 0.0, -0.15, 0.0, 0.0, 0.20, -0.98, 0.16])
 
     bounds = [
         (-5.0, 5.0),  # const
-        (-5.0, 5.0),  # beta_ber
-        (-5.0, 5.0),  # beta_pl
+        (None, None),  # mu_berry
+        (None, None),  # mu_plain
         (-5.0, 5.0),  # mu_gamma
         (0.001, 3.0),  # sd_gamma
+        (0.001, None),  # sd_berry
+        (0.001, None),  # sd_plain
         (-5.0, 0.0),  # alpha (Price <= 0)
         (-5.0, 5.0),  # sigma (Control Func)
     ]

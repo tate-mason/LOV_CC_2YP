@@ -8,13 +8,13 @@ np.random.seed(42)
 # =====================================================================
 # 1. PARAMETERS & ESTIMATES RECOVERED FROM MODEL
 # =====================================================================
-beta_0 = 1.0  # Baseline utility intercept[cite: 1]
-gamma_H = 1.5  # Utility from switching (Type H)[cite: 1]
-gamma_L = 0.5  # Utility from switching (Type L)[cite: 1]
-alpha = -0.8  # Disutility of price[cite: 1]
-delta = 0.95  # Discount factor[cite: 3]
-lambda_1 = 0.5  # Prior belief: 50/50 POC ratio[cite: 4]
-costs = np.array([1.0, 1.2])  # Marginal costs for Goods 1 and 2[cite: 2]
+beta_0 = 1.0  # Baseline utility intercept
+gamma_H = 1.5  # Utility from switching (Type H)
+gamma_L = 0.5  # Utility from switching (Type L)
+alpha = -0.8  # Disutility of price
+delta = 0.95  # Discount factor
+lambda_1 = 0.5  # Prior belief: 50/50 POC ratio
+costs = np.array([1.0, 1.2])  # Marginal costs for Goods 1 and 2
 J = len(costs)
 
 
@@ -27,12 +27,12 @@ def logit_probs(V):
 
 
 def val_p1(p):
-    return beta_0 + alpha * p[cite:1]
+    return beta_0 + alpha * p
 
 
 def val_p2(p, prev_j, k, gamma_r):
     switching = 1.0 if prev_j != k else 0.0
-    return beta_0 + gamma_r * switching + alpha * p[cite:1]
+    return beta_0 + gamma_r * switching + alpha * p
 
 
 # --- A. Perfect Information Solver ---
@@ -47,16 +47,16 @@ def solve_perfect_info():
         for r_idx, t in enumerate(types):
             s1 = logit_probs(val_p1(p1[r_idx]))
             m1 = p1[r_idx] - costs
-            pi1 = np.sum(s1 * m1)[cite:3]
+            pi1 = np.sum(s1 * m1)
 
             pi2 = 0.0
             for j in range(J):
                 V2 = np.array([val_p2(p2[r_idx, j, k], j, k, t["g"]) for k in range(J)])
                 s2 = logit_probs(V2)
                 m2 = p2[r_idx, j] - costs
-                pi2 += s1[j] * np.sum(s2 * m2)[cite:3]
+                pi2 += s1[j] * np.sum(s2 * m2)
 
-            tot_prof += t["w"] * (pi1 + delta * pi2)[cite:3]
+            tot_prof += t["w"] * (pi1 + delta * pi2)
 
         return -tot_prof
 
@@ -82,13 +82,13 @@ def solve_imperfect_info():
 
         s1_H = logit_probs(val_p1(p1))
         s1_L = logit_probs(val_p1(p1))
-        s1_tilde = lambda_1 * s1_H + (1.0 - lambda_1) * s1_L[cite:4]
-        pi1 = np.sum(s1_tilde * (p1 - costs))[cite:4]
+        s1_tilde = lambda_1 * s1_H + (1.0 - lambda_1) * s1_L
+        pi1 = np.sum(s1_tilde * (p1 - costs))
 
         pi2 = 0.0
         for j in range(J):
-            # Bayesian update lambda_2(j)[cite: 4]
-            l2_j = (lambda_1 * s1_H[j]) / s1_tilde[j][cite:4]
+            # Bayesian update lambda_2(j)
+            l2_j = (lambda_1 * s1_H[j]) / s1_tilde[j]
 
             s2_H = logit_probs(
                 np.array([val_p2(p2[j, k], j, k, gamma_H) for k in range(J)])
@@ -97,10 +97,10 @@ def solve_imperfect_info():
                 np.array([val_p2(p2[j, k], j, k, gamma_L) for k in range(J)])
             )
 
-            s2_tilde = l2_j * s2_H + (1.0 - l2_j) * s2_L[cite:4]
-            pi2 += s1_tilde[j] * np.sum(s2_tilde * (p2[j] - costs))[cite:4]
+            s2_tilde = l2_j * s2_H + (1.0 - l2_j) * s2_L
+            pi2 += s1_tilde[j] * np.sum(s2_tilde * (p2[j] - costs))
 
-        return -(pi1 + delta * pi2)[cite:4]
+        return -(pi1 + delta * pi2)
 
     init_p = np.concatenate([costs + 1.0, np.tile(costs + 1.0, (J, 1)).flatten()])
     res = minimize(imperfect_info_profit, init_p, method="L-BFGS-B")
@@ -168,7 +168,7 @@ def simulate_consumer_paths(N, p1_matrix, p2_tensor, is_imperfect=False):
             )
             switching = np.array([0.0 if k == prev_prod else 1.0 for k in range(J)])
 
-        V2 = beta_0 + gamma_i[i] * switching + alpha * p2_prices[cite:1]
+        V2 = beta_0 + gamma_i[i] * switching + alpha * p2_prices
         eps2_inside = draw_gumbel((1, J))
         eps2_outside = draw_gumbel((1, 1))
 
@@ -261,8 +261,8 @@ path_breakdown = (
 # Compare Firm's Priors vs. Posterior Beliefs vs. Simulated Empirical Realization
 s1_H = logit_probs(val_p1(imperf_p1))
 s1_L = logit_probs(val_p1(imperf_p1))
-s1_tilde = lambda_1 * s1_H + (1.0 - lambda_1) * s1_L[cite:4]
-theo_l2 = (lambda_1 * s1_H) / s1_tilde  # Theoretical Bayes Updates[cite: 4]
+s1_tilde = lambda_1 * s1_H + (1.0 - lambda_1) * s1_L
+theo_l2 = (lambda_1 * s1_H) / s1_tilde  # Theoretical Bayes Updates
 
 emp_l2_g1 = (df_imperf[df_imperf["p1_choice"] == 1]["type"] == "High").mean()
 emp_l2_g2 = (df_imperf[df_imperf["p1_choice"] == 2]["type"] == "High").mean()

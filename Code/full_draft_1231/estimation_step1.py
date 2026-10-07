@@ -741,9 +741,7 @@ def main():
         # Print summary table of estimated individual distributions
         console.print("\n[bold yellow]--- HOUSEHOLD TYPE SUMMARY ---[/bold yellow]")
         console.print(
-            df_types[["beta_berry", "beta_plain", "gamma_satiation"]]
-            .describe()
-            .to_string()
+            df_types[["beta_berry", "beta_plain", "gamma"]].describe().to_string()
         )
 
         # Save types for downstream counterfactual analysis

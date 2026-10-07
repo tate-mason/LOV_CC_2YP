@@ -659,7 +659,7 @@ def extract_and_plot_types(vec_data, hh_packed_data, est_params, draws):
             u_outside = np.zeros((n_draws, 1))
             u_full = np.hstack([u_inside, u_outside])
 
-            log_probs = u_full - logsumexp(u_full, axis=1, keep_dims=True)
+            log_probs = u_full - logsumexp(u_full, axis=1, keepdims=True)
             hh_log_ll_draws += np.sum(c[None, :] * log_probs, axis=1)
 
         max_ll = np.max(hh_log_ll_draws)

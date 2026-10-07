@@ -24,7 +24,7 @@ CATEGORIES = ["other", "berry", "plain", "outside"]
 
 cat_map = {c: i for i, c in enumerate(CATEGORIES)}
 rng = np.random.default_rng(219)
-GAMMA_DRAWS = np.random.default_rng(306).standard_normal(50)
+GAMMA_DRAWS = np.random.default_rng(306).standard_normal((50, 3))
 
 
 def compute_satiation_state(
@@ -421,15 +421,16 @@ def total_objective_het_gamma(params, vec_data, draws):
     draws_1d = np.asarray(draws).ravel()
     n_draws = len(draws_1d)
 
-    b_ber_draws = mu_beta_ber + sd_beta_ber * draws_1d
-    b_pl_draws = mu_beta_pl + sd_beta_pl * draws_1d
-    gamma_draws = mu_gamma + sd_gamma * draws_1d
+    b_ber_draws = mu_beta_ber + sd_beta_ber * draws_1d[:, 0]
+    b_pl_draws = mu_beta_pl + sd_beta_pl * draws_1d[:, 1]
+    gamma_draws = mu_gamma + sd_gamma * draws_1d[:, 2]
+
+    beta_draws_matrix = np.column_stack([np.zeros(n_draws), b_ber_draws, b_pl_draws])
 
     u_base = const + alpha * prices + sigma * resids
     u_inside = (
         u_base[:, None, :]
-        + b_ber_draws[:, None, :]
-        + b_pl_draws[:, None, :]
+        + beta_draws_matrix[None, :, :]
         + gamma_draws[None, :, None] * c_state[:, None, :]
     )
     u_out = np.zeros((u_inside.shape[0], n_draws, 1))
@@ -497,20 +498,31 @@ def estimate_model(vec_data):
 
 
 def estimate_het_model(vec_data, draws=GAMMA_DRAWS):
-    x0 = np.array([0.95, 0.0, 0.0, -0.15, 0.0, 0.0, 0.20, -0.98, 0.16])
+    x0 = np.array(
+        [
+            0.95,  # const
+            -0.76,  # mu_beta_ber
+            -1.39,  # mu_beta_pl
+            -0.15,  # mu_gamma
+            0.10,  # sd_beta_ber
+            0.10,  # sd_beta_pl
+            0.05,  # sd_gamma
+            -0.98,  # alpha (Price)
+            0.16,  # sigma (Control Func)
+        ]
+    )
 
     bounds = [
         (-5.0, 5.0),  # const
-        (None, None),  # mu_berry
-        (None, None),  # mu_plain
-        (-5.0, 5.0),  # mu_gamma
-        (0.001, 3.0),  # sd_gamma
-        (0.001, None),  # sd_berry
-        (0.001, None),  # sd_plain
-        (-5.0, 0.0),  # alpha (Price <= 0)
+        (-5.0, 5.0),  # mu_beta_ber
+        (-5.0, 5.0),  # mu_beta_pl
+        (-2.0, 0.5),  # mu_gamma
+        (0.001, 3.0),  # sd_beta_ber
+        (0.001, 3.0),  # sd_beta_pl
+        (0.001, 1.0),  # sd_gamma
+        (-5.0, -0.01),  # alpha (Price strictly negative)
         (-5.0, 5.0),  # sigma (Control Func)
     ]
-
     res = minimize(
         total_objective_het_gamma,
         x0=x0,
@@ -620,9 +632,11 @@ def main():
     rc_results = estimate_het_model(vec_data, draws=GAMMA_DRAWS)
     rc_params = [
         "Constant",
-        "beta_berry",
-        "beta_plain",
+        "Mean beta_berry",
+        "Mean beta_plain",
         "Mean Satiation",
+        "SD beta_berry",
+        "SD beta_plain",
         "SD Satiation",
         "Price",
         "Control Func.",

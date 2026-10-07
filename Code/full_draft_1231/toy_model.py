@@ -13,7 +13,7 @@ from joblib import Parallel, delayed
 N_SIMS = 10000
 np.random.seed(219)
 
-lambda_1 = np.random.uniform(low=0.01, high=0.99, size=N_SIMS)
+lambda_1 = np.random.uniform(low=0.05, high=0.95, size=N_SIMS)
 
 # Plug in Recovered Parameter Estimates
 
@@ -124,4 +124,25 @@ results_list = Parallel(n_jobs=-1, verbose=10)(
     delayed(run_simulation_draw)(i, lambda_1[i]) for i in range(N_SIMS)
 )
 results_df = pd.DataFrame(results_list)
-console.print(results_df.describe())
+# Select the core metrics from describe() and transpose for better readability
+summary_stats = results_df.drop(columns=["sim_id"]).describe().T
+
+# Rename index for publication-ready labels
+summary_stats.index = [
+    "Prior P(r=H) [λ₁]",
+    "Perf. Info: P1 Price (Type H, Good 1)",
+    "Perf. Info: P1 Price (Type H, Good 2)",
+    "Perf. Info: P1 Price (Type L, Good 1)",
+    "Perf. Info: P1 Price (Type L, Good 2)",
+    "Perf. Info: Total Expected Profit",
+    "Imperf. Info: P1 Price (Good 1)",
+    "Imperf. Info: P1 Price (Good 2)",
+    "Imperf. Info: Total Expected Profit",
+]
+
+# Display as a clean Markdown table in Jupyter / Console output
+console.print(
+    summary_stats[["mean", "std", "min", "25%", "50%", "75%", "max"]].to_markdown(
+        floatfmt=".4f"
+    )
+)

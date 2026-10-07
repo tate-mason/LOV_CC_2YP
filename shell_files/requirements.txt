@@ -26,3 +26,4 @@ tqdm
 rich
 openpyxl
 fastexcel
+joblib

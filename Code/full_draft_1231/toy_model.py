@@ -109,7 +109,7 @@ def perfect_info_obj(params):
 
 res_perfect = minimize(perfect_info_obj, init_params_perf, method="L-BFGS-B")
 p1_opt_perf = res_perfect.x[: 2 * J].reshape((2, J))
-p2_opt_perf = res_perfect.x[2 * J :].reshpae((2, J, J))
+p2_opt_perf = res_perfect.x[2 * J :].reshape((2, J, J))
 
 console.print("--- PERFECT INFORMATION OPTIMAL PRICES AND PROFIT ---")
 console.print("PERIOD 1 PRICES TYPE H:", p1_opt_perf[0])

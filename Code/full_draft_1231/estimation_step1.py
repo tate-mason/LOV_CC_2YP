@@ -1,3 +1,4 @@
+from numba.cuda import const
 import pandas as pd
 import polars as pl
 
@@ -620,15 +621,100 @@ def display_results(results, title="SATIATION SPECIFICATION RESULTS", param_name
     console.print(f"[bold]Final LL Objective:[/bold] {results['fun']:.4f}")
 
 
+def extract_and_plot_types(vec_data, hh_packed_data, est_params, draws):
+    (
+        const,
+        mu_beta_ber,
+        mu_beta_pl,
+        mu_gamma,
+        sd_beta_ber,
+        sd_beta_pl,
+        sd_gamma,
+        alpha,
+        sigma,
+    ) = est_params
+
+    n_draws = draws.shape[0]
+
+    b_ber_draws = mu_beta_ber + sd_beta_ber * draws[:, 0]
+    b_pl_draws = mu_beta_pl + sd_beta_pl * draws[:, 1]
+    gamma_draws = mu_gamma + sd_gamma * draws[:, 2]
+
+    beta_draws_matrix = np.column_stack([np.zeros(n_draws), b_ber_draws, b_pl_draws])
+
+    hh_posterior_means = []
+    for hh_id, hh_data in hh_packed_data.items():
+        hh_log_ll_draws = np.zeros(n_draws)
+
+        for m, c, cs in zip(
+            hh_data["matrices"], hh_data["choices"], hh_data["c_states"]
+        ):
+            price_vec = m[:3, 0]
+            resid_vec = m[:3, 1]
+
+            u_base = const + alpha * price_vec + sigma * resid_vec
+            u_inside = (
+                u_base[None, :] + beta_draws_matrix + gamma_draws[:, None] * cs[None, :]
+            )
+            u_outside = np.zeros((n_draws, 1))
+            u_full = np.hstack([u_inside, u_outside])
+
+            log_probs = u_full - logsumexp(u_full, exp=1, keep_dims=True)
+            hh_log_ll_draws += np.sum(c[None, :] * log_probs, axis=1)
+
+        max_ll = np.max(hh_log_ll_draws)
+        weights = np.exp(hh_log_ll_draws - max_ll)
+        weights /= np.sum(weights)
+
+        hh_beta_berry = np.sum(weights * b_ber_draws)
+        hh_beta_plain = np.sum(weights * b_pl_draws)
+        hh_gamma = np.sum(weights * gamma_draws)
+
+        hh_posterior_means.append(
+            {
+                "household_code": hh_id,
+                "beta_berry": hh_beta_berry,
+                "beta_plain": hh_beta_plain,
+                "gamma": hh_gamma,
+            }
+        )
+
+    df_types = pd.DataFrame(hh_posterior_means)
+
+    fig, axes = plt.subplots(1, 3, figsize=(16, 4.5))
+    sns.set_theme(style="whitegrid")
+
+    sns.histplot(df_types["beta_berry"], kde=True, ax=axes[0], color="crimson")
+    axes[0].set_title("Distribution of $\\beta_{i, \\text{berry}}$")
+    axes[0].set_xlabel("Berry Preference (rel. outside + other")
+
+    sns.histplot(df_types["beta_plain"], kde=True, ax=axes[1], color="royalblue")
+    axes[1].set_title("Distribution of $\\beta_{i, \\text{plain}}$")
+    axes[1].set_xlabel("Plain Preference (rel. outside + other")
+
+    sns.histplot(df_types["gamma"], kde=True, ax=axes[1], color="forestgreen")
+    axes[2].set_title("Distribution of $\\gamma_{i}$")
+    axes[2].set_xlabel("Satiation Coefficient $\\gamma$")
+
+    plt.tight_layout()
+    plt.savefig(OUT_PATH + "type_dist_1007.pdf", dpi=300)
+    plt.close()
+
+    return df_types
+
+
 def main():
     hh_packed_data, vec_data = load_and_preprocess()
 
+    # 1. Standard Logit Estimation
     console.print("\n--- Estimating Standard Satiation Logit ---")
     results = estimate_model(vec_data)
     display_results(results, title="STANDARD SATIATION LOGIT")
 
+    # 2. Random Coefficient Logit Estimation
     console.print("\n--- Estimating Random Coefficient for LOV ---")
     rc_results = estimate_het_model(vec_data, draws=GAMMA_DRAWS)
+
     rc_params = [
         "Constant",
         "Mean beta_berry",
@@ -641,6 +727,35 @@ def main():
         "Control Func.",
     ]
     display_results(rc_results, title="RANDOM COEFFICIENT LOGIT", param_names=rc_params)
+
+    # 3. Extract Posterior Household Types (Only if optimization succeeded)
+    if rc_results["success"]:
+        console.print("\n--- Extracting Household Posterior Types ---")
+        df_types = extract_and_plot_types(
+            vec_data,
+            hh_packed_data,
+            rc_results["params"],
+            draws=GAMMA_DRAWS,
+        )
+
+        # Print summary table of estimated individual distributions
+        console.print("\n[bold yellow]--- HOUSEHOLD TYPE SUMMARY ---[/bold yellow]")
+        console.print(
+            df_types[["beta_berry", "beta_plain", "gamma_satiation"]]
+            .describe()
+            .to_string()
+        )
+
+        # Save types for downstream counterfactual analysis
+        out_parquet = OUT_PATH + "hh_posterior_types.parquet"
+        df_types.to_parquet(out_parquet)
+        console.print(
+            f"\n[bold green]Saved household types to:[/bold green] {out_parquet}"
+        )
+    else:
+        console.print(
+            "[bold red]Optimization failed! Skipping type extraction.[/bold red]"
+        )
 
 
 if __name__ == "__main__":

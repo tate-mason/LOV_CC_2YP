@@ -48,6 +48,7 @@ raw_panel = (
             pl.col("household_size").cast(pl.Int64, strict=False),
             pl.col("quantity").cast(pl.Int64, strict=False),
             pl.col("deal_flag_uc").cast(pl.Int64, strict=False),
+            pl.col("serving_per_container_cd").cast(pl.Int64, strict=False),
         ]
     )
 )
@@ -149,12 +150,7 @@ outside_option_rate = trip_yogurt["chose_outside_option"].mean()
 
 # Filter for yogurt purchases safely
 agent_yogurt = agent_master[agent_master["yogurt_purchase"] == 1].copy()
-# 1. Cast the specific column to int
-agent_yogurt["serving_per_container_cd"] = agent_yogurt[
-    "serving_per_container_cd"
-].astype(int)
 
-# 2. Filter the DataFrame using the boolean mask
 agent_yogurt = agent_yogurt[
     agent_yogurt["serving_per_container_cd"].isin([67181961, 65622705])
 ]

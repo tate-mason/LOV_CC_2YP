@@ -24,7 +24,7 @@ pd.set_option("display.max_rows", None, "display.max_columns", None)
 HMS_PATH = (
     "/scratch/dtm63837/Kilts_Panel/nielsen_extracts/output_markets/full_panel.parquet"
 )
-OUT_PATH = "/scratch/dtm63837/Kilts_Panel/nielsen_extracts/scanner_panel.parquet"
+MERGED_PATH = "/scratch/dtm63837/Kilts_Panel/nielsen_extracts/scanner_panel.parquet"
 PLOT_OUTPUT_DIR = "../Output/Plots"
 os.makedirs(PLOT_OUTPUT_DIR, exist_ok=True)
 
@@ -52,7 +52,7 @@ raw_panel = (
 
 # Active households across overall panel
 active_hhs = (
-    raw_panel.group_by("household_code")
+    raw_panel.group_by("household_code", "week_end")
     .agg(pl.col("trip_code_uc").n_unique().alias("total_trips"))
     .filter(pl.col("total_trips") > 2)
     .select("household_code")
@@ -66,15 +66,40 @@ base_lazy = raw_panel.join(active_hhs, on="household_code", how="inner").filter(
 # Full Panel Collect
 df_full_panel = base_lazy.collect().to_pandas()
 
-# Strict Estimation Sample Filters (Native Prices > $0.10 Only)
-df_estimation_lazy = (
-    base_lazy.filter(pl.col("product_module_code_hms").is_in([3612, 3603]))
-    .filter(pl.col("serving_per_container_cd").is_in([67181961, 65622705]))
-    .filter(pl.col("price").is_not_null())
-    .filter(pl.col("price") > 0.10)
-)
+schema_names = pl.scan_parquet(MERGED_PATH).collect_schema().names()
 
-df_estimation = df_estimation_lazy.collect().to_pandas()
+exprs = [
+    pl.col("quantity").cast(pl.Int64),
+    pl.col("head_age").cast(pl.Int64),
+    pl.col("household_income").cast(pl.Int64),
+    pl.col("household_size").cast(pl.Int64),
+    pl.col("serving_per_container_cd").cast(pl.Int64),
+]
+
+if "product_module_code_hms" in schema_names:
+    exprs.append(pl.col("product_module_code_hms").cast(pl.Int64))
+
+if "price" in schema_names:
+    exprs.append(pl.col("price").cast(pl.Float64))
+elif "total_price_paid" in schema_names:
+    exprs.append(
+        (
+            pl.col("total_price_paid").cast(pl.Float64)
+            / pl.col("quantity").cast(pl.Float64)
+        ).alias("price")
+    )
+
+scan_q = pl.scan_parquet(MERGED_PATH).with_columns(exprs)
+
+if "product_module_code_hms" in schema_names:
+    scan_q = scan_q.filter(pl.col("product_module_code_hms").is_in([3612, 3603]))
+
+df_estimation = (
+    scan_q.filter(pl.col("household_size") == 1)
+    .filter(pl.col("serving_per_container_cd").is_in([67181961, 65622705]))
+    .collect()
+    .to_pandas()
+)
 
 console.print(
     f"[bold cyan]Full Single-Person Household Sample Loaded:[/bold cyan] {len(df_full_panel):,} rows | "

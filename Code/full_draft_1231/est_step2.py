@@ -80,17 +80,29 @@ def compute_satiation_state(
 
 def load_and_preprocess(weekly_capacity=14, inside_only=False):
     # Load pre-filtered panel directly (no redundant merges required)
+    # Load pre-filtered panel directly
     merged_df = pl.read_parquet(MERGED_PATH).to_pandas()
 
+    # 1. Cast numeric quantities safely
     merged_df["quantity"] = (
-        pd.to_numeric(merged_df["quantity"], errors="coerce").fillna(0).astype(int)
+        pd.to_numeric(merged_df["quantity"], errors="coerce").fillna(1).astype(int)
     )
+    merged_df["total_price_paid"] = pd.to_numeric(
+        merged_df["total_price_paid"], errors="coerce"
+    ).fillna(0.0)
+
+    if "price" not in merged_df.columns:
+        merged_df["price"] = np.where(
+            merged_df["quantity"] > 0,
+            merged_df["total_price_paid"] / merged_df["quantity"],
+            np.nan,
+        )
+
     merged_df["household_income"] = (
         pd.to_numeric(merged_df["household_income"], errors="coerce")
         .fillna(1)
         .astype(int)
     )
-    merged_df["price"] = pd.to_numeric(merged_df["price"], errors="coerce")
 
     merged_df["flavor_str"] = merged_df["flavor"].fillna("").astype(str)
     merged_df["flavor_cd"] = pd.to_numeric(

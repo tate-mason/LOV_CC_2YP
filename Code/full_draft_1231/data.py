@@ -120,6 +120,22 @@ console.print(
 # 2. FLAVOR & SWITCHING ENCODING (ESTIMATION SAMPLE)
 # ==============================================================================
 # 0 = Plain, 1 = Other, 2 = Berry
+descr_cols = [
+    c
+    for c in df_estimation.columns
+    if any(k in c.lower() for k in ["descr", "flavor", "brand", "product", "upc"])
+]
+
+df_estimation["full_text"] = ""
+for c in descr_cols:
+    ["full_text"] += " " + df_estimation[c].fillna("").astype(str)
+df_estimation["full_text"] = df_estimation["full_text"].str.lower()
+
+berry_regex = r"berry|straw|blue|rasp|black|cran|cherry|wildberry"
+plain_regex = r"plain|unflavored"
+
+is_plain = df_estimation["full_text"].str.contains(plain_regex, na=False)
+is_berry = df_estimation["full_text"].str.contains(berry_regex, na=False) & (~is_plain)
 df_estimation["flavor_cat"] = np.select([is_plain, is_berry], [0, 2], default=1)
 
 df_estimation = df_estimation.sort_values(

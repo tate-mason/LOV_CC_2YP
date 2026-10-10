@@ -994,7 +994,7 @@ def main():
 
     # 1A. Standard Logit (No Gamma)
     console.print("\n--- Estimating Standard Logit (No Gamma) ---")
-    results_no_gamma = estimate_model_no_gamma(vec_data)
+    results_no_gamma = estimate_naive(vec_data)
     no_gamma_params = ["Constant", "beta_ber", "beta_pl", "Price", "Control Func."]
     display_results(
         results_no_gamma, title="STANDARD LOGIT (NO GAMMA)", param_names=no_gamma_params
@@ -1002,7 +1002,7 @@ def main():
 
     # 1B. Random Coefficient Logit (No Gamma)
     console.print("\n--- Estimating Random Coefficient Logit (No Gamma) ---")
-    rc_results_no_gamma = estimate_het_model_no_gamma(vec_data, draws=GAMMA_DRAWS)
+    rc_results_no_gamma = estimate_het_naive(vec_data, draws=GAMMA_DRAWS)
     rc_no_gamma_params = [
         "Constant",
         "Mean beta_berry",

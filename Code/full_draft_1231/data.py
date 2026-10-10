@@ -45,7 +45,6 @@ raw_panel = (
             pl.col("household_size").cast(pl.Int64, strict=False),
             pl.col("quantity").cast(pl.Int64, strict=False),
             pl.col("deal_flag_uc").cast(pl.Int64, strict=False),
-            pl.col("head_age").cast(pl.Int64, strict=False),
             pl.col("household_income").cast(pl.Int64, strict=False),
             pl.col("price").cast(pl.Float64, strict=False),
         ]
@@ -88,10 +87,10 @@ console.print(
 )
 
 # Save processed parquet file for estimation scripts retaining native price
-pl.from_pandas(df_estimation).write_parquet(OUT_PATH)
-console.print(
-    f"[bold green]Saved estimation parquet directly to: {OUT_PATH}[/bold green]"
-)
+# pl.from_pandas(df_estimation).write_parquet(OUT_PATH)
+# console.print(
+#    f"[bold green]Saved estimation parquet directly to: {OUT_PATH}[/bold green]"
+# )
 
 # ==============================================================================
 # 2. FLAVOR & SWITCHING ENCODING (ESTIMATION SAMPLE)

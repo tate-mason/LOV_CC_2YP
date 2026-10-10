@@ -79,7 +79,6 @@ def compute_satiation_state(
 
 
 def load_and_preprocess(weekly_capacity=14):
-    # Unified scan matching estimation_step1_2.py exactly
     merged_df = (
         pl.scan_parquet(MERGED_PATH)
         .with_columns(
@@ -667,7 +666,7 @@ def display_results_with_wtp(
 
 
 def main():
-    hh_packed_data, vec_data = load_and_preprocess(inside_only=True)
+    hh_packed_data, vec_data = load_and_preprocess()
 
     console.print(
         "\n[bold yellow]=====================================================[/bold yellow]"

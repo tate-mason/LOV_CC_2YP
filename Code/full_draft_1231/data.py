@@ -71,10 +71,6 @@ console.print(
     "Rows after household size filter:", lazy_panel.select(pl.len()).collect().item()
 )
 
-lazy_panel = lazy_panel.with_columns(pl.col("serving_per_container_cd").cast(pl.Int64))
-lazy_panel = lazy_panel.filter(
-    pl.col("serving_per_container_cd").is_in([67181961, 65622705])
-)
 console.print(
     "Rows after serving size filter:", lazy_panel.select(pl.len()).collect().item()
 )
@@ -153,19 +149,26 @@ outside_option_rate = trip_yogurt["chose_outside_option"].mean()
 
 # Filter for yogurt purchases safely
 agent_yogurt = agent_master[agent_master["yogurt_purchase"] == 1].copy()
+agent_yogurt = agent_yogurt["serving_per_container_cd"].astype(int)
+agent_yogurt = agent_yogurt[
+    agent_yogurt["serving_per_container_cd"].isin([67181961, 65622705])
+]
 
 # Sort chronologically for switching metrics
-agent_yogurt = agent_yogurt.sort_values(
-    ["household_code", "purchase_date", "trip_code_uc"]  # type:ignore
+weekly_yogurt = (
+    agent_yogurt.sort_values(
+        ["household_code", "week_end", "purchase_date", "trip_code_uc"]  # type:ignore
+    )
+    .groupby(["household_code", "week_end"], as_index=False)
+    .mode()
 )
 
-# Trip sequence numbers per household
-agent_yogurt["trip_seq"] = agent_yogurt.groupby("household_code").cumcount() + 1
-agent_yogurt["prev_flavor"] = agent_yogurt.groupby("household_code")["flavor"].shift(1)
-
+weekly_yogurt = weekly_yogurt.sort_values(["household_code", "week_end"])
+weekly_yogurt["week_seq"] = weekly_yogurt.groupby("household_code").cumcount() + 1
+weekly_yogurt["prev_flavor"] = agent_yogurt.groupby("household_code")["flavor"].shift(1)
 # Switching dummy (only valid from trip 2 onwards)
 agent_yogurt["switched"] = np.where(
-    agent_yogurt["trip_seq"] > 1,
+    agent_yogurt["week_seq"] > 1,
     (agent_yogurt["flavor"] != agent_yogurt["prev_flavor"]).astype(int),
     0,
 )
@@ -183,7 +186,7 @@ console.print(
     f"Mean number of trips per HH:                          {
         agent_master.groupby('household_code')['trip_code_uc'].nunique().mean():.2f}\n"
     f"Number of yogurt purchases per trip (purchasers):     {
-        agent_yogurt.groupby(['household_code', 'trip_code_uc'])['quantity']
+        agent_yogurt.groupby(['household_code', 'week_end'])['trip_code_uc']
         .sum()
         .mean():.2f}\n"
     f"Mean household income:                                ${

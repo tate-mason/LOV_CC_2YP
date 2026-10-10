@@ -682,7 +682,7 @@ def estimate_model(vec_data):
         "params": res.x,
         "se": se,
         "z_stat": z,
-        "p_val": p,
+        "p_value": p,
         "success": res.success,
         "fun": res.fun,
     }
@@ -758,7 +758,7 @@ def estimate_het_model(vec_data, draws=GAMMA_DRAWS):
         "params": res.x,
         "se": se,
         "z_stat": z,
-        "p_val": p,
+        "p_value": p,
         "success": res.success,
         "fun": res.fun,
     }
@@ -791,7 +791,7 @@ def display_results(results, title="SPECIFICATION RESULTS", param_names=None):
         results["params"],
         results["se"],
         results["z_stat"],
-        results["p_val"],
+        results["p_value"],
     ):
         p_str = f"{p:.4f}" if not np.isnan(p) else "NA"
         if not np.isnan(p):

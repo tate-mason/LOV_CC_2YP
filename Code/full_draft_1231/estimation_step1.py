@@ -1,3 +1,4 @@
+import os
 import pandas as pd
 import polars as pl
 
@@ -15,7 +16,6 @@ from rich.table import Table
 from rich.traceback import install
 
 install()
-
 console = Console()
 
 MERGED_PATH = "/scratch/dtm63837/Kilts_Panel/nielsen_extracts/scanner_panel.parquet"
@@ -24,7 +24,7 @@ CATEGORIES = ["other", "berry", "plain", "outside"]
 
 cat_map = {c: i for i, c in enumerate(CATEGORIES)}
 rng = np.random.default_rng(219)
-GAMMA_DRAWS = np.random.default_rng(306).standard_normal((50, 3))
+GAMMA_DRAWS = np.random.default_rng(306).standard_normal((50, 5))
 
 
 def compute_satiation_state(
@@ -79,6 +79,7 @@ def compute_satiation_state(
 
 
 def load_and_preprocess(weekly_capacity=14):
+    # Unified scan matching estimation_step1_2.py exactly
     merged_df = (
         pl.scan_parquet(MERGED_PATH)
         .with_columns(
@@ -87,7 +88,6 @@ def load_and_preprocess(weekly_capacity=14):
                 pl.col("head_age").cast(pl.Int64),
                 pl.col("household_income").cast(pl.Int64),
                 pl.col("household_size").cast(pl.Int64),
-                pl.col("yogurt_purchase").cast(pl.Int64),
                 pl.col("serving_per_container_cd").cast(pl.Int64),
                 pl.col("product_module_code_hms").cast(pl.Int64),
                 pl.col("price").cast(pl.Float64),
@@ -156,7 +156,7 @@ def load_and_preprocess(weekly_capacity=14):
         (merged_master["price"] > 0.1) | (merged_master["price"].isna())
     ]
     iv_res = smf.ols(
-        "price  ~ price_iv + brand_cd + C(week_end)", data=merged_master, missing="drop"
+        "price ~ price_iv + brand_cd + C(week_end)", data=merged_master, missing="drop"
     ).fit()
 
     merged_master["iv_res"] = np.nan
@@ -211,14 +211,12 @@ def load_and_preprocess(weekly_capacity=14):
 
     cat_choice_sets["iv_res"] = cat_choice_sets["iv_res"].fillna(0.0)
 
-    # Category mean prices for store-weeks missing an entire category row
     overall_cat_prices = inside_df.groupby("category")["price"].mean().to_dict()
 
     choice_set_matrix = {}
     for (store, week), group in cat_choice_sets.groupby(["store_code_uc", "week_end"]):
         mat = np.zeros((4, 2), dtype=np.float64)
 
-        # Pre-fill unobserved options with overall category mean price
         for cat, idx in cat_map.items():
             if cat != "outside" and cat in overall_cat_prices:
                 mat[idx, 0] = overall_cat_prices[cat]
@@ -303,83 +301,27 @@ def load_and_preprocess(weekly_capacity=14):
     avg_obs_per_hh = total_obs / float(n_hh) if n_hh > 0 else 0.0
 
     console.print(
-        "\n[bold green]======================================================================[/bold green]"
+        "\n[bold green]=====================================================[/bold green]"
     )
     console.print(
-        "[bold green]                  PANEL SAMPLE HH SUMMARY                               [/bold green]"
+        "[bold green]          PANEL SAMPLE HOUSEHOLD SUMMARY             [/bold green]"
     )
     console.print(
-        "\n[bold green]======================================================================[/bold green]"
+        "[bold green]=====================================================[/bold green]"
     )
     console.print(
-        f"[bold white]Total Unique HH:[/bold white]       [bold cyan]{n_hh:,}[/bold cyan]"
+        f"[bold white]Total Unique Households:[/bold white]       [bold cyan]{n_hh:,}[/bold cyan]"
     )
     console.print(
-        f"[bold white]Total Choice Obs:[/bold white]      [bold cyan]{total_obs:,}[/bold cyan]"
+        f"[bold white]Total Choice Observations:[/bold white]     [bold cyan]{total_obs:,}[/bold cyan]"
     )
     console.print(
-        f"[bold white]Mean Weeks / HH: [/bold white]      [bold cyan]{avg_obs_per_hh:.2f}[/bold cyan]"
+        f"[bold white]Mean Purchase Weeks / HH:[/bold white]      [bold cyan]{avg_obs_per_hh:.2f}[/bold cyan]"
     )
     console.print(
-        "\n[bold green]======================================================================[/bold green]"
+        "[bold green]=====================================================\n[/bold green]"
     )
 
-    all_inside_units = [
-        np.sum(hh_data["choices"][t][:3])
-        for hh_data in hh_packed_data.values()
-        for t in range(len(hh_data["choices"]))
-    ]
-    all_outside_counts = [
-        hh_data["choices"][t][-1]
-        for hh_data in hh_packed_data.values()
-        for t in range(len(hh_data["choices"]))
-    ]
-
-    console.print(
-        f"[bold cyan]Mean inside units per week:[/bold cyan] {np.mean(all_inside_units):.2f}"
-    )
-    console.print(
-        f"[bold cyan]Mean outside count:[/bold cyan]          {np.mean(all_outside_counts):.2f}"
-    )
-    console.print(
-        f"[bold cyan]Inside choice share:[/bold cyan]         {np.mean(all_inside_units) / float(weekly_capacity):.1%}"
-    )
-    console.print(
-        f"[bold cyan]Zero outside count share:[/bold cyan]    {np.mean(np.array(all_outside_counts) == 0):.1%}"
-    )
-
-    all_counts = np.sum(
-        [counts for hh in hh_packed_data.values() for counts in hh["choices"]],
-        axis=0,
-    )
-    console.print("\n[bold yellow]--- CHOICE CATEGORY TOTALS ---[/bold yellow]")
-    console.print(
-        f"Other: [cyan]{all_counts[0]}[/cyan] | "
-        f"Berry: [cyan]{all_counts[1]}[/cyan] | "
-        f"Plain: [cyan]{all_counts[2]}[/cyan] | "
-        f"Outside: [cyan]{all_counts[3]}[/cyan]"
-    )
-
-    prices = [
-        X[i, 0]
-        for hh in hh_packed_data.values()
-        for X in hh["matrices"]
-        for i in range(3)
-    ]
-    resids = [
-        X[i, 1]
-        for hh in hh_packed_data.values()
-        for X in hh["matrices"]
-        for i in range(3)
-    ]
-    console.print(
-        f"[bold yellow]Price Range:[/bold yellow] {np.min(prices):.2f} to {np.max(prices):.2f} (Std: {np.std(prices):.2f})"
-    )
-    console.print(
-        f"[bold yellow]Resid Range:[/bold yellow] {np.min(resids):.2f} to {np.max(resids):.2f} (Std: {np.std(resids):.2f})\n"
-    )
-
-    # Pre-pack flat contiguous arrays
     all_prices = []
     all_resids = []
     all_choices = []
@@ -407,182 +349,20 @@ def load_and_preprocess(weekly_capacity=14):
     return hh_packed_data, vec_data
 
 
-def total_objective_naive(params, vec_data):
-    const, beta_ber, beta_pl, alpha, sigma = params
+# =========================================================
+# PRODUCT-SPECIFIC GAMMAS & WTP ESTIMATION
+# =========================================================
+def total_objective_flavor_gamma(params, vec_data):
+    const, beta_ber, beta_pl, g_oth, g_ber, g_pl, alpha, sigma = params
     beta_vec = np.array([0.0, beta_ber, beta_pl])
-
-    prices = vec_data["prices"]
-    resids = vec_data["resids"]
-    choices = vec_data["choices"]
-
-    u_inside = const + beta_vec + alpha * prices + sigma * resids
-    u_out = np.zeros((u_inside.shape[0], 1))
-    u = np.hstack([u_inside, u_out])
-
-    log_probs = u - logsumexp(u, axis=1, keepdims=True)
-    total_ll = np.sum(log_probs * choices)
-    return -total_ll if np.isfinite(total_ll) else 1e10
-
-
-def total_objective_het_naive(params, vec_data, draws):
-    (const, mu_beta_ber, mu_beta_pl, sd_beta_ber, sd_beta_pl, alpha, sigma) = params
-
-    prices = vec_data["prices"]
-    resids = vec_data["resids"]
-    choices = vec_data["choices"]
-
-    n_draws = draws.shape[0]
-
-    b_ber_draws = mu_beta_ber + draws[:, 0] * sd_beta_ber
-    b_pl_draws = mu_beta_pl + draws[:, 1] * sd_beta_pl
-    beta_draws_matrix = np.column_stack([np.zeros(n_draws), b_ber_draws, b_pl_draws])
-
-    u_base = const + alpha * prices + sigma * resids
-    u_inside = u_base[:, None, :] + beta_draws_matrix[None, :, :]
-    u_out = np.zeros((u_inside.shape[0], n_draws, 1))
-    u = np.concatenate([u_inside, u_out], axis=2)
-
-    log_probs = u - logsumexp(u, axis=2, keepdims=True)
-    obs_ll = logsumexp(log_probs, axis=1) - np.log(n_draws)
-    total_ll = np.sum(choices * obs_ll)
-
-    return -total_ll if np.isfinite(total_ll) else 1e10
-
-
-def estimate_naive(vec_data):
-    x0 = np.array([0.0, 0.0, 0.0, -0.5, 0.0])
-    bounds = [(None, None)] * 3 + [(None, 0.0), (None, None)]
-
-    res = minimize(
-        total_objective_naive,
-        x0=x0,
-        args=(vec_data,),
-        method="L-BFGS-B",
-        bounds=bounds,
-        options={"ftol": 1e-8, "gtol": 1e-6},
-    )
-
-    eps = 1e-6
-    n = len(res.x)
-    hessian = np.zeros((n, n))
-    for i in range(n):
-        for j in range(i, n):
-            x1, x2, x3, x4 = res.x.copy(), res.x.copy(), res.x.copy(), res.x.copy()
-            x1[i] += eps
-            x1[j] += eps
-            x2[i] += eps
-            x2[j] -= eps
-            x3[i] -= eps
-            x3[j] += eps
-            x4[i] -= eps
-            x4[j] -= eps
-
-            f1 = total_objective_naive(x1, vec_data)
-            f2 = total_objective_naive(x2, vec_data)
-            f3 = total_objective_naive(x3, vec_data)
-            f4 = total_objective_naive(x4, vec_data)
-
-            hessian[i, j] = (f1 - f2 - f3 + f4) / (4 * eps * eps)
-            hessian[j, i] = hessian[i, j]
-
-    try:
-        se = np.sqrt(np.diag(np.linalg.inv(hessian)))
-    except np.linalg.LinAlgError:
-        se = np.full(n, np.nan)
-
-    z = res.x / se
-    p = 2 * (1 - sp.stats.norm.cdf(np.abs(z)))
-
-    return {
-        "params": res.x,
-        "se": se,
-        "z_stat": z,
-        "p_value": p,
-        "success": res.success,
-        "fun": res.fun,
-    }
-
-
-def estimate_het_naive(vec_data, draws=GAMMA_DRAWS):
-    x0 = np.array(
-        [
-            0.95,
-            -0.76,
-            -1.42,
-            0.10,
-            0.09,
-            -0.98,
-            0.17,
-        ]
-    )
-    bounds = [
-        (-5.0, 5.0),
-        (-5.0, 5.0),
-        (-5.0, 5.0),
-        (0.001, 3.0),
-        (0.001, 3.0),
-        (-5.0, -0.01),
-        (-5.0, 5.0),
-    ]
-    res = minimize(
-        total_objective_het_naive,
-        x0=x0,
-        args=(vec_data, draws),
-        method="L-BFGS-B",
-        bounds=bounds,
-        options={"ftol": 1e-8, "gtol": 1e-6},
-    )
-
-    eps = 1e-6
-    n = len(res.x)
-    hessian = np.zeros((n, n))
-    for i in range(n):
-        for j in range(i, n):
-            x1, x2, x3, x4 = res.x.copy(), res.x.copy(), res.x.copy(), res.x.copy()
-            x1[i] += eps
-            x1[j] += eps
-            x2[i] += eps
-            x2[j] -= eps
-            x3[i] -= eps
-            x3[j] += eps
-            x4[i] -= eps
-            x4[j] -= eps
-
-            f1 = total_objective_het_naive(x1, vec_data, draws)
-            f2 = total_objective_het_naive(x2, vec_data, draws)
-            f3 = total_objective_het_naive(x3, vec_data, draws)
-            f4 = total_objective_het_naive(x4, vec_data, draws)
-
-            hessian[i, j] = (f1 - f2 - f3 + f4) / (4 * eps * eps)
-            hessian[j, i] = hessian[i, j]
-    try:
-        se = np.sqrt(np.diag(np.linalg.inv(hessian)))
-    except np.linalg.LinAlgError:
-        se = np.full(n, np.nan)
-
-    z = res.x / se
-    p = 2 * (1 - sp.stats.norm.cdf(np.abs(z)))
-
-    return {
-        "params": res.x,
-        "se": se,
-        "z_stat": z,
-        "p_value": p,
-        "success": res.success,
-        "fun": res.fun,
-    }
-
-
-def total_objective(params, vec_data):
-    const, beta_ber, beta_pl, gamma, alpha, sigma = params
-    beta_vec = np.array([0.0, beta_ber, beta_pl])
+    gamma_vec = np.array([g_oth, g_ber, g_pl])
 
     prices = vec_data["prices"]
     resids = vec_data["resids"]
     choices = vec_data["choices"]
     c_state = vec_data["c_states"]
 
-    u_inside = const + beta_vec + gamma * c_state + alpha * prices + sigma * resids
+    u_inside = const + beta_vec + gamma_vec * c_state + alpha * prices + sigma * resids
     u_outside = np.zeros((u_inside.shape[0], 1))
     u = np.hstack([u_inside, u_outside])
 
@@ -592,18 +372,28 @@ def total_objective(params, vec_data):
     return -total_ll if np.isfinite(total_ll) else 1e10
 
 
-def total_objective_het_gamma(params, vec_data, draws):
+def total_objective_het_flavor_gamma(params, vec_data, draws):
     (
         const,
         mu_beta_ber,
         mu_beta_pl,
-        mu_gamma,
-        sd_beta_ber,
-        sd_beta_pl,
-        sd_gamma,
+        mu_g_oth,
+        mu_g_ber,
+        mu_g_pl,
+        log_sd_beta_ber,
+        log_sd_beta_pl,
+        log_sd_g_oth,
+        log_sd_g_ber,
+        log_sd_g_pl,
         alpha,
         sigma,
     ) = params
+
+    sd_beta_ber = np.exp(log_sd_beta_ber)
+    sd_beta_pl = np.exp(log_sd_beta_pl)
+    sd_g_oth = np.exp(log_sd_g_oth)
+    sd_g_ber = np.exp(log_sd_g_ber)
+    sd_g_pl = np.exp(log_sd_g_pl)
 
     prices = vec_data["prices"]
     resids = vec_data["resids"]
@@ -614,15 +404,18 @@ def total_objective_het_gamma(params, vec_data, draws):
 
     b_ber_draws = mu_beta_ber + sd_beta_ber * draws[:, 0]
     b_pl_draws = mu_beta_pl + sd_beta_pl * draws[:, 1]
-    gamma_draws = mu_gamma + sd_gamma * draws[:, 2]
+    g_oth_draws = mu_g_oth + sd_g_oth * draws[:, 2]
+    g_ber_draws = mu_g_ber + sd_g_ber * draws[:, 3]
+    g_pl_draws = mu_g_pl + sd_g_pl * draws[:, 4]
 
     beta_draws_matrix = np.column_stack([np.zeros(n_draws), b_ber_draws, b_pl_draws])
+    gamma_draws_matrix = np.column_stack([g_oth_draws, g_ber_draws, g_pl_draws])
 
     u_base = const + alpha * prices + sigma * resids
     u_inside = (
         u_base[:, None, :]
         + beta_draws_matrix[None, :, :]
-        + gamma_draws[None, :, None] * c_state[:, None, :]
+        + gamma_draws_matrix[None, :, :] * c_state[:, None, :]
     )
     u_out = np.zeros((u_inside.shape[0], n_draws, 1))
     u = np.concatenate([u_inside, u_out], axis=2)
@@ -634,12 +427,12 @@ def total_objective_het_gamma(params, vec_data, draws):
     return -total_ll if np.isfinite(total_ll) else 1e10
 
 
-def estimate_model(vec_data):
-    x0 = np.array([0.0, 0.0, 0.0, 0.0, -0.5, 0.0])
-    bounds = [(None, None)] * 4 + [(None, 0.0), (None, None)]
+def estimate_flavor_gamma_model(vec_data):
+    x0 = np.array([0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.5, 0.0])
+    bounds = [(None, None)] * 6 + [(None, 0.0), (None, None)]
 
     res = minimize(
-        total_objective,
+        total_objective_flavor_gamma,
         x0=x0,
         args=(vec_data,),
         method="L-BFGS-B",
@@ -662,10 +455,10 @@ def estimate_model(vec_data):
             x4[i] -= eps
             x4[j] -= eps
 
-            f1 = total_objective(x1, vec_data)
-            f2 = total_objective(x2, vec_data)
-            f3 = total_objective(x3, vec_data)
-            f4 = total_objective(x4, vec_data)
+            f1 = total_objective_flavor_gamma(x1, vec_data)
+            f2 = total_objective_flavor_gamma(x2, vec_data)
+            f3 = total_objective_flavor_gamma(x3, vec_data)
+            f4 = total_objective_flavor_gamma(x4, vec_data)
 
             hessian[i, j] = (f1 - f2 - f3 + f4) / (4 * eps * eps)
             hessian[j, i] = hessian[i, j]
@@ -682,50 +475,60 @@ def estimate_model(vec_data):
         "params": res.x,
         "se": se,
         "z_stat": z,
-        "p_value": p,
+        "p_val": p,
         "success": res.success,
         "fun": res.fun,
     }
 
 
-def estimate_het_model(vec_data, draws=GAMMA_DRAWS):
+def estimate_het_flavor_gamma_model(vec_data, draws=GAMMA_DRAWS):
     x0 = np.array(
         [
             0.95,  # const
             -0.76,  # mu_beta_ber
             -1.39,  # mu_beta_pl
-            -0.15,  # mu_gamma
-            0.10,  # sd_beta_ber
-            0.10,  # sd_beta_pl
-            0.05,  # sd_gamma
-            -0.98,  # alpha (Price)
-            0.16,  # sigma (Control Func)
+            -0.10,  # mu_g_oth
+            -0.15,  # mu_g_ber
+            -0.20,  # mu_g_pl
+            -2.30,  # log_sd_beta_ber
+            -2.30,  # log_sd_beta_pl
+            -3.00,  # log_sd_g_oth
+            -3.00,  # log_sd_g_ber
+            -3.00,  # log_sd_g_pl
+            -0.98,  # alpha
+            0.16,  # sigma
         ]
     )
 
     bounds = [
-        (-5.0, 5.0),  # const
-        (-5.0, 5.0),  # mu_beta_ber
-        (-5.0, 5.0),  # mu_beta_pl
-        (-2.0, 0.5),  # mu_gamma
-        (0.001, 3.0),  # sd_beta_ber
-        (0.001, 3.0),  # sd_beta_pl
-        (0.001, 1.0),  # sd_gamma
-        (-5.0, -0.01),  # alpha (Price strictly negative)
-        (-5.0, 5.0),  # sigma (Control Func)
+        (-10.0, 10.0),  # const
+        (-10.0, 10.0),  # mu_beta_ber
+        (-10.0, 10.0),  # mu_beta_pl
+        (-5.0, 2.0),  # mu_g_oth
+        (-5.0, 2.0),  # mu_g_ber
+        (-5.0, 2.0),  # mu_g_pl
+        (-10.0, 5.0),  # log_sd_beta_ber
+        (-10.0, 5.0),  # log_sd_beta_pl
+        (-10.0, 5.0),  # log_sd_g_oth
+        (-10.0, 5.0),  # log_sd_g_ber
+        (-10.0, 5.0),  # log_sd_g_pl
+        (-10.0, -0.01),  # alpha
+        (-10.0, 10.0),  # sigma
     ]
+
     res = minimize(
-        total_objective_het_gamma,
+        total_objective_het_flavor_gamma,
         x0=x0,
         args=(vec_data, draws),
         method="L-BFGS-B",
         bounds=bounds,
-        options={"ftol": 1e-6, "gtol": 1e-4},
+        options={"ftol": 1e-7, "gtol": 1e-5, "maxiter": 1000},
     )
 
-    eps = 1e-5
+    eps = 1e-4
     n = len(res.x)
     hessian = np.zeros((n, n))
+
     for i in range(n):
         for j in range(i, n):
             x1, x2, x3, x4 = res.x.copy(), res.x.copy(), res.x.copy(), res.x.copy()
@@ -738,60 +541,60 @@ def estimate_het_model(vec_data, draws=GAMMA_DRAWS):
             x4[i] -= eps
             x4[j] -= eps
 
-            f1 = total_objective_het_gamma(x1, vec_data, draws)
-            f2 = total_objective_het_gamma(x2, vec_data, draws)
-            f3 = total_objective_het_gamma(x3, vec_data, draws)
-            f4 = total_objective_het_gamma(x4, vec_data, draws)
+            f1 = total_objective_het_flavor_gamma(x1, vec_data, draws)
+            f2 = total_objective_het_flavor_gamma(x2, vec_data, draws)
+            f3 = total_objective_het_flavor_gamma(x3, vec_data, draws)
+            f4 = total_objective_het_flavor_gamma(x4, vec_data, draws)
 
             hessian[i, j] = (f1 - f2 - f3 + f4) / (4 * eps * eps)
             hessian[j, i] = hessian[i, j]
 
     try:
-        se = np.sqrt(np.diag(np.linalg.inv(hessian)))
+        cov_unconstrained = np.linalg.inv(hessian)
     except np.linalg.LinAlgError:
-        se = np.full(n, np.nan)
+        cov_unconstrained = np.linalg.pinv(hessian)
 
-    z = res.x / se
+    se_unconstrained = np.sqrt(np.maximum(0.0, np.diag(cov_unconstrained)))
+
+    sd_indices = [6, 7, 8, 9, 10]
+    reported_params = res.x.copy()
+    reported_se = se_unconstrained.copy()
+
+    for idx in sd_indices:
+        reported_params[idx] = np.exp(res.x[idx])
+        reported_se[idx] = np.exp(res.x[idx]) * se_unconstrained[idx]
+
+    z = reported_params / reported_se
     p = 2 * (1 - sp.stats.norm.cdf(np.abs(z)))
 
     return {
-        "params": res.x,
-        "se": se,
+        "params": reported_params,
+        "se": reported_se,
         "z_stat": z,
-        "p_value": p,
+        "p_val": p,
         "success": res.success,
         "fun": res.fun,
     }
 
 
-def display_results(results, title="SPECIFICATION RESULTS", param_names=None):
-    if param_names is None:
-        param_names = [
-            "Constant",
-            "beta_ber",
-            "beta_pl",
-            "gamma",
-            "Price",
-            "Control Func.",
-        ]
-
-    table = Table(
-        title=title,
-        show_header=True,
-        header_style="bold magenta",
-    )
+def display_results_with_wtp(
+    results, title="SPECIFICATION RESULTS", param_names=None, is_flavor_gamma=False
+):
+    table = Table(title=title, show_header=True, header_style="bold magenta")
     table.add_column("Parameter", style="cyan", justify="left")
     table.add_column("Estimate", justify="right")
     table.add_column("Std. Error", justify="right")
     table.add_column("z-stat", justify="right")
     table.add_column("p-value", justify="right")
 
+    alpha_val = results["params"][-2]
+
     for name, val, se, z, p in zip(
         param_names,
         results["params"],
         results["se"],
         results["z_stat"],
-        results["p_value"],
+        results["p_val"],
     ):
         p_str = f"{p:.4f}" if not np.isnan(p) else "NA"
         if not np.isnan(p):
@@ -809,278 +612,119 @@ def display_results(results, title="SPECIFICATION RESULTS", param_names=None):
 
     console.print(table)
     console.print(f"[bold]Optimization Success:[/bold] {results['success']}")
-    console.print(f"[bold]Final LL Objective:[/bold] {results['fun']:.4f}\n")
+    console.print(f"[bold]Final LL Objective:[/bold] {results['fun']:.4f}")
 
-
-def extract_and_plot_types(
-    vec_data, hh_packed_data, est_params, draws, filename="type_dist_clean.pdf"
-):
-    (
-        const,
-        mu_beta_ber,
-        mu_beta_pl,
-        mu_gamma,
-        sd_beta_ber,
-        sd_beta_pl,
-        sd_gamma,
-        alpha,
-        sigma,
-    ) = est_params
-
-    n_draws = draws.shape[0]
-
-    b_ber_draws = mu_beta_ber + sd_beta_ber * draws[:, 0]
-    b_pl_draws = mu_beta_pl + sd_beta_pl * draws[:, 1]
-    gamma_draws = mu_gamma + sd_gamma * draws[:, 2]
-
-    beta_draws_matrix = np.column_stack([np.zeros(n_draws), b_ber_draws, b_pl_draws])
-
-    hh_posterior_means = []
-    for hh_id, hh_data in hh_packed_data.items():
-        hh_log_ll_draws = np.zeros(n_draws)
-
-        for m, c, cs in zip(
-            hh_data["matrices"], hh_data["choices"], hh_data["c_states"]
-        ):
-            price_vec = m[:3, 0]
-            resid_vec = m[:3, 1]
-
-            u_base = const + alpha * price_vec + sigma * resid_vec
-            u_inside = (
-                u_base[None, :] + beta_draws_matrix + gamma_draws[:, None] * cs[None, :]
-            )
-            u_outside = np.zeros((n_draws, 1))
-            u_full = np.hstack([u_inside, u_outside])
-
-            log_probs = u_full - logsumexp(u_full, axis=1, keepdims=True)
-            hh_log_ll_draws += np.sum(c[None, :] * log_probs, axis=1)
-
-        max_ll = np.max(hh_log_ll_draws)
-        weights = np.exp(hh_log_ll_draws - max_ll)
-        weights /= np.sum(weights)
-
-        hh_beta_berry = np.sum(weights * b_ber_draws)
-        hh_beta_plain = np.sum(weights * b_pl_draws)
-        hh_gamma = np.sum(weights * gamma_draws)
-
-        hh_posterior_means.append(
-            {
-                "household_code": hh_id,
-                "beta_berry": hh_beta_berry,
-                "beta_plain": hh_beta_plain,
-                "gamma": hh_gamma,
-            }
+    if abs(alpha_val) > 1e-4:
+        wtp_table = Table(
+            title=f"{title} - WILLINGNESS TO PAY (WTP in $)",
+            show_header=True,
+            header_style="bold yellow",
         )
+        wtp_table.add_column("Attribute / Parameter", style="cyan", justify="left")
+        wtp_table.add_column("WTP ($)", justify="right")
 
-    df_types = pd.DataFrame(hh_posterior_means)
+        if is_flavor_gamma:
+            beta_ber, beta_pl = results["params"][1], results["params"][2]
+            g_oth, g_ber, g_pl = (
+                results["params"][3],
+                results["params"][4],
+                results["params"][5],
+            )
 
-    # Clean 2x2 Grid Visualization Layout
-    sns.set_theme(style="white", palette="muted")
-    fig, axes = plt.subplots(2, 2, figsize=(12, 9))
+            wtp_table.add_row(
+                "WTP: Berry Preference (vs Other)", f"${-beta_ber / alpha_val:.2f}"
+            )
+            wtp_table.add_row(
+                "WTP: Plain Preference (vs Other)", f"${-beta_pl / alpha_val:.2f}"
+            )
+            wtp_table.add_row(
+                "WTP: Satiation Disutility (Other)", f"${-g_oth / alpha_val:.2f}"
+            )
+            wtp_table.add_row(
+                "WTP: Satiation Disutility (Berry)", f"${-g_ber / alpha_val:.2f}"
+            )
+            wtp_table.add_row(
+                "WTP: Satiation Disutility (Plain)", f"${-g_pl / alpha_val:.2f}"
+            )
+        else:
+            beta_ber, beta_pl, gamma_val = (
+                results["params"][1],
+                results["params"][2],
+                results["params"][3],
+            )
+            wtp_table.add_row(
+                "WTP: Berry Preference (vs Other)", f"${-beta_ber / alpha_val:.2f}"
+            )
+            wtp_table.add_row(
+                "WTP: Plain Preference (vs Other)", f"${-beta_pl / alpha_val:.2f}"
+            )
+            wtp_table.add_row(
+                "WTP: Satiation Disutility (Gamma)", f"${-gamma_val / alpha_val:.2f}"
+            )
 
-    # 1. Berry Distribution
-    sns.histplot(
-        df_types["beta_berry"],
-        kde=True,
-        ax=axes[0, 0],
-        color="#d62728",
-        bins=25,
-        edgecolor="none",
-        alpha=0.6,
-    )
-    axes[0, 0].axvline(
-        df_types["beta_berry"].median(),
-        color="#8c564b",
-        linestyle="--",
-        linewidth=1.5,
-        label="Median",
-    )
-    axes[0, 0].set_title(
-        r"Posterior Distribution: $\beta_{i, \text{berry}}$",
-        fontsize=12,
-        fontweight="bold",
-    )
-    axes[0, 0].set_xlabel("Berry Preference Index")
-    axes[0, 0].legend(frameon=True)
-
-    # 2. Plain Distribution
-    sns.histplot(
-        df_types["beta_plain"],
-        kde=True,
-        ax=axes[0, 1],
-        color="#1f77b4",
-        bins=25,
-        edgecolor="none",
-        alpha=0.6,
-    )
-    axes[0, 1].axvline(
-        df_types["beta_plain"].median(),
-        color="#8c564b",
-        linestyle="--",
-        linewidth=1.5,
-        label="Median",
-    )
-    axes[0, 1].set_title(
-        r"Posterior Distribution: $\beta_{i, \text{plain}}$",
-        fontsize=12,
-        fontweight="bold",
-    )
-    axes[0, 1].set_xlabel("Plain Preference Index")
-    axes[0, 1].legend(frameon=True)
-
-    # 3. Gamma Distribution
-    sns.histplot(
-        df_types["gamma"],
-        kde=True,
-        ax=axes[1, 0],
-        color="#2ca02c",
-        bins=25,
-        edgecolor="none",
-        alpha=0.6,
-    )
-    axes[1, 0].axvline(
-        df_types["gamma"].median(),
-        color="#8c564b",
-        linestyle="--",
-        linewidth=1.5,
-        label="Median",
-    )
-    axes[1, 0].set_title(
-        r"Posterior Distribution: Satiation $\gamma_i$", fontsize=12, fontweight="bold"
-    )
-    axes[1, 0].set_xlabel("Satiation Coefficient")
-    axes[1, 0].legend(frameon=True)
-
-    # 4. Joint Preference Scatter
-    sns.scatterplot(
-        data=df_types,
-        x="beta_berry",
-        y="beta_plain",
-        hue="gamma",
-        palette="viridis",
-        ax=axes[1, 1],
-        alpha=0.8,
-    )
-    axes[1, 1].set_title(
-        r"Joint Distribution ($\beta_{\text{berry}}$ vs $\beta_{\text{plain}}$)",
-        fontsize=12,
-        fontweight="bold",
-    )
-    axes[1, 1].set_xlabel("Berry Preference")
-    axes[1, 1].set_ylabel("Plain Preference")
-
-    plt.tight_layout()
-    plt.savefig(OUT_PATH + filename, dpi=300)
-    plt.close()
-
-    return df_types
+        console.print(wtp_table)
+    console.print("\n")
 
 
 def main():
     hh_packed_data, vec_data = load_and_preprocess()
 
-    # =========================================================
-    # PART 1: MODELS WITHOUT GAMMA (BASE MODEL BENCHMARK)
-    # =========================================================
     console.print(
         "\n[bold yellow]=====================================================[/bold yellow]"
     )
     console.print(
-        "[bold yellow]       PART 1: SPECIFICATIONS WITHOUT GAMMA          [/bold yellow]"
+        "[bold yellow] STEP 2: PRODUCT-SPECIFIC GAMMAS & WTP ESTIMATION    [/bold yellow]"
     )
     console.print(
         "[bold yellow]=====================================================[/bold yellow]"
     )
 
-    # 1A. Standard Logit (No Gamma)
-    console.print("\n--- Estimating Standard Logit (No Gamma) ---")
-    results_no_gamma = estimate_naive(vec_data)
-    no_gamma_params = ["Constant", "beta_ber", "beta_pl", "Price", "Control Func."]
-    display_results(
-        results_no_gamma, title="STANDARD LOGIT (NO GAMMA)", param_names=no_gamma_params
-    )
-
-    # 1B. Random Coefficient Logit (No Gamma)
-    console.print("\n--- Estimating Random Coefficient Logit (No Gamma) ---")
-    rc_results_no_gamma = estimate_het_naive(vec_data, draws=GAMMA_DRAWS)
-    rc_no_gamma_params = [
+    # 1. Fixed-Coefficient Flavor Gamma Model
+    console.print("\n--- Estimating Standard Flavor-Specific Satiation Logit ---")
+    res_flavor_gamma = estimate_flavor_gamma_model(vec_data)
+    p_names = [
         "Constant",
-        "Mean beta_berry",
-        "Mean beta_plain",
-        "SD beta_berry",
-        "SD beta_plain",
+        "beta_ber",
+        "beta_pl",
+        "gamma_other",
+        "gamma_berry",
+        "gamma_plain",
         "Price",
         "Control Func.",
     ]
-    display_results(
-        rc_results_no_gamma,
-        title="RANDOM COEFFICIENT LOGIT (NO GAMMA)",
-        param_names=rc_no_gamma_params,
+    display_results_with_wtp(
+        res_flavor_gamma,
+        title="STANDARD FLAVOR SATIATION LOGIT",
+        param_names=p_names,
+        is_flavor_gamma=True,
     )
 
-    # =========================================================
-    # PART 2: MODELS WITH GAMMA (FULL SATIATION SPECIFICATION)
-    # =========================================================
+    # 2. Random-Coefficient Flavor Gamma Model
     console.print(
-        "\n[bold yellow]=====================================================[/bold yellow]"
+        "\n--- Estimating Random-Coefficient Flavor-Specific Satiation Logit ---"
     )
-    console.print(
-        "[bold yellow]       PART 2: SPECIFICATIONS WITH GAMMA (SATIATION) [/bold yellow]"
-    )
-    console.print(
-        "[bold yellow]=====================================================[/bold yellow]"
-    )
-
-    # 2A. Standard Satiation Logit
-    console.print("\n--- Estimating Standard Satiation Logit ---")
-    results = estimate_model(vec_data)
-    display_results(results, title="STANDARD SATIATION LOGIT")
-
-    # 2B. Random Coefficient Satiation Logit
-    console.print("\n--- Estimating Random Coefficient Satiation Logit ---")
-    rc_results = estimate_het_model(vec_data, draws=GAMMA_DRAWS)
-    rc_params = [
+    res_rc_flavor_gamma = estimate_het_flavor_gamma_model(vec_data, draws=GAMMA_DRAWS)
+    rc_p_names = [
         "Constant",
         "Mean beta_berry",
         "Mean beta_plain",
-        "Mean Satiation",
+        "Mean gamma_other",
+        "Mean gamma_berry",
+        "Mean gamma_plain",
         "SD beta_berry",
         "SD beta_plain",
-        "SD Satiation",
+        "SD gamma_other",
+        "SD gamma_berry",
+        "SD gamma_plain",
         "Price",
         "Control Func.",
     ]
-    display_results(
-        rc_results, title="RANDOM COEFFICIENT SATIATION LOGIT", param_names=rc_params
+    display_results_with_wtp(
+        res_rc_flavor_gamma,
+        title="RANDOM COEFFICIENT FLAVOR SATIATION LOGIT",
+        param_names=rc_p_names,
+        is_flavor_gamma=True,
     )
-
-    # =========================================================
-    # PART 3: EXTRACT AND SAVE HOUSEHOLD POSTERIOR TYPES
-    # =========================================================
-    if rc_results["success"]:
-        console.print("\n--- Extracting Household Posterior Types ---")
-        df_types = extract_and_plot_types(
-            vec_data,
-            hh_packed_data,
-            rc_results["params"],
-            draws=GAMMA_DRAWS,
-            filename="type_dist_clean.pdf",
-        )
-
-        console.print("\n[bold yellow]--- HOUSEHOLD TYPE SUMMARY ---[/bold yellow]")
-        console.print(
-            df_types[["beta_berry", "beta_plain", "gamma"]].describe().to_string()
-        )
-
-        out_parquet = OUT_PATH + "hh_posterior_types.parquet"
-        df_types.to_parquet(out_parquet)
-        console.print(
-            f"\n[bold green]Saved household posterior types to:[/bold green] {out_parquet}"
-        )
-    else:
-        console.print(
-            "[bold red]Optimization failed! Skipping type extraction.[/bold red]"
-        )
 
 
 if __name__ == "__main__":

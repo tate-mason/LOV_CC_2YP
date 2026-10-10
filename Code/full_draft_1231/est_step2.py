@@ -515,26 +515,29 @@ def estimate_het_flavor_gamma_model(vec_data, draws=GAMMA_DRAWS):
         (-5.0, 2.0),  # mu_g_oth
         (-5.0, 2.0),  # mu_g_ber
         (-5.0, 2.0),  # mu_g_pl
-        (None, None),  # log_sd_beta_ber
-        (None, None),  # log_sd_beta_pl
-        (None, None),  # log_sd_g_oth
-        (None, None),  # log_sd_g_ber
-        (None, None),  # log_sd_g_pl
-        (-10.0, -0.01),  # alpha (strictly negative)
+        (-10.0, 5.0),  # log_sd_beta_ber
+        (-10.0, 5.0),  # log_sd_beta_pl
+        (-10.0, 5.0),  # log_sd_g_oth
+        (-10.0, 5.0),  # log_sd_g_ber
+        (-10.0, 5.0),  # log_sd_g_pl
+        (-10.0, -0.01),  # alpha
         (-10.0, 10.0),  # sigma
     ]
+
     res = minimize(
         total_objective_het_flavor_gamma,
         x0=x0,
         args=(vec_data, draws),
         method="L-BFGS-B",
         bounds=bounds,
-        options={"ftol": 1e-6, "gtol": 1e-4},
+        options={"ftol": 1e-7, "gtol": 1e-5, "maxiter": 1000},
     )
 
-    eps = 1e-5
+    # Finite difference Hessian computation in unconstrained space
+    eps = 1e-4
     n = len(res.x)
     hessian = np.zeros((n, n))
+
     for i in range(n):
         for j in range(i, n):
             x1, x2, x3, x4 = res.x.copy(), res.x.copy(), res.x.copy(), res.x.copy()
@@ -555,24 +558,29 @@ def estimate_het_flavor_gamma_model(vec_data, draws=GAMMA_DRAWS):
             hessian[i, j] = (f1 - f2 - f3 + f4) / (4 * eps * eps)
             hessian[j, i] = hessian[i, j]
 
+    # Invert Hessian using pseudo-inverse for numerical stability
     try:
-        se = np.sqrt(np.diag(np.linalg.inv(hessian)))
+        cov_unconstrained = np.linalg.inv(hessian)
     except np.linalg.LinAlgError:
-        se = np.full(n, np.nan)
+        cov_unconstrained = np.linalg.pinv(hessian)
 
+    se_unconstrained = np.sqrt(np.maximum(0.0, np.diag(cov_unconstrained)))
+
+    # Apply Delta Method: Var(exp(theta)) = exp(theta)^2 * Var(theta)
+    sd_indices = [6, 7, 8, 9, 10]
     reported_params = res.x.copy()
-    reported_params[6] = np.exp(res.x[6])
-    reported_params[7] = np.exp(res.x[7])
-    reported_params[8] = np.exp(res.x[8])
-    reported_params[9] = np.exp(res.x[9])
-    reported_params[10] = np.exp(res.x[10])
+    reported_se = se_unconstrained.copy()
 
-    z = res.x / se
+    for idx in sd_indices:
+        reported_params[idx] = np.exp(res.x[idx])
+        reported_se[idx] = np.exp(res.x[idx]) * se_unconstrained[idx]
+
+    z = reported_params / reported_se
     p = 2 * (1 - sp.stats.norm.cdf(np.abs(z)))
 
     return {
         "params": reported_params,
-        "se": se,
+        "se": reported_se,
         "z_stat": z,
         "p_val": p,
         "success": res.success,

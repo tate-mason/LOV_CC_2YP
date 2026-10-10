@@ -1,13 +1,13 @@
 # Fdb version 4
-["bibtex draft_1010"] 1791663366.69704 "draft_1010.aux" "draft_1010.bbl" "draft_1010" 1791672987.95901 0
+["bibtex draft_1010"] 1791663366.69704 "draft_1010.aux" "draft_1010.bbl" "draft_1010" 1791674778.52531 0
   "./lov_bib/lov_bib.bib" 1790720988.01191 50242 d505f472afced587808ec3874b44509e ""
   "/usr/local/texlive/2026/texmf-dist/bibtex/bst/natbib/plainnat.bst" 1233624470 26816 ffe5423d2019860bad9f54bc402fac15 ""
-  "draft_1010.aux" 1791672987.67453 4656 6e35b4e84c54dc6bfa4ec10054632c4a "pdflatex"
+  "draft_1010.aux" 1791674778.23594 4656 16219f8ba8939d580b61f0f6ce74af83 "pdflatex"
   (generated)
   "draft_1010.bbl"
   "draft_1010.blg"
   (rewritten before read)
-["pdflatex"] 1791672986.77097 "draft_1010.tex" "draft_1010.pdf" "draft_1010" 1791672987.95916 2
+["pdflatex"] 1791674777.37096 "draft_1010.tex" "draft_1010.pdf" "draft_1010" 1791674778.52547 2
   "/usr/local/texlive/2026/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc" 1136849721 2900 1537cc8184ad1792082cd229ecc269f4 ""
   "/usr/local/texlive/2026/texmf-dist/fonts/enc/dvips/inconsolata/i4-ot1-0.enc" 1561323594 2496 4d35740f3a177992ff7b134746c0a1db ""
   "/usr/local/texlive/2026/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
@@ -156,10 +156,10 @@
   "/usr/local/texlive/2026/texmf-var/fonts/map/pdftex/updmap/pdftex.map" 1787008065 5573194 3473593ed16e9f152d99f1a1aaa20677 ""
   "/usr/local/texlive/2026/texmf-var/web2c/pdftex/pdflatex.fmt" 1787008814 3656725 4e447c05aa121cdaa2af3e1480626bfc ""
   "/usr/local/texlive/2026/texmf.cnf" 1774209515 577 648cd9f92f9c0eac486f4c71c85cfbbe ""
-  "draft_1010.aux" 1791672987.67453 4656 6e35b4e84c54dc6bfa4ec10054632c4a "pdflatex"
+  "draft_1010.aux" 1791674778.23594 4656 16219f8ba8939d580b61f0f6ce74af83 "pdflatex"
   "draft_1010.bbl" 1791663366.79182 4858 72f7ce145433891991b6647fa02ed987 "bibtex draft_1010"
-  "draft_1010.out" 1791672987.67738 1405 ed88b7a864c4d67103574b52f4c6a9a3 "pdflatex"
-  "draft_1010.tex" 1791672986.742 38011 3a84e3c17f8555b0deddbf8197fb6ba1 ""
+  "draft_1010.out" 1791674778.23844 1405 ed88b7a864c4d67103574b52f4c6a9a3 "pdflatex"
+  "draft_1010.tex" 1791674776.01713 39792 dc71aeb54f68974ce9a3649742464028 ""
   (generated)
   "draft_1010.aux"
   "draft_1010.log"

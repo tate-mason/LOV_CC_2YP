@@ -600,8 +600,8 @@ def total_objective_het_flavor_gamma(params, vec_data, draws):
 
     b_ber_draws = mu_beta_ber + sd_beta_ber * draws[:, 0]
     b_pl_draws = mu_beta_pl + sd_beta_pl * draws[:, 1]
-    g_ber_draws = mu_g_ber + sd_g_ber * draws[:, 3]
-    g_pl_draws = mu_g_pl + sd_g_pl * draws[:, 4]
+    g_ber_draws = mu_g_ber + sd_g_ber * draws[:, 2]
+    g_pl_draws = mu_g_pl + sd_g_pl * draws[:, 3]
 
     beta_draws_matrix = np.column_stack([np.zeros(n_draws), b_ber_draws, b_pl_draws])
     gamma_draws_matrix = np.column_stack([np.zeros(n_draws), g_ber_draws, g_pl_draws])
@@ -732,7 +732,7 @@ def estimate_het_flavor_gamma_model(vec_data, draws=GAMMA_DRAWS):
 
     se_unconstrained = np.sqrt(np.maximum(0.0, np.diag(cov_unconstrained)))
 
-    sd_indices = [6, 7, 8, 9, 10]
+    sd_indices = [5, 6, 7, 8]
     reported_params = res.x.copy()
     reported_se = se_unconstrained.copy()
 

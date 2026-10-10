@@ -79,20 +79,12 @@ My contribution is twofold. Firstly, I am primarily concerned with attribute swi
 \section{Data}
 %============================================================%
 
-    My data comes from Nielsen's HomeScan and MarketScan data. These two main datasets give me access to household purchase decisions as well as product characteristics. From HomeScan, I can access household characteristics, purchase histories by shopping trip, and information on purchase characteristics like if a discount was used or the total price paid. From MarketScan, I get product characteristics like price or if the product was in a featured position on the shelf. I limit the sample to Atlanta, Chicago, Denver, and San Diego in 2014. These markets were chosen since they are major cities in different parts of the country. I only include single-person households to avoid any contamination of shopping for multiple people like children or spouses. This ensures I am picking up true preferences for variety rather than buying for multiple people. These trips are encoded with unique identifiers, thus allowing me to look at per-trip, and within-trip, decisions. Agents are under observation for eight weeks and asked to record each shopping trip. Stores are restricted to be valid Nielsen stores, meaning they appear in the reatil code data. This is necessary to observe product prices.
-    
-    The product space I am looking at is yogurt. Yogurt was chosen for a host of reasons. First, it is a good that is not storable indefinitely, being good for approximately one to three weeks. Yogurt also has a large menu of flavors within the category, allowing consumers to switch easily along this dimension. Similarly, yogurt has many types like sugary, Greek, Skyr, low-fat, and many more. This presents potential variation to exploit as well.
+    The data comes from Nielsen's HomeScan and MarketScan. These two main datasets give me access to household purchase decisions as well as product characteristics. From HomeScan, I can access household characteristics, purchase histories by shopping trip, and information on purchase characteristics such as discount use or the total price paid. MarketScan provides product characteristics like price or if the product was in a featured position on the shelf. I limit the sample to Atlanta, Chicago, Denver, Houston, Des Moines, Phoenix, Philadelphia, and San Diego for years 2022-2024. These markets were chosen since they are major cities in different parts of the country. I only include single-person households to avoid any contamination of shopping for multiple people like children or spouses. This ensures I am picking up true preferences for variety rather than buying for multiple people. These trips are encoded with unique identifiers, thus allowing me to look at per-trip, and within-trip, decisions. Agents are under observation for eight weeks and asked to record each shopping trip. Stores are restricted to be valid Nielsen stores, meaning they appear in the reatil code data. This is necessary to observe product prices.
 
-    I classify flavors into three categories: berry, plain, and other. Berry and other are aggregates of many flavors. Berry is comprised of any berry flavored yogurt, including mixed flavors. Other is comprised of anything which is neither berry nor plain. These flavors are determined by flavor classifications given by Nielsen. In estimation, berry and plain will be compared to other flavors, which serve as the baseline category. I define the outside option as a trip in which yogurt was not ever purchased. Table \ref{tab:stat_tab} shows that the outside option is taken 80\% of the time each trip. My sample has 1,269 agents who are seen for an average of about 18 trips. Of those 1,269, 715 made a yogurt purchase in 2014. If an agent was a yogurt purchaser, they purchased about 2.3 cups of yogurt per-trip. The mean income bracket for my sample was \$35,000-\$40,000. The sample is predominately white, with 75\% of agents being White, 20\% being Black, and 5\% being either Asian or Hispanic. Men are between 25-29 years old, on average, while women are between 40-45 years old on average.
-
-    Conditional on purchasing yogurt, 57\% of households switch flavors at least once during the observation period. Approximately 50\% of switching households did so using a coupon during purchase. It is impossible to know what product the coupon was used on, given multiple units are purchased each period. Yogurt buying households, on average, buy the same flavor for ten consecutive trips and switch three times. 
-
-    Looking at figure \ref{fig:flav_heatmap}, we can see the breakdown of switching behavior by flavor. For those who switched from berry yogurt to plain yogurt, they will stay on plain for 4.4 trips on average. Those who switch to plain tend to stay on plain longer for either case, staying an average of four periods if they switch from either flavor to plain. For those switching to other, they stay on that other flavor for 3.2 trips no matter the origin flavor. For berry, it appears that households are less stuck to it or use it as their switching flavor. That is, they break up the monotony of their primary flavor, plain or other, with a berry yogurt. This is interesting, since plain is more expensive on average. This implies the household's taste for plain yogurt outweighs their disutility of cost. 
-
-    Finally, when looking at pricing across markets, we see interesting patterns. Firstly, table \ref{tab:price_tab} shows that prices vary a lot between cities. In Chicago, for instance, berry is seen to have a mean price of \$0.84 per unit while plain has a mean unit price of \$1.22 per cup. This is a delta approximately twice the size of that between the two flavors in other markets. Looking at figure \ref{fig:price_var}, it becomes clear that the overall mean price of yogurt cups fluctuates throughout the year. In Atlanta and Denver, it seems they move largely in lockstep, while San Diego and Chicago are relatively more stable. San Diego and Chicago also have a different pattern than Atlanta and Denver do until around the middle of the year, when they start to move together. This variability across markets is what I exploit for the instrumental variable used in control function approach of \citet{petrin_control_2010}.
+    I use yogurt data as the product space for my analysis. Yogurt was chosen due to its relative lack of storability, wide menu of flavors, as well as diverse nutrition characteristics. I classify flavors as berry, other flavors, and plain. Plain is a unique identifier while "berry" and "other flavors" are aggregates of many flavors. Berry includes any flavor with "berry" in its flavor encoding, as well as cherry flavors. Other flavors are composed of all flavors which are neither plain nor other. By construction, it is the largest category. The outside option is defined as any purchase which is not yogurt. 
 
 %============================================================%
-\section{Model}
+\section{Demand Model}
 %============================================================%
     In each period $t$, the consumer $i$ chooses a product $j$ from the menu of available products $J_t$. The available products are $J_t = \{0,1,2,3\}$ where $j=0$ is the outside option, $j=1$ is purchasing berry yogurt, $j=2$ is purchasing plain yogurt, and $j=3$ is purchasing other flavors. Consumers are assumed to be state-dependent, carrying previous choices forward when love of variety is present. Otherwise, they only internalize characteristic utiltiy and price utility. Each product $j\in J_t$ is a bundle of $k\in K$ characteristics such that $X_{jt}^k \in \mathcal{X}_{jt}$. The consumer's utility from choosing product $j$ at time $t$ is given by:
 
@@ -147,7 +139,16 @@ Where $y_{ijt} = 1$ when person $i$ chosen $j$ that period, and zero otherwise. 
 I also repeat estimation under specifications which exclude $\gamma_i$, do not estimate heterogeneous $\beta_i, \ \gamma_i$, and do both. This allows me to see if results are biased when love of variety is excluded from estimation. 
 
 %============================================================%
-\section{Supply Side Model}
+\section{Demand Results}
+%============================================================%
+
+Table \ref{satiation_specifications} shows the main results from the estimation. All coefficients are flavor-specific and are relative to the "other flavors" category which is relative to the outside option. When looking at the standard logit, without heterogeneous consumers, I find that consumers experience disutility from both berry flavored and plain yogurt compared to other flavors. They are experience disutility from variety, with berry inducing more disutilty than plain, though plain is not statistically significant. Price effects are negative and significant, with the control function residual being positive and significant. Now, turning to the mixed logit, I find similar estimates. I recover statistically significant coefficients for all but the coefficient on switching for berry yogurt. When looking at the coefficient on plain, I find a large and significant disutility for switching from plain yogurt. I also find higher disutility for consuming plain yogurt. 
+
+Looking at table \ref{tab:naive_specifications}, the estimates for what I term the "naive" specifications. Here, there is no love of variety $\gamma$. When 
+
+
+%============================================================%
+\section{Supply Side}
 %============================================================%
 
 There are $N$ consumers, each endowed with a type $\gamma_r$ for $r\in\{H,L\}$, corresponding to high or low utility from variety in products consumed. As such, there are $N_r\in N$ consumers of each type, $r\in\{H,L\}$. Consumers maximize utility according to the following:
@@ -332,24 +333,36 @@ And simplify:
 Deconstructing the optimal price, optimal price is composed of the marginal cost, minus the own-product discounted continuation value, plus a demand markup term and the the value of alternative products, and lastly a term referring to the learning adjustment from period one behavior. In the imperfect-information specification, today's prices affect current demand and the distribution of future states as well as the information that can be learned from consumer purchases. Period one prices alter the likelihood of purchase, thus affecting the posterior over consumer type and, by extension, optimal pricing in period two.
 
 %============================================================%
-\section{Results}
+\section{Supply Simulation}
 %============================================================%
 
-Results are shown in table \ref{tab:res_tab}. I find that $\gamma_i$ is statistically significant and negative with a value of $-1.23$. This finding points to consumers being less willing to switch flavors between trips. This estimate is at odds with the descriptive facts: more than half of houses are switchers, conditional on yogurt purchase, and houses switch three times on average if they do switch. This is likely a byproduct of not having random coefficients for utility from a given product, instead taking an average across households. Further, I find a negative price coefficient $\alpha$, but am unable to claim statistical significance. This is fixable with a better instrumental variable approach, something which is actively being considered. Similarly, the control function correction coefficient is not significant either. However, given $\sigma$ is positive, we can infer that $\alpha$ is positively biased without this correction. With a better IV approach, the control function should also produce more impactful effects. I am looking into factors like distribution networks, other product categories, as well as different sources of geographic variation to serve as instruments.
+In the supply simulation, I set the following parameters
 
-When looking at the characteristic coefficients, only berry, $\beta_i^b$, is statistically significant. This is, again, an issue with aggregate level coefficients. When looking at plain's coefficient, $\beta_i^p$, I do not find significance. The constant is negative, which is to be expected with a high outside option uptake rate. It is close to fringe significance, but is not either. 
+\begin{table}[htbp]
+\centering
+\caption{Model Parameters}
+\label{tab:model_parameters}
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{lll}
+\toprule
+\textbf{Parameter} & \textbf{Symbol} & \textbf{Assigned Value} \\
+\midrule
+Base Brand Utilities & $\beta_0$ & $[2.2, 2.0]$ \\
+High-Type Switching Utility & $\gamma_H$ & $2.0$ \\
+Low-Type Switching Utility & $\gamma_L$ & $0.1$ \\
+Price Sensitivity Coefficient & $\alpha$ & $-1.5$ \\
+Discount Factor & $\delta$ & $0.95$ \\
+Marginal Unit Costs & $c$ & $[1.2, 1.0]$ \\
+Number of Inside Goods & $J$ & $2$ \\
+Initial State Distribution & $s_0$ & $[0.5, 0.5]$ \\
+Price Optimization Bounds & $[P_{\min}, P_{\max}]$ & $[\$1.00, \$8.00]$ \\
+\bottomrule
+\end{tabular}
+\end{table}
 
-Finally, I calculated a willingness-to-pay for all $\beta$ coefficients as well as the variety coefficient $\gamma$. These values are found in table \ref{tab:wtp_estimates}. For the intercept, consumers value the outside option approximately \$1.50 more than yogurt flavored "other". For berry, it is valued about \$1.81 more than other flavors, while plain is valued about \$0.77 more. More interestingly, I find that consumers would need to be heavily compensated to switch. They would need approximately \$2.20 in incentives to switch from their normal choice of flavor. Judging by the average pricing of yogurt, this implies needing about two to three cups of yogurt given to them for free to switch. 
+Then, I give consumers a prior $j_0$ so period one prices are informed by switching in the imperfect case. In table \ref{tab:value_of_information}, the optimal prices, posterior beliefs, and profits are displayed. Firms lower prices on the lower cost good, directing consumers to it to raise profits. Firms offer higher discounts when the distribution of consumers has less high-switchers, needing to induce low-types to switch via price effects. The firm consistently overestimates the amount of high types in the population by a magnitude of anywhere from 10-15 percent. We see profits maximized in the case akin to perfect information where all individuals are high type. When comparing the case of perfect and imperfect information profits, the value of information is between 1.2-1.9 cents per unit. This cost of information is maximized when the distribution is evenly split, implying the learning adjustment cost from the imperfect cost specification is meaningfully impacting firm profits.
 
-Overall, my findings suggest consumers prefer to not switch flavors. While a surprising result given the data facts, it must be noted that consumers do not just buy flavor. They buy for other characteristics that are not accounted for at this point in the research process. It will be interesting to see if this changes once I create a more holistic bundle of characteristics for the consumer to have preferences over. Similarly, the willingness-to-pay for variety is $-2.20$, meaning the consumer would need to be compensated \$2.20 to switch flavors. This opens a door for interesting counterfactual exercises in which the supply side is aware of the consumers willingness-to-pay and preferences, and thus try to influence them to switch. 
-
-%============================================================%
-\section{Counterfactuals}
-%============================================================%
-
-Now, suppose firm side dynamics are introduced. Here, the firm acts strategically in a competitive market, taking the consumer's last observed action into account, and deciding whether or not to offer a promotion to encourage switching. This would lead to a dynamic pricing problem in which the firm is weighing the potential markup in the future against a lower price today. The firm will be able to oberve consumers' purchase histories, enabling them to first degree price discriminate. A firm would choose to discount a product $j$ if the future market share it obtains offsets the lowered profits today. This also leads to analysis of competitive behavior between firms and how they decide to price depending on the behavior of other suppliers. Because the firm would not directly observe each consumer's type, I would be able to see the impact of targeting error on three dimensions: consumer welfare, competition in the market, and firm profits.
-
-I also aim to look at a counterfactual involving product introduction. The firm would take its present approximation of the distribution over preferences and decide whether or not to introduce a product. Using a Hotelling model, I can test the impact of product introduction on switching behavior. With this, I am interested in consumer welfare, optimal product differentiation, and competitive effects.
+This result points to consumer privacy policies being a viable way to limit tracking a consumer's data. Firms who are unwilling to incur the losses of learning will stop tracking as diligently and the firms large enough to weather the losses will need some other form of enforcement (fines, bans, etc.). In physical goods spaces, this shift to privacy is perhaps less poignant. In digital markets, firms are able to track every action a consumer takes on their domain and can use that information to target advertising, discounts, or otherwise induce prolonged usage of the product.  
 
 %============================================================%
 \section{Conclusion}
@@ -368,6 +381,130 @@ The next iteration of this work will first augment the sample to include 2022-20
 
 \newpage
 \section{Tables and Figures}
+% ==============================================================================
+% TABLE 1: NAIVE SPECIFICATIONS (NO SATIATION / NO GAMMAS)
+% ==============================================================================
+\begin{table}[htbp]
+\centering
+\caption{Naive Choice Model Specifications (No Satiation Dynamics)}
+\label{tab:naive_specifications}
+\renewcommand{\arraystretch}{1.2}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{l *{4}{r} c *{4}{r}}
+\toprule
+& \multicolumn{4}{c}{\textbf{Standard Logit (No $\gamma$)}} & & \multicolumn{4}{c}{\textbf{Random-Coefficient Logit (No $\gamma$)}} \\
+\cmidrule{2-5} \cmidrule{7-10}
+\textbf{Parameter} & \textbf{Estimate} & \textbf{Std. Error} & \textbf{$z$-stat} & \textbf{$p$-value} & & \textbf{Estimate} & \textbf{Std. Error} & \textbf{$z$-stat} & \textbf{$p$-value} \\
+\midrule
+Constant & 0.9455 & 0.0397 & 23.837 & 0.0000$^{***}$ & & 0.9459 & 0.0397 & 23.850 & 0.0000$^{***}$ \\
+$\beta_{\text{berry}}$ (Mean) & -0.7635 & 0.0126 & -60.401 & 0.0000$^{***}$ & & -0.7632 & 0.0127 & -60.298 & 0.0000$^{***}$ \\
+$\beta_{\text{plain}}$ (Mean) & -1.3899 & 0.0179 & -77.587 & 0.0000$^{***}$ & & -1.3930 & 0.0218 & -63.784 & 0.0000$^{***}$ \\
+SD $\beta_{\text{berry}}$ & \multicolumn{4}{c}{---} & & 0.0008 & 0.0304 & 0.027 & 0.9785 \\
+SD $\beta_{\text{plain}}$ & \multicolumn{4}{c}{---} & & 0.0303 & 0.1041 & 0.291 & 0.7711 \\
+Price ($\alpha$) & -0.9836 & 0.0299 & -32.878 & 0.0000$^{***}$ & & -0.9836 & 0.0299 & -32.880 & 0.0000$^{***}$ \\
+Control Function ($\sigma$) & 0.1670 & 0.0292 & 5.721 & 0.0000$^{***}$ & & 0.1654 & 0.0292 & 5.668 & 0.0000$^{***}$ \\
+\midrule
+Optimization Success & \multicolumn{4}{c}{True} & & \multicolumn{4}{c}{True} \\
+Final Log-Likelihood & \multicolumn{4}{c}{-71,955.73} & & \multicolumn{4}{c}{-71,955.75} \\
+\bottomrule
+\multicolumn{10}{l}{\footnotesize $^{***}p<0.001$, $^{**}p<0.05$, $^*p<0.10$.}
+\end{tabular}%
+}
+\end{table}
 
+% ==============================================================================
+% TABLE 2: WTP FOR NAIVE SPECIFICATIONS
+% ==============================================================================
+\begin{table}[htbp]
+\centering
+\caption{Willingness to Pay (WTP in \$) for Naive Specifications}
+\label{tab:wtp_naive}
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{l r r}
+\toprule
+\textbf{Attribute / Parameter} & \textbf{Standard Logit WTP (\$)} & \textbf{Random Coefficient Logit WTP (\$)} \\
+\midrule
+Berry Preference (vs. Other) & \$0.78 & \$0.78 \\
+Plain Preference (vs. Other) & \$1.41 & \$1.42 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\vspace{1cm}
+
+% ==============================================================================
+% TABLE 3: FLAVOR SATIATION SPECIFICATIONS (WITH GAMMAS)
+% ==============================================================================
+\begin{table}[htbp]
+\centering
+\caption{Flavor-Specific Satiation Choice Model Specifications}
+\label{tab:satiation_specifications}
+\renewcommand{\arraystretch}{1.2}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{l *{4}{r} c *{4}{r}}
+\toprule
+& \multicolumn{4}{c}{\textbf{Standard Flavor Variety Logit}} & & \multicolumn{4}{c}{\textbf{Random-Coefficient Flavor Variety Logit}} \\
+\cmidrule{2-5} \cmidrule{7-10}
+\textbf{Parameter} & \textbf{Estimate} & \textbf{Std. Error} & \textbf{$z$-stat} & \textbf{$p$-value} & & \textbf{Estimate} & \textbf{Std. Error} & \textbf{$z$-stat} & \textbf{$p$-value} \\
+\midrule
+Constant & 0.9447 & 0.0397 & 23.824 & 0.0000$^{***}$ & & 0.9419 & 0.0396 & 23.785 & 0.0000$^{***}$ \\
+$\beta_{\text{berry}}$ (Mean) & -0.7611 & 0.0126 & -60.171 & 0.0000$^{***}$ & & -0.7503 & 0.0127 & -58.992 & 0.0000$^{***}$ \\
+$\beta_{\text{plain}}$ (Mean) & -1.3894 & 0.0179 & -77.464 & 0.0000$^{***}$ & & -1.3940 & 0.0179 & -77.876 & 0.0000$^{***}$ \\
+$\gamma_{\text{berry}}$ (Mean) & -0.0678 & 0.0221 & -3.065 & 0.0022$^{**}$ & & -10.0000 & 2.3436 & -4.267 & 0.0000$^{***}$ \\
+$\gamma_{\text{plain}}$ (Mean) & -0.0130 & 0.0177 & -0.735 & 0.4625 & & -0.8837 & 0.0000 & $-\infty$ & 0.0000$^{***}$ \\
+SD $\beta_{\text{berry}}$ & \multicolumn{4}{c}{---} & & -9.2397 & 46.9558 & -0.197 & 0.8440 \\
+SD $\beta_{\text{plain}}$ & \multicolumn{4}{c}{---} & & 0.0006 & 0.0000 & $\infty$ & 0.0000$^{***}$ \\
+SD $\gamma_{\text{berry}}$ & \multicolumn{4}{c}{---} & & 5.7743 & 1.3128 & 4.399 & 0.0000$^{***}$ \\
+SD $\gamma_{\text{plain}}$ & \multicolumn{4}{c}{---} & & 1.4779 & 0.0000 & $\infty$ & 0.0000$^{***}$ \\
+Price ($\alpha$) & -0.9830 & 0.0299 & -32.868 & 0.0000$^{***}$ & & 0.3750 & 0.0112 & 33.486 & 0.0000$^{***}$ \\
+Control Function ($\sigma$) & 0.1671 & 0.0292 & 5.726 & 0.0000$^{***}$ & & 1.1919 & 0.0347 & 34.315 & 0.0000$^{***}$ \\
+\midrule
+Optimization Success & \multicolumn{4}{c}{True} & & \multicolumn{4}{c}{True} \\
+Final Log-Likelihood & \multicolumn{4}{c}{-71,947.72} & & \multicolumn{4}{c}{-71,904.13} \\
+\bottomrule
+\multicolumn{10}{l}{\footnotesize $^{***}p<0.001$, $^{**}p<0.05$, $^*p<0.10$.}
+\end{tabular}%
+}
+\end{table}
+
+% ==============================================================================
+% TABLE 4: WTP FOR SATIATION SPECIFICATIONS
+% ==============================================================================
+\begin{table}[htbp]
+\centering
+\caption{Willingness to Pay (WTP in \$) for Satiation Specifications}
+\label{tab:wtp_satiation}
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{l r r}
+\toprule
+\textbf{Attribute / Parameter} & \textbf{Standard Flavor Satiation WTP (\$)} & \textbf{RC Flavor Satiation WTP (\$)} \\
+\midrule
+Berry Preference (vs. Other) & \$0.77 & -\$2.00 \\
+Plain Preference (vs. Other) & \$1.41 & -\$3.72 \\
+Satiation Disutility (Berry) & \$1.41 & -\$3.72 \\
+Satiation Disutility (Plain) & \$0.07 & -\$26.66 \\
+\bottomrule
+\end{tabular}
+\end{table}
+\begin{table}[htbp]
+\centering
+\caption{Information Structure, Optimal Pricing, and Value of Information Across Population Mixes}
+\label{tab:value_of_information}
+\renewcommand{\arraystretch}{1.25} % Adds comfortable vertical breathing room
+\resizebox{\textwidth}{!}{% Fits perfectly to text margins without crowding
+\begin{tabular}{l c c r r r r r r r}
+\toprule
+\textbf{Population Mix} & \textbf{\% High} & \textbf{\% Low} & \multicolumn{2}{c}{\textbf{Imperfect Price ($P_1$)}} & \multicolumn{2}{c}{\textbf{Posterior Beliefs}} & \textbf{Imperfect} & \textbf{Perfect} & \textbf{Value of} \\
+& $\left(\frac{N_H}{N}\right)$ & $\left(\frac{N_L}{N}\right)$ & \textbf{Good 1} & \textbf{Good 2} & \textbf{G1} & \textbf{G2} & \textbf{Profit} & \textbf{Profit} & \textbf{Info} \\
+\midrule
+100\% LOW          & 0\%   & 100\% & 2.0633 & 1.8646 & 0.0000 & 0.0000 & 0.6031 & 0.6031 & -0.0000 \\
+25\% HIGH, 75\% LOW & 25\%  & 75\%  & 2.1847 & 1.9944 & 0.3727 & 0.3641 & 0.7820 & 0.7999 &  0.0178 \\
+50\% HIGH, 50\% LOW & 50\%  & 50\%  & 2.2819 & 2.1049 & 0.6510 & 0.6448 & 0.9773 & 0.9966 &  0.0194 \\
+75\% HIGH, 25\% LOW & 75\%  & 25\%  & 2.3542 & 2.1887 & 0.8528 & 0.8504 & 1.1811 & 1.1934 &  0.0123 \\
+100\% HIGH         & 100\% & 0\%   & 2.4067 & 2.2494 & 1.0000 & 1.0000 & 1.3902 & 1.3902 &  0.0000 \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
 
 \end{document}

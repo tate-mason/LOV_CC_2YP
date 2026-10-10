@@ -78,8 +78,8 @@ def compute_satiation_state(
     return pd.DataFrame(inventory_records)
 
 
-def load_and_preprocess(weekly_capacity=14, inside_only=False):
-    # Unified scan matching estimation_step1_2.py
+def load_and_preprocess(weekly_capacity=14):
+    # Unified scan matching estimation_step1_2.py exactly
     merged_df = (
         pl.scan_parquet(MERGED_PATH)
         .with_columns(
@@ -156,7 +156,7 @@ def load_and_preprocess(weekly_capacity=14, inside_only=False):
         (merged_master["price"] > 0.1) | (merged_master["price"].isna())
     ]
     iv_res = smf.ols(
-        "price  ~ price_iv + brand_cd + C(week_end)", data=merged_master, missing="drop"
+        "price ~ price_iv + brand_cd + C(week_end)", data=merged_master, missing="drop"
     ).fit()
 
     merged_master["iv_res"] = np.nan
@@ -278,12 +278,8 @@ def load_and_preprocess(weekly_capacity=14, inside_only=False):
             inside_counts = counts_dict.get((hh_id, week), np.zeros(3, dtype=np.int64))
             inside_units = np.sum(inside_counts)
 
-            if inside_only and inside_units == 0:
-                continue
-
-            cap = 1 if inside_only else weekly_capacity
-            effective_capacity = max(cap, inside_units + (0 if inside_only else 1))
-            outside_count = max(0, effective_capacity - inside_units)
+            effective_capacity = max(weekly_capacity, inside_units + 1)
+            outside_count = effective_capacity - inside_units
 
             full_counts = np.append(inside_counts, outside_count)
             c_vec = np.array([row.C_sat_0, row.C_sat_1, row.C_sat_2], dtype=np.float64)

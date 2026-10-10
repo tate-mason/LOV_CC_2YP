@@ -422,7 +422,7 @@ def total_objective_rc_naive(params, vec_data, draws):
 
 
 def estimate_naive_model(vec_data):
-    x0 = np.array([0.0, 0.0, 0.0, -0.5, 0.0])
+    x0 = np.array([0.0, 0.0, 0.0, -0.1, 0.0])
     bounds = [(None, None)] * 3 + [(None, 0.0), (None, None)]
 
     res = minimize(
@@ -476,7 +476,7 @@ def estimate_naive_model(vec_data):
 
 
 def estimate_rc_naive_model(vec_data, draws=GAMMA_DRAWS):
-    x0 = np.array([0.95, -0.76, -1.39, -2.30, -2.30, -0.98, 0.16])
+    x0 = np.zeros(7)
     bounds = [
         (-10.0, 10.0),
         (-10.0, 10.0),
@@ -623,7 +623,7 @@ def total_objective_het_flavor_gamma(params, vec_data, draws):
 
 
 def estimate_flavor_gamma_model(vec_data):
-    x0 = np.array([0.0, 0.0, 0.0, 0.0, 0.0, -0.5, 0.0])
+    x0 = np.array([0.0, 0.0, 0.0, 0.0, 0.0, -0.1, 0.0])
     bounds = [(None, None)] * 5 + [(None, 0.0), (None, None)]
 
     res = minimize(
@@ -677,22 +677,7 @@ def estimate_flavor_gamma_model(vec_data):
 
 
 def estimate_het_flavor_gamma_model(vec_data, draws=GAMMA_DRAWS):
-    x0 = np.array(
-        [
-            0.95,  # const
-            -0.76,  # mu_beta_ber
-            -1.39,  # mu_beta_pl
-            -0.15,  # mu_g_ber
-            -0.20,  # mu_g_pl
-            -2.30,  # log_sd_beta_ber
-            -2.30,  # log_sd_beta_pl
-            -3.00,  # log_sd_g_ber
-            -3.00,  # log_sd_g_pl
-            -0.98,  # alpha
-            0.16,  # sigma
-        ]
-    )
-
+    x0 = np.zeros(11)
     bounds = [
         (-10.0, 10.0),  # const
         (-10.0, 10.0),  # mu_beta_ber
@@ -822,25 +807,25 @@ def display_results_with_wtp(
             )
 
             wtp_table.add_row(
-                "WTP: Berry Preference (vs Other)", f"${-beta_ber / alpha_val:.2f}"
+                "WTP: Berry Preference (vs Other)", f"${beta_ber / alpha_val:.2f}"
             )
             wtp_table.add_row(
-                "WTP: Plain Preference (vs Other)", f"${-beta_pl / alpha_val:.2f}"
+                "WTP: Plain Preference (vs Other)", f"${beta_pl / alpha_val:.2f}"
             )
             wtp_table.add_row(
-                "WTP: Satiation Disutility (Berry)", f"${-g_ber / alpha_val:.2f}"
+                "WTP: Satiation Disutility (Berry)", f"${g_ber / alpha_val:.2f}"
             )
             wtp_table.add_row(
-                "WTP: Satiation Disutility (Plain)", f"${-g_pl / alpha_val:.2f}"
+                "WTP: Satiation Disutility (Plain)", f"${g_pl / alpha_val:.2f}"
             )
 
         elif model_type == "naive":
             beta_ber, beta_pl = results["params"][1], results["params"][2]
             wtp_table.add_row(
-                "WTP: Berry Preference (vs Other)", f"${-beta_ber / alpha_val:.2f}"
+                "WTP: Berry Preference (vs Other)", f"${beta_ber / alpha_val:.2f}"
             )
             wtp_table.add_row(
-                "WTP: Plain Preference (vs Other)", f"${-beta_pl / alpha_val:.2f}"
+                "WTP: Plain Preference (vs Other)", f"${beta_pl / alpha_val:.2f}"
             )
 
         console.print(wtp_table)

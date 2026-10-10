@@ -79,29 +79,25 @@ def compute_satiation_state(
 
 
 def load_and_preprocess(weekly_capacity=14, inside_only=False):
-    # Load pre-filtered panel directly (no redundant merges required)
-    # Load pre-filtered panel directly
-    merged_df = pl.read_parquet(MERGED_PATH).to_pandas()
-
-    # 1. Cast numeric quantities safely
-    merged_df["quantity"] = (
-        pd.to_numeric(merged_df["quantity"], errors="coerce").fillna(1).astype(int)
-    )
-    merged_df["total_price_paid"] = pd.to_numeric(
-        merged_df["total_price_paid"], errors="coerce"
-    ).fillna(0.0)
-
-    if "price" not in merged_df.columns:
-        merged_df["price"] = np.where(
-            merged_df["quantity"] > 0,
-            merged_df["total_price_paid"] / merged_df["quantity"],
-            np.nan,
+    # Unified scan matching estimation_step1_2.py
+    merged_df = (
+        pl.scan_parquet(MERGED_PATH)
+        .with_columns(
+            [
+                pl.col("quantity").cast(pl.Int64),
+                pl.col("head_age").cast(pl.Int64),
+                pl.col("household_income").cast(pl.Int64),
+                pl.col("household_size").cast(pl.Int64),
+                pl.col("serving_per_container_cd").cast(pl.Int64),
+                pl.col("product_module_code_hms").cast(pl.Int64),
+                pl.col("price").cast(pl.Float64),
+            ]
         )
-
-    merged_df["household_income"] = (
-        pd.to_numeric(merged_df["household_income"], errors="coerce")
-        .fillna(1)
-        .astype(int)
+        .filter(pl.col("product_module_code_hms").is_in([3612, 3603]))
+        .filter(pl.col("household_size") == 1)
+        .filter(pl.col("serving_per_container_cd").is_in([67181961, 65622705]))
+        .collect()
+        .to_pandas()
     )
 
     merged_df["flavor_str"] = merged_df["flavor"].fillna("").astype(str)
@@ -533,7 +529,6 @@ def estimate_het_flavor_gamma_model(vec_data, draws=GAMMA_DRAWS):
         options={"ftol": 1e-7, "gtol": 1e-5, "maxiter": 1000},
     )
 
-    # Finite difference Hessian computation in unconstrained space
     eps = 1e-4
     n = len(res.x)
     hessian = np.zeros((n, n))
@@ -558,7 +553,6 @@ def estimate_het_flavor_gamma_model(vec_data, draws=GAMMA_DRAWS):
             hessian[i, j] = (f1 - f2 - f3 + f4) / (4 * eps * eps)
             hessian[j, i] = hessian[i, j]
 
-    # Invert Hessian using pseudo-inverse for numerical stability
     try:
         cov_unconstrained = np.linalg.inv(hessian)
     except np.linalg.LinAlgError:
@@ -566,7 +560,6 @@ def estimate_het_flavor_gamma_model(vec_data, draws=GAMMA_DRAWS):
 
     se_unconstrained = np.sqrt(np.maximum(0.0, np.diag(cov_unconstrained)))
 
-    # Apply Delta Method: Var(exp(theta)) = exp(theta)^2 * Var(theta)
     sd_indices = [6, 7, 8, 9, 10]
     reported_params = res.x.copy()
     reported_se = se_unconstrained.copy()
@@ -598,7 +591,7 @@ def display_results_with_wtp(
     table.add_column("z-stat", justify="right")
     table.add_column("p-value", justify="right")
 
-    alpha_val = results["params"][-2]  # Price parameter is second to last
+    alpha_val = results["params"][-2]
 
     for name, val, se, z, p in zip(
         param_names,
@@ -625,7 +618,6 @@ def display_results_with_wtp(
     console.print(f"[bold]Optimization Success:[/bold] {results['success']}")
     console.print(f"[bold]Final LL Objective:[/bold] {results['fun']:.4f}")
 
-    # Compute and display Willingness-To-Pay (WTP) Table
     if abs(alpha_val) > 1e-4:
         wtp_table = Table(
             title=f"{title} - WILLINGNESS TO PAY (WTP in $)",
@@ -636,7 +628,6 @@ def display_results_with_wtp(
         wtp_table.add_column("WTP ($)", justify="right")
 
         if is_flavor_gamma:
-            # Flavor gamma indices in parameters vector
             beta_ber, beta_pl = results["params"][1], results["params"][2]
             g_oth, g_ber, g_pl = (
                 results["params"][3],

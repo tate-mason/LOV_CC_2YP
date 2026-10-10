@@ -77,7 +77,7 @@ def solve_perfect_info(l1):
 
     init_p = np.concatenate(
         [
-            np.tile(costs + 1.2, (2, 1)).flatten(),
+            np.tile(costs + 2.2, (2, 1)).flatten(),
             np.tile(costs + 1.2, (2, J, 1)).flatten(),
         ]
     )

@@ -20,7 +20,7 @@ console = Console()
 
 MERGED_PATH = "/scratch/dtm63837/Kilts_Panel/nielsen_extracts/scanner_panel.parquet"
 OUT_PATH = "/scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Output/"
-CATEGORIES = ["other", "berry", "plain", "outside"]
+CATEGORIES = ["other", "plain", "berry", "outside"]
 
 cat_map = {c: i for i, c in enumerate(CATEGORIES)}
 rng = np.random.default_rng(219)
@@ -395,8 +395,8 @@ def total_objective_rc_naive(params, vec_data, draws):
         sigma,
     ) = params
 
-    sd_beta_ber = np.exp(log_sd_beta_oth)
-    sd_beta_pl = np.exp(log_sd_beta_ber)
+    sd_beta_oth = np.exp(log_sd_beta_oth)
+    sd_beta_ber = np.exp(log_sd_beta_ber)
 
     prices = vec_data["prices"]
     resids = vec_data["resids"]
@@ -404,8 +404,8 @@ def total_objective_rc_naive(params, vec_data, draws):
 
     n_draws = draws.shape[0]
 
-    b_oth_draws = mu_beta_oth + sd_beta_ber * draws[:, 0]
-    b_ber_draws = mu_beta_ber + sd_beta_pl * draws[:, 1]
+    b_oth_draws = mu_beta_oth + sd_beta_oth * draws[:, 0]
+    b_ber_draws = mu_beta_ber + sd_beta_ber * draws[:, 1]
 
     beta_draws_matrix = np.column_stack([np.zeros(n_draws), b_oth_draws, b_ber_draws])
 
@@ -682,8 +682,8 @@ def estimate_het_flavor_gamma_model(vec_data, draws=GAMMA_DRAWS):
             0.95,  # const
             0.76,  # mu_beta_oth
             1.39,  # mu_beta_ber
-            0.10,  # mu_g_oth
-            0.15,  # mu_g_ber
+            -0.20,  # mu_g_oth
+            -0.20,  # mu_g_ber
             -2.30,  # log_sd_beta_oth
             -2.30,  # log_sd_beta_ber
             -3.00,  # log_sd_g_oth
@@ -697,8 +697,8 @@ def estimate_het_flavor_gamma_model(vec_data, draws=GAMMA_DRAWS):
         (-10.0, 10.0),  # const
         (-10.0, 10.0),  # mu_beta_oth
         (-10.0, 10.0),  # mu_beta_ber
-        (-10.0, 2.0),  # mu_g_oth
-        (-10.0, 2.0),  # mu_g_ber
+        (-4.0, 2.0),  # mu_g_oth
+        (-4.0, 2.0),  # mu_g_ber
         (-10.0, 5.0),  # log_sd_beta_oth
         (-10.0, 5.0),  # log_sd_beta_ber
         (-10.0, 5.0),  # log_sd_g_oth
@@ -747,7 +747,7 @@ def estimate_het_flavor_gamma_model(vec_data, draws=GAMMA_DRAWS):
 
     se_unconstrained = np.sqrt(np.maximum(0.0, np.diag(cov_unconstrained)))
 
-    sd_indices = [6, 7, 8, 9, 10]
+    sd_indices = [5, 6, 7, 8]
     reported_params = res.x.copy()
     reported_se = se_unconstrained.copy()
 
@@ -867,7 +867,7 @@ def main():
 
     console.print("\n--- Estimating Standard Logit (No Gammas) ---")
     res_naive = estimate_naive_model(vec_data)
-    p_names_naive = ["Constant", "beta_ber", "beta_pl", "Price", "Control Func."]
+    p_names_naive = ["Constant", "beta_oth", "beta_ber", "Price", "Control Func."]
     display_results_with_wtp(
         res_naive,
         title="STANDARD LOGIT (NO SATIATION)",

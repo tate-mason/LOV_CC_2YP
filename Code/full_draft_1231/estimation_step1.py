@@ -433,8 +433,8 @@ def total_objective_het_naive(params, vec_data, draws):
 
     n_draws = draws.shape[0]
 
-    b_ber_draws = mu_beta_ber + n_draws[:, 0] * sd_beta_ber
-    b_pl_draws = mu_beta_pl + n_draws[:, 1] * sd_beta_pl
+    b_ber_draws = mu_beta_ber + draws[:, 0] * sd_beta_ber
+    b_pl_draws = mu_beta_pl + draws[:, 1] * sd_beta_pl
     beta_draws_matrix = np.column_stack([np.zeros(n_draws), b_ber_draws, b_pl_draws])
 
     u_base = const + alpha * prices + sigma * resids

@@ -46,7 +46,6 @@ raw_panel = (
             pl.col("quantity").cast(pl.Int64, strict=False),
             pl.col("deal_flag_uc").cast(pl.Int64, strict=False),
             pl.col("household_income").cast(pl.Int64, strict=False),
-            pl.col("price").cast(pl.Float64, strict=False),
         ]
     )
 )

@@ -20,7 +20,7 @@ console = Console()
 
 MERGED_PATH = "/scratch/dtm63837/Kilts_Panel/nielsen_extracts/scanner_panel.parquet"
 OUT_PATH = "/scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Output/"
-CATEGORIES = ["other", "plain", "berry", "outside"]
+CATEGORIES = ["other", "berry", "plain", "outside"]
 
 cat_map = {c: i for i, c in enumerate(CATEGORIES)}
 rng = np.random.default_rng(219)
@@ -138,7 +138,7 @@ def load_and_preprocess(weekly_capacity=14):
     is_plain = merged_df["full_text"].str.contains(plain_regex, na=False)
     is_berry = merged_df["full_text"].str.contains(berry_regex, na=False) & (~is_plain)
 
-    merged_master["flavor"] = np.select([is_plain, is_berry], [0, 2], default=1)
+    merged_master["flavor"] = np.select([is_plain, is_berry], [2, 1], default=0)
 
     market_price = (
         merged_master.groupby(["upc", "week_end", "market_name"])["price"]
@@ -367,8 +367,8 @@ def load_and_preprocess(weekly_capacity=14):
 # PART 1: NAIVE SPECIFICATIONS (NO SATIATION / NO GAMMA)
 # =========================================================
 def total_objective_naive(params, vec_data):
-    const, beta_oth, beta_ber, alpha, sigma = params
-    beta_vec = np.array([0.0, beta_oth, beta_ber])
+    const, beta_ber, beta_pl, alpha, sigma = params
+    beta_vec = np.array([0.0, beta_ber, beta_pl])
 
     prices = vec_data["prices"]
     resids = vec_data["resids"]
@@ -387,16 +387,16 @@ def total_objective_naive(params, vec_data):
 def total_objective_rc_naive(params, vec_data, draws):
     (
         const,
-        mu_beta_oth,
         mu_beta_ber,
-        log_sd_beta_oth,
+        mu_beta_pl,
         log_sd_beta_ber,
+        log_sd_beta_pl,
         alpha,
         sigma,
     ) = params
 
-    sd_beta_oth = np.exp(log_sd_beta_oth)
     sd_beta_ber = np.exp(log_sd_beta_ber)
+    sd_beta_pl = np.exp(log_sd_beta_pl)
 
     prices = vec_data["prices"]
     resids = vec_data["resids"]
@@ -404,10 +404,10 @@ def total_objective_rc_naive(params, vec_data, draws):
 
     n_draws = draws.shape[0]
 
-    b_oth_draws = mu_beta_oth + sd_beta_oth * draws[:, 0]
-    b_ber_draws = mu_beta_ber + sd_beta_ber * draws[:, 1]
+    b_ber_draws = mu_beta_ber + sd_beta_ber * draws[:, 0]
+    b_pl_draws = mu_beta_pl + sd_beta_pl * draws[:, 1]
 
-    beta_draws_matrix = np.column_stack([np.zeros(n_draws), b_oth_draws, b_ber_draws])
+    beta_draws_matrix = np.column_stack([np.zeros(n_draws), b_ber_draws, b_pl_draws])
 
     u_base = const + alpha * prices + sigma * resids
     u_inside = u_base[:, None, :] + beta_draws_matrix[None, :, :]
@@ -552,9 +552,9 @@ def estimate_rc_naive_model(vec_data, draws=GAMMA_DRAWS):
 # PART 2: FLAVOR SATIATION SPECIFICATIONS (WITH GAMMAS)
 # =========================================================
 def total_objective_flavor_gamma(params, vec_data):
-    const, beta_ber, beta_pl, g_oth, g_ber, alpha, sigma = params
+    const, beta_ber, beta_pl, g_ber, g_pl, alpha, sigma = params
     beta_vec = np.array([0.0, beta_ber, beta_pl])
-    gamma_vec = np.array([0.0, g_oth, g_ber])
+    gamma_vec = np.array([0.0, g_ber, g_pl])
 
     prices = vec_data["prices"]
     resids = vec_data["resids"]
@@ -574,22 +574,22 @@ def total_objective_flavor_gamma(params, vec_data):
 def total_objective_het_flavor_gamma(params, vec_data, draws):
     (
         const,
-        mu_beta_oth,
         mu_beta_ber,
-        mu_g_oth,
+        mu_beta_pl,
         mu_g_ber,
-        log_sd_beta_oth,
+        mu_g_pl,
         log_sd_beta_ber,
-        log_sd_g_oth,
+        log_sd_beta_pl,
         log_sd_g_ber,
+        log_sd_g_pl,
         alpha,
         sigma,
     ) = params
 
-    sd_beta_ber = np.exp(log_sd_beta_oth)
-    sd_beta_pl = np.exp(log_sd_beta_ber)
-    sd_g_oth = np.exp(log_sd_g_oth)
+    sd_beta_ber = np.exp(log_sd_beta_ber)
+    sd_beta_pl = np.exp(log_sd_beta_pl)
     sd_g_ber = np.exp(log_sd_g_ber)
+    sd_g_pl = np.exp(log_sd_g_pl)
 
     prices = vec_data["prices"]
     resids = vec_data["resids"]
@@ -598,13 +598,13 @@ def total_objective_het_flavor_gamma(params, vec_data, draws):
 
     n_draws = draws.shape[0]
 
-    b_oth_draws = mu_beta_oth + sd_beta_ber * draws[:, 0]
-    b_ber_draws = mu_beta_ber + sd_beta_pl * draws[:, 1]
-    g_oth_draws = mu_g_oth + sd_g_oth * draws[:, 2]
+    b_ber_draws = mu_beta_ber + sd_beta_ber * draws[:, 0]
+    b_pl_draws = mu_beta_pl + sd_beta_pl * draws[:, 1]
     g_ber_draws = mu_g_ber + sd_g_ber * draws[:, 3]
+    g_pl_draws = mu_g_pl + sd_g_pl * draws[:, 4]
 
-    beta_draws_matrix = np.column_stack([np.zeros(n_draws), b_oth_draws, b_ber_draws])
-    gamma_draws_matrix = np.column_stack([np.zeros(n_draws), g_oth_draws, g_ber_draws])
+    beta_draws_matrix = np.column_stack([np.zeros(n_draws), b_ber_draws, b_pl_draws])
+    gamma_draws_matrix = np.column_stack([np.zeros(n_draws), g_ber_draws, g_pl_draws])
 
     u_base = const + alpha * prices + sigma * resids
     u_inside = (
@@ -680,14 +680,14 @@ def estimate_het_flavor_gamma_model(vec_data, draws=GAMMA_DRAWS):
     x0 = np.array(
         [
             0.95,  # const
-            0.76,  # mu_beta_oth
-            1.39,  # mu_beta_ber
-            -0.20,  # mu_g_oth
-            -0.20,  # mu_g_ber
-            -2.30,  # log_sd_beta_oth
+            -0.76,  # mu_beta_ber
+            -1.39,  # mu_beta_pl
+            -0.15,  # mu_g_ber
+            -0.20,  # mu_g_pl
             -2.30,  # log_sd_beta_ber
-            -3.00,  # log_sd_g_oth
+            -2.30,  # log_sd_beta_pl
             -3.00,  # log_sd_g_ber
+            -3.00,  # log_sd_g_pl
             -0.98,  # alpha
             0.16,  # sigma
         ]
@@ -695,14 +695,14 @@ def estimate_het_flavor_gamma_model(vec_data, draws=GAMMA_DRAWS):
 
     bounds = [
         (-10.0, 10.0),  # const
-        (-10.0, 10.0),  # mu_beta_oth
         (-10.0, 10.0),  # mu_beta_ber
-        (-4.0, 2.0),  # mu_g_oth
-        (-4.0, 2.0),  # mu_g_ber
-        (-10.0, 5.0),  # log_sd_beta_oth
+        (-10.0, 10.0),  # mu_beta_pl
+        (-10.0, 2.0),  # mu_g_ber
+        (-10.0, 2.0),  # mu_g_pl
         (-10.0, 5.0),  # log_sd_beta_ber
-        (-10.0, 5.0),  # log_sd_g_oth
+        (-10.0, 5.0),  # log_sd_beta_pl
         (-10.0, 5.0),  # log_sd_g_ber
+        (-10.0, 5.0),  # log_sd_g_pl
         (-10.0, -0.01),  # alpha
         (-10.0, 10.0),  # sigma
     ]
@@ -747,7 +747,7 @@ def estimate_het_flavor_gamma_model(vec_data, draws=GAMMA_DRAWS):
 
     se_unconstrained = np.sqrt(np.maximum(0.0, np.diag(cov_unconstrained)))
 
-    sd_indices = [5, 6, 7, 8]
+    sd_indices = [6, 7, 8, 9, 10]
     reported_params = res.x.copy()
     reported_se = se_unconstrained.copy()
 
@@ -815,34 +815,32 @@ def display_results_with_wtp(
         wtp_table.add_column("WTP ($)", justify="right")
 
         if model_type == "flavor_gamma":
-            beta_oth, beta_ber = results["params"][1], results["params"][2]
-            g_oth, g_ber = (
+            beta_ber, beta_pl = results["params"][1], results["params"][2]
+            g_ber, g_pl = (
+                results["params"][2],
                 results["params"][3],
-                results["params"][4],
             )
 
             wtp_table.add_row(
-                "WTP: Other Flavors Preference (vs Other)",
-                f"${-beta_ber / alpha_val:.2f}",
+                "WTP: Berry Preference (vs Other)", f"${-beta_ber / alpha_val:.2f}"
             )
             wtp_table.add_row(
-                "WTP: Berry Preference (vs Plain)", f"${-beta_ber / alpha_val:.2f}"
-            )
-            wtp_table.add_row(
-                "WTP: Satiation Disutility (Other)", f"${-g_oth / alpha_val:.2f}"
+                "WTP: Plain Preference (vs Other)", f"${-beta_pl / alpha_val:.2f}"
             )
             wtp_table.add_row(
                 "WTP: Satiation Disutility (Berry)", f"${-g_ber / alpha_val:.2f}"
             )
+            wtp_table.add_row(
+                "WTP: Satiation Disutility (Plain)", f"${-g_pl / alpha_val:.2f}"
+            )
 
         elif model_type == "naive":
-            beta_oth, beta_ber = results["params"][1], results["params"][2]
+            beta_ber, beta_pl = results["params"][1], results["params"][2]
             wtp_table.add_row(
-                "WTP: Other Flavors Preference (vs Plain)",
-                f"${-beta_oth / alpha_val:.2f}",
+                "WTP: Berry Preference (vs Other)", f"${-beta_ber / alpha_val:.2f}"
             )
             wtp_table.add_row(
-                "WTP: Berry Preference (vs Plain)", f"${-beta_ber / alpha_val:.2f}"
+                "WTP: Plain Preference (vs Other)", f"${-beta_pl / alpha_val:.2f}"
             )
 
         console.print(wtp_table)
@@ -867,7 +865,7 @@ def main():
 
     console.print("\n--- Estimating Standard Logit (No Gammas) ---")
     res_naive = estimate_naive_model(vec_data)
-    p_names_naive = ["Constant", "beta_oth", "beta_ber", "Price", "Control Func."]
+    p_names_naive = ["Constant", "beta_ber", "beta_pl", "Price", "Control Func."]
     display_results_with_wtp(
         res_naive,
         title="STANDARD LOGIT (NO SATIATION)",
@@ -879,10 +877,10 @@ def main():
     res_rc_naive = estimate_rc_naive_model(vec_data, draws=GAMMA_DRAWS)
     rc_p_names_naive = [
         "Constant",
-        "Mean beta_other",
         "Mean beta_berry",
-        "SD beta_other",
+        "Mean beta_plain",
         "SD beta_berry",
+        "SD beta_plain",
         "Price",
         "Control Func.",
     ]
@@ -910,10 +908,10 @@ def main():
     res_flavor_gamma = estimate_flavor_gamma_model(vec_data)
     p_names_gamma = [
         "Constant",
-        "beta_oth",
         "beta_ber",
-        "gamma_other",
+        "beta_pl",
         "gamma_berry",
+        "gamma_plain",
         "Price",
         "Control Func.",
     ]
@@ -930,14 +928,14 @@ def main():
     res_rc_flavor_gamma = estimate_het_flavor_gamma_model(vec_data, draws=GAMMA_DRAWS)
     rc_p_names_gamma = [
         "Constant",
-        "Mean beta_other",
         "Mean beta_berry",
-        "Mean gamma_other",
+        "Mean beta_plain",
         "Mean gamma_berry",
-        "SD beta_other",
+        "Mean gamma_plain",
         "SD beta_berry",
-        "SD gamma_other",
+        "SD beta_plain",
         "SD gamma_berry",
+        "SD gamma_plain",
         "Price",
         "Control Func.",
     ]

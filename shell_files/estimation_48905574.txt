@@ -1,0 +1,29 @@
+From github.com:tate-mason/LOV_CC_2YP
+   66024b9..c62164a  main       -> origin/main
+Updating 66024b9..c62164a
+Fast-forward
+ Code/full_draft_1231/est_step2.py | 14 +++++---------
+ 1 file changed, 5 insertions(+), 9 deletions(-)
+╭───────────────────── Traceback (most recent call last) ──────────────────────╮
+│ /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/full_draft_1231/est_step2.py:7 │
+│ 31 in <module>                                                               │
+│                                                                              │
+│   728                                                                        │
+│   729                                                                        │
+│   730 if __name__ == "__main__":                                             │
+│ ❱ 731 │   main()                                                             │
+│   732                                                                        │
+│                                                                              │
+│ /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/full_draft_1231/est_step2.py:6 │
+│ 70 in main                                                                   │
+│                                                                              │
+│   667                                                                        │
+│   668                                                                        │
+│   669 def main():                                                            │
+│ ❱ 670 │   hh_packed_data, vec_data = load_and_preprocess(inside_only=True)   │
+│   671 │                                                                      │
+│   672 │   console.print(                                                     │
+│   673 │   │   "\n[bold yellow]============================================== │
+╰──────────────────────────────────────────────────────────────────────────────╯
+TypeError: load_and_preprocess() got an unexpected keyword argument 
+'inside_only'

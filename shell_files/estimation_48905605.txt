@@ -1,0 +1,83 @@
+Already up to date.
+
+=====================================================
+          PANEL SAMPLE HOUSEHOLD SUMMARY             
+=====================================================
+Total Unique Households:       998
+Total Choice Observations:     3,991
+Mean Purchase Weeks / HH:      4.00
+=====================================================
+
+
+=====================================================
+ STEP 2: PRODUCT-SPECIFIC GAMMAS & WTP ESTIMATION    
+=====================================================
+
+--- Estimating Standard Flavor-Specific Satiation Logit ---
+/scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/full_draft_1231/est_step2.py:466: RuntimeWarning: invalid value encountered in sqrt
+  se = np.sqrt(np.diag(np.linalg.inv(hessian)))
+                STANDARD FLAVOR SATIATION LOGIT                 
+┏━━━━━━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━━━━┓
+┃ Parameter     ┃ Estimate ┃ Std. Error ┃  z-stat ┃    p-value ┃
+┡━━━━━━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━━━━━┩
+│ Constant      │   0.9541 │     0.0396 │  24.102 │ 0.0000 *** │
+│ beta_ber      │  -0.7781 │     0.0126 │ -61.568 │ 0.0000 *** │
+│ beta_pl       │  -1.4094 │     0.0179 │ -78.652 │ 0.0000 *** │
+│ gamma_other   │ -28.5810 │         NA │      NA │         NA │
+│ gamma_berry   │  -0.0914 │     0.0238 │  -3.835 │ 0.0001 *** │
+│ gamma_plain   │  -0.0284 │     0.0192 │  -1.480 │     0.1390 │
+│ Price         │  -0.9757 │     0.0298 │ -32.688 │ 0.0000 *** │
+│ Control Func. │   0.1662 │     0.0291 │   5.707 │ 0.0000 *** │
+└───────────────┴──────────┴────────────┴─────────┴────────────┘
+Optimization Success: True
+Final LL Objective: 71712.7137
+ STANDARD FLAVOR SATIATION LOGIT - WILLINGNESS 
+               TO PAY (WTP in $)               
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━┓
+┃ Attribute / Parameter             ┃ WTP ($) ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━┩
+│ WTP: Berry Preference (vs Other)  │  $-0.80 │
+│ WTP: Plain Preference (vs Other)  │  $-1.44 │
+│ WTP: Satiation Disutility (Other) │ $-29.29 │
+│ WTP: Satiation Disutility (Berry) │  $-0.09 │
+│ WTP: Satiation Disutility (Plain) │  $-0.03 │
+└───────────────────────────────────┴─────────┘
+
+
+
+--- Estimating Random-Coefficient Flavor-Specific Satiation Logit ---
+/scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/full_draft_1231/est_step2.py:566: RuntimeWarning: divide by zero encountered in divide
+  z = reported_params / reported_se
+             RANDOM COEFFICIENT FLAVOR SATIATION LOGIT             
+┏━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━━━━┓
+┃ Parameter        ┃ Estimate ┃ Std. Error ┃  z-stat ┃    p-value ┃
+┡━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━━━━━┩
+│ Constant         │   0.9529 │     0.0396 │  24.052 │ 0.0000 *** │
+│ Mean beta_berry  │  -0.7725 │     0.0129 │ -59.954 │ 0.0000 *** │
+│ Mean beta_plain  │  -1.4137 │     0.0243 │ -58.143 │ 0.0000 *** │
+│ Mean gamma_other │  -5.0000 │     0.7897 │  -6.331 │ 0.0000 *** │
+│ Mean gamma_berry │  -0.1173 │     0.0000 │    -inf │ 0.0000 *** │
+│ Mean gamma_plain │  -0.0456 │     0.0232 │  -1.968 │  0.0491 ** │
+│ SD beta_berry    │   0.0829 │     0.0590 │   1.405 │     0.1601 │
+│ SD beta_plain    │   0.0902 │     0.0955 │   0.944 │     0.3450 │
+│ SD gamma_other   │   0.0383 │     0.0000 │     inf │ 0.0000 *** │
+│ SD gamma_berry   │   0.0611 │     0.0000 │     inf │ 0.0000 *** │
+│ SD gamma_plain   │   0.0428 │     0.0192 │   2.230 │  0.0257 ** │
+│ Price            │  -0.9797 │     0.0299 │ -32.786 │ 0.0000 *** │
+│ Control Func.    │   0.1667 │     0.0291 │   5.722 │ 0.0000 *** │
+└──────────────────┴──────────┴────────────┴─────────┴────────────┘
+Optimization Success: True
+Final LL Objective: 71762.3266
+  RANDOM COEFFICIENT FLAVOR SATIATION LOGIT -  
+         WILLINGNESS TO PAY (WTP in $)         
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━┓
+┃ Attribute / Parameter             ┃ WTP ($) ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━┩
+│ WTP: Berry Preference (vs Other)  │  $-0.79 │
+│ WTP: Plain Preference (vs Other)  │  $-1.44 │
+│ WTP: Satiation Disutility (Other) │  $-5.10 │
+│ WTP: Satiation Disutility (Berry) │  $-0.12 │
+│ WTP: Satiation Disutility (Plain) │  $-0.05 │
+└───────────────────────────────────┴─────────┘
+
+

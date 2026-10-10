@@ -1,4 +1,3 @@
-from numba.cuda import const
 import pandas as pd
 import polars as pl
 
@@ -299,6 +298,32 @@ def load_and_preprocess(weekly_capacity=14):
                     "log_income": log_inc,
                 }
 
+    n_hh = len(hh_packed_data)
+    total_obs = sum(len(hh["choices"]) for hh in hh_packed_data.values())
+    avg_obs_per_hh = total_obs / float(n_hh) if n_hh > 0 else 0.0
+
+    console.print(
+        "\n[bold green]======================================================================[/bold green]"
+    )
+    console.print(
+        "[bold green]                  PANEL SAMPLE HH SUMMARY                               [/bold green]"
+    )
+    console.print(
+        "\n[bold green]======================================================================[/bold green]"
+    )
+    console.print(
+        f"[bold white]Total Unique HH:[/bold white]       [bold cyan]{n_hh:,}[/bold cyan]"
+    )
+    console.print(
+        f"[bold white]Total Choice Obs:[/bold white]      [bold cyan]{total_obs:,}[/bold cyan]"
+    )
+    console.print(
+        f"[bold white]Mean Weeks / HH: [/bold white]      [bold cyan]{avg_obs_per_hh:.2f}[/bold cyan]"
+    )
+    console.print(
+        "\n[bold green]======================================================================[/bold green]"
+    )
+
     all_inside_units = [
         np.sum(hh_data["choices"][t][:3])
         for hh_data in hh_packed_data.values()
@@ -380,6 +405,172 @@ def load_and_preprocess(weekly_capacity=14):
     }
 
     return hh_packed_data, vec_data
+
+
+def total_objective_naive(params, vec_data):
+    const, beta_ber, beta_pl, alpha, sigma = params
+    beta_vec = np.array([0.0, beta_ber, beta_pl])
+
+    prices = vec_data["prices"]
+    resids = vec_data["resids"]
+    choices = vec_data["choices"]
+
+    u_inside = const + beta_vec + alpha * prices + sigma * resids
+    u_out = np.zeros((u_inside.shape[0], 1))
+    u = np.hstack([u_inside, u_out])
+
+    log_probs = u - logsumexp(u, axis=1, keepdims=True)
+    total_ll = np.sum(log_probs * choices)
+    return -total_ll if np.isfinite(total_ll) else 1e10
+
+
+def total_objective_het_naive(params, vec_data, draws):
+    (const, mu_beta_ber, mu_beta_pl, sd_beta_ber, sd_beta_pl, alpha, sigma) = params
+
+    prices = vec_data["prices"]
+    resids = vec_data["resids"]
+    choices = vec_data["choices"]
+
+    n_draws = draws.shape[0]
+
+    b_ber_draws = mu_beta_ber + n_draws * sd_beta_ber
+    b_pl_draws = mu_beta_pl + n_draws * sd_beta_pl
+    beta_draws_matrix = np.column_stack([np.zeros(n_draws), b_ber_draws, b_pl_draws])
+
+    u_base = const + alpha * prices + sigma * resids
+    u_inside = u_base[:, None, :] + beta_draws_matrix[None, :, :]
+    u_out = np.zeros((u_inside.shape[0], n_draws, 1))
+    u = np.concatenate([u_inside, u_out], axis=2)
+
+    log_probs = u - logsumexp(u, axis=2, keepdims=True)
+    obs_ll = logsumexp(log_probs, axis=1) - np.log(n_draws)
+    total_ll = np.sum(choices * obs_ll)
+
+    return -total_ll if np.isfinite(total_ll) else 1e10
+
+
+def estimate_naive(vec_data):
+    x0 = np.array([0.0, 0.0, 0.0, -0.5, 0.0])
+    bounds = [(None, None)] * 3 + [(None, 0.0), (None, None)]
+
+    res = minimize(
+        total_objective_naive,
+        x0=x0,
+        args=(vec_data,),
+        method="L-BFGS-B",
+        bounds=bounds,
+        options={"ftol": 1e-8, "gtol": 1e-6},
+    )
+
+    eps = 1e-6
+    n = len(res.x)
+    hessian = np.zeros((n, n))
+    for i in range(n):
+        for j in range(i, n):
+            x1, x2, x3, x4 = res.x.copy(), res.x.copy(), res.x.copy(), res.x.copy()
+            x1[i] += eps
+            x1[j] += eps
+            x2[i] += eps
+            x2[j] -= eps
+            x3[i] -= eps
+            x3[j] += eps
+            x4[i] -= eps
+            x4[j] -= eps
+
+            f1 = total_objective_naive(x1, vec_data)
+            f2 = total_objective_naive(x2, vec_data)
+            f3 = total_objective_naive(x3, vec_data)
+            f4 = total_objective_naive(x4, vec_data)
+
+            hessian[i, j] = (f1 - f2 - f3 + f4) / (4 * eps * eps)
+            hessian[j, i] = hessian[i, j]
+
+    try:
+        se = np.sqrt(np.diag(np.linalg.inv(hessian)))
+    except np.linalg.LinAlgError:
+        se = np.full(n, np.nan)
+
+    z = res.x / se
+    p = 2 * (1 - sp.stats.norm.cdf(np.abs(z)))
+
+    return {
+        "params": res.x,
+        "se": se,
+        "z_stat": z,
+        "p_value": p,
+        "success": res.success,
+        "fun": res.fun,
+    }
+
+
+def estimate_het_naive(vec_data, draws=GAMMA_DRAWS):
+    x0 = np.array(
+        [
+            0.95,
+            -0.76,
+            -1.42,
+            0.10,
+            0.09,
+            -0.98,
+            0.17,
+        ]
+    )
+    bounds = [
+        (-5.0, 5.0),
+        (-5.0, 5.0),
+        (-5.0, 5.0),
+        (0.001, 3.0),
+        (0.001, 3.0),
+        (-5.0, -0.01),
+        (-5.0, 5.0),
+    ]
+    res = minimize(
+        total_objective_het_naive,
+        x0=x0,
+        args=(vec_data, draws),
+        method="L-BFGS-B",
+        bounds=bounds,
+        options={"ftol": 1e-8, "gtol": 1e-6},
+    )
+
+    eps = 1e-6
+    n = len(res.x)
+    hessian = np.zeros((n, n))
+    for i in range(n):
+        for j in range(i, n):
+            x1, x2, x3, x4 = res.x.copy(), res.x.copy(), res.x.copy(), res.x.copy()
+            x1[i] += eps
+            x1[j] += eps
+            x2[i] += eps
+            x2[j] -= eps
+            x3[i] -= eps
+            x3[j] += eps
+            x4[i] -= eps
+            x4[j] -= eps
+
+            f1 = total_objective_het_naive(x1, vec_data, draws)
+            f2 = total_objective_het_naive(x2, vec_data, draws)
+            f3 = total_objective_het_naive(x3, vec_data, draws)
+            f4 = total_objective_het_naive(x4, vec_data, draws)
+
+            hessian[i, j] = (f1 - f2 - f3 + f4) / (4 * eps * eps)
+            hessian[j, i] = hessian[i, j]
+    try:
+        se = np.sqrt(np.diag(np.linalg.inv(hessian)))
+    except np.linalg.LinAlgError:
+        se = np.full(n, np.nan)
+
+    z = res.x / se
+    p = 2 * (1 - sp.stats.norm.cdf(np.abs(z)))
+
+    return {
+        "params": res.x,
+        "se": se,
+        "z_stat": z,
+        "p_value": p,
+        "success": res.success,
+        "fun": res.fun,
+    }
 
 
 def total_objective(params, vec_data):
@@ -573,7 +764,7 @@ def estimate_het_model(vec_data, draws=GAMMA_DRAWS):
     }
 
 
-def display_results(results, title="SATIATION SPECIFICATION RESULTS", param_names=None):
+def display_results(results, title="SPECIFICATION RESULTS", param_names=None):
     if param_names is None:
         param_names = [
             "Constant",
@@ -618,10 +809,12 @@ def display_results(results, title="SATIATION SPECIFICATION RESULTS", param_name
 
     console.print(table)
     console.print(f"[bold]Optimization Success:[/bold] {results['success']}")
-    console.print(f"[bold]Final LL Objective:[/bold] {results['fun']:.4f}")
+    console.print(f"[bold]Final LL Objective:[/bold] {results['fun']:.4f}\n")
 
 
-def extract_and_plot_types(vec_data, hh_packed_data, est_params, draws):
+def extract_and_plot_types(
+    vec_data, hh_packed_data, est_params, draws, filename="type_dist_clean.pdf"
+):
     (
         const,
         mu_beta_ber,
@@ -681,23 +874,103 @@ def extract_and_plot_types(vec_data, hh_packed_data, est_params, draws):
 
     df_types = pd.DataFrame(hh_posterior_means)
 
-    fig, axes = plt.subplots(1, 3, figsize=(16, 4.5))
-    sns.set_theme(style="whitegrid")
+    # Clean 2x2 Grid Visualization Layout
+    sns.set_theme(style="white", palette="muted")
+    fig, axes = plt.subplots(2, 2, figsize=(12, 9))
 
-    sns.histplot(df_types["beta_berry"], kde=True, ax=axes[0], color="crimson")
-    axes[0].set_title("Distribution of $\\beta_{i, \\text{berry}}$")
-    axes[0].set_xlabel("Berry Preference (rel. outside + other")
+    # 1. Berry Distribution
+    sns.histplot(
+        df_types["beta_berry"],
+        kde=True,
+        ax=axes[0, 0],
+        color="#d62728",
+        bins=25,
+        edgecolor="none",
+        alpha=0.6,
+    )
+    axes[0, 0].axvline(
+        df_types["beta_berry"].median(),
+        color="#8c564b",
+        linestyle="--",
+        linewidth=1.5,
+        label="Median",
+    )
+    axes[0, 0].set_title(
+        r"Posterior Distribution: $\beta_{i, \text{berry}}$",
+        fontsize=12,
+        fontweight="bold",
+    )
+    axes[0, 0].set_xlabel("Berry Preference Index")
+    axes[0, 0].legend(frameon=True)
 
-    sns.histplot(df_types["beta_plain"], kde=True, ax=axes[1], color="royalblue")
-    axes[1].set_title("Distribution of $\\beta_{i, \\text{plain}}$")
-    axes[1].set_xlabel("Plain Preference (rel. outside + other")
+    # 2. Plain Distribution
+    sns.histplot(
+        df_types["beta_plain"],
+        kde=True,
+        ax=axes[0, 1],
+        color="#1f77b4",
+        bins=25,
+        edgecolor="none",
+        alpha=0.6,
+    )
+    axes[0, 1].axvline(
+        df_types["beta_plain"].median(),
+        color="#8c564b",
+        linestyle="--",
+        linewidth=1.5,
+        label="Median",
+    )
+    axes[0, 1].set_title(
+        r"Posterior Distribution: $\beta_{i, \text{plain}}$",
+        fontsize=12,
+        fontweight="bold",
+    )
+    axes[0, 1].set_xlabel("Plain Preference Index")
+    axes[0, 1].legend(frameon=True)
 
-    sns.histplot(df_types["gamma"], kde=True, ax=axes[1], color="forestgreen")
-    axes[2].set_title("Distribution of $\\gamma_{i}$")
-    axes[2].set_xlabel("Satiation Coefficient $\\gamma$")
+    # 3. Gamma Distribution
+    sns.histplot(
+        df_types["gamma"],
+        kde=True,
+        ax=axes[1, 0],
+        color="#2ca02c",
+        bins=25,
+        edgecolor="none",
+        alpha=0.6,
+    )
+    axes[1, 0].axvline(
+        df_types["gamma"].median(),
+        color="#8c564b",
+        linestyle="--",
+        linewidth=1.5,
+        label="Median",
+    )
+    axes[1, 0].set_title(
+        r"Posterior Distribution: Satiation $\gamma_i$", fontsize=12, fontweight="bold"
+    )
+    axes[1, 0].set_xlabel("Satiation Coefficient")
+    axes[1, 0].legend(frameon=True)
+
+    # 4. Joint Preference Scatter
+    sns.scatterplot(
+        data=df_types,
+        x="beta_berry",
+        y="beta_plain",
+        hue="gamma",
+        palette="viridis",
+        ax=axes[1, 1],
+        alpha=0.8,
+    )
+    axes[1, 1].set_title(
+        r"Joint Distribution ($\beta_{\text{berry}}$ vs $\beta_{\text{plain}}$)",
+        fontsize=12,
+        fontweight="bold",
+    )
+    axes[1, 1].set_xlabel("Berry Preference")
+    axes[1, 1].set_ylabel("Plain Preference")
 
     plt.tight_layout()
-    plt.savefig(OUT_PATH + "type_dist_1007.pdf", dpi=300)
+    plt.savefig(OUT_PATH + filename, dpi=300)
     plt.close()
 
     return df_types
@@ -706,15 +979,66 @@ def extract_and_plot_types(vec_data, hh_packed_data, est_params, draws):
 def main():
     hh_packed_data, vec_data = load_and_preprocess()
 
-    # 1. Standard Logit Estimation
+    # =========================================================
+    # PART 1: MODELS WITHOUT GAMMA (BASE MODEL BENCHMARK)
+    # =========================================================
+    console.print(
+        "\n[bold yellow]=====================================================[/bold yellow]"
+    )
+    console.print(
+        "[bold yellow]       PART 1: SPECIFICATIONS WITHOUT GAMMA          [/bold yellow]"
+    )
+    console.print(
+        "[bold yellow]=====================================================[/bold yellow]"
+    )
+
+    # 1A. Standard Logit (No Gamma)
+    console.print("\n--- Estimating Standard Logit (No Gamma) ---")
+    results_no_gamma = estimate_model_no_gamma(vec_data)
+    no_gamma_params = ["Constant", "beta_ber", "beta_pl", "Price", "Control Func."]
+    display_results(
+        results_no_gamma, title="STANDARD LOGIT (NO GAMMA)", param_names=no_gamma_params
+    )
+
+    # 1B. Random Coefficient Logit (No Gamma)
+    console.print("\n--- Estimating Random Coefficient Logit (No Gamma) ---")
+    rc_results_no_gamma = estimate_het_model_no_gamma(vec_data, draws=GAMMA_DRAWS)
+    rc_no_gamma_params = [
+        "Constant",
+        "Mean beta_berry",
+        "Mean beta_plain",
+        "SD beta_berry",
+        "SD beta_plain",
+        "Price",
+        "Control Func.",
+    ]
+    display_results(
+        rc_results_no_gamma,
+        title="RANDOM COEFFICIENT LOGIT (NO GAMMA)",
+        param_names=rc_no_gamma_params,
+    )
+
+    # =========================================================
+    # PART 2: MODELS WITH GAMMA (FULL SATIATION SPECIFICATION)
+    # =========================================================
+    console.print(
+        "\n[bold yellow]=====================================================[/bold yellow]"
+    )
+    console.print(
+        "[bold yellow]       PART 2: SPECIFICATIONS WITH GAMMA (SATIATION) [/bold yellow]"
+    )
+    console.print(
+        "[bold yellow]=====================================================[/bold yellow]"
+    )
+
+    # 2A. Standard Satiation Logit
     console.print("\n--- Estimating Standard Satiation Logit ---")
     results = estimate_model(vec_data)
     display_results(results, title="STANDARD SATIATION LOGIT")
 
-    # 2. Random Coefficient Logit Estimation
-    console.print("\n--- Estimating Random Coefficient for LOV ---")
+    # 2B. Random Coefficient Satiation Logit
+    console.print("\n--- Estimating Random Coefficient Satiation Logit ---")
     rc_results = estimate_het_model(vec_data, draws=GAMMA_DRAWS)
-
     rc_params = [
         "Constant",
         "Mean beta_berry",
@@ -726,9 +1050,13 @@ def main():
         "Price",
         "Control Func.",
     ]
-    display_results(rc_results, title="RANDOM COEFFICIENT LOGIT", param_names=rc_params)
+    display_results(
+        rc_results, title="RANDOM COEFFICIENT SATIATION LOGIT", param_names=rc_params
+    )
 
-    # 3. Extract Posterior Household Types (Only if optimization succeeded)
+    # =========================================================
+    # PART 3: EXTRACT AND SAVE HOUSEHOLD POSTERIOR TYPES
+    # =========================================================
     if rc_results["success"]:
         console.print("\n--- Extracting Household Posterior Types ---")
         df_types = extract_and_plot_types(
@@ -736,19 +1064,18 @@ def main():
             hh_packed_data,
             rc_results["params"],
             draws=GAMMA_DRAWS,
+            filename="type_dist_clean.pdf",
         )
 
-        # Print summary table of estimated individual distributions
         console.print("\n[bold yellow]--- HOUSEHOLD TYPE SUMMARY ---[/bold yellow]")
         console.print(
             df_types[["beta_berry", "beta_plain", "gamma"]].describe().to_string()
         )
 
-        # Save types for downstream counterfactual analysis
         out_parquet = OUT_PATH + "hh_posterior_types.parquet"
         df_types.to_parquet(out_parquet)
         console.print(
-            f"\n[bold green]Saved household types to:[/bold green] {out_parquet}"
+            f"\n[bold green]Saved household posterior types to:[/bold green] {out_parquet}"
         )
     else:
         console.print(

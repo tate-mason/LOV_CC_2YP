@@ -6,13 +6,15 @@ from scipy.optimize import minimize
 # Model Parameters
 # ==========================================================
 
-beta_0 = np.array([2.5, 2.0])
-gamma_H = 1.2
-gamma_L = 0.2
+beta_0 = np.array([2.2, 2.0])
+gamma_H = 2.0
+gamma_L = 0.1
 alpha = -1.5
 delta = 0.95
-costs = np.array([1.0, 1.2])
+costs = np.array([1.2, 1.0])
 J = len(costs)
+
+init_state_dist = np.array([0.5, 0.5])
 
 PRICE_MIN = 1.0
 PRICE_MAX = 8.0
@@ -29,11 +31,9 @@ def logit_probs(V):
     return np.array(probs[1:]), float(probs[0])
 
 
-def val_p1(p):
-    return beta_0 + alpha * p
+def val_state(p, prev_j, gamma_r):
+    """UTILITY WITH INITIAL STATE j_0"""
 
-
-def val_p2(p, prev_j, gamma_r):
     switching = np.array([0.0 if k == prev_j else 1.0 for k in range(J)])
     return beta_0 + gamma_r * switching + alpha * p
 
@@ -57,13 +57,17 @@ def solve_perfect_info(l1):
         for r_idx, t in enumerate(types):
             if t["w"] == 0:
                 continue
-            s1, _ = logit_probs(val_p1(p1[r_idx]))
+            s1 = np.zeros(J)
+            for j0 in range(J):
+                V1_j0 = val_state(p1[r_idx], j0, t["g"])
+                s1_j0, _ = logit_probs(V1_j0)
+                s1 += init_state_dist[j0] * s1_j0
+
             m1 = p1[r_idx] - costs
             pi1 = np.sum(s1 * m1)
-
             pi2 = 0.0
             for j in range(J):
-                V2 = val_p2(p2[r_idx, j], j, t["g"])
+                V2 = val_state(p2[r_idx, j], j, t["g"])
                 s2, _ = logit_probs(V2)
                 m2 = p2[r_idx, j] - costs
                 pi2 += s1[j] * np.sum(s2 * m2)
@@ -77,11 +81,11 @@ def solve_perfect_info(l1):
             np.tile(costs + 1.2, (2, J, 1)).flatten(),
         ]
     )
-
     bounds = [(PRICE_MIN, PRICE_MAX)] * len(init_p)
     res = minimize(obj, init_p, method="L-BFGS-B", bounds=bounds)
     p1_opt = res.x[: 2 * J].reshape((2, J))
     p2_opt = res.x[2 * J :].reshape((2, J, J))
+
     return p1_opt, p2_opt, -res.fun
 
 
@@ -92,8 +96,14 @@ def solve_imperfect_info(l1):
         p1 = params[:J]
         p2 = params[J:].reshape((J, J))
 
-        s1_H, _ = logit_probs(val_p1(p1))
-        s1_L, _ = logit_probs(val_p1(p1))
+        s1_H = np.zeros(J)
+        s1_L = np.zeros(J)
+
+        for j0 in range(J):
+            s1_H_j0, _ = logit_probs(val_state(p1, j0, gamma_H))
+            s1_L_j0, _ = logit_probs(val_state(p1, j0, gamma_L))
+            s1_H += init_state_dist[j0] * s1_H_j0
+            s1_L += init_state_dist[j0] * s1_L_j0
 
         s1_tilde = l1 * s1_H + (1.0 - l1) * s1_L
         pi1 = np.sum(s1_tilde * (p1 - costs))
@@ -102,8 +112,8 @@ def solve_imperfect_info(l1):
         for j in range(J):
             l2_j = (l1 * s1_H[j]) / s1_tilde[j]
 
-            s2_H, _ = logit_probs(val_p2(p2[j], j, gamma_H))
-            s2_L, _ = logit_probs(val_p2(p2[j], j, gamma_L))
+            s2_H, _ = logit_probs(val_state(p2[j], j, gamma_H))
+            s2_L, _ = logit_probs(val_state(p2[j], j, gamma_L))
 
             s2_tilde = l2_j * s2_H + (1.0 - l2_j) * s2_L
             pi2 += s1_tilde[j] * np.sum(s2_tilde * ([p2[j] - costs]))
@@ -136,8 +146,15 @@ for l1, composition_label in population_compositions:
     perf_p1, perf_p2, perf_prof = solve_perfect_info(l1)
     imperf_p1, imperf_p2, imperf_prof = solve_imperfect_info(l1)
 
-    s1_H, _ = logit_probs(val_p1(imperf_p1))
-    s1_L, _ = logit_probs(val_p1(imperf_p1))
+    s1_H = np.zeros(J)
+    s1_L = np.zeros(J)
+
+    for j0 in range(J):
+        s1_H_j0, _ = logit_probs(val_state(imperf_p1, j0, gamma_H))
+        s1_L_j0, _ = logit_probs(val_state(imperf_p1, j0, gamma_L))
+        s1_H += init_state_dist[j0] * s1_H_j0
+        s1_L += init_state_dist[j0] * s1_L_j0
+
     s1_tilde = l1 * s1_H + (1.0 - l1) * s1_L
     theo_l2 = (l1 * s1_H) / s1_tilde
 

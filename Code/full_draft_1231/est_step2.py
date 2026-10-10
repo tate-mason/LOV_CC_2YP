@@ -79,21 +79,36 @@ def compute_satiation_state(
 
 
 def load_and_preprocess(weekly_capacity=14):
-    merged_df = (
-        pl.scan_parquet(MERGED_PATH)
-        .with_columns(
-            [
-                pl.col("quantity").cast(pl.Int64),
-                pl.col("head_age").cast(pl.Int64),
-                pl.col("household_income").cast(pl.Int64),
-                pl.col("household_size").cast(pl.Int64),
-                pl.col("serving_per_container_cd").cast(pl.Int64),
-                pl.col("product_module_code_hms").cast(pl.Int64),
-                pl.col("price").cast(pl.Float64),
-            ]
+    schema_names = pl.scan_parquet(MERGED_PATH).collect_schema().names()
+
+    exprs = [
+        pl.col("quantity").cast(pl.Int64),
+        pl.col("head_age").cast(pl.Int64),
+        pl.col("household_income").cast(pl.Int64),
+        pl.col("household_size").cast(pl.Int64),
+        pl.col("serving_per_container_cd").cast(pl.Int64),
+    ]
+
+    if "product_module_code_hms" in schema_names:
+        exprs.append(pl.col("product_module_code_hms").cast(pl.Int64))
+
+    if "price" in schema_names:
+        exprs.append(pl.col("price").cast(pl.Float64))
+    elif "total_price_paid" in schema_names:
+        exprs.append(
+            (
+                pl.col("total_price_paid").cast(pl.Float64)
+                / pl.col("quantity").cast(pl.Float64)
+            ).alias("price")
         )
-        .filter(pl.col("product_module_code_hms").is_in([3612, 3603]))
-        .filter(pl.col("household_size") == 1)
+
+    scan_q = pl.scan_parquet(MERGED_PATH).with_columns(exprs)
+
+    if "product_module_code_hms" in schema_names:
+        scan_q = scan_q.filter(pl.col("product_module_code_hms").is_in([3612, 3603]))
+
+    merged_df = (
+        scan_q.filter(pl.col("household_size") == 1)
         .filter(pl.col("serving_per_container_cd").is_in([67181961, 65622705]))
         .collect()
         .to_pandas()
@@ -349,7 +364,192 @@ def load_and_preprocess(weekly_capacity=14):
 
 
 # =========================================================
-# PRODUCT-SPECIFIC GAMMAS & WTP ESTIMATION
+# PART 1: NAIVE SPECIFICATIONS (NO SATIATION / NO GAMMA)
+# =========================================================
+def total_objective_naive(params, vec_data):
+    const, beta_ber, beta_pl, alpha, sigma = params
+    beta_vec = np.array([0.0, beta_ber, beta_pl])
+
+    prices = vec_data["prices"]
+    resids = vec_data["resids"]
+    choices = vec_data["choices"]
+
+    u_inside = const + beta_vec + alpha * prices + sigma * resids
+    u_outside = np.zeros((u_inside.shape[0], 1))
+    u = np.hstack([u_inside, u_outside])
+
+    log_probs = u - logsumexp(u, axis=1, keepdims=True)
+    total_ll = np.sum(log_probs * choices)
+
+    return -total_ll if np.isfinite(total_ll) else 1e10
+
+
+def total_objective_rc_naive(params, vec_data, draws):
+    (
+        const,
+        mu_beta_ber,
+        mu_beta_pl,
+        log_sd_beta_ber,
+        log_sd_beta_pl,
+        alpha,
+        sigma,
+    ) = params
+
+    sd_beta_ber = np.exp(log_sd_beta_ber)
+    sd_beta_pl = np.exp(log_sd_beta_pl)
+
+    prices = vec_data["prices"]
+    resids = vec_data["resids"]
+    choices = vec_data["choices"]
+
+    n_draws = draws.shape[0]
+
+    b_ber_draws = mu_beta_ber + sd_beta_ber * draws[:, 0]
+    b_pl_draws = mu_beta_pl + sd_beta_pl * draws[:, 1]
+
+    beta_draws_matrix = np.column_stack([np.zeros(n_draws), b_ber_draws, b_pl_draws])
+
+    u_base = const + alpha * prices + sigma * resids
+    u_inside = u_base[:, None, :] + beta_draws_matrix[None, :, :]
+    u_out = np.zeros((u_inside.shape[0], n_draws, 1))
+    u = np.concatenate([u_inside, u_out], axis=2)
+
+    log_probs = u - logsumexp(u, axis=2, keepdims=True)
+    obs_ll = logsumexp(log_probs, axis=1) - np.log(n_draws)
+    total_ll = np.sum(choices * obs_ll)
+
+    return -total_ll if np.isfinite(total_ll) else 1e10
+
+
+def estimate_naive_model(vec_data):
+    x0 = np.array([0.0, 0.0, 0.0, -0.5, 0.0])
+    bounds = [(None, None)] * 3 + [(None, 0.0), (None, None)]
+
+    res = minimize(
+        total_objective_naive,
+        x0=x0,
+        args=(vec_data,),
+        method="L-BFGS-B",
+        bounds=bounds,
+        options={"ftol": 1e-8, "gtol": 1e-5},
+    )
+
+    eps = 1e-5
+    n = len(res.x)
+    hessian = np.zeros((n, n))
+    for i in range(n):
+        for j in range(i, n):
+            x1, x2, x3, x4 = res.x.copy(), res.x.copy(), res.x.copy(), res.x.copy()
+            x1[i] += eps
+            x1[j] += eps
+            x2[i] += eps
+            x2[j] -= eps
+            x3[i] -= eps
+            x3[j] += eps
+            x4[i] -= eps
+            x4[j] -= eps
+
+            f1 = total_objective_naive(x1, vec_data)
+            f2 = total_objective_naive(x2, vec_data)
+            f3 = total_objective_naive(x3, vec_data)
+            f4 = total_objective_naive(x4, vec_data)
+
+            hessian[i, j] = (f1 - f2 - f3 + f4) / (4 * eps * eps)
+            hessian[j, i] = hessian[i, j]
+
+    try:
+        se = np.sqrt(np.diag(np.linalg.inv(hessian)))
+    except np.linalg.LinAlgError:
+        se = np.full(n, np.nan)
+
+    z = res.x / se
+    p = 2 * (1 - sp.stats.norm.cdf(np.abs(z)))
+
+    return {
+        "params": res.x,
+        "se": se,
+        "z_stat": z,
+        "p_val": p,
+        "success": res.success,
+        "fun": res.fun,
+    }
+
+
+def estimate_rc_naive_model(vec_data, draws=GAMMA_DRAWS):
+    x0 = np.array([0.95, -0.76, -1.39, -2.30, -2.30, -0.98, 0.16])
+    bounds = [
+        (-10.0, 10.0),
+        (-10.0, 10.0),
+        (-10.0, 10.0),
+        (-10.0, 5.0),
+        (-10.0, 5.0),
+        (-10.0, -0.01),
+        (-10.0, 10.0),
+    ]
+
+    res = minimize(
+        total_objective_rc_naive,
+        x0=x0,
+        args=(vec_data, draws),
+        method="L-BFGS-B",
+        bounds=bounds,
+        options={"ftol": 1e-7, "gtol": 1e-5, "maxiter": 1000},
+    )
+
+    eps = 1e-4
+    n = len(res.x)
+    hessian = np.zeros((n, n))
+
+    for i in range(n):
+        for j in range(i, n):
+            x1, x2, x3, x4 = res.x.copy(), res.x.copy(), res.x.copy(), res.x.copy()
+            x1[i] += eps
+            x1[j] += eps
+            x2[i] += eps
+            x2[j] -= eps
+            x3[i] -= eps
+            x3[j] += eps
+            x4[i] -= eps
+            x4[j] -= eps
+
+            f1 = total_objective_rc_naive(x1, vec_data, draws)
+            f2 = total_objective_rc_naive(x2, vec_data, draws)
+            f3 = total_objective_rc_naive(x3, vec_data, draws)
+            f4 = total_objective_rc_naive(x4, vec_data, draws)
+
+            hessian[i, j] = (f1 - f2 - f3 + f4) / (4 * eps * eps)
+            hessian[j, i] = hessian[i, j]
+
+    try:
+        cov_unconstrained = np.linalg.inv(hessian)
+    except np.linalg.LinAlgError:
+        cov_unconstrained = np.linalg.pinv(hessian)
+
+    se_unconstrained = np.sqrt(np.maximum(0.0, np.diag(cov_unconstrained)))
+
+    sd_indices = [3, 4]
+    reported_params = res.x.copy()
+    reported_se = se_unconstrained.copy()
+
+    for idx in sd_indices:
+        reported_params[idx] = np.exp(res.x[idx])
+        reported_se[idx] = np.exp(res.x[idx]) * se_unconstrained[idx]
+
+    z = reported_params / reported_se
+    p = 2 * (1 - sp.stats.norm.cdf(np.abs(z)))
+
+    return {
+        "params": reported_params,
+        "se": reported_se,
+        "z_stat": z,
+        "p_val": p,
+        "success": res.success,
+        "fun": res.fun,
+    }
+
+
+# =========================================================
+# PART 2: FLAVOR SATIATION SPECIFICATIONS (WITH GAMMAS)
 # =========================================================
 def total_objective_flavor_gamma(params, vec_data):
     const, beta_ber, beta_pl, g_oth, g_ber, g_pl, alpha, sigma = params
@@ -503,9 +703,9 @@ def estimate_het_flavor_gamma_model(vec_data, draws=GAMMA_DRAWS):
         (-10.0, 10.0),  # const
         (-10.0, 10.0),  # mu_beta_ber
         (-10.0, 10.0),  # mu_beta_pl
-        (-5.0, 2.0),  # mu_g_oth
-        (-5.0, 2.0),  # mu_g_ber
-        (-5.0, 2.0),  # mu_g_pl
+        (-10.0, 2.0),  # mu_g_oth
+        (-10.0, 2.0),  # mu_g_ber
+        (-10.0, 2.0),  # mu_g_pl
         (-10.0, 5.0),  # log_sd_beta_ber
         (-10.0, 5.0),  # log_sd_beta_pl
         (-10.0, 5.0),  # log_sd_g_oth
@@ -577,7 +777,7 @@ def estimate_het_flavor_gamma_model(vec_data, draws=GAMMA_DRAWS):
 
 
 def display_results_with_wtp(
-    results, title="SPECIFICATION RESULTS", param_names=None, is_flavor_gamma=False
+    results, title="SPECIFICATION RESULTS", param_names=None, model_type="flavor_gamma"
 ):
     table = Table(title=title, show_header=True, header_style="bold magenta")
     table.add_column("Parameter", style="cyan", justify="left")
@@ -622,7 +822,7 @@ def display_results_with_wtp(
         wtp_table.add_column("Attribute / Parameter", style="cyan", justify="left")
         wtp_table.add_column("WTP ($)", justify="right")
 
-        if is_flavor_gamma:
+        if model_type == "flavor_gamma":
             beta_ber, beta_pl = results["params"][1], results["params"][2]
             g_oth, g_ber, g_pl = (
                 results["params"][3],
@@ -645,20 +845,14 @@ def display_results_with_wtp(
             wtp_table.add_row(
                 "WTP: Satiation Disutility (Plain)", f"${-g_pl / alpha_val:.2f}"
             )
-        else:
-            beta_ber, beta_pl, gamma_val = (
-                results["params"][1],
-                results["params"][2],
-                results["params"][3],
-            )
+
+        elif model_type == "naive":
+            beta_ber, beta_pl = results["params"][1], results["params"][2]
             wtp_table.add_row(
                 "WTP: Berry Preference (vs Other)", f"${-beta_ber / alpha_val:.2f}"
             )
             wtp_table.add_row(
                 "WTP: Plain Preference (vs Other)", f"${-beta_pl / alpha_val:.2f}"
-            )
-            wtp_table.add_row(
-                "WTP: Satiation Disutility (Gamma)", f"${-gamma_val / alpha_val:.2f}"
             )
 
         console.print(wtp_table)
@@ -668,20 +862,63 @@ def display_results_with_wtp(
 def main():
     hh_packed_data, vec_data = load_and_preprocess()
 
+    # =========================================================
+    # PART 1: NAIVE SPECIFICATIONS (NO SATIATION BENCHMARK)
+    # =========================================================
     console.print(
         "\n[bold yellow]=====================================================[/bold yellow]"
     )
     console.print(
-        "[bold yellow] STEP 2: PRODUCT-SPECIFIC GAMMAS & WTP ESTIMATION    [/bold yellow]"
+        "[bold yellow] PART 1: NAIVE SPECIFICATIONS (NO SATIATION / NO GAMMAS)[/bold yellow]"
     )
     console.print(
         "[bold yellow]=====================================================[/bold yellow]"
     )
 
-    # 1. Fixed-Coefficient Flavor Gamma Model
+    console.print("\n--- Estimating Standard Logit (No Gammas) ---")
+    res_naive = estimate_naive_model(vec_data)
+    p_names_naive = ["Constant", "beta_ber", "beta_pl", "Price", "Control Func."]
+    display_results_with_wtp(
+        res_naive,
+        title="STANDARD LOGIT (NO SATIATION)",
+        param_names=p_names_naive,
+        model_type="naive",
+    )
+
+    console.print("\n--- Estimating Random-Coefficient Logit (No Gammas) ---")
+    res_rc_naive = estimate_rc_naive_model(vec_data, draws=GAMMA_DRAWS)
+    rc_p_names_naive = [
+        "Constant",
+        "Mean beta_berry",
+        "Mean beta_plain",
+        "SD beta_berry",
+        "SD beta_plain",
+        "Price",
+        "Control Func.",
+    ]
+    display_results_with_wtp(
+        res_rc_naive,
+        title="RANDOM COEFFICIENT LOGIT (NO SATIATION)",
+        param_names=rc_p_names_naive,
+        model_type="naive",
+    )
+
+    # =========================================================
+    # PART 2: FLAVOR SATIATION SPECIFICATIONS (WITH GAMMAS)
+    # =========================================================
+    console.print(
+        "\n[bold yellow]=====================================================[/bold yellow]"
+    )
+    console.print(
+        "[bold yellow] PART 2: FLAVOR SATIATION SPECIFICATIONS (WITH GAMMAS)[/bold yellow]"
+    )
+    console.print(
+        "[bold yellow]=====================================================[/bold yellow]"
+    )
+
     console.print("\n--- Estimating Standard Flavor-Specific Satiation Logit ---")
     res_flavor_gamma = estimate_flavor_gamma_model(vec_data)
-    p_names = [
+    p_names_gamma = [
         "Constant",
         "beta_ber",
         "beta_pl",
@@ -694,16 +931,15 @@ def main():
     display_results_with_wtp(
         res_flavor_gamma,
         title="STANDARD FLAVOR SATIATION LOGIT",
-        param_names=p_names,
-        is_flavor_gamma=True,
+        param_names=p_names_gamma,
+        model_type="flavor_gamma",
     )
 
-    # 2. Random-Coefficient Flavor Gamma Model
     console.print(
         "\n--- Estimating Random-Coefficient Flavor-Specific Satiation Logit ---"
     )
     res_rc_flavor_gamma = estimate_het_flavor_gamma_model(vec_data, draws=GAMMA_DRAWS)
-    rc_p_names = [
+    rc_p_names_gamma = [
         "Constant",
         "Mean beta_berry",
         "Mean beta_plain",
@@ -721,8 +957,8 @@ def main():
     display_results_with_wtp(
         res_rc_flavor_gamma,
         title="RANDOM COEFFICIENT FLAVOR SATIATION LOGIT",
-        param_names=rc_p_names,
-        is_flavor_gamma=True,
+        param_names=rc_p_names_gamma,
+        model_type="flavor_gamma",
     )
 
 

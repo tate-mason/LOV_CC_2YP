@@ -1,0 +1,178 @@
+Loading raw panel with Polars...
+╭───────────────────── Traceback (most recent call last) ──────────────────────╮
+│ /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/full_draft_1231/data.py:67 in  │
+│ <module>                                                                     │
+│                                                                              │
+│    64 )                                                                      │
+│    65                                                                        │
+│    66 # Full Panel Collect                                                   │
+│ ❱  67 df_full_panel = base_lazy.collect().to_pandas()                        │
+│    68                                                                        │
+│    69 schema_names = pl.scan_parquet(MERGED_PATH).collect_schema().names()   │
+│    70                                                                        │
+│                                                                              │
+│ /home/dtm63837/.local/lib/python3.13/site-packages/polars/_utils/deprecation │
+│ .py:97 in wrapper                                                            │
+│                                                                              │
+│    94 │   │   │   │                                                          │
+│    95 │   │   │   │   del kwargs["streaming"]                                │
+│    96 │   │   │                                                              │
+│ ❱  97 │   │   │   return function(*args, **kwargs)                           │
+│    98 │   │                                                                  │
+│    99 │   │   wrapper.__signature__ = inspect.signature(function)  # type: i │
+│   100 │   │   return wrapper                                                 │
+│                                                                              │
+│ /home/dtm63837/.local/lib/python3.13/site-packages/polars/lazyframe/opt_flag │
+│ s.py:361 in wrapper                                                          │
+│                                                                              │
+│   358 │   │   │   │   │   optflags = cb(optflags, kwargs.pop(key))  # type:  │
+│   359 │   │   │                                                              │
+│   360 │   │   │   kwargs["optimizations"] = optflags                         │
+│ ❱ 361 │   │   │   return function(*args, **kwargs)                           │
+│   362 │   │                                                                  │
+│   363 │   │   wrapper.__signature__ = inspect.signature(function)  # type: i │
+│   364 │   │   return wrapper                                                 │
+│                                                                              │
+│ /home/dtm63837/.local/lib/python3.13/site-packages/polars/lazyframe/frame.py │
+│ :2591 in collect                                                             │
+│                                                                              │
+│    2588 │   │   engine_ = _select_engine(engine)                             │
+│    2589 │   │   post_opt_callback = _kwargs.get("post_opt_callback")         │
+│    2590 │   │                                                                │
+│ ❱  2591 │   │   return engine_.collect(                                      │
+│    2592 │   │   │   self,                                                    │
+│    2593 │   │   │   optimizations=optimizations,                             │
+│    2594 │   │   │   background=background,                                   │
+│                                                                              │
+│ /home/dtm63837/.local/lib/python3.13/site-packages/polars/lazyframe/engine.p │
+│ y:443 in collect                                                             │
+│                                                                              │
+│   440 │   │                                                                  │
+│   441 │   │   if post_opt_callback is not None:                              │
+│   442 │   │   │   callback = post_opt_callback                               │
+│ ❱ 443 │   │   return wrap_df(ldf.collect(self.name, callback))               │
+│   444 │                                                                      │
+│   445 │   def collect_async(                                                 │
+│   446 │   │   self,                                                          │
+╰──────────────────────────────────────────────────────────────────────────────╯
+ColumnNotFoundError: unable to find column "week_end"; valid columns: 
+["trip_code_uc", "household_code", "purchase_date", "retailer_code", 
+"store_code_uc", "panel_year", "store_zip3", "total_spent", 
+"method_of_payment_cd", "projection_factor", "household_income", 
+"household_size", "male_head_age", "female_head_age", "male_head_employment", 
+"female_head_employment", "race", "hispanic_origin", "panelist_zip_code", 
+"fips_state_code", "fips_county_code", "upc", "quantity", "total_price_paid", 
+"coupon_value", "deal_flag_uc", "product_module_code_hms", "size1_amount_hms", 
+"size1_unit_hms", "brand_descr_hms", "multi_hms", "channel_type", "brand", 
+"brand_cd", "protein_gram", "protein_gram_cd", "commodity_group", 
+"commodity_group_cd", "manufacturer_suggested_price_claim", 
+"manufacturer_suggested_price_claim_cd", "cholesterol", "cholesterol_cd", 
+"sodium_presence_claim", "sodium_presence_claim_cd", 
+"fat_calorie_per_serving_size", "fat_calorie_per_serving_size_cd", "sugar_gram",
+"sugar_gram_cd", "competitive_category_ogrds", "competitive_category_ogrds_cd", 
+"package_presentation_option", "package_presentation_option_cd", 
+"additional_information", "additional_information_cd", "manufacturing_process", 
+"manufacturing_process_cd", "serving_size_household", 
+"serving_size_household_cd", "trans_fat_gram", "trans_fat_gram_cd", 
+"serving_size_metric", "serving_size_metric_cd", "calories_per_serving_size", 
+"calories_per_serving_size_cd", "secondary_size", "secondary_size_cd", 
+"total_size", "total_size_cd", "organic_claim", "organic_claim_cd", 
+"genetic_modification_claim", "genetic_modification_claim_cd", 
+"total_carbohydrate_gram", "total_carbohydrate_gram_cd", "flavor", "flavor_cd", 
+"target_group_gender", "target_group_gender_cd", "manufacturer_suggested_price",
+"manufacturer_suggested_price_cd", "prepriced", "prepriced_cd", 
+"nutritional_health_claim", "nutritional_health_claim_cd", "usda_organic_seal", 
+"usda_organic_seal_cd", "formulation", "formulation_cd", 
+"strategic_ingredient_presence_claim", "strategic_ingredient_presence_claim_cd",
+"fat_presence_claim", "fat_presence_claim_cd", "price_reduction", 
+"price_reduction_cd", "total_fat_gram", "total_fat_gram_cd", 
+"serving_per_container", "serving_per_container_cd", "saturated_fat_gram", 
+"saturated_fat_gram_cd", "form", "form_cd", "product_size", "product_size_cd", 
+"base_size", "base_size_cd", "package_general_shape", 
+"package_general_shape_cd", "calorie_claim", "calorie_claim_cd", 
+"package_material_substance", "package_material_substance_cd", "sodium", 
+"sodium_cd", "dietary_fiber", "dietary_fiber_cd", "claim", "claim_cd", 
+"common_consumer_name", "common_consumer_name_cd", "deal_derived", 
+"deal_derived_cd", "product_descr", "product_module_code", 
+"product_module_descr", "multi", "start_date", "year", "super_category", 
+"super_category_cd", "category", "category_cd", "sub_category", 
+"sub_category_cd", "segment", "segment_cd", "department", "department_cd", 
+"market_name"]
+
+Resolved plan until failure:
+
+        ---> FAILED HERE RESOLVING 'filter' <---
+ WITH_COLUMNS:
+ [col("product_module_code_hms").cast(Int64), 
+col("serving_per_container_cd").cast(Int64), 
+col("size1_amount_hms").cast(Float64), 
+col("size1_unit_hms").str.strip_chars([null]).str.to_uppercase(), 
+col("household_size").cast(Int64), col("quantity").cast(Int64), 
+col("deal_flag_uc").cast(Int64), col("household_income").cast(Int64)] 
+   WITH_COLUMNS:
+   [col("trip_code_uc"), col("household_code"), col("purchase_date"), 
+col("retailer_code"), col("store_code_uc"), col("panel_year"), 
+col("store_zip3"), col("total_spent"), col("method_of_payment_cd"), 
+col("projection_factor"), col("household_income"), col("household_size"), 
+col("male_head_age"), col("female_head_age"), col("male_head_employment"), 
+col("female_head_employment"), col("race"), col("hispanic_origin"), 
+col("panelist_zip_code"), col("fips_state_code"), col("fips_county_code"), 
+col("upc"), col("quantity"), col("total_price_paid"), col("coupon_value"), 
+col("deal_flag_uc"), col("product_module_code_hms"), col("size1_amount_hms"), 
+col("size1_unit_hms"), col("brand_descr_hms"), col("multi_hms"), 
+col("channel_type"), col("brand"), col("brand_cd"), col("protein_gram"), 
+col("protein_gram_cd"), col("commodity_group"), col("commodity_group_cd"), 
+col("manufacturer_suggested_price_claim"), 
+col("manufacturer_suggested_price_claim_cd"), col("cholesterol"), 
+col("cholesterol_cd"), col("sodium_presence_claim"), 
+col("sodium_presence_claim_cd"), col("fat_calorie_per_serving_size"), 
+col("fat_calorie_per_serving_size_cd"), col("sugar_gram"), col("sugar_gram_cd"),
+col("competitive_category_ogrds"), col("competitive_category_ogrds_cd"), 
+col("package_presentation_option"), col("package_presentation_option_cd"), 
+col("additional_information"), col("additional_information_cd"), 
+col("manufacturing_process"), col("manufacturing_process_cd"), 
+col("serving_size_household"), col("serving_size_household_cd"), 
+col("trans_fat_gram"), col("trans_fat_gram_cd"), col("serving_size_metric"), 
+col("serving_size_metric_cd"), col("calories_per_serving_size"), 
+col("calories_per_serving_size_cd"), col("secondary_size"), 
+col("secondary_size_cd"), col("total_size"), col("total_size_cd"), 
+col("organic_claim"), col("organic_claim_cd"), 
+col("genetic_modification_claim"), col("genetic_modification_claim_cd"), 
+col("total_carbohydrate_gram"), col("total_carbohydrate_gram_cd"), 
+col("flavor"), col("flavor_cd"), col("target_group_gender"), 
+col("target_group_gender_cd"), col("manufacturer_suggested_price"), 
+col("manufacturer_suggested_price_cd"), col("prepriced"), col("prepriced_cd"), 
+col("nutritional_health_claim"), col("nutritional_health_claim_cd"), 
+col("usda_organic_seal"), col("usda_organic_seal_cd"), col("formulation"), 
+col("formulation_cd"), col("strategic_ingredient_presence_claim"), 
+col("strategic_ingredient_presence_claim_cd"), col("fat_presence_claim"), 
+col("fat_presence_claim_cd"), col("price_reduction"), col("price_reduction_cd"),
+col("total_fat_gram"), col("total_fat_gram_cd"), col("serving_per_container"), 
+col("serving_per_container_cd"), col("saturated_fat_gram"), 
+col("saturated_fat_gram_cd"), col("form"), col("form_cd"), col("product_size"), 
+col("product_size_cd"), col("base_size"), col("base_size_cd"), 
+col("package_general_shape"), col("package_general_shape_cd"), 
+col("calorie_claim"), col("calorie_claim_cd"), 
+col("package_material_substance"), col("package_material_substance_cd"), 
+col("sodium"), col("sodium_cd"), col("dietary_fiber"), col("dietary_fiber_cd"), 
+col("claim"), col("claim_cd"), col("common_consumer_name"), 
+col("common_consumer_name_cd"), col("deal_derived"), col("deal_derived_cd"), 
+col("product_descr"), col("product_module_code"), col("product_module_descr"), 
+col("multi"), col("start_date"), col("year"), col("super_category"), 
+col("super_category_cd"), col("category"), col("category_cd"), 
+col("sub_category"), col("sub_category_cd"), col("segment"), col("segment_cd"), 
+col("department"), col("department_cd"), col("market_name")] 
+    Parquet SCAN 
+[/scratch/dtm63837/Kilts_Panel/nielsen_extracts/output_markets/full_panel.parque
+t]
+    PROJECT */139 COLUMNS
+    ESTIMATED ROWS: 26304702
+
+This error occurred with the following context stack:
+        [1] 'group_by'
+        [2] 'filter'
+        [3] 'select'
+        [4] 'join right'
+        [5] 'join'
+        [6] 'filter'
+

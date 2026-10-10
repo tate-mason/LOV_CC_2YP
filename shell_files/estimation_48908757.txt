@@ -1,0 +1,143 @@
+From github.com:tate-mason/LOV_CC_2YP
+   627325d..499c569  main       -> origin/main
+Updating 627325d..499c569
+Fast-forward
+ Code/full_draft_1231/est_step2.py                  |   6 +-
+ .../full_draft_1231/updates/draft_2/draft_1010.aux |  32 ++--
+ .../updates/draft_2/draft_1010.fdb_latexmk         |  27 ++-
+ .../full_draft_1231/updates/draft_2/draft_1010.fls |  17 +-
+ .../full_draft_1231/updates/draft_2/draft_1010.log | 103 +++++------
+ .../full_draft_1231/updates/draft_2/draft_1010.out |  12 +-
+ .../full_draft_1231/updates/draft_2/draft_1010.pdf | Bin 239002 -> 291457 bytes
+ .../updates/draft_2/draft_1010.synctex.gz          | Bin 117730 -> 122688 bytes
+ .../full_draft_1231/updates/draft_2/draft_1010.tex | 195 ++++++++++++++++++---
+ 9 files changed, 277 insertions(+), 115 deletions(-)
+
+=====================================================
+          PANEL SAMPLE HOUSEHOLD SUMMARY             
+=====================================================
+Total Unique Households:       998
+Total Choice Observations:     3,991
+Mean Purchase Weeks / HH:      4.00
+=====================================================
+
+
+=====================================================
+ PART 1: NAIVE SPECIFICATIONS (NO SATIATION / NO GAMMAS)
+=====================================================
+
+--- Estimating Standard Logit (No Gammas) ---
+                 STANDARD LOGIT (NO SATIATION)                  
+┏━━━━━━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━━━━┓
+┃ Parameter     ┃ Estimate ┃ Std. Error ┃  z-stat ┃    p-value ┃
+┡━━━━━━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━━━━━┩
+│ Constant      │   0.9455 │     0.0397 │  23.837 │ 0.0000 *** │
+│ beta_ber      │  -0.7635 │     0.0126 │ -60.401 │ 0.0000 *** │
+│ beta_pl       │  -1.3899 │     0.0179 │ -77.587 │ 0.0000 *** │
+│ Price         │  -0.9836 │     0.0299 │ -32.878 │ 0.0000 *** │
+│ Control Func. │   0.1670 │     0.0292 │   5.721 │ 0.0000 *** │
+└───────────────┴──────────┴────────────┴─────────┴────────────┘
+Optimization Success: True
+Final LL Objective: 71955.7257
+STANDARD LOGIT (NO SATIATION) - WILLINGNESS TO
+                PAY (WTP in $)                
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━┓
+┃ Attribute / Parameter            ┃ WTP ($) ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━┩
+│ WTP: Berry Preference (vs Other) │   $0.78 │
+│ WTP: Plain Preference (vs Other) │   $1.41 │
+└──────────────────────────────────┴─────────┘
+
+
+
+--- Estimating Random-Coefficient Logit (No Gammas) ---
+             RANDOM COEFFICIENT LOGIT (NO SATIATION)              
+┏━━━━━━━━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━━━━┓
+┃ Parameter       ┃ Estimate ┃ Std. Error ┃  z-stat ┃    p-value ┃
+┡━━━━━━━━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━━━━━┩
+│ Constant        │   0.9459 │     0.0397 │  23.850 │ 0.0000 *** │
+│ Mean beta_berry │  -0.7632 │     0.0127 │ -60.298 │ 0.0000 *** │
+│ Mean beta_plain │  -1.3930 │     0.0218 │ -63.784 │ 0.0000 *** │
+│ SD beta_berry   │   0.0008 │     0.0304 │   0.027 │     0.9785 │
+│ SD beta_plain   │   0.0303 │     0.1041 │   0.291 │     0.7711 │
+│ Price           │  -0.9836 │     0.0299 │ -32.880 │ 0.0000 *** │
+│ Control Func.   │   0.1654 │     0.0292 │   5.668 │ 0.0000 *** │
+└─────────────────┴──────────┴────────────┴─────────┴────────────┘
+Optimization Success: True
+Final LL Objective: 71955.7491
+  RANDOM COEFFICIENT LOGIT (NO SATIATION) -   
+        WILLINGNESS TO PAY (WTP in $)         
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━┓
+┃ Attribute / Parameter            ┃ WTP ($) ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━┩
+│ WTP: Berry Preference (vs Other) │   $0.78 │
+│ WTP: Plain Preference (vs Other) │   $1.42 │
+└──────────────────────────────────┴─────────┘
+
+
+
+=====================================================
+ PART 2: FLAVOR SATIATION SPECIFICATIONS (WITH GAMMAS)
+=====================================================
+
+--- Estimating Standard Flavor-Specific Satiation Logit ---
+                STANDARD FLAVOR SATIATION LOGIT                 
+┏━━━━━━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━━━━┓
+┃ Parameter     ┃ Estimate ┃ Std. Error ┃  z-stat ┃    p-value ┃
+┡━━━━━━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━━━━━┩
+│ Constant      │   0.9447 │     0.0397 │  23.824 │ 0.0000 *** │
+│ beta_ber      │  -0.7611 │     0.0126 │ -60.171 │ 0.0000 *** │
+│ beta_pl       │  -1.3894 │     0.0179 │ -77.464 │ 0.0000 *** │
+│ gamma_berry   │  -0.0678 │     0.0221 │  -3.065 │  0.0022 ** │
+│ gamma_plain   │  -0.0130 │     0.0177 │  -0.735 │     0.4625 │
+│ Price         │  -0.9830 │     0.0299 │ -32.868 │ 0.0000 *** │
+│ Control Func. │   0.1671 │     0.0292 │   5.726 │ 0.0000 *** │
+└───────────────┴──────────┴────────────┴─────────┴────────────┘
+Optimization Success: True
+Final LL Objective: 71947.7183
+ STANDARD FLAVOR SATIATION LOGIT - WILLINGNESS 
+               TO PAY (WTP in $)               
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━┓
+┃ Attribute / Parameter             ┃ WTP ($) ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━┩
+│ WTP: Berry Preference (vs Other)  │   $0.77 │
+│ WTP: Plain Preference (vs Other)  │   $1.41 │
+│ WTP: Satiation Disutility (Berry) │   $1.41 │
+│ WTP: Satiation Disutility (Plain) │   $0.07 │
+└───────────────────────────────────┴─────────┘
+
+
+
+--- Estimating Random-Coefficient Flavor-Specific Satiation Logit ---
+/scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/full_draft_1231/est_step2.py:743: RuntimeWarning: divide by zero encountered in divide
+  z = reported_params / reported_se
+             RANDOM COEFFICIENT FLAVOR SATIATION LOGIT             
+┏━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━━━━┓
+┃ Parameter        ┃ Estimate ┃ Std. Error ┃  z-stat ┃    p-value ┃
+┡━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━━━━━┩
+│ Constant         │   0.9353 │     0.0398 │  23.477 │ 0.0000 *** │
+│ Mean beta_berry  │  -0.7500 │     0.0126 │ -59.687 │ 0.0000 *** │
+│ Mean beta_plain  │  -1.3994 │     0.0155 │ -90.252 │ 0.0000 *** │
+│ Mean gamma_berry │ -10.0000 │     0.3606 │ -27.730 │ 0.0000 *** │
+│ Mean gamma_plain │  -1.7404 │     0.5154 │  -3.377 │ 0.0007 *** │
+│ SD beta_berry    │   0.0000 │     0.0000 │     inf │ 0.0000 *** │
+│ SD beta_plain    │   0.0000 │     0.0000 │     inf │ 0.0000 *** │
+│ SD gamma_berry   │   6.9874 │     0.2905 │  24.053 │ 0.0000 *** │
+│ SD gamma_plain   │   4.4204 │     1.2400 │   3.565 │ 0.0004 *** │
+│ Price            │  -0.9759 │     0.0301 │ -32.468 │ 0.0000 *** │
+│ Control Func.    │   0.1762 │     0.0291 │   6.045 │ 0.0000 *** │
+└──────────────────┴──────────┴────────────┴─────────┴────────────┘
+Optimization Success: True
+Final LL Objective: 71894.1747
+  RANDOM COEFFICIENT FLAVOR SATIATION LOGIT -  
+         WILLINGNESS TO PAY (WTP in $)         
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━┓
+┃ Attribute / Parameter             ┃ WTP ($) ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━┩
+│ WTP: Berry Preference (vs Other)  │   $0.77 │
+│ WTP: Plain Preference (vs Other)  │   $1.43 │
+│ WTP: Satiation Disutility (Berry) │   $1.43 │
+│ WTP: Satiation Disutility (Plain) │  $10.25 │
+└───────────────────────────────────┴─────────┘
+
+

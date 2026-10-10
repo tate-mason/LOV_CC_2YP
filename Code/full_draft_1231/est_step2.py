@@ -671,7 +671,7 @@ def display_results_with_wtp(
 
 
 def main():
-    hh_packed_data, vec_data = load_and_preprocess(inside_only=False)
+    hh_packed_data, vec_data = load_and_preprocess(inside_only=True)
 
     console.print(
         "\n[bold yellow]=====================================================[/bold yellow]"

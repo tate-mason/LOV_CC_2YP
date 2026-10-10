@@ -29,7 +29,7 @@ PLOT_OUTPUT_DIR = "../Output/Plots"
 os.makedirs(PLOT_OUTPUT_DIR, exist_ok=True)
 
 # ==============================================================================
-# 1. DATA LOADING & POLARS LAZY PIPELINE (NATIVE PRICES ONLY)
+# 1. DATA LOADING & POLARS LAZY PIPELINE (FULL PANEL & ESTIMATION SAMPLE)
 # ==============================================================================
 console.print("[bold green]Loading raw panel with Polars...[/bold green]")
 
@@ -45,10 +45,12 @@ raw_panel = (
             pl.col("household_size").cast(pl.Int64, strict=False),
             pl.col("quantity").cast(pl.Int64, strict=False),
             pl.col("deal_flag_uc").cast(pl.Int64, strict=False),
-            pl.col("household_income").cast(pl.Int64, strict=False),
-            pl.col("head_age").cast(pl.Int64, strict=False),
+            pl.col("household_income").cast(pl.Float64, strict=False).fill_null(0.0),
+            pl.col("male_head_age").cast(pl.Float64, strict=False).replace(0, None),
+            pl.col("female_head_age").cast(pl.Float64, strict=False).replace(0, None),
         ]
     )
+    .with_columns(pl.coalesce(["male_head_age", "female_head_age"]).alias("head_age"))
 )
 
 # Active households across overall panel
@@ -64,24 +66,24 @@ base_lazy = raw_panel.join(active_hhs, on="household_code", how="inner").filter(
     pl.col("household_size") == 1
 )
 
-# Full Panel Collect
+# Full Panel Collect (Contains head_age)
 df_full_panel = base_lazy.collect().to_pandas()
 
 schema_names = pl.scan_parquet(MERGED_PATH).collect_schema().names()
 
 exprs = [
     pl.col("quantity").cast(pl.Int64),
-    pl.col("head_age").cast(pl.Int64),
-    pl.col("household_income").cast(pl.Int64),
-    pl.col("household_size").cast(pl.Int64),
-    pl.col("serving_per_container_cd").cast(pl.Int64),
+    pl.col("head_age").cast(pl.Int64, strict=False),
+    pl.col("household_income").cast(pl.Int64, strict=False),
+    pl.col("household_size").cast(pl.Int64, strict=False),
+    pl.col("serving_per_container_cd").cast(pl.Int64, strict=False),
 ]
 
 if "product_module_code_hms" in schema_names:
-    exprs.append(pl.col("product_module_code_hms").cast(pl.Int64))
+    exprs.append(pl.col("product_module_code_hms").cast(pl.Int64, strict=False))
 
 if "price" in schema_names:
-    exprs.append(pl.col("price").cast(pl.Float64))
+    exprs.append(pl.col("price").cast(pl.Float64, strict=False))
 
 scan_q = pl.scan_parquet(MERGED_PATH).with_columns(exprs)
 
@@ -188,7 +190,9 @@ full_inc_med = df_full_panel["household_income"].median()
 est_inc_med = df_estimation["household_income"].median()
 
 full_age = df_full_panel["head_age"].mean()
-est_age = df_estimation["head_age"].mean()
+est_age = (
+    df_estimation["head_age"].mean() if "head_age" in df_estimation.columns else np.nan
+)
 
 stats_table.add_row("Unique Households", f"{full_hhs:,}", f"{est_hhs:,}")
 stats_table.add_row(
@@ -209,7 +213,9 @@ stats_table.add_row(
     f"${full_inc_med:,.2f}",
     f"${est_inc_med:,.2f}",
 )
-stats_table.add_row("Mean Head Age", f"{full_age:.1f}", f"{est_age:.1f}")
+stats_table.add_row(
+    "Mean Head Age", f"{full_age:.1f}", f"{est_age:.1f}" if pd.notna(est_age) else "N/A"
+)
 
 est_price = (
     df_estimation["price"].mean() if "price" in df_estimation.columns else np.nan

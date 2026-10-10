@@ -1,0 +1,50 @@
+This is BibTeX, Version 0.99e (TeX Live 2026)
+Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
+The top-level auxiliary file: draft_1010.aux
+The style file: plainnat.bst
+Database file #1: lov_bib/lov_bib.bib
+Warning--empty journal in karle_imperfect_nodate
+Warning--empty year in karle_imperfect_nodate
+Warning--empty year in karle_imperfect_nodate
+You've used 12 entries,
+            2773 wiz_defined-function locations,
+            692 strings with 7556 characters,
+and the built_in function-call counts, 5283 in all, are:
+= -- 542
+> -- 186
+< -- 12
++ -- 66
+- -- 54
+* -- 441
+:= -- 831
+add.period$ -- 65
+call.type$ -- 12
+change.case$ -- 54
+chr.to.int$ -- 12
+cite$ -- 27
+duplicate$ -- 239
+empty$ -- 456
+format.name$ -- 78
+if$ -- 1104
+int.to.chr$ -- 1
+int.to.str$ -- 1
+missing$ -- 12
+newline$ -- 97
+num.names$ -- 48
+pop$ -- 68
+preamble$ -- 1
+purify$ -- 42
+quote$ -- 0
+skip$ -- 162
+stack$ -- 0
+substring$ -- 242
+swap$ -- 21
+text.length$ -- 0
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 132
+warning$ -- 3
+while$ -- 55
+width$ -- 0
+write$ -- 219
+(There were 3 warnings)

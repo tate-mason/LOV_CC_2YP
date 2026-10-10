@@ -1,22 +1,20 @@
 """
 Data Processing & Summary Statistics Pipeline
-- Full sample summary statistics
-- Yogurt purchasers summary statistics
+- Full sample summary statistics (Everyone)
+- Strict estimation sample summary statistics (Single-serve yogurt purchasers)
 - Flavor switching analysis & heatmaps
+- Native price enforcement (No price imputation)
 """
 
-# Tools
-from enum import unique
-import os  # type:ignore
+import os
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import polars as pl
-from rich.console import Console
-from rich.traceback import install
-from rich.table import Table
 import seaborn as sns
-
+from rich.console import Console
+from rich.table import Table
+from rich.traceback import install
 
 install()
 console = Console()
@@ -26,33 +24,35 @@ pd.set_option("display.max_rows", None, "display.max_columns", None)
 HMS_PATH = (
     "/scratch/dtm63837/Kilts_Panel/nielsen_extracts/output_markets/full_panel.parquet"
 )
-RMS_PATH = "/scratch/dtm63837/Kilts_Panel/nielsen_extracts/RMS/output_markets/full_retail.parquet"
 OUT_PATH = "/scratch/dtm63837/Kilts_Panel/nielsen_extracts/scanner_panel.parquet"
 PLOT_OUTPUT_DIR = "../Output/Plots"
 os.makedirs(PLOT_OUTPUT_DIR, exist_ok=True)
 
 # ==============================================================================
-# 1. DATA LOADING & POLARS FILTER PUSHDOWN
+# 1. DATA LOADING & POLARS LAZY PIPELINE (NATIVE PRICES ONLY)
 # ==============================================================================
-console.print("[bold green]Loading data with Polars...[/bold green]")
+console.print("[bold green]Loading raw panel with Polars...[/bold green]")
 
-# Scan raw parquet with strict string formatting for module codes
 raw_panel = (
     pl.scan_parquet(HMS_PATH)
     .with_columns(pl.all().name.to_lowercase())
     .with_columns(
         [
-            pl.col("product_module_code_hms").cast(pl.Utf8).str.strip_chars(),
+            pl.col("product_module_code_hms").cast(pl.Int64, strict=False),
+            pl.col("serving_per_container_cd").cast(pl.Int64, strict=False),
             pl.col("size1_amount_hms").cast(pl.Float64, strict=False),
             pl.col("size1_unit_hms").cast(pl.Utf8).str.strip_chars().str.to_uppercase(),
             pl.col("household_size").cast(pl.Int64, strict=False),
             pl.col("quantity").cast(pl.Int64, strict=False),
             pl.col("deal_flag_uc").cast(pl.Int64, strict=False),
+            pl.col("head_age").cast(pl.Int64, strict=False),
+            pl.col("household_income").cast(pl.Int64, strict=False),
+            pl.col("price").cast(pl.Float64, strict=False),
         ]
     )
 )
 
-# 1. Household trip thresholds across the entire dataset
+# Active households across overall panel
 active_hhs = (
     raw_panel.group_by("household_code")
     .agg(pl.col("trip_code_uc").n_unique().alias("total_trips"))
@@ -60,196 +60,156 @@ active_hhs = (
     .select("household_code")
 )
 
-# 2. Apply filters one at a time to see where rows disappear
-lazy_panel = raw_panel.join(active_hhs, on="household_code", how="inner")
-console.print(
-    "Rows after household join:", lazy_panel.select(pl.len()).collect().item()
+# Base Sample: All active 1-person households
+base_lazy = raw_panel.join(active_hhs, on="household_code", how="inner").filter(
+    pl.col("household_size") == 1
 )
 
-lazy_panel = lazy_panel.filter(pl.col("household_size") == 1)
-console.print(
-    "Rows after household size filter:", lazy_panel.select(pl.len()).collect().item()
+# Full Panel Collect
+df_full_panel = base_lazy.collect().to_pandas()
+
+# Strict Estimation Sample Filters (Native Prices > $0.10 Only)
+df_estimation_lazy = (
+    base_lazy.filter(pl.col("product_module_code_hms").is_in([3612, 3603]))
+    .filter(pl.col("serving_per_container_cd").is_in([67181961, 65622705]))
+    .filter(pl.col("price").is_not_null())
+    .filter(pl.col("price") > 0.10)
 )
 
-# lazy_panel = lazy_panel.filter(pl.col("product_module_code_hms").is_in(["3603", "3612"]))
-# console.print("Rows after module code filter:", lazy_panel.select(pl.len()).collect().item())
+df_estimation = df_estimation_lazy.collect().to_pandas()
 
-lazy_panel = lazy_panel.filter(pl.col("size1_unit_hms") == "OZ")
-console.print("Rows after OZ filter:", lazy_panel.select(pl.len()).collect().item())
-
-console.print("Most common size amounts before the 5–8 filter:")
-
-lazy_panel = lazy_panel.filter(pl.col("size1_amount_hms").is_between(5000, 8001))
 console.print(
-    "Rows after size amount filter:", lazy_panel.select(pl.len()).collect().item()
+    f"[bold cyan]Full Single-Person Household Sample Loaded:[/bold cyan] {len(df_full_panel):,} rows | "
+    f"{df_full_panel['household_code'].nunique():,} unique HHs"
+)
+console.print(
+    f"[bold cyan]Strict Estimation Sample Loaded:[/bold cyan]          {len(df_estimation):,} rows | "
+    f"{df_estimation['household_code'].nunique():,} unique HHs"
 )
 
-agent_panel = lazy_panel.collect().to_pandas()
-
+# Save processed parquet file for estimation scripts retaining native price
+pl.from_pandas(df_estimation).write_parquet(OUT_PATH)
 console.print(
-    f"Filtered panel loaded: {len(agent_panel):,} rows | "
-    f"{
-        agent_panel[
-            'household_code'
-        ].nunique():,} unique single-person yogurt-purchasing HHs"
+    f"[bold green]Saved estimation parquet directly to: {OUT_PATH}[/bold green]"
 )
 
 # ==============================================================================
-# 2. DATA CLEANING & SAFE TYPE CASTING
+# 2. FLAVOR & SWITCHING ENCODING (ESTIMATION SAMPLE)
 # ==============================================================================
-
-# Parse dates
-agent_panel["purchase_date"] = pd.to_datetime(
-    agent_panel["purchase_date"].astype(str).str.replace("-", "", regex=False),
+df_estimation["purchase_date"] = pd.to_datetime(
+    df_estimation["purchase_date"].astype(str).str.replace("-", "", regex=False),
     format="%Y%m%d",
     errors="coerce",
 )
-agent_panel["week_end"] = agent_panel["purchase_date"] + pd.offsets.Week(weekday=5, n=0)
-
-# Explicit numeric casting for Pandas/PyArrow safety
-numeric_cols = [
-    "quantity",
-    "household_income",
-    "deal_flag_uc",
-    "male_head_age",
-    "female_head_age",
-]
-for col in numeric_cols:
-    if col in agent_panel.columns:
-        agent_panel[col] = pd.to_numeric(agent_panel[col], errors="coerce").fillna(0)  # type:ignore
-
-# Re-evaluate age logic safely
-agent_panel["male_head_age"] = agent_panel["male_head_age"].replace(0, np.nan)
-agent_panel["female_head_age"] = agent_panel["female_head_age"].replace(0, np.nan)
-agent_panel["head_age"] = agent_panel["male_head_age"].fillna(
-    agent_panel["female_head_age"]
+df_estimation["week_end"] = df_estimation["purchase_date"] + pd.offsets.Week(
+    weekday=5, n=0
 )
 
-# Safe Flavor Encoding
-agent_panel["flavor_str"] = agent_panel["flavor"].fillna("").astype(str)
-agent_panel["flavor_cd"] = pd.to_numeric(
-    agent_panel["flavor_cd"], errors="coerce"
-).fillna(0)  # type:ignore
+df_estimation["flavor_str"] = df_estimation["flavor"].fillna("").astype(str)
+df_estimation["full_text"] = (
+    df_estimation["flavor_str"]
+    + " "
+    + df_estimation["product_description"].fillna("").astype(str)
+).str.lower()
 
-agent_master = agent_panel.copy()
-agent_master["flavor"] = np.select(
-    [
-        agent_master["flavor_str"].str.contains("berry", case=False, na=False),
-        agent_master["flavor_cd"].isin([67676592, 66987057]),
-    ],
-    [1, 2],
-    default=0,
+berry_regex = r"berry|straw|blue|rasp|black|cran|cherry|wildberry"
+plain_regex = r"plain|unflavored"
+
+is_plain = df_estimation["full_text"].str.contains(plain_regex, na=False)
+is_berry = df_estimation["full_text"].str.contains(berry_regex, na=False) & (~is_plain)
+
+# 0 = Plain, 1 = Other, 2 = Berry
+df_estimation["flavor_cat"] = np.select([is_plain, is_berry], [0, 2], default=1)
+
+df_estimation = df_estimation.sort_values(
+    ["household_code", "purchase_date", "trip_code_uc"]
 )
+df_estimation["trip_seq"] = df_estimation.groupby("household_code").cumcount() + 1
+df_estimation["prev_flavor"] = df_estimation.groupby("household_code")[
+    "flavor_cat"
+].shift(1)
 
-# Yogurt Purchase Dummy
-agent_master["yogurt_purchase"] = (
-    agent_master["product_module_code_hms"].isin(["3603", "3612"])
-    & (agent_master["quantity"] > 0)
-).astype(int)
-
-# Outside Option Analysis
-trip_yogurt = (
-    agent_master.groupby(["household_code", "trip_code_uc"])["yogurt_purchase"]
-    .max()
-    .reset_index()
-)
-trip_yogurt["chose_outside_option"] = (trip_yogurt["yogurt_purchase"] == 0).astype(int)
-outside_option_rate = trip_yogurt["chose_outside_option"].mean()
-
-# Filter for yogurt purchases safely
-agent_yogurt = agent_master[agent_master["yogurt_purchase"] == 1].copy()
-
-# Sort chronologically for switching metrics
-agent_yogurt = agent_yogurt.sort_values(
-    ["household_code", "purchase_date", "trip_code_uc"]  # type:ignore
-)
-
-# Trip sequence numbers per household
-agent_yogurt["trip_seq"] = agent_yogurt.groupby("household_code").cumcount() + 1
-agent_yogurt["prev_flavor"] = agent_yogurt.groupby("household_code")["flavor"].shift(1)
-
-# Switching dummy (only valid from trip 2 onwards)
-agent_yogurt["switched"] = np.where(
-    agent_yogurt["trip_seq"] > 1,
-    (agent_yogurt["flavor"] != agent_yogurt["prev_flavor"]).astype(int),
+df_estimation["switched"] = np.where(
+    df_estimation["trip_seq"] > 1,
+    (df_estimation["flavor_cat"] != df_estimation["prev_flavor"]).astype(int),
     0,
 )
 
 # ==============================================================================
-# 3. SUMMARY STATISTICS
+# 3. SUMMARY STATISTICS COMPARISON TABLE
 # ==============================================================================
-console.print("\n[bold yellow]=== FULL SAMPLE SUMMARY STATISTICS ===[/bold yellow]")
-
 console.print(
-    f"Number of households in full sample:                  {
-        agent_master['household_code'].nunique():,}\n"
-    f"Number of yogurt-purchasing households:               {
-        agent_yogurt['household_code'].nunique():,}\n"
-    f"Mean number of trips per HH:                          {
-        agent_master.groupby('household_code')['trip_code_uc'].nunique().mean():.2f}\n"
-    f"Number of yogurt purchases per trip (purchasers):     {
-        agent_yogurt.groupby(['household_code', 'trip_code_uc'])['quantity']
-        .sum()
-        .mean():.2f}\n"
-    f"Mean household income:                                ${
-        agent_master['household_income'].mean():,.2f}\n"
-    f"Median household income:                              ${
-        agent_master['household_income'].median():,.2f}\n"
-    f"Percent taking outside option each trip:              {
-        outside_option_rate * 100:.2f}%\n"
-    f"Percent purchasing with coupon:                       {
-        agent_yogurt.groupby(['household_code', 'trip_code_uc'])['deal_flag_uc']
-        .max()
-        .mean()
-        * 100:.2f}%\n"
-    f"Average Age (Overall):                                {
-        agent_master['head_age'].mean():.1f}\n"
-    f"Average Age (Male):                                   {
-        agent_master['male_head_age'].mean():.1f}\n"
-    f"Average Age (Female):                                 {
-        agent_master['female_head_age'].mean():.1f}"
+    "\n[bold yellow]=====================================================[/bold yellow]"
+)
+console.print(
+    "[bold yellow]          SUMMARY STATISTICS COMPARISON              [/bold yellow]"
+)
+console.print(
+    "[bold yellow]=====================================================[/bold yellow]"
 )
 
-# ==============================================================================
-# 4. FLAVOR SWITCHING METRICS
-# ==============================================================================
-# Sequence indicators
-agent_yogurt["next_flavor"] = agent_yogurt.groupby("household_code")["flavor"].shift(-1)
+stats_table = Table(show_header=True, header_style="bold magenta")
+stats_table.add_column("Metric / Characteristic", style="cyan", justify="left")
+stats_table.add_column("Full Panel Sample (Everyone)", justify="right")
+stats_table.add_column("Strict Estimation Sample", justify="right")
 
-# Flavor spells
-agent_yogurt["flavor_spell_id"] = agent_yogurt.groupby("household_code")[
+full_hhs = df_full_panel["household_code"].nunique()
+est_hhs = df_estimation["household_code"].nunique()
+
+full_trips = df_full_panel.groupby("household_code")["trip_code_uc"].nunique().mean()
+est_trips = df_estimation.groupby("household_code")["trip_code_uc"].nunique().mean()
+
+full_inc_mean = df_full_panel["household_income"].mean()
+est_inc_mean = df_estimation["household_income"].mean()
+
+full_inc_med = df_full_panel["household_income"].median()
+est_inc_med = df_estimation["household_income"].median()
+
+full_age = df_full_panel["head_age"].mean()
+est_age = df_estimation["head_age"].mean()
+
+stats_table.add_row("Unique Households", f"{full_hhs:,}", f"{est_hhs:,}")
+stats_table.add_row(
+    "Total Purchases / Rows", f"{len(df_full_panel):,}", f"{len(df_estimation):,}"
+)
+stats_table.add_row("Mean Shopping Trips / HH", f"{full_trips:.2f}", f"{est_trips:.2f}")
+stats_table.add_row(
+    "Mean Household Income ($)",
+    f"${full_inc_mean:,.2f}",
+    f"${est_inc_mean:,.2f}",
+)
+stats_table.add_row(
+    "Median Household Income ($)",
+    f"${full_inc_med:,.2f}",
+    f"${est_inc_med:,.2f}",
+)
+stats_table.add_row("Mean Head Age", f"{full_age:.1f}", f"{est_age:.1f}")
+
+est_price = df_estimation["price"].mean()
+stats_table.add_row("Mean Native Unit Price ($)", "N/A", f"${est_price:.2f}")
+
+console.print(stats_table)
+
+# ==============================================================================
+# 4. FLAVOR SWITCHING METRICS (ESTIMATION SAMPLE)
+# ==============================================================================
+df_estimation["flavor_spell_id"] = df_estimation.groupby("household_code")[
     "switched"
 ].cumsum()
-agent_yogurt["flavor_spell_buys"] = (
-    agent_yogurt.groupby(["household_code", "flavor_spell_id"]).cumcount() + 1
+df_estimation["flavor_spell_buys"] = (
+    df_estimation.groupby(["household_code", "flavor_spell_id"]).cumcount() + 1
 )
-agent_yogurt["spell_length"] = agent_yogurt.groupby(
+df_estimation["spell_length"] = df_estimation.groupby(
     ["household_code", "flavor_spell_id"]
 )["flavor_spell_buys"].transform("max")
 
-# Filtered Switch Datasets
-switching_sample = agent_yogurt[agent_yogurt["switched"] == 1]
-switches_coupon = switching_sample[switching_sample["deal_flag_uc"] == 1]
-
-# Guarded percent calculation to avoid ZeroDivisionError
-coupon_switch_pct = (
-    (len(switches_coupon) / len(switching_sample) * 100)
-    if len(switching_sample) > 0
-    else 0.0
-)
+switching_sample = df_estimation[df_estimation["switched"] == 1]
 
 console.print("\n[bold yellow]=== FLAVOR SWITCHING METRICS ===[/bold yellow]")
 console.print(
-    f"Mean consecutive buys by flavor x HH:                 {
-        agent_yogurt['spell_length'].mean():.2f}\n"
-    f"Mean times switching by flavor x HH:                  {
-        agent_yogurt.groupby(['household_code', 'flavor'])['switched']
-        .sum()
-        .mean():.2f}\n"
-    f"Percent of HH who ever-switch flavors:                 {
-        (agent_yogurt.groupby('household_code')['flavor'].nunique() > 1).mean()
-        * 100:.2f}%\n"
-    f"Percent switching due to coupon/deal:                 {coupon_switch_pct:.2f}%"
+    f"Mean Consecutive Buys per Flavor Spell:               {df_estimation['spell_length'].mean():.2f} trips\n"
+    f"Mean Flavor Switches per HH:                         {df_estimation.groupby('household_code')['switched'].sum().mean():.2f}\n"
+    f"Percent of HHs who Ever Switch Flavors:              {(df_estimation.groupby('household_code')['flavor_cat'].nunique() > 1).mean() * 100:.2f}%"
 )
 
 # ==============================================================================
@@ -259,12 +219,12 @@ if not switching_sample.empty:
     console.print("\n[bold green]Generating flavor switching heatmap...[/bold green]")
 
     heat_flav = (
-        switching_sample.groupby(["prev_flavor", "flavor"])["spell_length"]
+        switching_sample.groupby(["prev_flavor", "flavor_cat"])["spell_length"]
         .mean()
         .unstack()
         .rename(
-            columns={0: "Other", 1: "Berry", 2: "Plain"},  # type: ignore
-            index={0: "Other", 1: "Berry", 2: "Plain"},
+            columns={0: "Plain", 1: "Other", 2: "Berry"},
+            index={0: "Plain", 1: "Other", 2: "Berry"},
         )
     )
 
@@ -288,7 +248,9 @@ if not switching_sample.empty:
     ax.set_xlabel("Flavor Switched To", fontsize=11, fontweight="bold")
     ax.set_ylabel("Flavor Switched From", fontsize=11, fontweight="bold")
     ax.set_title(
-        "Mean Spell Length Upon Switching Flavors", fontsize=12, fontweight="bold"
+        "Mean Spell Length Upon Switching Flavors",
+        fontsize=12,
+        fontweight="bold",
     )
 
     plt.tight_layout()
@@ -299,76 +261,3 @@ if not switching_sample.empty:
     console.print(
         f"[bold green]Heatmap successfully saved to: {output_path}[/bold green]"
     )
-else:
-    console.print(
-        "[bold red]No switching records found to generate heatmap.[/bold red]"
-    )
-
-# ===========================================================================
-# 6. RETAIL LOAD, KEY ALIGNMENT & STREAMING SINK
-# ===========================================================================
-console.print("\n[bold green]Preparing Left Join and Streaming Output...[/bold green]")
-
-years = [2022, 2023, 2024]
-for y in years:
-    yearly_merge = []
-    merged_df = pl.scan_parquet(
-        f"/scratch/dtm63837/Kilts_Panel/nielsen_extracts/scanner_panel_{y}.parquet"
-    )
-    yearly_merge.append(merged_df)
-
-    combined_merged = pl.concat(yearly_merge, how="diagonal_relaxed")
-    combined_merged.sink_parquet(OUT_PATH)
-
-merged_df = pl.scan_parquet(OUT_PATH).collect().to_pandas()
-
-console.print(merged_df.shape)
-console.print(merged_df.describe())
-console.print(merged_df.columns.to_list())
-# unique_combos = merged_df[
-#    ["serving_per_container", "serving_per_container_cd"]
-# ].drop_duplicates()
-# console.print(unique_combos)
-
-MERGED_PATH = "/scratch/dtm63837/Kilts_Panel/nielsen_extracts/scanner_panel.parquet"
-
-# 1. Load Parquet Data with Type Casts
-merged_df = (
-    pl.scan_parquet(MERGED_PATH)
-    .with_columns(
-        [
-            pl.col("quantity").cast(pl.Int64),
-            pl.col("head_age").cast(pl.Int64),
-            pl.col("household_income").cast(pl.Int64),
-            pl.col("household_size").cast(pl.Int64),
-            pl.col("yogurt_purchase").cast(pl.Int64),
-            pl.col("serving_per_container_cd").cast(pl.Int64),
-            pl.col("product_module_code_hms").cast(pl.Int64),
-            pl.col("price").cast(pl.Float64),
-            pl.col("protein_gram_cd").cast(pl.Int64),
-            pl.col("sugar_gram_cd").cast(pl.Int64),
-            pl.col("total_carbohydrate_gram_cd").cast(pl.Int64),
-            pl.col("total_fat_gram_cd").cast(pl.Int64),
-            pl.col("organic_claim_cd").cast(pl.Int64),
-        ]
-    )
-    .filter(pl.col("household_size") == 1)
-    .filter(pl.col("serving_per_container_cd").is_in([67181961, 65622705]))
-    .filter(pl.col("product_module_code_hms").is_in([3612, 3603]))
-    .collect()
-    .to_pandas()
-)
-
-protein_combos = merged_df[["protein_gram", "protein_gram_cd"]].drop_duplicates()
-sugar_combos = merged_df[["sugar_gram", "sugar_gram_cd"]].drop_duplicates()
-carb_combos = merged_df[
-    ["total_carbohydrate_gram", "total_carbohydrate_gram_cd"]
-].drop_duplicates()
-fat_combos = merged_df[["total_fat_gram", "total_fat_gram_cd"]].drop_duplicates()
-organic_combos = merged_df[["organic_claim", "organic_claim_cd"]].drop_duplicates()
-
-console.print(protein_combos)
-console.print(sugar_combos)
-console.print(carb_combos)
-console.print(fat_combos)
-console.print(organic_combos)

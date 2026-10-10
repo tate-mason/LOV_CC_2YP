@@ -392,7 +392,7 @@ The next iteration of this work will first augment the sample to include 2022-20
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{l *{4}{r} c *{4}{r}}
 \toprule
-& \multicolumn{4}{c}{\textbf{Standard Logit (No $\gamma$)}} & & \multicolumn{4}{c}{\textbf{Random-Coefficient Logit (No $\gamma$)}} \\
+& \multicolumn{4}{c}{\textbf{Standard Logit (No Gammas)}} & & \multicolumn{4}{c}{\textbf{Random-Coefficient Logit (No Gammas)}} \\
 \cmidrule{2-5} \cmidrule{7-10}
 \textbf{Parameter} & \textbf{Estimate} & \textbf{Std. Error} & \textbf{$z$-stat} & \textbf{$p$-value} & & \textbf{Estimate} & \textbf{Std. Error} & \textbf{$z$-stat} & \textbf{$p$-value} \\
 \midrule
@@ -430,7 +430,7 @@ Plain Preference (vs. Other) & \$1.41 & \$1.42 \\
 \end{tabular}
 \end{table}
 
-\vspace{1cm}
+\vspace{0.5cm}
 
 % ==============================================================================
 % TABLE 3: FLAVOR SATIATION SPECIFICATIONS (WITH GAMMAS)
@@ -443,24 +443,24 @@ Plain Preference (vs. Other) & \$1.41 & \$1.42 \\
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{l *{4}{r} c *{4}{r}}
 \toprule
-& \multicolumn{4}{c}{\textbf{Standard Flavor Variety Logit}} & & \multicolumn{4}{c}{\textbf{Random-Coefficient Flavor Variety Logit}} \\
+& \multicolumn{4}{c}{\textbf{Standard Flavor Satiation Logit}} & & \multicolumn{4}{c}{\textbf{Random-Coefficient Flavor Satiation Logit}} \\
 \cmidrule{2-5} \cmidrule{7-10}
 \textbf{Parameter} & \textbf{Estimate} & \textbf{Std. Error} & \textbf{$z$-stat} & \textbf{$p$-value} & & \textbf{Estimate} & \textbf{Std. Error} & \textbf{$z$-stat} & \textbf{$p$-value} \\
 \midrule
-Constant & 0.9447 & 0.0397 & 23.824 & 0.0000$^{***}$ & & 0.9419 & 0.0396 & 23.785 & 0.0000$^{***}$ \\
-$\beta_{\text{berry}}$ (Mean) & -0.7611 & 0.0126 & -60.171 & 0.0000$^{***}$ & & -0.7503 & 0.0127 & -58.992 & 0.0000$^{***}$ \\
-$\beta_{\text{plain}}$ (Mean) & -1.3894 & 0.0179 & -77.464 & 0.0000$^{***}$ & & -1.3940 & 0.0179 & -77.876 & 0.0000$^{***}$ \\
-$\gamma_{\text{berry}}$ (Mean) & -0.0678 & 0.0221 & -3.065 & 0.0022$^{**}$ & & -10.0000 & 2.3436 & -4.267 & 0.0000$^{***}$ \\
-$\gamma_{\text{plain}}$ (Mean) & -0.0130 & 0.0177 & -0.735 & 0.4625 & & -0.8837 & 0.0000 & $-\infty$ & 0.0000$^{***}$ \\
-SD $\beta_{\text{berry}}$ & \multicolumn{4}{c}{---} & & -9.2397 & 46.9558 & -0.197 & 0.8440 \\
-SD $\beta_{\text{plain}}$ & \multicolumn{4}{c}{---} & & 0.0006 & 0.0000 & $\infty$ & 0.0000$^{***}$ \\
-SD $\gamma_{\text{berry}}$ & \multicolumn{4}{c}{---} & & 5.7743 & 1.3128 & 4.399 & 0.0000$^{***}$ \\
-SD $\gamma_{\text{plain}}$ & \multicolumn{4}{c}{---} & & 1.4779 & 0.0000 & $\infty$ & 0.0000$^{***}$ \\
-Price ($\alpha$) & -0.9830 & 0.0299 & -32.868 & 0.0000$^{***}$ & & 0.3750 & 0.0112 & 33.486 & 0.0000$^{***}$ \\
-Control Function ($\sigma$) & 0.1671 & 0.0292 & 5.726 & 0.0000$^{***}$ & & 1.1919 & 0.0347 & 34.315 & 0.0000$^{***}$ \\
+Constant & 0.9447 & 0.0397 & 23.824 & 0.0000$^{***}$ & & 0.9353 & 0.0398 & 23.477 & 0.0000$^{***}$ \\
+$\beta_{\text{berry}}$ (Mean) & -0.7611 & 0.0126 & -60.171 & 0.0000$^{***}$ & & -0.7500 & 0.0126 & -59.687 & 0.0000$^{***}$ \\
+$\beta_{\text{plain}}$ (Mean) & -1.3894 & 0.0179 & -77.464 & 0.0000$^{***}$ & & -1.3994 & 0.0155 & -90.252 & 0.0000$^{***}$ \\
+$\gamma_{\text{berry}}$ (Mean) & -0.0678 & 0.0221 & -3.065 & 0.0022$^{**}$ & & -10.0000 & 0.3606 & -27.730 & 0.0000$^{***}$ \\
+$\gamma_{\text{plain}}$ (Mean) & -0.0130 & 0.0177 & -0.735 & 0.4625 & & -1.7404 & 0.5154 & -3.377 & 0.0007$^{***}$ \\
+SD $\beta_{\text{berry}}$ & \multicolumn{4}{c}{---} & & 0.0000 & 0.0000 & $\infty$ & 0.0000$^{***}$ \\
+SD $\beta_{\text{plain}}$ & \multicolumn{4}{c}{---} & & 0.0000 & 0.0000 & $\infty$ & 0.0000$^{***}$ \\
+SD $\gamma_{\text{berry}}$ & \multicolumn{4}{c}{---} & & 6.9874 & 0.2905 & 24.053 & 0.0000$^{***}$ \\
+SD $\gamma_{\text{plain}}$ & \multicolumn{4}{c}{---} & & 4.4204 & 1.2400 & 3.565 & 0.0004$^{***}$ \\
+Price ($\alpha$) & -0.9830 & 0.0299 & -32.868 & 0.0000$^{***}$ & & -0.9759 & 0.0301 & -32.468 & 0.0000$^{***}$ \\
+Control Function ($\sigma$) & 0.1671 & 0.0292 & 5.726 & 0.0000$^{***}$ & & 0.1762 & 0.0291 & 6.045 & 0.0000$^{***}$ \\
 \midrule
 Optimization Success & \multicolumn{4}{c}{True} & & \multicolumn{4}{c}{True} \\
-Final Log-Likelihood & \multicolumn{4}{c}{-71,947.72} & & \multicolumn{4}{c}{-71,904.13} \\
+Final Log-Likelihood & \multicolumn{4}{c}{-71,947.72} & & \multicolumn{4}{c}{-71,894.17} \\
 \bottomrule
 \multicolumn{10}{l}{\footnotesize $^{***}p<0.001$, $^{**}p<0.05$, $^*p<0.10$.}
 \end{tabular}%
@@ -479,13 +479,17 @@ Final Log-Likelihood & \multicolumn{4}{c}{-71,947.72} & & \multicolumn{4}{c}{-71
 \toprule
 \textbf{Attribute / Parameter} & \textbf{Standard Flavor Satiation WTP (\$)} & \textbf{RC Flavor Satiation WTP (\$)} \\
 \midrule
-Berry Preference (vs. Other) & \$0.77 & -\$2.00 \\
-Plain Preference (vs. Other) & \$1.41 & -\$3.72 \\
-Satiation Disutility (Berry) & \$1.41 & -\$3.72 \\
-Satiation Disutility (Plain) & \$0.07 & -\$26.66 \\
+Berry Preference (vs. Other) & \$0.77 & \$0.77 \\
+Plain Preference (vs. Other) & \$1.41 & \$1.43 \\
+Satiation Disutility (Berry) & \$1.41 & \$1.43 \\
+Satiation Disutility (Plain) & \$0.07 & \$10.25 \\
 \bottomrule
 \end{tabular}
 \end{table}
+
+% ==============================================================================
+% TABLE 5: OPTIMAL PRICING
+% ==============================================================================
 \begin{table}[htbp]
 \centering
 \caption{Information Structure, Optimal Pricing, and Value of Information Across Population Mixes}

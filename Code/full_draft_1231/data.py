@@ -46,6 +46,7 @@ raw_panel = (
             pl.col("quantity").cast(pl.Int64, strict=False),
             pl.col("deal_flag_uc").cast(pl.Int64, strict=False),
             pl.col("household_income").cast(pl.Int64, strict=False),
+            pl.col("head_age").cast(pl.Int64, strict=False),
         ]
     )
 )
@@ -81,13 +82,6 @@ if "product_module_code_hms" in schema_names:
 
 if "price" in schema_names:
     exprs.append(pl.col("price").cast(pl.Float64))
-elif "total_price_paid" in schema_names:
-    exprs.append(
-        (
-            pl.col("total_price_paid").cast(pl.Float64)
-            / pl.col("quantity").cast(pl.Float64)
-        ).alias("price")
-    )
 
 scan_q = pl.scan_parquet(MERGED_PATH).with_columns(exprs)
 
@@ -97,6 +91,8 @@ if "product_module_code_hms" in schema_names:
 df_estimation = (
     scan_q.filter(pl.col("household_size") == 1)
     .filter(pl.col("serving_per_container_cd").is_in([67181961, 65622705]))
+    .filter(pl.col("price").is_not_null())
+    .filter(pl.col("price") > 0.10)
     .collect()
     .to_pandas()
 )
@@ -110,16 +106,16 @@ console.print(
     f"{df_estimation['household_code'].nunique():,} unique HHs"
 )
 
-# Save processed parquet file for estimation scripts retaining native price
-# pl.from_pandas(df_estimation).write_parquet(OUT_PATH)
-# console.print(
-#    f"[bold green]Saved estimation parquet directly to: {OUT_PATH}[/bold green]"
-# )
-
 # ==============================================================================
 # 2. FLAVOR & SWITCHING ENCODING (ESTIMATION SAMPLE)
 # ==============================================================================
-# 0 = Plain, 1 = Other, 2 = Berry
+if "purchase_date" in df_estimation.columns:
+    df_estimation["purchase_date"] = pd.to_datetime(
+        df_estimation["purchase_date"].astype(str).str.replace("-", "", regex=False),
+        format="%Y%m%d",
+        errors="coerce",
+    )
+
 descr_cols = [
     c
     for c in df_estimation.columns
@@ -128,7 +124,7 @@ descr_cols = [
 
 df_estimation["full_text"] = ""
 for c in descr_cols:
-    ["full_text"] += " " + df_estimation[c].fillna("").astype(str)
+    df_estimation["full_text"] += " " + df_estimation[c].fillna("").astype(str)
 df_estimation["full_text"] = df_estimation["full_text"].str.lower()
 
 berry_regex = r"berry|straw|blue|rasp|black|cran|cherry|wildberry"
@@ -136,11 +132,16 @@ plain_regex = r"plain|unflavored"
 
 is_plain = df_estimation["full_text"].str.contains(plain_regex, na=False)
 is_berry = df_estimation["full_text"].str.contains(berry_regex, na=False) & (~is_plain)
+
+# 0 = Plain, 1 = Other, 2 = Berry
 df_estimation["flavor_cat"] = np.select([is_plain, is_berry], [0, 2], default=1)
 
-df_estimation = df_estimation.sort_values(
-    ["household_code", "purchase_date", "trip_code_uc"]
-)
+sort_cols = [
+    c
+    for c in ["household_code", "purchase_date", "trip_code_uc"]
+    if c in df_estimation.columns
+]
+df_estimation = df_estimation.sort_values(sort_cols)
 df_estimation["trip_seq"] = df_estimation.groupby("household_code").cumcount() + 1
 df_estimation["prev_flavor"] = df_estimation.groupby("household_code")[
     "flavor_cat"
@@ -174,7 +175,11 @@ full_hhs = df_full_panel["household_code"].nunique()
 est_hhs = df_estimation["household_code"].nunique()
 
 full_trips = df_full_panel.groupby("household_code")["trip_code_uc"].nunique().mean()
-est_trips = df_estimation.groupby("household_code")["trip_code_uc"].nunique().mean()
+est_trips = (
+    df_estimation.groupby("household_code")["trip_code_uc"].nunique().mean()
+    if "trip_code_uc" in df_estimation.columns
+    else np.nan
+)
 
 full_inc_mean = df_full_panel["household_income"].mean()
 est_inc_mean = df_estimation["household_income"].mean()
@@ -189,7 +194,11 @@ stats_table.add_row("Unique Households", f"{full_hhs:,}", f"{est_hhs:,}")
 stats_table.add_row(
     "Total Purchases / Rows", f"{len(df_full_panel):,}", f"{len(df_estimation):,}"
 )
-stats_table.add_row("Mean Shopping Trips / HH", f"{full_trips:.2f}", f"{est_trips:.2f}")
+stats_table.add_row(
+    "Mean Shopping Trips / HH",
+    f"{full_trips:.2f}",
+    f"{est_trips:.2f}" if pd.notna(est_trips) else "N/A",
+)
 stats_table.add_row(
     "Mean Household Income ($)",
     f"${full_inc_mean:,.2f}",
@@ -202,8 +211,14 @@ stats_table.add_row(
 )
 stats_table.add_row("Mean Head Age", f"{full_age:.1f}", f"{est_age:.1f}")
 
-est_price = df_estimation["price"].mean()
-stats_table.add_row("Mean Native Unit Price ($)", "N/A", f"${est_price:.2f}")
+est_price = (
+    df_estimation["price"].mean() if "price" in df_estimation.columns else np.nan
+)
+stats_table.add_row(
+    "Mean Native Unit Price ($)",
+    "N/A",
+    f"${est_price:.2f}" if pd.notna(est_price) else "N/A",
+)
 
 console.print(stats_table)
 

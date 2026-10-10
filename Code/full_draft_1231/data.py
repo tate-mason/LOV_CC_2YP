@@ -52,7 +52,7 @@ raw_panel = (
 
 # Active households across overall panel
 active_hhs = (
-    raw_panel.group_by("household_code", "week_end")
+    raw_panel.group_by("household_code")
     .agg(pl.col("trip_code_uc").n_unique().alias("total_trips"))
     .filter(pl.col("total_trips") > 2)
     .select("household_code")
@@ -119,28 +119,6 @@ console.print(
 # ==============================================================================
 # 2. FLAVOR & SWITCHING ENCODING (ESTIMATION SAMPLE)
 # ==============================================================================
-df_estimation["purchase_date"] = pd.to_datetime(
-    df_estimation["purchase_date"].astype(str).str.replace("-", "", regex=False),
-    format="%Y%m%d",
-    errors="coerce",
-)
-df_estimation["week_end"] = df_estimation["purchase_date"] + pd.offsets.Week(
-    weekday=5, n=0
-)
-
-df_estimation["flavor_str"] = df_estimation["flavor"].fillna("").astype(str)
-df_estimation["full_text"] = (
-    df_estimation["flavor_str"]
-    + " "
-    + df_estimation["product_description"].fillna("").astype(str)
-).str.lower()
-
-berry_regex = r"berry|straw|blue|rasp|black|cran|cherry|wildberry"
-plain_regex = r"plain|unflavored"
-
-is_plain = df_estimation["full_text"].str.contains(plain_regex, na=False)
-is_berry = df_estimation["full_text"].str.contains(berry_regex, na=False) & (~is_plain)
-
 # 0 = Plain, 1 = Other, 2 = Berry
 df_estimation["flavor_cat"] = np.select([is_plain, is_berry], [0, 2], default=1)
 

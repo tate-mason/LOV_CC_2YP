@@ -71,6 +71,7 @@ console.print(
     "Rows after household size filter:", lazy_panel.select(pl.len()).collect().item()
 )
 
+lazy_panel = lazy_panel.with_columns(pl.col("serving_per_container_cd").cast(pl.Int64))
 lazy_panel = lazy_panel.filter(
     pl.col("serving_per_container_cd").is_in([67181961, 65622705])
 )

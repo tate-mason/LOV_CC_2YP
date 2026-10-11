@@ -334,6 +334,8 @@ hh_total_qty["volume_quintile"] = pd.qcut(
     hh_total_qty["hh_total_quantity"],
     q=5,
     labels=["Q1 (Light)", "Q2", "Q3", "Q4", "Q5 (Heavy)"],
+    retbins=True,
+    duplicates="drop",
 )
 
 quintile_shares = hh_shares.merge(

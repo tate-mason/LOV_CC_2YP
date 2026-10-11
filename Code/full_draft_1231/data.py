@@ -61,6 +61,9 @@ agent_panel = (
     raw_panel.join(active_hhs, on="household_code", how="inner").collect().to_pandas()
 )
 
+# Track total store trips across ALL grocery shopping per household BEFORE yogurt filtering
+total_hh_trips = agent_panel.groupby("household_code")["trip_code_uc"].nunique()
+
 # Parse dates & clean demographics
 agent_panel["purchase_date"] = pd.to_datetime(
     agent_panel["purchase_date"].astype(str).str.replace("-", "", regex=False),
@@ -75,6 +78,7 @@ for col in [
     "deal_flag_uc",
     "male_head_age",
     "female_head_age",
+    "price",
 ]:
     if col in agent_panel.columns:
         agent_panel[col] = pd.to_numeric(agent_panel[col], errors="coerce").fillna(0)
@@ -92,13 +96,18 @@ agent_panel["yogurt_purchase"] = (
 ).astype(int)
 
 # ==============================================================================
-# 2. FILTER ESTIMATION SAMPLE
+# 2. FILTER ESTIMATION SAMPLE (MATCHING EST_STEP2 PREPROCESSING)
 # ==============================================================================
 est_sample = agent_panel[
     (agent_panel["household_size"] == 1)
     & (agent_panel["yogurt_purchase"] == 1)
     & (agent_panel["serving_per_container_cd"].isin([67181961, 65622705]))
+    & (agent_panel["product_module_code_hms"].isin(["3603", "3612"]))
 ].copy()
+
+# Enforce positive price filter matching est_step2
+if "price" in est_sample.columns:
+    est_sample = est_sample[est_sample["price"] > 0.1]
 
 # Flavor Encoding (0: Other, 1: Berry, 2: Plain)
 est_sample["flavor_str"] = est_sample["flavor"].fillna("").astype(str)
@@ -154,7 +163,6 @@ console.print(
     "\n[bold green]Generating Figure 1: Household HHI Distribution...[/bold green]"
 )
 
-# Compute lifetime overall flavor shares per household
 hh_flavor_qty = (
     est_sample.groupby(["household_code", "flavor"])["quantity"].sum().reset_index()
 )
@@ -168,7 +176,6 @@ hh_shares = hh_flavor_qty.merge(hh_total_qty, on="household_code")
 hh_shares["s_j"] = hh_shares["quantity"] / hh_shares["hh_total_quantity"]
 
 # Calculate Herfindahl-Hirschman Index (HHI = sum(s_j^2)) per household
-# HHI = 1.0 -> 100% single flavor loyalist; HHI ~ 0.33 -> Perfectly diversified
 hh_hhi = (
     hh_shares.groupby("household_code")["s_j"]
     .apply(lambda x: np.sum(x**2))
@@ -223,7 +230,6 @@ console.print(
     "\n[bold green]Generating Figure 2: Basket Composition by Volume Quintiles...[/bold green]"
 )
 
-# Assign households to 5 volume quintiles based on lifetime total purchases
 hh_total_qty["volume_quintile"] = pd.qcut(
     hh_total_qty["hh_total_quantity"],
     q=5,
@@ -234,7 +240,6 @@ quintile_shares = hh_shares.merge(
     hh_total_qty[["household_code", "volume_quintile"]], on="household_code"
 )
 
-# Aggregate total quantity by quintile and flavor to calculate exact basket shares
 quintile_flavor_summary = (
     quintile_shares.groupby(["volume_quintile", "flavor"], observed=True)["quantity"]
     .sum()
@@ -346,8 +351,11 @@ table.add_column("Estimation Sample", justify="right")
 hh_full = agent_panel["household_code"].nunique()
 hh_est = est_sample["household_code"].nunique()
 
-trips_full = agent_panel.groupby("household_code")["trip_code_uc"].nunique().mean()
-trips_est = est_sample.groupby("household_code")["trip_code_uc"].nunique().mean()
+trips_full = total_hh_trips.mean()
+trips_est = total_hh_trips.loc[
+    total_hh_trips.index.isin(est_sample["household_code"])
+].mean()
+yogurt_trips_est = est_sample.groupby("household_code")["trip_code_uc"].nunique().mean()
 
 inc_full = agent_panel["household_income"].mean()
 inc_est = est_sample["household_income"].mean()
@@ -367,7 +375,8 @@ deal_est = (
 units_est = est_sample.groupby(["household_code", "week_end"])["quantity"].sum().mean()
 
 table.add_row("Unique Households", f"{hh_full:,}", f"{hh_est:,}")
-table.add_row("Mean Store Trips / HH", f"{trips_full:.2f}", f"{trips_est:.2f}")
+table.add_row("Mean Total Store Trips / HH", f"{trips_full:.2f}", f"{trips_est:.2f}")
+table.add_row("Mean Yogurt Purchase Trips / HH", "N/A", f"{yogurt_trips_est:.2f}")
 table.add_row("Mean Household Income", f"${inc_full:,.2f}", f"${inc_est:,.2f}")
 table.add_row("Mean Head Age", f"{age_full:.1f} yrs", f"{age_est:.1f} yrs")
 table.add_row("Deal / Coupon Purchase Rate", f"{deal_full:.2f}%", f"{deal_est:.2f}%")

@@ -96,18 +96,49 @@ agent_panel["yogurt_purchase"] = (
 ).astype(int)
 
 # ==============================================================================
-# 2. FILTER ESTIMATION SAMPLE (MATCHING EST_STEP2 PREPROCESSING)
+# 2. FILTER ESTIMATION SAMPLE (EXACT EST_STEP2 MATCHING)
 # ==============================================================================
-est_sample = agent_panel[
+import statsmodels.formula.api as smf
+
+# 1. Base Filters
+est_master = agent_panel[
     (agent_panel["household_size"] == 1)
-    & (agent_panel["yogurt_purchase"] == 1)
     & (agent_panel["serving_per_container_cd"].isin([67181961, 65622705]))
     & (agent_panel["product_module_code_hms"].isin(["3603", "3612"]))
 ].copy()
 
-# Enforce positive price filter matching est_step2
-if "price" in est_sample.columns:
-    est_sample = est_sample[est_sample["price"] > 0.1]
+# 2. Price & Instrument Residual Filter (matches est_step2.py)
+est_master = est_master[(est_master["price"] > 0.1) | (est_master["price"].isna())]
+
+# Build Market Price IV
+market_price = (
+    est_master.groupby(["upc", "week_end", "market_name"])["price"].mean().reset_index()
+)
+totals = (
+    market_price.groupby(["upc", "week_end"])["price"]
+    .agg(["sum", "count"])
+    .reset_index()
+    .rename(columns={"sum": "price_sum_all", "count": "n_markets_all"})
+)
+market_price = market_price.merge(totals, on=["upc", "week_end"], how="left")
+market_price["price_iv"] = (market_price["price_sum_all"] - market_price["price"]) / (
+    market_price["n_markets_all"] - 1
+)
+market_price["price_iv"] = market_price["price_iv"].replace([np.inf, -np.inf], np.nan)
+
+est_master = est_master.merge(
+    market_price[["upc", "week_end", "market_name", "price_iv"]],
+    on=["upc", "week_end", "market_name"],
+    how="left",
+)
+
+# Run OLS to isolate valid rows (dropping rows with missing brand/IV)
+iv_res = smf.ols(
+    "price ~ price_iv + brand_cd + C(week_end)", data=est_master, missing="drop"
+).fit()
+
+# Keep only the valid OLS rows
+est_sample = est_master.loc[iv_res.model.data.row_labels].copy()
 
 # Flavor Encoding (0: Other, 1: Berry, 2: Plain)
 est_sample["flavor_str"] = est_sample["flavor"].fillna("").astype(str)
@@ -356,6 +387,7 @@ trips_est = total_hh_trips.loc[
     total_hh_trips.index.isin(est_sample["household_code"])
 ].mean()
 yogurt_trips_est = est_sample.groupby("household_code")["trip_code_uc"].nunique().mean()
+choice_weeks_est = est_sample.groupby("household_code")["week_end"].nunique().mean()
 
 inc_full = agent_panel["household_income"].mean()
 inc_est = est_sample["household_income"].mean()
@@ -377,6 +409,7 @@ units_est = est_sample.groupby(["household_code", "week_end"])["quantity"].sum()
 table.add_row("Unique Households", f"{hh_full:,}", f"{hh_est:,}")
 table.add_row("Mean Total Store Trips / HH", f"{trips_full:.2f}", f"{trips_est:.2f}")
 table.add_row("Mean Yogurt Purchase Trips / HH", "N/A", f"{yogurt_trips_est:.2f}")
+table.add_row("Mean Observed Choice Weeks / HH", "N/A", f"{choice_weeks_est:.2f}")
 table.add_row("Mean Household Income", f"${inc_full:,.2f}", f"${inc_est:,.2f}")
 table.add_row("Mean Head Age", f"{age_full:.1f} yrs", f"{age_est:.1f} yrs")
 table.add_row("Deal / Coupon Purchase Rate", f"{deal_full:.2f}%", f"{deal_est:.2f}%")

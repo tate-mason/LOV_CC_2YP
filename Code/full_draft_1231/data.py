@@ -1,22 +1,20 @@
 """
 Data Processing & Summary Statistics Pipeline
-- Full sample summary statistics
-- Yogurt purchasers summary statistics
-- Flavor switching analysis & heatmaps
+- Full sample vs. Estimation sample summary statistics
+- Figure 1: Distribution of Household Flavor Variety (HHI)
+- Figure 2: Flavor Basket Composition by Purchase Volume Quintiles
+- Figure 3: Time Series of Weekly Flavor Purchase Shares
 """
 
-# Tools
-from enum import unique
-import os  # type:ignore
+import os
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import polars as pl
 from rich.console import Console
-from rich.traceback import install
 from rich.table import Table
+from rich.traceback import install
 import seaborn as sns
-
 
 install()
 console = Console()
@@ -26,17 +24,15 @@ pd.set_option("display.max_rows", None, "display.max_columns", None)
 HMS_PATH = (
     "/scratch/dtm63837/Kilts_Panel/nielsen_extracts/output_markets/full_panel.parquet"
 )
-RMS_PATH = "/scratch/dtm63837/Kilts_Panel/nielsen_extracts/RMS/output_markets/full_retail.parquet"
-OUT_PATH = "/scratch/dtm63837/Kilts_Panel/nielsen_extracts/scanner_panel.parquet"
+MERGED_PATH = "/scratch/dtm63837/Kilts_Panel/nielsen_extracts/scanner_panel.parquet"
 PLOT_OUTPUT_DIR = "../Output/Plots"
 os.makedirs(PLOT_OUTPUT_DIR, exist_ok=True)
 
 # ==============================================================================
-# 1. DATA LOADING & POLARS FILTER PUSHDOWN
+# 1. DATA LOADING & POLARS FILTER PUSHDOWN (FULL SAMPLE)
 # ==============================================================================
-console.print("[bold green]Loading data with Polars...[/bold green]")
+console.print("[bold green]Loading full panel with Polars...[/bold green]")
 
-# Scan raw parquet with strict string formatting for module codes
 raw_panel = (
     pl.scan_parquet(HMS_PATH)
     .with_columns(pl.all().name.to_lowercase())
@@ -53,7 +49,7 @@ raw_panel = (
     )
 )
 
-# 1. Household trip thresholds across the entire dataset
+# Active households with >2 trips overall
 active_hhs = (
     raw_panel.group_by("household_code")
     .agg(pl.col("trip_code_uc").n_unique().alias("total_trips"))
@@ -61,36 +57,11 @@ active_hhs = (
     .select("household_code")
 )
 
-# 2. Apply filters one at a time to see where rows disappear
-lazy_panel = raw_panel.join(active_hhs, on="household_code", how="inner")
-console.print(
-    "Rows after household join:", lazy_panel.select(pl.len()).collect().item()
+agent_panel = (
+    raw_panel.join(active_hhs, on="household_code", how="inner").collect().to_pandas()
 )
 
-lazy_panel = lazy_panel.filter(pl.col("household_size") == 1)
-console.print(
-    "Rows after household size filter:", lazy_panel.select(pl.len()).collect().item()
-)
-
-console.print(
-    "Rows after serving size filter:", lazy_panel.select(pl.len()).collect().item()
-)
-
-agent_panel = lazy_panel.collect().to_pandas()
-
-console.print(
-    f"Filtered panel loaded: {len(agent_panel):,} rows | "
-    f"{
-        agent_panel[
-            'household_code'
-        ].nunique():,} unique single-person yogurt-purchasing HHs"
-)
-
-# ==============================================================================
-# 2. DATA CLEANING & SAFE TYPE CASTING
-# ==============================================================================
-
-# Parse dates
+# Parse dates & clean demographics
 agent_panel["purchase_date"] = pd.to_datetime(
     agent_panel["purchase_date"].astype(str).str.replace("-", "", regex=False),
     format="%Y%m%d",
@@ -98,276 +69,308 @@ agent_panel["purchase_date"] = pd.to_datetime(
 )
 agent_panel["week_end"] = agent_panel["purchase_date"] + pd.offsets.Week(weekday=5, n=0)
 
-# Explicit numeric casting for Pandas/PyArrow safety
-numeric_cols = [
+for col in [
     "quantity",
     "household_income",
     "deal_flag_uc",
     "male_head_age",
     "female_head_age",
-]
-for col in numeric_cols:
+]:
     if col in agent_panel.columns:
-        agent_panel[col] = pd.to_numeric(agent_panel[col], errors="coerce").fillna(0)  # type:ignore
+        agent_panel[col] = pd.to_numeric(agent_panel[col], errors="coerce").fillna(0)
 
-# Re-evaluate age logic safely
 agent_panel["male_head_age"] = agent_panel["male_head_age"].replace(0, np.nan)
 agent_panel["female_head_age"] = agent_panel["female_head_age"].replace(0, np.nan)
 agent_panel["head_age"] = agent_panel["male_head_age"].fillna(
     agent_panel["female_head_age"]
 )
 
-# Safe Flavor Encoding
-agent_panel["flavor_str"] = agent_panel["flavor"].fillna("").astype(str)
-agent_panel["flavor_cd"] = pd.to_numeric(
-    agent_panel["flavor_cd"], errors="coerce"
-).fillna(0)  # type:ignore
+# Yogurt Purchase Dummy
+agent_panel["yogurt_purchase"] = (
+    agent_panel["product_module_code_hms"].isin(["3603", "3612"])
+    & (agent_panel["quantity"] > 0)
+).astype(int)
 
-agent_master = agent_panel.copy()
-agent_master["flavor"] = np.select(
+# ==============================================================================
+# 2. FILTER ESTIMATION SAMPLE
+# ==============================================================================
+est_sample = agent_panel[
+    (agent_panel["household_size"] == 1)
+    & (agent_panel["yogurt_purchase"] == 1)
+    & (agent_panel["serving_per_container_cd"].isin([67181961, 65622705]))
+].copy()
+
+# Flavor Encoding (0: Other, 1: Berry, 2: Plain)
+est_sample["flavor_str"] = est_sample["flavor"].fillna("").astype(str)
+est_sample["flavor_cd"] = pd.to_numeric(
+    est_sample["flavor_cd"], errors="coerce"
+).fillna(0)
+
+est_sample["flavor"] = np.select(
     [
-        agent_master["flavor_str"].str.contains("berry", case=False, na=False),
-        agent_master["flavor_cd"].isin([67676592, 66987057]),
+        est_sample["flavor_str"].str.contains("berry", case=False, na=False),
+        est_sample["flavor_cd"].isin([67676592, 66987057]),
     ],
     [1, 2],
     default=0,
 )
 
-# Yogurt Purchase Dummy
-agent_master["yogurt_purchase"] = (
-    agent_master["product_module_code_hms"].isin(["3603", "3612"])
-    & (agent_master["quantity"] > 0)
-).astype(int)
-
-# Outside Option Analysis
-trip_yogurt = (
-    agent_master.groupby(["household_code", "trip_code_uc"])["yogurt_purchase"]
-    .max()
+# ==============================================================================
+# 3. WEEKLY SHARES COMPUTATION
+# ==============================================================================
+weekly_flavor_qty = (
+    est_sample.groupby(["household_code", "week_end", "flavor"])["quantity"]
+    .sum()
     .reset_index()
 )
-trip_yogurt["chose_outside_option"] = (trip_yogurt["yogurt_purchase"] == 0).astype(int)
-outside_option_rate = trip_yogurt["chose_outside_option"].mean()
 
-# Filter for yogurt purchases safely
-agent_yogurt = agent_master[agent_master["yogurt_purchase"] == 1].copy()
+weekly_total_qty = (
+    weekly_flavor_qty.groupby(["household_code", "week_end"])["quantity"]
+    .sum()
+    .reset_index()
+    .rename(columns={"quantity": "total_weekly_qty"})
+)
 
-agent_yogurt = agent_yogurt[
-    agent_yogurt["serving_per_container_cd"].isin([67181961, 65622705])
-]
+weekly_shares = weekly_flavor_qty.merge(
+    weekly_total_qty, on=["household_code", "week_end"], how="left"
+)
+weekly_shares["share"] = weekly_shares["quantity"] / weekly_shares["total_weekly_qty"]
 
-# Sort chronologically for switching metrics
-weekly_yogurt = (
-    agent_yogurt.sort_values(
-        ["household_code", "week_end", "purchase_date", "trip_code_uc"]  # type:ignore
+shares_wide = (
+    weekly_shares.pivot_table(
+        index=["household_code", "week_end"],
+        columns="flavor",
+        values="share",
+        fill_value=0.0,
     )
-    .groupby(["household_code", "week_end"], as_index=False)
-    .mode()
-)
-
-weekly_yogurt = weekly_yogurt.sort_values(["household_code", "week_end"])
-weekly_yogurt["week_seq"] = weekly_yogurt.groupby("household_code").cumcount() + 1
-weekly_yogurt["prev_flavor"] = agent_yogurt.groupby("household_code")["flavor"].shift(1)
-# Switching dummy (only valid from trip 2 onwards)
-agent_yogurt["switched"] = np.where(
-    agent_yogurt["week_seq"] > 1,
-    (agent_yogurt["flavor"] != agent_yogurt["prev_flavor"]).astype(int),
-    0,
+    .reset_index()
+    .rename(columns={0: "share_other", 1: "share_berry", 2: "share_plain"})
 )
 
 # ==============================================================================
-# 3. SUMMARY STATISTICS
+# 4. FIGURE 1: HOUSEHOLD FLAVOR VARIETY (HHI DISTRIBUTION)
 # ==============================================================================
-console.print("\n[bold yellow]=== FULL SAMPLE SUMMARY STATISTICS ===[/bold yellow]")
-
 console.print(
-    f"Number of households in full sample:                  {
-        agent_master['household_code'].nunique():,}\n"
-    f"Number of yogurt-purchasing households:               {
-        agent_yogurt['household_code'].nunique():,}\n"
-    f"Mean number of trips per HH:                          {
-        agent_master.groupby('household_code')['trip_code_uc'].nunique().mean():.2f}\n"
-    f"Number of yogurt purchases per trip (purchasers):     {
-        agent_yogurt.groupby(['household_code', 'week_end'])['trip_code_uc']
-        .sum()
-        .mean():.2f}\n"
-    f"Mean household income:                                ${
-        agent_master['household_income'].mean():,.2f}\n"
-    f"Median household income:                              ${
-        agent_master['household_income'].median():,.2f}\n"
-    f"Percent taking outside option each trip:              {
-        outside_option_rate * 100:.2f}%\n"
-    f"Percent purchasing with coupon:                       {
-        agent_yogurt.groupby(['household_code', 'trip_code_uc'])['deal_flag_uc']
-        .max()
-        .mean()
-        * 100:.2f}%\n"
-    f"Average Age (Overall):                                {
-        agent_master['head_age'].mean():.1f}\n"
-    f"Average Age (Male):                                   {
-        agent_master['male_head_age'].mean():.1f}\n"
-    f"Average Age (Female):                                 {
-        agent_master['female_head_age'].mean():.1f}"
+    "\n[bold green]Generating Figure 1: Household HHI Distribution...[/bold green]"
 )
+
+# Compute lifetime overall flavor shares per household
+hh_flavor_qty = (
+    est_sample.groupby(["household_code", "flavor"])["quantity"].sum().reset_index()
+)
+hh_total_qty = (
+    hh_flavor_qty.groupby("household_code")["quantity"]
+    .sum()
+    .reset_index()
+    .rename(columns={"quantity": "hh_total_quantity"})
+)
+hh_shares = hh_flavor_qty.merge(hh_total_qty, on="household_code")
+hh_shares["s_j"] = hh_shares["quantity"] / hh_shares["hh_total_quantity"]
+
+# Calculate Herfindahl-Hirschman Index (HHI = sum(s_j^2)) per household
+# HHI = 1.0 -> 100% single flavor loyalist; HHI ~ 0.33 -> Perfectly diversified
+hh_hhi = (
+    hh_shares.groupby("household_code")["s_j"]
+    .apply(lambda x: np.sum(x**2))
+    .reset_index()
+    .rename(columns={"s_j": "hhi"})
+)
+
+plt.figure(figsize=(9, 5))
+sns.set_theme(style="whitegrid")
+
+sns.histplot(
+    hh_hhi["hhi"],
+    bins=25,
+    kde=True,
+    color="#2b5c8f",
+    edgecolor="white",
+    alpha=0.7,
+)
+
+plt.axvline(
+    hh_hhi["hhi"].mean(),
+    color="#d73027",
+    linestyle="--",
+    linewidth=2,
+    label=f"Mean HHI ({hh_hhi['hhi'].mean():.2f})",
+)
+
+plt.title(
+    "Distribution of Household Flavor Concentration (HHI)",
+    fontsize=13,
+    fontweight="bold",
+)
+plt.xlabel(
+    "Herfindahl-Hirschman Index (1.0 = Single Flavor Loyalist)",
+    fontsize=11,
+    fontweight="bold",
+)
+plt.ylabel("Number of Households", fontsize=11, fontweight="bold")
+plt.legend(frameon=True, facecolor="white", edgecolor="none")
+plt.tight_layout()
+
+fig1_path = os.path.join(PLOT_OUTPUT_DIR, "fig1_flavor_hhi_distribution.pdf")
+plt.savefig(fig1_path, format="pdf", bbox_inches="tight")
+plt.close()
+
+console.print(f"[bold green]Figure 1 saved to: {fig1_path}[/bold green]")
 
 # ==============================================================================
-# 4. FLAVOR SWITCHING METRICS
+# 5. FIGURE 2: BASKET COMPOSITION BY PURCHASE VOLUME QUINTILES
 # ==============================================================================
-# Sequence indicators
-agent_yogurt["next_flavor"] = agent_yogurt.groupby("household_code")["flavor"].shift(-1)
-
-# Flavor spells
-agent_yogurt["flavor_spell_id"] = agent_yogurt.groupby("household_code")[
-    "switched"
-].cumsum()
-agent_yogurt["flavor_spell_buys"] = (
-    agent_yogurt.groupby(["household_code", "flavor_spell_id"]).cumcount() + 1
-)
-agent_yogurt["spell_length"] = agent_yogurt.groupby(
-    ["household_code", "flavor_spell_id"]
-)["flavor_spell_buys"].transform("max")
-
-# Filtered Switch Datasets
-switching_sample = agent_yogurt[agent_yogurt["switched"] == 1]
-switches_coupon = switching_sample[switching_sample["deal_flag_uc"] == 1]
-
-# Guarded percent calculation to avoid ZeroDivisionError
-coupon_switch_pct = (
-    (len(switches_coupon) / len(switching_sample) * 100)
-    if len(switching_sample) > 0
-    else 0.0
-)
-
-console.print("\n[bold yellow]=== FLAVOR SWITCHING METRICS ===[/bold yellow]")
 console.print(
-    f"Mean consecutive buys by flavor x HH:                 {
-        agent_yogurt['spell_length'].mean():.2f}\n"
-    f"Mean times switching by flavor x HH:                  {
-        agent_yogurt.groupby(['household_code', 'flavor'])['switched']
-        .sum()
-        .mean():.2f}\n"
-    f"Percent of HH who ever-switch flavors:                 {
-        (agent_yogurt.groupby('household_code')['flavor'].nunique() > 1).mean()
-        * 100:.2f}%\n"
-    f"Percent switching due to coupon/deal:                 {coupon_switch_pct:.2f}%"
+    "\n[bold green]Generating Figure 2: Basket Composition by Volume Quintiles...[/bold green]"
 )
 
-# ==============================================================================
-# 5. HEATMAP VISUALIZATION
-# ==============================================================================
-if not switching_sample.empty:
-    console.print("\n[bold green]Generating flavor switching heatmap...[/bold green]")
-
-    heat_flav = (
-        switching_sample.groupby(["prev_flavor", "flavor"])["spell_length"]
-        .mean()
-        .unstack()
-        .rename(
-            columns={0: "Other", 1: "Berry", 2: "Plain"},  # type: ignore
-            index={0: "Other", 1: "Berry", 2: "Plain"},
-        )
-    )
-
-    cell_labs = np.array(
-        [
-            [f"{val:.1f} trips" if not np.isnan(val) else "" for val in row]
-            for row in heat_flav.to_numpy()
-        ]
-    )
-
-    fig, ax = plt.subplots(figsize=(8, 6))
-    sns.heatmap(
-        heat_flav,
-        annot=cell_labs,
-        fmt="",
-        cmap="YlOrRd",
-        cbar_kws={"label": "Mean Spell Length (Trips)"},
-        ax=ax,
-    )
-
-    ax.set_xlabel("Flavor Switched To", fontsize=11, fontweight="bold")
-    ax.set_ylabel("Flavor Switched From", fontsize=11, fontweight="bold")
-    ax.set_title(
-        "Mean Spell Length Upon Switching Flavors", fontsize=12, fontweight="bold"
-    )
-
-    plt.tight_layout()
-    output_path = os.path.join(PLOT_OUTPUT_DIR, "3_flav_heatmap.pdf")
-    plt.savefig(output_path, format="pdf", bbox_inches="tight")
-    plt.close()
-
-    console.print(
-        f"[bold green]Heatmap successfully saved to: {output_path}[/bold green]"
-    )
-else:
-    console.print(
-        "[bold red]No switching records found to generate heatmap.[/bold red]"
-    )
-
-# ===========================================================================
-# 6. RETAIL LOAD, KEY ALIGNMENT & STREAMING SINK
-# ===========================================================================
-console.print("\n[bold green]Preparing Left Join and Streaming Output...[/bold green]")
-
-years = [2022, 2023, 2024]
-for y in years:
-    yearly_merge = []
-    merged_df = pl.scan_parquet(
-        f"/scratch/dtm63837/Kilts_Panel/nielsen_extracts/scanner_panel_{y}.parquet"
-    )
-    yearly_merge.append(merged_df)
-
-    combined_merged = pl.concat(yearly_merge, how="diagonal_relaxed")
-    combined_merged.sink_parquet(OUT_PATH)
-
-merged_df = pl.scan_parquet(OUT_PATH).collect().to_pandas()
-
-console.print(merged_df.shape)
-console.print(merged_df.describe())
-console.print(merged_df.columns.to_list())
-# unique_combos = merged_df[
-#    ["serving_per_container", "serving_per_container_cd"]
-# ].drop_duplicates()
-# console.print(unique_combos)
-
-MERGED_PATH = "/scratch/dtm63837/Kilts_Panel/nielsen_extracts/scanner_panel.parquet"
-
-# 1. Load Parquet Data with Type Casts
-merged_df = (
-    pl.scan_parquet(MERGED_PATH)
-    .with_columns(
-        [
-            pl.col("quantity").cast(pl.Int64),
-            pl.col("head_age").cast(pl.Int64),
-            pl.col("household_income").cast(pl.Int64),
-            pl.col("household_size").cast(pl.Int64),
-            pl.col("yogurt_purchase").cast(pl.Int64),
-            pl.col("serving_per_container_cd").cast(pl.Int64),
-            pl.col("product_module_code_hms").cast(pl.Int64),
-            pl.col("price").cast(pl.Float64),
-            pl.col("protein_gram_cd").cast(pl.Int64),
-            pl.col("sugar_gram_cd").cast(pl.Int64),
-            pl.col("total_carbohydrate_gram_cd").cast(pl.Int64),
-            pl.col("total_fat_gram_cd").cast(pl.Int64),
-            pl.col("organic_claim_cd").cast(pl.Int64),
-        ]
-    )
-    .filter(pl.col("household_size") == 1)
-    .filter(pl.col("serving_per_container_cd").is_in([67181961, 65622705]))
-    .filter(pl.col("product_module_code_hms").is_in([3612, 3603]))
-    .collect()
-    .to_pandas()
+# Assign households to 5 volume quintiles based on lifetime total purchases
+hh_total_qty["volume_quintile"] = pd.qcut(
+    hh_total_qty["hh_total_quantity"],
+    q=5,
+    labels=["Q1 (Light)", "Q2", "Q3", "Q4", "Q5 (Heavy)"],
 )
 
-protein_combos = merged_df[["protein_gram", "protein_gram_cd"]].drop_duplicates()
-sugar_combos = merged_df[["sugar_gram", "sugar_gram_cd"]].drop_duplicates()
-carb_combos = merged_df[
-    ["total_carbohydrate_gram", "total_carbohydrate_gram_cd"]
-].drop_duplicates()
-fat_combos = merged_df[["total_fat_gram", "total_fat_gram_cd"]].drop_duplicates()
-organic_combos = merged_df[["organic_claim", "organic_claim_cd"]].drop_duplicates()
+quintile_shares = hh_shares.merge(
+    hh_total_qty[["household_code", "volume_quintile"]], on="household_code"
+)
 
-console.print(protein_combos)
-console.print(sugar_combos)
-console.print(carb_combos)
-console.print(fat_combos)
-console.print(organic_combos)
+# Aggregate total quantity by quintile and flavor to calculate exact basket shares
+quintile_flavor_summary = (
+    quintile_shares.groupby(["volume_quintile", "flavor"], observed=True)["quantity"]
+    .sum()
+    .reset_index()
+)
+quintile_totals = (
+    quintile_flavor_summary.groupby("volume_quintile", observed=True)["quantity"]
+    .sum()
+    .reset_index()
+    .rename(columns={"quantity": "q_total"})
+)
+
+q_df = quintile_flavor_summary.merge(quintile_totals, on="volume_quintile")
+q_df["basket_share"] = q_df["quantity"] / q_df["q_total"]
+
+q_pivot = q_df.pivot_table(
+    index="volume_quintile", columns="flavor", values="basket_share", fill_value=0.0
+).rename(columns={0: "Other Share", 1: "Berry Share", 2: "Plain Share"})
+
+fig, ax = plt.subplots(figsize=(9, 6))
+
+colors = ["#7fbf7b", "#d73027", "#4575b4"]
+q_pivot[["Berry Share", "Plain Share", "Other Share"]].plot(
+    kind="bar", stacked=True, color=colors, ax=ax, width=0.6, edgecolor="white"
+)
+
+plt.title(
+    "Flavor Basket Share Across Household Purchase Volume Quintiles",
+    fontsize=13,
+    fontweight="bold",
+)
+plt.xlabel("Household Purchase Volume Quintile", fontsize=11, fontweight="bold")
+plt.ylabel("Proportion of Total Yogurt Basket", fontsize=11, fontweight="bold")
+plt.xticks(rotation=0)
+plt.ylim(0, 1.0)
+plt.legend(frameon=True, facecolor="white", edgecolor="none", loc="upper right")
+plt.tight_layout()
+
+fig2_path = os.path.join(PLOT_OUTPUT_DIR, "fig2_basket_share_by_volume.pdf")
+plt.savefig(fig2_path, format="pdf", bbox_inches="tight")
+plt.close()
+
+console.print(f"[bold green]Figure 2 saved to: {fig2_path}[/bold green]")
+
+# ==============================================================================
+# 6. FIGURE 3: TIME SERIES OF FLAVOR CONSUMPTION SHARES
+# ==============================================================================
+console.print(
+    "\n[bold green]Generating Figure 3: Time Series of Shares...[/bold green]"
+)
+
+ts_shares = (
+    shares_wide.groupby("week_end")[["share_berry", "share_plain", "share_other"]]
+    .mean()
+    .reset_index()
+)
+
+plt.figure(figsize=(12, 6))
+sns.set_theme(style="whitegrid")
+
+color_dict = {
+    "share_berry": "#d73027",
+    "share_plain": "#4575b4",
+    "share_other": "#7fbf7b",
+}
+label_dict = {
+    "share_berry": "Berry Flavored Share",
+    "share_plain": "Plain Flavored Share",
+    "share_other": "Other Flavored Share",
+}
+
+for col in ["share_berry", "share_plain", "share_other"]:
+    plt.plot(
+        ts_shares["week_end"],
+        ts_shares[col],
+        linewidth=2,
+        label=label_dict[col],
+        color=color_dict[col],
+    )
+
+plt.title("Average Flavor Shares Over Time", fontsize=13, fontweight="bold")
+plt.xlabel("Week", fontsize=11, fontweight="bold")
+plt.ylabel("Mean Flavor Share of Weekly Basket", fontsize=11, fontweight="bold")
+plt.ylim(0, 1.0)
+plt.legend(frameon=True, facecolor="white", edgecolor="none", loc="upper right")
+plt.tight_layout()
+
+fig3_path = os.path.join(PLOT_OUTPUT_DIR, "fig3_flavor_share_timeseries.pdf")
+plt.savefig(fig3_path, format="pdf", bbox_inches="tight")
+plt.close()
+
+console.print(f"[bold green]Figure 3 saved to: {fig3_path}[/bold green]")
+
+# ==============================================================================
+# 7. SUMMARY STATISTICS COMPARISON TABLE
+# ==============================================================================
+console.print(
+    "\n[bold yellow]=== SAMPLE COMPARISON SUMMARY STATISTICS ===[/bold yellow]"
+)
+
+table = Table(
+    title="Summary Statistics: Full Sample vs. Estimation Sample",
+    show_header=True,
+)
+table.add_column("Statistic / Metric", style="cyan")
+table.add_column("Full Panel Sample", justify="right")
+table.add_column("Estimation Sample", justify="right")
+
+hh_full = agent_panel["household_code"].nunique()
+hh_est = est_sample["household_code"].nunique()
+
+trips_full = agent_panel.groupby("household_code")["trip_code_uc"].nunique().mean()
+trips_est = est_sample.groupby("household_code")["trip_code_uc"].nunique().mean()
+
+inc_full = agent_panel["household_income"].mean()
+inc_est = est_sample["household_income"].mean()
+
+age_full = agent_panel["head_age"].mean()
+age_est = est_sample["head_age"].mean()
+
+deal_full = (
+    agent_panel.groupby(["household_code", "trip_code_uc"])["deal_flag_uc"].max().mean()
+    * 100
+)
+deal_est = (
+    est_sample.groupby(["household_code", "trip_code_uc"])["deal_flag_uc"].max().mean()
+    * 100
+)
+
+units_est = est_sample.groupby(["household_code", "week_end"])["quantity"].sum().mean()
+
+table.add_row("Unique Households", f"{hh_full:,}", f"{hh_est:,}")
+table.add_row("Mean Store Trips / HH", f"{trips_full:.2f}", f"{trips_est:.2f}")
+table.add_row("Mean Household Income", f"${inc_full:,.2f}", f"${inc_est:,.2f}")
+table.add_row("Mean Head Age", f"{age_full:.1f} yrs", f"{age_est:.1f} yrs")
+table.add_row("Deal / Coupon Purchase Rate", f"{deal_full:.2f}%", f"{deal_est:.2f}%")
+table.add_row("Mean Weekly Yogurt Units (Purchasers)", "N/A", f"{units_est:.2f} units")
+
+console.print(table)

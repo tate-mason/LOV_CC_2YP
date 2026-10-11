@@ -17,7 +17,7 @@ console = Console()
 
 MERGED_PATH = "/scratch/dtm63837/Kilts_Panel/nielsen_extracts/scanner_panel.parquet"
 OUT_PATH = "/scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Output/"
-PLOT_OUTPUT_DIR = "../../../../Output/Plots"
+PLOT_OUTPUT_DIR = "../Output/Plots"
 os.makedirs(PLOT_OUTPUT_DIR, exist_ok=True)
 
 CATEGORIES = ["other", "berry", "plain", "outside"]

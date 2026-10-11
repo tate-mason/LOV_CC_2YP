@@ -1,13 +1,13 @@
 # Fdb version 4
-["bibtex draft_1010"] 1791663366.69704 "draft_1010.aux" "draft_1010.bbl" "draft_1010" 1791729942.45701 0
+["bibtex draft_1010"] 1791663366.69704 "draft_1010.aux" "draft_1010.bbl" "draft_1010" 1791730860.07329 0
   "./lov_bib/lov_bib.bib" 1790720988.01191 50242 d505f472afced587808ec3874b44509e ""
   "/usr/local/texlive/2026/texmf-dist/bibtex/bst/natbib/plainnat.bst" 1233624470 26816 ffe5423d2019860bad9f54bc402fac15 ""
-  "draft_1010.aux" 1791729942.18267 6018 0d2d57836492afb56b2b13bd70dda5b1 "pdflatex"
+  "draft_1010.aux" 1791730859.78662 6018 0d2d57836492afb56b2b13bd70dda5b1 "pdflatex"
   (generated)
   "draft_1010.bbl"
   "draft_1010.blg"
   (rewritten before read)
-["pdflatex"] 1791729941.24224 "draft_1010.tex" "draft_1010.pdf" "draft_1010" 1791729942.45717 2
+["pdflatex"] 1791730858.6669 "draft_1010.tex" "draft_1010.pdf" "draft_1010" 1791730860.07343 2
   "../../../../Output/Plots/fig1_flavor_hhi_distribution.pdf" 1791721917.8245 24061 cc2970e587de6c40582f9780ea224fdf ""
   "../../../../Output/Plots/fig2_basket_share_by_volume.pdf" 1791721917.82468 23689 347d2f44665bcc1a66fd8ebeffae1fd7 ""
   "../../../../Output/Plots/fig3_flavor_share_timeseries.pdf" 1791721917.82484 23013 9790928ad79450601b4c4ff821e6be62 ""
@@ -179,10 +179,10 @@
   "/usr/local/texlive/2026/texmf-var/fonts/map/pdftex/updmap/pdftex.map" 1787008065 5573194 3473593ed16e9f152d99f1a1aaa20677 ""
   "/usr/local/texlive/2026/texmf-var/web2c/pdftex/pdflatex.fmt" 1787008814 3656725 4e447c05aa121cdaa2af3e1480626bfc ""
   "/usr/local/texlive/2026/texmf.cnf" 1774209515 577 648cd9f92f9c0eac486f4c71c85cfbbe ""
-  "draft_1010.aux" 1791729942.18267 6018 0d2d57836492afb56b2b13bd70dda5b1 "pdflatex"
+  "draft_1010.aux" 1791730859.78662 6018 0d2d57836492afb56b2b13bd70dda5b1 "pdflatex"
   "draft_1010.bbl" 1791663366.79182 4858 72f7ce145433891991b6647fa02ed987 "bibtex draft_1010"
-  "draft_1010.out" 1791729942.18554 1601 8ff8cd88c3bc5a4e0cf184f0b628d9af "pdflatex"
-  "draft_1010.tex" 1791729939.25594 45858 b8eed337a25cf99cb7c44e4b913dad80 ""
+  "draft_1010.out" 1791730859.78896 1601 8ff8cd88c3bc5a4e0cf184f0b628d9af "pdflatex"
+  "draft_1010.tex" 1791730856.942 45863 8782c478339cc3e29176a6022d5b044f ""
   (generated)
   "draft_1010.aux"
   "draft_1010.log"

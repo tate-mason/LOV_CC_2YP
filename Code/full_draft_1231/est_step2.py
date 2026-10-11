@@ -797,6 +797,7 @@ def display_results_with_wtp(
     table.add_column("p-value", justify="right")
 
     alpha_val = results["params"][-2]
+    bounded_lambda_str = None
 
     for name, val, se, z, p in zip(
         param_names,
@@ -811,15 +812,24 @@ def display_results_with_wtp(
                 p_str += " ***"
             elif p < 0.05:
                 p_str += " **"
+        disp_val_str = f"{val:.4f}"
+        if name == "Mean Lambda":
+            lam_bounded = 1.0 / (1.0 + np.exp(-val))
+            disp_val_str = f"{val:.4f} (lambda = {lam_bounded:.4f})"
+            bounded_lambda_str = f"[bold yellow]Implied Population Mean Lambda (Memory Weight λ):[/bold yellow] [bold cyan]{lam_bounded:.4f}[/bold cyan] (from logit parameter {val:.4f})"
         table.add_row(
             name,
-            f"{val:.4f}",
+            disp_val_str,
             f"{se:.4f}" if not np.isnan(se) else "NA",
             f"{z:.3f}" if not np.isnan(z) else "NA",
             p_str,
         )
 
     console.print(table)
+    # Print the explicit bounded lambda interpretation if present in the model
+    if bounded_lambda_str is not None:
+        console.print(bounded_lambda_str)
+
     console.print(f"[bold]Optimization Success:[/bold] {results['success']}")
     console.print(f"[bold]Final LL Objective:[/bold] {results['fun']:.4f}")
 

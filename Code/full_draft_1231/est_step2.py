@@ -1,27 +1,26 @@
 import os
+import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 import polars as pl
-
-import numpy as np
-import scipy as sp
-from scipy.optimize import minimize
-from scipy.special import logsumexp
-import statsmodels.formula.api as smf
-
-import matplotlib.pyplot as plt
-import seaborn as sns
-
 from rich.console import Console
 from rich.table import Table
 from rich.traceback import install
+import scipy as sp
+from scipy.optimize import minimize
+from scipy.special import logsumexp
+import seaborn as sns
+import statsmodels.formula.api as smf
 
 install()
 console = Console()
 
 MERGED_PATH = "/scratch/dtm63837/Kilts_Panel/nielsen_extracts/scanner_panel.parquet"
 OUT_PATH = "/scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Output/"
-CATEGORIES = ["other", "berry", "plain", "outside"]
+PLOT_OUTPUT_DIR = "../Output/Plots"
+os.makedirs(PLOT_OUTPUT_DIR, exist_ok=True)
 
+CATEGORIES = ["other", "berry", "plain", "outside"]
 cat_map = {c: i for i, c in enumerate(CATEGORIES)}
 rng = np.random.default_rng(219)
 GAMMA_DRAWS = np.random.default_rng(306).standard_normal((50, 5))
@@ -796,8 +795,8 @@ def display_results_with_wtp(
         if model_type == "flavor_gamma":
             beta_ber, beta_pl = results["params"][1], results["params"][2]
             g_ber, g_pl = (
-                results["params"][2],
                 results["params"][3],
+                results["params"][4],
             )
 
             wtp_table.add_row(
@@ -824,6 +823,184 @@ def display_results_with_wtp(
 
         console.print(wtp_table)
     console.print("\n")
+
+
+# ==============================================================================
+# INTEGRATED TYPE & PARAMETER HETEROGENEITY PLOTTING FUNCTIONS
+# ==============================================================================
+def plot_marginal_type_distributions(draws_df):
+    console.print(
+        "[bold green]Generating Figure 4: Marginal Type Distributions...[/bold green]"
+    )
+
+    fig, axes = plt.subplots(1, 2, figsize=(12, 5))
+    sns.set_theme(style="whitegrid")
+
+    sns.kdeplot(
+        draws_df["beta_berry"],
+        ax=axes[0],
+        color="#d73027",
+        fill=True,
+        alpha=0.4,
+        label=r"Berry Preference ($\beta_{berry}$)",
+    )
+    sns.kdeplot(
+        draws_df["beta_plain"],
+        ax=axes[0],
+        color="#4575b4",
+        fill=True,
+        alpha=0.4,
+        label=r"Plain Preference ($\beta_{plain}$)",
+    )
+    axes[0].set_title("Distribution of Flavor Preferences", fontweight="bold")
+    axes[0].set_xlabel("Preference Parameter (Utility)", fontweight="bold")
+    axes[0].set_ylabel("Density", fontweight="bold")
+    axes[0].legend(frameon=True, facecolor="white")
+
+    sns.kdeplot(
+        draws_df["gamma_berry"],
+        ax=axes[1],
+        color="#d73027",
+        fill=True,
+        alpha=0.4,
+        label=r"Berry Satiation ($\gamma_{berry}$)",
+    )
+    sns.kdeplot(
+        draws_df["gamma_plain"],
+        ax=axes[1],
+        color="#4575b4",
+        fill=True,
+        alpha=0.4,
+        label=r"Plain Satiation ($\gamma_{plain}$)",
+    )
+    axes[1].set_title("Distribution of Satiation Parameters", fontweight="bold")
+    axes[1].set_xlabel("Satiation Parameter (Utility Disutility)", fontweight="bold")
+    axes[1].set_ylabel("Density", fontweight="bold")
+    axes[1].legend(frameon=True, facecolor="white")
+
+    plt.tight_layout()
+    fig_path = os.path.join(PLOT_OUTPUT_DIR, "fig4_marginal_type_distributions.pdf")
+    plt.savefig(fig_path, format="pdf", bbox_inches="tight")
+    plt.close()
+
+
+def plot_joint_type_distributions(draws_df):
+    console.print(
+        "[bold green]Generating Figure 5: Joint Beta vs. Gamma Distribution...[/bold green]"
+    )
+
+    fig, axes = plt.subplots(1, 2, figsize=(12, 5.5))
+    sns.set_theme(style="whitegrid")
+
+    sns.kdeplot(
+        data=draws_df,
+        x="beta_berry",
+        y="gamma_berry",
+        ax=axes[0],
+        cmap="Reds",
+        fill=True,
+        thresh=0.05,
+    )
+    axes[0].set_title("Berry: Preference vs. Satiation", fontweight="bold")
+    axes[0].set_xlabel(r"Baseline Preference ($\beta_{berry}$)", fontweight="bold")
+    axes[0].set_ylabel(r"Satiation Parameter ($\gamma_{berry}$)", fontweight="bold")
+
+    sns.kdeplot(
+        data=draws_df,
+        x="beta_plain",
+        y="gamma_plain",
+        ax=axes[1],
+        cmap="Blues",
+        fill=True,
+        thresh=0.05,
+    )
+    axes[1].set_title("Plain: Preference vs. Satiation", fontweight="bold")
+    axes[1].set_xlabel(r"Baseline Preference ($\beta_{plain}$)", fontweight="bold")
+    axes[1].set_ylabel(r"Satiation Parameter ($\gamma_{plain}$)", fontweight="bold")
+
+    plt.tight_layout()
+    fig_path = os.path.join(PLOT_OUTPUT_DIR, "fig5_joint_type_distributions.pdf")
+    plt.savefig(fig_path, format="pdf", bbox_inches="tight")
+    plt.close()
+
+
+def plot_wtp_distributions(draws_df):
+    console.print(
+        "[bold green]Generating Figure 6: Willingness-to-Pay Distributions...[/bold green]"
+    )
+
+    wtp_melted = draws_df[
+        ["wtp_beta_berry", "wtp_beta_plain", "wtp_gamma_berry", "wtp_gamma_plain"]
+    ].melt(var_name="Metric", value_name="WTP")
+
+    wtp_map = {
+        "wtp_beta_berry": "Berry Preference",
+        "wtp_beta_plain": "Plain Preference",
+        "wtp_gamma_berry": "Berry Satiation Penalty",
+        "wtp_gamma_plain": "Plain Satiation Penalty",
+    }
+    wtp_melted["Metric"] = wtp_melted["Metric"].map(wtp_map)
+
+    plt.figure(figsize=(9, 5))
+    sns.set_theme(style="whitegrid")
+
+    sns.boxplot(
+        data=wtp_melted,
+        x="Metric",
+        y="WTP",
+        palette=["#d73027", "#4575b4", "#f46d43", "#74add1"],
+        width=0.4,
+    )
+
+    plt.axhline(0, color="black", linestyle="--", linewidth=1, alpha=0.7)
+    plt.title(
+        "Distribution of Household Willingness-to-Pay (WTP in $)",
+        fontsize=13,
+        fontweight="bold",
+    )
+    plt.xlabel("")
+    plt.ylabel("Willingness-to-Pay ($)", fontsize=11, fontweight="bold")
+    plt.xticks(rotation=15, fontweight="bold")
+    plt.tight_layout()
+
+    fig_path = os.path.join(PLOT_OUTPUT_DIR, "fig6_wtp_distributions.pdf")
+    plt.savefig(fig_path, format="pdf", bbox_inches="tight")
+    plt.close()
+
+
+def generate_type_plots(res_rc_flavor_gamma, n_draws=5000):
+    params = res_rc_flavor_gamma["params"]
+    # Extract estimated means and standard deviations
+    mu_b_ber, mu_b_pl = params[1], params[2]
+    mu_g_ber, mu_g_pl = params[3], params[4]
+    sd_b_ber, sd_b_pl = params[5], params[6]
+    sd_g_ber, sd_g_pl = params[7], params[8]
+    alpha_val = abs(params[9])
+
+    plot_rng = np.random.default_rng(2026)
+
+    draws_df = pd.DataFrame(
+        {
+            "beta_berry": plot_rng.normal(mu_b_ber, sd_b_ber, n_draws),
+            "beta_plain": plot_rng.normal(mu_b_pl, sd_b_pl, n_draws),
+            "gamma_berry": plot_rng.normal(mu_g_ber, sd_g_ber, n_draws),
+            "gamma_plain": plot_rng.normal(mu_g_pl, sd_g_pl, n_draws),
+        }
+    )
+
+    # Dollar WTP Valuations
+    draws_df["wtp_beta_berry"] = draws_df["beta_berry"] / alpha_val
+    draws_df["wtp_beta_plain"] = draws_df["beta_plain"] / alpha_val
+    draws_df["wtp_gamma_berry"] = draws_df["gamma_berry"] / alpha_val
+    draws_df["wtp_gamma_plain"] = draws_df["gamma_plain"] / alpha_val
+
+    plot_marginal_type_distributions(draws_df)
+    plot_joint_type_distributions(draws_df)
+    plot_wtp_distributions(draws_df)
+
+    console.print(
+        f"[bold green]Type distribution figures saved to {PLOT_OUTPUT_DIR}[/bold green]\n"
+    )
 
 
 def main():
@@ -924,6 +1101,11 @@ def main():
         param_names=rc_p_names_gamma,
         model_type="flavor_gamma",
     )
+
+    # =========================================================
+    # PART 3: GENERATE TYPE & PARAMETER HETEROGENEITY PLOTS
+    # =========================================================
+    generate_type_plots(res_rc_flavor_gamma)
 
 
 if __name__ == "__main__":

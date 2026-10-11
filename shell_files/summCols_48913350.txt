@@ -1,0 +1,28 @@
+Loading full panel with Polars...
+Loading estimation sample from scanner panel...
+/scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/full_draft_1231/data.py:188: SingularMatrixWarning: The design matrix is rank-deficient. The model parameters are not uniquely determined.
+  ).fit()
+
+Generating Figure 1: Household HHI Distribution...
+Figure 1 saved to: ../Output/Plots/fig1_flavor_hhi_distribution.pdf
+
+Generating Figure 2: Basket Composition by Volume Quintiles...
+Figure 2 saved to: ../Output/Plots/fig2_basket_share_by_volume.pdf
+
+Generating Figure 3: Time Series of Shares...
+Figure 3 saved to: ../Output/Plots/fig3_flavor_share_timeseries.pdf
+
+=== SAMPLE COMPARISON SUMMARY STATISTICS ===
+             Summary Statistics: Full Sample vs. Estimation Sample              
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━┓
+┃ Statistic / Metric                   ┃ Full Panel Sample ┃ Estimation Sample ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━┩
+│ Unique Households                    │             5,408 │               998 │
+│ Mean Total Store Trips / HH          │            308.15 │            400.05 │
+│ Mean Observed Choice Weeks / HH      │               N/A │              3.91 │
+│ Mean Household Income                │            $18.01 │            $19.09 │
+│ Mean Head Age                        │           7.9 yrs │           7.9 yrs │
+│ Deal / Coupon Purchase Rate          │            26.52% │            23.10% │
+│ Mean Weekly Yogurt Units             │               N/A │        8.44 units │
+│ (Purchasers)                         │                   │                   │
+└──────────────────────────────────────┴───────────────────┴───────────────────┘

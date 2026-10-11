@@ -1,0 +1,44 @@
+Loading full panel with Polars...
+Loading estimation sample from scanner panel...
+/scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/full_draft_1231/data.py:188: SingularMatrixWarning: The design matrix is rank-deficient. The model parameters are not uniquely determined.
+  ).fit()
+
+Generating Figure 1: Household HHI Distribution...
+Figure 1 saved to: ../Output/Plots/fig1_flavor_hhi_distribution.pdf
+
+Generating Figure 2: Basket Composition by Volume Quintiles...
+╭───────────────────── Traceback (most recent call last) ──────────────────────╮
+│ /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/full_draft_1231/data.py:333 in │
+│ <module>                                                                     │
+│                                                                              │
+│   330 │   "\n[bold green]Generating Figure 2: Basket Composition by Volume Q │
+│   331 )                                                                      │
+│   332                                                                        │
+│ ❱ 333 hh_total_qty["volume_quintile"] = pd.qcut(                             │
+│   334 │   hh_total_qty["hh_total_quantity"],                                 │
+│   335 │   q=5,                                                               │
+│   336 │   labels=["Q1 (Light)", "Q2", "Q3", "Q4", "Q5 (Heavy)"],             │
+│                                                                              │
+│ /home/dtm63837/.local/lib/python3.13/site-packages/pandas/core/reshape/tile. │
+│ py:384 in qcut                                                               │
+│                                                                              │
+│   381 │                                                                      │
+│   382 │   bins = x_idx.to_series().dropna().quantile(quantiles)              │
+│   383 │                                                                      │
+│ ❱ 384 │   fac, bins = _bins_to_cuts(                                         │
+│   385 │   │   x_idx,                                                         │
+│   386 │   │   Index(bins),                                                   │
+│   387 │   │   labels=labels,                                                 │
+│                                                                              │
+│ /home/dtm63837/.local/lib/python3.13/site-packages/pandas/core/reshape/tile. │
+│ py:536 in _bins_to_cuts                                                      │
+│                                                                              │
+│   533 │   │   │   │   "for duplicate labels"                                 │
+│   534 │   │   │   )                                                          │
+│   535 │   │   elif len(labels) != len(bins) - 1:                             │
+│ ❱ 536 │   │   │   raise ValueError(                                          │
+│   537 │   │   │   │   "Bin labels must be one fewer than the number of bin e │
+│   538 │   │   │   )                                                          │
+│   539                                                                        │
+╰──────────────────────────────────────────────────────────────────────────────╯
+ValueError: Bin labels must be one fewer than the number of bin edges

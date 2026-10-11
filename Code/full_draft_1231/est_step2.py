@@ -17,15 +17,15 @@ console = Console()
 
 MERGED_PATH = "/scratch/dtm63837/Kilts_Panel/nielsen_extracts/scanner_panel.parquet"
 OUT_PATH = "/scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Output/"
-PLOT_OUTPUT_DIR = "../Output/Plots"
+PLOT_OUTPUT_DIR = "../../../../Output/Plots"
 os.makedirs(PLOT_OUTPUT_DIR, exist_ok=True)
 
 CATEGORIES = ["other", "berry", "plain", "outside"]
 cat_map = {c: i for i, c in enumerate(CATEGORIES)}
 LAMBDA_GRID = np.array([0.1, 0.3, 0.5, 0.7, 0.9], dtype=np.float64)
 
-# Standard normal draws for mixed logit simulation (50 draws, 5 dimensions: beta_ber, beta_pl, gamma_ber, gamma_pl, lambda)
-GAMMA_DRAWS = np.random.default_rng(306).standard_normal((50, 5))
+# Standard normal draws for mixed logit simulation (50 draws, 4 dimensions: beta_ber, beta_pl, gamma_ber, gamma_pl)
+GAMMA_DRAWS = np.random.default_rng(306).standard_normal((50, 4))
 
 
 def compute_satiation_state(
@@ -296,7 +296,6 @@ def load_and_preprocess(weekly_capacity=14):
         [],
     )
 
-    # Dictionary lookup to avoid Pandas itertuples attribute name sanitization
     hh_weeks_dict = hh_weeks.to_dict("records")
 
     for row_dict in hh_weeks_dict:
@@ -371,10 +370,8 @@ def load_and_preprocess(weekly_capacity=14):
         "prices": np.array(all_prices, dtype=np.float64),
         "resids": np.array(all_resids, dtype=np.float64),
         "choices": np.array(all_choices, dtype=np.int64),
-        "c_states": np.array(
-            [c[:, 3] for c in all_c_grids], dtype=np.float64
-        ),  # Baseline lam=0.7
-        "c_grids": np.array(all_c_grids, dtype=np.float64),  # Shape: (N_obs, 3, N_grid)
+        "c_states": np.array([c[:, 3] for c in all_c_grids], dtype=np.float64),
+        "c_grids": np.array(all_c_grids, dtype=np.float64),
         "log_inc": np.array(all_log_inc, dtype=np.float64),
     }
 
@@ -382,7 +379,7 @@ def load_and_preprocess(weekly_capacity=14):
 
 
 # =========================================================
-# PART 1: NAIVE SPECIFICATIONS (NO SATIATION / NO GAMMA)
+# PART 1: NAIVE SPECIFICATIONS (NO SATIATION BENCHMARK)
 # =========================================================
 def total_objective_naive(params, vec_data):
     const, beta_ber, beta_pl, alpha, sigma = params
@@ -554,7 +551,7 @@ def estimate_rc_naive_model(vec_data, draws=GAMMA_DRAWS):
 
 
 # =========================================================
-# PART 2: FLAVOR SATIATION SPECIFICATIONS (WITH GAMMAS & HET LAMBDA)
+# PART 2: FLAVOR SATIATION SPECIFICATIONS (WITH GAMMAS)
 # =========================================================
 def total_objective_flavor_gamma(params, vec_data):
     const, beta_ber, beta_pl, g_ber, g_pl, alpha, sigma = params
@@ -582,38 +579,17 @@ def total_objective_flavor_gamma(params, vec_data):
     return -total_ll if np.isfinite(total_ll) else 1e10
 
 
-def interpolate_c_state_draws(c_grids, lambda_draws, grid_vals=LAMBDA_GRID):
-
-    n_obs, n_cat, n_grid = c_grids.shape
-    lam_clipped = np.clip(lambda_draws, grid_vals[0], grid_vals[-1])
-
-    grid_spacing = grid_vals[1] - grid_vals[0]
-    idx_float = (lam_clipped - grid_vals[0]) / grid_spacing
-    idx_low = np.floor(idx_float).astype(int)
-    idx_high = np.minimum(idx_low + 1, n_grid - 1)
-    weight_high = idx_float - idx_low
-    weight_low = 1.0 - weight_high
-
-    c_low = c_grids[:, :, idx_low]  # (N_obs, 3, N_draws)
-    c_high = c_grids[:, :, idx_high]  # (N_obs, 3, N_draws)
-
-    c_interp = c_low * weight_low[None, None, :] + c_high * weight_high[None, None, :]
-    return np.transpose(c_interp, (0, 2, 1))  # (N_obs, N_draws, 3)
-
-
-def total_objective_het_flavor_gamma(params, vec_data, draws):
+def total_objective_het_flavor_gamma_fixed_lambda(params, vec_data, draws):
     (
         const,
         mu_beta_ber,
         mu_beta_pl,
         mu_g_ber,
         mu_g_pl,
-        mu_lambda,
         sd_beta_ber,
         sd_beta_pl,
         sd_g_ber,
         sd_g_pl,
-        sd_lambda,
         alpha,
         sigma,
     ) = params
@@ -621,7 +597,7 @@ def total_objective_het_flavor_gamma(params, vec_data, draws):
     prices = vec_data["prices"]
     resids = vec_data["resids"]
     choices = vec_data["choices"]
-    c_grids = vec_data["c_grids"]
+    c_state = vec_data["c_states"]
 
     n_draws = draws.shape[0]
 
@@ -630,13 +606,6 @@ def total_objective_het_flavor_gamma(params, vec_data, draws):
     g_ber_draws = mu_g_ber + sd_g_ber * draws[:, 2]
     g_pl_draws = mu_g_pl + sd_g_pl * draws[:, 3]
 
-    # Logit transform unconstrained normal draw into lambda in (0, 1)
-    lambda_raw_draws = mu_lambda + sd_lambda * draws[:, 4]
-    lambda_draws = 1.0 / (1.0 + np.exp(-lambda_raw_draws))
-
-    # Interpolate c_states across lambda draws: shape (N_obs, N_draws, 3)
-    c_states_interp = interpolate_c_state_draws(c_grids, lambda_draws)
-
     beta_draws_matrix = np.column_stack([np.zeros(n_draws), b_ber_draws, b_pl_draws])
     gamma_draws_matrix = np.column_stack([np.zeros(n_draws), g_ber_draws, g_pl_draws])
 
@@ -644,7 +613,7 @@ def total_objective_het_flavor_gamma(params, vec_data, draws):
     u_inside = (
         u_base[:, None, :]
         + beta_draws_matrix[None, :, :]
-        + gamma_draws_matrix[None, :, :] * np.log(1.0 + c_states_interp)
+        + gamma_draws_matrix[None, :, :] * np.log(1.0 + c_state[:, None, :])
     )
 
     u_out = np.zeros((u_inside.shape[0], n_draws, 1))
@@ -711,38 +680,31 @@ def estimate_flavor_gamma_model(vec_data):
     }
 
 
-def estimate_het_flavor_gamma_model(vec_data, draws=GAMMA_DRAWS):
-    # Parameter vector: [const, mu_b_ber, mu_b_pl, mu_g_ber, mu_g_pl, mu_lam, sd_b_ber, sd_b_pl, sd_g_ber, sd_g_pl, sd_lam, alpha, sigma]
-    x0 = np.array(
-        [0.0, -0.7, -1.3, -0.7, -0.1, 0.84, 0.2, 0.2, 0.2, 0.2, 0.2, -0.98, 0.16]
-    )
-
+def estimate_het_flavor_gamma_model_fixed_lambda(vec_data, draws=GAMMA_DRAWS):
+    x0 = np.array([0.0, -0.7, -1.3, -0.7, -0.1, 0.5, 0.5, 0.5, 0.5, -0.98, 0.16])
     bounds = [
         (-10.0, 10.0),  # const
         (-10.0, 10.0),  # mu_beta_ber
         (-10.0, 10.0),  # mu_beta_pl
         (-10.0, 0.0),  # mu_g_ber
         (-10.0, 0.0),  # mu_g_pl
-        (-5.0, 5.0),  # mu_lambda (widened)
-        (1e-4, 5.0),  # sd_beta_ber (relaxed lower bound)
+        (1e-4, 5.0),  # sd_beta_ber
         (1e-4, 5.0),  # sd_beta_pl
         (1e-4, 5.0),  # sd_g_ber
         (1e-4, 5.0),  # sd_g_pl
-        (1e-4, 3.0),  # sd_lambda
         (-10.0, -0.01),  # alpha
         (-10.0, 10.0),  # sigma
     ]
 
     res = minimize(
-        total_objective_het_flavor_gamma,
+        total_objective_het_flavor_gamma_fixed_lambda,
         x0=x0,
-        args=(vec_data, draws),
+        args=(vec_data, draws[:, :4]),  # First 4 dimensions of simulation draws
         method="L-BFGS-B",
         bounds=bounds,
-        options={"ftol": 1e-8, "gtol": 1e-5, "maxiter": 2000},
+        options={"ftol": 1e-7, "gtol": 1e-5, "maxiter": 2000},
     )
 
-    # Numerical Hessian with pseudo-inverse fallback for Standard Errors
     eps = 1e-4
     n = len(res.x)
     hessian = np.zeros((n, n))
@@ -759,10 +721,18 @@ def estimate_het_flavor_gamma_model(vec_data, draws=GAMMA_DRAWS):
             x4[i] -= eps
             x4[j] -= eps
 
-            f1 = total_objective_het_flavor_gamma(x1, vec_data, draws)
-            f2 = total_objective_het_flavor_gamma(x2, vec_data, draws)
-            f3 = total_objective_het_flavor_gamma(x3, vec_data, draws)
-            f4 = total_objective_het_flavor_gamma(x4, vec_data, draws)
+            f1 = total_objective_het_flavor_gamma_fixed_lambda(
+                x1, vec_data, draws[:, :4]
+            )
+            f2 = total_objective_het_flavor_gamma_fixed_lambda(
+                x2, vec_data, draws[:, :4]
+            )
+            f3 = total_objective_het_flavor_gamma_fixed_lambda(
+                x3, vec_data, draws[:, :4]
+            )
+            f4 = total_objective_het_flavor_gamma_fixed_lambda(
+                x4, vec_data, draws[:, :4]
+            )
 
             hessian[i, j] = (f1 - f2 - f3 + f4) / (4 * eps * eps)
             hessian[j, i] = hessian[i, j]
@@ -786,8 +756,52 @@ def estimate_het_flavor_gamma_model(vec_data, draws=GAMMA_DRAWS):
     }
 
 
+def profile_likelihood_lambda_search(vec_data, draws=GAMMA_DRAWS):
+    """Profile Likelihood Grid Search across candidate lambda layers in [0.1, 0.9]."""
+    console.print(
+        "\n[bold yellow]=====================================================[/bold yellow]"
+    )
+    console.print(
+        "[bold yellow]   RUNNING PROFILE LIKELIHOOD GRID SEARCH FOR LAMBDA  [/bold yellow]"
+    )
+    console.print(
+        "[bold yellow]=====================================================[/bold yellow]"
+    )
+
+    best_ll = 1e10
+    best_res = None
+    best_lam = None
+
+    grid_results = []
+
+    for idx, lam in enumerate(LAMBDA_GRID):
+        vec_data_single = vec_data.copy()
+        vec_data_single["c_states"] = vec_data["c_grids"][:, :, idx]
+
+        res = estimate_het_flavor_gamma_model_fixed_lambda(vec_data_single, draws=draws)
+
+        grid_results.append((lam, res["fun"], res))
+        console.print(
+            f"[cyan]Grid Search λ = {lam:.1f}[/cyan] | [bold white]Log-Likelihood Objective:[/bold white] [bold yellow]{res['fun']:.4f}[/bold yellow]"
+        )
+
+        if res["fun"] < best_ll:
+            best_ll = res["fun"]
+            best_res = res
+            best_lam = lam
+
+    console.print(
+        f"\n[bold green]Optimal Population Memory Weight (λ*): {best_lam:.1f} (LL = {best_ll:.4f})[/bold green]\n"
+    )
+    return best_res, best_lam
+
+
 def display_results_with_wtp(
-    results, title="SPECIFICATION RESULTS", param_names=None, model_type="flavor_gamma"
+    results,
+    title="SPECIFICATION RESULTS",
+    param_names=None,
+    model_type="flavor_gamma",
+    lambda_opt=None,
 ):
     table = Table(title=title, show_header=True, header_style="bold magenta")
     table.add_column("Parameter", style="cyan", justify="left")
@@ -797,7 +811,6 @@ def display_results_with_wtp(
     table.add_column("p-value", justify="right")
 
     alpha_val = results["params"][-2]
-    bounded_lambda_str = None
 
     for name, val, se, z, p in zip(
         param_names,
@@ -812,24 +825,20 @@ def display_results_with_wtp(
                 p_str += " ***"
             elif p < 0.05:
                 p_str += " **"
-        disp_val_str = f"{val:.4f}"
-        if name == "Mean Lambda":
-            lam_bounded = 1.0 / (1.0 + np.exp(-val))
-            disp_val_str = f"{val:.4f} (lambda = {lam_bounded:.4f})"
-            bounded_lambda_str = f"[bold yellow]Implied Population Mean Lambda (Memory Weight λ):[/bold yellow] [bold cyan]{lam_bounded:.4f}[/bold cyan] (from logit parameter {val:.4f})"
+
         table.add_row(
             name,
-            disp_val_str,
+            f"{val:.4f}",
             f"{se:.4f}" if not np.isnan(se) else "NA",
             f"{z:.3f}" if not np.isnan(z) else "NA",
             p_str,
         )
 
     console.print(table)
-    # Print the explicit bounded lambda interpretation if present in the model
-    if bounded_lambda_str is not None:
-        console.print(bounded_lambda_str)
-
+    if lambda_opt is not None:
+        console.print(
+            f"[bold yellow]Profile-Likelihood Optimal Memory Weight (λ*):[/bold yellow] [bold cyan]{lambda_opt:.1f}[/bold cyan]"
+        )
     console.print(f"[bold]Optimization Success:[/bold] {results['success']}")
     console.print(f"[bold]Final LL Objective:[/bold] {results['fun']:.4f}")
 
@@ -1019,9 +1028,9 @@ def generate_type_plots(res_rc_flavor_gamma, n_draws=5000):
     params = res_rc_flavor_gamma["params"]
     mu_b_ber, mu_b_pl = params[1], params[2]
     mu_g_ber, mu_g_pl = params[3], params[4]
-    sd_b_ber, sd_b_pl = params[6], params[7]
-    sd_g_ber, sd_g_pl = params[8], params[9]
-    alpha_val = abs(params[11])
+    sd_b_ber, sd_b_pl = params[5], params[6]
+    sd_g_ber, sd_g_pl = params[7], params[8]
+    alpha_val = abs(params[9])
 
     plot_rng = np.random.default_rng(2026)
 
@@ -1093,13 +1102,13 @@ def main():
     )
 
     # =========================================================
-    # PART 2: FLAVOR SATIATION SPECIFICATIONS (WITH GAMMAS & HET LAMBDA)
+    # PART 2: FLAVOR SATIATION SPECIFICATIONS (PROFILE LIKELIHOOD LAMBDA)
     # =========================================================
     console.print(
         "\n[bold yellow]=====================================================[/bold yellow]"
     )
     console.print(
-        "[bold yellow] PART 2: FLAVOR SATIATION SPECIFICATIONS (WITH GAMMAS & HET LAMBDA)[/bold yellow]"
+        "[bold yellow] PART 2: FLAVOR SATIATION SPECIFICATIONS (WITH GAMMAS)[/bold yellow]"
     )
     console.print(
         "[bold yellow]=====================================================[/bold yellow]"
@@ -1123,30 +1132,30 @@ def main():
         model_type="flavor_gamma",
     )
 
-    console.print(
-        "\n--- Estimating Random-Coefficient Flavor-Specific Satiation Logit (Heterogeneous Lambda) ---"
+    # Run Profile Likelihood Grid Search across lambda = [0.1, 0.3, 0.5, 0.7, 0.9]
+    res_rc_flavor_gamma, opt_lambda = profile_likelihood_lambda_search(
+        vec_data, draws=GAMMA_DRAWS
     )
-    res_rc_flavor_gamma = estimate_het_flavor_gamma_model(vec_data, draws=GAMMA_DRAWS)
+
     rc_p_names_gamma = [
         "Constant",
         "Mean beta_berry",
         "Mean beta_plain",
         "Mean gamma_berry",
         "Mean gamma_plain",
-        "Mean lambda",
         "SD beta_berry",
         "SD beta_plain",
         "SD gamma_berry",
         "SD gamma_plain",
-        "SD lambda",
         "Price",
         "Control Func.",
     ]
     display_results_with_wtp(
         res_rc_flavor_gamma,
-        title="RANDOM COEFFICIENT FLAVOR SATIATION LOGIT (HET LAMBDA)",
+        title="RANDOM COEFFICIENT FLAVOR SATIATION LOGIT (PROFILE LAMBDA)",
         param_names=rc_p_names_gamma,
         model_type="flavor_gamma",
+        lambda_opt=opt_lambda,
     )
 
     # =========================================================

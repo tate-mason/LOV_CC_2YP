@@ -17,7 +17,7 @@ console = Console()
 
 MERGED_PATH = "/scratch/dtm63837/Kilts_Panel/nielsen_extracts/scanner_panel.parquet"
 OUT_PATH = "/scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Output/"
-PLOT_OUTPUT_DIR = "../Output/Plots"
+PLOT_OUTPUT_DIR = "../../../../Output/Plots"
 os.makedirs(PLOT_OUTPUT_DIR, exist_ok=True)
 
 CATEGORIES = ["other", "berry", "plain", "outside"]
@@ -296,49 +296,50 @@ def load_and_preprocess(weekly_capacity=14):
         [],
     )
 
-    for hh_id, group in hh_weeks.groupby("household_code"):
+    # Dictionary lookup to avoid Pandas itertuples attribute name sanitization
+    hh_weeks_dict = hh_weeks.to_dict("records")
+
+    for row_dict in hh_weeks_dict:
+        store = row_dict["store_code_uc"]
+        week = row_dict["week_end"]
+        hh_id = row_dict["household_code"]
+
+        if (store, week) not in choice_set_matrix:
+            continue
+
         raw_inc = hh_income_map.get(hh_id, 1)
         log_inc = np.log(max(float(raw_inc) if pd.notna(raw_inc) else 1.0, 1.0))
 
-        matrices_list, choice_counts_list, c_states_list = [], [], []
+        inside_counts = counts_dict.get((hh_id, week), np.zeros(3, dtype=np.int64))
+        inside_units = np.sum(inside_counts)
 
-        for row in group.itertuples():
-            store, week = row.store_code_uc, row.week_end
+        effective_capacity = max(weekly_capacity, inside_units + 1)
+        outside_count = effective_capacity - inside_units
 
-            if (store, week) not in choice_set_matrix:
-                continue
+        full_counts = np.append(inside_counts, outside_count)
 
-            inside_counts = counts_dict.get((hh_id, week), np.zeros(3, dtype=np.int64))
-            inside_units = np.sum(inside_counts)
+        c_grid_mat = np.zeros((3, len(LAMBDA_GRID)), dtype=np.float64)
+        for idx_lam, lam in enumerate(LAMBDA_GRID):
+            c_grid_mat[0, idx_lam] = row_dict[f"C_sat_0_{lam:.1f}"]
+            c_grid_mat[1, idx_lam] = row_dict[f"C_sat_1_{lam:.1f}"]
+            c_grid_mat[2, idx_lam] = row_dict[f"C_sat_2_{lam:.1f}"]
 
-            effective_capacity = max(weekly_capacity, inside_units + 1)
-            outside_count = effective_capacity - inside_units
+        all_prices.append(choice_set_matrix[(store, week)][:3, 0])
+        all_resids.append(choice_set_matrix[(store, week)][:3, 1])
+        all_choices.append(full_counts)
+        all_c_grids.append(c_grid_mat)
+        all_log_inc.append(log_inc)
 
-            full_counts = np.append(inside_counts, outside_count)
-
-            c_grid_mat = np.zeros((3, len(LAMBDA_GRID)), dtype=np.float64)
-            for idx_lam, lam in enumerate(LAMBDA_GRID):
-                c_grid_mat[0, idx_lam] = getattr(row, f"C_sat_0_{lam:.1f}")
-                c_grid_mat[1, idx_lam] = getattr(row, f"C_sat_1_{lam:.1f}")
-                c_grid_mat[2, idx_lam] = getattr(row, f"C_sat_2_{lam:.1f}")
-
-            matrices_list.append(choice_set_matrix[(store, week)])
-            choice_counts_list.append(full_counts)
-            c_states_list.append(c_grid_mat[:, 3])  # Baseline lam=0.7
-
-            all_prices.append(choice_set_matrix[(store, week)][:3, 0])
-            all_resids.append(choice_set_matrix[(store, week)][:3, 1])
-            all_choices.append(full_counts)
-            all_c_grids.append(c_grid_mat)
-            all_log_inc.append(log_inc)
-
-            if len(matrices_list) > 0:
-                hh_packed_data[hh_id] = {
-                    "matrices": matrices_list,
-                    "choices": choice_counts_list,
-                    "c_states": c_states_list,
-                    "log_income": log_inc,
-                }
+        if hh_id not in hh_packed_data:
+            hh_packed_data[hh_id] = {
+                "matrices": [],
+                "choices": [],
+                "c_states": [],
+                "log_income": log_inc,
+            }
+        hh_packed_data[hh_id]["matrices"].append(choice_set_matrix[(store, week)])
+        hh_packed_data[hh_id]["choices"].append(full_counts)
+        hh_packed_data[hh_id]["c_states"].append(c_grid_mat[:, 3])  # Baseline lam=0.7
 
     n_hh = len(hh_packed_data)
     total_obs = sum(len(hh["choices"]) for hh in hh_packed_data.values())
@@ -582,11 +583,7 @@ def total_objective_flavor_gamma(params, vec_data):
 
 
 def interpolate_c_state_draws(c_grids, lambda_draws, grid_vals=LAMBDA_GRID):
-    """Interpolates pre-computed c_grids across simulated individual lambda draws.
 
-    c_grids: shape (N_obs, 3, N_grid) lambda_draws: shape (N_draws,) -> lambda
-    values in (0, 1) returns: shape (N_obs, N_draws, 3)
-    """
     n_obs, n_cat, n_grid = c_grids.shape
     lam_clipped = np.clip(lambda_draws, grid_vals[0], grid_vals[-1])
 

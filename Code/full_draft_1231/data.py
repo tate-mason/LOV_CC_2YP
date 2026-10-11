@@ -15,6 +15,7 @@ from rich.console import Console
 from rich.table import Table
 from rich.traceback import install
 import seaborn as sns
+import statsmodels.formula.api as smf
 
 install()
 console = Console()
@@ -28,8 +29,11 @@ MERGED_PATH = "/scratch/dtm63837/Kilts_Panel/nielsen_extracts/scanner_panel.parq
 PLOT_OUTPUT_DIR = "../Output/Plots"
 os.makedirs(PLOT_OUTPUT_DIR, exist_ok=True)
 
+CATEGORIES = ["other", "berry", "plain", "outside"]
+cat_map = {c: i for i, c in enumerate(CATEGORIES)}
+
 # ==============================================================================
-# 1. DATA LOADING & POLARS FILTER PUSHDOWN (FULL SAMPLE)
+# 1. DATA LOADING & POLARS FILTER PUSHDOWN (FULL PANEL)
 # ==============================================================================
 console.print("[bold green]Loading full panel with Polars...[/bold green]")
 
@@ -61,10 +65,8 @@ agent_panel = (
     raw_panel.join(active_hhs, on="household_code", how="inner").collect().to_pandas()
 )
 
-# Track total store trips across ALL grocery shopping per household BEFORE yogurt filtering
 total_hh_trips = agent_panel.groupby("household_code")["trip_code_uc"].nunique()
 
-# Parse dates & clean demographics
 agent_panel["purchase_date"] = pd.to_datetime(
     agent_panel["purchase_date"].astype(str).str.replace("-", "", regex=False),
     format="%Y%m%d",
@@ -78,7 +80,6 @@ for col in [
     "deal_flag_uc",
     "male_head_age",
     "female_head_age",
-    "price",
 ]:
     if col in agent_panel.columns:
         agent_panel[col] = pd.to_numeric(agent_panel[col], errors="coerce").fillna(0)
@@ -96,23 +97,69 @@ agent_panel["yogurt_purchase"] = (
 ).astype(int)
 
 # ==============================================================================
-# 2. FILTER ESTIMATION SAMPLE (EXACT EST_STEP2 MATCHING)
+# 2. FILTER ESTIMATION SAMPLE (EXACT EST_STEP2 PREPROCESSING MATCHING)
 # ==============================================================================
-import statsmodels.formula.api as smf
+console.print(
+    "[bold green]Loading estimation sample from scanner panel...[/bold green]"
+)
 
-# 1. Base Filters
-est_master = agent_panel[
-    (agent_panel["household_size"] == 1)
-    & (agent_panel["serving_per_container_cd"].isin([67181961, 65622705]))
-    & (agent_panel["product_module_code_hms"].isin(["3603", "3612"]))
-].copy()
+schema_names = pl.scan_parquet(MERGED_PATH).collect_schema().names()
 
-# 2. Price & Instrument Residual Filter (matches est_step2.py)
-est_master = est_master[(est_master["price"] > 0.1) | (est_master["price"].isna())]
+exprs = [
+    pl.col("quantity").cast(pl.Int64),
+    pl.col("head_age").cast(pl.Int64),
+    pl.col("household_income").cast(pl.Int64),
+    pl.col("household_size").cast(pl.Int64),
+    pl.col("serving_per_container_cd").cast(pl.Int64),
+    pl.col("price").cast(pl.Float64),
+]
 
-# Build Market Price IV
+if "product_module_code_hms" in schema_names:
+    exprs.append(pl.col("product_module_code_hms").cast(pl.Int64))
+
+scan_q = pl.scan_parquet(MERGED_PATH).with_columns(exprs)
+
+if "product_module_code_hms" in schema_names:
+    scan_q = scan_q.filter(pl.col("product_module_code_hms").is_in([3612, 3603]))
+
+merged_df = (
+    scan_q.filter(pl.col("household_size") == 1)
+    .filter(pl.col("serving_per_container_cd").is_in([67181961, 65622705]))
+    .collect()
+    .to_pandas()
+)
+
+merged_df["flavor_str"] = merged_df["flavor"].fillna("").astype(str)
+merged_df["flavor_cd"] = pd.to_numeric(merged_df["flavor_cd"], errors="coerce").fillna(
+    0
+)
+
+merged_master = merged_df.copy()
+
+descr_cols = [
+    c
+    for c in merged_df.columns
+    if any(k in c.lower() for k in ["descr", "flavor", "brand", "product", "upc"])
+]
+
+merged_df["full_text"] = ""
+for c in descr_cols:
+    merged_df["full_text"] += " " + merged_df[c].fillna("").astype(str)
+merged_df["full_text"] = merged_df["full_text"].str.lower()
+
+berry_regex = r"berry|straw|blue|rasp|black|cran|cherry|wildberry"
+plain_regex = r"plain|unflavored"
+
+is_plain = merged_df["full_text"].str.contains(plain_regex, na=False)
+is_berry = merged_df["full_text"].str.contains(berry_regex, na=False) & (~is_plain)
+
+merged_master["flavor"] = np.select([is_plain, is_berry], [2, 1], default=0)
+
+# Market price IV calculation using original price column
 market_price = (
-    est_master.groupby(["upc", "week_end", "market_name"])["price"].mean().reset_index()
+    merged_master.groupby(["upc", "week_end", "market_name"])["price"]
+    .mean()
+    .reset_index()
 )
 totals = (
     market_price.groupby(["upc", "week_end"])["price"]
@@ -120,40 +167,63 @@ totals = (
     .reset_index()
     .rename(columns={"sum": "price_sum_all", "count": "n_markets_all"})
 )
+
 market_price = market_price.merge(totals, on=["upc", "week_end"], how="left")
 market_price["price_iv"] = (market_price["price_sum_all"] - market_price["price"]) / (
     market_price["n_markets_all"] - 1
 )
 market_price["price_iv"] = market_price["price_iv"].replace([np.inf, -np.inf], np.nan)
 
-est_master = est_master.merge(
+merged_master = merged_master.merge(
     market_price[["upc", "week_end", "market_name", "price_iv"]],
     on=["upc", "week_end", "market_name"],
     how="left",
 )
 
-# Run OLS to isolate valid rows (dropping rows with missing brand/IV)
+merged_master = merged_master[
+    (merged_master["price"] > 0.1) | (merged_master["price"].isna())
+]
 iv_res = smf.ols(
-    "price ~ price_iv + brand_cd + C(week_end)", data=est_master, missing="drop"
+    "price ~ price_iv + brand_cd + C(week_end)", data=merged_master, missing="drop"
 ).fit()
 
-# Keep only the valid OLS rows
-est_sample = est_master.loc[iv_res.model.data.row_labels].copy()
+merged_master["iv_res"] = np.nan
+merged_master.loc[iv_res.model.data.row_labels, "iv_res"] = iv_res.resid
 
-# Flavor Encoding (0: Other, 1: Berry, 2: Plain)
-est_sample["flavor_str"] = est_sample["flavor"].fillna("").astype(str)
-est_sample["flavor_cd"] = pd.to_numeric(
-    est_sample["flavor_cd"], errors="coerce"
-).fillna(0)
 
-est_sample["flavor"] = np.select(
-    [
-        est_sample["flavor_str"].str.contains("berry", case=False, na=False),
-        est_sample["flavor_cd"].isin([67676592, 66987057]),
-    ],
-    [1, 2],
-    default=0,
+def map_flavor_category(flavor):
+    if pd.isna(flavor):
+        return "outside"
+    elif flavor == 0:
+        return "other"
+    elif flavor == 1:
+        return "berry"
+    elif flavor == 2:
+        return "plain"
+
+
+merged_master["category"] = merged_master["flavor"].map(map_flavor_category)
+inside_df = merged_master[merged_master["category"] != "outside"].copy()
+
+cat_choice_sets = (
+    inside_df.groupby(["store_code_uc", "week_end", "category"])
+    .agg(price=("price", "mean"), iv_res=("iv_res", "mean"))
+    .reset_index()
 )
+
+choice_set_matrix = {
+    (store, week): True
+    for (store, week), _ in cat_choice_sets.groupby(["store_code_uc", "week_end"])
+}
+
+# Filter inside_df to store-weeks present in choice_set_matrix
+valid_mask = inside_df.apply(
+    lambda r: (r["store_code_uc"], r["week_end"]) in choice_set_matrix, axis=1
+)
+est_sample = inside_df[valid_mask].copy()
+
+if "week_end" in est_sample.columns:
+    est_sample["week_end"] = pd.to_datetime(est_sample["week_end"])
 
 # ==============================================================================
 # 3. WEEKLY SHARES COMPUTATION
@@ -206,7 +276,6 @@ hh_total_qty = (
 hh_shares = hh_flavor_qty.merge(hh_total_qty, on="household_code")
 hh_shares["s_j"] = hh_shares["quantity"] / hh_shares["hh_total_quantity"]
 
-# Calculate Herfindahl-Hirschman Index (HHI = sum(s_j^2)) per household
 hh_hhi = (
     hh_shares.groupby("household_code")["s_j"]
     .apply(lambda x: np.sum(x**2))
@@ -386,7 +455,7 @@ trips_full = total_hh_trips.mean()
 trips_est = total_hh_trips.loc[
     total_hh_trips.index.isin(est_sample["household_code"])
 ].mean()
-yogurt_trips_est = est_sample.groupby("household_code")["trip_code_uc"].nunique().mean()
+
 choice_weeks_est = est_sample.groupby("household_code")["week_end"].nunique().mean()
 
 inc_full = agent_panel["household_income"].mean()
@@ -399,20 +468,26 @@ deal_full = (
     agent_panel.groupby(["household_code", "trip_code_uc"])["deal_flag_uc"].max().mean()
     * 100
 )
-deal_est = (
-    est_sample.groupby(["household_code", "trip_code_uc"])["deal_flag_uc"].max().mean()
+
+deal_est_val = (
+    est_sample.groupby(["household_code", "week_end"])["deal_flag_uc"].max().mean()
     * 100
+    if "deal_flag_uc" in est_sample.columns
+    else np.nan
 )
 
 units_est = est_sample.groupby(["household_code", "week_end"])["quantity"].sum().mean()
 
 table.add_row("Unique Households", f"{hh_full:,}", f"{hh_est:,}")
 table.add_row("Mean Total Store Trips / HH", f"{trips_full:.2f}", f"{trips_est:.2f}")
-table.add_row("Mean Yogurt Purchase Trips / HH", "N/A", f"{yogurt_trips_est:.2f}")
 table.add_row("Mean Observed Choice Weeks / HH", "N/A", f"{choice_weeks_est:.2f}")
 table.add_row("Mean Household Income", f"${inc_full:,.2f}", f"${inc_est:,.2f}")
 table.add_row("Mean Head Age", f"{age_full:.1f} yrs", f"{age_est:.1f} yrs")
-table.add_row("Deal / Coupon Purchase Rate", f"{deal_full:.2f}%", f"{deal_est:.2f}%")
+table.add_row(
+    "Deal / Coupon Purchase Rate",
+    f"{deal_full:.2f}%",
+    f"{deal_est_val:.2f}%" if not np.isnan(deal_est_val) else "N/A",
+)
 table.add_row("Mean Weekly Yogurt Units (Purchasers)", "N/A", f"{units_est:.2f} units")
 
 console.print(table)

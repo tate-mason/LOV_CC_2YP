@@ -74,6 +74,9 @@ def compute_satiation_state(
             for row in sub.itertuples():
                 if row.choice_idx < n_categories:
                     curr_X[row.choice_idx] = row.units_bought
+            total_inside_units = curr_X.sum()
+            if total_inside_units > 0:
+                curr_X = curr_X / total_inside_units
             prev_X = curr_X
     return pd.DataFrame(inventory_records)
 
@@ -87,20 +90,11 @@ def load_and_preprocess(weekly_capacity=14):
         pl.col("household_income").cast(pl.Int64),
         pl.col("household_size").cast(pl.Int64),
         pl.col("serving_per_container_cd").cast(pl.Int64),
+        pl.col("price").cast(pl.Float64),
     ]
 
     if "product_module_code_hms" in schema_names:
         exprs.append(pl.col("product_module_code_hms").cast(pl.Int64))
-
-    if "price" in schema_names:
-        exprs.append(pl.col("price").cast(pl.Float64))
-    elif "total_price_paid" in schema_names:
-        exprs.append(
-            (
-                pl.col("total_price_paid").cast(pl.Float64)
-                / pl.col("quantity").cast(pl.Float64)
-            ).alias("price")
-        )
 
     scan_q = pl.scan_parquet(MERGED_PATH).with_columns(exprs)
 

@@ -714,20 +714,21 @@ def estimate_flavor_gamma_model(vec_data):
 def estimate_het_flavor_gamma_model(vec_data, draws=GAMMA_DRAWS):
     # Parameter vector: [const, mu_b_ber, mu_b_pl, mu_g_ber, mu_g_pl, mu_lam, sd_b_ber, sd_b_pl, sd_g_ber, sd_g_pl, sd_lam, alpha, sigma]
     x0 = np.array(
-        [0.0, 0.0, 0.0, 0.0, 0.0, 0.84, 0.5, 0.5, 0.5, 0.5, 0.5, -0.1, 0.0]
-    )  # mu_lam=0.84 gives logit(0.84) ~ 0.7
+        [0.0, -0.7, -1.3, -0.7, -0.1, 0.84, 0.2, 0.2, 0.2, 0.2, 0.2, -0.98, 0.16]
+    )
+
     bounds = [
         (-10.0, 10.0),  # const
         (-10.0, 10.0),  # mu_beta_ber
         (-10.0, 10.0),  # mu_beta_pl
-        (-10.0, 0.0),  # mu_g_ber (bounded <= 0 for satiation disutility)
-        (-10.0, 0.0),  # mu_g_pl  (bounded <= 0 for satiation disutility)
-        (-3.0, 3.0),  # mu_lambda
-        (0.05, 5.0),  # sd_beta_ber
-        (0.05, 5.0),  # sd_beta_pl
-        (0.05, 5.0),  # sd_g_ber
-        (0.05, 5.0),  # sd_g_pl
-        (0.05, 3.0),  # sd_lambda
+        (-10.0, 0.0),  # mu_g_ber
+        (-10.0, 0.0),  # mu_g_pl
+        (-5.0, 5.0),  # mu_lambda (widened)
+        (1e-4, 5.0),  # sd_beta_ber (relaxed lower bound)
+        (1e-4, 5.0),  # sd_beta_pl
+        (1e-4, 5.0),  # sd_g_ber
+        (1e-4, 5.0),  # sd_g_pl
+        (1e-4, 3.0),  # sd_lambda
         (-10.0, -0.01),  # alpha
         (-10.0, 10.0),  # sigma
     ]
@@ -738,9 +739,10 @@ def estimate_het_flavor_gamma_model(vec_data, draws=GAMMA_DRAWS):
         args=(vec_data, draws),
         method="L-BFGS-B",
         bounds=bounds,
-        options={"ftol": 1e-7, "gtol": 1e-5, "maxiter": 1000},
+        options={"ftol": 1e-8, "gtol": 1e-5, "maxiter": 2000},
     )
 
+    # Numerical Hessian with pseudo-inverse fallback for Standard Errors
     eps = 1e-4
     n = len(res.x)
     hessian = np.zeros((n, n))
@@ -766,11 +768,12 @@ def estimate_het_flavor_gamma_model(vec_data, draws=GAMMA_DRAWS):
             hessian[j, i] = hessian[i, j]
 
     try:
-        se = np.sqrt(np.diag(np.linalg.inv(hessian)))
+        cov = np.linalg.inv(hessian + np.eye(n) * 1e-6)
     except np.linalg.LinAlgError:
-        se = np.full(n, np.nan)
+        cov = np.linalg.pinv(hessian)
 
-    z = res.x / se
+    se = np.sqrt(np.maximum(0.0, np.diag(cov)))
+    z = res.x / np.where(se > 0, se, np.nan)
     p = 2 * (1 - sp.stats.norm.cdf(np.abs(z)))
 
     return {

@@ -554,7 +554,13 @@ def total_objective_flavor_gamma(params, vec_data):
     choices = vec_data["choices"]
     c_state = vec_data["c_states"]
 
-    u_inside = const + beta_vec + gamma_vec * c_state + alpha * prices + sigma * resids
+    u_inside = (
+        const
+        + beta_vec
+        + gamma_vec * np.log(1 + c_state)
+        + alpha * prices
+        + sigma * resids
+    )
     u_outside = np.zeros((u_inside.shape[0], 1))
     u = np.hstack([u_inside, u_outside])
 
@@ -571,18 +577,13 @@ def total_objective_het_flavor_gamma(params, vec_data, draws):
         mu_beta_pl,
         mu_g_ber,
         mu_g_pl,
-        log_sd_beta_ber,
-        log_sd_beta_pl,
-        log_sd_g_ber,
-        log_sd_g_pl,
+        sd_beta_ber,
+        sd_beta_pl,
+        sd_g_ber,
+        sd_g_pl,
         alpha,
         sigma,
     ) = params
-
-    sd_beta_ber = np.exp(log_sd_beta_ber)
-    sd_beta_pl = np.exp(log_sd_beta_pl)
-    sd_g_ber = np.exp(log_sd_g_ber)
-    sd_g_pl = np.exp(log_sd_g_pl)
 
     prices = vec_data["prices"]
     resids = vec_data["resids"]
@@ -603,7 +604,7 @@ def total_objective_het_flavor_gamma(params, vec_data, draws):
     u_inside = (
         u_base[:, None, :]
         + beta_draws_matrix[None, :, :]
-        + gamma_draws_matrix[None, :, :] * c_state[:, None, :]
+        + gamma_draws_matrix[None, :, :] * np.log(1 + c_state[:, None, :])
     )
     u_out = np.zeros((u_inside.shape[0], n_draws, 1))
     u = np.concatenate([u_inside, u_out], axis=2)
@@ -670,17 +671,17 @@ def estimate_flavor_gamma_model(vec_data):
 
 
 def estimate_het_flavor_gamma_model(vec_data, draws=GAMMA_DRAWS):
-    x0 = np.zeros(11)
+    x0 = np.array([0.0, 0.0, 0.0, 0.0, 0.0, 0.5, 0.5, 0.5, 0.5, -0.1, 0.0])
     bounds = [
         (-10.0, 10.0),  # const
         (-10.0, 10.0),  # mu_beta_ber
         (-10.0, 10.0),  # mu_beta_pl
         (-10.0, 2.0),  # mu_g_ber
         (-10.0, 2.0),  # mu_g_pl
-        (-10.0, 5.0),  # log_sd_beta_ber
-        (-10.0, 5.0),  # log_sd_beta_pl
-        (-10.0, 5.0),  # log_sd_g_ber
-        (-10.0, 5.0),  # log_sd_g_pl
+        (0.05, 5.0),  # log_sd_beta_ber
+        (0.05, 5.0),  # log_sd_beta_pl
+        (0.05, 5.0),  # log_sd_g_ber
+        (0.05, 5.0),  # log_sd_g_pl
         (-10.0, -0.01),  # alpha
         (-10.0, 10.0),  # sigma
     ]

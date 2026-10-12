@@ -65,7 +65,7 @@ Love of variety seeks to explain why consumers switch products between periods a
 
 Using a model predicated on the idea of fatigue from repeated consumption, I estimate consumer preferences for yogurt flavors with data from Nielsen. I find that love of variety does not meaningfully affect estimates for consumer preferences over product attributes. In fact, I find that the two parameters are difficult to identify under my specification. I also find that consumers experience disutility from continuous consumption, indicating preference for varied purchases to avoid fatigue. When looking at the firm side, I find firms face lower profits under policy which obscures information about consumers. This learning cost can be as large as \$0.02 per unit. The firm loses profit as they lower prices to induce switching and thus learn the distribution of consumer types.
 
-Section two is the discusses related literature and this paper's contribution, section three examines and explains the data, section four motivates the demand model and informs identification, section five presents the demand model while section six walks through the estimation strategy. Section seven follows with the demand estimation results, section eight introduces the supply model, section nine is comprised of the supply simulation and requisite results. Finally, section ten concludes.
+Section two discusses related literature and this paper's contribution, section three examines and explains the data, section four motivates the demand model and informs identification, section five presents the demand model while section six walks through the estimation strategy. Section seven follows with the demand estimation results, section eight introduces the supply model, section nine is comprised of the supply simulation and requisite results. Finally, section ten concludes.
 %============================================================%
 \section{Related Literature}
 %============================================================%
@@ -76,7 +76,7 @@ The variety-seeking and state dependence literature has been primarily focused o
 
 % Supply Literature
 
-The literature on personalized pricing is mostly theoretical for physical goods. \citet{grossman_informative_1984} develops a model of advertising expenditure in which the firm is trying to inform consumers of their products' attributes. Their key finding is that advertising provides a social function by improving consumer and product matching. They also find there are excessive levels of advertising in nearly all cases. \citet{karle_imperfect_nodate} models optimal advertising strategies for the firm. Using a theoretical model with two firms, he finds that firms' profits change non-monotonically with targeting ability, decreasing as targeting improves before increasing again. \citet{moorthy_targeting_2023} derives the optimal conditions for targeted advertising. Using a Hotelling framework, the authors find that the key driver of optimal expenditure levels is product differentiation, claiming it as a managerial framework in the face of targeting regulation. \citet{dube_personalized_2023} uses a randomized control trial (RCT) to understand how price personalization impacts firm profits and consumer welfare. He finds that total consumer surplus declines with personalized pricing, 60\% of consumers benefit and, under some conditions, consumer welfare may increase.
+The literature on personalized pricing is mostly theoretical for physical goods. \citet{grossman_informative_1984} develops a model of advertising expenditure in which the firm is trying to inform consumers of their products' attributes. Their key finding is that advertising provides a social function by improving consumer and product matching. They also find there are excessive levels of advertising in nearly all cases. \citet{karle_imperfect_nodate} model optimal advertising strategies for the firm. Using a theoretical model with two firms, he finds that firms' profits change non-monotonically with targeting ability, decreasing as targeting improves before increasing again. \citet{moorthy_targeting_2023} derives the optimal conditions for targeted advertising. Using a Hotelling framework, the authors find that the key driver of optimal expenditure levels is product differentiation, claiming it as a managerial framework in the face of targeting regulation. \citet{dube_personalized_2023} uses a randomized control trial (RCT) to understand how price personalization impacts firm profits and consumer welfare. He finds that total consumer surplus declines with personalized pricing, 60\% of consumers benefit and, under some conditions, consumer welfare may increase.
 
 % Where I Fit and Large Findings
 
@@ -87,7 +87,7 @@ My contribution is twofold. Firstly, I am primarily concerned with attribute var
 \section{Data}
 %============================================================%
 
-    The data comes from Nielsen's HomeScan and MarketScan. These two main datasets give me access to household purchase decisions as well as product characteristics. From HomeScan, I can access household characteristics, purchase histories by shopping trip, and information on purchase characteristics such as discount use or the total price paid. MarketScan provides product characteristics like price or if the product was in a featured position on the shelf. I limit the sample to Atlanta, Chicago, Denver, Houston, Des Moines, Phoenix, Philadelphia, and San Diego for years 2022-2024. These markets were chosen since they are major cities in different parts of the country. I only include single-person households to avoid any contamination of shopping for multiple people like children or spouses. This ensures I am picking up true preferences for variety rather than buying for multiple people. These trips are encoded with unique identifiers, thus allowing me to look at per-trip, and within-trip, decisions. Agents are under observation for eight weeks and asked to record each shopping trip. Stores are restricted to be valid Nielsen stores, meaning they appear in the reatil code data. This is necessary to observe product prices.
+    The data comes from Nielsen's HomeScan and MarketScan. These two main datasets give me access to household purchase decisions as well as product characteristics. From HomeScan, I can access household characteristics, purchase histories by shopping trip, and information on purchase characteristics such as discount use or the total price paid. MarketScan provides product characteristics like price or if the product was in a featured position on the shelf. I limit the sample to Atlanta, Chicago, Denver, Houston, Des Moines, Phoenix, Philadelphia, and San Diego for years 2022-2024. These markets were chosen since they are major cities in different parts of the country. I only include single-person households to avoid any contamination of shopping for multiple people like children or spouses. This ensures I am picking up true preferences for variety rather than buying for multiple people. These trips are encoded with unique identifiers, thus allowing me to look at per-trip, and within-trip, decisions. Agents are under observation for eight weeks and asked to record each shopping trip. Stores are restricted to be valid Nielsen stores, meaning they appear in the retail code data. This is necessary to observe product prices.
 
     I use yogurt data as the product space for my analysis. Yogurt was chosen due to its relative lack of storability, wide menu of flavors, as well as diverse nutrition characteristics. I classify flavors as berry, other flavors, and plain. Plain is a unique identifier while "berry" and "other flavors" are aggregates of many flavors. Berry includes any flavor with "berry" in its flavor encoding, as well as cherry flavors. Other flavors are composed of all flavors which are neither plain nor other. By construction, it is the largest category. The outside option is defined as any purchase which is not yogurt.
 
@@ -96,27 +96,21 @@ My contribution is twofold. Firstly, I am primarily concerned with attribute var
     Figure \ref{fig:hhi_distribution} presents an HHI index for flavors. Over 70\% of households are almost entirely loyal to a single flavor. This is likely a byproduct of the simplified aggregation of flavors, allowing "other flavors" to dominate in this measure. Figure \ref{fig:basket_share_volume} further indicates this is occurring. About 60\% of consumer baskets are comprised of "other", regardless of purchase volume. Berry flavors are also relatively stable. Thus, it appears that, on average, plain yogurt is what is substituted for alternative flavor choices. Lastly, figure \ref{fig:flavor_share_timeseries} presents this as the average flavor share by week. The trend is quite similar to what was seen in figure \ref{fig:basket_share_volume}, with other flavors dominating, plain being the lowest chosen flavor, and berry being something of a middle ground. The data indicates that other flavors dominates the other two categories and that plain yogurt is the least preferred choice.
 
 %============================================================%
-\section{Motivation and Identification}
-%============================================================%
-
-To confirm that there is cause to research love of variety in demand estimation, I undertook 
-
-%============================================================%
 \section{Demand Model}
 %============================================================%Usine
-    In each period $t$, the consumer $i$ chooses a product $j$ from the menu of available products $J_t$. The available products are $J_t = \{0,1,2,3\}$ where $j=0$ is the outside option, $j=1$ is purchasing berry yogurt, $j=2$ is purchasing plain yogurt, and $j=3$ is purchasing other flavors. Consumers are assumed to be state-dependent, carrying previous choices forward when love of variety is present. Otherwise, they only internalize characteristic utiltiy and price utility. Each product $j\in J_t$ is a bundle of $k\in K$ characteristics such that $X_{jt}^k \in \mathcal{X}_{jt}$. The consumer's utility from choosing product $j$ at time $t$ is given by:
+    In each period $t$, the consumer $i$ chooses a product $j$ from the menu of available products $J_t$. The available products are $J_t = \{0,1,2,3\}$ where $j=0$ is the outside option, $j=1$ is purchasing berry yogurt, $j=2$ is purchasing plain yogurt, and $j=3$ is purchasing other flavors. Consumers are assumed to be state-dependent, carrying previous choices forward when love of variety is present. Otherwise, they only internalize characteristic utility and price utility. Each product $j\in J_t$ is a bundle of $k\in K$ characteristics such that $X_{jt}^k \in \mathcal{X}_{jt}$. The consumer's utility from choosing product $j$ at time $t$ is given by:
 
 
     \begin{alignat*}{1}
       U_{ijt} &= \beta_0 + \beta_{it}X_{jt}
                   + \gamma_i\Xi_{ijt} + \alpha_i p_{jt} +  \varepsilon_{ijt}, \ \text{for j$\in\{1,2,3\}$} \\
     \text{such that} \\
-      \Xi_{ijt} &= \lambda_i\sum_{s=1}^{8}\delta^{t-s}\Xi_{ijs} + (1-\lambda_i)\sum_{j\ne k}\rho x_{k,t-1} \\
+      \Xi_{ijt} &= \lambda\sum_{s=1}^{8}\delta^{t-s}\Xi_{ijs} + (1-\lambda)\sum_{j\ne k}\rho x_{k,t-1} \\
       \varepsilon_{ijt} &\sim \text{T1EV}(0,1) \\
       \text{$U_{i0t}$}&=\varepsilon_0 
     \end{alignat*}
 
-    In the utility function, there are the following components: $\beta_0$ is a constant, $\beta_{it}$ is a consumer's utility for characteristic $X_{jt}$ associated with product $j$ in time $t$. Following \citet{lattin_model_1987}, love of variety preference is captured by $\gamma_i$. A consumer's history is given by $\Xi_{ijt}$ where $\lambda_i$ is a weight on state dependence $\Xi_{ijs}$ which is discounted with time $\delta^{t-s}$. $\rho$ is an indicator for if a consumer bought a product $x_{k,t-1}$ where $k\ne j$. $\alpha_i$ is the parameter on prices $p_{jt}$ and $\varepsilon_{ijt}$ is the Gumbel shock.
+    In the utility function, there are the following components: $\beta_0$ is a constant, $\beta_{it}$ is a consumer's utility for characteristic $X_{jt}$ associated with product $j$ in time $t$. Following \citet{lattin_model_1987}, love of variety preference is captured by $\gamma_i$. A consumer's history is given by $\Xi_{ijt}$ where $\lambda$ is a weight on repeated consumption $\Xi_{ijs}$ which is discounted with time $\delta^{t-s}$. $\rho$ is an indicator for if a consumer bought a product $x_{k,t-1}$ where $k\ne j$. $\alpha_i$ is the parameter on prices $p_{jt}$ and $\varepsilon_{ijt}$ is the Gumbel shock.
 
     Choice probabilities take the following form:
 
@@ -125,6 +119,41 @@ To confirm that there is cause to research love of variety in demand estimation,
     \end{alignat*}
 
     Where we normalize the outside option, not purchasing yogurt, to be zero by construction. 
+
+%============================================================%
+\section{Motivation and Identification}
+%============================================================%
+
+Before estimating the model, I run a Monte Carlo simulation to see how the model responds to the addition of love of variety. This controlled setting allows me to verify that my parameters, $\beta, \gamma$ can be separately identified. The simulation also reveals if there is omitted variable bias in the specification without love of variety.
+
+The simulation sets the following parameters:
+\begin{table}[htbp]
+  \centering
+  \caption*{Simulation Parameters}
+  \begin{tabular}{l c l}
+    \toprule
+    \textbf{Parameter} & \textbf{Value} & \textbf{Description} \\
+    \midrule
+    \multicolumn{3}{l}{\textit{Panel \& Simulation Dimensions}} \\
+    \hspace{1em} $S$ & $1000$ & Number of Monte Carlo simulation runs \\
+    \hspace{1em} $T$ & $100$ & Total evaluation time periods per run \\
+    \hspace{1em} $T_{\text{prior}}$ & $5$ & History formation / burn-in period \\
+    \hspace{1em} $J$ & $5$ & Number of available products in choice set \\
+    \midrule
+    \multicolumn{3}{l}{\textit{Structural Preference \& Satiation Parameters}} \\
+    \hspace{1em} $\mathcal{X}$ & $[1.0, 5.0]$ & Linear product space \\
+    \hspace{1em} $\beta$ & $2.0$ & Baseline quality utility parameter \\
+    \hspace{1em} $\gamma$ & $\{0, 3, 6, 9\}$ & Variety utility / satiation penalty grid \\
+    \hspace{1em} $\epsilon_{ijt}$ & $\text{Gumbel}(0, 1)$ & Unobserved i.i.d. extreme value preference shock \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+From table \ref{tab:lov_comparison}, I find that choice probabilities are biased when love of variety is not accounted for. When $\gamma=0$, 75\% of the probability mass is on product 5. This makes sense, product 5 has the highest "value", thus without preferences for variety, a majority of consumers would choose it. However, as the magnitude of love of variety increases, we see the probability distribution shift. At a low level of variety, $\gamma=3$, product 5 still dominates, but products 1 and 2 now see massive increases in probability. This is due to variety in this setting meaning absolute distance and thus pushing consumers towards the extremes of the product distribution. This trend is exacerbated as the magnitude of $\gamma$ increases. When $\gamma=12$, the highest value allowed, the probability is focused on the poles of the distribution, with a nearly 40/60 split between products 1 and 5, respectively.
+
+Figure \ref{fig:ccp_comparison} shows this trend graphically. Note that after about 10-15 periods, consumers reach a steady state in consumption when there is love of variety. In the specification without love of variety, the choice probabilities are in rank order by utility and do not change much from the beginning of time. As we increase the level of $\gamma$, we see product 5's choice probability reduced from approximately 80\% to the near 60\% discussed above. The graph also shows that $\gamma$ determines the menu of products actually under consideration to a consumer. For a consumer with low love of variety, they will consume all at differing levels. For medium love of variety, consumers only purchase products 1, 2, and 5. At high levels, this goes to only products 1 and 5. Thus, their preferences become more particular.
+
+This exercise points to love of variety being meaningful to include in demand estimation. When we omit love of variety, we bias preferences for goods in both directions. From this example, good 1 is biased down while goods 3, 4, and 5 are biased upwards. Good 2 is an interesting case, with the direction of bias depending on the level of love of variety. Thus, we have evidence of omitted variable bias in the absence of love of variety, informing the feasibility of estimating love of variety in yogurt consumption with Nielsen data.
 
 %============================================================%
 \section{Estimation}
@@ -144,7 +173,7 @@ I make an index of prices, instrumental variable residuals, and previous choices
   U^k_{ijt} = \beta_0 +  \sum_k\beta_i^kX^k_{jt} + \gamma_i\Xi_{ijt} + \alpha p_{jt} + \sigma\hat{\eta}_{jt}
 \end{alignat*}
 
-Where $\beta_0$ is a constant, $\beta^k \ \text{for k} \ \in \{\text{berry, other, plain}\}$ are choice specific coefficients for choosing berry, other, or plain. $\gamma$ is the love of variety term, interacted with $\Xi_{ijt}$, which is just capturing if consumer $i$ switched between periods. The price and control function term are unchanged from above. The probability of individual $i$ choosing the observed product $j$ in time $t$ is given by:
+Where $\beta_0$ is a constant, $\beta^k \ \text{for k} \ \in \{\text{berry, other, plain}\}$ are choice specific coefficients for choosing berry, other, or plain. $\gamma$ is the love of variety term, interacted with $\Xi_{ijt}$, which captures if consumer $i$ switched between periods. The price and control function term are unchanged from above. The probability of individual $i$ choosing the observed product $j$ in time $t$ is given by:
 \begin{alignat*}{5}
   \Pi_i(P_{ijt}(\beta_it, \Xi_{ijt}))^{y_{ijt}}
 \end{alignat*}
@@ -154,7 +183,7 @@ Where $y_{ijt} = 1$ when person $i$ chosen $j$ that period, and zero otherwise. 
   \text{LL}(\theta) = \sum_t\sum_i\sum_jy_{ijt}\ln P_{ijt}(\beta_i, \Xi_{ijt})
 \end{alignat*}
 
-I also repeat estimation under specifications which exclude $\gamma_i$, do not estimate heterogeneous $\beta_i, \ \gamma_i$, and do both. This allows me to see if results are biased when love of variety is excluded from estimation. 
+I set $\lambda=0.7$, following previous literature, and $\delta=0.9$ for the same reason. I repeat estimation under specifications which exclude $\gamma_i$, do not estimate heterogeneous $\beta_i, \ \gamma_i$, and do both. This allows me to see if results are biased when love of variety is excluded from estimation. 
 
 %============================================================%
 \section{Demand Results}
@@ -162,7 +191,7 @@ I also repeat estimation under specifications which exclude $\gamma_i$, do not e
 
 Table \ref{tab:satiation_estimates} shows the main results from the estimation. All coefficients are flavor-specific and are relative to the "other flavors" category which is relative to the outside option. When looking at the standard logit, without heterogeneous consumers, I find that consumers experience disutility from both berry flavored and plain yogurt compared to other flavors. They also experience disutility from continuing to consume the same flavor, with berry inducing more disutilty than plain, though plain is not statistically significant. Price effects are negative and significant, with the control function residual being positive and significant. 
 
-From the mixed logit, I find similar estimates. I recover statistically significant coefficients for all but the coefficient on variety for plain yogurt and the estimated standard deviation on $\gamma$ for berry. When looking at the coefficient on berry, I find a large and significant disutility for continuing to consume berry yogurt given past berry utility. I also find a smaller disutility for continuing to consume plain yogurt. The plain fatigue coefficient is not significant, pointing to identification issues. The estimated standard deviations for the beta's imply that there is little heterogeneity in preferences for flavors once love of variety is introduced. Prices are still significant and negative, though less than in the standard logit specification along with the control function residual being significant and more positive. I also find that implied willingness to pay does not change much for flavor preferences between the standard and mixed logit specification. However, plain yogurt consumers are willing to pay a lot to switch from their flavor, needing over \$7 to stay with plain. This points to relatively large discounts on plain yogurt are required to overcome the boredom in flavor. This is massive compared to the, insignificant, estimate in the standard case.
+From the mixed logit, I find similar estimates. I recover statistically significant coefficients for all but the coefficient on variety for plain yogurt and the estimated standard deviation on $\gamma$ for berry. When looking at the coefficient on berry, I find a large and significant disutility for continuing to consume berry yogurt given past berry utility. I also find a smaller disutility for continuing to consume plain yogurt. The plain fatigue coefficient is not significant, pointing to identification issues. The estimated standard deviations for the beta's imply that there is little heterogeneity in preferences for flavors once love of variety is introduced. Prices are still significant and negative, though less than in the standard logit specification along with the control function residual being significant and more positive. I also find that implied willingness to pay does not change much for flavor preferences between the standard and mixed logit specification. However, plain yogurt consumers are willing to pay a lot to switch from their flavor, needing over \$7 to stay with plain. This points to relatively large discounts on plain yogurt being required to overcome the boredom in flavor. This is massive compared to the, insignificant, estimate in the standard case.
 
 Looking at table \ref{tab:naive_estimates}, I find the estimates and implied willingness to pay for what I term the "naive" specifications. Here, there is no love of variety $\gamma$. When comparing the estimates across specifications, I see little change in the magnitudes of the estimates. For plain, I find a 0.01\% change in base utility for consuming plain yogurt in the standard logit and 0.19\% in the mixed logit. For berry, the decrease is 0.78\% in the standard logit and a 1.87\% decrease in the mixed logit. The intercept has a difference of 0.2\% in the standard logit and 0.47\% in the mixed while price is an increase of 0.15\% and 0.33\%, respectively. 
 
@@ -392,7 +421,7 @@ This result points to consumer privacy policies being a viable way to limit trac
 
 I implement a dynamic discrete choice model of consumer demand which incorporates love of variety in consumers. The model is estimated with Nielsen's HomeScan and MarketScan data, allowing for panel analysis of about 1,000 single agent households. I find that love of variety does not meaningfully impact demand estimates for preferences over product attributes, with the largest effect being a 1.9\% decrease in the magnitude of the estimate for baseline preference of berry yogurt. My findings also show that consumers need to be compensated to continue to consume flavors they have previously consumed. This indicates love of variety is actually fatigue avoidance. However, I put forth that love of variety is not properly identified in my current specification, implying further tuning is needed. 
 
-On the supply side, I derive optimal pricing on the part of the firm using a simple toy model. Under a regime in which the firm has perfect information on the distribution of types, they optimally price discriminate, pushing consumers to the lower-cost good. However, when policy which obscures information is introduced, I find that firms lose up to \$0.2 per unit due to the cost of learning consumer types. As data privacy policy continues to be enacted, this finding points to its efficacy in protecting consumers.
+On the supply side, I derive optimal pricing on the part of the firm using a simple toy model. Under a regime in which the firm has perfect information on the distribution of types, they optimally price discriminate, pushing consumers to the lower-cost good. However, when policy which obscures information is introduced, I find that firms lose up to \$0.02 per unit due to the cost of learning consumer types. As data privacy policy continues to be enacted, this finding points to its efficacy in protecting consumers.
 
 In closing, this paper has contributed to the love of variety and targeted advertising literatures. Further work can be done to tune the demand model for more precise estimation, add characteristics over which consumers can have preferences, and better control for price endogeneity. On the supply side, calibrating the model with MarketScan data and consumer purchases observed in HomeScan would allow for richer findings from the optimal pricing model. Joining the supply and demand sides into a partial equilibrium model would be of great interest and provide opportunity for counterfactual analyses. 
 
@@ -421,8 +450,8 @@ In closing, this paper has contributed to the love of variety and targeted adver
 Unique Households & 5,408 & 998 \\
 Mean Total Store Trips / HH & 308.15 & 400.05 \\
 Mean Observed Choice Weeks / HH & N/A & 3.91 \\
-Mean Household Income & \$18.01 & \$19.09 \\
-Mean Head Age & 7.9 yrs & 7.9 yrs \\
+Mean Household Income & \$40,000-44,999 & \$45,000-49,999 \\
+Mean Head Age & 50-55 yrs & 50-55 yrs \\
 Deal / Coupon Purchase Rate & 26.52\% & 23.10\% \\
 Mean Weekly Yogurt Units (Purchasers) & N/A & 8.44 units \\
 \bottomrule
@@ -455,7 +484,28 @@ Mean Weekly Yogurt Units (Purchasers) & N/A & 8.44 units \\
 \clearpage
 
 % ==============================================================================
-% SECTION 2: DEMAND ESTIMATION RESULTS
+% SECTION 2: DEMAND ESTIMATION MOTIVATION 
+% ==============================================================================
+
+\begin{table}[htbp]
+  \centering
+  \caption{CCP Comparison Across Levels of Variety Utility}
+  \label{tab:lov_comparison}
+  \input{../../../MonteCarlo/Output/Tables/tab_lov_master_gamma_comparison.tex}
+\end{table}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.85\textwidth]{../../../MonteCarlo/Output/Plots/LOV_Product_Shares_Grid.pdf}
+  \caption{Choice Probabilities Over Time}
+  \label{fig:ccp_comparison}
+\end{figure}
+
+\clearpage
+  
+
+% ==============================================================================
+% SECTION 3: DEMAND ESTIMATION RESULTS
 % ==============================================================================
 
 % --- PART 1: NAIVE LOGIT MODELS ---

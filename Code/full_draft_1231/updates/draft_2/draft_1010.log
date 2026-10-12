@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.8.17)  11 OCT 2026 11:07
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.8.17)  11 OCT 2026 13:08
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -572,22 +572,22 @@ Package: upquote 2012/04/19 v1.3 upright-quote and grave-accent glyphs in verbat
 ) [1
 
 {/usr/local/texlive/2026/texmf-var/fonts/map/pdftex/updmap/pdftex.map}] [2{/usr/local/texlive/2026/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc}] [3] [4]
-LaTeX Font Info:    Trying to load font information for U+msa on input line 107.
+LaTeX Font Info:    Trying to load font information for U+msa on input line 101.
  (/usr/local/texlive/2026/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 ) (/usr/local/texlive/2026/texmf-dist/tex/latex/microtype/mt-msa.cfg
 File: mt-msa.cfg 2006/02/04 v1.1 microtype config. file: AMS symbols (a) (RS)
 )
-LaTeX Font Info:    Trying to load font information for U+msb on input line 107.
+LaTeX Font Info:    Trying to load font information for U+msb on input line 101.
  (/usr/local/texlive/2026/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 ) (/usr/local/texlive/2026/texmf-dist/tex/latex/microtype/mt-msb.cfg
 File: mt-msb.cfg 2005/06/01 v1.0 microtype config. file: AMS symbols (b) (RS)
-) [5] [6]
-./draft_1010.tex:180: Undefined control sequence.
+) [5] [6] [7]
+./draft_1010.tex:209: Undefined control sequence.
 <argument>  U_{irjt} = \beta _0 + \gamma _r\ind 
                                                 \{j_t\ne j_{t-1}\} + \alpha ...
-l.180 \end{gather*}
+l.209 \end{gather*}
                    
 The control sequence at the end of the top line
 of your error message was never \def'ed. If you have
@@ -595,10 +595,10 @@ misspelled it (e.g., `\hobx'), type `I' and the correct
 spelling (e.g., `I\hbox'). Otherwise just continue,
 and I'll forget about whatever was undefined.
 
-./draft_1010.tex:180: Undefined control sequence.
+./draft_1010.tex:209: Undefined control sequence.
 <argument>  U_{irjt} = \beta _0 + \gamma _r\ind 
                                                 \{j_t\ne j_{t-1}\} + \alpha ...
-l.180 \end{gather*}
+l.209 \end{gather*}
                    
 The control sequence at the end of the top line
 of your error message was never \def'ed. If you have
@@ -606,11 +606,11 @@ misspelled it (e.g., `\hobx'), type `I' and the correct
 spelling (e.g., `I\hbox'). Otherwise just continue,
 and I'll forget about whatever was undefined.
 
-[7]
-./draft_1010.tex:190: Undefined control sequence.
+[8]
+./draft_1010.tex:219: Undefined control sequence.
 <argument> ...V_{irjt} = \beta _0 + \gamma _r\ind 
                                                   \{j_t\ne j_{t-1}\} + \alph...
-l.190 \end{gather*}
+l.219 \end{gather*}
                    
 The control sequence at the end of the top line
 of your error message was never \def'ed. If you have
@@ -618,10 +618,10 @@ misspelled it (e.g., `\hobx'), type `I' and the correct
 spelling (e.g., `I\hbox'). Otherwise just continue,
 and I'll forget about whatever was undefined.
 
-./draft_1010.tex:190: Undefined control sequence.
+./draft_1010.tex:219: Undefined control sequence.
 <argument> ...V_{irjt} = \beta _0 + \gamma _r\ind 
                                                   \{j_t\ne j_{t-1}\} + \alph...
-l.190 \end{gather*}
+l.219 \end{gather*}
                    
 The control sequence at the end of the top line
 of your error message was never \def'ed. If you have
@@ -629,13 +629,13 @@ misspelled it (e.g., `\hobx'), type `I' and the correct
 spelling (e.g., `I\hbox'). Otherwise just continue,
 and I'll forget about whatever was undefined.
 
-LaTeX Font Info:    Trying to load font information for OMS+cmr on input line 203.
+LaTeX Font Info:    Trying to load font information for OMS+cmr on input line 232.
 (/usr/local/texlive/2026/texmf-dist/tex/latex/base/omscmr.fd
 File: omscmr.fd 2024/11/19 v2.5n Standard LaTeX font definitions
 )
 LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <10.95> not available
-(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 203.
- [8] [9] [10] [11] [12] [13] [14] [15] (./draft_1010.bbl
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 232.
+ [9] [10] [11] [12] [13] [14] [15] [16] (./draft_1010.bbl
 LaTeX Font Info:    Trying to load font information for OT1+zi4 on input line 14.
  (/usr/local/texlive/2026/texmf-dist/tex/latex/inconsolata/ot1zi4.fd
 File: ot1zi4.fd 2018/01/14 OT1/zi4 (Inconsolata)
@@ -646,50 +646,58 @@ Package microtype Info: Loading generic protrusion settings for font family
 (microtype)             `zi4' (encoding: OT1).
 (microtype)             For optimal results, create family-specific settings.
 (microtype)             See the microtype manual for details.
- [16{/usr/local/texlive/2026/texmf-dist/fonts/enc/dvips/inconsolata/i4-ot1-0.enc}]) [17]
-<../../../../Output/Plots/fig1_flavor_hhi_distribution.pdf, id=223, 638.26651pt x 349.58495pt>
+ [17{/usr/local/texlive/2026/texmf-dist/fonts/enc/dvips/inconsolata/i4-ot1-0.enc}]) [18]
+<../../../../Output/Plots/fig1_flavor_hhi_distribution.pdf, id=232, 638.26651pt x 349.58495pt>
 File: ../../../../Output/Plots/fig1_flavor_hhi_distribution.pdf Graphic file (type pdf)
 <use ../../../../Output/Plots/fig1_flavor_hhi_distribution.pdf>
-Package pdftex.def Info: ../../../../Output/Plots/fig1_flavor_hhi_distribution.pdf  used on input line 436.
+Package pdftex.def Info: ../../../../Output/Plots/fig1_flavor_hhi_distribution.pdf  used on input line 465.
 (pdftex.def)             Requested size: 399.29463pt x 218.69807pt.
-<../../../../Output/Plots/fig2_basket_share_by_volume.pdf, id=224, 638.36687pt x 421.8569pt>
+<../../../../Output/Plots/fig2_basket_share_by_volume.pdf, id=233, 638.36687pt x 421.8569pt>
 File: ../../../../Output/Plots/fig2_basket_share_by_volume.pdf Graphic file (type pdf)
 <use ../../../../Output/Plots/fig2_basket_share_by_volume.pdf>
-Package pdftex.def Info: ../../../../Output/Plots/fig2_basket_share_by_volume.pdf  used on input line 443.
+Package pdftex.def Info: ../../../../Output/Plots/fig2_basket_share_by_volume.pdf  used on input line 472.
 (pdftex.def)             Requested size: 399.29463pt x 263.87233pt.
-<../../../../Output/Plots/fig3_flavor_share_timeseries.pdf, id=225, 855.17686pt x 421.85495pt>
+<../../../../Output/Plots/fig3_flavor_share_timeseries.pdf, id=234, 855.17686pt x 421.85495pt>
 File: ../../../../Output/Plots/fig3_flavor_share_timeseries.pdf Graphic file (type pdf)
 <use ../../../../Output/Plots/fig3_flavor_share_timeseries.pdf>
-Package pdftex.def Info: ../../../../Output/Plots/fig3_flavor_share_timeseries.pdf  used on input line 450.
+Package pdftex.def Info: ../../../../Output/Plots/fig3_flavor_share_timeseries.pdf  used on input line 479.
 (pdftex.def)             Requested size: 446.26582pt x 220.1447pt.
- [18 <../../../../Output/Plots/fig1_flavor_hhi_distribution.pdf>] [19 <../../../../Output/Plots/fig2_basket_share_by_volume.pdf> <../../../../Output/Plots/fig3_flavor_share_timeseries.pdf>]
-Overfull \hbox (13.86287pt too wide) in paragraph at lines 469--492
+ [19 <../../../../Output/Plots/fig1_flavor_hhi_distribution.pdf>] [20 <../../../../Output/Plots/fig2_basket_share_by_volume.pdf> <../../../../Output/Plots/fig3_flavor_share_timeseries.pdf>] (../../../MonteCarlo/Output/Tables/tab_lov_master_gamma_comparison.tex)
+<../../../MonteCarlo/Output/Plots/LOV_Product_Shares_Grid.pdf, id=455, 1011.78pt x 722.7pt>
+File: ../../../MonteCarlo/Output/Plots/LOV_Product_Shares_Grid.pdf Graphic file (type pdf)
+<use ../../../MonteCarlo/Output/Plots/LOV_Product_Shares_Grid.pdf>
+Package pdftex.def Info: ../../../MonteCarlo/Output/Plots/LOV_Product_Shares_Grid.pdf  used on input line 499.
+(pdftex.def)             Requested size: 399.29463pt x 285.21524pt.
+ [21
+
+] [22 <../../../MonteCarlo/Output/Plots/LOV_Product_Shares_Grid.pdf>]
+Overfull \hbox (13.86287pt too wide) in paragraph at lines 519--542
  [][] 
  []
 
 
-Overfull \hbox (44.30748pt too wide) in paragraph at lines 502--531
+Overfull \hbox (44.30748pt too wide) in paragraph at lines 552--581
  [][] 
  []
 
-<../../../../Output/Plots/fig4_marginal_type_distributions.pdf, id=446, 855.47166pt x 348.08731pt>
+<../../../../Output/Plots/fig4_marginal_type_distributions.pdf, id=539, 855.47166pt x 348.08731pt>
 File: ../../../../Output/Plots/fig4_marginal_type_distributions.pdf Graphic file (type pdf)
 <use ../../../../Output/Plots/fig4_marginal_type_distributions.pdf>
-Package pdftex.def Info: ../../../../Output/Plots/fig4_marginal_type_distributions.pdf  used on input line 537.
+Package pdftex.def Info: ../../../../Output/Plots/fig4_marginal_type_distributions.pdf  used on input line 587.
 (pdftex.def)             Requested size: 422.77664pt x 172.0249pt.
-<../../../../Output/Plots/fig5_joint_type_distributions.pdf, id=447, 852.39928pt x 381.3664pt>
+<../../../../Output/Plots/fig5_joint_type_distributions.pdf, id=540, 852.39928pt x 381.3664pt>
 File: ../../../../Output/Plots/fig5_joint_type_distributions.pdf Graphic file (type pdf)
 <use ../../../../Output/Plots/fig5_joint_type_distributions.pdf>
-Package pdftex.def Info: ../../../../Output/Plots/fig5_joint_type_distributions.pdf  used on input line 544.
+Package pdftex.def Info: ../../../../Output/Plots/fig5_joint_type_distributions.pdf  used on input line 594.
 (pdftex.def)             Requested size: 446.26582pt x 199.66171pt.
-<../../../../Output/Plots/fig6_wtp_distributions.pdf, id=448, 632.0256pt x 349.56792pt>
+<../../../../Output/Plots/fig6_wtp_distributions.pdf, id=541, 632.0256pt x 349.56792pt>
 File: ../../../../Output/Plots/fig6_wtp_distributions.pdf Graphic file (type pdf)
 <use ../../../../Output/Plots/fig6_wtp_distributions.pdf>
-Package pdftex.def Info: ../../../../Output/Plots/fig6_wtp_distributions.pdf  used on input line 551.
+Package pdftex.def Info: ../../../../Output/Plots/fig6_wtp_distributions.pdf  used on input line 601.
 (pdftex.def)             Requested size: 399.29463pt x 220.85301pt.
-[20
+[23
 
-] [21 <../../../../Output/Plots/fig4_marginal_type_distributions.pdf>] [22 <../../../../Output/Plots/fig5_joint_type_distributions.pdf> <../../../../Output/Plots/fig6_wtp_distributions.pdf>] [23
+] [24 <../../../../Output/Plots/fig4_marginal_type_distributions.pdf>] [25 <../../../../Output/Plots/fig5_joint_type_distributions.pdf> <../../../../Output/Plots/fig6_wtp_distributions.pdf>] [26
 
 ] (./draft_1010.aux)
  ***********
@@ -697,21 +705,21 @@ LaTeX2e <2026-06-01>
 L3 programming layer <2026-07-20>
  ***********
 Package rerunfilecheck Info: File `draft_1010.out' has not changed.
-(rerunfilecheck)             Checksum: 8FF8CD88C3BC5A4E0CF184F0B628D9AF;1601.
+(rerunfilecheck)             Checksum: FCECF806A82709194E497834C770CDEB;1601.
  ) 
 Here is how much of TeX's memory you used:
- 21588 strings out of 467159
- 412776 string characters out of 5409218
- 846428 words of memory out of 5000000
- 50414 multiletter control sequences out of 15000+600000
- 641856 words of font info for 151 fonts, out of 8000000 for 9000
+ 21612 strings out of 467159
+ 413827 string characters out of 5409218
+ 846569 words of memory out of 5000000
+ 50426 multiletter control sequences out of 15000+600000
+ 641907 words of font info for 152 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  74i,19n,80p,2750b,1173s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </usr/local/texlive/2026/texmf-dist/fonts/type1/public/inconsolata/Inconsolata-zi4r.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi9.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr17.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy6.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/cm-super/sfbx1095.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/cm-super/sfrm1095.pfb>
-Output written on draft_1010.pdf (23 pages, 463075 bytes).
+Output written on draft_1010.pdf (26 pages, 509345 bytes).
 PDF statistics:
- 752 PDF objects out of 1000 (max. 8388607)
- 357 compressed objects within 4 object streams
- 61 named destinations out of 1000 (max. 500000)
- 29319 words of extra memory for PDF output out of 29859 (max. 10000000)
+ 847 PDF objects out of 1000 (max. 8388607)
+ 382 compressed objects within 4 object streams
+ 67 named destinations out of 1000 (max. 500000)
+ 29324 words of extra memory for PDF output out of 29859 (max. 10000000)
 

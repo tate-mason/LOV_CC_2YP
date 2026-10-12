@@ -111,7 +111,7 @@ def load_and_preprocess_unbinned(weekly_capacity=14, top_k=TOP_K_FLAVORS):
     non_plain_df = merged_df[~is_plain]
     top_flavors = non_plain_df["flavor_str"].value_counts().head(top_k).index.tolist()
 
-    # Categories: Plain (Index 0 - EXCLUDED BASE), top_flavors, and outside option
+    # Categories: Plain (Index 0 - BASE), top_flavors (1..K), and outside option
     categories = ["plain"] + top_flavors + ["outside"]
     cat_map = {c: i for i, c in enumerate(categories)}
     n_inside = len(categories) - 1
@@ -238,12 +238,6 @@ def load_and_preprocess_unbinned(weekly_capacity=14, top_k=TOP_K_FLAVORS):
         df_sat, on=["household_code", "week_end"], how="left"
     ).fillna(0.0)
 
-    hh_income_map = (
-        merged_df.drop_duplicates(subset=["household_code"])
-        .set_index("household_code")["household_income"]
-        .to_dict()
-    )
-
     counts_dict = {}
     for (hh_id, week), grp in weekly_purchases.groupby(["household_code", "week_end"]):
         c_arr = np.zeros(n_inside, dtype=np.int64)
@@ -252,13 +246,7 @@ def load_and_preprocess_unbinned(weekly_capacity=14, top_k=TOP_K_FLAVORS):
                 c_arr[row.choice_idx] = row.units_bought
         counts_dict[(hh_id, week)] = c_arr
 
-    all_prices, all_resids, all_choices, all_c_states, all_log_inc = (
-        [],
-        [],
-        [],
-        [],
-        [],
-    )
+    all_prices, all_resids, all_choices, all_c_states = [], [], [], []
 
     for row_dict in hh_weeks.to_dict("records"):
         store = row_dict["store_code_uc"]
@@ -267,9 +255,6 @@ def load_and_preprocess_unbinned(weekly_capacity=14, top_k=TOP_K_FLAVORS):
 
         if (store, week) not in choice_set_matrix:
             continue
-
-        raw_inc = hh_income_map.get(hh_id, 1)
-        log_inc = np.log(max(float(raw_inc) if pd.notna(raw_inc) else 1.0, 1.0))
 
         inside_counts = counts_dict.get(
             (hh_id, week), np.zeros(n_inside, dtype=np.int64)
@@ -288,19 +273,62 @@ def load_and_preprocess_unbinned(weekly_capacity=14, top_k=TOP_K_FLAVORS):
         all_resids.append(choice_set_matrix[(store, week)][:n_inside, 1])
         all_choices.append(full_counts)
         all_c_states.append(c_vec)
-        all_log_inc.append(log_inc)
 
     vec_data = {
         "prices": np.array(all_prices, dtype=np.float64),
         "resids": np.array(all_resids, dtype=np.float64),
         "choices": np.array(all_choices, dtype=np.int64),
         "c_states": np.array(all_c_states, dtype=np.float64),
-        "log_inc": np.array(all_log_inc, dtype=np.float64),
         "top_flavors": top_flavors,
         "n_inside": n_inside,
     }
 
     return vec_data
+
+
+# =========================================================
+# HELPER: HESSIAN & STANDARD ERROR COMPUTATION
+# =========================================================
+def compute_robust_se(obj_func, opt_params, vec_data, draws=None, eps=1e-4):
+    n = len(opt_params)
+    hessian = np.zeros((n, n))
+
+    for i in range(n):
+        for j in range(i, n):
+            x1, x2, x3, x4 = (
+                opt_params.copy(),
+                opt_params.copy(),
+                opt_params.copy(),
+                opt_params.copy(),
+            )
+            x1[i] += eps
+            x1[j] += eps
+            x2[i] += eps
+            x2[j] -= eps
+            x3[i] -= eps
+            x3[j] += eps
+            x4[i] -= eps
+            x4[j] -= eps
+
+            args = (vec_data, draws) if draws is not None else (vec_data,)
+            f1 = obj_func(x1, *args)
+            f2 = obj_func(x2, *args)
+            f3 = obj_func(x3, *args)
+            f4 = obj_func(x4, *args)
+
+            hessian[i, j] = (f1 - f2 - f3 + f4) / (4 * eps * eps)
+            hessian[j, i] = hessian[i, j]
+
+    try:
+        cov = np.linalg.inv(hessian + np.eye(n) * 1e-6)
+    except np.linalg.LinAlgError:
+        cov = np.linalg.pinv(hessian)
+
+    se = np.sqrt(np.maximum(1e-8, np.diag(cov)))
+    z = opt_params / se
+    p = 2 * (1 - sp.stats.norm.cdf(np.abs(z)))
+
+    return se, z, p
 
 
 # =========================================================
@@ -310,7 +338,7 @@ def total_objective_unbinned_naive(params, vec_data):
     n_inside = vec_data["n_inside"]
     const = params[0]
     beta_non_plain = params[1:n_inside]
-    beta_vec = np.append(0.0, beta_non_plain)  # Plain beta is fixed to 0.0 (Base)
+    beta_vec = np.append(0.0, beta_non_plain)  # Plain fixed to 0.0
 
     alpha = params[-2]
     sigma = params[-1]
@@ -336,7 +364,9 @@ def total_objective_rc_unbinned_naive(params, vec_data, draws):
 
     const = params[0]
     mu_beta_non_plain = params[1:n_inside]
-    sd_beta_non_plain = params[n_inside : 2 * n_inside - 1]
+    log_sd_beta_non_plain = params[n_inside : 2 * n_inside - 1]
+    sd_beta_non_plain = np.exp(log_sd_beta_non_plain)
+
     alpha = params[-2]
     sigma = params[-1]
 
@@ -363,10 +393,11 @@ def total_objective_rc_unbinned_naive(params, vec_data, draws):
 
 def estimate_unbinned_naive_model(vec_data):
     n_inside = vec_data["n_inside"]
-    # const (1) + beta_non_plain (n_inside - 1) + alpha (1) + sigma (1) = n_inside + 2
-    x0 = np.zeros(n_inside + 2)
+    total_params = n_inside + 2
+    x0 = np.zeros(total_params)
     x0[-2] = -0.1
-    bounds = [(None, None)] * n_inside + [(None, 0.0), (None, None)]
+
+    bounds = [(-30.0, 30.0)] * n_inside + [(-30.0, 0.0), (-30.0, 30.0)]
 
     res = minimize(
         total_objective_unbinned_naive,
@@ -377,36 +408,7 @@ def estimate_unbinned_naive_model(vec_data):
         options={"ftol": 1e-8, "gtol": 1e-5},
     )
 
-    eps = 1e-5
-    n = len(res.x)
-    hessian = np.zeros((n, n))
-    for i in range(n):
-        for j in range(i, n):
-            x1, x2, x3, x4 = res.x.copy(), res.x.copy(), res.x.copy(), res.x.copy()
-            x1[i] += eps
-            x1[j] += eps
-            x2[i] += eps
-            x2[j] -= eps
-            x3[i] -= eps
-            x3[j] += eps
-            x4[i] -= eps
-            x4[j] -= eps
-
-            f1 = total_objective_unbinned_naive(x1, vec_data)
-            f2 = total_objective_unbinned_naive(x2, vec_data)
-            f3 = total_objective_unbinned_naive(x3, vec_data)
-            f4 = total_objective_unbinned_naive(x4, vec_data)
-
-            hessian[i, j] = (f1 - f2 - f3 + f4) / (4 * eps * eps)
-            hessian[j, i] = hessian[i, j]
-
-    try:
-        se = np.sqrt(np.diag(np.linalg.inv(hessian)))
-    except np.linalg.LinAlgError:
-        se = np.full(n, np.nan)
-
-    z = res.x / se
-    p = 2 * (1 - sp.stats.norm.cdf(np.abs(z)))
+    se, z, p = compute_robust_se(total_objective_unbinned_naive, res.x, vec_data)
 
     return {
         "params": res.x,
@@ -424,13 +426,13 @@ def estimate_rc_unbinned_naive_model(vec_data, draws):
 
     total_params = 2 * n_non_plain + 3
     x0 = np.zeros(total_params)
-    x0[n_inside : 2 * n_inside - 1] = 0.5
+    x0[n_inside : 2 * n_inside - 1] = -0.7  # log(SD) start around 0.5
     x0[-2] = -0.1
 
     bounds = (
-        [(-10.0, 10.0)] * n_inside
-        + [(1e-4, 5.0)] * n_non_plain
-        + [(-10.0, -0.01), (-10.0, 10.0)]
+        [(-30.0, 30.0)] * n_inside
+        + [(-5.0, 3.0)] * n_non_plain  # log-space bounds for SD
+        + [(-30.0, -0.01), (-30.0, 30.0)]
     )
 
     res = minimize(
@@ -439,43 +441,21 @@ def estimate_rc_unbinned_naive_model(vec_data, draws):
         args=(vec_data, draws),
         method="L-BFGS-B",
         bounds=bounds,
-        options={"ftol": 1e-7, "gtol": 1e-5, "maxiter": 1000},
+        options={"ftol": 1e-7, "gtol": 1e-5, "maxiter": 1500},
     )
 
-    eps = 1e-4
-    n = len(res.x)
-    hessian = np.zeros((n, n))
+    # Convert log_sd parameters back to regular scale
+    reported_params = res.x.copy()
+    reported_params[n_inside : 2 * n_inside - 1] = np.exp(
+        res.x[n_inside : 2 * n_inside - 1]
+    )
 
-    for i in range(n):
-        for j in range(i, n):
-            x1, x2, x3, x4 = res.x.copy(), res.x.copy(), res.x.copy(), res.x.copy()
-            x1[i] += eps
-            x1[j] += eps
-            x2[i] += eps
-            x2[j] -= eps
-            x3[i] -= eps
-            x3[j] += eps
-            x4[i] -= eps
-            x4[j] -= eps
-
-            f1 = total_objective_rc_unbinned_naive(x1, vec_data, draws)
-            f2 = total_objective_rc_unbinned_naive(x2, vec_data, draws)
-            f3 = total_objective_rc_unbinned_naive(x3, vec_data, draws)
-            f4 = total_objective_rc_unbinned_naive(x4, vec_data, draws)
-
-            hessian[i, j] = (f1 - f2 - f3 + f4) / (4 * eps * eps)
-            hessian[j, i] = hessian[i, j]
-
-    try:
-        se = np.sqrt(np.diag(np.linalg.inv(hessian)))
-    except np.linalg.LinAlgError:
-        se = np.full(n, np.nan)
-
-    z = res.x / se
-    p = 2 * (1 - sp.stats.norm.cdf(np.abs(z)))
+    se, z, p = compute_robust_se(
+        total_objective_rc_unbinned_naive, res.x, vec_data, draws
+    )
 
     return {
-        "params": res.x,
+        "params": reported_params,
         "se": se,
         "z_stat": z,
         "p_val": p,
@@ -485,15 +465,21 @@ def estimate_rc_unbinned_naive_model(vec_data, draws):
 
 
 # =========================================================
-# PART 2: UNBINNED FLAVOR SATIATION SPECIFICATIONS (WITH GAMMAS)
+# PART 2: UNBINNED FLAVOR SATIATION SPECIFICATIONS (GAMMA EXCLUDES PLAIN)
 # =========================================================
 def total_objective_unbinned_gamma(params, vec_data):
     n_inside = vec_data["n_inside"]
+    n_non_plain = n_inside - 1
+
     const = params[0]
     beta_non_plain = params[1:n_inside]
-    beta_vec = np.append(0.0, beta_non_plain)  # Plain beta is fixed to 0.0 (Base)
+    beta_vec = np.append(0.0, beta_non_plain)  # Plain beta fixed to 0.0
 
-    gamma_vec = params[n_inside : 2 * n_inside]
+    gamma_non_plain = params[n_inside : 2 * n_inside - 1]
+    gamma_vec = np.append(
+        0.0, gamma_non_plain
+    )  # NO ESTIMATION OF GAMMA PLAIN (FIXED TO 0.0)
+
     alpha = params[-2]
     sigma = params[-1]
 
@@ -525,10 +511,13 @@ def total_objective_rc_unbinned_gamma(params, vec_data, draws):
 
     const = params[0]
     mu_beta_non_plain = params[1:n_inside]
-    mu_gamma_vec = params[n_inside : 2 * n_inside]
+    mu_gamma_non_plain = params[n_inside : 2 * n_inside - 1]
 
-    sd_beta_non_plain = params[2 * n_inside : 3 * n_inside - 1]
-    sd_gamma_vec = params[3 * n_inside - 1 : 4 * n_inside - 1]
+    log_sd_beta_non_plain = params[2 * n_inside - 1 : 3 * n_inside - 2]
+    log_sd_gamma_non_plain = params[3 * n_inside - 2 : 4 * n_inside - 3]
+
+    sd_beta_non_plain = np.exp(log_sd_beta_non_plain)
+    sd_gamma_non_plain = np.exp(log_sd_gamma_non_plain)
 
     alpha = params[-2]
     sigma = params[-1]
@@ -544,15 +533,18 @@ def total_objective_rc_unbinned_gamma(params, vec_data, draws):
     beta_draws_matrix = np.hstack([np.zeros((n_draws, 1)), b_draws])
 
     g_draws = (
-        mu_gamma_vec[None, :]
-        + sd_gamma_vec[None, :] * draws[:, n_non_plain : 2 * n_inside - 1]
+        mu_gamma_non_plain[None, :]
+        + sd_gamma_non_plain[None, :] * draws[:, n_non_plain : 2 * n_non_plain]
     )
+    gamma_draws_matrix = np.hstack(
+        [np.zeros((n_draws, 1)), g_draws]
+    )  # Plain gamma fixed to 0.0
 
     u_base = const + alpha * prices + sigma * resids
     u_inside = (
         u_base[:, None, :]
         + beta_draws_matrix[None, :, :]
-        + g_draws[None, :, :] * np.log(1.0 + c_state[:, None, :])
+        + gamma_draws_matrix[None, :, :] * np.log(1.0 + c_state[:, None, :])
     )
 
     u_out = np.zeros((u_inside.shape[0], n_draws, 1))
@@ -567,10 +559,19 @@ def total_objective_rc_unbinned_gamma(params, vec_data, draws):
 
 def estimate_unbinned_flavor_gamma_model(vec_data):
     n_inside = vec_data["n_inside"]
-    total_params = 2 * n_inside + 2
+    n_non_plain = n_inside - 1
+
+    total_params = (
+        1 + n_non_plain + n_non_plain + 2
+    )  # const, beta_flavors, gamma_flavors, alpha, sigma
     x0 = np.zeros(total_params)
     x0[-2] = -0.1
-    bounds = [(None, None)] * (2 * n_inside) + [(None, 0.0), (None, None)]
+
+    bounds = (
+        [(-30.0, 30.0)] * n_inside
+        + [(-30.0, 0.0)] * n_non_plain
+        + [(-30.0, -0.01), (-30.0, 30.0)]
+    )
 
     res = minimize(
         total_objective_unbinned_gamma,
@@ -581,36 +582,7 @@ def estimate_unbinned_flavor_gamma_model(vec_data):
         options={"ftol": 1e-8, "gtol": 1e-5},
     )
 
-    eps = 1e-5
-    n = len(res.x)
-    hessian = np.zeros((n, n))
-    for i in range(n):
-        for j in range(i, n):
-            x1, x2, x3, x4 = res.x.copy(), res.x.copy(), res.x.copy(), res.x.copy()
-            x1[i] += eps
-            x1[j] += eps
-            x2[i] += eps
-            x2[j] -= eps
-            x3[i] -= eps
-            x3[j] += eps
-            x4[i] -= eps
-            x4[j] -= eps
-
-            f1 = total_objective_unbinned_gamma(x1, vec_data)
-            f2 = total_objective_unbinned_gamma(x2, vec_data)
-            f3 = total_objective_unbinned_gamma(x3, vec_data)
-            f4 = total_objective_unbinned_gamma(x4, vec_data)
-
-            hessian[i, j] = (f1 - f2 - f3 + f4) / (4 * eps * eps)
-            hessian[j, i] = hessian[i, j]
-
-    try:
-        se = np.sqrt(np.diag(np.linalg.inv(hessian)))
-    except np.linalg.LinAlgError:
-        se = np.full(n, np.nan)
-
-    z = res.x / se
-    p = 2 * (1 - sp.stats.norm.cdf(np.abs(z)))
+    se, z, p = compute_robust_se(total_objective_unbinned_gamma, res.x, vec_data)
 
     return {
         "params": res.x,
@@ -624,17 +596,20 @@ def estimate_unbinned_flavor_gamma_model(vec_data):
 
 def estimate_rc_unbinned_flavor_gamma_model(vec_data, draws):
     n_inside = vec_data["n_inside"]
+    n_non_plain = n_inside - 1
 
-    total_params = 4 * n_inside + 1
+    # const (1) + mu_b (K) + mu_g (K) + log_sd_b (K) + log_sd_g (K) + alpha (1) + sigma (1) = 4K + 3
+    total_params = 4 * n_non_plain + 3
+
     x0 = np.zeros(total_params)
-    x0[2 * n_inside + 1 : 4 * n_inside] = 0.5
+    x0[2 * n_inside - 1 : 4 * n_inside - 3] = -0.7  # log(SD) starting around 0.5
     x0[-2] = -0.1
 
     bounds = (
-        [(-10.0, 10.0)] * n_inside  # const + mu_beta
-        + [(-10.0, 0.0)] * n_inside  # mu_gamma
-        + [(1e-4, 5.0)] * (2 * n_inside - 1)  # sd_beta + sd_gamma
-        + [(-10.0, -0.01), (-10.0, 10.0)]  # price + cf
+        [(-30.0, 30.0)] * n_inside
+        + [(-30.0, 0.0)] * n_non_plain
+        + [(-5.0, 3.0)] * (2 * n_non_plain)  # log_sd bounds
+        + [(-30.0, -0.01), (-30.0, 30.0)]
     )
 
     res = minimize(
@@ -646,41 +621,17 @@ def estimate_rc_unbinned_flavor_gamma_model(vec_data, draws):
         options={"ftol": 1e-7, "gtol": 1e-5, "maxiter": 2000},
     )
 
-    eps = 1e-4
-    n = len(res.x)
-    hessian = np.zeros((n, n))
+    reported_params = res.x.copy()
+    reported_params[2 * n_inside - 1 : 4 * n_inside - 3] = np.exp(
+        res.x[2 * n_inside - 1 : 4 * n_inside - 3]
+    )
 
-    for i in range(n):
-        for j in range(i, n):
-            x1, x2, x3, x4 = res.x.copy(), res.x.copy(), res.x.copy(), res.x.copy()
-            x1[i] += eps
-            x1[j] += eps
-            x2[i] += eps
-            x2[j] -= eps
-            x3[i] -= eps
-            x3[j] += eps
-            x4[i] -= eps
-            x4[j] -= eps
-
-            f1 = total_objective_rc_unbinned_gamma(x1, vec_data, draws)
-            f2 = total_objective_rc_unbinned_gamma(x2, vec_data, draws)
-            f3 = total_objective_rc_unbinned_gamma(x3, vec_data, draws)
-            f4 = total_objective_rc_unbinned_gamma(x4, vec_data, draws)
-
-            hessian[i, j] = (f1 - f2 - f3 + f4) / (4 * eps * eps)
-            hessian[j, i] = hessian[i, j]
-
-    try:
-        cov = np.linalg.inv(hessian + np.eye(n) * 1e-6)
-    except np.linalg.LinAlgError:
-        cov = np.linalg.pinv(hessian)
-
-    se = np.sqrt(np.maximum(0.0, np.diag(cov)))
-    z = res.x / np.where(se > 0, se, np.nan)
-    p = 2 * (1 - sp.stats.norm.cdf(np.abs(z)))
+    se, z, p = compute_robust_se(
+        total_objective_rc_unbinned_gamma, res.x, vec_data, draws
+    )
 
     return {
-        "params": res.x,
+        "params": reported_params,
         "se": se,
         "z_stat": z,
         "p_val": p,
@@ -689,6 +640,9 @@ def estimate_rc_unbinned_flavor_gamma_model(vec_data, draws):
     }
 
 
+# =========================================================
+# RESULTS DISPLAY FUNCTION (EXPLICIT INDIVIDUAL FLAVOR LABELS)
+# =========================================================
 def display_results_unbinned(
     results,
     title="UNBINNED SPECIFICATION RESULTS",
@@ -696,7 +650,7 @@ def display_results_unbinned(
     model_type="flavor_gamma",
 ):
     top_flavors = vec_data["top_flavors"]
-    n_inside = vec_data["n_inside"]
+    n_non_plain = len(top_flavors)
 
     table = Table(title=title, show_header=True, header_style="bold magenta")
     table.add_column("Parameter", style="cyan", justify="left")
@@ -707,31 +661,28 @@ def display_results_unbinned(
 
     alpha_val = results["params"][-2]
 
-    # Explicit parameter labels relative to Plain
+    # Dynamically build exact parameter names using raw flavor string labels
     if model_type == "naive":
         param_names = ["Constant"]
         param_names += [f"beta_{flv} (vs Plain Base)" for flv in top_flavors]
-        param_names += ["Price", "Control Func."]
+        param_names += ["Price (alpha)", "Control Func. (sigma)"]
     elif model_type == "rc_naive":
         param_names = ["Constant"]
         param_names += [f"Mean beta_{flv} (vs Plain Base)" for flv in top_flavors]
         param_names += [f"SD beta_{flv}" for flv in top_flavors]
-        param_names += ["Price", "Control Func."]
+        param_names += ["Price (alpha)", "Control Func. (sigma)"]
     elif model_type == "flavor_gamma":
         param_names = ["Constant"]
         param_names += [f"beta_{flv} (vs Plain Base)" for flv in top_flavors]
-        param_names += ["gamma_plain"]
         param_names += [f"gamma_{flv}" for flv in top_flavors]
-        param_names += ["Price", "Control Func."]
+        param_names += ["Price (alpha)", "Control Func. (sigma)"]
     elif model_type == "rc_flavor_gamma":
         param_names = ["Constant"]
         param_names += [f"Mean beta_{flv} (vs Plain Base)" for flv in top_flavors]
-        param_names += ["Mean gamma_plain"]
         param_names += [f"Mean gamma_{flv}" for flv in top_flavors]
         param_names += [f"SD beta_{flv}" for flv in top_flavors]
-        param_names += ["SD gamma_plain"]
         param_names += [f"SD gamma_{flv}" for flv in top_flavors]
-        param_names += ["Price", "Control Func."]
+        param_names += ["Price (alpha)", "Control Func. (sigma)"]
 
     for name, val, se, z, p in zip(
         param_names,
@@ -768,26 +719,14 @@ def display_results_unbinned(
         wtp_table.add_column("Attribute / Parameter", style="cyan", justify="left")
         wtp_table.add_column("WTP ($)", justify="right")
 
-        if "naive" in model_type:
-            for idx, flv in enumerate(top_flavors):
-                b_val = results["params"][1 + idx]
-                wtp_table.add_row(
-                    f"WTP Preference: {flv} (vs Plain Base)",
-                    f"${b_val / alpha_val:.2f}",
-                )
-        elif "gamma" in model_type:
-            for idx, flv in enumerate(top_flavors):
-                b_val = results["params"][1 + idx]
-                wtp_table.add_row(
-                    f"WTP Preference: {flv} (vs Plain Base)",
-                    f"${b_val / alpha_val:.2f}",
-                )
-            g_plain = results["params"][n_inside]
+        for idx, flv in enumerate(top_flavors):
+            b_val = results["params"][1 + idx]
             wtp_table.add_row(
-                "WTP Satiation Disutility: Plain", f"${g_plain / alpha_val:.2f}"
+                f"WTP Preference: {flv} (vs Plain Base)", f"${b_val / alpha_val:.2f}"
             )
+        if "gamma" in model_type:
             for idx, flv in enumerate(top_flavors):
-                g_val = results["params"][n_inside + 1 + idx]
+                g_val = results["params"][1 + n_non_plain + idx]
                 wtp_table.add_row(
                     f"WTP Satiation Disutility: {flv}", f"${g_val / alpha_val:.2f}"
                 )
@@ -801,15 +740,15 @@ def generate_type_plots_unbinned(res_rc_flavor_gamma, vec_data, n_draws=5000):
         "[bold green]Generating Unbinned Flavor Heterogeneity Plots...[/bold green]"
     )
     top_flavors = vec_data["top_flavors"]
-    n_inside = vec_data["n_inside"]
+    n_non_plain = len(top_flavors)
 
     params = res_rc_flavor_gamma["params"]
     alpha_val = abs(params[-2])
 
-    mu_beta_non_plain = params[1:n_inside]
-    mu_gamma_vec = params[n_inside : 2 * n_inside]
-    sd_beta_non_plain = params[2 * n_inside : 3 * n_inside - 1]
-    sd_gamma_vec = params[3 * n_inside - 1 : 4 * n_inside - 1]
+    mu_beta_non_plain = params[1 : 1 + n_non_plain]
+    mu_gamma_non_plain = params[1 + n_non_plain : 1 + 2 * n_non_plain]
+    sd_beta_non_plain = params[1 + 2 * n_non_plain : 1 + 3 * n_non_plain]
+    sd_gamma_non_plain = params[1 + 3 * n_non_plain : 1 + 4 * n_non_plain]
 
     plot_rng = np.random.default_rng(2026)
 
@@ -818,19 +757,19 @@ def generate_type_plots_unbinned(res_rc_flavor_gamma, vec_data, n_draws=5000):
     b_flv1 = plot_rng.normal(mu_beta_non_plain[0], sd_beta_non_plain[0], n_draws)
     b_flv2 = plot_rng.normal(mu_beta_non_plain[1], sd_beta_non_plain[1], n_draws)
 
-    g_plain = plot_rng.normal(mu_gamma_vec[0], sd_gamma_vec[0], n_draws)
-    g_flv1 = plot_rng.normal(mu_gamma_vec[1], sd_gamma_vec[1], n_draws)
+    g_flv1 = plot_rng.normal(mu_gamma_non_plain[0], sd_gamma_non_plain[0], n_draws)
+    g_flv2 = plot_rng.normal(mu_gamma_non_plain[1], sd_gamma_non_plain[1], n_draws)
 
     draws_df = pd.DataFrame(
         {
             f"beta_{flv1_name}": b_flv1,
             f"beta_{flv2_name}": b_flv2,
-            "gamma_plain": g_plain,
             f"gamma_{flv1_name}": g_flv1,
+            f"gamma_{flv2_name}": g_flv2,
             f"wtp_beta_{flv1_name}": b_flv1 / alpha_val,
             f"wtp_beta_{flv2_name}": b_flv2 / alpha_val,
-            "wtp_gamma_plain": g_plain / alpha_val,
             f"wtp_gamma_{flv1_name}": g_flv1 / alpha_val,
+            f"wtp_gamma_{flv2_name}": g_flv2 / alpha_val,
         }
     )
 
@@ -867,12 +806,12 @@ def generate_type_plots_unbinned(res_rc_flavor_gamma, vec_data, n_draws=5000):
         label=f"{flv1_name.title()} Satiation",
     )
     sns.kdeplot(
-        draws_df["gamma_plain"],
+        draws_df[f"gamma_{flv2_name}"],
         ax=axes[1],
         color="#4575b4",
         fill=True,
         alpha=0.4,
-        label="Plain Satiation",
+        label=f"{flv2_name.title()} Satiation",
     )
     axes[1].set_title("Unbinned Satiation Parameters", fontweight="bold")
     axes[1].set_xlabel("Satiation Parameter (Utility Disutility)", fontweight="bold")
@@ -886,39 +825,6 @@ def generate_type_plots_unbinned(res_rc_flavor_gamma, vec_data, n_draws=5000):
     )
     plt.close()
 
-    # Figure 6: WTP Boxplots
-    wtp_cols = [
-        f"wtp_beta_{flv1_name}",
-        f"wtp_beta_{flv2_name}",
-        "wtp_gamma_plain",
-        f"wtp_gamma_{flv1_name}",
-    ]
-    wtp_melted = draws_df[wtp_cols].melt(var_name="Metric", value_name="WTP")
-
-    plt.figure(figsize=(10, 5))
-    sns.boxplot(
-        data=wtp_melted,
-        x="Metric",
-        y="WTP",
-        palette=["#d73027", "#4575b4", "#f46d43", "#74add1"],
-        width=0.4,
-    )
-    plt.axhline(0, color="black", linestyle="--", linewidth=1, alpha=0.7)
-    plt.title(
-        "Distribution of WTP ($) Across Unbinned Individual Flavors",
-        fontsize=13,
-        fontweight="bold",
-    )
-    plt.ylabel("Willingness-to-Pay ($)", fontsize=11, fontweight="bold")
-    plt.xticks(rotation=15, fontweight="bold")
-    plt.tight_layout()
-    plt.savefig(
-        os.path.join(PLOT_OUTPUT_DIR, "fig6_unbinned_wtp_distributions.pdf"),
-        format="pdf",
-        bbox_inches="tight",
-    )
-    plt.close()
-
     console.print(
         f"[bold green]Unbinned type distribution figures saved to {PLOT_OUTPUT_DIR}[/bold green]\n"
     )
@@ -927,10 +833,9 @@ def generate_type_plots_unbinned(res_rc_flavor_gamma, vec_data, n_draws=5000):
 def main():
     vec_data = load_and_preprocess_unbinned()
 
-    # Dynamically scale simulation draws matrix to match unbinned dimensions:
-    # Dimension = (n_inside - 1) [for Beta draws] + n_inside [for Gamma draws] = 2 * n_inside - 1
     n_inside = vec_data["n_inside"]
-    sim_draws = np.random.default_rng(306).standard_normal((N_DRAWS, 2 * n_inside - 1))
+    n_non_plain = n_inside - 1
+    sim_draws = np.random.default_rng(306).standard_normal((N_DRAWS, 2 * n_non_plain))
 
     # =========================================================
     # PART 1: NAIVE UNBINNED SPECIFICATIONS (NO SATIATION BENCHMARK)

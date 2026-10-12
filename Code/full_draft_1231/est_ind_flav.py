@@ -20,7 +20,7 @@ OUT_PATH = "/scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Output/"
 PLOT_OUTPUT_DIR = "../Output/Plots"
 os.makedirs(PLOT_OUTPUT_DIR, exist_ok=True)
 
-TOP_K_FLAVORS = 8  # Top K individual non-plain flavors
+TOP_K_FLAVORS = 8  # Top K individual non-plain flavor codes
 CALIBRATED_LAMBDA = 0.7  # Calibrated memory decay parameter
 N_DRAWS = 50
 
@@ -101,64 +101,56 @@ def load_and_preprocess_unbinned(weekly_capacity=14, top_k=TOP_K_FLAVORS):
         .to_pandas()
     )
 
-    # Extract clean text description instead of numeric codes
-    descr_cols = [
-        c
-        for c in merged_df.columns
-        if any(k in c.lower() for k in ["flavor", "product_descr", "brand_descr"])
-    ]
-    merged_df["flavor_str"] = ""
-    for c in descr_cols:
-        merged_df["flavor_str"] += " " + merged_df[c].fillna("").astype(str)
-    merged_df["flavor_str"] = merged_df["flavor_str"].str.lower().str.strip()
+    # Clean text string for plain baseline identification
+    descr_col = "flavor" if "flavor" in merged_df.columns else "flavor_cd"
+    merged_df["flavor_str"] = (
+        merged_df[descr_col].fillna("").astype(str).str.lower().str.strip()
+    )
 
     plain_regex = r"plain|unflavored"
     is_plain = merged_df["flavor_str"].str.contains(plain_regex, na=False)
 
-    # Extract individual readable non-plain flavor words
-    non_plain_df = merged_df[~is_plain].copy()
+    # Use raw numeric flavor_cd codes for robust category mapping
+    if "flavor_cd" in merged_df.columns:
+        merged_df["code_val"] = merged_df["flavor_cd"].astype(str)
+    else:
+        merged_df["code_val"] = merged_df["flavor_str"]
 
-    # Common yogurt flavor keyword list to match clean text
-    flavor_keywords = [
-        "strawberry",
-        "blueberry",
-        "vanilla",
-        "peach",
-        "raspberry",
-        "cherry",
-        "black cherry",
-        "banana",
-        "mango",
-        "key lime",
-    ]
+    non_plain_df = merged_df[~is_plain]
+    top_flavor_codes = (
+        non_plain_df["code_val"].value_counts().head(top_k).index.tolist()
+    )
 
-    found_flavors = []
-    for flv in flavor_keywords:
-        if non_plain_df["flavor_str"].str.contains(flv).any():
-            found_flavors.append(flv)
+    # Map flavor_cd -> cleanest text description for final printing
+    flavor_mapping = {}
+    for code in top_flavor_codes:
+        sub_df = merged_df[merged_df["code_val"] == code]
+        if "flavor" in sub_df.columns and sub_df["flavor"].dropna().count() > 0:
+            best_descr = sub_df["flavor"].dropna().mode()[0]
+        else:
+            best_descr = f"Flavor Code {code}"
+        flavor_mapping[code] = str(best_descr).title()
 
-    top_flavors = found_flavors[:top_k]
-    if len(top_flavors) == 0:
-        top_flavors = ["strawberry", "blueberry", "vanilla", "peach"][:top_k]
+    flavor_mapping["plain"] = "Plain / Unflavored (Base)"
 
-    # Categories: Plain (Index 0 - BASE), top_flavors (1..K), and outside option
-    categories = ["plain"] + top_flavors + ["outside"]
+    # Categories: Plain (Index 0 - BASE), top_flavor_codes (1..K), outside
+    categories = ["plain"] + top_flavor_codes + ["outside"]
     cat_map = {c: i for i, c in enumerate(categories)}
     n_inside = len(categories) - 1
 
     console.print(
-        f"\n[bold yellow]UNBINNED READABLE FLAVORS (BASE = Plain):[/bold yellow] {categories}\n"
+        f"\n[bold yellow]UNBINNED FLAVOR CODES (BASE = Plain):[/bold yellow] {categories}\n"
     )
 
     def assign_category(row):
         f_str = row["flavor_str"]
+        c_val = row["code_val"]
         if pd.isna(f_str) or f_str == "":
             return "outside"
         if "plain" in f_str or "unflavored" in f_str:
             return "plain"
-        for flv in top_flavors:
-            if flv in f_str:
-                return flv
+        if c_val in top_flavor_codes:
+            return c_val
         return "outside"
 
     merged_df["category"] = merged_df.apply(assign_category, axis=1)
@@ -309,16 +301,14 @@ def load_and_preprocess_unbinned(weekly_capacity=14, top_k=TOP_K_FLAVORS):
         "resids": np.array(all_resids, dtype=np.float64),
         "choices": np.array(all_choices, dtype=np.int64),
         "c_states": np.array(all_c_states, dtype=np.float64),
-        "top_flavors": top_flavors,
+        "top_flavors": top_flavor_codes,
+        "flavor_mapping": flavor_mapping,
         "n_inside": n_inside,
     }
 
     return vec_data
 
 
-# =========================================================
-# HELPER: HESSIAN & STANDARD ERROR COMPUTATION
-# =========================================================
 def compute_robust_se(obj_func, opt_params, vec_data, draws=None, eps=1e-4):
     n = len(opt_params)
     hessian = np.zeros((n, n))
@@ -368,7 +358,7 @@ def total_objective_unbinned_naive(params, vec_data):
     n_inside = vec_data["n_inside"]
     const = params[0]
     beta_non_plain = params[1:n_inside]
-    beta_vec = np.append(0.0, beta_non_plain)  # Plain fixed to 0.0
+    beta_vec = np.append(0.0, beta_non_plain)
 
     alpha = params[-2]
     sigma = params[-1]
@@ -456,12 +446,12 @@ def estimate_rc_unbinned_naive_model(vec_data, draws):
 
     total_params = 2 * n_non_plain + 3
     x0 = np.zeros(total_params)
-    x0[n_inside : 2 * n_inside - 1] = -0.7  # log(SD) start around 0.5
+    x0[n_inside : 2 * n_inside - 1] = -0.7
     x0[-2] = -0.1
 
     bounds = (
         [(-30.0, 30.0)] * n_inside
-        + [(-5.0, 3.0)] * n_non_plain  # log-space bounds for SD
+        + [(-5.0, 3.0)] * n_non_plain
         + [(-30.0, -0.01), (-30.0, 30.0)]
     )
 
@@ -474,7 +464,6 @@ def estimate_rc_unbinned_naive_model(vec_data, draws):
         options={"ftol": 1e-7, "gtol": 1e-5, "maxiter": 1500},
     )
 
-    # Convert log_sd parameters back to regular scale
     reported_params = res.x.copy()
     reported_params[n_inside : 2 * n_inside - 1] = np.exp(
         res.x[n_inside : 2 * n_inside - 1]
@@ -495,7 +484,7 @@ def estimate_rc_unbinned_naive_model(vec_data, draws):
 
 
 # =========================================================
-# PART 2: UNBINNED FLAVOR SATIATION SPECIFICATIONS (GAMMA EXCLUDES PLAIN)
+# PART 2: UNBINNED FLAVOR SATIATION SPECIFICATIONS
 # =========================================================
 def total_objective_unbinned_gamma(params, vec_data):
     n_inside = vec_data["n_inside"]
@@ -503,12 +492,10 @@ def total_objective_unbinned_gamma(params, vec_data):
 
     const = params[0]
     beta_non_plain = params[1:n_inside]
-    beta_vec = np.append(0.0, beta_non_plain)  # Plain beta fixed to 0.0
+    beta_vec = np.append(0.0, beta_non_plain)
 
     gamma_non_plain = params[n_inside : 2 * n_inside - 1]
-    gamma_vec = np.append(
-        0.0, gamma_non_plain
-    )  # NO ESTIMATION OF GAMMA PLAIN (FIXED TO 0.0)
+    gamma_vec = np.append(0.0, gamma_non_plain)  # Plain gamma fixed to 0.0
 
     alpha = params[-2]
     sigma = params[-1]
@@ -566,9 +553,7 @@ def total_objective_rc_unbinned_gamma(params, vec_data, draws):
         mu_gamma_non_plain[None, :]
         + sd_gamma_non_plain[None, :] * draws[:, n_non_plain : 2 * n_non_plain]
     )
-    gamma_draws_matrix = np.hstack(
-        [np.zeros((n_draws, 1)), g_draws]
-    )  # Plain gamma fixed to 0.0
+    gamma_draws_matrix = np.hstack([np.zeros((n_draws, 1)), g_draws])
 
     u_base = const + alpha * prices + sigma * resids
     u_inside = (
@@ -591,9 +576,7 @@ def estimate_unbinned_flavor_gamma_model(vec_data):
     n_inside = vec_data["n_inside"]
     n_non_plain = n_inside - 1
 
-    total_params = (
-        1 + n_non_plain + n_non_plain + 2
-    )  # const, beta_flavors, gamma_flavors, alpha, sigma
+    total_params = 1 + n_non_plain + n_non_plain + 2
     x0 = np.zeros(total_params)
     x0[-2] = -0.1
 
@@ -628,17 +611,16 @@ def estimate_rc_unbinned_flavor_gamma_model(vec_data, draws):
     n_inside = vec_data["n_inside"]
     n_non_plain = n_inside - 1
 
-    # const (1) + mu_b (K) + mu_g (K) + log_sd_b (K) + log_sd_g (K) + alpha (1) + sigma (1) = 4K + 3
     total_params = 4 * n_non_plain + 3
 
     x0 = np.zeros(total_params)
-    x0[2 * n_inside - 1 : 4 * n_inside - 3] = -0.7  # log(SD) starting around 0.5
+    x0[2 * n_inside - 1 : 4 * n_inside - 3] = -0.7
     x0[-2] = -0.1
 
     bounds = (
         [(-30.0, 30.0)] * n_inside
         + [(-30.0, 0.0)] * n_non_plain
-        + [(-5.0, 3.0)] * (2 * n_non_plain)  # log_sd bounds
+        + [(-5.0, 3.0)] * (2 * n_non_plain)
         + [(-30.0, -0.01), (-30.0, 30.0)]
     )
 
@@ -670,9 +652,6 @@ def estimate_rc_unbinned_flavor_gamma_model(vec_data, draws):
     }
 
 
-# =========================================================
-# RESULTS DISPLAY FUNCTION (EXPLICIT INDIVIDUAL FLAVOR LABELS)
-# =========================================================
 def display_results_unbinned(
     results,
     title="UNBINNED SPECIFICATION RESULTS",
@@ -691,31 +670,26 @@ def display_results_unbinned(
 
     alpha_val = results["params"][-2]
 
-    # Explicit Parameter Names with Clean Readable String Labels
     if model_type == "naive":
         param_names = ["Constant"]
-        param_names += [f"beta_{flv.title()} (vs Plain Base)" for flv in top_flavors]
+        param_names += [f"beta_{code} (vs Plain Base)" for code in top_flavors]
         param_names += ["Price (alpha)", "Control Func. (sigma)"]
     elif model_type == "rc_naive":
         param_names = ["Constant"]
-        param_names += [
-            f"Mean beta_{flv.title()} (vs Plain Base)" for flv in top_flavors
-        ]
-        param_names += [f"SD beta_{flv.title()}" for flv in top_flavors]
+        param_names += [f"Mean beta_{code} (vs Plain Base)" for code in top_flavors]
+        param_names += [f"SD beta_{code}" for code in top_flavors]
         param_names += ["Price (alpha)", "Control Func. (sigma)"]
     elif model_type == "flavor_gamma":
         param_names = ["Constant"]
-        param_names += [f"beta_{flv.title()} (vs Plain Base)" for flv in top_flavors]
-        param_names += [f"gamma_{flv.title()}" for flv in top_flavors]
+        param_names += [f"beta_{code} (vs Plain Base)" for code in top_flavors]
+        param_names += [f"gamma_{code}" for code in top_flavors]
         param_names += ["Price (alpha)", "Control Func. (sigma)"]
     elif model_type == "rc_flavor_gamma":
         param_names = ["Constant"]
-        param_names += [
-            f"Mean beta_{flv.title()} (vs Plain Base)" for flv in top_flavors
-        ]
-        param_names += [f"Mean gamma_{flv.title()}" for flv in top_flavors]
-        param_names += [f"SD beta_{flv.title()}" for flv in top_flavors]
-        param_names += [f"SD gamma_{flv.title()}" for flv in top_flavors]
+        param_names += [f"Mean beta_{code} (vs Plain Base)" for code in top_flavors]
+        param_names += [f"Mean gamma_{code}" for code in top_flavors]
+        param_names += [f"SD beta_{code}" for code in top_flavors]
+        param_names += [f"SD gamma_{code}" for code in top_flavors]
         param_names += ["Price (alpha)", "Control Func. (sigma)"]
 
     for name, val, se, z, p in zip(
@@ -753,17 +727,17 @@ def display_results_unbinned(
         wtp_table.add_column("Attribute / Parameter", style="cyan", justify="left")
         wtp_table.add_column("WTP ($)", justify="right")
 
-        for idx, flv in enumerate(top_flavors):
+        for idx, code in enumerate(top_flavors):
             b_val = results["params"][1 + idx]
             wtp_table.add_row(
-                f"WTP Preference: {flv.title()} (vs Plain Base)",
+                f"WTP Preference: Code {code} (vs Plain Base)",
                 f"${b_val / alpha_val:.2f}",
             )
         if "gamma" in model_type:
-            for idx, flv in enumerate(top_flavors):
+            for idx, code in enumerate(top_flavors):
                 g_val = results["params"][1 + n_non_plain + idx]
                 wtp_table.add_row(
-                    f"WTP Satiation Disutility: {flv.title()}",
+                    f"WTP Satiation Disutility: Code {code}",
                     f"${g_val / alpha_val:.2f}",
                 )
 
@@ -788,7 +762,7 @@ def generate_type_plots_unbinned(res_rc_flavor_gamma, vec_data, n_draws=5000):
 
     plot_rng = np.random.default_rng(2026)
 
-    flv1_name, flv2_name = top_flavors[0], top_flavors[1]
+    code1, code2 = top_flavors[0], top_flavors[1]
 
     b_flv1 = plot_rng.normal(mu_beta_non_plain[0], sd_beta_non_plain[0], n_draws)
     b_flv2 = plot_rng.normal(mu_beta_non_plain[1], sd_beta_non_plain[1], n_draws)
@@ -798,58 +772,57 @@ def generate_type_plots_unbinned(res_rc_flavor_gamma, vec_data, n_draws=5000):
 
     draws_df = pd.DataFrame(
         {
-            f"beta_{flv1_name}": b_flv1,
-            f"beta_{flv2_name}": b_flv2,
-            f"gamma_{flv1_name}": g_flv1,
-            f"gamma_{flv2_name}": g_flv2,
-            f"wtp_beta_{flv1_name}": b_flv1 / alpha_val,
-            f"wtp_beta_{flv2_name}": b_flv2 / alpha_val,
-            f"wtp_gamma_{flv1_name}": g_flv1 / alpha_val,
-            f"wtp_gamma_{flv2_name}": g_flv2 / alpha_val,
+            f"beta_{code1}": b_flv1,
+            f"beta_{code2}": b_flv2,
+            f"gamma_{code1}": g_flv1,
+            f"gamma_{code2}": g_flv2,
+            f"wtp_beta_{code1}": b_flv1 / alpha_val,
+            f"wtp_beta_{code2}": b_flv2 / alpha_val,
+            f"wtp_gamma_{code1}": g_flv1 / alpha_val,
+            f"wtp_gamma_{code2}": g_flv2 / alpha_val,
         }
     )
 
     sns.set_theme(style="whitegrid")
 
-    # Figure 4: Marginal Distributions
     fig, axes = plt.subplots(1, 2, figsize=(12, 5))
     sns.kdeplot(
-        draws_df[f"beta_{flv1_name}"],
+        draws_df[f"beta_{code1}"],
         ax=axes[0],
         color="#d73027",
         fill=True,
         alpha=0.4,
-        label=f"{flv1_name.title()} Preference (vs Plain Base)",
+        label=f"Code {code1} Preference",
     )
     sns.kdeplot(
-        draws_df[f"beta_{flv2_name}"],
+        draws_df[f"beta_{code2}"],
         ax=axes[0],
         color="#4575b4",
         fill=True,
         alpha=0.4,
-        label=f"{flv2_name.title()} Preference (vs Plain Base)",
+        label=f"Code {code2} Preference",
     )
-    axes[0].set_title("Unbinned Flavor Preferences (vs Plain Base)", fontweight="bold")
+    axes[0].set_title("Flavor Preferences (vs Plain Base)", fontweight="bold")
     axes[0].set_xlabel("Preference Parameter (Utility)", fontweight="bold")
     axes[0].legend(frameon=True, facecolor="white")
 
     sns.kdeplot(
-        draws_df[f"gamma_{flv1_name}"],
+        draws_df[f"gamma_{code1}"],
         ax=axes[1],
         color="#d73027",
         fill=True,
         alpha=0.4,
-        label=f"{flv1_name.title()} Satiation",
+        label=f"Code {code1} Satiation",
     )
     sns.kdeplot(
-        draws_df[f"gamma_{flv2_name}"],
+        draws_df[f"gamma_{code2}"],
         ax=axes[1],
         color="#4575b4",
         fill=True,
         alpha=0.4,
-        label=f"{flv2_name.title()} Satiation",
+        label=f"Code {code2} Satiation",
     )
-    axes[1].set_title("Unbinned Satiation Parameters", fontweight="bold")
+    axes[1].set_title("Flavor Satiation Parameters", fontweight="bold")
     axes[1].set_xlabel("Satiation Parameter (Utility Disutility)", fontweight="bold")
     axes[1].legend(frameon=True, facecolor="white")
 
@@ -864,6 +837,23 @@ def generate_type_plots_unbinned(res_rc_flavor_gamma, vec_data, n_draws=5000):
     console.print(
         f"[bold green]Unbinned type distribution figures saved to {PLOT_OUTPUT_DIR}[/bold green]\n"
     )
+
+
+def print_flavor_code_mapping(flavor_mapping):
+    table = Table(
+        title="FLAVOR CODE LOOKUP MAPPING TABLE (FOR MANUAL REFERENCE)",
+        show_header=True,
+        header_style="bold green",
+    )
+    table.add_column("Flavor Code", style="cyan", justify="center")
+    table.add_column("Associated Description", style="bold white", justify="left")
+
+    for code, descr in flavor_mapping.items():
+        table.add_row(str(code), str(descr))
+
+    console.print("\n")
+    console.print(table)
+    console.print("\n")
 
 
 def main():
@@ -940,9 +930,10 @@ def main():
     )
 
     # =========================================================
-    # PART 3: GENERATE TYPE & PARAMETER HETEROGENEITY PLOTS
+    # PART 3: GENERATE PLOTS & DISPLAY FLAVOR LOOKUP TABLE
     # =========================================================
     generate_type_plots_unbinned(res_rc_flavor_gamma, vec_data)
+    print_flavor_code_mapping(vec_data["flavor_mapping"])
 
 
 if __name__ == "__main__":

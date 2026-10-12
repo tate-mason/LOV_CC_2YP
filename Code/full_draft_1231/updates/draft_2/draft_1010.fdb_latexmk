@@ -1,13 +1,13 @@
 # Fdb version 4
-["bibtex draft_1010"] 1791663366.69704 "draft_1010.aux" "draft_1010.bbl" "draft_1010" 1791738501.18812 0
+["bibtex draft_1010"] 1791819691.81744 "draft_1010.aux" "draft_1010.bbl" "draft_1010" 1791819893.38713 0
   "./lov_bib/lov_bib.bib" 1790720988.01191 50242 d505f472afced587808ec3874b44509e ""
   "/usr/local/texlive/2026/texmf-dist/bibtex/bst/natbib/plainnat.bst" 1233624470 26816 ffe5423d2019860bad9f54bc402fac15 ""
-  "draft_1010.aux" 1791738500.89905 6538 c4edb2a18db3201094e7467ff4e1279a "pdflatex"
+  "draft_1010.aux" 1791819893.12196 6538 8af2021ea14d3b4f3b30d2afcc0fd4da "pdflatex"
   (generated)
   "draft_1010.bbl"
   "draft_1010.blg"
   (rewritten before read)
-["pdflatex"] 1791738499.78512 "draft_1010.tex" "draft_1010.pdf" "draft_1010" 1791738501.18827 2
+["pdflatex"] 1791819892.01343 "draft_1010.tex" "draft_1010.pdf" "draft_1010" 1791819893.38726 2
   "../../../../Output/Plots/fig1_flavor_hhi_distribution.pdf" 1791721917.8245 24061 cc2970e587de6c40582f9780ea224fdf ""
   "../../../../Output/Plots/fig2_basket_share_by_volume.pdf" 1791721917.82468 23689 347d2f44665bcc1a66fd8ebeffae1fd7 ""
   "../../../../Output/Plots/fig3_flavor_share_timeseries.pdf" 1791721917.82484 23013 9790928ad79450601b4c4ff821e6be62 ""
@@ -181,10 +181,10 @@
   "/usr/local/texlive/2026/texmf-var/fonts/map/pdftex/updmap/pdftex.map" 1787008065 5573194 3473593ed16e9f152d99f1a1aaa20677 ""
   "/usr/local/texlive/2026/texmf-var/web2c/pdftex/pdflatex.fmt" 1787008814 3656725 4e447c05aa121cdaa2af3e1480626bfc ""
   "/usr/local/texlive/2026/texmf.cnf" 1774209515 577 648cd9f92f9c0eac486f4c71c85cfbbe ""
-  "draft_1010.aux" 1791738500.89905 6538 c4edb2a18db3201094e7467ff4e1279a "pdflatex"
-  "draft_1010.bbl" 1791663366.79182 4858 72f7ce145433891991b6647fa02ed987 "bibtex draft_1010"
-  "draft_1010.out" 1791738500.90184 1601 fcecf806a82709194e497834c770cdeb "pdflatex"
-  "draft_1010.tex" 1791738498.53637 50257 ae7a39dd25e51b4c34a2c43a7faddf95 ""
+  "draft_1010.aux" 1791819893.12196 6538 8af2021ea14d3b4f3b30d2afcc0fd4da "pdflatex"
+  "draft_1010.bbl" 1791819695.0404 4858 72f7ce145433891991b6647fa02ed987 "bibtex draft_1010"
+  "draft_1010.out" 1791819893.12281 1601 fcecf806a82709194e497834c770cdeb "pdflatex"
+  "draft_1010.tex" 1791819891.1186 50482 fdc1e1fac99626cb3d2daee3eaf3ce7a ""
   (generated)
   "draft_1010.aux"
   "draft_1010.log"

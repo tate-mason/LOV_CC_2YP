@@ -23,9 +23,8 @@ os.makedirs(PLOT_OUTPUT_DIR, exist_ok=True)
 CALIBRATED_LAMBDA = 0.7  # Calibrated memory decay parameter
 
 
-def compute_satiation_state_binned(
+def compute_satiation_state_pair(
     weekly_purchases,
-    n_inside,
     lambda_mem=CALIBRATED_LAMBDA,
     delta_discount=0.9,
 ):
@@ -35,34 +34,37 @@ def compute_satiation_state_binned(
     for hh_id, hh_group in sorted_df.groupby("household_code"):
         weeks = hh_group["week_end"].unique()
         C_history = {}
-        prev_X = np.zeros(n_inside)
+        prev_X = np.zeros(2)  # [plain, focal_flavor]
 
         for t_idx, week in enumerate(weeks):
-            C_current = np.zeros(n_inside)
-            memory_term = np.zeros(n_inside)
+            C_current = np.zeros(2)
+            memory_term = np.zeros(2)
 
             if t_idx > 0:
                 for s in range(t_idx):
                     discount = delta_discount ** (t_idx - s)
                     memory_term += discount * C_history[s]
 
-            for j in range(n_inside):
+            for j in range(2):
                 cross_term = np.sum(prev_X) - prev_X[j]
                 C_current[j] = (lambda_mem * memory_term[j]) + (
                     (1.0 - lambda_mem) * cross_term
                 )
 
-            record = {"household_code": hh_id, "week_end": week}
-            for j in range(n_inside):
-                record[f"C_sat_{j}"] = C_current[j]
+            record = {
+                "household_code": hh_id,
+                "week_end": week,
+                "C_sat_plain": C_current[0],
+                "C_sat_focal": C_current[1],
+            }
             inventory_records.append(record)
 
             C_history[t_idx] = C_current.copy()
 
             sub = hh_group[hh_group["week_end"] == week]
-            curr_X = np.zeros(n_inside)
+            curr_X = np.zeros(2)
             for row in sub.itertuples():
-                if row.choice_idx < n_inside:
+                if row.choice_idx < 2:
                     curr_X[row.choice_idx] = row.units_bought
             total_inside_units = curr_X.sum()
             if total_inside_units > 0:
@@ -72,7 +74,7 @@ def compute_satiation_state_binned(
     return pd.DataFrame(inventory_records)
 
 
-def load_and_preprocess_binned(weekly_capacity=14):
+def load_and_preprocess_pair(focal_flavor="berry", weekly_capacity=14):
     schema_names = pl.scan_parquet(MERGED_PATH).collect_schema().names()
 
     exprs = [
@@ -106,24 +108,28 @@ def load_and_preprocess_binned(weekly_capacity=14):
     plain_regex = r"plain|unflavored"
     berry_regex = r"berry|strawb|blueb|rasp|blackb|cherry"
 
-    def assign_3category(f_str):
+    def assign_category(f_str):
         if pd.isna(f_str) or f_str == "":
             return "outside"
         if pd.Series(f_str).str.contains(plain_regex, regex=True).iloc[0]:
             return "plain"
-        if pd.Series(f_str).str.contains(berry_regex, regex=True).iloc[0]:
+
+        is_berry = pd.Series(f_str).str.contains(berry_regex, regex=True).iloc[0]
+        if focal_flavor == "berry" and is_berry:
             return "berry"
-        return "other"
+        elif focal_flavor == "other" and not is_berry:
+            return "other"
 
-    merged_df["category"] = merged_df["flavor_str"].apply(assign_3category)
+        return "outside"
 
-    # Categories: Plain (Index 0 - BASE), Berry (Index 1), Other (Index 2), Outside (Index 3)
-    categories = ["plain", "berry", "other", "outside"]
+    merged_df["category"] = merged_df["flavor_str"].apply(assign_category)
+
+    # Filter to only Plain, Focal Flavor, and Outside
+    categories = ["plain", focal_flavor, "outside"]
     cat_map = {c: i for i, c in enumerate(categories)}
-    n_inside = 3
 
     console.print(
-        f"\n[bold yellow]3 FLAVOR BINNED CATEGORIES (BASE = Plain):[/bold yellow] {categories[:3]}\n"
+        f"\n[bold yellow]ESTIMATION PAIR (BASE = Plain vs {focal_flavor.title()}):[/bold yellow] {categories[:2]}\n"
     )
 
     # Price IV Construction
@@ -208,7 +214,7 @@ def load_and_preprocess_binned(weekly_capacity=14):
 
     choice_set_matrix = {}
     for (store, week), group in cat_choice_sets.groupby(["store_code_uc", "week_end"]):
-        mat = np.zeros((n_inside, 2), dtype=np.float64)
+        mat = np.zeros((2, 2), dtype=np.float64)
 
         for cat, idx in cat_map.items():
             if cat != "outside" and cat in overall_cat_prices:
@@ -222,19 +228,16 @@ def load_and_preprocess_binned(weekly_capacity=14):
         choice_set_matrix[(store, week)] = mat
 
     console.print(
-        f"[bold green]Computing satiation states for plain, berry, other with lambda = {CALIBRATED_LAMBDA}...[/bold green]"
+        f"[bold green]Computing satiation states for Plain vs {focal_flavor.title()} with lambda = {CALIBRATED_LAMBDA}...[/bold green]"
     )
-    df_sat = compute_satiation_state_binned(
-        weekly_purchases,
-        n_inside=n_inside,
-        lambda_mem=CALIBRATED_LAMBDA,
-        delta_discount=0.9,
+    df_sat = compute_satiation_state_pair(
+        weekly_purchases, lambda_mem=CALIBRATED_LAMBDA, delta_discount=0.9
     )
-    for j in range(n_inside):
-        c_col = f"C_sat_{j}"
-        c_sd = df_sat[c_col].std()
+
+    for col in ["C_sat_plain", "C_sat_focal"]:
+        c_sd = df_sat[col].std()
         if c_sd > 0:
-            df_sat[c_col] = df_sat[c_col] / c_sd
+            df_sat[col] = df_sat[col] / c_sd
 
     hh_weeks = weekly_purchases[
         ["household_code", "store_code_uc", "week_end"]
@@ -245,9 +248,9 @@ def load_and_preprocess_binned(weekly_capacity=14):
 
     counts_dict = {}
     for (hh_id, week), grp in weekly_purchases.groupby(["household_code", "week_end"]):
-        c_arr = np.zeros(n_inside, dtype=np.int64)
+        c_arr = np.zeros(2, dtype=np.int64)
         for row in grp.itertuples():
-            if row.choice_idx < n_inside:
+            if row.choice_idx < 2:
                 c_arr[row.choice_idx] = row.units_bought
         counts_dict[(hh_id, week)] = c_arr
 
@@ -263,9 +266,7 @@ def load_and_preprocess_binned(weekly_capacity=14):
 
         inc_val = demo_dict.get(hh_id, 0.0)
 
-        inside_counts = counts_dict.get(
-            (hh_id, week), np.zeros(n_inside, dtype=np.int64)
-        )
+        inside_counts = counts_dict.get((hh_id, week), np.zeros(2, dtype=np.int64))
         inside_units = np.sum(inside_counts)
 
         effective_capacity = max(weekly_capacity, inside_units + 1)
@@ -273,11 +274,11 @@ def load_and_preprocess_binned(weekly_capacity=14):
 
         full_counts = np.append(inside_counts, outside_count)
         c_vec = np.array(
-            [row_dict[f"C_sat_{j}"] for j in range(n_inside)], dtype=np.float64
+            [row_dict["C_sat_plain"], row_dict["C_sat_focal"]], dtype=np.float64
         )
 
-        all_prices.append(choice_set_matrix[(store, week)][:n_inside, 0])
-        all_resids.append(choice_set_matrix[(store, week)][:n_inside, 1])
+        all_prices.append(choice_set_matrix[(store, week)][:2, 0])
+        all_resids.append(choice_set_matrix[(store, week)][:2, 1])
         all_choices.append(full_counts)
         all_c_states.append(c_vec)
         all_inc.append(inc_val)
@@ -288,50 +289,48 @@ def load_and_preprocess_binned(weekly_capacity=14):
         "choices": np.array(all_choices, dtype=np.int64),
         "c_states": np.array(all_c_states, dtype=np.float64),
         "income": np.array(all_inc, dtype=np.float64)[:, None],  # (N, 1)
-        "categories": ["plain", "berry", "other"],
-        "n_inside": 3,
+        "focal_flavor": focal_flavor,
     }
 
     return vec_data
 
 
 # =========================================================
-# INCOME INTERACTION MODEL OBJECTIVE & ESTIMATION
+# BINARY PAIRWISE MODEL OBJECTIVE & ESTIMATION
 # =========================================================
-def total_objective_income_satiation(params, vec_data):
-    # Parameter order (11 parameters total):
+def total_objective_pairwise_satiation(params, vec_data):
+    # Parameter order (6 parameters total):
     # 0: Constant
-    # 1..2: Beta_0 [Berry, Other]
-    # 3..4: Beta_Inc [Berry, Other]
-    # 5..6: Gamma_0 [Berry, Other]
-    # 7..8: Gamma_Inc [Berry, Other]
-    # 9: Price (alpha)
-    # 10: Control Function (sigma)
+    # 1: Beta_0 (Focal Flavor vs Plain Base)
+    # 2: Beta_Inc (Focal Flavor x Income)
+    # 3: Gamma_0 (Focal Satiation Main Effect)
+    # 4: Gamma_Inc (Focal Satiation x Income)
+    # 5: Price (alpha)
+    # 6: Control Function (sigma)
 
     const = params[0]
+    b0 = params[1]
+    b_inc = params[2]
 
-    b0 = params[1:3]
-    b_inc = params[3:5]
-
-    g0 = params[5:7]
-    g_inc = params[7:9]
+    g0 = params[3]
+    g_inc = params[4]
 
     alpha = params[-2]
     sigma = params[-1]
 
-    prices = vec_data["prices"]  # (N, 3)
-    resids = vec_data["resids"]  # (N, 3)
-    choices = vec_data["choices"]  # (N, 4)
-    c_state = vec_data["c_states"]  # (N, 3)
+    prices = vec_data["prices"]  # (N, 2)
+    resids = vec_data["resids"]  # (N, 2)
+    choices = vec_data["choices"]  # (N, 3)
+    c_state = vec_data["c_states"]  # (N, 2)
     inc = vec_data["income"]  # (N, 1)
 
-    # Beta Matrix (N, 3): Plain fixed to 0.0
-    beta_non_plain = b0[None, :] + b_inc[None, :] * inc
-    beta_mat = np.hstack([np.zeros((inc.shape[0], 1)), beta_non_plain])
+    # Beta Matrix (N, 2): Plain fixed to 0.0
+    beta_focal = b0 + b_inc * inc
+    beta_mat = np.hstack([np.zeros((inc.shape[0], 1)), beta_focal])
 
-    # Gamma Matrix (N, 3): Plain gamma fixed to 0.0
-    gamma_non_plain = g0[None, :] + g_inc[None, :] * inc
-    gamma_mat = np.hstack([np.zeros((inc.shape[0], 1)), gamma_non_plain])
+    # Gamma Matrix (N, 2): Plain gamma fixed to 0.0
+    gamma_focal = g0 + g_inc * inc
+    gamma_mat = np.hstack([np.zeros((inc.shape[0], 1)), gamma_focal])
 
     u_inside = (
         const
@@ -350,20 +349,20 @@ def total_objective_income_satiation(params, vec_data):
     return -total_ll if np.isfinite(total_ll) else 1e10
 
 
-def estimate_income_satiation_model(vec_data):
-    total_params = 11
+def estimate_pairwise_model(vec_data):
+    total_params = 7
     x0 = np.zeros(total_params)
     x0[-2] = -0.1
 
     bounds = (
-        [(-30.0, 30.0)] * 5  # const + beta_0, inc for berry & other
-        + [(-30.0, 0.0)] * 2  # gamma_0 for berry & other (negative disutility)
-        + [(-30.0, 30.0)] * 2  # gamma_inc for berry & other
+        [(-30.0, 30.0)] * 3  # const + beta_0, inc
+        + [(-30.0, 0.0)]  # gamma_0 (negative disutility)
+        + [(-30.0, 30.0)]  # gamma_inc
         + [(-30.0, -0.01), (-30.0, 30.0)]  # price + control function
     )
 
     res = minimize(
-        total_objective_income_satiation,
+        total_objective_pairwise_satiation,
         x0=x0,
         args=(vec_data,),
         method="L-BFGS-B",
@@ -387,10 +386,10 @@ def estimate_income_satiation_model(vec_data):
             x4[i] -= eps
             x4[j] -= eps
 
-            f1 = total_objective_income_satiation(x1, vec_data)
-            f2 = total_objective_income_satiation(x2, vec_data)
-            f3 = total_objective_income_satiation(x3, vec_data)
-            f4 = total_objective_income_satiation(x4, vec_data)
+            f1 = total_objective_pairwise_satiation(x1, vec_data)
+            f2 = total_objective_pairwise_satiation(x2, vec_data)
+            f3 = total_objective_pairwise_satiation(x3, vec_data)
+            f4 = total_objective_pairwise_satiation(x4, vec_data)
 
             hessian[i, j] = (f1 - f2 - f3 + f4) / (4 * eps * eps)
             hessian[j, i] = hessian[i, j]
@@ -414,9 +413,10 @@ def estimate_income_satiation_model(vec_data):
     }
 
 
-def display_income_results(results):
+def display_pairwise_results(results, focal_flavor="berry"):
+    flv_title = focal_flavor.title()
     table = Table(
-        title="3-CATEGORY INCOME INTERACTION SATIATION MODEL (PLAIN = BASE)",
+        title=f"PAIRWISE ESTIMATION: PLAIN vs {flv_title.upper()} (PLAIN = BASE)",
         show_header=True,
         header_style="bold magenta",
     )
@@ -428,14 +428,10 @@ def display_income_results(results):
 
     param_names = [
         "Constant",
-        "beta_Berry (vs Plain Base)",
-        "beta_Other (vs Plain Base)",
-        "beta_Berry x Income",
-        "beta_Other x Income",
-        "gamma_Berry (Main Satiation)",
-        "gamma_Other (Main Satiation)",
-        "gamma_Berry x Income",
-        "gamma_Other x Income",
+        f"beta_{flv_title} (vs Plain Base)",
+        f"beta_{flv_title} x Income",
+        f"gamma_{flv_title} (Main Satiation)",
+        f"gamma_{flv_title} x Income",
         "Price (alpha)",
         "Control Func. (sigma)",
     ]
@@ -468,13 +464,35 @@ def display_income_results(results):
 
 
 def main():
-    vec_data = load_and_preprocess_binned()
-
+    # =========================================================
+    # ESTIMATION 1: PLAIN VS BERRY
+    # =========================================================
     console.print(
-        "\n[bold yellow]--- Estimating 3-Category Income Interaction Model ---[/bold yellow]"
+        "\n[bold yellow]=====================================================[/bold yellow]"
     )
-    res_income = estimate_income_satiation_model(vec_data)
-    display_income_results(res_income)
+    console.print("[bold yellow] ESTIMATION 1: PLAIN vs BERRY [/bold yellow]")
+    console.print(
+        "[bold yellow]=====================================================[/bold yellow]"
+    )
+
+    vec_data_berry = load_and_preprocess_pair(focal_flavor="berry")
+    res_berry = estimate_pairwise_model(vec_data_berry)
+    display_pairwise_results(res_berry, focal_flavor="berry")
+
+    # =========================================================
+    # ESTIMATION 2: PLAIN VS OTHER
+    # =========================================================
+    console.print(
+        "\n[bold yellow]=====================================================[/bold yellow]"
+    )
+    console.print("[bold yellow] ESTIMATION 2: PLAIN vs OTHER [/bold yellow]")
+    console.print(
+        "[bold yellow]=====================================================[/bold yellow]"
+    )
+
+    vec_data_other = load_and_preprocess_pair(focal_flavor="other")
+    res_other = estimate_pairwise_model(vec_data_other)
+    display_pairwise_results(res_other, focal_flavor="other")
 
 
 if __name__ == "__main__":

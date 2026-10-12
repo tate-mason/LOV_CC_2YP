@@ -77,7 +77,6 @@ def load_and_preprocess_binned(weekly_capacity=14):
 
     exprs = [
         pl.col("quantity").cast(pl.Int64),
-        pl.col("head_age").cast(pl.Float64),
         pl.col("household_income").cast(pl.Float64),
         pl.col("household_size").cast(pl.Int64),
         pl.col("serving_per_container_cd").cast(pl.Int64),
@@ -121,7 +120,7 @@ def load_and_preprocess_binned(weekly_capacity=14):
     # Categories: Plain (Index 0 - BASE), Berry (Index 1), Other (Index 2), Outside (Index 3)
     categories = ["plain", "berry", "other", "outside"]
     cat_map = {c: i for i, c in enumerate(categories)}
-    n_inside = 3  # Plain, Berry, Other
+    n_inside = 3
 
     console.print(
         f"\n[bold yellow]3 FLAVOR BINNED CATEGORIES (BASE = Plain):[/bold yellow] {categories[:3]}\n"
@@ -170,23 +169,17 @@ def load_and_preprocess_binned(weekly_capacity=14):
         )
     merged_df["iv_res"] = merged_df["iv_res"].fillna(0.0)
 
-    # Standardize Household Demographics
+    # Standardize Household Income
     hh_demo = (
         merged_df.groupby("household_code")
-        .agg(income=("household_income", "first"), age=("head_age", "first"))
+        .agg(income=("household_income", "first"))
         .reset_index()
     )
 
     hh_demo["income_std"] = (hh_demo["income"] - hh_demo["income"].mean()) / (
         hh_demo["income"].std() + 1e-6
     )
-    hh_demo["age_std"] = (hh_demo["age"] - hh_demo["age"].mean()) / (
-        hh_demo["age"].std() + 1e-6
-    )
-
-    demo_dict = hh_demo.set_index("household_code")[["income_std", "age_std"]].to_dict(
-        "index"
-    )
+    demo_dict = hh_demo.set_index("household_code")["income_std"].to_dict()
 
     inside_df = merged_df[merged_df["category"] != "outside"].copy()
 
@@ -258,7 +251,7 @@ def load_and_preprocess_binned(weekly_capacity=14):
                 c_arr[row.choice_idx] = row.units_bought
         counts_dict[(hh_id, week)] = c_arr
 
-    all_prices, all_resids, all_choices, all_c_states, all_demos = [], [], [], [], []
+    all_prices, all_resids, all_choices, all_c_states, all_inc = [], [], [], [], []
 
     for row_dict in hh_weeks.to_dict("records"):
         store = row_dict["store_code_uc"]
@@ -268,7 +261,7 @@ def load_and_preprocess_binned(weekly_capacity=14):
         if (store, week) not in choice_set_matrix:
             continue
 
-        d_vals = demo_dict.get(hh_id, {"income_std": 0.0, "age_std": 0.0})
+        inc_val = demo_dict.get(hh_id, 0.0)
 
         inside_counts = counts_dict.get(
             (hh_id, week), np.zeros(n_inside, dtype=np.int64)
@@ -287,14 +280,14 @@ def load_and_preprocess_binned(weekly_capacity=14):
         all_resids.append(choice_set_matrix[(store, week)][:n_inside, 1])
         all_choices.append(full_counts)
         all_c_states.append(c_vec)
-        all_demos.append([d_vals["income_std"], d_vals["age_std"]])
+        all_inc.append(inc_val)
 
     vec_data = {
         "prices": np.array(all_prices, dtype=np.float64),
         "resids": np.array(all_resids, dtype=np.float64),
         "choices": np.array(all_choices, dtype=np.int64),
         "c_states": np.array(all_c_states, dtype=np.float64),
-        "demos": np.array(all_demos, dtype=np.float64),  # (N, 2) -> [Inc, Age]
+        "income": np.array(all_inc, dtype=np.float64)[:, None],  # (N, 1)
         "categories": ["plain", "berry", "other"],
         "n_inside": 3,
     }
@@ -303,29 +296,25 @@ def load_and_preprocess_binned(weekly_capacity=14):
 
 
 # =========================================================
-# DEMOGRAPHIC INTERACTION MODEL (3 CATEGORIES)
+# INCOME INTERACTION MODEL OBJECTIVE & ESTIMATION
 # =========================================================
-def total_objective_demographic_satiation(params, vec_data):
-    # Parameter order (15 parameters total):
+def total_objective_income_satiation(params, vec_data):
+    # Parameter order (11 parameters total):
     # 0: Constant
     # 1..2: Beta_0 [Berry, Other]
     # 3..4: Beta_Inc [Berry, Other]
-    # 5..6: Beta_Age [Berry, Other]
-    # 7..8: Gamma_0 [Berry, Other]
-    # 9..10: Gamma_Inc [Berry, Other]
-    # 11..12: Gamma_Age [Berry, Other]
-    # 13: Price (alpha)
-    # 14: Control Function (sigma)
+    # 5..6: Gamma_0 [Berry, Other]
+    # 7..8: Gamma_Inc [Berry, Other]
+    # 9: Price (alpha)
+    # 10: Control Function (sigma)
 
     const = params[0]
 
     b0 = params[1:3]
     b_inc = params[3:5]
-    b_age = params[5:7]
 
-    g0 = params[7:9]
-    g_inc = params[9:11]
-    g_age = params[11:13]
+    g0 = params[5:7]
+    g_inc = params[7:9]
 
     alpha = params[-2]
     sigma = params[-1]
@@ -334,20 +323,23 @@ def total_objective_demographic_satiation(params, vec_data):
     resids = vec_data["resids"]  # (N, 3)
     choices = vec_data["choices"]  # (N, 4)
     c_state = vec_data["c_states"]  # (N, 3)
-    demos = vec_data["demos"]  # (N, 2)
-
-    inc = demos[:, 0:1]  # (N, 1)
-    age = demos[:, 1:2]  # (N, 1)
+    inc = vec_data["income"]  # (N, 1)
 
     # Beta Matrix (N, 3): Plain fixed to 0.0
-    beta_non_plain = b0[None, :] + b_inc[None, :] * inc + b_age[None, :] * age
+    beta_non_plain = b0[None, :] + b_inc[None, :] * inc
     beta_mat = np.hstack([np.zeros((inc.shape[0], 1)), beta_non_plain])
 
     # Gamma Matrix (N, 3): Plain gamma fixed to 0.0
-    gamma_non_plain = g0[None, :] + g_inc[None, :] * inc + g_age[None, :] * age
+    gamma_non_plain = g0[None, :] + g_inc[None, :] * inc
     gamma_mat = np.hstack([np.zeros((inc.shape[0], 1)), gamma_non_plain])
 
-    u_inside = const + beta_mat + gamma_mat * c_state + alpha * prices + sigma * resids
+    u_inside = (
+        const
+        + beta_mat
+        + gamma_mat * np.log(1.0 + c_state)
+        + alpha * prices
+        + sigma * resids
+    )
 
     u_outside = np.zeros((u_inside.shape[0], 1))
     u = np.hstack([u_inside, u_outside])
@@ -358,20 +350,20 @@ def total_objective_demographic_satiation(params, vec_data):
     return -total_ll if np.isfinite(total_ll) else 1e10
 
 
-def estimate_demographic_satiation_model(vec_data):
-    total_params = 15
+def estimate_income_satiation_model(vec_data):
+    total_params = 11
     x0 = np.zeros(total_params)
     x0[-2] = -0.1
 
     bounds = (
-        [(-30.0, 30.0)] * 7  # const + beta_0, inc, age for berry & other
+        [(-30.0, 30.0)] * 5  # const + beta_0, inc for berry & other
         + [(-30.0, 0.0)] * 2  # gamma_0 for berry & other (negative disutility)
-        + [(-30.0, 30.0)] * 4  # gamma_inc, age for berry & other
+        + [(-30.0, 30.0)] * 2  # gamma_inc for berry & other
         + [(-30.0, -0.01), (-30.0, 30.0)]  # price + control function
     )
 
     res = minimize(
-        total_objective_demographic_satiation,
+        total_objective_income_satiation,
         x0=x0,
         args=(vec_data,),
         method="L-BFGS-B",
@@ -395,10 +387,10 @@ def estimate_demographic_satiation_model(vec_data):
             x4[i] -= eps
             x4[j] -= eps
 
-            f1 = total_objective_demographic_satiation(x1, vec_data)
-            f2 = total_objective_demographic_satiation(x2, vec_data)
-            f3 = total_objective_demographic_satiation(x3, vec_data)
-            f4 = total_objective_demographic_satiation(x4, vec_data)
+            f1 = total_objective_income_satiation(x1, vec_data)
+            f2 = total_objective_income_satiation(x2, vec_data)
+            f3 = total_objective_income_satiation(x3, vec_data)
+            f4 = total_objective_income_satiation(x4, vec_data)
 
             hessian[i, j] = (f1 - f2 - f3 + f4) / (4 * eps * eps)
             hessian[j, i] = hessian[i, j]
@@ -422,9 +414,9 @@ def estimate_demographic_satiation_model(vec_data):
     }
 
 
-def display_demographic_results(results):
+def display_income_results(results):
     table = Table(
-        title="3-CATEGORY DEMOGRAPHIC INTERACTION MODEL (PLAIN = BASE)",
+        title="3-CATEGORY INCOME INTERACTION SATIATION MODEL (PLAIN = BASE)",
         show_header=True,
         header_style="bold magenta",
     )
@@ -440,14 +432,10 @@ def display_demographic_results(results):
         "beta_Other (vs Plain Base)",
         "beta_Berry x Income",
         "beta_Other x Income",
-        "beta_Berry x Age",
-        "beta_Other x Age",
         "gamma_Berry (Main Satiation)",
         "gamma_Other (Main Satiation)",
         "gamma_Berry x Income",
         "gamma_Other x Income",
-        "gamma_Berry x Age",
-        "gamma_Other x Age",
         "Price (alpha)",
         "Control Func. (sigma)",
     ]
@@ -483,10 +471,10 @@ def main():
     vec_data = load_and_preprocess_binned()
 
     console.print(
-        "\n[bold yellow]--- Estimating 3-Category Demographic Model ---[/bold yellow]"
+        "\n[bold yellow]--- Estimating 3-Category Income Interaction Model ---[/bold yellow]"
     )
-    res_demo = estimate_demographic_satiation_model(vec_data)
-    display_demographic_results(res_demo)
+    res_income = estimate_income_satiation_model(vec_data)
+    display_income_results(res_income)
 
 
 if __name__ == "__main__":

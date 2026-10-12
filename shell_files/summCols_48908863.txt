@@ -1,4 +1,0 @@
-  File "/scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/full_draft_1231/data.py", line 131
-    ["full_text"] += " " + df_estimation[c].fillna("").astype(str)
-    ^^^^^^^^^^^^^
-SyntaxError: 'list' is an illegal expression for augmented assignment

@@ -1,5 +1,0 @@
-Loading data with Polars...
-Rows after household join: 26304702
-Rows after household size filter: 26304702
-Rows after serving size filter: 26304702
-slurmstepd: error: *** JOB 48909209 ON a3-23 CANCELLED AT 2026-10-10T19:46:17 ***

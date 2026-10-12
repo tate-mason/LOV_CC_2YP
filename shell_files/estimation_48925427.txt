@@ -1,0 +1,230 @@
+From github.com:tate-mason/LOV_CC_2YP
+   5feef42..209503d  main       -> origin/main
+Updating 5feef42..209503d
+Fast-forward
+ Code/full_draft_1231/est_ind_flav.py | 72 +++++++++++++++++++++++++++---------
+ 1 file changed, 54 insertions(+), 18 deletions(-)
+
+UNBINNED READABLE FLAVORS (BASE = Plain): ['plain', 'strawberry', 'blueberry', 
+'vanilla', 'peach', 'raspberry', 'cherry', 'black cherry', 'banana', 'outside']
+
+Computing unbinned satiation states with lambda = 0.7...
+
+=====================================================
+ PART 1: NAIVE UNBINNED SPECIFICATIONS (NO GAMMAS / PLAIN = BASE)
+=====================================================
+
+--- Estimating Standard Logit (Unbinned, No Gammas) ---
+                     UNBINNED STANDARD LOGIT (NO SATIATION)                     
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━┓
+┃ Parameter                         ┃ Estimate ┃ Std. Error ┃ z-stat ┃ p-value ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━┩
+│ Constant                          │   0.0000 │  1000.0000 │  0.000 │  1.0000 │
+│ beta_Strawberry (vs Plain Base)   │   0.0000 │  1000.0000 │  0.000 │  1.0000 │
+│ beta_Blueberry (vs Plain Base)    │   0.0000 │  1000.0000 │  0.000 │  1.0000 │
+│ beta_Vanilla (vs Plain Base)      │   0.0000 │  1000.0000 │  0.000 │  1.0000 │
+│ beta_Peach (vs Plain Base)        │   0.0000 │  1000.0000 │  0.000 │  1.0000 │
+│ beta_Raspberry (vs Plain Base)    │   0.0000 │  1000.0000 │  0.000 │  1.0000 │
+│ beta_Cherry (vs Plain Base)       │   0.0000 │  1000.0000 │  0.000 │  1.0000 │
+│ beta_Black Cherry (vs Plain Base) │   0.0000 │  1000.0000 │  0.000 │  1.0000 │
+│ beta_Banana (vs Plain Base)       │   0.0000 │  1000.0000 │  0.000 │  1.0000 │
+│ Price (alpha)                     │  -0.1000 │  1000.0000 │ -0.000 │  0.9999 │
+│ Control Func. (sigma)             │   0.0000 │  1000.0000 │  0.000 │  1.0000 │
+└───────────────────────────────────┴──────────┴────────────┴────────┴─────────┘
+Optimization Success: True
+Final LL Objective: 10000000000.0000
+ UNBINNED STANDARD LOGIT (NO SATIATION) - WILLINGNESS TO  
+               PAY (WTP in $ vs Plain Base)               
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━┓
+┃ Attribute / Parameter                        ┃ WTP ($) ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━┩
+│ WTP Preference: Strawberry (vs Plain Base)   │  $-0.00 │
+│ WTP Preference: Blueberry (vs Plain Base)    │  $-0.00 │
+│ WTP Preference: Vanilla (vs Plain Base)      │  $-0.00 │
+│ WTP Preference: Peach (vs Plain Base)        │  $-0.00 │
+│ WTP Preference: Raspberry (vs Plain Base)    │  $-0.00 │
+│ WTP Preference: Cherry (vs Plain Base)       │  $-0.00 │
+│ WTP Preference: Black Cherry (vs Plain Base) │  $-0.00 │
+│ WTP Preference: Banana (vs Plain Base)       │  $-0.00 │
+└──────────────────────────────────────────────┴─────────┘
+
+
+
+--- Estimating Random-Coefficient Logit (Unbinned, No Gammas) ---
+                UNBINNED RANDOM COEFFICIENT LOGIT (NO SATIATION)                
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━┓
+┃ Parameter                         ┃ Estimate ┃ Std. Error ┃ z-stat ┃ p-value ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━┩
+│ Constant                          │   0.0000 │  1000.0000 │  0.000 │  1.0000 │
+│ Mean beta_Strawberry (vs Plain    │   0.0000 │  1000.0000 │  0.000 │  1.0000 │
+│ Base)                             │          │            │        │         │
+│ Mean beta_Blueberry (vs Plain     │   0.0000 │  1000.0000 │  0.000 │  1.0000 │
+│ Base)                             │          │            │        │         │
+│ Mean beta_Vanilla (vs Plain Base) │   0.0000 │  1000.0000 │  0.000 │  1.0000 │
+│ Mean beta_Peach (vs Plain Base)   │   0.0000 │  1000.0000 │  0.000 │  1.0000 │
+│ Mean beta_Raspberry (vs Plain     │   0.0000 │  1000.0000 │  0.000 │  1.0000 │
+│ Base)                             │          │            │        │         │
+│ Mean beta_Cherry (vs Plain Base)  │   0.0000 │  1000.0000 │  0.000 │  1.0000 │
+│ Mean beta_Black Cherry (vs Plain  │   0.0000 │  1000.0000 │  0.000 │  1.0000 │
+│ Base)                             │          │            │        │         │
+│ Mean beta_Banana (vs Plain Base)  │   0.0000 │  1000.0000 │  0.000 │  1.0000 │
+│ SD beta_Strawberry                │   0.4966 │  1000.0000 │ -0.001 │  0.9994 │
+│ SD beta_Blueberry                 │   0.4966 │  1000.0000 │ -0.001 │  0.9994 │
+│ SD beta_Vanilla                   │   0.4966 │  1000.0000 │ -0.001 │  0.9994 │
+│ SD beta_Peach                     │   0.4966 │  1000.0000 │ -0.001 │  0.9994 │
+│ SD beta_Raspberry                 │   0.4966 │  1000.0000 │ -0.001 │  0.9994 │
+│ SD beta_Cherry                    │   0.4966 │  1000.0000 │ -0.001 │  0.9994 │
+│ SD beta_Black Cherry              │   0.4966 │  1000.0000 │ -0.001 │  0.9994 │
+│ SD beta_Banana                    │   0.4966 │  1000.0000 │ -0.001 │  0.9994 │
+│ Price (alpha)                     │  -0.1000 │  1000.0000 │ -0.000 │  0.9999 │
+│ Control Func. (sigma)             │   0.0000 │  1000.0000 │  0.000 │  1.0000 │
+└───────────────────────────────────┴──────────┴────────────┴────────┴─────────┘
+Optimization Success: True
+Final LL Objective: 10000000000.0000
+    UNBINNED RANDOM COEFFICIENT LOGIT (NO SATIATION) -    
+       WILLINGNESS TO PAY (WTP in $ vs Plain Base)        
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━┓
+┃ Attribute / Parameter                        ┃ WTP ($) ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━┩
+│ WTP Preference: Strawberry (vs Plain Base)   │  $-0.00 │
+│ WTP Preference: Blueberry (vs Plain Base)    │  $-0.00 │
+│ WTP Preference: Vanilla (vs Plain Base)      │  $-0.00 │
+│ WTP Preference: Peach (vs Plain Base)        │  $-0.00 │
+│ WTP Preference: Raspberry (vs Plain Base)    │  $-0.00 │
+│ WTP Preference: Cherry (vs Plain Base)       │  $-0.00 │
+│ WTP Preference: Black Cherry (vs Plain Base) │  $-0.00 │
+│ WTP Preference: Banana (vs Plain Base)       │  $-0.00 │
+└──────────────────────────────────────────────┴─────────┘
+
+
+
+=====================================================
+ PART 2: UNBINNED FLAVOR SATIATION SPECIFICATIONS (WITH GAMMAS)
+=====================================================
+
+--- Estimating Standard Unbinned Flavor Satiation Logit ---
+                    UNBINNED STANDARD FLAVOR SATIATION LOGIT                    
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━┓
+┃ Parameter                         ┃ Estimate ┃ Std. Error ┃ z-stat ┃ p-value ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━┩
+│ Constant                          │   0.0000 │  1000.0000 │  0.000 │  1.0000 │
+│ beta_Strawberry (vs Plain Base)   │   0.0000 │  1000.0000 │  0.000 │  1.0000 │
+│ beta_Blueberry (vs Plain Base)    │   0.0000 │  1000.0000 │  0.000 │  1.0000 │
+│ beta_Vanilla (vs Plain Base)      │   0.0000 │  1000.0000 │  0.000 │  1.0000 │
+│ beta_Peach (vs Plain Base)        │   0.0000 │  1000.0000 │  0.000 │  1.0000 │
+│ beta_Raspberry (vs Plain Base)    │   0.0000 │  1000.0000 │  0.000 │  1.0000 │
+│ beta_Cherry (vs Plain Base)       │   0.0000 │  1000.0000 │  0.000 │  1.0000 │
+│ beta_Black Cherry (vs Plain Base) │   0.0000 │  1000.0000 │  0.000 │  1.0000 │
+│ beta_Banana (vs Plain Base)       │   0.0000 │  1000.0000 │  0.000 │  1.0000 │
+│ gamma_Strawberry                  │   0.0000 │  1000.0000 │  0.000 │  1.0000 │
+│ gamma_Blueberry                   │   0.0000 │  1000.0000 │  0.000 │  1.0000 │
+│ gamma_Vanilla                     │   0.0000 │  1000.0000 │  0.000 │  1.0000 │
+│ gamma_Peach                       │   0.0000 │  1000.0000 │  0.000 │  1.0000 │
+│ gamma_Raspberry                   │   0.0000 │  1000.0000 │  0.000 │  1.0000 │
+│ gamma_Cherry                      │   0.0000 │  1000.0000 │  0.000 │  1.0000 │
+│ gamma_Black Cherry                │   0.0000 │  1000.0000 │  0.000 │  1.0000 │
+│ gamma_Banana                      │   0.0000 │  1000.0000 │  0.000 │  1.0000 │
+│ Price (alpha)                     │  -0.1000 │  1000.0000 │ -0.000 │  0.9999 │
+│ Control Func. (sigma)             │   0.0000 │  1000.0000 │  0.000 │  1.0000 │
+└───────────────────────────────────┴──────────┴────────────┴────────┴─────────┘
+Optimization Success: True
+Final LL Objective: 10000000000.0000
+UNBINNED STANDARD FLAVOR SATIATION LOGIT - WILLINGNESS TO 
+               PAY (WTP in $ vs Plain Base)               
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━┓
+┃ Attribute / Parameter                        ┃ WTP ($) ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━┩
+│ WTP Preference: Strawberry (vs Plain Base)   │  $-0.00 │
+│ WTP Preference: Blueberry (vs Plain Base)    │  $-0.00 │
+│ WTP Preference: Vanilla (vs Plain Base)      │  $-0.00 │
+│ WTP Preference: Peach (vs Plain Base)        │  $-0.00 │
+│ WTP Preference: Raspberry (vs Plain Base)    │  $-0.00 │
+│ WTP Preference: Cherry (vs Plain Base)       │  $-0.00 │
+│ WTP Preference: Black Cherry (vs Plain Base) │  $-0.00 │
+│ WTP Preference: Banana (vs Plain Base)       │  $-0.00 │
+│ WTP Satiation Disutility: Strawberry         │  $-0.00 │
+│ WTP Satiation Disutility: Blueberry          │  $-0.00 │
+│ WTP Satiation Disutility: Vanilla            │  $-0.00 │
+│ WTP Satiation Disutility: Peach              │  $-0.00 │
+│ WTP Satiation Disutility: Raspberry          │  $-0.00 │
+│ WTP Satiation Disutility: Cherry             │  $-0.00 │
+│ WTP Satiation Disutility: Black Cherry       │  $-0.00 │
+│ WTP Satiation Disutility: Banana             │  $-0.00 │
+└──────────────────────────────────────────────┴─────────┘
+
+
+
+--- Estimating Random-Coefficient Unbinned Flavor Satiation Logit ---
+               UNBINNED RANDOM COEFFICIENT FLAVOR SATIATION LOGIT               
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━┓
+┃ Parameter                         ┃ Estimate ┃ Std. Error ┃ z-stat ┃ p-value ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━┩
+│ Constant                          │   0.0000 │  1000.0000 │  0.000 │  1.0000 │
+│ Mean beta_Strawberry (vs Plain    │   0.0000 │  1000.0000 │  0.000 │  1.0000 │
+│ Base)                             │          │            │        │         │
+│ Mean beta_Blueberry (vs Plain     │   0.0000 │  1000.0000 │  0.000 │  1.0000 │
+│ Base)                             │          │            │        │         │
+│ Mean beta_Vanilla (vs Plain Base) │   0.0000 │  1000.0000 │  0.000 │  1.0000 │
+│ Mean beta_Peach (vs Plain Base)   │   0.0000 │  1000.0000 │  0.000 │  1.0000 │
+│ Mean beta_Raspberry (vs Plain     │   0.0000 │  1000.0000 │  0.000 │  1.0000 │
+│ Base)                             │          │            │        │         │
+│ Mean beta_Cherry (vs Plain Base)  │   0.0000 │  1000.0000 │  0.000 │  1.0000 │
+│ Mean beta_Black Cherry (vs Plain  │   0.0000 │  1000.0000 │  0.000 │  1.0000 │
+│ Base)                             │          │            │        │         │
+│ Mean beta_Banana (vs Plain Base)  │   0.0000 │  1000.0000 │  0.000 │  1.0000 │
+│ Mean gamma_Strawberry             │   0.0000 │  1000.0000 │  0.000 │  1.0000 │
+│ Mean gamma_Blueberry              │   0.0000 │  1000.0000 │  0.000 │  1.0000 │
+│ Mean gamma_Vanilla                │   0.0000 │  1000.0000 │  0.000 │  1.0000 │
+│ Mean gamma_Peach                  │   0.0000 │  1000.0000 │  0.000 │  1.0000 │
+│ Mean gamma_Raspberry              │   0.0000 │  1000.0000 │  0.000 │  1.0000 │
+│ Mean gamma_Cherry                 │   0.0000 │  1000.0000 │  0.000 │  1.0000 │
+│ Mean gamma_Black Cherry           │   0.0000 │  1000.0000 │  0.000 │  1.0000 │
+│ Mean gamma_Banana                 │   0.0000 │  1000.0000 │  0.000 │  1.0000 │
+│ SD beta_Strawberry                │   0.4966 │  1000.0000 │ -0.001 │  0.9994 │
+│ SD beta_Blueberry                 │   0.4966 │  1000.0000 │ -0.001 │  0.9994 │
+│ SD beta_Vanilla                   │   0.4966 │  1000.0000 │ -0.001 │  0.9994 │
+│ SD beta_Peach                     │   0.4966 │  1000.0000 │ -0.001 │  0.9994 │
+│ SD beta_Raspberry                 │   0.4966 │  1000.0000 │ -0.001 │  0.9994 │
+│ SD beta_Cherry                    │   0.4966 │  1000.0000 │ -0.001 │  0.9994 │
+│ SD beta_Black Cherry              │   0.4966 │  1000.0000 │ -0.001 │  0.9994 │
+│ SD beta_Banana                    │   0.4966 │  1000.0000 │ -0.001 │  0.9994 │
+│ SD gamma_Strawberry               │   0.4966 │  1000.0000 │ -0.001 │  0.9994 │
+│ SD gamma_Blueberry                │   0.4966 │  1000.0000 │ -0.001 │  0.9994 │
+│ SD gamma_Vanilla                  │   0.4966 │  1000.0000 │ -0.001 │  0.9994 │
+│ SD gamma_Peach                    │   0.4966 │  1000.0000 │ -0.001 │  0.9994 │
+│ SD gamma_Raspberry                │   0.4966 │  1000.0000 │ -0.001 │  0.9994 │
+│ SD gamma_Cherry                   │   0.4966 │  1000.0000 │ -0.001 │  0.9994 │
+│ SD gamma_Black Cherry             │   0.4966 │  1000.0000 │ -0.001 │  0.9994 │
+│ SD gamma_Banana                   │   0.4966 │  1000.0000 │ -0.001 │  0.9994 │
+│ Price (alpha)                     │  -0.1000 │  1000.0000 │ -0.000 │  0.9999 │
+│ Control Func. (sigma)             │   0.0000 │  1000.0000 │  0.000 │  1.0000 │
+└───────────────────────────────────┴──────────┴────────────┴────────┴─────────┘
+Optimization Success: True
+Final LL Objective: 10000000000.0000
+   UNBINNED RANDOM COEFFICIENT FLAVOR SATIATION LOGIT -   
+       WILLINGNESS TO PAY (WTP in $ vs Plain Base)        
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━┓
+┃ Attribute / Parameter                        ┃ WTP ($) ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━┩
+│ WTP Preference: Strawberry (vs Plain Base)   │  $-0.00 │
+│ WTP Preference: Blueberry (vs Plain Base)    │  $-0.00 │
+│ WTP Preference: Vanilla (vs Plain Base)      │  $-0.00 │
+│ WTP Preference: Peach (vs Plain Base)        │  $-0.00 │
+│ WTP Preference: Raspberry (vs Plain Base)    │  $-0.00 │
+│ WTP Preference: Cherry (vs Plain Base)       │  $-0.00 │
+│ WTP Preference: Black Cherry (vs Plain Base) │  $-0.00 │
+│ WTP Preference: Banana (vs Plain Base)       │  $-0.00 │
+│ WTP Satiation Disutility: Strawberry         │  $-0.00 │
+│ WTP Satiation Disutility: Blueberry          │  $-0.00 │
+│ WTP Satiation Disutility: Vanilla            │  $-0.00 │
+│ WTP Satiation Disutility: Peach              │  $-0.00 │
+│ WTP Satiation Disutility: Raspberry          │  $-0.00 │
+│ WTP Satiation Disutility: Cherry             │  $-0.00 │
+│ WTP Satiation Disutility: Black Cherry       │  $-0.00 │
+│ WTP Satiation Disutility: Banana             │  $-0.00 │
+└──────────────────────────────────────────────┴─────────┘
+
+
+Generating Unbinned Flavor Heterogeneity Plots...
+Unbinned type distribution figures saved to ../Output/Plots
+

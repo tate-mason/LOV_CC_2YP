@@ -1,6 +1,11 @@
-Loading full panel with Polars...
+From github.com:tate-mason/LOV_CC_2YP
+   f7a4c2d..f7ea5e8  main       -> origin/main
+Updating f7a4c2d..f7ea5e8
+Fast-forward
+ Code/full_draft_1231/est_ind_flav.py | 58 +++++++++++++++---------------------
+ 1 file changed, 24 insertions(+), 34 deletions(-)
 ╭───────────────────── Traceback (most recent call last) ──────────────────────╮
-│ /home/dtm63837/.local/lib/python3.13/site-packages/pandas/core/indexes/base. │
+│ /home/dtm63837/.local/lib/python3.12/site-packages/pandas/core/indexes/base. │
 │ py:3641 in get_loc                                                           │
 │                                                                              │
 │   3638 │   │   """                                                           │
@@ -19,23 +24,43 @@ Loading full panel with Polars...
 │                                                                              │
 │ in pandas._libs.hashtable.PyObjectHashTable.get_item:7676                    │
 ╰──────────────────────────────────────────────────────────────────────────────╯
-KeyError: 'price'
+KeyError: 'flavor_descr'
 
 The above exception was the direct cause of the following exception:
 
 ╭───────────────────── Traceback (most recent call last) ──────────────────────╮
-│ /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/full_draft_1231/data.py:111 in │
-│ <module>                                                                     │
+│ /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/full_draft_1231/est_ind_flav.p │
+│ y:1008 in <module>                                                           │
 │                                                                              │
-│   108 ].copy()                                                               │
-│   109                                                                        │
-│   110 # 2. Price & Instrument Residual Filter (matches est_step2.py)         │
-│ ❱ 111 est_master = est_master[(est_master["price"] > 0.1) | (est_master["pri │
-│   112                                                                        │
-│   113 # Build Market Price IV                                                │
-│   114 market_price = (                                                       │
+│   1005                                                                       │
+│   1006                                                                       │
+│   1007 if __name__ == "__main__":                                            │
+│ ❱ 1008 │   main()                                                            │
+│   1009                                                                       │
 │                                                                              │
-│ /home/dtm63837/.local/lib/python3.13/site-packages/pandas/core/frame.py:4378 │
+│ /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/full_draft_1231/est_ind_flav.p │
+│ y:928 in main                                                                │
+│                                                                              │
+│    925                                                                       │
+│    926                                                                       │
+│    927 def main():                                                           │
+│ ❱  928 │   vec_data = load_and_preprocess_unbinned()                         │
+│    929 │                                                                     │
+│    930 │   # Dynamically scale simulation draws matrix to match unbinned dim │
+│    931 │   # Dimension = (n_inside - 1) [for Beta draws] + n_inside [for Gam │
+│                                                                              │
+│ /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/full_draft_1231/est_ind_flav.p │
+│ y:105 in load_and_preprocess_unbinned                                        │
+│                                                                              │
+│    102 │   )                                                                 │
+│    103 │                                                                     │
+│    104 │   merged_df["flavor_str"] = (                                       │
+│ ❱  105 │   │   merged_df["flavor_descr"].fillna("").astype(str).str.lower(). │
+│    106 │   )                                                                 │
+│    107 │                                                                     │
+│    108 │   plain_regex = r"plain|unflavored"                                 │
+│                                                                              │
+│ /home/dtm63837/.local/lib/python3.12/site-packages/pandas/core/frame.py:4378 │
 │ in __getitem__                                                               │
 │                                                                              │
 │    4375 │   │   if is_single_key:                                            │
@@ -46,7 +71,7 @@ The above exception was the direct cause of the following exception:
 │    4380 │   │   │   │   indexer = [indexer]                                  │
 │    4381 │   │   else:                                                        │
 │                                                                              │
-│ /home/dtm63837/.local/lib/python3.13/site-packages/pandas/core/indexes/base. │
+│ /home/dtm63837/.local/lib/python3.12/site-packages/pandas/core/indexes/base. │
 │ py:3648 in get_loc                                                           │
 │                                                                              │
 │   3645 │   │   │   │   and any(isinstance(x, slice) for x in casted_key)     │
@@ -57,4 +82,4 @@ The above exception was the direct cause of the following exception:
 │   3650 │   │   │   # If we have a listlike key, _check_indexing_error will r │
 │   3651 │   │   │   #  InvalidIndexError. Otherwise we fall through and re-ra │
 ╰──────────────────────────────────────────────────────────────────────────────╯
-KeyError: 'price'
+KeyError: 'flavor_descr'

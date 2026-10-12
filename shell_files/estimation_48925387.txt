@@ -1,0 +1,151 @@
+From github.com:tate-mason/LOV_CC_2YP
+   ad3285d..5feef42  main       -> origin/main
+Updating ad3285d..5feef42
+Fast-forward
+ Code/full_draft_1231/est_ind_flav.py | 389 +++++++++++++----------------------
+ 1 file changed, 147 insertions(+), 242 deletions(-)
+
+UNBINNED FLAVOR CATEGORIES (BASE = Plain): ['plain', '0', '1', '2', 'outside']
+
+Computing unbinned satiation states with lambda = 0.7...
+
+=====================================================
+ PART 1: NAIVE UNBINNED SPECIFICATIONS (NO GAMMAS / PLAIN = BASE)
+=====================================================
+
+--- Estimating Standard Logit (Unbinned, No Gammas) ---
+                 UNBINNED STANDARD LOGIT (NO SATIATION)                  
+┏━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━━━━┓
+┃ Parameter              ┃ Estimate ┃ Std. Error ┃  z-stat ┃    p-value ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━━━━━┩
+│ Constant               │ -16.0507 │    14.5350 │  -1.104 │     0.2695 │
+│ beta_0 (vs Plain Base) │  16.7630 │    14.5350 │   1.153 │     0.2488 │
+│ beta_1 (vs Plain Base) │  16.3056 │    14.5350 │   1.122 │     0.2619 │
+│ beta_2 (vs Plain Base) │  15.6325 │    14.5350 │   1.076 │     0.2821 │
+│ Price (alpha)          │  -0.9058 │     0.0288 │ -31.441 │ 0.0000 *** │
+│ Control Func. (sigma)  │   0.1750 │     0.0279 │   6.275 │ 0.0000 *** │
+└────────────────────────┴──────────┴────────────┴─────────┴────────────┘
+Optimization Success: True
+Final LL Objective: 73674.1532
+   UNBINNED STANDARD LOGIT (NO SATIATION) -    
+  WILLINGNESS TO PAY (WTP in $ vs Plain Base)  
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━┓
+┃ Attribute / Parameter             ┃ WTP ($) ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━┩
+│ WTP Preference: 0 (vs Plain Base) │ $-18.51 │
+│ WTP Preference: 1 (vs Plain Base) │ $-18.00 │
+│ WTP Preference: 2 (vs Plain Base) │ $-17.26 │
+└───────────────────────────────────┴─────────┘
+
+
+
+--- Estimating Random-Coefficient Logit (Unbinned, No Gammas) ---
+               UNBINNED RANDOM COEFFICIENT LOGIT (NO SATIATION)               
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━━━━┓
+┃ Parameter                   ┃ Estimate ┃ Std. Error ┃  z-stat ┃    p-value ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━━━━━┩
+│ Constant                    │ -22.7601 │    52.1508 │  -0.436 │     0.6625 │
+│ Mean beta_0 (vs Plain Base) │  26.3143 │    52.1509 │   0.505 │     0.6139 │
+│ Mean beta_1 (vs Plain Base) │  23.3910 │    52.1537 │   0.449 │     0.6538 │
+│ Mean beta_2 (vs Plain Base) │  29.6005 │    52.1531 │   0.568 │     0.5703 │
+│ SD beta_0                   │  20.0855 │     0.0750 │  39.985 │ 0.0000 *** │
+│ SD beta_1                   │   9.3460 │     0.0369 │  60.506 │ 0.0000 *** │
+│ SD beta_2                   │   0.1207 │     0.6816 │  -3.102 │  0.0019 ** │
+│ Price (alpha)               │  -5.9610 │     0.1493 │ -39.934 │ 0.0000 *** │
+│ Control Func. (sigma)       │   2.1086 │     0.0684 │  30.824 │ 0.0000 *** │
+└─────────────────────────────┴──────────┴────────────┴─────────┴────────────┘
+Optimization Success: True
+Final LL Objective: 72930.5696
+     UNBINNED RANDOM COEFFICIENT LOGIT (NO     
+ SATIATION) - WILLINGNESS TO PAY (WTP in $ vs  
+                  Plain Base)                  
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━┓
+┃ Attribute / Parameter             ┃ WTP ($) ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━┩
+│ WTP Preference: 0 (vs Plain Base) │  $-4.41 │
+│ WTP Preference: 1 (vs Plain Base) │  $-3.92 │
+│ WTP Preference: 2 (vs Plain Base) │  $-4.97 │
+└───────────────────────────────────┴─────────┘
+
+
+
+=====================================================
+ PART 2: UNBINNED FLAVOR SATIATION SPECIFICATIONS (WITH GAMMAS)
+=====================================================
+
+--- Estimating Standard Unbinned Flavor Satiation Logit ---
+                  UNBINNED STANDARD FLAVOR SATIATION LOGIT                   
+┏━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━━┳━━━━━━━━━━━━━┳━━━━━━━━━━━━┓
+┃ Parameter              ┃ Estimate ┃ Std. Error ┃      z-stat ┃    p-value ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━━━╇━━━━━━━━━━━━━╇━━━━━━━━━━━━┩
+│ Constant               │ -21.5174 │     0.0001 │ -215173.923 │ 0.0000 *** │
+│ beta_0 (vs Plain Base) │  22.2368 │     0.0001 │  222368.455 │ 0.0000 *** │
+│ beta_1 (vs Plain Base) │  21.7718 │     0.0001 │  217717.664 │ 0.0000 *** │
+│ beta_2 (vs Plain Base) │  21.0915 │     0.0001 │  210914.773 │ 0.0000 *** │
+│ gamma_0                │  -7.8513 │     0.9960 │      -7.883 │ 0.0000 *** │
+│ gamma_1                │  -1.0342 │     0.1632 │      -6.335 │ 0.0000 *** │
+│ gamma_2                │  -0.2788 │     0.1116 │      -2.497 │  0.0125 ** │
+│ Price (alpha)          │  -0.8983 │     0.0287 │     -31.263 │ 0.0000 *** │
+│ Control Func. (sigma)  │   0.1738 │     0.0278 │       6.247 │ 0.0000 *** │
+└────────────────────────┴──────────┴────────────┴─────────────┴────────────┘
+Optimization Success: True
+Final LL Objective: 73466.7235
+  UNBINNED STANDARD FLAVOR SATIATION LOGIT -   
+  WILLINGNESS TO PAY (WTP in $ vs Plain Base)  
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━┓
+┃ Attribute / Parameter             ┃ WTP ($) ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━┩
+│ WTP Preference: 0 (vs Plain Base) │ $-24.76 │
+│ WTP Preference: 1 (vs Plain Base) │ $-24.24 │
+│ WTP Preference: 2 (vs Plain Base) │ $-23.48 │
+│ WTP Satiation Disutility: 0       │   $8.74 │
+│ WTP Satiation Disutility: 1       │   $1.15 │
+│ WTP Satiation Disutility: 2       │   $0.31 │
+└───────────────────────────────────┴─────────┘
+
+
+
+--- Estimating Random-Coefficient Unbinned Flavor Satiation Logit ---
+               UNBINNED RANDOM COEFFICIENT FLAVOR SATIATION LOGIT               
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━━┳━━━━━━━━━━━━┳━━━━━━━━━━━━┓
+┃ Parameter                  ┃ Estimate ┃ Std. Error ┃     z-stat ┃    p-value ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━━━╇━━━━━━━━━━━━╇━━━━━━━━━━━━┩
+│ Constant                   │ -24.4365 │    52.1436 │     -0.469 │     0.6393 │
+│ Mean beta_0 (vs Plain      │  27.3767 │    52.1459 │      0.525 │     0.5996 │
+│ Base)                      │          │            │            │            │
+│ Mean beta_1 (vs Plain      │  24.7999 │    52.1441 │      0.476 │     0.6344 │
+│ Base)                      │          │            │            │            │
+│ Mean beta_2 (vs Plain      │  30.0000 │    52.1436 │      0.575 │     0.5651 │
+│ Base)                      │          │            │            │            │
+│ Mean gamma_0               │  -6.7691 │     1.1384 │     -5.946 │ 0.0000 *** │
+│ Mean gamma_1               │  -3.7964 │     0.0001 │ -37963.666 │ 0.0000 *** │
+│ Mean gamma_2               │  -0.0981 │     0.1939 │     -0.506 │     0.6131 │
+│ SD beta_0                  │  15.1817 │     0.0001 │  27200.889 │ 0.0000 *** │
+│ SD beta_1                  │   8.2097 │     0.0358 │     58.770 │ 0.0000 *** │
+│ SD beta_2                  │   0.0886 │     0.8617 │     -2.812 │  0.0049 ** │
+│ SD gamma_0                 │   0.2771 │     0.0001 │ -12832.131 │ 0.0000 *** │
+│ SD gamma_1                 │   0.3348 │     1.2933 │     -0.846 │     0.3975 │
+│ SD gamma_2                 │   0.1841 │     2.5376 │     -0.667 │     0.5049 │
+│ Price (alpha)              │  -5.0710 │     0.0978 │    -51.869 │ 0.0000 *** │
+│ Control Func. (sigma)      │   1.8385 │     0.0570 │     32.273 │ 0.0000 *** │
+└────────────────────────────┴──────────┴────────────┴────────────┴────────────┘
+Optimization Success: True
+Final LL Objective: 72873.5765
+ UNBINNED RANDOM COEFFICIENT FLAVOR SATIATION  
+ LOGIT - WILLINGNESS TO PAY (WTP in $ vs Plain 
+                     Base)                     
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━┓
+┃ Attribute / Parameter             ┃ WTP ($) ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━┩
+│ WTP Preference: 0 (vs Plain Base) │  $-5.40 │
+│ WTP Preference: 1 (vs Plain Base) │  $-4.89 │
+│ WTP Preference: 2 (vs Plain Base) │  $-5.92 │
+│ WTP Satiation Disutility: 0       │   $1.33 │
+│ WTP Satiation Disutility: 1       │   $0.75 │
+│ WTP Satiation Disutility: 2       │   $0.02 │
+└───────────────────────────────────┴─────────┘
+
+
+Generating Unbinned Flavor Heterogeneity Plots...
+Unbinned type distribution figures saved to ../Output/Plots
+

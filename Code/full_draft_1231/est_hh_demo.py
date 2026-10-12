@@ -23,18 +23,23 @@ os.makedirs(PLOT_OUTPUT_DIR, exist_ok=True)
 CALIBRATED_LAMBDA = 0.7  # Calibrated memory decay parameter
 
 
-def compute_satiation_state_pair(
+def compute_satiation_state_pairwise(
     weekly_purchases,
     lambda_mem=CALIBRATED_LAMBDA,
     delta_discount=0.9,
 ):
+    """
+    Computes satiation states C_sat for a 2-choice inside set:
+    Index 0: Plain
+    Index 1: Focal Flavor (Berry or Other)
+    """
     sorted_df = weekly_purchases.sort_values(["household_code", "week_end"])
     inventory_records = []
 
     for hh_id, hh_group in sorted_df.groupby("household_code"):
         weeks = hh_group["week_end"].unique()
         C_history = {}
-        prev_X = np.zeros(2)  # [plain, focal_flavor]
+        prev_X = np.zeros(2)
 
         for t_idx, week in enumerate(weeks):
             C_current = np.zeros(2)
@@ -74,7 +79,11 @@ def compute_satiation_state_pair(
     return pd.DataFrame(inventory_records)
 
 
-def load_and_preprocess_pair(focal_flavor="berry", weekly_capacity=14):
+def load_and_preprocess_pairwise(focal_flavor="berry", weekly_capacity=14):
+    """
+    Loads raw Nielsen panel data and constructs pairwise choice matrices:
+    Choices: Plain (0), Focal Flavor (1), Outside Option (2)
+    """
     schema_names = pl.scan_parquet(MERGED_PATH).collect_schema().names()
 
     exprs = [
@@ -108,7 +117,7 @@ def load_and_preprocess_pair(focal_flavor="berry", weekly_capacity=14):
     plain_regex = r"plain|unflavored"
     berry_regex = r"berry|strawb|blueb|rasp|blackb|cherry"
 
-    def assign_category(f_str):
+    def assign_pairwise_category(f_str):
         if pd.isna(f_str) or f_str == "":
             return "outside"
         if pd.Series(f_str).str.contains(plain_regex, regex=True).iloc[0]:
@@ -122,14 +131,13 @@ def load_and_preprocess_pair(focal_flavor="berry", weekly_capacity=14):
 
         return "outside"
 
-    merged_df["category"] = merged_df["flavor_str"].apply(assign_category)
+    merged_df["category"] = merged_df["flavor_str"].apply(assign_pairwise_category)
 
-    # Filter to only Plain, Focal Flavor, and Outside
     categories = ["plain", focal_flavor, "outside"]
     cat_map = {c: i for i, c in enumerate(categories)}
 
     console.print(
-        f"\n[bold yellow]ESTIMATION PAIR (BASE = Plain vs {focal_flavor.title()}):[/bold yellow] {categories[:2]}\n"
+        f"[bold yellow]Preprocessing Pairwise Subsample:[/bold yellow] Plain (0) vs {focal_flavor.title()} (1) | Outside (2)"
     )
 
     # Price IV Construction
@@ -227,10 +235,7 @@ def load_and_preprocess_pair(focal_flavor="berry", weekly_capacity=14):
 
         choice_set_matrix[(store, week)] = mat
 
-    console.print(
-        f"[bold green]Computing satiation states for Plain vs {focal_flavor.title()} with lambda = {CALIBRATED_LAMBDA}...[/bold green]"
-    )
-    df_sat = compute_satiation_state_pair(
+    df_sat = compute_satiation_state_pairwise(
         weekly_purchases, lambda_mem=CALIBRATED_LAMBDA, delta_discount=0.9
     )
 
@@ -296,18 +301,13 @@ def load_and_preprocess_pair(focal_flavor="berry", weekly_capacity=14):
 
 
 # =========================================================
-# BINARY PAIRWISE MODEL OBJECTIVE & ESTIMATION
+# PAIRWISE MODEL OBJECTIVE & ESTIMATION
 # =========================================================
-def total_objective_pairwise_satiation(params, vec_data):
-    # Parameter order (6 parameters total):
-    # 0: Constant
-    # 1: Beta_0 (Focal Flavor vs Plain Base)
-    # 2: Beta_Inc (Focal Flavor x Income)
-    # 3: Gamma_0 (Focal Satiation Main Effect)
-    # 4: Gamma_Inc (Focal Satiation x Income)
-    # 5: Price (alpha)
-    # 6: Control Function (sigma)
-
+def total_objective_pairwise(params, vec_data):
+    """
+    Evaluates pairwise log-likelihood for:
+    Utility = const + (beta_0 + beta_inc * Inc) + (gamma_0 + gamma_inc * Inc) * log(1 + C_sat) + alpha * P + sigma * v
+    """
     const = params[0]
     b0 = params[1]
     b_inc = params[2]
@@ -324,11 +324,11 @@ def total_objective_pairwise_satiation(params, vec_data):
     c_state = vec_data["c_states"]  # (N, 2)
     inc = vec_data["income"]  # (N, 1)
 
-    # Beta Matrix (N, 2): Plain fixed to 0.0
+    # Beta Matrix (N, 2): Plain baseline fixed to 0.0
     beta_focal = b0 + b_inc * inc
     beta_mat = np.hstack([np.zeros((inc.shape[0], 1)), beta_focal])
 
-    # Gamma Matrix (N, 2): Plain gamma fixed to 0.0
+    # Gamma Matrix (N, 2): Plain satiation fixed to 0.0
     gamma_focal = g0 + g_inc * inc
     gamma_mat = np.hstack([np.zeros((inc.shape[0], 1)), gamma_focal])
 
@@ -355,14 +355,14 @@ def estimate_pairwise_model(vec_data):
     x0[-2] = -0.1
 
     bounds = (
-        [(-30.0, 30.0)] * 3  # const + beta_0, inc
-        + [(-30.0, 0.0)]  # gamma_0 (negative disutility)
+        [(-30.0, 30.0)] * 3  # const + beta_0, beta_inc
+        + [(-30.0, 0.0)]  # gamma_0 (negative disutility bound)
         + [(-30.0, 30.0)]  # gamma_inc
         + [(-30.0, -0.01), (-30.0, 30.0)]  # price + control function
     )
 
     res = minimize(
-        total_objective_pairwise_satiation,
+        total_objective_pairwise,
         x0=x0,
         args=(vec_data,),
         method="L-BFGS-B",
@@ -386,10 +386,10 @@ def estimate_pairwise_model(vec_data):
             x4[i] -= eps
             x4[j] -= eps
 
-            f1 = total_objective_pairwise_satiation(x1, vec_data)
-            f2 = total_objective_pairwise_satiation(x2, vec_data)
-            f3 = total_objective_pairwise_satiation(x3, vec_data)
-            f4 = total_objective_pairwise_satiation(x4, vec_data)
+            f1 = total_objective_pairwise(x1, vec_data)
+            f2 = total_objective_pairwise(x2, vec_data)
+            f3 = total_objective_pairwise(x3, vec_data)
+            f4 = total_objective_pairwise(x4, vec_data)
 
             hessian[i, j] = (f1 - f2 - f3 + f4) / (4 * eps * eps)
             hessian[j, i] = hessian[i, j]
@@ -416,7 +416,7 @@ def estimate_pairwise_model(vec_data):
 def display_pairwise_results(results, focal_flavor="berry"):
     flv_title = focal_flavor.title()
     table = Table(
-        title=f"PAIRWISE ESTIMATION: PLAIN vs {flv_title.upper()} (PLAIN = BASE)",
+        title=f"PAIRWISE MODEL: PLAIN vs {flv_title.upper()} (PLAIN BASE = 0.0)",
         show_header=True,
         header_style="bold magenta",
     )
@@ -465,7 +465,7 @@ def display_pairwise_results(results, focal_flavor="berry"):
 
 def main():
     # =========================================================
-    # ESTIMATION 1: PLAIN VS BERRY
+    # MODEL 1: PLAIN VS BERRY
     # =========================================================
     console.print(
         "\n[bold yellow]=====================================================[/bold yellow]"
@@ -475,12 +475,12 @@ def main():
         "[bold yellow]=====================================================[/bold yellow]"
     )
 
-    vec_data_berry = load_and_preprocess_pair(focal_flavor="berry")
+    vec_data_berry = load_and_preprocess_pairwise(focal_flavor="berry")
     res_berry = estimate_pairwise_model(vec_data_berry)
     display_pairwise_results(res_berry, focal_flavor="berry")
 
     # =========================================================
-    # ESTIMATION 2: PLAIN VS OTHER
+    # MODEL 2: PLAIN VS OTHER
     # =========================================================
     console.print(
         "\n[bold yellow]=====================================================[/bold yellow]"
@@ -490,7 +490,7 @@ def main():
         "[bold yellow]=====================================================[/bold yellow]"
     )
 
-    vec_data_other = load_and_preprocess_pair(focal_flavor="other")
+    vec_data_other = load_and_preprocess_pairwise(focal_flavor="other")
     res_other = estimate_pairwise_model(vec_data_other)
     display_pairwise_results(res_other, focal_flavor="other")
 

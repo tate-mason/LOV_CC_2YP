@@ -347,13 +347,7 @@ def total_objective_demographic_satiation(params, vec_data):
     gamma_non_plain = g0[None, :] + g_inc[None, :] * inc + g_age[None, :] * age
     gamma_mat = np.hstack([np.zeros((inc.shape[0], 1)), gamma_non_plain])
 
-    u_inside = (
-        const
-        + beta_mat
-        + gamma_mat * np.log(1.0 + c_state)
-        + alpha * prices
-        + sigma * resids
-    )
+    u_inside = const + beta_mat + gamma_mat * c_state + alpha * prices + sigma * resids
 
     u_outside = np.zeros((u_inside.shape[0], 1))
     u = np.hstack([u_inside, u_outside])

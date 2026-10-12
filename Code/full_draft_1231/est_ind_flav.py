@@ -105,7 +105,7 @@ def load_and_preprocess_unbinned(weekly_capacity=14, top_k=TOP_K_FLAVORS):
     descr_cols = [
         c
         for c in merged_df.columns
-        if any(k in c.lower() for k in ["flavor_descr", "product_descr", "brand_descr"])
+        if any(k in c.lower() for k in ["flavor", "product_descr", "brand_descr"])
     ]
     merged_df["flavor_str"] = ""
     for c in descr_cols:

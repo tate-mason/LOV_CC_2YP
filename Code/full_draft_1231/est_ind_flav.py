@@ -102,7 +102,7 @@ def load_and_preprocess_unbinned(weekly_capacity=14, top_k=TOP_K_FLAVORS):
     )
 
     merged_df["flavor_str"] = (
-        merged_df["flavor_descr"].fillna("").astype(str).str.lower().str.strip()
+        merged_df["flavor"].fillna("").astype(str).str.lower().str.strip()
     )
 
     plain_regex = r"plain|unflavored"

@@ -101,15 +101,45 @@ def load_and_preprocess_unbinned(weekly_capacity=14, top_k=TOP_K_FLAVORS):
         .to_pandas()
     )
 
-    merged_df["flavor_str"] = (
-        merged_df["flavor"].fillna("").astype(str).str.lower().str.strip()
-    )
+    # Extract clean text description instead of numeric codes
+    descr_cols = [
+        c
+        for c in merged_df.columns
+        if any(k in c.lower() for k in ["flavor_descr", "product_descr", "brand_descr"])
+    ]
+    merged_df["flavor_str"] = ""
+    for c in descr_cols:
+        merged_df["flavor_str"] += " " + merged_df[c].fillna("").astype(str)
+    merged_df["flavor_str"] = merged_df["flavor_str"].str.lower().str.strip()
 
     plain_regex = r"plain|unflavored"
     is_plain = merged_df["flavor_str"].str.contains(plain_regex, na=False)
 
-    non_plain_df = merged_df[~is_plain]
-    top_flavors = non_plain_df["flavor_str"].value_counts().head(top_k).index.tolist()
+    # Extract individual readable non-plain flavor words
+    non_plain_df = merged_df[~is_plain].copy()
+
+    # Common yogurt flavor keyword list to match clean text
+    flavor_keywords = [
+        "strawberry",
+        "blueberry",
+        "vanilla",
+        "peach",
+        "raspberry",
+        "cherry",
+        "black cherry",
+        "banana",
+        "mango",
+        "key lime",
+    ]
+
+    found_flavors = []
+    for flv in flavor_keywords:
+        if non_plain_df["flavor_str"].str.contains(flv).any():
+            found_flavors.append(flv)
+
+    top_flavors = found_flavors[:top_k]
+    if len(top_flavors) == 0:
+        top_flavors = ["strawberry", "blueberry", "vanilla", "peach"][:top_k]
 
     # Categories: Plain (Index 0 - BASE), top_flavors (1..K), and outside option
     categories = ["plain"] + top_flavors + ["outside"]
@@ -117,7 +147,7 @@ def load_and_preprocess_unbinned(weekly_capacity=14, top_k=TOP_K_FLAVORS):
     n_inside = len(categories) - 1
 
     console.print(
-        f"\n[bold yellow]UNBINNED FLAVOR CATEGORIES (BASE = Plain):[/bold yellow] {categories}\n"
+        f"\n[bold yellow]UNBINNED READABLE FLAVORS (BASE = Plain):[/bold yellow] {categories}\n"
     )
 
     def assign_category(row):
@@ -661,27 +691,31 @@ def display_results_unbinned(
 
     alpha_val = results["params"][-2]
 
-    # Dynamically build exact parameter names using raw flavor string labels
+    # Explicit Parameter Names with Clean Readable String Labels
     if model_type == "naive":
         param_names = ["Constant"]
-        param_names += [f"beta_{flv} (vs Plain Base)" for flv in top_flavors]
+        param_names += [f"beta_{flv.title()} (vs Plain Base)" for flv in top_flavors]
         param_names += ["Price (alpha)", "Control Func. (sigma)"]
     elif model_type == "rc_naive":
         param_names = ["Constant"]
-        param_names += [f"Mean beta_{flv} (vs Plain Base)" for flv in top_flavors]
-        param_names += [f"SD beta_{flv}" for flv in top_flavors]
+        param_names += [
+            f"Mean beta_{flv.title()} (vs Plain Base)" for flv in top_flavors
+        ]
+        param_names += [f"SD beta_{flv.title()}" for flv in top_flavors]
         param_names += ["Price (alpha)", "Control Func. (sigma)"]
     elif model_type == "flavor_gamma":
         param_names = ["Constant"]
-        param_names += [f"beta_{flv} (vs Plain Base)" for flv in top_flavors]
-        param_names += [f"gamma_{flv}" for flv in top_flavors]
+        param_names += [f"beta_{flv.title()} (vs Plain Base)" for flv in top_flavors]
+        param_names += [f"gamma_{flv.title()}" for flv in top_flavors]
         param_names += ["Price (alpha)", "Control Func. (sigma)"]
     elif model_type == "rc_flavor_gamma":
         param_names = ["Constant"]
-        param_names += [f"Mean beta_{flv} (vs Plain Base)" for flv in top_flavors]
-        param_names += [f"Mean gamma_{flv}" for flv in top_flavors]
-        param_names += [f"SD beta_{flv}" for flv in top_flavors]
-        param_names += [f"SD gamma_{flv}" for flv in top_flavors]
+        param_names += [
+            f"Mean beta_{flv.title()} (vs Plain Base)" for flv in top_flavors
+        ]
+        param_names += [f"Mean gamma_{flv.title()}" for flv in top_flavors]
+        param_names += [f"SD beta_{flv.title()}" for flv in top_flavors]
+        param_names += [f"SD gamma_{flv.title()}" for flv in top_flavors]
         param_names += ["Price (alpha)", "Control Func. (sigma)"]
 
     for name, val, se, z, p in zip(
@@ -722,13 +756,15 @@ def display_results_unbinned(
         for idx, flv in enumerate(top_flavors):
             b_val = results["params"][1 + idx]
             wtp_table.add_row(
-                f"WTP Preference: {flv} (vs Plain Base)", f"${b_val / alpha_val:.2f}"
+                f"WTP Preference: {flv.title()} (vs Plain Base)",
+                f"${b_val / alpha_val:.2f}",
             )
         if "gamma" in model_type:
             for idx, flv in enumerate(top_flavors):
                 g_val = results["params"][1 + n_non_plain + idx]
                 wtp_table.add_row(
-                    f"WTP Satiation Disutility: {flv}", f"${g_val / alpha_val:.2f}"
+                    f"WTP Satiation Disutility: {flv.title()}",
+                    f"${g_val / alpha_val:.2f}",
                 )
 
         console.print(wtp_table)

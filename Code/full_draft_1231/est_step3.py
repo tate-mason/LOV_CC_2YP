@@ -103,13 +103,12 @@ def compute_satiation_state(
 
     df_sat = pd.DataFrame(inventory_records)
 
-    # --------------------------------------------------------------------------
-    # HOUSEHOLD-LEVEL DE-MEANING: C_tilde_{i,j,t} = C_{i,j,t} - C_bar_{i,j}
-    # --------------------------------------------------------------------------
+    # Standard scale across column to prevent numerical gradient freezing
     for j in range(n_categories):
         c_col = f"C_sat_{j}"
-        hh_means = df_sat.groupby("household_code")[c_col].transform("mean")
-        df_sat[c_col] = df_sat[c_col] - hh_means
+        std_val = df_sat[c_col].std()
+        if std_val > 0:
+            df_sat[c_col] = df_sat[c_col] / std_val
 
     return df_sat
 
@@ -287,9 +286,7 @@ def load_and_preprocess(weekly_capacity=14):
 
         choice_set_matrix[(store, week)] = mat
 
-    console.print(
-        "[bold green]Computing household de-meaned satiation states (C_tilde)...[/bold green]"
-    )
+    console.print("[bold green]Computing raw satiation states (C_sat)...[/bold green]")
     df_sat = compute_satiation_state(
         weekly_purchases,
         n_categories=3,
@@ -366,9 +363,9 @@ def load_and_preprocess(weekly_capacity=14):
 
 
 # =========================================================
-# LOGIT OBJECTIVE: FLAVOR BETA(INC) & GLOBAL GAMMA(INC)
+# LOGIT OBJECTIVE: RAW SATIATION C_SAT
 # =========================================================
-def total_objective_demeaned_logit(params, vec_data):
+def total_objective_raw_satiation_logit(params, vec_data):
     """
     Parameter Order (9 parameters):
     0: Constant
@@ -393,7 +390,7 @@ def total_objective_demeaned_logit(params, vec_data):
     prices = vec_data["prices"]  # (N, 3)
     resids = vec_data["resids"]  # (N, 3)
     choices = vec_data["choices"]  # (N, 4)
-    c_state = vec_data["c_states"]  # (N, 3) - De-meaned C_tilde
+    c_state = vec_data["c_states"]  # (N, 3) - Raw C_sat
     inc = vec_data["income"]  # (N, 1)
 
     # Flavor-Specific Preference Beta Matrix (N, 3): Other (index 0) fixed to 0.0
@@ -403,7 +400,13 @@ def total_objective_demeaned_logit(params, vec_data):
     # Global Satiation Gamma_i (N, 1) applied across all inside options
     gamma_i = g0 + g_inc * inc
 
-    u_inside = const + beta_mat + gamma_i * c_state + alpha * prices + sigma * resids
+    u_inside = (
+        const
+        + beta_mat
+        + gamma_i * np.log(1.0 + c_state)
+        + alpha * prices
+        + sigma * resids
+    )
 
     u_outside = np.zeros((u_inside.shape[0], 1))
     u = np.hstack([u_inside, u_outside])
@@ -414,7 +417,7 @@ def total_objective_demeaned_logit(params, vec_data):
     return -total_ll if np.isfinite(total_ll) else 1e10
 
 
-def estimate_demeaned_model(vec_data):
+def estimate_raw_satiation_model(vec_data):
     total_params = 9
     x0 = np.zeros(total_params)
     x0[5] = -0.1  # Initial gamma_0 guess
@@ -422,13 +425,13 @@ def estimate_demeaned_model(vec_data):
 
     bounds = (
         [(-30.0, 30.0)] * 5  # const, beta_0, beta_inc for Berry & Plain
-        + [(-30.0, 0.0)]  # gamma_0 bound (disutility <= 0)
+        + [(-30.0, 30.0)]  # gamma_0
         + [(-30.0, 30.0)]  # gamma_inc
         + [(-30.0, -0.01), (-30.0, 30.0)]  # price + control function
     )
 
     res = minimize(
-        total_objective_demeaned_logit,
+        total_objective_raw_satiation_logit,
         x0=x0,
         args=(vec_data,),
         method="L-BFGS-B",
@@ -452,10 +455,10 @@ def estimate_demeaned_model(vec_data):
             x4[i] -= eps
             x4[j] -= eps
 
-            f1 = total_objective_demeaned_logit(x1, vec_data)
-            f2 = total_objective_demeaned_logit(x2, vec_data)
-            f3 = total_objective_demeaned_logit(x3, vec_data)
-            f4 = total_objective_demeaned_logit(x4, vec_data)
+            f1 = total_objective_raw_satiation_logit(x1, vec_data)
+            f2 = total_objective_raw_satiation_logit(x2, vec_data)
+            f3 = total_objective_raw_satiation_logit(x3, vec_data)
+            f4 = total_objective_raw_satiation_logit(x4, vec_data)
 
             hessian[i, j] = (f1 - f2 - f3 + f4) / (4 * eps * eps)
             hessian[j, i] = hessian[i, j]
@@ -481,7 +484,7 @@ def estimate_demeaned_model(vec_data):
 
 def display_results(results):
     table = Table(
-        title="DE-MEANED SATIATION LOGIT: FLAVOR BETA(INC) & GLOBAL GAMMA(INC)",
+        title="RAW SATIATION LOGIT: FLAVOR BETA(INC) & GLOBAL GAMMA(INC)",
         show_header=True,
         header_style="bold magenta",
     )
@@ -532,14 +535,12 @@ def display_results(results):
 
 def main():
     console.print(
-        "\n[bold yellow]--- Preprocessing Data with Household De-meaning ---[/bold yellow]"
+        "\n[bold yellow]--- Preprocessing Data with Raw Satiation C_sat ---[/bold yellow]"
     )
     vec_data = load_and_preprocess()
 
-    console.print(
-        "\n[bold yellow]--- Estimating De-meaned Satiation Model ---[/bold yellow]"
-    )
-    res_model = estimate_demeaned_model(vec_data)
+    console.print("\n[bold yellow]--- Estimating Model ---[/bold yellow]")
+    res_model = estimate_raw_satiation_model(vec_data)
     display_results(res_model)
 
 

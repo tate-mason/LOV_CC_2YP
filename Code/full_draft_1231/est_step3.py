@@ -24,11 +24,7 @@ cat_map = {c: i for i, c in enumerate(CATEGORIES)}
 CALIBRATED_LAMBDA = 0.7
 BASE_DELTA_DISCOUNT = 0.9
 
-# ==============================================================================
-# OPTIONAL TEMPLATE: CUSTOM HOUSEHOLD INCOME REMAPPING TABLE
-# Un-comment and modify this dictionary to recode raw Nielsen income codes
-# into custom continuous values or binned brackets.
-# ==============================================================================
+
 INCOME_CODE_MAP = {
     3: 2500,  # Under $5,000
     4: 6500,  # $5,000 - $7,999
@@ -49,80 +45,12 @@ INCOME_CODE_MAP = {
 }
 
 
-def compute_satiation_state(
-    weekly_purchases,
-    n_categories=3,
-    lambda_mem=CALIBRATED_LAMBDA,
-    delta_discount=BASE_DELTA_DISCOUNT,
-):
-    """
-    Computes PURE OWN-FLAVOR satiation states C_sat.
-    Only past purchases of flavor j feed C_{i,j,t}.
-    """
-    sorted_df = weekly_purchases.sort_values(["household_code", "week_end"])
-    inventory_records = []
-
-    for hh_id, hh_group in sorted_df.groupby("household_code"):
-        weeks = pd.to_datetime(hh_group["week_end"].unique())
-        weeks = np.sort(weeks)
-
-        C_history = {}
-        prev_X = np.zeros(n_categories)
-
-        for t_idx, week in enumerate(weeks):
-            C_current = np.zeros(n_categories)
-            memory_term = np.zeros(n_categories)
-
-            if t_idx > 0:
-                for s in range(t_idx):
-                    weeks_elapsed = pd.Timedelta(week - weeks[s]).days / 7.0
-                    discount = delta_discount**weeks_elapsed
-                    memory_term += discount * C_history[s]
-
-            for j in range(n_categories):
-                # Pure Own-Flavor Stock: prev_X[j] ONLY
-                C_current[j] = (lambda_mem * memory_term[j]) + (
-                    (1.0 - lambda_mem) * prev_X[j]
-                )
-
-            record = {
-                "household_code": hh_id,
-                "week_end": pd.Timestamp(week).strftime("%Y-%m-%d"),
-            }
-            for j in range(n_categories):
-                record[f"C_sat_{j}"] = C_current[j]
-            inventory_records.append(record)
-
-            C_history[t_idx] = C_current.copy()
-
-            sub = hh_group[hh_group["week_end"] == week]
-            curr_X = np.zeros(n_categories)
-            for row in sub.itertuples():
-                if hasattr(row, "choice_idx") and row.choice_idx < n_categories:
-                    curr_X[int(row.choice_idx)] = row.units_bought
-            total_inside_units = curr_X.sum()
-            if total_inside_units > 0:
-                curr_X = curr_X / total_inside_units
-            prev_X = curr_X
-
-    df_sat = pd.DataFrame(inventory_records)
-
-    # Standard scale across column to prevent optimization gradient issues
-    for j in range(n_categories):
-        c_col = f"C_sat_{j}"
-        std_val = df_sat[c_col].std()
-        if std_val > 0:
-            df_sat[c_col] = df_sat[c_col] / std_val
-
-    return df_sat
-
-
 def load_and_preprocess(weekly_capacity=14):
     schema_names = pl.scan_parquet(MERGED_PATH).collect_schema().names()
 
     exprs = [
         pl.col("quantity").cast(pl.Int64),
-        pl.col("household_income").cast(pl.Float64),
+        pl.col("household_income").cast(pl.Int64),
         pl.col("household_size").cast(pl.Int64),
         pl.col("serving_per_container_cd").cast(pl.Int64),
         pl.col("price").cast(pl.Float64),
@@ -143,39 +71,62 @@ def load_and_preprocess(weekly_capacity=14):
         .to_pandas()
     )
 
-    # ==========================================================================
-    # PRINT HOUSEHOLD INCOME DISTRIBUTION AT THE TOP
-    # ==========================================================================
-    hh_unique_inc = (
+    # 1. Print Raw Income Code Value Counts
+    hh_unique_raw = (
         merged_df.groupby("household_code")["household_income"].first().dropna()
     )
-    inc_counts = hh_unique_inc.value_counts().sort_index()
+    raw_counts = hh_unique_raw.value_counts().sort_index()
 
-    table_inc = Table(
-        title="PANEL HOUSEHOLD INCOME DISTRIBUTION (VALUE COUNTS)",
+    table_raw = Table(
+        title="RAW NIELSEN HOUSEHOLD INCOME CODES (VALUE COUNTS)",
         show_header=True,
         header_style="bold green",
     )
-    table_inc.add_column("Income Code / Value", style="cyan", justify="center")
-    table_inc.add_column("Household Count", style="bold white", justify="right")
-    table_inc.add_column("Percentage (%)", style="yellow", justify="right")
+    table_raw.add_column("Income Code", style="cyan", justify="center")
+    table_raw.add_column("Household Count", style="bold white", justify="right")
+    table_raw.add_column("Percentage (%)", style="yellow", justify="right")
 
-    tot_hh = len(hh_unique_inc)
-    for inc_val, cnt in inc_counts.items():
+    tot_hh = len(hh_unique_raw)
+    for code, cnt in raw_counts.items():
         pct = (cnt / tot_hh) * 100.0
-        table_inc.add_row(str(int(inc_val)), f"{cnt:,}", f"{pct:.2f}%")
+        table_raw.add_row(str(int(code)), f"{cnt:,}", f"{pct:.2f}%")
 
-    console.print(table_inc)
+    console.print(table_raw)
+
+    # 2. Map Raw Codes to Continuous Dollar Income Values
+    merged_df["household_income_dollars"] = merged_df["household_income"].map(
+        INCOME_CODE_MAP
+    )
+
+    # Fill unmapped codes with median dollar value
+    median_dollars = merged_df["household_income_dollars"].median()
+    merged_df["household_income_dollars"] = merged_df[
+        "household_income_dollars"
+    ].fillna(median_dollars)
+
+    # 3. Print Mapped Dollar Income Distribution
+    hh_unique_dollars = (
+        merged_df.groupby("household_code")["household_income_dollars"].first().dropna()
+    )
+    dollar_counts = hh_unique_dollars.value_counts().sort_index()
+
+    table_dollars = Table(
+        title="MAPPED HOUSEHOLD INCOME DOLLARS (VALUE COUNTS)",
+        show_header=True,
+        header_style="bold blue",
+    )
+    table_dollars.add_column("Mapped Dollar Value ($)", style="cyan", justify="center")
+    table_dollars.add_column("Household Count", style="bold white", justify="right")
+    table_dollars.add_column("Percentage (%)", style="yellow", justify="right")
+
+    for dol_val, cnt in dollar_counts.items():
+        pct = (cnt / tot_hh) * 100.0
+        table_dollars.add_row(f"${int(dol_val):,}", f"{cnt:,}", f"{pct:.2f}%")
+
+    console.print(table_dollars)
     console.print(
         f"[bold white]Total Unique Households:[/bold white] [bold cyan]{tot_hh:,}[/bold cyan]\n"
     )
-
-    if "INCOME_CODE_MAP" in globals():
-        merged_df["household_income"] = (
-            merged_df["household_income"]
-            .map(INCOME_CODE_MAP)
-            .fillna(merged_df["household_income"])
-        )
 
     descr_col = "flavor_descr" if "flavor_descr" in merged_df.columns else "flavor_cd"
     merged_df["flavor_str"] = (
@@ -238,10 +189,10 @@ def load_and_preprocess(weekly_capacity=14):
         )
     merged_df["iv_res"] = merged_df["iv_res"].fillna(0.0)
 
-    # Standardize Income
+    # Standardize Mapped Dollar Income
     hh_stats = (
         merged_df.groupby("household_code")
-        .agg(income=("household_income", "first"))
+        .agg(income=("household_income_dollars", "first"))
         .reset_index()
     )
     hh_stats["income_std"] = (hh_stats["income"] - hh_stats["income"].mean()) / (
@@ -367,16 +318,15 @@ def load_and_preprocess(weekly_capacity=14):
     }
 
 
-# =========================================================
-# LOGIT OBJECTIVE: OWN-FLAVOR SATIATION C_SAT
-# =========================================================
-def total_objective_own_flavor_satiation(params, vec_data):
+def total_objective(params, vec_data):
     """
     Parameter Order (9 parameters):
     0: Constant
-    1..2: Beta_0 [Berry, Plain] (vs Other base = 0.0)
-    3..4: Beta_Inc [Berry, Plain]
-    5: Gamma_0 (Global Scalar Base Satiation)
+    1: Beta_Berry (vs Other Base)
+    2: Beta_Plain (vs Other Base)
+    3: Beta_Berry x Income
+    4: Beta_Plain x Income
+    5: Gamma_0 (Global Scalar Satiation)
     6: Gamma_Inc (Global Satiation x Income)
     7: Price (alpha)
     8: Control Function (sigma)
@@ -395,14 +345,14 @@ def total_objective_own_flavor_satiation(params, vec_data):
     prices = vec_data["prices"]  # (N, 3)
     resids = vec_data["resids"]  # (N, 3)
     choices = vec_data["choices"]  # (N, 4)
-    c_state = vec_data["c_states"]  # (N, 3) - Own-flavor C_sat
+    c_state = vec_data["c_states"]  # (N, 3)
     inc = vec_data["income"]  # (N, 1)
 
-    # Flavor-Specific Preference Beta Matrix (N, 3): Other (index 0) fixed to 0.0
+    # Beta Matrix (N, 3): Other (index 0) fixed to 0.0
     beta_non_other = b0[None, :] + b_inc[None, :] * inc
     beta_mat = np.hstack([np.zeros((inc.shape[0], 1)), beta_non_other])
 
-    # Global Satiation Gamma_i (N, 1) applied across all inside options
+    # Global Satiation Gamma_i (N, 1)
     gamma_i = g0 + g_inc * inc
 
     u_inside = (
@@ -424,19 +374,32 @@ def total_objective_own_flavor_satiation(params, vec_data):
 
 def estimate_model(vec_data):
     total_params = 9
-    x0 = np.zeros(total_params)
-    x0[5] = -0.1  # Initial gamma_0 guess
-    x0[-2] = -0.1  # Initial price alpha guess
 
+    # --------------------------------------------------------------------------
+    # ASYMMETRIC INITIALIZATION (x0) TO BREAK SYMMETRY TRAP
+    # --------------------------------------------------------------------------
+    x0 = np.zeros(total_params)
+    x0[0] = 0.5  # const
+    x0[1] = 0.5  # beta_Berry initial guess (vs Other)
+    x0[2] = -0.5  # beta_Plain initial guess (vs Other) - BREAKS GRADIENT SYMMETRY
+    x0[3] = 0.1  # beta_Berry x Inc
+    x0[4] = -0.1  # beta_Plain x Inc
+    x0[5] = -0.2  # gamma_0 initial guess (negative satiation disutility)
+    x0[6] = 0.0  # gamma x Inc
+    x0[-2] = -0.5  # Price alpha initial guess
+    x0[-1] = 0.0  # Control function sigma
+
+    # Bounding gamma_0 <= 0 forces beta parameters to absorb baseline flavor demand
     bounds = (
-        [(-30.0, 30.0)] * 5  # const, beta_0, beta_inc for Berry & Plain
-        + [(-30.0, 30.0)]  # gamma_0
-        + [(-30.0, 30.0)]  # gamma_inc
+        [(-20.0, 20.0)]
+        * 5  # const, beta_Berry, beta_Plain, beta_Berry_inc, beta_Plain_inc
+        + [(-10.0, 0.0)]  # gamma_0 constrained to <= 0 (Disutility)
+        + [(-10.0, 10.0)]  # gamma_inc
         + [(-30.0, -0.01), (-30.0, 30.0)]  # price + control function
     )
 
     res = minimize(
-        total_objective_own_flavor_satiation,
+        total_objective,
         x0=x0,
         args=(vec_data,),
         method="L-BFGS-B",
@@ -460,10 +423,10 @@ def estimate_model(vec_data):
             x4[i] -= eps
             x4[j] -= eps
 
-            f1 = total_objective_own_flavor_satiation(x1, vec_data)
-            f2 = total_objective_own_flavor_satiation(x2, vec_data)
-            f3 = total_objective_own_flavor_satiation(x3, vec_data)
-            f4 = total_objective_own_flavor_satiation(x4, vec_data)
+            f1 = total_objective(x1, vec_data)
+            f2 = total_objective(x2, vec_data)
+            f3 = total_objective(x3, vec_data)
+            f4 = total_objective(x4, vec_data)
 
             hessian[i, j] = (f1 - f2 - f3 + f4) / (4 * eps * eps)
             hessian[j, i] = hessian[i, j]
@@ -489,7 +452,7 @@ def estimate_model(vec_data):
 
 def display_results(results):
     table = Table(
-        title="PURE OWN-FLAVOR SATIATION LOGIT (BASE = OTHER)",
+        title="SEPARATE BETA IDENTIFICATION LOGIT (BASE = OTHER)",
         show_header=True,
         header_style="bold magenta",
     )
@@ -540,13 +503,11 @@ def display_results(results):
 
 def main():
     console.print(
-        "\n[bold yellow]--- Preprocessing Data with Pure Own-Flavor Satiation ---[/bold yellow]"
+        "\n[bold yellow]--- Preprocessing Data for Separate Beta Identification ---[/bold yellow]"
     )
     vec_data = load_and_preprocess()
 
-    console.print(
-        "\n[bold yellow]--- Estimating Pure Own-Flavor Model ---[/bold yellow]"
-    )
+    console.print("\n[bold yellow]--- Estimating Model ---[/bold yellow]")
     res_model = estimate_model(vec_data)
     display_results(res_model)
 

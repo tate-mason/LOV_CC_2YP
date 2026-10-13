@@ -9,7 +9,6 @@ from rich.traceback import install
 import scipy as sp
 from scipy.optimize import minimize
 from scipy.special import logsumexp
-import seaborn as sns
 import statsmodels.formula.api as smf
 
 install()
@@ -24,6 +23,33 @@ CATEGORIES = ["other", "berry", "plain", "outside"]
 cat_map = {c: i for i, c in enumerate(CATEGORIES)}
 CALIBRATED_LAMBDA = 0.7
 BASE_DELTA_DISCOUNT = 0.9
+
+# ==============================================================================
+# OPTIONAL TEMPLATE: CUSTOM HOUSEHOLD INCOME REMAPPING TABLE
+# Un-comment and modify this dictionary to recode raw Nielsen income codes
+# into custom continuous values or binned brackets.
+# ==============================================================================
+"""
+INCOME_CODE_MAP = {
+    3: 7500,     # Under $8,000
+    4: 9000,     # $8,000 - $9,999
+    6: 11000,    # $10,000 - $11,999
+    8: 13500,    # $12,000 - $14,999
+    10: 17500,   # $15,000 - $19,999
+    11: 22500,   # $20,000 - $24,999
+    13: 27500,   # $25,000 - $29,999
+    15: 32500,   # $30,000 - $34,999
+    16: 37500,   # $35,000 - $39,999
+    17: 42500,   # $40,000 - $44,999
+    18: 47500,   # $45,000 - $49,999
+    19: 55000,   # $50,000 - $59,999
+    21: 65000,   # $60,000 - $69,999
+    23: 85000,   # $70,000 - $99,999
+    26: 112500,  # $100,000 - $124,999
+    27: 137500,  # $125,000 - $149,999
+    28: 175000,  # $150,000+
+}
+"""
 
 
 def compute_satiation_state(
@@ -78,7 +104,17 @@ def compute_satiation_state(
                 curr_X = curr_X / total_inside_units
             prev_X = curr_X
 
-    return pd.DataFrame(inventory_records)
+    df_sat = pd.DataFrame(inventory_records)
+
+    # --------------------------------------------------------------------------
+    # HOUSEHOLD-LEVEL DE-MEANING: C_tilde_{i,j,t} = C_{i,j,t} - C_bar_{i,j}
+    # --------------------------------------------------------------------------
+    for j in range(n_categories):
+        c_col = f"C_sat_{j}"
+        hh_means = df_sat.groupby("household_code")[c_col].transform("mean")
+        df_sat[c_col] = df_sat[c_col] - hh_means
+
+    return df_sat
 
 
 def load_and_preprocess(weekly_capacity=14):
@@ -91,10 +127,6 @@ def load_and_preprocess(weekly_capacity=14):
         pl.col("serving_per_container_cd").cast(pl.Int64),
         pl.col("price").cast(pl.Float64),
     ]
-
-    age_col = "head_age" if "head_age" in schema_names else "age"
-    if age_col in schema_names:
-        exprs.append(pl.col(age_col).cast(pl.Float64))
 
     if "product_module_code_hms" in schema_names:
         exprs.append(pl.col("product_module_code_hms").cast(pl.Int64))
@@ -110,6 +142,41 @@ def load_and_preprocess(weekly_capacity=14):
         .collect()
         .to_pandas()
     )
+
+    # ==========================================================================
+    # PRINT HOUSEHOLD INCOME DISTRIBUTION AT THE TOP
+    # ==========================================================================
+    hh_unique_inc = (
+        merged_df.groupby("household_code")["household_income"].first().dropna()
+    )
+    inc_counts = hh_unique_inc.value_counts().sort_index()
+
+    table_inc = Table(
+        title="PANEL HOUSEHOLD INCOME DISTRIBUTION (VALUE COUNTS)",
+        show_header=True,
+        header_style="bold green",
+    )
+    table_inc.add_column("Income Code / Value", style="cyan", justify="center")
+    table_inc.add_column("Household Count", style="bold white", justify="right")
+    table_inc.add_column("Percentage (%)", style="yellow", justify="right")
+
+    tot_hh = len(hh_unique_inc)
+    for inc_val, cnt in inc_counts.items():
+        pct = (cnt / tot_hh) * 100.0
+        table_inc.add_row(str(int(inc_val)), f"{cnt:,}", f"{pct:.2f}%")
+
+    console.print(table_inc)
+    console.print(
+        f"[bold white]Total Unique Households:[/bold white] [bold cyan]{tot_hh:,}[/bold cyan]\n"
+    )
+
+    # Applying optional mapping if template is uncommented
+    if "INCOME_CODE_MAP" in globals():
+        merged_df["household_income"] = (
+            merged_df["household_income"]
+            .map(INCOME_CODE_MAP)
+            .fillna(merged_df["household_income"])
+        )
 
     descr_col = "flavor_descr" if "flavor_descr" in merged_df.columns else "flavor_cd"
     merged_df["flavor_str"] = (
@@ -172,28 +239,16 @@ def load_and_preprocess(weekly_capacity=14):
         )
     merged_df["iv_res"] = merged_df["iv_res"].fillna(0.0)
 
-    # Standardize Head of Household Age & Trip Frequency
-    actual_age_col = age_col if age_col in merged_df.columns else "household_income"
-
+    # Standardize Income
     hh_stats = (
         merged_df.groupby("household_code")
-        .agg(
-            age=(actual_age_col, "first"),
-            obs_weeks=("week_end", "nunique"),
-        )
+        .agg(income=("household_income", "first"))
         .reset_index()
     )
-
-    hh_stats["age_std"] = (hh_stats["age"] - hh_stats["age"].mean()) / (
-        hh_stats["age"].std() + 1e-6
+    hh_stats["income_std"] = (hh_stats["income"] - hh_stats["income"].mean()) / (
+        hh_stats["income"].std() + 1e-6
     )
-    hh_stats["freq_std"] = (hh_stats["obs_weeks"] - hh_stats["obs_weeks"].mean()) / (
-        hh_stats["obs_weeks"].std() + 1e-6
-    )
-
-    hh_dict = hh_stats.set_index("household_code")[["age_std", "freq_std"]].to_dict(
-        "index"
-    )
+    hh_dict = hh_stats.set_index("household_code")["income_std"].to_dict()
 
     inside_df = merged_df[merged_df["category"] != "outside"].copy()
 
@@ -235,17 +290,15 @@ def load_and_preprocess(weekly_capacity=14):
 
         choice_set_matrix[(store, week)] = mat
 
+    console.print(
+        "[bold green]Computing household de-meaned satiation states (C_tilde)...[/bold green]"
+    )
     df_sat = compute_satiation_state(
         weekly_purchases,
         n_categories=3,
         lambda_mem=CALIBRATED_LAMBDA,
         delta_discount=0.9,
     )
-    for j in range(3):
-        c_col = f"C_sat_{j}"
-        c_sd = df_sat[c_col].std()
-        if c_sd > 0:
-            df_sat[c_col] = df_sat[c_col] / c_sd
 
     hh_weeks = weekly_purchases[
         ["household_code", "store_code_uc", "week_end"]
@@ -270,8 +323,7 @@ def load_and_preprocess(weekly_capacity=14):
                 c_arr[int(row.choice_idx)] = row.units_bought
         counts_dict[(hh_id, week)] = c_arr
 
-    all_prices, all_resids, all_choices, all_c_states = [], [], [], []
-    all_age, all_freq = [], []
+    all_prices, all_resids, all_choices, all_c_states, all_inc = [], [], [], [], []
 
     for row_dict in hh_weeks.to_dict("records"):
         store = row_dict["store_code_uc"]
@@ -283,7 +335,7 @@ def load_and_preprocess(weekly_capacity=14):
         if (store, week) not in choice_set_matrix:
             continue
 
-        h_info = hh_dict.get(hh_id, {"age_std": 0.0, "freq_std": 0.0})
+        inc_val = hh_dict.get(hh_id, 0.0)
 
         inside_counts = counts_dict.get((hh_id, week), np.zeros(3, dtype=np.int64))
         inside_units = np.sum(inside_counts)
@@ -305,40 +357,38 @@ def load_and_preprocess(weekly_capacity=14):
         all_resids.append(choice_set_matrix[(store, week)][:3, 1])
         all_choices.append(full_counts)
         all_c_states.append(c_vec)
-        all_age.append(h_info["age_std"])
-        all_freq.append(h_info["freq_std"])
+        all_inc.append(inc_val)
 
     return {
         "prices": np.array(all_prices, dtype=np.float64),
         "resids": np.array(all_resids, dtype=np.float64),
         "choices": np.array(all_choices, dtype=np.int64),
         "c_states": np.array(all_c_states, dtype=np.float64),
-        "age": np.array(all_age, dtype=np.float64)[:, None],
-        "freq": np.array(all_freq, dtype=np.float64)[:, None],
+        "income": np.array(all_inc, dtype=np.float64)[:, None],
     }
 
 
 # =========================================================
-# LOGIT OBJECTIVE: FLAVOR BETA(AGE) & FLAVOR GAMMA(FREQ)
+# LOGIT OBJECTIVE: FLAVOR BETA(INC) & GLOBAL GAMMA(INC)
 # =========================================================
-def total_objective_flavor_beta_age_gamma_freq(params, vec_data):
+def total_objective_demeaned_logit(params, vec_data):
     """
-    Parameter Order (11 parameters):
+    Parameter Order (9 parameters):
     0: Constant
     1..2: Beta_0 [Berry, Plain] (vs Other base = 0.0)
-    3..4: Beta_Age [Berry, Plain]
-    5..6: Gamma_0 [Berry, Plain] (vs Other base = 0.0)
-    7..8: Gamma_Freq [Berry, Plain]
-    9: Price (alpha)
-    10: Control Function (sigma)
+    3..4: Beta_Inc [Berry, Plain]
+    5: Gamma_0 (Global Scalar Base Satiation)
+    6: Gamma_Inc (Global Satiation x Income)
+    7: Price (alpha)
+    8: Control Function (sigma)
     """
     const = params[0]
 
     b0 = params[1:3]
-    b_age = params[3:5]
+    b_inc = params[3:5]
 
-    g0 = params[5:7]
-    g_freq = params[7:9]
+    g0 = params[5]
+    g_inc = params[6]
 
     alpha = params[-2]
     sigma = params[-1]
@@ -346,25 +396,17 @@ def total_objective_flavor_beta_age_gamma_freq(params, vec_data):
     prices = vec_data["prices"]  # (N, 3)
     resids = vec_data["resids"]  # (N, 3)
     choices = vec_data["choices"]  # (N, 4)
-    c_state = vec_data["c_states"]  # (N, 3)
-    age = vec_data["age"]  # (N, 1)
-    freq = vec_data["freq"]  # (N, 1)
+    c_state = vec_data["c_states"]  # (N, 3) - De-meaned C_tilde
+    inc = vec_data["income"]  # (N, 1)
 
-    # Beta Matrix (N, 3): Other (index 0) fixed to 0.0
-    beta_non_other = b0[None, :] + b_age[None, :] * age
-    beta_mat = np.hstack([np.zeros((age.shape[0], 1)), beta_non_other])
+    # Flavor-Specific Preference Beta Matrix (N, 3): Other (index 0) fixed to 0.0
+    beta_non_other = b0[None, :] + b_inc[None, :] * inc
+    beta_mat = np.hstack([np.zeros((inc.shape[0], 1)), beta_non_other])
 
-    # Gamma Matrix (N, 3): Other (index 0) fixed to 0.0
-    gamma_non_other = g0[None, :] + g_freq[None, :] * freq
-    gamma_mat = np.hstack([np.zeros((freq.shape[0], 1)), gamma_non_other])
+    # Global Satiation Gamma_i (N, 1) applied across all inside options
+    gamma_i = g0 + g_inc * inc
 
-    u_inside = (
-        const
-        + beta_mat
-        + gamma_mat * np.log(1.0 + c_state)
-        + alpha * prices
-        + sigma * resids
-    )
+    u_inside = const + beta_mat + gamma_i * c_state + alpha * prices + sigma * resids
 
     u_outside = np.zeros((u_inside.shape[0], 1))
     u = np.hstack([u_inside, u_outside])
@@ -375,21 +417,21 @@ def total_objective_flavor_beta_age_gamma_freq(params, vec_data):
     return -total_ll if np.isfinite(total_ll) else 1e10
 
 
-def estimate_flavor_beta_age_gamma_freq_model(vec_data):
-    total_params = 11
+def estimate_demeaned_model(vec_data):
+    total_params = 9
     x0 = np.zeros(total_params)
-    x0[5:7] = -0.1  # Initial gamma_0 guesses
+    x0[5] = -0.1  # Initial gamma_0 guess
     x0[-2] = -0.1  # Initial price alpha guess
 
     bounds = (
-        [(-30.0, 30.0)] * 5  # const, beta_0, beta_age for Berry & Plain
-        + [(-30.0, 0.0)] * 2  # gamma_0 bounds for Berry & Plain (disutility <= 0)
-        + [(-30.0, 30.0)] * 2  # gamma_freq for Berry & Plain
+        [(-30.0, 30.0)] * 5  # const, beta_0, beta_inc for Berry & Plain
+        + [(-30.0, 0.0)]  # gamma_0 bound (disutility <= 0)
+        + [(-30.0, 30.0)]  # gamma_inc
         + [(-30.0, -0.01), (-30.0, 30.0)]  # price + control function
     )
 
     res = minimize(
-        total_objective_flavor_beta_age_gamma_freq,
+        total_objective_demeaned_logit,
         x0=x0,
         args=(vec_data,),
         method="L-BFGS-B",
@@ -413,10 +455,10 @@ def estimate_flavor_beta_age_gamma_freq_model(vec_data):
             x4[i] -= eps
             x4[j] -= eps
 
-            f1 = total_objective_flavor_beta_age_gamma_freq(x1, vec_data)
-            f2 = total_objective_flavor_beta_age_gamma_freq(x2, vec_data)
-            f3 = total_objective_flavor_beta_age_gamma_freq(x3, vec_data)
-            f4 = total_objective_flavor_beta_age_gamma_freq(x4, vec_data)
+            f1 = total_objective_demeaned_logit(x1, vec_data)
+            f2 = total_objective_demeaned_logit(x2, vec_data)
+            f3 = total_objective_demeaned_logit(x3, vec_data)
+            f4 = total_objective_demeaned_logit(x4, vec_data)
 
             hessian[i, j] = (f1 - f2 - f3 + f4) / (4 * eps * eps)
             hessian[j, i] = hessian[i, j]
@@ -442,7 +484,7 @@ def estimate_flavor_beta_age_gamma_freq_model(vec_data):
 
 def display_results(results):
     table = Table(
-        title="FLAVOR-SPECIFIC MODEL: BETA(AGE) & GAMMA(TRIP FREQ)",
+        title="DE-MEANED SATIATION LOGIT: FLAVOR BETA(INC) & GLOBAL GAMMA(INC)",
         show_header=True,
         header_style="bold magenta",
     )
@@ -456,12 +498,10 @@ def display_results(results):
         "Constant",
         "beta_Berry (vs Other Base)",
         "beta_Plain (vs Other Base)",
-        "beta_Berry x Age",
-        "beta_Plain x Age",
-        "gamma_Berry (Base Satiation)",
-        "gamma_Plain (Base Satiation)",
-        "gamma_Berry x Trip Frequency",
-        "gamma_Plain x Trip Frequency",
+        "beta_Berry x Income",
+        "beta_Plain x Income",
+        "gamma_0 (Global Base Satiation)",
+        "gamma x Income",
         "Price (alpha)",
         "Control Func. (sigma)",
     ]
@@ -495,12 +535,14 @@ def display_results(results):
 
 def main():
     console.print(
-        "\n[bold yellow]--- Preprocessing Data for Flavor-Specific Beta(Age) & Gamma(Freq) Model ---[/bold yellow]"
+        "\n[bold yellow]--- Preprocessing Data with Household De-meaning ---[/bold yellow]"
     )
     vec_data = load_and_preprocess()
 
-    console.print("\n[bold yellow]--- Estimating Model ---[/bold yellow]")
-    res_model = estimate_flavor_beta_age_gamma_freq_model(vec_data)
+    console.print(
+        "\n[bold yellow]--- Estimating De-meaned Satiation Model ---[/bold yellow]"
+    )
+    res_model = estimate_demeaned_model(vec_data)
     display_results(res_model)
 
 

@@ -55,6 +55,10 @@ def compute_satiation_state(
     lambda_mem=CALIBRATED_LAMBDA,
     delta_discount=BASE_DELTA_DISCOUNT,
 ):
+    """
+    Computes PURE OWN-FLAVOR satiation states C_sat.
+    Only past purchases of flavor j feed C_{i,j,t}.
+    """
     sorted_df = weekly_purchases.sort_values(["household_code", "week_end"])
     inventory_records = []
 
@@ -76,9 +80,9 @@ def compute_satiation_state(
                     memory_term += discount * C_history[s]
 
             for j in range(n_categories):
-                cross_term = np.sum(prev_X) - prev_X[j]
+                # Pure Own-Flavor Stock: prev_X[j] ONLY
                 C_current[j] = (lambda_mem * memory_term[j]) + (
-                    (1.0 - lambda_mem) * cross_term
+                    (1.0 - lambda_mem) * prev_X[j]
                 )
 
             record = {
@@ -103,7 +107,7 @@ def compute_satiation_state(
 
     df_sat = pd.DataFrame(inventory_records)
 
-    # Standard scale across column to prevent numerical gradient freezing
+    # Standard scale across column to prevent optimization gradient issues
     for j in range(n_categories):
         c_col = f"C_sat_{j}"
         std_val = df_sat[c_col].std()
@@ -166,7 +170,6 @@ def load_and_preprocess(weekly_capacity=14):
         f"[bold white]Total Unique Households:[/bold white] [bold cyan]{tot_hh:,}[/bold cyan]\n"
     )
 
-    # Applying optional mapping if template is uncommented
     if "INCOME_CODE_MAP" in globals():
         merged_df["household_income"] = (
             merged_df["household_income"]
@@ -286,7 +289,9 @@ def load_and_preprocess(weekly_capacity=14):
 
         choice_set_matrix[(store, week)] = mat
 
-    console.print("[bold green]Computing raw satiation states (C_sat)...[/bold green]")
+    console.print(
+        "[bold green]Computing pure own-flavor satiation states (C_sat)...[/bold green]"
+    )
     df_sat = compute_satiation_state(
         weekly_purchases,
         n_categories=3,
@@ -363,9 +368,9 @@ def load_and_preprocess(weekly_capacity=14):
 
 
 # =========================================================
-# LOGIT OBJECTIVE: RAW SATIATION C_SAT
+# LOGIT OBJECTIVE: OWN-FLAVOR SATIATION C_SAT
 # =========================================================
-def total_objective_raw_satiation_logit(params, vec_data):
+def total_objective_own_flavor_satiation(params, vec_data):
     """
     Parameter Order (9 parameters):
     0: Constant
@@ -390,7 +395,7 @@ def total_objective_raw_satiation_logit(params, vec_data):
     prices = vec_data["prices"]  # (N, 3)
     resids = vec_data["resids"]  # (N, 3)
     choices = vec_data["choices"]  # (N, 4)
-    c_state = vec_data["c_states"]  # (N, 3) - Raw C_sat
+    c_state = vec_data["c_states"]  # (N, 3) - Own-flavor C_sat
     inc = vec_data["income"]  # (N, 1)
 
     # Flavor-Specific Preference Beta Matrix (N, 3): Other (index 0) fixed to 0.0
@@ -417,7 +422,7 @@ def total_objective_raw_satiation_logit(params, vec_data):
     return -total_ll if np.isfinite(total_ll) else 1e10
 
 
-def estimate_raw_satiation_model(vec_data):
+def estimate_model(vec_data):
     total_params = 9
     x0 = np.zeros(total_params)
     x0[5] = -0.1  # Initial gamma_0 guess
@@ -431,7 +436,7 @@ def estimate_raw_satiation_model(vec_data):
     )
 
     res = minimize(
-        total_objective_raw_satiation_logit,
+        total_objective_own_flavor_satiation,
         x0=x0,
         args=(vec_data,),
         method="L-BFGS-B",
@@ -455,10 +460,10 @@ def estimate_raw_satiation_model(vec_data):
             x4[i] -= eps
             x4[j] -= eps
 
-            f1 = total_objective_raw_satiation_logit(x1, vec_data)
-            f2 = total_objective_raw_satiation_logit(x2, vec_data)
-            f3 = total_objective_raw_satiation_logit(x3, vec_data)
-            f4 = total_objective_raw_satiation_logit(x4, vec_data)
+            f1 = total_objective_own_flavor_satiation(x1, vec_data)
+            f2 = total_objective_own_flavor_satiation(x2, vec_data)
+            f3 = total_objective_own_flavor_satiation(x3, vec_data)
+            f4 = total_objective_own_flavor_satiation(x4, vec_data)
 
             hessian[i, j] = (f1 - f2 - f3 + f4) / (4 * eps * eps)
             hessian[j, i] = hessian[i, j]
@@ -484,7 +489,7 @@ def estimate_raw_satiation_model(vec_data):
 
 def display_results(results):
     table = Table(
-        title="RAW SATIATION LOGIT: FLAVOR BETA(INC) & GLOBAL GAMMA(INC)",
+        title="PURE OWN-FLAVOR SATIATION LOGIT (BASE = OTHER)",
         show_header=True,
         header_style="bold magenta",
     )
@@ -535,12 +540,14 @@ def display_results(results):
 
 def main():
     console.print(
-        "\n[bold yellow]--- Preprocessing Data with Raw Satiation C_sat ---[/bold yellow]"
+        "\n[bold yellow]--- Preprocessing Data with Pure Own-Flavor Satiation ---[/bold yellow]"
     )
     vec_data = load_and_preprocess()
 
-    console.print("\n[bold yellow]--- Estimating Model ---[/bold yellow]")
-    res_model = estimate_raw_satiation_model(vec_data)
+    console.print(
+        "\n[bold yellow]--- Estimating Pure Own-Flavor Model ---[/bold yellow]"
+    )
+    res_model = estimate_model(vec_data)
     display_results(res_model)
 
 

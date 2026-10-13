@@ -20,23 +20,28 @@ OUT_PATH = "/scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Output/"
 PLOT_OUTPUT_DIR = "../Output/Plots"
 os.makedirs(PLOT_OUTPUT_DIR, exist_ok=True)
 
-# Order: Other (0 - BASE), Berry (1), Plain (2), Outside (3)
 CATEGORIES = ["other", "berry", "plain", "outside"]
 cat_map = {c: i for i, c in enumerate(CATEGORIES)}
 CALIBRATED_LAMBDA = 0.7  # Calibrated memory decay parameter
+BASE_DELTA_DISCOUNT = 0.9
 
 
-def compute_satiation_state(
+def compute_dynamic_satiation_state(
     weekly_purchases,
     n_categories=3,
     lambda_mem=CALIBRATED_LAMBDA,
-    delta_discount=0.9,
+    delta_discount=BASE_DELTA_DISCOUNT,
 ):
+    """
+    Computes satiation states C_sat using dynamic inter-trip time gaps (Delta_t).
+    """
     sorted_df = weekly_purchases.sort_values(["household_code", "week_end"])
     inventory_records = []
 
     for hh_id, hh_group in sorted_df.groupby("household_code"):
-        weeks = hh_group["week_end"].unique()
+        weeks = pd.to_datetime(hh_group["week_end"].unique())
+        weeks = np.sort(weeks)
+
         C_history = {}
         prev_X = np.zeros(n_categories)
 
@@ -44,9 +49,17 @@ def compute_satiation_state(
             C_current = np.zeros(n_categories)
             memory_term = np.zeros(n_categories)
 
+            # Compute delta_t in weeks elapsed since last choice occasion
+            if t_idx > 0:
+                delta_t = max(1.0, (week - weeks[t_idx - 1]).days / 7.0)
+            else:
+                delta_t = 1.0
+
             if t_idx > 0:
                 for s in range(t_idx):
-                    discount = delta_discount ** (t_idx - s)
+                    # Time gap between s and t
+                    weeks_elapsed = (week - weeks[s]).days / 7.0
+                    discount = delta_discount**weeks_elapsed
                     memory_term += discount * C_history[s]
 
             for j in range(n_categories):
@@ -55,7 +68,13 @@ def compute_satiation_state(
                     (1.0 - lambda_mem) * cross_term
                 )
 
-            record = {"household_code": hh_id, "week_end": week}
+            record = {
+                "household_code": hh_id,
+                "week_end": week.strftime("%Y-%m-%d")
+                if hasattr(week, "strftime")
+                else str(week),
+                "delta_t": delta_t,
+            }
             for j in range(n_categories):
                 record[f"C_sat_{j}"] = C_current[j]
             inventory_records.append(record)
@@ -75,7 +94,7 @@ def compute_satiation_state(
     return pd.DataFrame(inventory_records)
 
 
-def load_and_preprocess(weekly_capacity=14):
+def load_and_preprocess_dynamic(weekly_capacity=14):
     schema_names = pl.scan_parquet(MERGED_PATH).collect_schema().names()
 
     exprs = [
@@ -85,6 +104,11 @@ def load_and_preprocess(weekly_capacity=14):
         pl.col("serving_per_container_cd").cast(pl.Int64),
         pl.col("price").cast(pl.Float64),
     ]
+
+    if "type_of_residence" in schema_names:
+        exprs.append(pl.col("type_of_residence").cast(pl.Utf8))
+    elif "residence_type" in schema_names:
+        exprs.append(pl.col("residence_type").cast(pl.Utf8))
 
     if "product_module_code_hms" in schema_names:
         exprs.append(pl.col("product_module_code_hms").cast(pl.Int64))
@@ -120,8 +144,25 @@ def load_and_preprocess(weekly_capacity=14):
 
     merged_df["category"] = merged_df["flavor_str"].apply(assign_category)
 
+    # Residence Type Code Mapping (1 = Single Family Detached, 0 = Other/Apartment)
+    res_col = (
+        "type_of_residence"
+        if "type_of_residence" in merged_df.columns
+        else "residence_type"
+    )
+    if res_col in merged_df.columns:
+        merged_df["single_family_res"] = np.where(
+            merged_df[res_col]
+            .astype(str)
+            .str.contains("1|single|detached", case=False, na=False),
+            1.0,
+            0.0,
+        )
+    else:
+        merged_df["single_family_res"] = 0.0
+
     console.print(
-        f"\n[bold yellow]3-CATEGORY MODEL (OTHER = BASE):[/bold yellow] Other (0 - Base), Berry (1), Plain (2)\n"
+        f"\n[bold yellow]3-CATEGORY DYNAMIC MODEL (OTHER = BASE):[/bold yellow] Other (0 - Base), Berry (1), Plain (2)\n"
     )
 
     # Price IV Construction
@@ -167,17 +208,27 @@ def load_and_preprocess(weekly_capacity=14):
         )
     merged_df["iv_res"] = merged_df["iv_res"].fillna(0.0)
 
-    # Standardize Household Income
-    hh_demo = (
+    # Standardize Household Income & Purchase Frequency
+    hh_stats = (
         merged_df.groupby("household_code")
-        .agg(income=("household_income", "first"))
+        .agg(
+            income=("household_income", "first"),
+            single_fam=("single_family_res", "first"),
+            obs_weeks=("week_end", "nunique"),
+        )
         .reset_index()
     )
 
-    hh_demo["income_std"] = (hh_demo["income"] - hh_demo["income"].mean()) / (
-        hh_demo["income"].std() + 1e-6
+    hh_stats["income_std"] = (hh_stats["income"] - hh_stats["income"].mean()) / (
+        hh_stats["income"].std() + 1e-6
     )
-    demo_dict = hh_demo.set_index("household_code")["income_std"].to_dict()
+    hh_stats["freq_std"] = (hh_stats["obs_weeks"] - hh_stats["obs_weeks"].mean()) / (
+        hh_stats["obs_weeks"].std() + 1e-6
+    )
+
+    hh_dict = hh_stats.set_index("household_code")[
+        ["income_std", "single_fam", "freq_std"]
+    ].to_dict("index")
 
     inside_df = merged_df[merged_df["category"] != "outside"].copy()
 
@@ -219,7 +270,10 @@ def load_and_preprocess(weekly_capacity=14):
 
         choice_set_matrix[(store, week)] = mat
 
-    df_sat = compute_satiation_state(
+    console.print(
+        "[bold green]Computing dynamic satiation states with trip duration (Delta_t)...[/bold green]"
+    )
+    df_sat = compute_dynamic_satiation_state(
         weekly_purchases,
         n_categories=3,
         lambda_mem=CALIBRATED_LAMBDA,
@@ -236,8 +290,16 @@ def load_and_preprocess(weekly_capacity=14):
         ["household_code", "store_code_uc", "week_end"]
     ].drop_duplicates()
 
+    hh_weeks["week_end_str"] = pd.to_datetime(hh_weeks["week_end"]).dt.strftime(
+        "%Y-%m-%d"
+    )
+    df_sat["week_end_str"] = pd.to_datetime(df_sat["week_end"]).dt.strftime("%Y-%m-%d")
+
     hh_weeks = hh_weeks.merge(
-        df_sat, on=["household_code", "week_end"], how="left"
+        df_sat,
+        left_on=["household_code", "week_end_str"],
+        right_on=["household_code", "week_end_str"],
+        how="left",
     ).fillna(0.0)
 
     counts_dict = {}
@@ -248,17 +310,22 @@ def load_and_preprocess(weekly_capacity=14):
                 c_arr[int(row.choice_idx)] = row.units_bought
         counts_dict[(hh_id, week)] = c_arr
 
-    all_prices, all_resids, all_choices, all_c_states, all_inc = [], [], [], [], []
+    all_prices, all_resids, all_choices, all_c_states = [], [], [], []
+    all_inc, all_res_type, all_freq, all_delta_t = [], [], [], []
 
     for row_dict in hh_weeks.to_dict("records"):
         store = row_dict["store_code_uc"]
-        week = row_dict["week_end"]
+        week = (
+            row_dict["week_end_x"] if "week_end_x" in row_dict else row_dict["week_end"]
+        )
         hh_id = row_dict["household_code"]
 
         if (store, week) not in choice_set_matrix:
             continue
 
-        inc_val = demo_dict.get(hh_id, 0.0)
+        h_info = hh_dict.get(
+            hh_id, {"income_std": 0.0, "single_fam": 0.0, "freq_std": 0.0}
+        )
 
         inside_counts = counts_dict.get((hh_id, week), np.zeros(3, dtype=np.int64))
         inside_units = np.sum(inside_counts)
@@ -269,7 +336,11 @@ def load_and_preprocess(weekly_capacity=14):
         full_counts = np.append(inside_counts, outside_count)
 
         c_vec = np.array(
-            [row_dict["C_sat_0"], row_dict["C_sat_1"], row_dict["C_sat_2"]],
+            [
+                row_dict.get("C_sat_0", 0.0),
+                row_dict.get("C_sat_1", 0.0),
+                row_dict.get("C_sat_2", 0.0),
+            ],
             dtype=np.float64,
         )
 
@@ -277,7 +348,10 @@ def load_and_preprocess(weekly_capacity=14):
         all_resids.append(choice_set_matrix[(store, week)][:3, 1])
         all_choices.append(full_counts)
         all_c_states.append(c_vec)
-        all_inc.append(inc_val)
+        all_inc.append(h_info["income_std"])
+        all_res_type.append(h_info["single_fam"])
+        all_freq.append(h_info["freq_std"])
+        all_delta_t.append(row_dict.get("delta_t", 1.0))
 
     vec_data = {
         "prices": np.array(all_prices, dtype=np.float64),
@@ -285,32 +359,41 @@ def load_and_preprocess(weekly_capacity=14):
         "choices": np.array(all_choices, dtype=np.int64),
         "c_states": np.array(all_c_states, dtype=np.float64),
         "income": np.array(all_inc, dtype=np.float64)[:, None],
+        "res_type": np.array(all_res_type, dtype=np.float64)[:, None],
+        "freq": np.array(all_freq, dtype=np.float64)[:, None],
+        "delta_t": np.array(all_delta_t, dtype=np.float64)[:, None],
     }
 
     return vec_data
 
 
 # =========================================================
-# MODEL OBJECTIVE & ESTIMATION (OTHER = BASE = 0)
+# DYNAMIC SATIATION MODEL OBJECTIVE & ESTIMATION
 # =========================================================
-def total_objective_income_other_base(params, vec_data):
+def total_objective_dynamic_satiation(params, vec_data):
     """
-    Parameter Order (11 parameters):
+    Parameter Order (15 parameters):
     0: Constant
-    1..2: Beta_0 [Berry, Plain] (vs Other base = 0.0)
+    1..2: Beta_0 [Berry, Plain]
     3..4: Beta_Inc [Berry, Plain]
-    5..6: Gamma_0 [Berry, Plain] (vs Other base = 0.0)
-    7..8: Gamma_Inc [Berry, Plain]
-    9: Price (alpha)
-    10: Control Function (sigma)
+    5..6: Beta_ResType [Berry, Plain]
+    7..8: Gamma_0 [Berry, Plain]
+    9..10: Gamma_Inc [Berry, Plain]
+    11: Gamma_DeltaT (Inter-trip duration modifier)
+    12: Gamma_Freq (Panel purchase velocity modifier)
+    13: Price (alpha)
+    14: Control Function (sigma)
     """
     const = params[0]
 
     b0 = params[1:3]
     b_inc = params[3:5]
+    b_res = params[5:7]
 
-    g0 = params[5:7]
-    g_inc = params[7:9]
+    g0 = params[7:9]
+    g_inc = params[9:11]
+    g_dt = params[11]
+    g_freq = params[12]
 
     alpha = params[-2]
     sigma = params[-1]
@@ -320,13 +403,18 @@ def total_objective_income_other_base(params, vec_data):
     choices = vec_data["choices"]  # (N, 4)
     c_state = vec_data["c_states"]  # (N, 3)
     inc = vec_data["income"]  # (N, 1)
+    res_type = vec_data["res_type"]  # (N, 1)
+    freq = vec_data["freq"]  # (N, 1)
+    delta_t = vec_data["delta_t"]  # (N, 1)
 
     # Beta Matrix (N, 3): Other fixed to 0.0
-    beta_non_other = b0[None, :] + b_inc[None, :] * inc
+    beta_non_other = b0[None, :] + b_inc[None, :] * inc + b_res[None, :] * res_type
     beta_mat = np.hstack([np.zeros((inc.shape[0], 1)), beta_non_other])
 
-    # Gamma Matrix (N, 3): Other fixed to 0.0
-    gamma_non_other = g0[None, :] + g_inc[None, :] * inc
+    # Dynamic Satiation Gamma Matrix (N, 3): Other fixed to 0.0
+    gamma_non_other = (
+        g0[None, :] + g_inc[None, :] * inc + g_dt * delta_t + g_freq * freq
+    )
     gamma_mat = np.hstack([np.zeros((inc.shape[0], 1)), gamma_non_other])
 
     u_inside = (
@@ -346,20 +434,20 @@ def total_objective_income_other_base(params, vec_data):
     return -total_ll if np.isfinite(total_ll) else 1e10
 
 
-def estimate_income_other_base_model(vec_data):
-    total_params = 11
+def estimate_dynamic_satiation_model(vec_data):
+    total_params = 15
     x0 = np.zeros(total_params)
     x0[-2] = -0.1
 
     bounds = (
-        [(-30.0, 30.0)] * 5  # const + beta_0, inc for berry & plain
+        [(-30.0, 30.0)] * 7  # const + beta_0, inc, res_type for berry & plain
         + [(-30.0, 0.0)] * 2  # gamma_0 for berry & plain (negative disutility)
-        + [(-30.0, 30.0)] * 2  # gamma_inc for berry & plain
+        + [(-30.0, 30.0)] * 4  # gamma_inc, gamma_dt, gamma_freq
         + [(-30.0, -0.01), (-30.0, 30.0)]  # price + control function
     )
 
     res = minimize(
-        total_objective_income_other_base,
+        total_objective_dynamic_satiation,
         x0=x0,
         args=(vec_data,),
         method="L-BFGS-B",
@@ -383,10 +471,10 @@ def estimate_income_other_base_model(vec_data):
             x4[i] -= eps
             x4[j] -= eps
 
-            f1 = total_objective_income_other_base(x1, vec_data)
-            f2 = total_objective_income_other_base(x2, vec_data)
-            f3 = total_objective_income_other_base(x3, vec_data)
-            f4 = total_objective_income_other_base(x4, vec_data)
+            f1 = total_objective_dynamic_satiation(x1, vec_data)
+            f2 = total_objective_dynamic_satiation(x2, vec_data)
+            f3 = total_objective_dynamic_satiation(x3, vec_data)
+            f4 = total_objective_dynamic_satiation(x4, vec_data)
 
             hessian[i, j] = (f1 - f2 - f3 + f4) / (4 * eps * eps)
             hessian[j, i] = hessian[i, j]
@@ -412,7 +500,7 @@ def estimate_income_other_base_model(vec_data):
 
 def display_results(results):
     table = Table(
-        title="3-CATEGORY INCOME MODEL (BASE = OTHER)",
+        title="DYNAMIC SATIATION & DEMOGRAPHIC MODEL (BASE = OTHER)",
         show_header=True,
         header_style="bold magenta",
     )
@@ -428,10 +516,14 @@ def display_results(results):
         "beta_Plain (vs Other Base)",
         "beta_Berry x Income",
         "beta_Plain x Income",
+        "beta_Berry x SingleFamilyRes",
+        "beta_Plain x SingleFamilyRes",
         "gamma_Berry (Main Satiation)",
         "gamma_Plain (Main Satiation)",
         "gamma_Berry x Income",
         "gamma_Plain x Income",
+        "gamma_Satiation x Delta_t (Inter-Trip Gap)",
+        "gamma_Satiation x Trip Frequency",
         "Price (alpha)",
         "Control Func. (sigma)",
     ]
@@ -464,13 +556,13 @@ def display_results(results):
 
 
 def main():
-    vec_data = load_and_preprocess()
+    vec_data = load_and_preprocess_dynamic()
 
     console.print(
-        "\n[bold yellow]--- Estimating 3-Category Income Interaction Model (Other = Base) ---[/bold yellow]"
+        "\n[bold yellow]--- Estimating Dynamic Household Satiation Model ---[/bold yellow]"
     )
-    res_income = estimate_income_other_base_model(vec_data)
-    display_results(res_income)
+    res_dynamic = estimate_dynamic_satiation_model(vec_data)
+    display_results(res_dynamic)
 
 
 if __name__ == "__main__":

@@ -34,6 +34,7 @@ def compute_dynamic_satiation_state(
 ):
     """
     Computes satiation states C_sat using dynamic inter-trip time gaps (Delta_t).
+    Handles numpy.timedelta64 and pandas.Timestamp differences cleanly.
     """
     sorted_df = weekly_purchases.sort_values(["household_code", "week_end"])
     inventory_records = []
@@ -49,16 +50,16 @@ def compute_dynamic_satiation_state(
             C_current = np.zeros(n_categories)
             memory_term = np.zeros(n_categories)
 
-            # Compute delta_t in weeks elapsed since last choice occasion
+            # Convert week difference to float days cleanly via pandas Timedelta
             if t_idx > 0:
-                delta_t = max(1.0, (week - weeks[t_idx - 1]).days / 7.0)
+                diff_days = pd.Timedelta(week - weeks[t_idx - 1]).days
+                delta_t = max(1.0, diff_days / 7.0)
             else:
                 delta_t = 1.0
 
             if t_idx > 0:
                 for s in range(t_idx):
-                    # Time gap between s and t
-                    weeks_elapsed = (week - weeks[s]).days / 7.0
+                    weeks_elapsed = pd.Timedelta(week - weeks[s]).days / 7.0
                     discount = delta_discount**weeks_elapsed
                     memory_term += discount * C_history[s]
 
@@ -70,9 +71,7 @@ def compute_dynamic_satiation_state(
 
             record = {
                 "household_code": hh_id,
-                "week_end": week.strftime("%Y-%m-%d")
-                if hasattr(week, "strftime")
-                else str(week),
+                "week_end": pd.Timestamp(week).strftime("%Y-%m-%d"),
                 "delta_t": delta_t,
             }
             for j in range(n_categories):

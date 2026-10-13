@@ -22,78 +22,9 @@ os.makedirs(PLOT_OUTPUT_DIR, exist_ok=True)
 
 CATEGORIES = ["other", "berry", "plain", "outside"]
 cat_map = {c: i for i, c in enumerate(CATEGORIES)}
-CALIBRATED_LAMBDA = 0.7  # Calibrated memory decay parameter
-BASE_DELTA_DISCOUNT = 0.9
 
 
-def compute_dynamic_satiation_state(
-    weekly_purchases,
-    n_categories=3,
-    lambda_mem=CALIBRATED_LAMBDA,
-    delta_discount=BASE_DELTA_DISCOUNT,
-):
-    """
-    Computes satiation states C_sat using dynamic inter-trip time gaps (Delta_t).
-    Handles numpy.timedelta64 and pandas.Timestamp differences cleanly.
-    """
-    sorted_df = weekly_purchases.sort_values(["household_code", "week_end"])
-    inventory_records = []
-
-    for hh_id, hh_group in sorted_df.groupby("household_code"):
-        weeks = pd.to_datetime(hh_group["week_end"].unique())
-        weeks = np.sort(weeks)
-
-        C_history = {}
-        prev_X = np.zeros(n_categories)
-
-        for t_idx, week in enumerate(weeks):
-            C_current = np.zeros(n_categories)
-            memory_term = np.zeros(n_categories)
-
-            # Convert week difference to float days cleanly via pandas Timedelta
-            if t_idx > 0:
-                diff_days = pd.Timedelta(week - weeks[t_idx - 1]).days
-                delta_t = max(1.0, diff_days / 7.0)
-            else:
-                delta_t = 1.0
-
-            if t_idx > 0:
-                for s in range(t_idx):
-                    weeks_elapsed = pd.Timedelta(week - weeks[s]).days / 7.0
-                    discount = delta_discount**weeks_elapsed
-                    memory_term += discount * C_history[s]
-
-            for j in range(n_categories):
-                cross_term = np.sum(prev_X) - prev_X[j]
-                C_current[j] = (lambda_mem * memory_term[j]) + (
-                    (1.0 - lambda_mem) * cross_term
-                )
-
-            record = {
-                "household_code": hh_id,
-                "week_end": pd.Timestamp(week).strftime("%Y-%m-%d"),
-                "delta_t": delta_t,
-            }
-            for j in range(n_categories):
-                record[f"C_sat_{j}"] = C_current[j]
-            inventory_records.append(record)
-
-            C_history[t_idx] = C_current.copy()
-
-            sub = hh_group[hh_group["week_end"] == week]
-            curr_X = np.zeros(n_categories)
-            for row in sub.itertuples():
-                if hasattr(row, "choice_idx") and row.choice_idx < n_categories:
-                    curr_X[int(row.choice_idx)] = row.units_bought
-            total_inside_units = curr_X.sum()
-            if total_inside_units > 0:
-                curr_X = curr_X / total_inside_units
-            prev_X = curr_X
-
-    return pd.DataFrame(inventory_records)
-
-
-def load_and_preprocess_dynamic(weekly_capacity=14):
+def load_and_preprocess_betas_only(weekly_capacity=14):
     schema_names = pl.scan_parquet(MERGED_PATH).collect_schema().names()
 
     exprs = [
@@ -143,7 +74,6 @@ def load_and_preprocess_dynamic(weekly_capacity=14):
 
     merged_df["category"] = merged_df["flavor_str"].apply(assign_category)
 
-    # Residence Type Code Mapping (1 = Single Family Detached, 0 = Other/Apartment)
     res_col = (
         "type_of_residence"
         if "type_of_residence" in merged_df.columns
@@ -161,7 +91,7 @@ def load_and_preprocess_dynamic(weekly_capacity=14):
         merged_df["single_family_res"] = 0.0
 
     console.print(
-        f"\n[bold yellow]3-CATEGORY DYNAMIC MODEL (OTHER = BASE):[/bold yellow] Other (0 - Base), Berry (1), Plain (2)\n"
+        f"\n[bold yellow]PREFERENCES-ONLY MODEL (OTHER = BASE):[/bold yellow] Other (0 - Base), Berry (1), Plain (2)\n"
     )
 
     # Price IV Construction
@@ -207,13 +137,12 @@ def load_and_preprocess_dynamic(weekly_capacity=14):
         )
     merged_df["iv_res"] = merged_df["iv_res"].fillna(0.0)
 
-    # Standardize Household Income & Purchase Frequency
+    # Standardize Household Income
     hh_stats = (
         merged_df.groupby("household_code")
         .agg(
             income=("household_income", "first"),
             single_fam=("single_family_res", "first"),
-            obs_weeks=("week_end", "nunique"),
         )
         .reset_index()
     )
@@ -221,12 +150,9 @@ def load_and_preprocess_dynamic(weekly_capacity=14):
     hh_stats["income_std"] = (hh_stats["income"] - hh_stats["income"].mean()) / (
         hh_stats["income"].std() + 1e-6
     )
-    hh_stats["freq_std"] = (hh_stats["obs_weeks"] - hh_stats["obs_weeks"].mean()) / (
-        hh_stats["obs_weeks"].std() + 1e-6
-    )
 
     hh_dict = hh_stats.set_index("household_code")[
-        ["income_std", "single_fam", "freq_std"]
+        ["income_std", "single_fam"]
     ].to_dict("index")
 
     inside_df = merged_df[merged_df["category"] != "outside"].copy()
@@ -269,37 +195,9 @@ def load_and_preprocess_dynamic(weekly_capacity=14):
 
         choice_set_matrix[(store, week)] = mat
 
-    console.print(
-        "[bold green]Computing dynamic satiation states with trip duration (Delta_t)...[/bold green]"
-    )
-    df_sat = compute_dynamic_satiation_state(
-        weekly_purchases,
-        n_categories=3,
-        lambda_mem=CALIBRATED_LAMBDA,
-        delta_discount=0.9,
-    )
-
-    for j in range(3):
-        c_col = f"C_sat_{j}"
-        c_sd = df_sat[c_col].std()
-        if c_sd > 0:
-            df_sat[c_col] = df_sat[c_col] / c_sd
-
     hh_weeks = weekly_purchases[
         ["household_code", "store_code_uc", "week_end"]
     ].drop_duplicates()
-
-    hh_weeks["week_end_str"] = pd.to_datetime(hh_weeks["week_end"]).dt.strftime(
-        "%Y-%m-%d"
-    )
-    df_sat["week_end_str"] = pd.to_datetime(df_sat["week_end"]).dt.strftime("%Y-%m-%d")
-
-    hh_weeks = hh_weeks.merge(
-        df_sat,
-        left_on=["household_code", "week_end_str"],
-        right_on=["household_code", "week_end_str"],
-        how="left",
-    ).fillna(0.0)
 
     counts_dict = {}
     for (hh_id, week), grp in weekly_purchases.groupby(["household_code", "week_end"]):
@@ -309,22 +207,18 @@ def load_and_preprocess_dynamic(weekly_capacity=14):
                 c_arr[int(row.choice_idx)] = row.units_bought
         counts_dict[(hh_id, week)] = c_arr
 
-    all_prices, all_resids, all_choices, all_c_states = [], [], [], []
-    all_inc, all_res_type, all_freq, all_delta_t = [], [], [], []
+    all_prices, all_resids, all_choices = [], [], []
+    all_inc, all_res_type = [], []
 
     for row_dict in hh_weeks.to_dict("records"):
         store = row_dict["store_code_uc"]
-        week = (
-            row_dict["week_end_x"] if "week_end_x" in row_dict else row_dict["week_end"]
-        )
+        week = row_dict["week_end"]
         hh_id = row_dict["household_code"]
 
         if (store, week) not in choice_set_matrix:
             continue
 
-        h_info = hh_dict.get(
-            hh_id, {"income_std": 0.0, "single_fam": 0.0, "freq_std": 0.0}
-        )
+        h_info = hh_dict.get(hh_id, {"income_std": 0.0, "single_fam": 0.0})
 
         inside_counts = counts_dict.get((hh_id, week), np.zeros(3, dtype=np.int64))
         inside_units = np.sum(inside_counts)
@@ -334,54 +228,35 @@ def load_and_preprocess_dynamic(weekly_capacity=14):
 
         full_counts = np.append(inside_counts, outside_count)
 
-        c_vec = np.array(
-            [
-                row_dict.get("C_sat_0", 0.0),
-                row_dict.get("C_sat_1", 0.0),
-                row_dict.get("C_sat_2", 0.0),
-            ],
-            dtype=np.float64,
-        )
-
         all_prices.append(choice_set_matrix[(store, week)][:3, 0])
         all_resids.append(choice_set_matrix[(store, week)][:3, 1])
         all_choices.append(full_counts)
-        all_c_states.append(c_vec)
         all_inc.append(h_info["income_std"])
         all_res_type.append(h_info["single_fam"])
-        all_freq.append(h_info["freq_std"])
-        all_delta_t.append(row_dict.get("delta_t", 1.0))
 
     vec_data = {
         "prices": np.array(all_prices, dtype=np.float64),
         "resids": np.array(all_resids, dtype=np.float64),
         "choices": np.array(all_choices, dtype=np.int64),
-        "c_states": np.array(all_c_states, dtype=np.float64),
         "income": np.array(all_inc, dtype=np.float64)[:, None],
         "res_type": np.array(all_res_type, dtype=np.float64)[:, None],
-        "freq": np.array(all_freq, dtype=np.float64)[:, None],
-        "delta_t": np.array(all_delta_t, dtype=np.float64)[:, None],
     }
 
     return vec_data
 
 
 # =========================================================
-# DYNAMIC SATIATION MODEL OBJECTIVE & ESTIMATION
+# PREFERENCE-ONLY LOGIT OBJECTIVE & ESTIMATION
 # =========================================================
-def total_objective_dynamic_satiation(params, vec_data):
+def total_objective_betas_only(params, vec_data):
     """
-    Parameter Order (15 parameters):
+    Parameter Order (9 parameters):
     0: Constant
     1..2: Beta_0 [Berry, Plain]
     3..4: Beta_Inc [Berry, Plain]
     5..6: Beta_ResType [Berry, Plain]
-    7..8: Gamma_0 [Berry, Plain]
-    9..10: Gamma_Inc [Berry, Plain]
-    11: Gamma_DeltaT (Inter-trip duration modifier)
-    12: Gamma_Freq (Panel purchase velocity modifier)
-    13: Price (alpha)
-    14: Control Function (sigma)
+    7: Price (alpha)
+    8: Control Function (sigma)
     """
     const = params[0]
 
@@ -389,40 +264,20 @@ def total_objective_dynamic_satiation(params, vec_data):
     b_inc = params[3:5]
     b_res = params[5:7]
 
-    g0 = params[7:9]
-    g_inc = params[9:11]
-    g_dt = params[11]
-    g_freq = params[12]
-
     alpha = params[-2]
     sigma = params[-1]
 
     prices = vec_data["prices"]  # (N, 3)
     resids = vec_data["resids"]  # (N, 3)
     choices = vec_data["choices"]  # (N, 4)
-    c_state = vec_data["c_states"]  # (N, 3)
     inc = vec_data["income"]  # (N, 1)
     res_type = vec_data["res_type"]  # (N, 1)
-    freq = vec_data["freq"]  # (N, 1)
-    delta_t = vec_data["delta_t"]  # (N, 1)
 
     # Beta Matrix (N, 3): Other fixed to 0.0
     beta_non_other = b0[None, :] + b_inc[None, :] * inc + b_res[None, :] * res_type
     beta_mat = np.hstack([np.zeros((inc.shape[0], 1)), beta_non_other])
 
-    # Dynamic Satiation Gamma Matrix (N, 3): Other fixed to 0.0
-    gamma_non_other = (
-        g0[None, :] + g_inc[None, :] * inc + g_dt * delta_t + g_freq * freq
-    )
-    gamma_mat = np.hstack([np.zeros((inc.shape[0], 1)), gamma_non_other])
-
-    u_inside = (
-        const
-        + beta_mat
-        + gamma_mat * np.log(1.0 + c_state)
-        + alpha * prices
-        + sigma * resids
-    )
+    u_inside = const + beta_mat + alpha * prices + sigma * resids
 
     u_outside = np.zeros((u_inside.shape[0], 1))
     u = np.hstack([u_inside, u_outside])
@@ -433,20 +288,18 @@ def total_objective_dynamic_satiation(params, vec_data):
     return -total_ll if np.isfinite(total_ll) else 1e10
 
 
-def estimate_dynamic_satiation_model(vec_data):
-    total_params = 15
+def estimate_betas_only_model(vec_data):
+    total_params = 9
     x0 = np.zeros(total_params)
     x0[-2] = -0.1
 
     bounds = (
         [(-30.0, 30.0)] * 7  # const + beta_0, inc, res_type for berry & plain
-        + [(-30.0, 0.0)] * 2  # gamma_0 for berry & plain (negative disutility)
-        + [(-30.0, 30.0)] * 4  # gamma_inc, gamma_dt, gamma_freq
         + [(-30.0, -0.01), (-30.0, 30.0)]  # price + control function
     )
 
     res = minimize(
-        total_objective_dynamic_satiation,
+        total_objective_betas_only,
         x0=x0,
         args=(vec_data,),
         method="L-BFGS-B",
@@ -470,10 +323,10 @@ def estimate_dynamic_satiation_model(vec_data):
             x4[i] -= eps
             x4[j] -= eps
 
-            f1 = total_objective_dynamic_satiation(x1, vec_data)
-            f2 = total_objective_dynamic_satiation(x2, vec_data)
-            f3 = total_objective_dynamic_satiation(x3, vec_data)
-            f4 = total_objective_dynamic_satiation(x4, vec_data)
+            f1 = total_objective_betas_only(x1, vec_data)
+            f2 = total_objective_betas_only(x2, vec_data)
+            f3 = total_objective_betas_only(x3, vec_data)
+            f4 = total_objective_betas_only(x4, vec_data)
 
             hessian[i, j] = (f1 - f2 - f3 + f4) / (4 * eps * eps)
             hessian[j, i] = hessian[i, j]
@@ -499,7 +352,7 @@ def estimate_dynamic_satiation_model(vec_data):
 
 def display_results(results):
     table = Table(
-        title="DYNAMIC SATIATION & DEMOGRAPHIC MODEL (BASE = OTHER)",
+        title="DEMOGRAPHIC PREFERENCES LOGIT (NO SATIATION / BASE = OTHER)",
         show_header=True,
         header_style="bold magenta",
     )
@@ -517,12 +370,6 @@ def display_results(results):
         "beta_Plain x Income",
         "beta_Berry x SingleFamilyRes",
         "beta_Plain x SingleFamilyRes",
-        "gamma_Berry (Main Satiation)",
-        "gamma_Plain (Main Satiation)",
-        "gamma_Berry x Income",
-        "gamma_Plain x Income",
-        "gamma_Satiation x Delta_t (Inter-Trip Gap)",
-        "gamma_Satiation x Trip Frequency",
         "Price (alpha)",
         "Control Func. (sigma)",
     ]
@@ -555,13 +402,13 @@ def display_results(results):
 
 
 def main():
-    vec_data = load_and_preprocess_dynamic()
+    vec_data = load_and_preprocess_betas_only()
 
     console.print(
-        "\n[bold yellow]--- Estimating Dynamic Household Satiation Model ---[/bold yellow]"
+        "\n[bold yellow]--- Estimating Demographic Preferences Model (No Satiation) ---[/bold yellow]"
     )
-    res_dynamic = estimate_dynamic_satiation_model(vec_data)
-    display_results(res_dynamic)
+    res_betas = estimate_betas_only_model(vec_data)
+    display_results(res_betas)
 
 
 if __name__ == "__main__":

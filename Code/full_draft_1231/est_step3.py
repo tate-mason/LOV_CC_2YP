@@ -338,3 +338,194 @@ def load_and_preprocess_beta_gamma_spec(weekly_capacity=14):
 # =========================================================
 # LOGIT OBJECTIVE: BETA(INC, AGE) & GAMMA(GAP, FREQ)
 # =========================================================
+def total_objective_beta_gamma_spec(params, vec_data):
+    """
+    Parameter Order (12 parameters):
+    0: Constant
+    1..2: Beta_0 [Berry, Plain] (vs Other base = 0.0)
+    3..4: Beta_Inc [Berry, Plain]
+    5..6: Beta_Age [Berry, Plain]
+    7: Gamma_0 (Base Scalar Satiation)
+    8: Gamma_DeltaT (Inter-trip gap)
+    9: Gamma_Freq (Panel purchase velocity/frequency)
+    10: Price (alpha)
+    11: Control Function (sigma)
+    """
+    const = params[0]
+
+    b0 = params[1:3]
+    b_inc = params[3:5]
+    b_age = params[5:7]
+
+    g0 = params[7]
+    g_dt = params[8]
+    g_freq = params[9]
+
+    alpha = params[-2]
+    sigma = params[-1]
+
+    prices = vec_data["prices"]  # (N, 3)
+    resids = vec_data["resids"]  # (N, 3)
+    choices = vec_data["choices"]  # (N, 4)
+    c_state = vec_data["c_states"]  # (N, 3)
+    inc = vec_data["income"]  # (N, 1)
+    age = vec_data["age"]  # (N, 1)
+    freq = vec_data["freq"]  # (N, 1)
+    delta_t = vec_data["delta_t"]  # (N, 1)
+
+    # Beta Matrix (N, 3): Other fixed to 0.0
+    beta_non_other = b0[None, :] + b_inc[None, :] * inc + b_age[None, :] * age
+    beta_mat = np.hstack([np.zeros((inc.shape[0], 1)), beta_non_other])
+
+    # Satiation Scalar Gamma_i,t (N, 1) Interacted with Trip Gap & Frequency
+    gamma_i_t = g0 + g_dt * delta_t + g_freq * freq
+
+    u_inside = (
+        const
+        + beta_mat
+        + gamma_i_t * np.log(1.0 + c_state)
+        + alpha * prices
+        + sigma * resids
+    )
+
+    u_outside = np.zeros((u_inside.shape[0], 1))
+    u = np.hstack([u_inside, u_outside])
+
+    log_probs = u - logsumexp(u, axis=1, keepdims=True)
+    total_ll = np.sum(log_probs * choices)
+
+    return -total_ll if np.isfinite(total_ll) else 1e10
+
+
+def estimate_beta_gamma_spec_model(vec_data):
+    total_params = 12
+    x0 = np.zeros(total_params)
+    x0[7] = -0.1  # Initial gamma_0 guess
+    x0[-2] = -0.1  # Initial price alpha guess
+
+    bounds = (
+        [(-30.0, 30.0)] * 7  # const + betas (0, inc, age for berry & plain)
+        + [(-30.0, 0.0)]  # gamma_0 bound (disutility <= 0)
+        + [(-30.0, 30.0)] * 2  # gamma modifiers (delta_t, freq)
+        + [(-30.0, -0.01), (-30.0, 30.0)]  # price + control function
+    )
+
+    res = minimize(
+        total_objective_beta_gamma_spec,
+        x0=x0,
+        args=(vec_data,),
+        method="L-BFGS-B",
+        bounds=bounds,
+        options={"ftol": 1e-8, "gtol": 1e-5, "maxiter": 2000},
+    )
+
+    n = len(res.x)
+    eps = 1e-4
+    hessian = np.zeros((n, n))
+
+    for i in range(n):
+        for j in range(i, n):
+            x1, x2, x3, x4 = res.x.copy(), res.x.copy(), res.x.copy(), res.x.copy()
+            x1[i] += eps
+            x1[j] += eps
+            x2[i] += eps
+            x2[j] -= eps
+            x3[i] -= eps
+            x3[j] += eps
+            x4[i] -= eps
+            x4[j] -= eps
+
+            f1 = total_objective_beta_gamma_spec(x1, vec_data)
+            f2 = total_objective_beta_gamma_spec(x2, vec_data)
+            f3 = total_objective_beta_gamma_spec(x3, vec_data)
+            f4 = total_objective_beta_gamma_spec(x4, vec_data)
+
+            hessian[i, j] = (f1 - f2 - f3 + f4) / (4 * eps * eps)
+            hessian[j, i] = hessian[i, j]
+
+    try:
+        cov = np.linalg.inv(hessian + np.eye(n) * 1e-6)
+    except np.linalg.LinAlgError:
+        cov = np.linalg.pinv(hessian)
+
+    se = np.sqrt(np.maximum(1e-8, np.diag(cov)))
+    z = res.x / se
+    p = 2 * (1 - sp.stats.norm.cdf(np.abs(z)))
+
+    return {
+        "params": res.x,
+        "se": se,
+        "z_stat": z,
+        "p_val": p,
+        "success": res.success,
+        "fun": res.fun,
+    }
+
+
+def display_results(results):
+    table = Table(
+        title="SPECIFICATION: BETA(INC, AGE) & GAMMA(TRIP GAP, FREQ)",
+        show_header=True,
+        header_style="bold magenta",
+    )
+    table.add_column("Parameter", style="cyan", justify="left")
+    table.add_column("Estimate", justify="right")
+    table.add_column("Std. Error", justify="right")
+    table.add_column("z-stat", justify="right")
+    table.add_column("p-value", justify="right")
+
+    param_names = [
+        "Constant",
+        "beta_Berry (vs Other Base)",
+        "beta_Plain (vs Other Base)",
+        "beta_Berry x Income",
+        "beta_Plain x Income",
+        "beta_Berry x Age",
+        "beta_Plain x Age",
+        "gamma_0 (Base Scalar Satiation)",
+        "gamma x Delta_t (Inter-Trip Gap)",
+        "gamma x Trip Frequency",
+        "Price (alpha)",
+        "Control Func. (sigma)",
+    ]
+
+    for name, val, se, z, p in zip(
+        param_names,
+        results["params"],
+        results["se"],
+        results["z_stat"],
+        results["p_val"],
+    ):
+        p_str = f"{p:.4f}" if not np.isnan(p) else "NA"
+        if not np.isnan(p):
+            if p < 0.001:
+                p_str += " ***"
+            elif p < 0.05:
+                p_str += " **"
+
+        table.add_row(
+            name,
+            f"{val:.4f}",
+            f"{se:.4f}" if not np.isnan(se) else "NA",
+            f"{z:.3f}" if not np.isnan(z) else "NA",
+            p_str,
+        )
+
+    console.print(table)
+    console.print(f"[bold]Optimization Success:[/bold] {results['success']}")
+    console.print(f"[bold]Final LL Objective:[/bold] {results['fun']:.4f}\n")
+
+
+def main():
+    console.print(
+        "\n[bold yellow]--- Preprocessing Data: Beta(Inc, Age) & Gamma(Gap, Freq) ---[/bold yellow]"
+    )
+    vec_data = load_and_preprocess_beta_gamma_spec()
+
+    console.print("\n[bold yellow]--- Estimating Model ---[/bold yellow]")
+    res_model = estimate_beta_gamma_spec_model(vec_data)
+    display_results(res_model)
+
+
+if __name__ == "__main__":
+    main()

@@ -19,15 +19,33 @@ OUT_PATH = "/scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Output/"
 PLOT_OUTPUT_DIR = "../Output/Plots"
 os.makedirs(PLOT_OUTPUT_DIR, exist_ok=True)
 
-CATEGORIES = ["other", "berry", "plain", "outside"]
-cat_map = {c: i for i, c in enumerate(CATEGORIES)}
 CALIBRATED_LAMBDA = 0.7
 BASE_DELTA_DISCOUNT = 0.9
+TOP_N_FLAVORS = 8  # Top N individual flavors retained as unbinned options
+
+INCOME_CODE_MAP = {
+    3: 2500,  # Under $5,000
+    4: 6500,  # $5,000 - $7,999
+    6: 9000,  # $8,000 - $9,999
+    8: 11000,  # $10,000 - $11,999
+    10: 13500,  # $12,000 - $14,999
+    11: 17500,  # $15,000 - $19,999
+    13: 22500,  # $20,000 - $24,999
+    15: 27500,  # $25,000 - $29,999
+    16: 32500,  # $30,000 - $34,999
+    17: 37500,  # $35,000 - $39,999
+    18: 42500,  # $40,000 - $44,999
+    19: 47500,  # $45,000 - $49,999
+    21: 55000,  # $50,000 - $59,999
+    23: 65000,  # $60,000 - $69,999
+    26: 85000,  # $70,000 - $99,999
+    27: 100000,  # $100,000+
+}
 
 
-def compute_satiation_state(
+def compute_unbinned_satiation_state(
     weekly_purchases,
-    n_categories=3,
+    n_categories,
     lambda_mem=CALIBRATED_LAMBDA,
     delta_discount=BASE_DELTA_DISCOUNT,
 ):
@@ -52,7 +70,7 @@ def compute_satiation_state(
                     memory_term += discount * C_history[s]
 
             for j in range(n_categories):
-                # Pure Own-Flavor Stock: prev_X[j] ONLY
+                # Pure Own-Flavor Stock per unbinned flavor
                 C_current[j] = (lambda_mem * memory_term[j]) + (
                     (1.0 - lambda_mem) * prev_X[j]
                 )
@@ -79,7 +97,7 @@ def compute_satiation_state(
 
     df_sat = pd.DataFrame(inventory_records)
 
-    # Standard scale across column to prevent numerical gradient freezing
+    # Standardize column variance
     for j in range(n_categories):
         c_col = f"C_sat_{j}"
         std_val = df_sat[c_col].std()
@@ -89,27 +107,7 @@ def compute_satiation_state(
     return df_sat
 
 
-INCOME_CODE_MAP = {
-    3: 2500,  # Under $5,000
-    4: 6500,  # $5,000 - $7,999
-    6: 9000,  # $8,000 - $9,999
-    8: 11000,  # $10,000 - $11,999
-    10: 13500,  # $12,000 - $14,999
-    11: 17500,  # $15,000 - $19,999
-    13: 22500,  # $20,000 - $24,999
-    15: 27500,  # $25,000 - $29,999
-    16: 32500,  # $30,000 - $34,999
-    17: 37500,  # $35,000 - $39,999
-    18: 42500,  # $40,000 - $44,999
-    19: 47500,  # $45,000 - $49,999
-    21: 55000,  # $50,000 - $59,999
-    23: 65000,  # $60,000 - $69,999
-    26: 85000,  # $70,000 - $99,999
-    27: 100000,  # $100,000+
-}
-
-
-def load_and_preprocess(weekly_capacity=14):
+def load_and_preprocess_unbinned(weekly_capacity=14, top_n=TOP_N_FLAVORS):
     schema_names = pl.scan_parquet(MERGED_PATH).collect_schema().names()
 
     exprs = [
@@ -135,81 +133,57 @@ def load_and_preprocess(weekly_capacity=14):
         .to_pandas()
     )
 
-    # 1. Print Raw Income Code Value Counts
+    # 1. Income Mapping & Distribution
     hh_unique_raw = (
         merged_df.groupby("household_code")["household_income"].first().dropna()
     )
-    raw_counts = hh_unique_raw.value_counts().sort_index()
-
-    table_raw = Table(
-        title="RAW NIELSEN HOUSEHOLD INCOME CODES (VALUE COUNTS)",
-        show_header=True,
-        header_style="bold green",
-    )
-    table_raw.add_column("Income Code", style="cyan", justify="center")
-    table_raw.add_column("Household Count", style="bold white", justify="right")
-    table_raw.add_column("Percentage (%)", style="yellow", justify="right")
-
     tot_hh = len(hh_unique_raw)
-    for code, cnt in raw_counts.items():
-        pct = (cnt / tot_hh) * 100.0
-        table_raw.add_row(str(int(code)), f"{cnt:,}", f"{pct:.2f}%")
 
-    console.print(table_raw)
-
-    # 2. Map Raw Codes to Continuous Dollar Income Values
     merged_df["household_income_dollars"] = merged_df["household_income"].map(
         INCOME_CODE_MAP
     )
-
-    # Fill unmapped codes with median dollar value
     median_dollars = merged_df["household_income_dollars"].median()
     merged_df["household_income_dollars"] = merged_df[
         "household_income_dollars"
     ].fillna(median_dollars)
 
-    # 3. Print Mapped Dollar Income Distribution
-    hh_unique_dollars = (
-        merged_df.groupby("household_code")["household_income_dollars"].first().dropna()
-    )
-    dollar_counts = hh_unique_dollars.value_counts().sort_index()
-
-    table_dollars = Table(
-        title="MAPPED HOUSEHOLD INCOME DOLLARS (VALUE COUNTS)",
-        show_header=True,
-        header_style="bold blue",
-    )
-    table_dollars.add_column("Mapped Dollar Value ($)", style="cyan", justify="center")
-    table_dollars.add_column("Household Count", style="bold white", justify="right")
-    table_dollars.add_column("Percentage (%)", style="yellow", justify="right")
-
-    for dol_val, cnt in dollar_counts.items():
-        pct = (cnt / tot_hh) * 100.0
-        table_dollars.add_row(f"${int(dol_val):,}", f"{cnt:,}", f"{pct:.2f}%")
-
-    console.print(table_dollars)
-    console.print(
-        f"[bold white]Total Unique Households:[/bold white] [bold cyan]{tot_hh:,}[/bold cyan]\n"
-    )
-
+    # 2. Extract Unbinned Raw Flavors
     descr_col = "flavor_descr" if "flavor_descr" in merged_df.columns else "flavor_cd"
-    merged_df["flavor_str"] = (
-        merged_df[descr_col].fillna("").astype(str).str.lower().str.strip()
+    merged_df["flavor_raw"] = (
+        merged_df[descr_col].fillna("UNSPECIFIED").astype(str).str.upper().str.strip()
     )
 
-    plain_regex = r"plain|unflavored"
-    berry_regex = r"berry|strawb|blueb|rasp|blackb|cherry|cran|wildberry"
+    # Identify Top N Flavors
+    flavor_counts = merged_df["flavor_raw"].value_counts()
+    top_flavors = list(flavor_counts.head(top_n).index)
 
-    def assign_category(f_str):
-        if pd.isna(f_str) or f_str == "":
-            return "outside"
-        if pd.Series(f_str).str.contains(plain_regex, regex=True).iloc[0]:
-            return "plain"
-        if pd.Series(f_str).str.contains(berry_regex, regex=True).iloc[0]:
-            return "berry"
-        return "other"
+    def assign_unbinned_category(f_raw):
+        if f_raw in top_flavors:
+            return f_raw
+        return "OTHER_INSIDE"
 
-    merged_df["category"] = merged_df["flavor_str"].apply(assign_category)
+    merged_df["unbinned_cat"] = merged_df["flavor_raw"].apply(assign_unbinned_category)
+
+    unbinned_categories = top_flavors + ["OTHER_INSIDE"]
+    cat_map = {c: i for i, c in enumerate(unbinned_categories)}
+    n_inside = len(unbinned_categories)
+
+    table_flavors = Table(
+        title=f"TOP {top_n} UNBINNED FLAVORS (+ OTHER INSIDE)",
+        show_header=True,
+        header_style="bold magenta",
+    )
+    table_flavors.add_column("Choice Index", style="cyan", justify="center")
+    table_flavors.add_column(
+        "Unbinned Flavor String", style="bold white", justify="left"
+    )
+    table_flavors.add_column("Observation Count", style="yellow", justify="right")
+
+    for idx, f_name in enumerate(unbinned_categories):
+        cnt = (merged_df["unbinned_cat"] == f_name).sum()
+        table_flavors.add_row(str(idx), f_name, f"{cnt:,}")
+
+    console.print(table_flavors)
 
     # Price IV Construction
     market_price = (
@@ -253,7 +227,7 @@ def load_and_preprocess(weekly_capacity=14):
         )
     merged_df["iv_res"] = merged_df["iv_res"].fillna(0.0)
 
-    # Standardize Mapped Dollar Income
+    # Standardize Income
     hh_stats = (
         merged_df.groupby("household_code")
         .agg(income=("household_income_dollars", "first"))
@@ -264,52 +238,52 @@ def load_and_preprocess(weekly_capacity=14):
     )
     hh_dict = hh_stats.set_index("household_code")["income_std"].to_dict()
 
-    inside_df = merged_df[merged_df["category"] != "outside"].copy()
-
     weekly_purchases = (
-        inside_df.groupby(["household_code", "store_code_uc", "week_end", "category"])
+        merged_df.groupby(
+            ["household_code", "store_code_uc", "week_end", "unbinned_cat"]
+        )
         .agg(units_bought=("quantity", "sum"))
         .reset_index()
     )
-    weekly_purchases["choice_idx"] = weekly_purchases["category"].map(cat_map)
+    weekly_purchases["choice_idx"] = weekly_purchases["unbinned_cat"].map(cat_map)
 
     cat_choice_sets = (
-        inside_df.groupby(["store_code_uc", "week_end", "category"])
+        merged_df.groupby(["store_code_uc", "week_end", "unbinned_cat"])
         .agg(price=("price", "mean"), iv_res=("iv_res", "mean"))
         .reset_index()
     )
 
-    cat_choice_sets["price"] = cat_choice_sets.groupby(["store_code_uc", "category"])[
+    cat_choice_sets["price"] = cat_choice_sets.groupby(
+        ["store_code_uc", "unbinned_cat"]
+    )["price"].transform(lambda x: x.fillna(x.mean()))
+    cat_choice_sets["price"] = cat_choice_sets.groupby("unbinned_cat")[
         "price"
     ].transform(lambda x: x.fillna(x.mean()))
-    cat_choice_sets["price"] = cat_choice_sets.groupby("category")["price"].transform(
-        lambda x: x.fillna(x.mean())
-    )
     cat_choice_sets["iv_res"] = cat_choice_sets["iv_res"].fillna(0.0)
 
-    overall_cat_prices = inside_df.groupby("category")["price"].mean().to_dict()
+    overall_cat_prices = merged_df.groupby("unbinned_cat")["price"].mean().to_dict()
 
     choice_set_matrix = {}
     for (store, week), group in cat_choice_sets.groupby(["store_code_uc", "week_end"]):
-        mat = np.zeros((3, 2), dtype=np.float64)
+        mat = np.zeros((n_inside, 2), dtype=np.float64)
 
-        for cat, idx in cat_map.items():
-            if cat != "outside" and cat in overall_cat_prices:
-                mat[idx, 0] = overall_cat_prices[cat]
+        for cat_name, idx in cat_map.items():
+            if cat_name in overall_cat_prices:
+                mat[idx, 0] = overall_cat_prices[cat_name]
 
         for row in group.itertuples():
-            if row.category in cat_map and row.category != "outside":
-                idx = cat_map[row.category]
+            if row.unbinned_cat in cat_map:
+                idx = cat_map[row.unbinned_cat]
                 mat[idx] = [row.price, row.iv_res]
 
         choice_set_matrix[(store, week)] = mat
 
     console.print(
-        "[bold green]Computing pure own-flavor satiation states (C_sat)...[/bold green]"
+        "\n[bold green]Computing unbinned own-flavor satiation states...[/bold green]"
     )
-    df_sat = compute_satiation_state(
+    df_sat = compute_unbinned_satiation_state(
         weekly_purchases,
-        n_categories=3,
+        n_categories=n_inside,
         lambda_mem=CALIBRATED_LAMBDA,
         delta_discount=0.9,
     )
@@ -331,9 +305,9 @@ def load_and_preprocess(weekly_capacity=14):
 
     counts_dict = {}
     for (hh_id, week), grp in weekly_purchases.groupby(["household_code", "week_end"]):
-        c_arr = np.zeros(3, dtype=np.int64)
+        c_arr = np.zeros(n_inside, dtype=np.int64)
         for row in grp.itertuples():
-            if row.choice_idx < 3:
+            if row.choice_idx < n_inside:
                 c_arr[int(row.choice_idx)] = row.units_bought
         counts_dict[(hh_id, week)] = c_arr
 
@@ -351,7 +325,9 @@ def load_and_preprocess(weekly_capacity=14):
 
         inc_val = hh_dict.get(hh_id, 0.0)
 
-        inside_counts = counts_dict.get((hh_id, week), np.zeros(3, dtype=np.int64))
+        inside_counts = counts_dict.get(
+            (hh_id, week), np.zeros(n_inside, dtype=np.int64)
+        )
         inside_units = np.sum(inside_counts)
 
         effective_capacity = max(weekly_capacity, inside_units + 1)
@@ -359,16 +335,12 @@ def load_and_preprocess(weekly_capacity=14):
 
         full_counts = np.append(inside_counts, outside_count)
         c_vec = np.array(
-            [
-                row_dict.get("C_sat_0", 0.0),
-                row_dict.get("C_sat_1", 0.0),
-                row_dict.get("C_sat_2", 0.0),
-            ],
+            [row_dict.get(f"C_sat_{j}", 0.0) for j in range(n_inside)],
             dtype=np.float64,
         )
 
-        all_prices.append(choice_set_matrix[(store, week)][:3, 0])
-        all_resids.append(choice_set_matrix[(store, week)][:3, 1])
+        all_prices.append(choice_set_matrix[(store, week)][:n_inside, 0])
+        all_resids.append(choice_set_matrix[(store, week)][:n_inside, 1])
         all_choices.append(full_counts)
         all_c_states.append(c_vec)
         all_inc.append(inc_val)
@@ -379,44 +351,33 @@ def load_and_preprocess(weekly_capacity=14):
         "choices": np.array(all_choices, dtype=np.int64),
         "c_states": np.array(all_c_states, dtype=np.float64),
         "income": np.array(all_inc, dtype=np.float64)[:, None],
+        "categories": unbinned_categories,
     }
 
 
-def total_objective(params, vec_data):
-    """
-    Parameter Order (9 parameters):
-    0: Constant
-    1: Beta_Berry (vs Other Base)
-    2: Beta_Plain (vs Other Base)
-    3: Beta_Berry x Income
-    4: Beta_Plain x Income
-    5: Gamma_0 (Global Scalar Satiation)
-    6: Gamma_Inc (Global Satiation x Income)
-    7: Price (alpha)
-    8: Control Function (sigma)
-    """
+def total_objective_unbinned(params, vec_data):
+    n_inside = vec_data["prices"].shape[1]
+
+    # Base option (j=0) fixed to 0.0 for identification
     const = params[0]
+    b0 = params[1:n_inside]  # (n_inside - 1)
+    b_inc = params[n_inside : 2 * n_inside - 1]  # (n_inside - 1)
 
-    b0 = params[1:3]
-    b_inc = params[3:5]
-
-    g0 = params[5]
-    g_inc = params[6]
+    g0 = params[2 * n_inside - 1]
+    g_inc = params[2 * n_inside]
 
     alpha = params[-2]
     sigma = params[-1]
 
-    prices = vec_data["prices"]  # (N, 3)
-    resids = vec_data["resids"]  # (N, 3)
-    choices = vec_data["choices"]  # (N, 4)
-    c_state = vec_data["c_states"]  # (N, 3)
+    prices = vec_data["prices"]  # (N, n_inside)
+    resids = vec_data["resids"]  # (N, n_inside)
+    choices = vec_data["choices"]  # (N, n_inside + 1)
+    c_state = vec_data["c_states"]  # (N, n_inside)
     inc = vec_data["income"]  # (N, 1)
 
-    # Beta Matrix (N, 3): Other (index 0) fixed to 0.0
-    beta_non_other = b0[None, :] + b_inc[None, :] * inc
-    beta_mat = np.hstack([np.zeros((inc.shape[0], 1)), beta_non_other])
+    beta_non_base = b0[None, :] + b_inc[None, :] * inc
+    beta_mat = np.hstack([np.zeros((inc.shape[0], 1)), beta_non_base])
 
-    # Global Satiation Gamma_i (N, 1)
     gamma_i = g0 + g_inc * inc
 
     u_inside = (
@@ -436,34 +397,27 @@ def total_objective(params, vec_data):
     return -total_ll if np.isfinite(total_ll) else 1e10
 
 
-def estimate_model(vec_data):
-    total_params = 9
+def estimate_unbinned_model(vec_data):
+    n_inside = vec_data["prices"].shape[1]
+    total_params = 1 + 2 * (n_inside - 1) + 2 + 2
 
-    # --------------------------------------------------------------------------
-    # ASYMMETRIC INITIALIZATION (x0) TO BREAK SYMMETRY TRAP
-    # --------------------------------------------------------------------------
     x0 = np.zeros(total_params)
-    x0[0] = 0.5  # const
-    x0[1] = 0.5  # beta_Berry initial guess (vs Other)
-    x0[2] = -0.5  # beta_Plain initial guess (vs Other) - BREAKS GRADIENT SYMMETRY
-    x0[3] = 0.1  # beta_Berry x Inc
-    x0[4] = -0.1  # beta_Plain x Inc
-    x0[5] = -0.2  # gamma_0 initial guess (negative satiation disutility)
-    x0[6] = 0.0  # gamma x Inc
-    x0[-2] = -0.5  # Price alpha initial guess
-    x0[-1] = 0.0  # Control function sigma
 
-    # Bounding gamma_0 <= 0 forces beta parameters to absorb baseline flavor demand
+    # Asymmetric initialization across unbinned flavors to break gradient traps
+    for k in range(n_inside - 1):
+        x0[1 + k] = 0.1 * (k + 1)
+
+    x0[2 * n_inside - 1] = -0.1  # gamma_0
+    x0[-2] = -0.5  # alpha price
+
     bounds = (
-        [(-20.0, 20.0)]
-        * 5  # const, beta_Berry, beta_Plain, beta_Berry_inc, beta_Plain_inc
-        + [(-10.0, 0.0)]  # gamma_0 constrained to <= 0 (Disutility)
-        + [(-10.0, 10.0)]  # gamma_inc
-        + [(-30.0, -0.01), (-30.0, 30.0)]  # price + control function
+        [(-20.0, 20.0)] * (1 + 2 * (n_inside - 1))
+        + [(-10.0, 10.0)] * 2  # gamma_0, gamma_inc
+        + [(-30.0, -0.01), (-30.0, 30.0)]  # price + control func
     )
 
     res = minimize(
-        total_objective,
+        total_objective_unbinned,
         x0=x0,
         args=(vec_data,),
         method="L-BFGS-B",
@@ -487,10 +441,10 @@ def estimate_model(vec_data):
             x4[i] -= eps
             x4[j] -= eps
 
-            f1 = total_objective(x1, vec_data)
-            f2 = total_objective(x2, vec_data)
-            f3 = total_objective(x3, vec_data)
-            f4 = total_objective(x4, vec_data)
+            f1 = total_objective_unbinned(x1, vec_data)
+            f2 = total_objective_unbinned(x2, vec_data)
+            f3 = total_objective_unbinned(x3, vec_data)
+            f4 = total_objective_unbinned(x4, vec_data)
 
             hessian[i, j] = (f1 - f2 - f3 + f4) / (4 * eps * eps)
             hessian[j, i] = hessian[i, j]
@@ -514,9 +468,11 @@ def estimate_model(vec_data):
     }
 
 
-def display_results(results):
+def display_results(results, categories):
+    n_inside = len(categories)
+
     table = Table(
-        title="SEPARATE BETA IDENTIFICATION LOGIT (BASE = OTHER)",
+        title="UNBINNED ALL-FLAVORS LOGIT MODEL ESTIMATION",
         show_header=True,
         header_style="bold magenta",
     )
@@ -526,17 +482,22 @@ def display_results(results):
     table.add_column("z-stat", justify="right")
     table.add_column("p-value", justify="right")
 
-    param_names = [
-        "Constant",
-        "beta_Berry (vs Other Base)",
-        "beta_Plain (vs Other Base)",
-        "beta_Berry x Income",
-        "beta_Plain x Income",
-        "gamma_0 (Global Base Satiation)",
-        "gamma x Income",
-        "Price (alpha)",
-        "Control Func. (sigma)",
-    ]
+    param_names = ["Constant"]
+    base_cat = categories[0]
+
+    for cat in categories[1:]:
+        param_names.append(f"beta_{cat} (vs {base_cat})")
+    for cat in categories[1:]:
+        param_names.append(f"beta_{cat} x Income")
+
+    param_names.extend(
+        [
+            "gamma_0 (Global Base Satiation)",
+            "gamma x Income",
+            "Price (alpha)",
+            "Control Func. (sigma)",
+        ]
+    )
 
     for name, val, se, z, p in zip(
         param_names,
@@ -567,13 +528,13 @@ def display_results(results):
 
 def main():
     console.print(
-        "\n[bold yellow]--- Preprocessing Data for Separate Beta Identification ---[/bold yellow]"
+        "\n[bold yellow]--- Preprocessing Data for Unbinned All-Flavors Model ---[/bold yellow]"
     )
-    vec_data = load_and_preprocess()
+    vec_data = load_and_preprocess_unbinned(top_n=TOP_N_FLAVORS)
 
-    console.print("\n[bold yellow]--- Estimating Model ---[/bold yellow]")
-    res_model = estimate_model(vec_data)
-    display_results(res_model)
+    console.print("\n[bold yellow]--- Estimating Unbinned Model ---[/bold yellow]")
+    res_model = estimate_unbinned_model(vec_data)
+    display_results(res_model, vec_data["categories"])
 
 
 if __name__ == "__main__":

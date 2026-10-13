@@ -338,13 +338,7 @@ def total_objective_binary(params, vec_data):
     gamma_flavored = g0 + g_inc * inc
     gamma_mat = np.hstack([np.zeros((inc.shape[0], 1)), gamma_flavored])
 
-    u_inside = (
-        const
-        + beta_mat
-        + gamma_mat * np.log(1.0 + c_state)
-        + alpha * prices
-        + sigma * resids
-    )
+    u_inside = const + beta_mat + gamma_mat * c_state + alpha * prices + sigma * resids
 
     u_outside = np.zeros((u_inside.shape[0], 1))
     u = np.hstack([u_inside, u_outside])

@@ -240,7 +240,10 @@ def load_and_preprocess(weekly_capacity=14):
         choice_set_matrix[(store, week)] = mat
 
     df_sat = compute_satiation_state(
-        weekly_purchases, n_categories=3, lambda_mem=CALIBRATED_LAMBDA, delta_discount=0.9
+        weekly_purchases,
+        n_categories=3,
+        lambda_mem=CALIBRATED_LAMBDA,
+        delta_discount=0.9,
     )
     for j in range(3):
         c_col = f"C_sat_{j}"
@@ -277,9 +280,7 @@ def load_and_preprocess(weekly_capacity=14):
     for row_dict in hh_weeks.to_dict("records"):
         store = row_dict["store_code_uc"]
         week = (
-            row_dict["week_end_x"]
-            if "week_end_x" in row_dict
-            else row_dict["week_end"]
+            row_dict["week_end_x"] if "week_end_x" in row_dict else row_dict["week_end"]
         )
         hh_id = row_dict["household_code"]
 
@@ -287,4 +288,227 @@ def load_and_preprocess(weekly_capacity=14):
             continue
 
         h_info = hh_dict.get(
-            hh_id, {"income_std": 0.0, "age_std": 0.0, "freq_std": 0.0
+            hh_id, {"income_std": 0.0, "age_std": 0.0, "freq_std": 0.0}
+        )
+
+        inside_counts = counts_dict.get((hh_id, week), np.zeros(3, dtype=np.int64))
+        inside_units = np.sum(inside_counts)
+
+        effective_capacity = max(weekly_capacity, inside_units + 1)
+        outside_count = effective_capacity - inside_units
+
+        full_counts = np.append(inside_counts, outside_count)
+        c_vec = np.array(
+            [
+                row_dict.get("C_sat_0", 0.0),
+                row_dict.get("C_sat_1", 0.0),
+                row_dict.get("C_sat_2", 0.0),
+            ],
+            dtype=np.float64,
+        )
+
+        all_prices.append(choice_set_matrix[(store, week)][:3, 0])
+        all_resids.append(choice_set_matrix[(store, week)][:3, 1])
+        all_choices.append(full_counts)
+        all_c_states.append(c_vec)
+        all_inc.append(h_info["income_std"])
+        all_age.append(h_info["age_std"])
+        all_freq.append(h_info["freq_std"])
+
+    return {
+        "prices": np.array(all_prices, dtype=np.float64),
+        "resids": np.array(all_resids, dtype=np.float64),
+        "choices": np.array(all_choices, dtype=np.int64),
+        "c_states": np.array(all_c_states, dtype=np.float64),
+        "income": np.array(all_inc, dtype=np.float64)[:, None],
+        "age": np.array(all_age, dtype=np.float64)[:, None],
+        "freq": np.array(all_freq, dtype=np.float64)[:, None],
+    }
+
+
+# =========================================================
+# LOGIT OBJECTIVE: GLOBAL BETA(INC, AGE) & GLOBAL GAMMA(FREQ)
+# =========================================================
+def total_objective_global_beta_gamma(params, vec_data):
+    """
+    Parameter Order (8 parameters):
+    0: Constant
+    1: Beta_0 (Global inside baseline)
+    2: Beta_Inc (Global preference x Income)
+    3: Beta_Age (Global preference x Age)
+    4: Gamma_0 (Global satiation baseline)
+    5: Gamma_Freq (Global satiation x Trip Frequency)
+    6: Price (alpha)
+    7: Control Function (sigma)
+    """
+    const = params[0]
+
+    b0 = params[1]
+    b_inc = params[2]
+    b_age = params[3]
+
+    g0 = params[4]
+    g_freq = params[5]
+
+    alpha = params[-2]
+    sigma = params[-1]
+
+    prices = vec_data["prices"]  # (N, 3)
+    resids = vec_data["resids"]  # (N, 3)
+    choices = vec_data["choices"]  # (N, 4)
+    c_state = vec_data["c_states"]  # (N, 3)
+    inc = vec_data["income"]  # (N, 1)
+    age = vec_data["age"]  # (N, 1)
+    freq = vec_data["freq"]  # (N, 1)
+
+    # Global Preference Beta_i (N, 1) applied across all 3 inside options
+    beta_i = b0 + b_inc * inc + b_age * age
+
+    # Global Satiation Gamma_i (N, 1) applied across all 3 inside options
+    gamma_i = g0 + g_freq * freq
+
+    u_inside = (
+        const
+        + beta_i
+        + gamma_i * np.log(1.0 + c_state)
+        + alpha * prices
+        + sigma * resids
+    )
+
+    u_outside = np.zeros((u_inside.shape[0], 1))
+    u = np.hstack([u_inside, u_outside])
+
+    log_probs = u - logsumexp(u, axis=1, keepdims=True)
+    total_ll = np.sum(log_probs * choices)
+
+    return -total_ll if np.isfinite(total_ll) else 1e10
+
+
+def estimate_global_beta_gamma_model(vec_data):
+    total_params = 8
+    x0 = np.zeros(total_params)
+    x0[4] = -0.1  # Initial gamma_0 guess
+    x0[-2] = -0.1  # Initial price alpha guess
+
+    bounds = (
+        [(-30.0, 30.0)] * 4  # const, beta_0, beta_inc, beta_age
+        + [(-30.0, 0.0)]  # gamma_0 bound (disutility <= 0)
+        + [(-30.0, 30.0)]  # gamma_freq
+        + [(-30.0, -0.01), (-30.0, 30.0)]  # price + control function
+    )
+
+    res = minimize(
+        total_objective_global_beta_gamma,
+        x0=x0,
+        args=(vec_data,),
+        method="L-BFGS-B",
+        bounds=bounds,
+        options={"ftol": 1e-8, "gtol": 1e-5, "maxiter": 2000},
+    )
+
+    n = len(res.x)
+    eps = 1e-4
+    hessian = np.zeros((n, n))
+
+    for i in range(n):
+        for j in range(i, n):
+            x1, x2, x3, x4 = res.x.copy(), res.x.copy(), res.x.copy(), res.x.copy()
+            x1[i] += eps
+            x1[j] += eps
+            x2[i] += eps
+            x2[j] -= eps
+            x3[i] -= eps
+            x3[j] += eps
+            x4[i] -= eps
+            x4[j] -= eps
+
+            f1 = total_objective_global_beta_gamma(x1, vec_data)
+            f2 = total_objective_global_beta_gamma(x2, vec_data)
+            f3 = total_objective_global_beta_gamma(x3, vec_data)
+            f4 = total_objective_global_beta_gamma(x4, vec_data)
+
+            hessian[i, j] = (f1 - f2 - f3 + f4) / (4 * eps * eps)
+            hessian[j, i] = hessian[i, j]
+
+    try:
+        cov = np.linalg.inv(hessian + np.eye(n) * 1e-6)
+    except np.linalg.LinAlgError:
+        cov = np.linalg.pinv(hessian)
+
+    se = np.sqrt(np.maximum(1e-8, np.diag(cov)))
+    z = res.x / se
+    p = 2 * (1 - sp.stats.norm.cdf(np.abs(z)))
+
+    return {
+        "params": res.x,
+        "se": se,
+        "z_stat": z,
+        "p_val": p,
+        "success": res.success,
+        "fun": res.fun,
+    }
+
+
+def display_results(results):
+    table = Table(
+        title="GLOBAL SPECIFICATION: BETA(INC, AGE) & GAMMA(FREQ)",
+        show_header=True,
+        header_style="bold magenta",
+    )
+    table.add_column("Parameter", style="cyan", justify="left")
+    table.add_column("Estimate", justify="right")
+    table.add_column("Std. Error", justify="right")
+    table.add_column("z-stat", justify="right")
+    table.add_column("p-value", justify="right")
+
+    param_names = [
+        "Constant",
+        "beta_0 (Global Preference)",
+        "beta x Income",
+        "beta x Age",
+        "gamma_0 (Global Satiation)",
+        "gamma x Trip Frequency",
+        "Price (alpha)",
+        "Control Func. (sigma)",
+    ]
+
+    for name, val, se, z, p in zip(
+        param_names,
+        results["params"],
+        results["se"],
+        results["z_stat"],
+        results["p_val"],
+    ):
+        p_str = f"{p:.4f}" if not np.isnan(p) else "NA"
+        if not np.isnan(p):
+            if p < 0.001:
+                p_str += " ***"
+            elif p < 0.05:
+                p_str += " **"
+
+        table.add_row(
+            name,
+            f"{val:.4f}",
+            f"{se:.4f}" if not np.isnan(se) else "NA",
+            f"{z:.3f}" if not np.isnan(z) else "NA",
+            p_str,
+        )
+
+    console.print(table)
+    console.print(f"[bold]Optimization Success:[/bold] {results['success']}")
+    console.print(f"[bold]Final LL Objective:[/bold] {results['fun']:.4f}\n")
+
+
+def main():
+    console.print(
+        "\n[bold yellow]--- Preprocessing Data for Global Beta & Gamma Model ---[/bold yellow]"
+    )
+    vec_data = load_and_preprocess()
+
+    console.print("\n[bold yellow]--- Estimating Global Model ---[/bold yellow]")
+    res_model = estimate_global_beta_gamma_model(vec_data)
+    display_results(res_model)
+
+
+if __name__ == "__main__":
+    main()

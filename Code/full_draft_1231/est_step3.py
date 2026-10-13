@@ -172,22 +172,18 @@ def load_and_preprocess(weekly_capacity=14):
         )
     merged_df["iv_res"] = merged_df["iv_res"].fillna(0.0)
 
-    # Standardize Household Demographics & Trip Frequency
+    # Standardize Head of Household Age & Trip Frequency
     actual_age_col = age_col if age_col in merged_df.columns else "household_income"
 
     hh_stats = (
         merged_df.groupby("household_code")
         .agg(
-            income=("household_income", "first"),
             age=(actual_age_col, "first"),
             obs_weeks=("week_end", "nunique"),
         )
         .reset_index()
     )
 
-    hh_stats["income_std"] = (hh_stats["income"] - hh_stats["income"].mean()) / (
-        hh_stats["income"].std() + 1e-6
-    )
     hh_stats["age_std"] = (hh_stats["age"] - hh_stats["age"].mean()) / (
         hh_stats["age"].std() + 1e-6
     )
@@ -195,9 +191,9 @@ def load_and_preprocess(weekly_capacity=14):
         hh_stats["obs_weeks"].std() + 1e-6
     )
 
-    hh_dict = hh_stats.set_index("household_code")[
-        ["income_std", "age_std", "freq_std"]
-    ].to_dict("index")
+    hh_dict = hh_stats.set_index("household_code")[["age_std", "freq_std"]].to_dict(
+        "index"
+    )
 
     inside_df = merged_df[merged_df["category"] != "outside"].copy()
 
@@ -275,7 +271,7 @@ def load_and_preprocess(weekly_capacity=14):
         counts_dict[(hh_id, week)] = c_arr
 
     all_prices, all_resids, all_choices, all_c_states = [], [], [], []
-    all_inc, all_age, all_freq = [], [], []
+    all_age, all_freq = [], []
 
     for row_dict in hh_weeks.to_dict("records"):
         store = row_dict["store_code_uc"]
@@ -287,9 +283,7 @@ def load_and_preprocess(weekly_capacity=14):
         if (store, week) not in choice_set_matrix:
             continue
 
-        h_info = hh_dict.get(
-            hh_id, {"income_std": 0.0, "age_std": 0.0, "freq_std": 0.0}
-        )
+        h_info = hh_dict.get(hh_id, {"age_std": 0.0, "freq_std": 0.0})
 
         inside_counts = counts_dict.get((hh_id, week), np.zeros(3, dtype=np.int64))
         inside_units = np.sum(inside_counts)
@@ -311,7 +305,6 @@ def load_and_preprocess(weekly_capacity=14):
         all_resids.append(choice_set_matrix[(store, week)][:3, 1])
         all_choices.append(full_counts)
         all_c_states.append(c_vec)
-        all_inc.append(h_info["income_std"])
         all_age.append(h_info["age_std"])
         all_freq.append(h_info["freq_std"])
 
@@ -320,35 +313,32 @@ def load_and_preprocess(weekly_capacity=14):
         "resids": np.array(all_resids, dtype=np.float64),
         "choices": np.array(all_choices, dtype=np.int64),
         "c_states": np.array(all_c_states, dtype=np.float64),
-        "income": np.array(all_inc, dtype=np.float64)[:, None],
         "age": np.array(all_age, dtype=np.float64)[:, None],
         "freq": np.array(all_freq, dtype=np.float64)[:, None],
     }
 
 
 # =========================================================
-# LOGIT OBJECTIVE: GLOBAL BETA(INC, AGE) & GLOBAL GAMMA(FREQ)
+# LOGIT OBJECTIVE: FLAVOR BETA(AGE) & FLAVOR GAMMA(FREQ)
 # =========================================================
-def total_objective_global_beta_gamma(params, vec_data):
+def total_objective_flavor_beta_age_gamma_freq(params, vec_data):
     """
-    Parameter Order (8 parameters):
+    Parameter Order (11 parameters):
     0: Constant
-    1: Beta_0 (Global inside baseline)
-    2: Beta_Inc (Global preference x Income)
-    3: Beta_Age (Global preference x Age)
-    4: Gamma_0 (Global satiation baseline)
-    5: Gamma_Freq (Global satiation x Trip Frequency)
-    6: Price (alpha)
-    7: Control Function (sigma)
+    1..2: Beta_0 [Berry, Plain] (vs Other base = 0.0)
+    3..4: Beta_Age [Berry, Plain]
+    5..6: Gamma_0 [Berry, Plain] (vs Other base = 0.0)
+    7..8: Gamma_Freq [Berry, Plain]
+    9: Price (alpha)
+    10: Control Function (sigma)
     """
     const = params[0]
 
-    b0 = params[1]
-    b_inc = params[2]
-    b_age = params[3]
+    b0 = params[1:3]
+    b_age = params[3:5]
 
-    g0 = params[4]
-    g_freq = params[5]
+    g0 = params[5:7]
+    g_freq = params[7:9]
 
     alpha = params[-2]
     sigma = params[-1]
@@ -357,20 +347,21 @@ def total_objective_global_beta_gamma(params, vec_data):
     resids = vec_data["resids"]  # (N, 3)
     choices = vec_data["choices"]  # (N, 4)
     c_state = vec_data["c_states"]  # (N, 3)
-    inc = vec_data["income"]  # (N, 1)
     age = vec_data["age"]  # (N, 1)
     freq = vec_data["freq"]  # (N, 1)
 
-    # Global Preference Beta_i (N, 1) applied across all 3 inside options
-    beta_i = b0 + b_inc * inc + b_age * age
+    # Beta Matrix (N, 3): Other (index 0) fixed to 0.0
+    beta_non_other = b0[None, :] + b_age[None, :] * age
+    beta_mat = np.hstack([np.zeros((age.shape[0], 1)), beta_non_other])
 
-    # Global Satiation Gamma_i (N, 1) applied across all 3 inside options
-    gamma_i = g0 + g_freq * freq
+    # Gamma Matrix (N, 3): Other (index 0) fixed to 0.0
+    gamma_non_other = g0[None, :] + g_freq[None, :] * freq
+    gamma_mat = np.hstack([np.zeros((freq.shape[0], 1)), gamma_non_other])
 
     u_inside = (
         const
-        + beta_i
-        + gamma_i * np.log(1.0 + c_state)
+        + beta_mat
+        + gamma_mat * np.log(1.0 + c_state)
         + alpha * prices
         + sigma * resids
     )
@@ -384,21 +375,21 @@ def total_objective_global_beta_gamma(params, vec_data):
     return -total_ll if np.isfinite(total_ll) else 1e10
 
 
-def estimate_global_beta_gamma_model(vec_data):
-    total_params = 8
+def estimate_flavor_beta_age_gamma_freq_model(vec_data):
+    total_params = 11
     x0 = np.zeros(total_params)
-    x0[4] = -0.1  # Initial gamma_0 guess
+    x0[5:7] = -0.1  # Initial gamma_0 guesses
     x0[-2] = -0.1  # Initial price alpha guess
 
     bounds = (
-        [(-30.0, 30.0)] * 4  # const, beta_0, beta_inc, beta_age
-        + [(-30.0, 0.0)]  # gamma_0 bound (disutility <= 0)
-        + [(-30.0, 30.0)]  # gamma_freq
+        [(-30.0, 30.0)] * 5  # const, beta_0, beta_age for Berry & Plain
+        + [(-30.0, 0.0)] * 2  # gamma_0 bounds for Berry & Plain (disutility <= 0)
+        + [(-30.0, 30.0)] * 2  # gamma_freq for Berry & Plain
         + [(-30.0, -0.01), (-30.0, 30.0)]  # price + control function
     )
 
     res = minimize(
-        total_objective_global_beta_gamma,
+        total_objective_flavor_beta_age_gamma_freq,
         x0=x0,
         args=(vec_data,),
         method="L-BFGS-B",
@@ -422,10 +413,10 @@ def estimate_global_beta_gamma_model(vec_data):
             x4[i] -= eps
             x4[j] -= eps
 
-            f1 = total_objective_global_beta_gamma(x1, vec_data)
-            f2 = total_objective_global_beta_gamma(x2, vec_data)
-            f3 = total_objective_global_beta_gamma(x3, vec_data)
-            f4 = total_objective_global_beta_gamma(x4, vec_data)
+            f1 = total_objective_flavor_beta_age_gamma_freq(x1, vec_data)
+            f2 = total_objective_flavor_beta_age_gamma_freq(x2, vec_data)
+            f3 = total_objective_flavor_beta_age_gamma_freq(x3, vec_data)
+            f4 = total_objective_flavor_beta_age_gamma_freq(x4, vec_data)
 
             hessian[i, j] = (f1 - f2 - f3 + f4) / (4 * eps * eps)
             hessian[j, i] = hessian[i, j]
@@ -451,7 +442,7 @@ def estimate_global_beta_gamma_model(vec_data):
 
 def display_results(results):
     table = Table(
-        title="GLOBAL SPECIFICATION: BETA(INC, AGE) & GAMMA(FREQ)",
+        title="FLAVOR-SPECIFIC MODEL: BETA(AGE) & GAMMA(TRIP FREQ)",
         show_header=True,
         header_style="bold magenta",
     )
@@ -463,11 +454,14 @@ def display_results(results):
 
     param_names = [
         "Constant",
-        "beta_0 (Global Preference)",
-        "beta x Income",
-        "beta x Age",
-        "gamma_0 (Global Satiation)",
-        "gamma x Trip Frequency",
+        "beta_Berry (vs Other Base)",
+        "beta_Plain (vs Other Base)",
+        "beta_Berry x Age",
+        "beta_Plain x Age",
+        "gamma_Berry (Base Satiation)",
+        "gamma_Plain (Base Satiation)",
+        "gamma_Berry x Trip Frequency",
+        "gamma_Plain x Trip Frequency",
         "Price (alpha)",
         "Control Func. (sigma)",
     ]
@@ -501,12 +495,12 @@ def display_results(results):
 
 def main():
     console.print(
-        "\n[bold yellow]--- Preprocessing Data for Global Beta & Gamma Model ---[/bold yellow]"
+        "\n[bold yellow]--- Preprocessing Data for Flavor-Specific Beta(Age) & Gamma(Freq) Model ---[/bold yellow]"
     )
     vec_data = load_and_preprocess()
 
-    console.print("\n[bold yellow]--- Estimating Global Model ---[/bold yellow]")
-    res_model = estimate_global_beta_gamma_model(vec_data)
+    console.print("\n[bold yellow]--- Estimating Model ---[/bold yellow]")
+    res_model = estimate_flavor_beta_age_gamma_freq_model(vec_data)
     display_results(res_model)
 
 

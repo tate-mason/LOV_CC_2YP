@@ -25,6 +25,70 @@ CALIBRATED_LAMBDA = 0.7
 BASE_DELTA_DISCOUNT = 0.9
 
 
+def compute_satiation_state(
+    weekly_purchases,
+    n_categories=3,
+    lambda_mem=CALIBRATED_LAMBDA,
+    delta_discount=BASE_DELTA_DISCOUNT,
+):
+    sorted_df = weekly_purchases.sort_values(["household_code", "week_end"])
+    inventory_records = []
+
+    for hh_id, hh_group in sorted_df.groupby("household_code"):
+        weeks = pd.to_datetime(hh_group["week_end"].unique())
+        weeks = np.sort(weeks)
+
+        C_history = {}
+        prev_X = np.zeros(n_categories)
+
+        for t_idx, week in enumerate(weeks):
+            C_current = np.zeros(n_categories)
+            memory_term = np.zeros(n_categories)
+
+            if t_idx > 0:
+                for s in range(t_idx):
+                    weeks_elapsed = pd.Timedelta(week - weeks[s]).days / 7.0
+                    discount = delta_discount**weeks_elapsed
+                    memory_term += discount * C_history[s]
+
+            for j in range(n_categories):
+                # Pure Own-Flavor Stock: prev_X[j] ONLY
+                C_current[j] = (lambda_mem * memory_term[j]) + (
+                    (1.0 - lambda_mem) * prev_X[j]
+                )
+
+            record = {
+                "household_code": hh_id,
+                "week_end": pd.Timestamp(week).strftime("%Y-%m-%d"),
+            }
+            for j in range(n_categories):
+                record[f"C_sat_{j}"] = C_current[j]
+            inventory_records.append(record)
+
+            C_history[t_idx] = C_current.copy()
+
+            sub = hh_group[hh_group["week_end"] == week]
+            curr_X = np.zeros(n_categories)
+            for row in sub.itertuples():
+                if hasattr(row, "choice_idx") and row.choice_idx < n_categories:
+                    curr_X[int(row.choice_idx)] = row.units_bought
+            total_inside_units = curr_X.sum()
+            if total_inside_units > 0:
+                curr_X = curr_X / total_inside_units
+            prev_X = curr_X
+
+    df_sat = pd.DataFrame(inventory_records)
+
+    # Standard scale across column to prevent numerical gradient freezing
+    for j in range(n_categories):
+        c_col = f"C_sat_{j}"
+        std_val = df_sat[c_col].std()
+        if std_val > 0:
+            df_sat[c_col] = df_sat[c_col] / std_val
+
+    return df_sat
+
+
 INCOME_CODE_MAP = {
     3: 2500,  # Under $5,000
     4: 6500,  # $5,000 - $7,999

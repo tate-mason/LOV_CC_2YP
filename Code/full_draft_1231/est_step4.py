@@ -729,7 +729,7 @@ def main():
     )
     parser.add_argument("--output", default="step4_output")
     parser.add_argument(
-        "--flavor-column", default="flavor_descr", help="Exact flavor label/code column"
+        "--flavor-column", default="flavor", help="Exact flavor label/code column"
     )
     parser.add_argument(
         "--attribute-columns",

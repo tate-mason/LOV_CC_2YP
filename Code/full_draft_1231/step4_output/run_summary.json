@@ -1,33 +1,72 @@
 {
-  "households": 21,
+  "households": 998,
+  "source_sample_stages": [
+    {
+      "stage": "input",
+      "source_rows": 895754,
+      "households": 3806
+    },
+    {
+      "stage": "after_household_size_restriction",
+      "source_rows": 895754,
+      "households": 3806
+    },
+    {
+      "stage": "after_serving_per_container_cd_restriction",
+      "source_rows": 73463,
+      "households": 2807
+    },
+    {
+      "stage": "after_product_module_code_hms_restriction",
+      "source_rows": 17538,
+      "households": 998
+    },
+    {
+      "stage": "after_retained_flavor_restriction",
+      "source_rows": 17538,
+      "households": 998
+    }
+  ],
+  "choice_sample_stages": [
+    {
+      "stage": "all_observed_purchase_rows_retained",
+      "store_week_rows": 3991,
+      "households_with_any_rows": 998
+    }
+  ],
   "flavors": [
     "0",
     "1",
     "2"
   ],
   "reference_flavor": "0",
-  "likelihood_rows": 138,
-  "likelihood_cups": 1542,
+  "likelihood_rows": 3991,
+  "likelihood_cups": 32919,
   "excluded_nonselected_flavor_cups": 0,
-  "one_alternative_rows_before_household_filter": 3237,
-  "rows_with_incomplete_prices_before_household_filter": 2398,
-  "otherwise_informative_rows_excluded_for_prices": 326,
+  "one_alternative_rows_before_household_filter": 0,
+  "otherwise_informative_rows_excluded_for_prices": 0,
+  "price_fallback_cells": {
+    "store_flavor": 1117,
+    "overall_flavor": 8970,
+    "overall_all_flavors": 0
+  },
   "price_cleaning": {
     "purchase_rows_with_unusable_price": 10488
   },
-  "price_missing_policy": "same-store-week-flavor valid-price mean; incomplete menus excluded from likelihood, quantities retained in history",
-  "menu_source": "purchase-derived availability proxy",
+  "price_missing_policy": "valid store-week-flavor mean, then store-flavor mean, overall flavor mean, and overall all-flavor mean; no purchase rows excluded",
+  "menu_source": "all retained categories assumed available; purchase-derived mean prices",
   "price_unit": "assumed dollars per single-serving cup; user must verify",
   "attribute_controls": [],
   "delta": 0.8,
-  "burnin_weeks": 3,
-  "negative_log_likelihood": 1000.5051796990504,
+  "burnin_weeks": 0,
+  "minimum_purchase_weeks": 1,
+  "negative_log_likelihood": 13917.391394857434,
   "converged": true,
   "optimizer_message": "CONVERGENCE: RELATIVE REDUCTION OF F <= FACTR*EPSMCH",
   "start_objectives": [
-    1000.5051796990504,
-    1000.5051796991781,
-    1000.5051797004592
+    13917.787660631458,
+    13917.391394857434,
+    13917.787659919986
   ],
   "gamma_mode": "common",
   "family_effect": false,
@@ -35,8 +74,8 @@
   "seed": 219,
   "standard_errors": "not reported; inspect profile and recovery",
   "price_endogeneity": "no IV/control function; estimates conditional on supplied prices",
-  "initial_conditions": "zero stock at first observed retained-flavor purchase; calendar burn-in",
-  "no_fatigue_negative_log_likelihood": 1001.3448491930128,
+  "initial_conditions": "zero stock at first observed retained-flavor purchase; first week retained; no burn-in",
+  "no_fatigue_negative_log_likelihood": 13917.662018067114,
   "no_fatigue_converged": true,
   "no_fatigue_beats_full_model": false,
   "arguments": {
@@ -48,8 +87,6 @@
     "prefiltered": false,
     "top_flavors": 6,
     "delta": 0.8,
-    "burnin_weeks": 3,
-    "min_weeks": 3,
     "timing_controls": false,
     "gamma_mode": "common",
     "family_effect": false,
@@ -59,6 +96,7 @@
     "seed": 219,
     "profile": null,
     "recovery_reps": 0,
-    "self_test": false
+    "self_test": false,
+    "audit_only": false
   }
 }

@@ -1,7 +1,7 @@
 parameter,estimate,lower_bound,upper_bound,at_bound
-beta[1],-0.032092217933005734,-12,12,False
-beta[2],0.0,-12,12,False
-sd_beta[1],0.7027843561947726,0,4,False
-sd_beta[2],0.3,0,4,False
-gamma,-0.10796942504390916,-8,8,False
-alpha_price,-0.919316245905416,-10,0,False
+beta[1],-1.6372963428460447,-12,12,False
+beta[2],-3.611203309756934,-12,12,False
+sd_beta[1],4.0,0,4,True
+sd_beta[2],4.0,0,4,True
+gamma,0.014836890896241971,-8,8,False
+alpha_price,-0.7661735140102565,-10,0,False

@@ -3,6 +3,8 @@
 Read est_step4.md before interpreting estimates. This is conditional flavor
 demand: total yogurt purchases and the visited store are taken as given. It is
 not a model of yogurt participation, consumption, store choice, or inventory.
+Default heterogeneity is observed household income, with no simulated draws.
+Use --heterogeneity random for the previous normal random-coefficient model.
 Nothing executes on import; outputs remain within this script's folder.
 Run ``python3 est_step4.py --help`` or ``--self-test`` for entry points.
 """
@@ -846,7 +848,8 @@ def profile(model, fit, grid, starts, maxiter):
 def simulate(model, truth, seed):
     """Generate an actual evolving history, not choices against frozen stocks.
 
-    Condition on observed menus, dates, and basket totals. Draw a continuous
+    Condition on observed menus, dates, and basket totals. Income mode keeps the
+    observed income and has no latent type draw; random mode draws a continuous
     household type independently of estimation's quadrature nodes. Simulate
     burn-in choices too, construct new stocks, then apply the original keep mask.
     This tests conditional parameter recovery, not the IV exclusion restriction
@@ -1142,9 +1145,9 @@ def main():
         estimates["ci95_high"] = estimates.estimate + 1.96*se
         report["inference"] = inference
     estimates.to_csv(output / "estimates.csv", index=False)
-    # Do not turn an unstable numerical inverse Hessian into reassuring p-values.
-    # Profile uncertainty is saved explicitly; household bootstrap inference can
-    # be added when a trustworthy menu and acceptable parameter recovery exist.
+    # Income mode uses exact curvature and clustered score variability. Legacy
+    # random mode still omits Hessian-based standard errors; profiles/recovery
+    # remain separate diagnostics, not substitutes for clustered inference.
     report.update(
         {
             "negative_log_likelihood": float(fit.fun),

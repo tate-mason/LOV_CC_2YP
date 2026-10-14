@@ -60,6 +60,9 @@ def dates(values: pd.Series) -> pd.Series:
 
 def family(flavor: str) -> str:
     """A deliberately coarse comparison to exact-flavor exposure, not a taxonomy."""
+    # These are the draft's established category codes, not raw Nielsen codes.
+    if flavor.strip() in {"0", "1", "2"}:
+        return {"0": "other", "1": "berry", "2": "plain"}[flavor.strip()]
     flavor = flavor.lower()
     if "plain" in flavor or "unflavored" in flavor:
         return "plain"
@@ -84,8 +87,7 @@ class Panel:
     stock: np.ndarray
     family_stock: np.ndarray
     keep: np.ndarray
-    # False means at least one listed flavor lacks a usable store-week price.
-    # Such rows remain in history but cannot enter a price-dependent likelihood.
+    # Prices are completed by the documented mean-price fallback before fitting.
     price_complete: np.ndarray | None = None
 
 
@@ -97,6 +99,7 @@ class Dataset:
     family_index: np.ndarray
     delta: float
     burnin: int
+    attrition: pd.DataFrame | None = None
 
 
 def stocks(weeks, counts, family_index, delta):
@@ -126,6 +129,11 @@ def stocks(weeks, counts, family_index, delta):
 
 def prepare(args) -> tuple[Dataset, dict]:
     purchases = read_table(input_path(args.input))
+    sample_stages = []
+
+    def sample_stage(label, frame):
+        sample_stages.append({"stage": label, "source_rows": len(frame),
+                              "households": int(frame.household_code.nunique())})
     required = [
         "household_code",
         "store_code_uc",
@@ -137,6 +145,7 @@ def prepare(args) -> tuple[Dataset, dict]:
     missing = set(required) - set(purchases)
     if missing:
         raise ValueError(f"Missing purchase columns: {sorted(missing)}")
+    sample_stage("input", purchases)
 
     # Apply the established single-person / single-serving / yogurt restrictions.
     # Missing filter columns require explicit confirmation via a CLI flag: a
@@ -155,6 +164,7 @@ def prepare(args) -> tuple[Dataset, dict]:
             raise ValueError(
                 f"Missing {column}; use --prefiltered only for an already restricted sample."
             )
+        sample_stage(f"after_{column}_restriction", purchases)
 
     price_diagnostics = {}
 
@@ -205,9 +215,9 @@ def prepare(args) -> tuple[Dataset, dict]:
     purchases = normalize(purchases, True)
     if purchases.empty:
         raise ValueError("No purchases after sample restrictions.")
-    # An independently observed store-week menu is preferable. The fallback is
-    # the flavors purchased by ANY sampled household at that store/week; it is
-    # only a proxy for availability, and we record that limitation in outputs.
+    # With no independent menu, assume every retained category is available at
+    # each observed store-week, as in step 2. A category with no sampled purchase
+    # is not declared unavailable. Complete its price from observed averages.
     menu_source = (
         normalize(read_table(input_path(args.menu)), False)
         if args.menu
@@ -227,6 +237,7 @@ def prepare(args) -> tuple[Dataset, dict]:
         purchases.loc[~purchases.flavor_label.isin(flavors), "quantity"].sum()
     )
     purchases = purchases[purchases.flavor_label.isin(flavors)].copy()
+    sample_stage("after_retained_flavor_restriction", purchases)
     menu_source = menu_source[menu_source.flavor_label.isin(flavors)].copy()
     flavor_map = {f: j for j, f in enumerate(flavors)}
     family_index = np.array(
@@ -252,6 +263,11 @@ def prepare(args) -> tuple[Dataset, dict]:
             control_names.append(name)
     key = ["store_code_uc", "week_end", "flavor_label"]
     menu = menu_source.groupby(key, observed=True)[["price"] + control_names].mean()
+    store_means = menu.groupby(level=["store_code_uc", "flavor_label"]).mean()
+    flavor_means = menu.groupby(level="flavor_label").mean()
+    grand_means = menu.mean()
+    if not np.isfinite(grand_means["price"]):
+        raise ValueError("No finite positive prices in the input menu/purchases; supply usable per-cup prices.")
     baskets = (
         purchases.groupby(["household_code"] + key, observed=True)
         .quantity.sum()
@@ -260,8 +276,8 @@ def prepare(args) -> tuple[Dataset, dict]:
 
     panels = []
     one_alternative_rows = 0
-    unpriced_rows = 0
-    unpriced_informative_rows = 0
+    price_fallbacks = {"store_flavor": 0, "overall_flavor": 0, "overall_all_flavors": 0}
+    household_audit = []
     for household, frame in baskets.groupby("household_code", sort=True):
         row_keys = (
             frame[["week_end", "store_code_uc"]]
@@ -282,19 +298,28 @@ def prepare(args) -> tuple[Dataset, dict]:
                 raise ValueError(
                     f"No menu for household {household}, {row.store_code_uc}, {row.week_end}"
                 ) from error
+            if not args.menu:
+                # Missing sampled sales do not establish missing shelf availability.
+                offer = offer.reindex(flavors)
             for label, values in offer.iterrows():
                 k = flavor_map[label]
                 available[t, k] = True
-                if np.isfinite(values["price"]) and values["price"] > 0:
-                    prices[t, k] = values["price"]
-                else:
-                    price_complete[t] = False
-                    # Zero is an internal placeholder ONLY for a row excluded
-                    # from estimation. It is never an imputed estimation price.
-                    prices[t, k] = 0.0
-                controls[t, k, : len(control_names)] = values[control_names].to_numpy(
-                    float
-                )
+                completed = values.copy()
+                # Prefer local prices. The final all-flavor fallback is used only
+                # if a flavor has no positive observed price anywhere, and is
+                # counted separately so this strong imputation stays visible.
+                fallbacks = []
+                if (row.store_code_uc, label) in store_means.index:
+                    fallbacks.append(("store_flavor", store_means.loc[(row.store_code_uc, label)]))
+                if label in flavor_means.index:
+                    fallbacks.append(("overall_flavor", flavor_means.loc[label]))
+                fallbacks.append(("overall_all_flavors", grand_means))
+                for source, replacement in fallbacks:
+                    if not np.isfinite(completed["price"]) and np.isfinite(replacement["price"]):
+                        price_fallbacks[source] += 1
+                    completed = completed.fillna(replacement)
+                prices[t, k] = completed["price"]
+                controls[t, k, : len(control_names)] = completed[control_names].fillna(0).to_numpy(float)
             selected = frame[
                 (frame.week_end == row.week_end)
                 & (frame.store_code_uc == row.store_code_uc)
@@ -307,23 +332,25 @@ def prepare(args) -> tuple[Dataset, dict]:
                 )
         own, broad = stocks(weeks, counts, family_index, args.delta)
         unique = np.unique(weeks)
-        # Calendar burn-in, not 'first K purchases': quiet weeks still count.
-        keep = ((weeks - unique[0]) / np.timedelta64(1, "D")) >= args.burnin_weeks * 7
-        # One-alternative rows contain no taste information, but their quantities
-        # MUST remain in stock histories. Exclude only from the likelihood.
+        # Keep every observed purchase row, including the first week and short
+        # household panels. There is no burn-in or minimum-length restriction.
+        keep = np.ones(n, dtype=bool)
+        audit = {"household": household, "all_store_week_rows": n,
+                 "all_purchase_weeks": len(unique)}
+        # If a supplied menu has only one category, keep the row: its conditional
+        # log probability is zero, so it adds history but no taste information.
         one_alternative_rows += int(np.sum(available.sum(axis=1) < 2))
-        keep &= available.sum(axis=1) >= 2
-        unpriced_rows += int((~price_complete).sum())
-        unpriced_informative_rows += int((keep & ~price_complete).sum())
-        keep &= price_complete
+        audit["retained_rows"] = n
+        audit["retained_weeks"] = len(unique)
+        audit["retained"] = True
+        household_audit.append(audit)
         # Same-flavor exposure interacted with lagged total cups / elapsed gap
         # lets dose/timing effects differ across alternatives. A common scalar
         # gap or total-inventory regressor cancels in a conditional flavor logit.
         lag_total, gap = history_controls(weeks, counts)
         controls[:, :, -2] = np.log1p(own) * lag_total[:, None]
         controls[:, :, -1] = np.log1p(own) * gap[:, None]
-        if len(np.unique(weeks[keep])) >= args.min_weeks:
-            panels.append(
+        panels.append(
                 Panel(
                     household,
                     weeks,
@@ -336,10 +363,10 @@ def prepare(args) -> tuple[Dataset, dict]:
                     keep,
                     price_complete,
                 )
-            )
+        )
     if not panels:
         raise ValueError(
-            f"No informative household panels; {unpriced_informative_rows} otherwise informative rows lack complete menu prices. Check price coverage, burn-in/min-weeks, and menus."
+            "No household purchase observations after product/sample filters."
         )
     names = control_names + [
         "own_log_stock_x_log_previous_total",
@@ -350,26 +377,33 @@ def prepare(args) -> tuple[Dataset, dict]:
     if not args.timing_controls:
         panels = [replace(p, controls=p.controls[:, :, :-2]) for p in panels]
         names = control_names
-    data = Dataset(panels, flavors, names, family_index, args.delta, args.burnin_weeks)
+    attrition = pd.DataFrame(household_audit)
+    stage_totals = [{"stage": "all_observed_purchase_rows_retained",
+                     "store_week_rows": int(attrition.all_store_week_rows.sum()),
+                     "households_with_any_rows": len(panels)}]
+    data = Dataset(panels, flavors, names, family_index, args.delta, 0, attrition)
     report = {
         "households": len(panels),
+        "source_sample_stages": sample_stages,
+        "choice_sample_stages": stage_totals,
         "flavors": flavors,
         "reference_flavor": flavors[0],
         "likelihood_rows": sum(int(p.keep.sum()) for p in panels),
         "likelihood_cups": sum(int(p.counts[p.keep].sum()) for p in panels),
         "excluded_nonselected_flavor_cups": excluded_cups,
         "one_alternative_rows_before_household_filter": one_alternative_rows,
-        "rows_with_incomplete_prices_before_household_filter": unpriced_rows,
-        "otherwise_informative_rows_excluded_for_prices": unpriced_informative_rows,
+        "otherwise_informative_rows_excluded_for_prices": 0,
+        "price_fallback_cells": price_fallbacks,
         "price_cleaning": price_diagnostics,
-        "price_missing_policy": "same-store-week-flavor valid-price mean; incomplete menus excluded from likelihood, quantities retained in history",
+        "price_missing_policy": "valid store-week-flavor mean, then store-flavor mean, overall flavor mean, and overall all-flavor mean; no purchase rows excluded",
         "menu_source": "independent supplied menu"
         if args.menu
-        else "purchase-derived availability proxy",
+        else "all retained categories assumed available; purchase-derived mean prices",
         "price_unit": "assumed dollars per single-serving cup; user must verify",
         "attribute_controls": names,
         "delta": args.delta,
-        "burnin_weeks": args.burnin_weeks,
+        "burnin_weeks": 0,
+        "minimum_purchase_weeks": 1,
     }
     return data, report
 
@@ -762,7 +796,7 @@ def main():
     )
     parser.add_argument("--output", default="step4_output")
     parser.add_argument(
-        "--flavor-column", default="flavor", help="Exact flavor label/code column"
+        "--flavor-column", default="flavor", help="Flavor category or individual-flavor column"
     )
     parser.add_argument(
         "--attribute-columns",
@@ -777,13 +811,6 @@ def main():
         type=float,
         default=0.8,
         help="Weekly exposure retention; sensitivity parameter",
-    )
-    parser.add_argument("--burnin-weeks", type=int, default=3)
-    parser.add_argument(
-        "--min-weeks",
-        type=int,
-        default=3,
-        help="Minimum distinct informative post-burn-in purchase weeks",
     )
     parser.add_argument("--timing-controls", action="store_true")
     parser.add_argument(
@@ -802,18 +829,20 @@ def main():
     )
     parser.add_argument("--recovery-reps", type=int, default=0)
     parser.add_argument("--self-test", action="store_true")
+    parser.add_argument("--audit-only", action="store_true",
+                        help="Save sample/identification diagnostics without estimating")
     args = parser.parse_args()
     if args.self_test:
         self_test()
         return
-    if not (0 < args.delta < 1) or args.burnin_weeks < 0:
-        parser.error("Require 0 < delta < 1 and nonnegative burn-in.")
+    if not (0 < args.delta < 1):
+        parser.error("Require 0 < delta < 1.")
     if (
-        min(args.top_flavors, args.draws, args.starts, args.maxiter, args.min_weeks) < 1
+        min(args.top_flavors, args.draws, args.starts, args.maxiter) < 1
         or args.top_flavors < 2
         or args.recovery_reps < 0
     ):
-        parser.error("Invalid flavor/draw/start/iteration/week/recovery counts.")
+        parser.error("Invalid flavor/draw/start/iteration/recovery counts.")
     if args.profile is not None and (
         args.gamma_mode == "flavor" or any(abs(v) > 8 for v in args.profile)
     ):
@@ -823,7 +852,15 @@ def main():
     model = Model(data, args.draws, args.seed, args.gamma_mode, args.family_effect)
     output.mkdir(parents=True, exist_ok=True)
     identification(data).to_csv(output / "identification.csv", index=False)
+    if data.attrition is not None:
+        data.attrition.to_csv(output / "household_attrition.csv", index=False)
+    pd.DataFrame(report["source_sample_stages"]).to_csv(output / "source_sample_stages.csv", index=False)
+    pd.DataFrame(report["choice_sample_stages"]).to_csv(output / "choice_sample_stages.csv", index=False)
     print(json.dumps(report, indent=2), flush=True)
+    if args.audit_only:
+        (output / "sample_audit.json").write_text(json.dumps(report, indent=2) + "\n")
+        print(f"Sample audit saved inside {output}; no estimation performed.")
+        return
     print(
         f"Fitting {len(model.names)} parameters with {model.r} persistent draws...",
         flush=True,
@@ -856,7 +893,7 @@ def main():
             "seed": args.seed,
             "standard_errors": "not reported; inspect profile and recovery",
             "price_endogeneity": "no IV/control function; estimates conditional on supplied prices",
-            "initial_conditions": "zero stock at first observed retained-flavor purchase; calendar burn-in",
+            "initial_conditions": "zero stock at first observed retained-flavor purchase; first week retained; no burn-in",
         }
     )
     # This nested comparison fixes all history coefficients, including optional

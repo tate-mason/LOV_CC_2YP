@@ -1,7 +1,9 @@
 # Step 4: separating persistent flavor preferences from purchase-history effects
 
 `est_step4.py` estimates conditional flavor demand for single-person households
-buying single-serving yogurt. Its default model has persistent heterogeneous
+buying single-serving yogurt. The default `flavor` column uses the draft's three
+categories: 0 = other, 1 = berry, 2 = plain. An individual-flavor column can be
+supplied explicitly. Its default model has persistent heterogeneous
 flavor tastes and **one common own-flavor fatigue coefficient**. It is deliberately
 smaller than the heterogeneous beta-and-gamma specification in `est_step2.py`.
 
@@ -93,10 +95,13 @@ $$
 F_{itj}=\sum_{k:\,g(k)=g(j)} S_{itk}.
 $$
 
-The provisional families are plain, berry, and other. The mapping is a text
-heuristic; numeric flavor codes will not classify berry/plain meaningfully.
-Use meaningful labels and review this mapping before a family exercise. Because
+The provisional families are plain, berry, and other. The draft's 0/1/2 codes
+map to other/berry/plain; other labels use a text heuristic. Arbitrary numeric
+Nielsen flavor codes need an explicit taxonomy before a family exercise. Because
 family stock includes own stock, own and family effects can be highly correlated.
+With only the draft's three categories, family stock equals own stock, so the two
+common history slopes cannot be separately identified. Do not enable
+`--family-effect` for that three-category specification.
 
 ## 4. Utility, tastes, and normalizations
 
@@ -204,14 +209,13 @@ a source column is a transaction total. Verify this before estimation.
 Missing, malformed, infinite, zero, and negative prices are treated as missing
 rather than stopping the run. Purchased quantities remain in exposure history.
 Each store-week-flavor price averages its valid source prices, ignoring missing
-ones. If any listed retained flavor still has no valid price, the entire
-household-store-week is excluded from the likelihood. Its purchases still update
-stocks. This preserves the menu rather than declaring an unpriced flavor
-unavailable, and avoids imputing prices from unrelated stores or dates. Zero
-placeholders in internal arrays belong only to excluded observations. The run
-summary reports invalid source rows and exclusions; a sample with no informative
-priced panels raises an explanatory error. Missing-price selection may still
-affect estimates, so inspect these counts.
+ones. Missing cell prices are filled using the store-flavor average over dates,
+then the overall flavor average, and finally the overall all-flavor average if
+a flavor has no usable price anywhere. No purchase observation is discarded for
+missing prices. If there are no usable prices anywhere, the script raises an
+error rather than inventing a price level. Fallback counts are reported. Average
+prices preserve the sample but do not create genuine local price variation;
+the all-flavor fallback is particularly strong and should be visible in results.
 
 If present, the script filters `household_size == 1`, serving codes 67181961 or
 65622705, and yogurt module codes 3612 or 3603, matching the earlier scripts.
@@ -233,15 +237,16 @@ copied into each store's choice observation.
 Prefer an independently observed `--menu` containing store, week, exact flavor,
 per-cup price, and requested attributes. Supply rows representing product listings
 from the appropriate yogurt/single-serving universe. Mean listing prices create
-flavor-level prices. The script does not manufacture prices for absent flavors.
+flavor-level prices. The same mean-price fallbacks apply to unpriced listings.
 An observed purchase missing from the supplied menu raises an error.
 
-Without `--menu`, the pooled purchases at a store-week provide an availability
-proxy and mean price. This is convenient for exploration but selected purchases
-do not reveal the full shelf menu. Availability and category prices may then
-depend on household demand. Output explicitly identifies this fallback.
+Without `--menu`, every retained category is assumed available at every observed
+store-week, as in step 2. Pooled purchases supply prices with the above fallbacks.
+Absence of sampled purchases does not establish that a category was unavailable.
+This common-menu assumption is explicit; purchase-derived prices may still
+depend on household demand. Output identifies this fallback.
 Rows offering only one retained flavor contribute no likelihood information,
-but their purchased cups still update history.
+but are retained, and their purchased cups still update history.
 
 `--attribute-columns brand_cd yogurt_style` adds categorical menu-composition
 controls: within each store-week-flavor, the fraction of listings at each brand
@@ -256,19 +261,19 @@ product descriptions.
 ## 7. Initial conditions and the limits of causal interpretation
 
 The first observed purchase is not a first-ever purchase. Zero initial stock is
-a computational starting assumption. By default, the first three calendar weeks
-after the household's first retained-flavor purchase construct history but do
-not enter the likelihood. At least three distinct informative post-burn-in
-purchase weeks are required. Dates without observed purchases create decay,
-not synthetic choice observations.
+a computational starting assumption. Every observed yogurt-purchase week,
+including the first, enters the likelihood. There is no burn-in, minimum panel
+length, two-alternative restriction, or complete-price restriction. A household
+with one observed purchase week is retained. The draft reports about four yogurt
+purchase weeks per household during eight weeks of observation; a three-week
+burn-in would discard much of that useful history.
 
-Burn-in reduces dependence on the unknown initial stock; it does not solve the
-initial-conditions problem. The remaining unknown initial contribution is scaled
-by $\delta^{\text{elapsed weeks}}$. Try longer burn-in and different delta values.
-Households with short panels may then disappear. Compare sample sizes as well
-as parameters. Treating the burn-in history as a conditioning variable while
-integrating over an unconditional taste distribution also leaves potential
-dependence between initial histories and tastes. A fuller model could use
+The input is already a yogurt-purchase sample. Gaps between observed purchases
+create calendar decay; the script does not add nonpurchase observations or
+outside-option counts. First-week exposure is zero and therefore does not
+directly identify fatigue, but first-week choices contain information about
+persistent preferences and relative prices. Keeping first weeks does not solve
+unknown pre-sample consumption: a fuller model could use
 pre-sample histories or a conditional distribution of tastes given initial
 history. This version does not claim to implement that correction.
 
@@ -344,15 +349,14 @@ repeats the following experiment:
    and per-store basket totals.
 2. Draw one continuous normal taste type per household (and gamma type when
    requested), independently of the estimation quadrature nodes.
-3. Simulate flavor counts in chronological order, including burn-in purchases.
+3. Simulate flavor counts in chronological order, including first-week purchases.
 4. Update stock from the **simulated** counts, regenerate history interactions,
    and continue. Never use the original history as a frozen covariate.
 5. Re-estimate and record truth, recovered value, error, and convergence.
 
-For observations whose menus lack valid prices, recovery holds the observed
-basket fixed and carries its quantities into the simulated stock. It cannot
-simulate a price-dependent choice distribution at an unknown price. All priced
-observations, including priced burn-in observations, are simulated recursively.
+Recovery uses the completed price arrays, including mean-price fallbacks, and
+simulates all observations recursively. This checks recovery under the assumed
+prices; it does not validate the imputed prices against actual shelf prices.
 
 Large errors or inconsistent solutions under the model's own data-generating
 process suggest that the design or estimator cannot reliably separate the
@@ -372,6 +376,9 @@ python3 est_step4.py --self-test
 
 # Use the default scanner-panel input:
 python3 est_step4.py
+
+# Inspect sample counts without fitting; writes fresh audit files:
+python3 est_step4.py --audit-only --output step4_audit
 
 python3 est_step4.py --input purchases.parquet --menu yogurt_menu.parquet \
   --attribute-columns brand_cd yogurt_style \
@@ -399,6 +406,11 @@ an earlier run; do not combine stale profiles/recovery with a new summary.
 
 Outputs are `estimates.csv`, `no_fatigue_estimates.csv`, `identification.csv`,
 `run_summary.json`, and, when requested, `gamma_profile.csv` and `recovery.csv`.
+`household_attrition.csv`, `source_sample_stages.csv`, and
+`choice_sample_stages.csv` show input/product-filter counts and verify that
+all resulting household purchase rows enter the likelihood. Audit-only mode
+saves these, `identification.csv`, and `sample_audit.json` without estimation.
+
 The summary records the sample, menus, price assumptions, optimizer status,
 draw count, initial-stock treatment, and lack of price correction. SDs and bound
 flags in `estimates.csv` use the actual fitted parameterization.
@@ -415,7 +427,7 @@ price units and exact-flavor labels. Inspect within-household relative exposure,
 the no-fatigue comparison, convergence, start agreement, and gamma profiles.
 Run recovery before interpreting weak or extreme estimates.
 
-Then compare retention rates, longer burn-in, flavor-set size, brand/style
+Then compare retention rates, initial-stock assumptions, flavor-set size, brand/style
 controls, and dose/timing interactions. A stable result across these comparisons
 is more informative than a single large coefficient. Examine family fatigue,
 flavor-specific gamma, and random gamma only once the simple history effect is

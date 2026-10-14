@@ -25,6 +25,7 @@ ROOT = Path(__file__).resolve().parent
 DEFAULT_DATA_PATH = (
     "/scratch/dtm63837/Kilts_Panel/nielsen_extracts/scanner_panel.parquet"
 )
+MIN_PURCHASE_WEEKS = 2
 
 
 def input_path(value: str) -> Path:
@@ -332,18 +333,22 @@ def prepare(args) -> tuple[Dataset, dict]:
                 )
         own, broad = stocks(weeks, counts, family_index, args.delta)
         unique = np.unique(weeks)
-        # Keep every observed purchase row, including the first week and short
-        # household panels. There is no burn-in or minimum-length restriction.
+        # Require two DISTINCT purchase weeks, not two store visits or baskets.
+        # Eligible households retain all rows, including the first week; there
+        # is no burn-in and the purchase weeks need not be consecutive.
         keep = np.ones(n, dtype=bool)
         audit = {"household": household, "all_store_week_rows": n,
                  "all_purchase_weeks": len(unique)}
         # If a supplied menu has only one category, keep the row: its conditional
         # log probability is zero, so it adds history but no taste information.
         one_alternative_rows += int(np.sum(available.sum(axis=1) < 2))
-        audit["retained_rows"] = n
-        audit["retained_weeks"] = len(unique)
-        audit["retained"] = True
+        eligible = len(unique) >= MIN_PURCHASE_WEEKS
+        audit["retained_rows"] = n if eligible else 0
+        audit["retained_weeks"] = len(unique) if eligible else 0
+        audit["retained"] = eligible
         household_audit.append(audit)
+        if not eligible:
+            continue
         # Same-flavor exposure interacted with lagged total cups / elapsed gap
         # lets dose/timing effects differ across alternatives. A common scalar
         # gap or total-inventory regressor cancels in a conditional flavor logit.
@@ -366,7 +371,7 @@ def prepare(args) -> tuple[Dataset, dict]:
         )
     if not panels:
         raise ValueError(
-            "No household purchase observations after product/sample filters."
+            "No households have at least two distinct yogurt-purchase weeks after product/sample filters."
         )
     names = control_names + [
         "own_log_stock_x_log_previous_total",
@@ -378,8 +383,11 @@ def prepare(args) -> tuple[Dataset, dict]:
         panels = [replace(p, controls=p.controls[:, :, :-2]) for p in panels]
         names = control_names
     attrition = pd.DataFrame(household_audit)
-    stage_totals = [{"stage": "all_observed_purchase_rows_retained",
+    stage_totals = [{"stage": "before_minimum_purchase_weeks",
                      "store_week_rows": int(attrition.all_store_week_rows.sum()),
+                     "households_with_any_rows": len(attrition)},
+                    {"stage": "after_minimum_purchase_weeks",
+                     "store_week_rows": int(attrition.retained_rows.sum()),
                      "households_with_any_rows": len(panels)}]
     data = Dataset(panels, flavors, names, family_index, args.delta, 0, attrition)
     report = {
@@ -403,7 +411,8 @@ def prepare(args) -> tuple[Dataset, dict]:
         "attribute_controls": names,
         "delta": args.delta,
         "burnin_weeks": 0,
-        "minimum_purchase_weeks": 1,
+        "minimum_purchase_weeks": MIN_PURCHASE_WEEKS,
+        "households_excluded_for_purchase_weeks": int((~attrition.retained).sum()),
     }
     return data, report
 

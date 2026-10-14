@@ -261,10 +261,12 @@ product descriptions.
 ## 7. Initial conditions and the limits of causal interpretation
 
 The first observed purchase is not a first-ever purchase. Zero initial stock is
-a computational starting assumption. Every observed yogurt-purchase week,
-including the first, enters the likelihood. There is no burn-in, minimum panel
-length, two-alternative restriction, or complete-price restriction. A household
-with one observed purchase week is retained. The draft reports about four yogurt
+a computational starting assumption. Households must have at least **two distinct
+yogurt-purchase weeks**. Multiple stores or baskets in one week do not satisfy
+this requirement; the weeks need not be consecutive. Every observed purchase
+row of eligible households, including their first week, enters the likelihood.
+There is no burn-in, two-alternative restriction, or complete-price restriction.
+The draft reports about four yogurt
 purchase weeks per household during eight weeks of observation; a three-week
 burn-in would discard much of that useful history.
 
@@ -408,7 +410,8 @@ Outputs are `estimates.csv`, `no_fatigue_estimates.csv`, `identification.csv`,
 `run_summary.json`, and, when requested, `gamma_profile.csv` and `recovery.csv`.
 `household_attrition.csv`, `source_sample_stages.csv`, and
 `choice_sample_stages.csv` show input/product-filter counts and verify that
-all resulting household purchase rows enter the likelihood. Audit-only mode
+the two-purchase-week restriction and retention of all eligible households' rows.
+Audit-only mode
 saves these, `identification.csv`, and `sample_audit.json` without estimation.
 
 The summary records the sample, menus, price assumptions, optimizer status,

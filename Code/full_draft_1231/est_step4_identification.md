@@ -113,8 +113,10 @@ observational-equivalence explanation of beta/gamma confounding.
 With zero initial stock, first observed weeks have $\Delta z_j=0$. They contain
 information about baseline preferences and prices but no direct history slope.
 Later purchase occasions contain the history variation. Removing the first
-weeks is not required for this argument. One-week households can contribute
-to baseline demand, although they cannot reveal a within-household history effect.
+weeks is not required for this argument. In principle, one-week households can
+contribute to baseline demand, although they cannot reveal a within-household
+history effect. The implemented sample now requires at least two distinct
+purchase weeks per household and retains their first-week choices.
 
 ## 4. Flavor-specific gamma requires a different rank condition
 

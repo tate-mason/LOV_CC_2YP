@@ -56,7 +56,7 @@ def compute_lattin_intertrip_stock(
         weeks = pd.to_datetime(hh_group["week_end"].unique())
         weeks = np.sort(weeks)
 
-        choice_history = {}  # Stores volume share vectors for past trips
+        choice_history = {}  # Volume share vectors for past trips
 
         for t_idx, week in enumerate(weeks):
             continuation = np.zeros(n_categories, dtype=np.float64)
@@ -68,10 +68,8 @@ def compute_lattin_intertrip_stock(
                     discount = delta_discount**weeks_elapsed
                     shares_s = choice_history[s]
 
-                    # Own-flavor stock scaled by volume share bought on trip s
                     continuation += discount * shares_s
 
-                    # Cross-flavor stock for non-chosen/minor flavors
                     if np.sum(shares_s) > 0:
                         for j in range(n_categories):
                             cross_weight = 1.0 - shares_s[j]
@@ -87,7 +85,6 @@ def compute_lattin_intertrip_stock(
                 record[f"C_sat_{j}"] = C_t[j]
             purchase_records.append(record)
 
-            # Record volume shares for trip t
             sub = hh_group[hh_group["week_end"] == week]
             q_t = np.zeros(n_categories, dtype=np.float64)
             for row in sub.itertuples():
@@ -104,7 +101,6 @@ def compute_lattin_intertrip_stock(
 
     df_sat = pd.DataFrame(purchase_records)
 
-    # Standardize across panel for numerical stability
     for j in range(n_categories):
         c_col = f"C_sat_{j}"
         std_val = df_sat[c_col].std()
@@ -115,7 +111,6 @@ def compute_lattin_intertrip_stock(
 
 
 def generate_basket_permutations(counts):
-    """Generates all unique sequences of item draws for a given basket vector [n_other, n_berry, n_plain]."""
     items = []
     for flavor_idx, cnt in enumerate(counts):
         items.extend([flavor_idx] * int(cnt))
@@ -346,17 +341,6 @@ def load_and_preprocess():
 
 
 def total_objective_sequential(params, trip_data):
-    """
-    Sequential Intra-Trip + Volume-Weighted Inter-Trip Satiation Log-Likelihood
-    Parameter Order (9 parameters):
-    0: Constant
-    1..2: Beta_Berry, Beta_Plain (vs Other Base = 0.0)
-    3..4: Beta_Berry x Inc, Beta_Plain x Inc
-    5: Gamma_Inter (Inter-Trip Lattin Satiation)
-    6: Gamma_Intra (Intra-Trip Basket Satiation)
-    7: Price (alpha)
-    8: Control Func (sigma)
-    """
     const = params[0]
     b0 = params[1:3]
     b_inc = params[3:5]
@@ -374,10 +358,8 @@ def total_objective_sequential(params, trip_data):
         inc = trip["income"]
         perms = trip["permutations"]
 
-        beta_non_other = b0 + b_inc * inc
-        beta_vec = np.append(0.0, beta_non_other)
+        beta_vec = np.append(0.0, b0 + b_inc * inc)
 
-        # Baseline Utility V_base before item draws
         v_base = (
             const
             + beta_vec
@@ -386,45 +368,44 @@ def total_objective_sequential(params, trip_data):
             + sigma * resids
         )
 
-        perm_lls = []
+        # FAST PATH: Single-item purchases bypass permutation loops
+        if len(perms) == 1 and len(perms[0]) == 1:
+            choice = perms[0][0]
+            log_probs = v_base - logsumexp(v_base)
+            total_ll += log_probs[choice]
+            continue
 
+        # MULTI-ITEM BASKETS: Permutation sequencing
+        perm_lls = []
         for seq in perms:
             c_intra = np.zeros(3, dtype=np.float64)
             seq_log_prob = 0.0
 
             for choice in seq:
-                # Total Satiation Utility Shifter
                 v_draw = v_base + g_intra * c_intra
                 log_probs = v_draw - logsumexp(v_draw)
-
                 seq_log_prob += log_probs[choice]
-                c_intra[choice] += 1.0  # Increment intra-basket counter
+                c_intra[choice] += 1.0
 
             perm_lls.append(seq_log_prob)
 
-        # Average log-likelihood across all sequence permutations for this basket
-        trip_ll = logsumexp(perm_lls) - np.log(len(perm_lls))
-        total_ll += trip_ll
+        total_ll += logsumexp(perm_lls) - np.log(len(perm_lls))
 
     return -total_ll if np.isfinite(total_ll) else 1e10
 
 
 def estimate_sequential_model(trip_data):
     total_params = 9
-    x0 = np.zeros(total_params)
-    x0[0] = 0.5
-    x0[1] = 0.5
-    x0[2] = -0.5
-    x0[5] = -0.1  # Inter-trip gamma initial guess
-    x0[6] = -0.2  # Intra-trip gamma initial guess
-    x0[7] = -0.5  # Price alpha guess
+    x0 = np.array([0.5, 0.5, -0.5, 0.0, 0.0, -0.1, -0.2, -0.5, 0.0])
 
     bounds = (
         [(-20.0, 20.0)] * 5
-        + [(-10.0, 0.0)]  # Enforce g_inter <= 0
-        + [(-10.0, 0.0)]  # Enforce g_intra <= 0
-        + [(-30.0, -0.01), (-30.0, 30.0)]  # Price + Control function
+        + [(-10.0, 0.0)]  # g_inter <= 0
+        + [(-10.0, 0.0)]  # g_intra <= 0
+        + [(-30.0, -0.01), (-30.0, 30.0)]
     )
+
+    console.print("[bold cyan]Starting L-BFGS-B Optimization...[/bold cyan]")
 
     res = minimize(
         total_objective_sequential,
@@ -432,13 +413,14 @@ def estimate_sequential_model(trip_data):
         args=(trip_data,),
         method="L-BFGS-B",
         bounds=bounds,
-        options={"ftol": 1e-8, "gtol": 1e-5, "maxiter": 2000},
+        options={"ftol": 1e-5, "gtol": 1e-3, "maxiter": 500, "disp": True},
     )
 
     n = len(res.x)
     eps = 1e-4
     hessian = np.zeros((n, n))
 
+    console.print("\n[bold cyan]Computing Hessian for Standard Errors...[/bold cyan]")
     for i in range(n):
         for j in range(i, n):
             x1, x2, x3, x4 = res.x.copy(), res.x.copy(), res.x.copy(), res.x.copy()

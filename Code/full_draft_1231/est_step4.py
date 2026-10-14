@@ -172,10 +172,6 @@ def prepare(args) -> tuple[Dataset, dict]:
                 "Blank flavors must be cleaned, not treated as an outside alternative."
             )
         frame["price"] = pd.to_numeric(frame["price"], errors="raise")
-        if not np.isfinite(frame["price"]).all() or (frame["price"] <= 0).any():
-            raise ValueError(
-                "Prices must be finite positive prices PER SINGLE-SERVING CUP."
-            )
         if is_purchase:
             if frame["household_code"].isna().any():
                 raise ValueError("Missing household identifiers.")

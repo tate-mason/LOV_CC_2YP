@@ -1,0 +1,4 @@
+flavor,available_rows,mean_log_stock,overall_log_stock_sd,within_household_log_stock_sd,within_household_relative_stock_sd,households_buying_this_and_another_flavor
+0,138,1.9959938614849844,0.8308901640297164,0.5906345961987676,0.0,20
+1,138,1.5611782768412386,0.7989613289851926,0.6183093355095156,0.6088202585403709,20
+2,0,,,,,0

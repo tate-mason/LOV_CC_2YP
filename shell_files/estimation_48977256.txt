@@ -1,0 +1,34 @@
+From github.com:tate-mason/LOV_CC_2YP
+   81b3d44..d6de5fa  main       -> origin/main
+Updating 81b3d44..d6de5fa
+Fast-forward
+ Code/full_draft_1231/est_step4.py | 4 ----
+ 1 file changed, 4 deletions(-)
+{
+  "households": 57,
+  "flavors": [
+    "0",
+    "1",
+    "2"
+  ],
+  "reference_flavor": "0",
+  "likelihood_rows": 369,
+  "likelihood_cups": 4371,
+  "excluded_nonselected_flavor_cups": 0,
+  "one_alternative_rows_before_household_filter": 3237,
+  "menu_source": "purchase-derived availability proxy",
+  "price_unit": "assumed dollars per single-serving cup; user must verify",
+  "attribute_controls": [],
+  "delta": 0.8,
+  "burnin_weeks": 3
+}
+Fitting 6 parameters with 128 persistent draws...
+Traceback (most recent call last):
+  File "/scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/full_draft_1231/est_step4.py", line 873, in <module>
+    main()
+  File "/scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/full_draft_1231/est_step4.py", line 794, in main
+    fit = model.fit(args.starts, maxiter=args.maxiter)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/full_draft_1231/est_step4.py", line 499, in fit
+    raise RuntimeError(
+RuntimeError: All optimization starts returned nonfinite likelihoods.

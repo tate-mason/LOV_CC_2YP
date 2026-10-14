@@ -84,6 +84,9 @@ class Panel:
     stock: np.ndarray
     family_stock: np.ndarray
     keep: np.ndarray
+    # False means at least one listed flavor lacks a usable store-week price.
+    # Such rows remain in history but cannot enter a price-dependent likelihood.
+    price_complete: np.ndarray | None = None
 
 
 @dataclass
@@ -153,6 +156,8 @@ def prepare(args) -> tuple[Dataset, dict]:
                 f"Missing {column}; use --prefiltered only for an already restricted sample."
             )
 
+    price_diagnostics = {}
+
     def normalize(frame, is_purchase):
         frame = frame.copy()
         for column in ["store_code_uc", "week_end", "price", args.flavor_column]:
@@ -171,7 +176,16 @@ def prepare(args) -> tuple[Dataset, dict]:
             raise ValueError(
                 "Blank flavors must be cleaned, not treated as an outside alternative."
             )
-        frame["price"] = pd.to_numeric(frame["price"], errors="raise")
+        # Scanner merges may leave missing prices; zero, negative, infinite,
+        # and malformed values are also not usable prices. Keep the purchases:
+        # dropping their quantities would falsely lower subsequent exposure.
+        price = pd.to_numeric(frame["price"], errors="coerce")
+        valid_price = np.isfinite(price) & (price > 0)
+        source = "purchase" if is_purchase else "menu"
+        price_diagnostics[f"{source}_rows_with_unusable_price"] = int((~valid_price).sum())
+        frame["price"] = price.where(valid_price, np.nan)
+        if (~valid_price).any():
+            print(f"{source}: {int((~valid_price).sum()):,}/{len(frame):,} rows have missing/invalid prices; preserving quantities and averaging only valid prices.", flush=True)
         if is_purchase:
             if frame["household_code"].isna().any():
                 raise ValueError("Missing household identifiers.")
@@ -246,6 +260,8 @@ def prepare(args) -> tuple[Dataset, dict]:
 
     panels = []
     one_alternative_rows = 0
+    unpriced_rows = 0
+    unpriced_informative_rows = 0
     for household, frame in baskets.groupby("household_code", sort=True):
         row_keys = (
             frame[["week_end", "store_code_uc"]]
@@ -256,6 +272,7 @@ def prepare(args) -> tuple[Dataset, dict]:
         counts = np.zeros((n, j), dtype=int)
         prices = np.zeros((n, j))
         available = np.zeros((n, j), dtype=bool)
+        price_complete = np.ones(n, dtype=bool)
         controls = np.zeros((n, j, len(control_names) + 2))
         weeks = row_keys.week_end.to_numpy(dtype="datetime64[ns]")
         for t, row in enumerate(row_keys.itertuples(index=False)):
@@ -268,7 +285,13 @@ def prepare(args) -> tuple[Dataset, dict]:
             for label, values in offer.iterrows():
                 k = flavor_map[label]
                 available[t, k] = True
-                prices[t, k] = values["price"]
+                if np.isfinite(values["price"]) and values["price"] > 0:
+                    prices[t, k] = values["price"]
+                else:
+                    price_complete[t] = False
+                    # Zero is an internal placeholder ONLY for a row excluded
+                    # from estimation. It is never an imputed estimation price.
+                    prices[t, k] = 0.0
                 controls[t, k, : len(control_names)] = values[control_names].to_numpy(
                     float
                 )
@@ -290,6 +313,9 @@ def prepare(args) -> tuple[Dataset, dict]:
         # MUST remain in stock histories. Exclude only from the likelihood.
         one_alternative_rows += int(np.sum(available.sum(axis=1) < 2))
         keep &= available.sum(axis=1) >= 2
+        unpriced_rows += int((~price_complete).sum())
+        unpriced_informative_rows += int((keep & ~price_complete).sum())
+        keep &= price_complete
         # Same-flavor exposure interacted with lagged total cups / elapsed gap
         # lets dose/timing effects differ across alternatives. A common scalar
         # gap or total-inventory regressor cancels in a conditional flavor logit.
@@ -308,11 +334,12 @@ def prepare(args) -> tuple[Dataset, dict]:
                     own,
                     broad,
                     keep,
+                    price_complete,
                 )
             )
     if not panels:
         raise ValueError(
-            "No informative household panels; reduce burn-in/min-weeks or improve menu coverage."
+            f"No informative household panels; {unpriced_informative_rows} otherwise informative rows lack complete menu prices. Check price coverage, burn-in/min-weeks, and menus."
         )
     names = control_names + [
         "own_log_stock_x_log_previous_total",
@@ -332,6 +359,10 @@ def prepare(args) -> tuple[Dataset, dict]:
         "likelihood_cups": sum(int(p.counts[p.keep].sum()) for p in panels),
         "excluded_nonselected_flavor_cups": excluded_cups,
         "one_alternative_rows_before_household_filter": one_alternative_rows,
+        "rows_with_incomplete_prices_before_household_filter": unpriced_rows,
+        "otherwise_informative_rows_excluded_for_prices": unpriced_informative_rows,
+        "price_cleaning": price_diagnostics,
+        "price_missing_policy": "same-store-week-flavor valid-price mean; incomplete menus excluded from likelihood, quantities retained in history",
         "menu_source": "independent supplied menu"
         if args.menu
         else "purchase-derived availability proxy",
@@ -606,6 +637,12 @@ def simulate(model, truth, seed):
                     model.data.family_index == model.data.family_index[j]
                 ].sum()
             for t in rows:
+                if p.price_complete is not None and not p.price_complete[t]:
+                    # There is no specified choice distribution without menu
+                    # prices. Condition on this observed basket, preserving its
+                    # exposure contribution, rather than simulate at placeholders.
+                    generated[t] = p.counts[t]
+                    continue
                 for c, name in enumerate(model.data.control_names):
                     if name == "own_log_stock_x_log_previous_total":
                         controls[t, :, c] = np.log1p(running) * np.log1p(prev_total)

@@ -201,6 +201,18 @@ CSV and Parquet are supported. Parquet requires a pandas-compatible engine.
 Prices must already be per-cup prices in dollars; the script cannot infer whether
 a source column is a transaction total. Verify this before estimation.
 
+Missing, malformed, infinite, zero, and negative prices are treated as missing
+rather than stopping the run. Purchased quantities remain in exposure history.
+Each store-week-flavor price averages its valid source prices, ignoring missing
+ones. If any listed retained flavor still has no valid price, the entire
+household-store-week is excluded from the likelihood. Its purchases still update
+stocks. This preserves the menu rather than declaring an unpriced flavor
+unavailable, and avoids imputing prices from unrelated stores or dates. Zero
+placeholders in internal arrays belong only to excluded observations. The run
+summary reports invalid source rows and exclusions; a sample with no informative
+priced panels raises an explanatory error. Missing-price selection may still
+affect estimates, so inspect these counts.
+
 If present, the script filters `household_size == 1`, serving codes 67181961 or
 65622705, and yogurt module codes 3612 or 3603, matching the earlier scripts.
 If those columns are absent, `--prefiltered` explicitly declares that the input
@@ -336,6 +348,11 @@ repeats the following experiment:
 4. Update stock from the **simulated** counts, regenerate history interactions,
    and continue. Never use the original history as a frozen covariate.
 5. Re-estimate and record truth, recovered value, error, and convergence.
+
+For observations whose menus lack valid prices, recovery holds the observed
+basket fixed and carries its quantities into the simulated stock. It cannot
+simulate a price-dependent choice distribution at an unknown price. All priced
+observations, including priced burn-in observations, are simulated recursively.
 
 Large errors or inconsistent solutions under the model's own data-generating
 process suggest that the design or estimator cannot reliably separate the

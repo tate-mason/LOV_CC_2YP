@@ -1,3 +1,4 @@
+import itertools
 import os
 import numpy as np
 import pandas as pd
@@ -7,6 +8,7 @@ from rich.table import Table
 from rich.traceback import install
 import scipy as sp
 from scipy.optimize import minimize
+from scipy.special import logsumexp
 import statsmodels.formula.api as smf
 
 install()
@@ -22,23 +24,22 @@ BASE_DELTA_DISCOUNT = 0.85
 LAMBDA_OWN_WEIGHT = 0.70
 
 INCOME_CODE_MAP = {
-    3: 7500,
-    4: 9000,
-    6: 11000,
-    8: 13500,
-    10: 17500,
-    11: 22500,
-    13: 27500,
-    15: 32500,
-    16: 37500,
-    17: 42500,
-    18: 47500,
-    19: 55000,
-    21: 65000,
-    23: 85000,
-    26: 112500,
-    27: 137500,
-    28: 175000,
+    3: 2500,  # Under $5,000
+    4: 6500,  # $5,000 - $7,999
+    6: 9000,  # $8,000 - $9,999
+    8: 11000,  # $10,000 - $11,999
+    10: 13500,  # $12,000 - $14,999
+    11: 17500,  # $15,000 - $19,999
+    13: 22500,  # $20,000 - $24,999
+    15: 27500,  # $25,000 - $29,999
+    16: 32500,  # $30,000 - $34,999
+    17: 37500,  # $35,000 - $39,999
+    18: 42500,  # $40,000 - $44,999
+    19: 47500,  # $45,000 - $49,999
+    21: 55000,  # $50,000 - $59,999
+    23: 65000,  # $60,000 - $69,999
+    26: 85000,  # $70,000 - $99,999
+    27: 100000,  # $100,000+
 }
 
 
@@ -55,7 +56,7 @@ def compute_lattin_intertrip_stock(
         weeks = pd.to_datetime(hh_group["week_end"].unique())
         weeks = np.sort(weeks)
 
-        choice_history = {}
+        choice_history = {}  # Stores volume share vectors for past trips
 
         for t_idx, week in enumerate(weeks):
             continuation = np.zeros(n_categories, dtype=np.float64)
@@ -65,13 +66,16 @@ def compute_lattin_intertrip_stock(
                 for s in range(t_idx):
                     weeks_elapsed = pd.Timedelta(week - weeks[s]).days / 7.0
                     discount = delta_discount**weeks_elapsed
-                    y_s = choice_history[s]
+                    shares_s = choice_history[s]
 
-                    continuation += discount * y_s
-                    if np.sum(y_s) > 0:
+                    # Own-flavor stock scaled by volume share bought on trip s
+                    continuation += discount * shares_s
+
+                    # Cross-flavor stock for non-chosen/minor flavors
+                    if np.sum(shares_s) > 0:
                         for j in range(n_categories):
-                            prod_k = 1.0 if y_s[j] == 0 else 0.0
-                            switch[j] += discount * prod_k
+                            cross_weight = 1.0 - shares_s[j]
+                            switch[j] += discount * cross_weight
 
             C_t = (lambda_own * continuation) + ((1.0 - lambda_own) * switch)
 
@@ -83,15 +87,24 @@ def compute_lattin_intertrip_stock(
                 record[f"C_sat_{j}"] = C_t[j]
             purchase_records.append(record)
 
+            # Record volume shares for trip t
             sub = hh_group[hh_group["week_end"] == week]
-            Y_t = np.zeros(n_categories, dtype=np.float64)
+            q_t = np.zeros(n_categories, dtype=np.float64)
             for row in sub.itertuples():
                 if hasattr(row, "choice_idx") and row.choice_idx < n_categories:
-                    Y_t[int(row.choice_idx)] = 1.0
-            choice_history[t_idx] = Y_t.copy()
+                    q_t[int(row.choice_idx)] = float(row.units_bought)
+
+            total_q = np.sum(q_t)
+            shares_t = (
+                q_t / total_q
+                if total_q > 0
+                else np.zeros(n_categories, dtype=np.float64)
+            )
+            choice_history[t_idx] = shares_t.copy()
 
     df_sat = pd.DataFrame(purchase_records)
 
+    # Standardize across panel for numerical stability
     for j in range(n_categories):
         c_col = f"C_sat_{j}"
         std_val = df_sat[c_col].std()
@@ -101,7 +114,17 @@ def compute_lattin_intertrip_stock(
     return df_sat
 
 
-def load_and_preprocess(weekly_budget=50.0):
+def generate_basket_permutations(counts):
+    """Generates all unique sequences of item draws for a given basket vector [n_other, n_berry, n_plain]."""
+    items = []
+    for flavor_idx, cnt in enumerate(counts):
+        items.extend([flavor_idx] * int(cnt))
+    if len(items) == 0:
+        return []
+    return list(set(itertools.permutations(items)))
+
+
+def load_and_preprocess():
     schema_names = pl.scan_parquet(MERGED_PATH).collect_schema().names()
 
     exprs = [
@@ -245,8 +268,9 @@ def load_and_preprocess(weekly_budget=50.0):
 
         choice_set_matrix[(store, week)] = mat
 
-    # CONTINUING FROM WHERE YOU LEFT OFF:
-    console.print("\n[bold green]Computing Inter-Trip Lattin Stock...[/bold green]")
+    console.print(
+        "\n[bold green]Computing Inter-Trip Lattin Stock (Volume-Share Weighted)...[/bold green]"
+    )
     df_sat = compute_lattin_intertrip_stock(
         weekly_purchases,
         n_categories=3,
@@ -269,22 +293,15 @@ def load_and_preprocess(weekly_budget=50.0):
         how="left",
     ).fillna(0.0)
 
-    quantities_dict = {}
+    counts_dict = {}
     for (hh_id, week), grp in weekly_purchases.groupby(["household_code", "week_end"]):
-        q_arr = np.zeros(3, dtype=np.float64)
+        c_arr = np.zeros(3, dtype=np.int64)
         for row in grp.itertuples():
             if row.choice_idx < 3:
-                q_arr[int(row.choice_idx)] = float(row.units_bought)
-        quantities_dict[(hh_id, week)] = q_arr
+                c_arr[int(row.choice_idx)] = int(row.units_bought)
+        counts_dict[(hh_id, week)] = c_arr
 
-    all_prices, all_resids, all_quantities, all_c_states, all_inc, all_budgets = (
-        [],
-        [],
-        [],
-        [],
-        [],
-        [],
-    )
+    trip_data = []
 
     for row_dict in hh_weeks.to_dict("records"):
         store = row_dict["store_code_uc"]
@@ -296,16 +313,15 @@ def load_and_preprocess(weekly_budget=50.0):
         if (store, week) not in choice_set_matrix:
             continue
 
+        counts = counts_dict.get((hh_id, week), np.zeros(3, dtype=np.int64))
+        if np.sum(counts) == 0:
+            continue
+
         inc_val = hh_dict.get(hh_id, 0.0)
-        p_vec = choice_set_matrix[(store, week)][:3, 0]
-        r_vec = choice_set_matrix[(store, week)][:3, 1]
+        prices = choice_set_matrix[(store, week)][:3, 0]
+        resids = choice_set_matrix[(store, week)][:3, 1]
 
-        q_vec = quantities_dict.get((hh_id, week), np.zeros(3, dtype=np.float64))
-        inside_spend = np.sum(q_vec * p_vec)
-
-        budget = max(weekly_budget, inside_spend + 5.0)
-
-        c_vec = np.array(
+        c_inter = np.array(
             [
                 row_dict.get("C_sat_0", 0.0),
                 row_dict.get("C_sat_1", 0.0),
@@ -314,118 +330,106 @@ def load_and_preprocess(weekly_budget=50.0):
             dtype=np.float64,
         )
 
-        all_prices.append(p_vec)
-        all_resids.append(r_vec)
-        all_quantities.append(q_vec)
-        all_c_states.append(c_vec)
-        all_inc.append(inc_val)
-        all_budgets.append(budget)
+        perms = generate_basket_permutations(counts)
 
-    return {
-        "prices": np.array(all_prices, dtype=np.float64),
-        "resids": np.array(all_resids, dtype=np.float64),
-        "quantities": np.array(all_quantities, dtype=np.float64),
-        "c_states": np.array(all_c_states, dtype=np.float64),
-        "income": np.array(all_inc, dtype=np.float64)[:, None],
-        "budgets": np.array(all_budgets, dtype=np.float64)[:, None],
-    }
+        trip_data.append(
+            {
+                "prices": prices,
+                "resids": resids,
+                "c_inter": c_inter,
+                "income": inc_val,
+                "permutations": perms,
+            }
+        )
+
+    return trip_data
 
 
-def total_objective_bhat_lattin(params, vec_data):
+def total_objective_sequential(params, trip_data):
     """
-    BHAT (2008) MDCEV Likelihood with LATTIN (1987) Inter-Trip Reference Stock
-    Parameter Order (11 parameters):
+    Sequential Intra-Trip + Volume-Weighted Inter-Trip Satiation Log-Likelihood
+    Parameter Order (9 parameters):
     0: Constant
     1..2: Beta_Berry, Beta_Plain (vs Other Base = 0.0)
     3..4: Beta_Berry x Inc, Beta_Plain x Inc
-    5: Gamma_0 (Global Inter-Trip Lattin Satiation)
-    6: Gamma_Inc (Inter-Trip Satiation x Income)
-    7: Price alpha_p
-    8: Control Func sigma
-    9..10: Intra-Trip Translation Theta (Berry, Plain)
+    5: Gamma_Inter (Inter-Trip Lattin Satiation)
+    6: Gamma_Intra (Intra-Trip Basket Satiation)
+    7: Price (alpha)
+    8: Control Func (sigma)
     """
     const = params[0]
     b0 = params[1:3]
     b_inc = params[3:5]
-    g0 = params[5]
-    g_inc = params[6]
-    alpha_p = params[7]
+    g_inter = params[5]
+    g_intra = params[6]
+    alpha = params[7]
     sigma = params[8]
-    theta_inside = np.exp(params[9:11])
 
-    prices = vec_data["prices"]  # (N, 3)
-    resids = vec_data["resids"]  # (N, 3)
-    quantities = vec_data["quantities"]  # (N, 3)
-    c_state = vec_data["c_states"]  # (N, 3)
-    inc = vec_data["income"]  # (N, 1)
-    budgets = vec_data["budgets"]  # (N, 1)
+    total_ll = 0.0
 
-    N = prices.shape[0]
+    for trip in trip_data:
+        prices = trip["prices"]
+        resids = trip["resids"]
+        c_inter = trip["c_inter"]
+        inc = trip["income"]
+        perms = trip["permutations"]
 
-    beta_non_other = b0[None, :] + b_inc[None, :] * inc
-    beta_mat = np.hstack([np.zeros((inc.shape[0], 1)), beta_non_other])
-    gamma_i = g0 + g_inc * inc
+        beta_non_other = b0 + b_inc * inc
+        beta_vec = np.append(0.0, beta_non_other)
 
-    v_inside = (
-        const
-        + beta_mat
-        + gamma_i * np.log(1.0 + c_state)
-        + alpha_p * prices
-        + sigma * resids
-    )
+        # Baseline Utility V_base before item draws
+        v_base = (
+            const
+            + beta_vec
+            + g_inter * np.log(1.0 + np.maximum(0.0, c_inter))
+            + alpha * prices
+            + sigma * resids
+        )
 
-    inside_spend = np.sum(prices * quantities, axis=1, keepdims=True)
-    z_outside = np.maximum(1e-4, budgets - inside_spend)
+        perm_lls = []
 
-    theta_full = np.hstack([np.ones((N, 1)), np.tile(theta_inside[None, :], (N, 1))])
+        for seq in perms:
+            c_intra = np.zeros(3, dtype=np.float64)
+            seq_log_prob = 0.0
 
-    f_inside = v_inside - np.log(prices) - np.log(1.0 + quantities / theta_full)
-    f_outside = -np.log(z_outside)
+            for choice in seq:
+                # Total Satiation Utility Shifter
+                v_draw = v_base + g_intra * c_intra
+                log_probs = v_draw - logsumexp(v_draw)
 
-    is_chosen = (quantities > 0).astype(np.float64)
-    M = np.sum(is_chosen, axis=1) + 1.0
+                seq_log_prob += log_probs[choice]
+                c_intra[choice] += 1.0  # Increment intra-basket counter
 
-    c_j = (1.0 / (quantities + theta_full)) * is_chosen
-    sum_c = np.sum(c_j / prices, axis=1) + (1.0 / z_outside.squeeze())
-    prod_c = np.prod(np.where(is_chosen == 1, c_j, 1.0), axis=1)
-    jacobian_det = prod_c * sum_c
+            perm_lls.append(seq_log_prob)
 
-    diff_f = f_inside - f_outside
-    sum_exp_f = 1.0 + np.sum(np.exp(diff_f), axis=1)
-
-    ll_i = (
-        np.log(np.maximum(1e-12, jacobian_det))
-        + np.sum(diff_f * is_chosen, axis=1)
-        - M * np.log(sum_exp_f)
-    )
-    total_ll = np.sum(ll_i)
+        # Average log-likelihood across all sequence permutations for this basket
+        trip_ll = logsumexp(perm_lls) - np.log(len(perm_lls))
+        total_ll += trip_ll
 
     return -total_ll if np.isfinite(total_ll) else 1e10
 
 
-def estimate_bhat_lattin_model(vec_data):
-    total_params = 11
+def estimate_sequential_model(trip_data):
+    total_params = 9
     x0 = np.zeros(total_params)
     x0[0] = 0.5
     x0[1] = 0.5
     x0[2] = -0.5
-    x0[5] = -0.1
-    x0[7] = -0.5
-    x0[9] = 0.0
-    x0[10] = 0.0
+    x0[5] = -0.1  # Inter-trip gamma initial guess
+    x0[6] = -0.2  # Intra-trip gamma initial guess
+    x0[7] = -0.5  # Price alpha guess
 
     bounds = (
         [(-20.0, 20.0)] * 5
-        + [(-10.0, 0.0)]  # Enforce gamma_0 <= 0 for satiation
-        + [(-10.0, 10.0)]  # gamma_inc
-        + [(-30.0, -0.01), (-30.0, 30.0)]
-        + [(-5.0, 5.0)] * 2
+        + [(-10.0, 0.0)]  # Enforce g_inter <= 0
+        + [(-10.0, 0.0)]  # Enforce g_intra <= 0
+        + [(-30.0, -0.01), (-30.0, 30.0)]  # Price + Control function
     )
 
     res = minimize(
-        total_objective_bhat_lattin,
+        total_objective_sequential,
         x0=x0,
-        args=(vec_data,),
+        args=(trip_data,),
         method="L-BFGS-B",
         bounds=bounds,
         options={"ftol": 1e-8, "gtol": 1e-5, "maxiter": 2000},
@@ -447,10 +451,10 @@ def estimate_bhat_lattin_model(vec_data):
             x4[i] -= eps
             x4[j] -= eps
 
-            f1 = total_objective_bhat_lattin(x1, vec_data)
-            f2 = total_objective_bhat_lattin(x2, vec_data)
-            f3 = total_objective_bhat_lattin(x3, vec_data)
-            f4 = total_objective_bhat_lattin(x4, vec_data)
+            f1 = total_objective_sequential(x1, trip_data)
+            f2 = total_objective_sequential(x2, trip_data)
+            f3 = total_objective_sequential(x3, trip_data)
+            f4 = total_objective_sequential(x4, trip_data)
 
             hessian[i, j] = (f1 - f2 - f3 + f4) / (4 * eps * eps)
             hessian[j, i] = hessian[i, j]
@@ -476,7 +480,7 @@ def estimate_bhat_lattin_model(vec_data):
 
 def display_results(results):
     table = Table(
-        title="BHAT (2008) MDCEV + LATTIN (1987) INTER/INTRA TRIP MODEL",
+        title="SEQUENTIAL INTRA + INTER TRIP INSIDE CHOICE MODEL",
         show_header=True,
         header_style="bold magenta",
     )
@@ -492,21 +496,15 @@ def display_results(results):
         "beta_Plain (vs Other Base)",
         "beta_Berry x Income",
         "beta_Plain x Income",
-        "gamma_0 (Inter-Trip Lattin Satiation)",
-        "gamma x Income",
-        "Price (alpha_p)",
+        "gamma_Inter (Inter-Trip Lattin Satiation)",
+        "gamma_Intra (Intra-Trip Basket Satiation)",
+        "Price (alpha)",
         "Control Func. (sigma)",
-        "theta_Berry (Intra-Trip Translation)",
-        "theta_Plain (Intra-Trip Translation)",
     ]
-
-    estimates = results["params"].copy()
-    estimates[9] = np.exp(estimates[9])
-    estimates[10] = np.exp(estimates[10])
 
     for name, val, se, z, p in zip(
         param_names,
-        estimates,
+        results["params"],
         results["se"],
         results["z_stat"],
         results["p_val"],
@@ -533,12 +531,12 @@ def display_results(results):
 
 def main():
     console.print(
-        "\n[bold yellow]--- Preprocessing Data for Bhat + Lattin Joint Model ---[/bold yellow]"
+        "\n[bold yellow]--- Preprocessing Data for Sequential Model ---[/bold yellow]"
     )
-    vec_data = load_and_preprocess()
+    trip_data = load_and_preprocess()
 
     console.print("\n[bold yellow]--- Estimating Model ---[/bold yellow]")
-    res_model = estimate_bhat_lattin_model(vec_data)
+    res_model = estimate_sequential_model(trip_data)
     display_results(res_model)
 
 

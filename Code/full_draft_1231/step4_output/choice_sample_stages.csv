@@ -1,2 +1,3 @@
 stage,store_week_rows,households_with_any_rows
-all_observed_purchase_rows_retained,3991,998
+before_minimum_purchase_weeks,3991,998
+after_minimum_purchase_weeks,3543,550

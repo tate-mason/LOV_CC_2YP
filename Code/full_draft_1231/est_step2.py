@@ -268,6 +268,9 @@ def load_and_preprocess(weekly_capacity=14):
     hh_packed_data = {}
 
     for hh_id, group in hh_weeks.groupby("household_code"):
+        if group["week_end"].nunique() < 2:
+            continue
+
         raw_inc = hh_income_map.get(hh_id, 1)
         log_inc = np.log(max(float(raw_inc) if pd.notna(raw_inc) else 1.0, 1.0))
 

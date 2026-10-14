@@ -26,6 +26,12 @@ DEFAULT_DATA_PATH = (
     "/scratch/dtm63837/Kilts_Panel/nielsen_extracts/scanner_panel.parquet"
 )
 MIN_PURCHASE_WEEKS = 2
+# Match the midpoint mapping already used in est_step3.py. These are bracket
+# representatives, not exact incomes; the open upper bracket is set to $100,000.
+INCOME_CODE_MAP = {3: 2500, 4: 6500, 6: 9000, 8: 11000, 10: 13500,
+                   11: 17500, 13: 22500, 15: 27500, 16: 32500, 17: 37500,
+                   18: 42500, 19: 47500, 21: 55000, 23: 65000,
+                   26: 85000, 27: 100000}
 
 
 def input_path(value: str) -> Path:
@@ -90,6 +96,8 @@ class Panel:
     keep: np.ndarray
     # Prices are completed by the documented mean-price fallback before fitting.
     price_complete: np.ndarray | None = None
+    income: float = 0.0
+    income_missing: bool = False
 
 
 @dataclass
@@ -101,6 +109,8 @@ class Dataset:
     delta: float
     burnin: int
     attrition: pd.DataFrame | None = None
+    income_table: pd.DataFrame | None = None
+    income_metadata: dict | None = None
 
 
 def stocks(weeks, counts, family_index, delta):
@@ -390,6 +400,8 @@ def prepare(args) -> tuple[Dataset, dict]:
                      "store_week_rows": int(attrition.retained_rows.sum()),
                      "households_with_any_rows": len(panels)}]
     data = Dataset(panels, flavors, names, family_index, args.delta, 0, attrition)
+    if getattr(args, "heterogeneity", "random") == "income":
+        data = attach_income(data, purchases, args.income_column, args.income_encoding)
     report = {
         "households": len(panels),
         "source_sample_stages": sample_stages,
@@ -415,6 +427,48 @@ def prepare(args) -> tuple[Dataset, dict]:
         "households_excluded_for_purchase_weeks": int((~attrition.retained).sum()),
     }
     return data, report
+
+
+def attach_income(data, purchases, column, encoding):
+    """Attach one fixed income covariate per retained household without dropping any.
+
+    Choose the earliest observed usable income, rather than letting within-panel
+    income changes masquerade as short-run taste dynamics. Standardization uses
+    one observation per RETAINED household, not one per cup or purchase row.
+    Missing/unknown incomes get h=0 plus explicit missing-income flavor/history
+    terms. They are not claimed to be observed average-income households.
+    """
+    if column not in purchases:
+        raise ValueError(f"Income specification requires {column}; choose --income-column or --heterogeneity random.")
+    source = purchases[purchases.household_code.isin([p.household for p in data.panels])].copy()
+    raw = pd.to_numeric(source[column], errors="coerce")
+    dollars = raw.map(INCOME_CODE_MAP) if encoding == "codes" else raw
+    dollars = dollars.where(np.isfinite(dollars) & (dollars > 0))
+    source["income_dollars"] = dollars
+    earliest = source.sort_values("week_end").groupby("household_code").income_dollars.first()
+    changes = source.groupby("household_code").income_dollars.nunique()
+    known = np.log(earliest.dropna())
+    if len(known) < 2 or known.nunique() < 2:
+        raise ValueError("Income interactions require at least two distinct usable household incomes; check bracket codes/--income-encoding.")
+    center, scale = float(known.mean()), float(known.std(ddof=0))
+    panels, rows = [], []
+    for p in data.panels:
+        value = earliest.loc[p.household]
+        missing = bool(pd.isna(value))
+        h = 0.0 if missing else float((np.log(value) - center) / scale)
+        panels.append(replace(p, income=h, income_missing=missing))
+        rows.append({"household": p.household, "income_dollars": None if missing else float(value),
+                     "income_standardized_log": h, "income_missing": missing})
+    metadata = {"column": column, "encoding": encoding, "log_income_mean": center,
+                "log_income_sd": scale, "standardization": "equal weights across retained households with usable income",
+                "missing_income_households": sum(p.income_missing for p in panels),
+                "households_with_changing_usable_income": int((changes > 1).sum()),
+                "income_timing": "earliest observed usable income held fixed throughout household panel",
+                "missing_policy": "h=0 and separate missing-income preference/fatigue terms",
+                "top_bracket_dollars": 100000 if encoding == "codes" else None,
+                "unknown_numeric_codes": sorted(float(v) for v in raw.dropna().unique() if v not in INCOME_CODE_MAP)
+                if encoding == "codes" else []}
+    return replace(data, panels=panels, income_table=pd.DataFrame(rows), income_metadata=metadata)
 
 
 def history_controls(weeks, counts):
@@ -518,6 +572,13 @@ class Model:
         # does not change estimates or profile differences.
         return -float(ll)
 
+    def starting_vector(self):
+        base = np.zeros(len(self.names))
+        base[self.j - 1 : 2 * (self.j - 1)] = 0.3
+        base[self.gamma_start : self.gamma_start + self.g] = 0.2
+        base[self.alpha_index] = -0.5
+        return base
+
     def fit(
         self,
         starts=3,
@@ -528,10 +589,7 @@ class Model:
         no_fatigue=False,
     ):
         rng = np.random.default_rng(seed)
-        base = np.zeros(len(self.names))
-        base[self.j - 1 : 2 * (self.j - 1)] = 0.3
-        base[self.gamma_start : self.gamma_start + self.g] = 0.2
-        base[self.alpha_index] = -0.5
+        base = self.starting_vector()
         if initial is not None:
             base = initial.copy()
         fixed = {} if fixed_gamma is None else {self.gamma_start: fixed_gamma}
@@ -562,6 +620,7 @@ class Model:
             result = minimize(
                 lambda v: self.objective(expand(v)),
                 x[free],
+                jac=(lambda v: self.gradient(expand(v))[free]) if hasattr(self, "gradient") else None,
                 bounds=[self.bounds[k] for k in free],
                 method="L-BFGS-B",
                 options={"maxiter": maxiter, "ftol": 1e-9, "gtol": 1e-5},
@@ -576,6 +635,144 @@ class Model:
         best = min(finite, key=lambda r: r.fun)
         best.start_objectives = [float(r.fun) for r in candidates]
         return best
+
+
+class IncomeModel(Model):
+    """Observed heterogeneity with NO quadrature or latent random coefficients.
+
+    beta_ij = b_j + c_j*h_i, gamma_i = g0 + g1*h_i. Reference b/c are
+    both zero. Gamma affects every category, including the reference. A single
+    scalar income main effect shared by all alternatives would cancel, so income
+    enters flavor intercepts and the exposure slope instead.
+
+    Missing income households remain, with separate flavor and fatigue effects.
+    The exact design matrix is shared by utility, gradient, rank diagnostics,
+    and clustered inference so the interpretation cannot drift between them.
+    """
+    def __init__(self, data, family_effect=False):
+        self.data, self.j = data, len(data.flavors)
+        self.mode, self.family_effect, self.g = "income", family_effect, 1
+        self.r = 1  # one deterministic utility per household, NOT a simulation draw
+        self.draws = np.empty((1, 0))
+        self.has_missing = any(p.income_missing for p in data.panels)
+        k = self.j - 1
+        self.names = ([f"beta[{f}]" for f in data.flavors[1:]]
+                      + [f"beta_income[{f}]" for f in data.flavors[1:]]
+                      + ([f"beta_missing_income[{f}]" for f in data.flavors[1:]] if self.has_missing else []))
+        self.gamma_start = len(self.names)
+        self.names += ["gamma", "gamma_income"]
+        if self.has_missing:
+            self.names += ["gamma_missing_income"]
+        if family_effect:
+            self.names += ["gamma_family"]
+        self.alpha_index = len(self.names)
+        self.names += ["alpha_price"] + data.control_names
+        self.bounds = ([(-12, 12)] * (2*k + k*int(self.has_missing))
+                       + [(-8, 8)] * (self.alpha_index-self.gamma_start)
+                       + [(-10, 0)] + [(-8, 8)] * len(data.control_names))
+        self._designs = [self.design(p) for p in data.panels]
+
+    def starting_vector(self):
+        base = np.zeros(len(self.names))
+        base[self.gamma_start] = .1
+        base[self.alpha_index] = -.5
+        return base
+
+    def design(self, p):
+        x = np.zeros((len(p.weeks), self.j, len(self.names)))
+        k = self.j - 1
+        for j in range(1, self.j):
+            x[:, j, j-1] = 1
+            x[:, j, k+j-1] = p.income
+            if self.has_missing:
+                x[:, j, 2*k+j-1] = float(p.income_missing)
+        z = np.log1p(p.stock)
+        x[:, :, self.gamma_start] = -z
+        x[:, :, self.gamma_start+1] = -p.income*z
+        cursor = self.gamma_start+2
+        if self.has_missing:
+            x[:, :, cursor] = -float(p.income_missing)*z
+            cursor += 1
+        if self.family_effect:
+            x[:, :, cursor] = -np.log1p(p.family_stock)
+        x[:, :, self.alpha_index] = p.prices
+        x[:, :, self.alpha_index+1:] = p.controls
+        return x
+
+    def log_probabilities(self, params, p):
+        utility = self.design(p) @ params
+        utility = np.where(p.available, utility, -np.inf)
+        logp = utility-logsumexp(utility, axis=1, keepdims=True)
+        return logp[:, None, :]
+
+    def components(self, params, information=False):
+        ll, scores = 0.0, []
+        hessian = np.zeros((len(params), len(params)))
+        for p, full_x in zip(self.data.panels, self._designs):
+            x, y, available = full_x[p.keep], p.counts[p.keep], p.available[p.keep]
+            utility = np.where(available, x @ params, -np.inf)
+            logp = utility-logsumexp(utility, axis=1, keepdims=True)
+            probabilities = np.exp(logp)
+            ll += float((y*np.where(available, logp, 0)).sum())
+            total = y.sum(axis=1)
+            scores.append(np.einsum("tj,tjk->k", y-total[:, None]*probabilities, x))
+            if information:
+                # Exact curvature: sum N_t * Cov_P(X_tj). Unlike a finite-
+                # difference Hessian this cannot invent curvature from rounding.
+                means = np.einsum("tj,tjk->tk", probabilities, x)
+                hessian += np.einsum("t,tj,tjk,tjl->kl", total, probabilities, x, x)
+                hessian -= np.einsum("t,tk,tl->kl", total, means, means)
+        return -ll, np.array(scores), hessian
+
+    def objective(self, params):
+        return self.components(params)[0]
+
+    def gradient(self, params):
+        return -self.components(params)[1].sum(axis=0)
+
+    def rank_diagnostic(self):
+        # Utility differences, not raw utility columns, identify conditional
+        # demand. With partial supplied menus choose an available pivot per row.
+        rows = []
+        for p, x in zip(self.data.panels, self._designs):
+            for t in np.flatnonzero(p.keep):
+                offered = np.flatnonzero(p.available[t])
+                rows.extend(x[t, offered[1:]]-x[t, offered[0]])
+        matrix = np.array(rows).reshape(-1, len(self.names))
+        norms = np.linalg.norm(matrix, axis=0)
+        scaled = matrix/np.where(norms > 0, norms, 1)
+        singular = np.linalg.svd(scaled, compute_uv=False)
+        rank = int(np.linalg.matrix_rank(scaled)) if len(matrix) else 0
+        return {"parameters": len(self.names), "relative_design_rows": len(matrix),
+                "rank": rank, "full_column_rank": rank == len(self.names),
+                "column_scaled_singular_values": singular.tolist(),
+                "zero_columns": [name for name, norm in zip(self.names, norms) if norm == 0],
+                "interpretation": "empirical linear-log-odds rank under maintained model; not proof of exogeneity"}
+
+    def clustered_inference(self, params):
+        _, scores, hessian = self.components(params, information=True)
+        groups = len(scores)
+        diagnostics = {"method": "household-cluster sandwich with G/(G-1) correction",
+                       "clusters": groups, "hessian_rank": int(np.linalg.matrix_rank(hessian)),
+                       "hessian_condition_number": float(np.linalg.cond(hessian))}
+        se = np.full(len(params), np.nan)
+        if groups > 1 and diagnostics["hessian_rank"] == len(params) and diagnostics["hessian_condition_number"] < 1e12:
+            bread = np.linalg.inv(hessian)
+            covariance = bread @ (scores.T @ scores) @ bread * groups/(groups-1)
+            diagonal = np.diag(covariance)
+            se = np.sqrt(np.where(diagonal >= 0, diagonal, np.nan))
+            # Ordinary interior standard errors are not valid at an active bound.
+            active = [np.isclose(v, low, atol=1e-5) or np.isclose(v, high, atol=1e-5)
+                      for v, (low, high) in zip(params, self.bounds)]
+            se[active] = np.nan
+        diagnostics["standard_errors_available"] = bool(np.isfinite(se).any())
+        return se, diagnostics
+
+
+def make_model(data, args):
+    if args.heterogeneity == "income":
+        return IncomeModel(data, args.family_effect)
+    return Model(data, args.draws, args.seed, args.gamma_mode, args.family_effect)
 
 
 def identification(data):
@@ -658,9 +855,12 @@ def simulate(model, truth, seed):
     rng = np.random.default_rng(seed)
     panels = []
     for p in model.data.panels:
-        generator = Model(model.data, 2, seed, model.mode, model.family_effect)
-        generator.draws = rng.normal(size=(1, model.draws.shape[1]))
-        generator.r = 1
+        if isinstance(model, IncomeModel):
+            generator = model  # no latent type to draw; income remains observed
+        else:
+            generator = Model(model.data, 2, seed, model.mode, model.family_effect)
+            generator.draws = rng.normal(size=(1, model.draws.shape[1]))
+            generator.r = 1
         generated = np.zeros_like(p.counts)
         running, previous = np.zeros(model.j), None
         own, broad = np.zeros_like(p.stock), np.zeros_like(p.family_stock)
@@ -788,6 +988,39 @@ def self_test():
         "Self-test passed: stocks, multi-store aggregation, panel likelihood, availability, recursive simulation, recovery."
     )
     print("Synthetic truth:", truth, "Recovered:", np.round(result.x, 4))
+    # Observed income heterogeneity: check the exact log-odds identity and
+    # analytical gradient, then recover BOTH preference and fatigue interactions
+    # from newly simulated histories. No quadrature nodes enter this exercise.
+    income_panels = [replace(p, income=float(h)) for p, h in
+                     zip(design.panels, np.linspace(-1.5, 1.5, len(design.panels)))]
+    income_data = replace(design, panels=income_panels)
+    income_model = IncomeModel(income_data)
+    income_truth = np.array([.5, .4, .6, .2, -.8])
+    generated_income = simulate(income_model, income_truth, 96)
+    fitted_income_model = IncomeModel(generated_income)
+    p = generated_income.panels[0]
+    logp = fitted_income_model.log_probabilities(income_truth, p)[:, 0]
+    expected_odds = (income_truth[0]+income_truth[1]*p.income
+                     +income_truth[-1]*(p.prices[:, 1]-p.prices[:, 0])
+                     -(income_truth[2]+income_truth[3]*p.income)
+                     *(np.log1p(p.stock[:, 1])-np.log1p(p.stock[:, 0])))
+    np.testing.assert_allclose(logp[:, 1]-logp[:, 0], expected_odds)
+    numeric = []
+    for k in range(len(income_truth)):
+        plus, minus = income_truth.copy(), income_truth.copy()
+        plus[k] += 1e-5; minus[k] -= 1e-5
+        numeric.append((fitted_income_model.objective(plus)-fitted_income_model.objective(minus))/2e-5)
+    np.testing.assert_allclose(fitted_income_model.gradient(income_truth), numeric, atol=1e-5)
+    assert fitted_income_model.rank_diagnostic()["full_column_rank"]
+    income_result = fitted_income_model.fit(starts=2, maxiter=200)
+    assert income_result.success, income_result.message
+    assert np.max(np.abs(income_result.x-income_truth)) < .3, (income_result.x, income_truth)
+    se, inference = fitted_income_model.clustered_inference(income_result.x)
+    assert inference["standard_errors_available"] and np.isfinite(se).all()
+    no_fatigue = fitted_income_model.fit(initial=income_result.x, starts=1, no_fatigue=True)
+    np.testing.assert_array_equal(no_fatigue.x[2:4], [0, 0])
+    print("Income checks passed: log odds, gradient, rank, clustered inference, nested restrictions, recursive recovery.")
+    print("Income truth:", income_truth, "Recovered:", np.round(income_result.x, 4))
 
 
 def main():
@@ -803,7 +1036,12 @@ def main():
         "--menu",
         help="Independently observed store-week product menu CSV/Parquet",
     )
-    parser.add_argument("--output", default="step4_output")
+    parser.add_argument("--output", help="Default: step4_income_output (income) or step4_output (random)")
+    parser.add_argument("--heterogeneity", choices=["income", "random"], default="income",
+                        help="Income interactions without draws (default), or legacy random coefficients")
+    parser.add_argument("--income-column", default="household_income")
+    parser.add_argument("--income-encoding", choices=["codes", "dollars"], default="codes",
+                        help="Map Nielsen brackets to dollars, or use a supplied dollars column")
     parser.add_argument(
         "--flavor-column", default="flavor", help="Flavor category or individual-flavor column"
     )
@@ -856,22 +1094,29 @@ def main():
         args.gamma_mode == "flavor" or any(abs(v) > 8 for v in args.profile)
     ):
         parser.error("Profile needs common/random gamma and values within [-8, 8].")
-    output = local_path(args.output)
+    if args.heterogeneity == "income" and args.gamma_mode != "common":
+        parser.error("Income mode uses gamma + gamma_income; --gamma-mode flavor/random applies only to --heterogeneity random.")
+    output = local_path(args.output or ("step4_income_output" if args.heterogeneity == "income" else "step4_output"))
     data, report = prepare(args)
-    model = Model(data, args.draws, args.seed, args.gamma_mode, args.family_effect)
+    model = make_model(data, args)
     output.mkdir(parents=True, exist_ok=True)
     identification(data).to_csv(output / "identification.csv", index=False)
     if data.attrition is not None:
         data.attrition.to_csv(output / "household_attrition.csv", index=False)
     pd.DataFrame(report["source_sample_stages"]).to_csv(output / "source_sample_stages.csv", index=False)
     pd.DataFrame(report["choice_sample_stages"]).to_csv(output / "choice_sample_stages.csv", index=False)
+    if isinstance(model, IncomeModel):
+        report["income"] = data.income_metadata
+        report["income_design"] = model.rank_diagnostic()
+        data.income_table.to_csv(output / "household_income.csv", index=False)
+        (output / "income_design_rank.json").write_text(json.dumps(report["income_design"], indent=2) + "\n")
     print(json.dumps(report, indent=2), flush=True)
     if args.audit_only:
         (output / "sample_audit.json").write_text(json.dumps(report, indent=2) + "\n")
         print(f"Sample audit saved inside {output}; no estimation performed.")
         return
     print(
-        f"Fitting {len(model.names)} parameters with {model.r} persistent draws...",
+        f"Fitting {len(model.names)} parameters " + ("with income interactions and no draws..." if isinstance(model, IncomeModel) else f"with {model.r} persistent draws..."),
         flush=True,
     )
     fit = model.fit(args.starts, maxiter=args.maxiter)
@@ -886,6 +1131,16 @@ def main():
     estimates["at_bound"] = np.isclose(
         estimates.estimate, estimates.lower_bound, atol=1e-5
     ) | np.isclose(estimates.estimate, estimates.upper_bound, atol=1e-5)
+    if isinstance(model, IncomeModel):
+        se, inference = model.clustered_inference(fit.x)
+        if not fit.success:
+            se[:] = np.nan
+            inference["standard_errors_available"] = False
+            inference["reason"] = "optimizer did not converge"
+        estimates["se_household_cluster"] = se
+        estimates["ci95_low"] = estimates.estimate - 1.96*se
+        estimates["ci95_high"] = estimates.estimate + 1.96*se
+        report["inference"] = inference
     estimates.to_csv(output / "estimates.csv", index=False)
     # Do not turn an unstable numerical inverse Hessian into reassuring p-values.
     # Profile uncertainty is saved explicitly; household bootstrap inference can
@@ -896,11 +1151,12 @@ def main():
             "converged": bool(fit.success),
             "optimizer_message": str(fit.message),
             "start_objectives": fit.start_objectives,
-            "gamma_mode": args.gamma_mode,
+            "heterogeneity": args.heterogeneity,
+            "gamma_mode": "income_interaction" if isinstance(model, IncomeModel) else args.gamma_mode,
             "family_effect": args.family_effect,
-            "actual_draws": model.r,
+            "actual_draws": 0 if isinstance(model, IncomeModel) else model.r,
             "seed": args.seed,
-            "standard_errors": "not reported; inspect profile and recovery",
+            "standard_errors": "household-cluster sandwich; unavailable at bounds or with singular/ill-conditioned curvature" if isinstance(model, IncomeModel) else "not reported; inspect profile and recovery",
             "price_endogeneity": "no IV/control function; estimates conditional on supplied prices",
             "initial_conditions": "zero stock at first observed retained-flavor purchase; first week retained; no burn-in",
         }
@@ -922,9 +1178,7 @@ def main():
     recovery = []
     for repetition in range(args.recovery_reps):
         generated = simulate(model, fit.x, args.seed + 1000 + repetition)
-        estimated = Model(
-            generated, args.draws, args.seed, args.gamma_mode, args.family_effect
-        ).fit(
+        estimated = make_model(generated, args).fit(
             args.starts,
             initial=fit.x,
             maxiter=args.maxiter,

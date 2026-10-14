@@ -6,6 +6,8 @@ discarding short histories. The draft reports 998 yogurt-purchasing households,
 about four yogurt purchase weeks per household, and eight weeks of observation.
 These are different lengths: four purchase occasions do not mean four consecutive
 calendar weeks. Exposure should decay using calendar gaps.
+The current default uses observed income interactions for beta and gamma without
+draws. The random-coefficient model discussed later remains an optional comparison.
 
 An identification proof concerns whether different parameter vectors generate
 different population distributions of observed choices. A large household count,
@@ -135,9 +137,78 @@ The step-2 restriction $\gamma_0=0$ reduces the number of slopes by assumption.
 It is not an innocuous utility-location normalization. A zero history regressor
 or an unavailable category gives no information about its slope.
 
+## 4a. Identification proof for the implemented income specification
+
+Let $h_i$ be the fixed standardized log-income covariate constructed from the
+household's mapped income bracket. The implemented model is
+
+$$
+\beta_{ij}=b_j+c_jh_i,\qquad \gamma_i=g_0+g_1h_i,
+\qquad b_0=c_0=0.
+$$
+
+For complete incomes and no optional controls, order the seven parameters as
+$\theta=(b_1,b_2,c_1,c_2,g_0,g_1,\alpha)'$. The relative utility rows are
+
+$$
+d_{its,1}=(1,0,h_i,0,-\Delta z_{it1},-h_i\Delta z_{it1},\Delta p_{ts1}),
+$$
+$$
+d_{its,2}=(0,1,0,h_i,-\Delta z_{it2},-h_i\Delta z_{it2},\Delta p_{ts2}).
+$$
+
+Under the maintained logit, state, income measurement, and conditional exogeneity
+assumptions, the population choice-probability map identifies these coefficients
+at interior parameter values if and only if the supported relative rows have
+column rank seven. The argument is the same direct linear log-odds proof as
+section 2: identical probabilities imply $d(\theta-\widetilde\theta)=0$;
+rank seven forces equality, while a nonzero null direction gives observational
+equivalence within the parameter space. This is a global injectivity result for
+this fixed observed-covariate parameterization, not for a latent taste mixture.
+
+The economic interpretation of the rank condition is:
+
+- $b_j$ sets baseline preference at average log income; $c_j$ moves that preference
+  across incomes. Supported income variation must distinguish the two.
+- $g_0$ measures the exposure response at average log income; $g_1$ moves that
+  response across incomes. Income groups must exhibit relative exposure variation
+  that separates $\Delta z$ from $h\Delta z$ and from the flavor/income intercepts.
+- Alpha needs relative price variation not spanned by the other six columns.
+
+For example, at a fixed income $h$ and relative price, a supported change in
+relative exposure changes log odds by $-(g_0+g_1h)\Delta(\Delta z)$. Observing
+this response at two different supported income levels identifies the intercept
+and slope of the income-fatigue relationship, provided the exposure changes
+are themselves informative. Relative choice levels at those incomes identify
+the baseline preference intercepts/slopes once price and exposure effects are
+accounted for. Exact matched observations are illustrative sufficient conditions;
+joint full rank is the general condition.
+
+If all households have one income, $c_j$ and $g_1$ cannot be separated from their
+baseline coefficients. If all relative exposure is zero, neither fatigue term
+is identified. If relative exposure is a fixed category-specific constant,
+$g_0$ can be absorbed into $b_j$ and $g_1$ into $c_j$. If prices contain only fixed
+category differences, alpha is absorbed into category intercepts. These are
+explicit observational-equivalence counterexamples.
+
+When some incomes are missing, the implementation preserves households and adds
+$b_j^M m_i$ and $g_M m_i$ terms. The relative rows acquire category-specific
+missing-income indicators and $-m_i\Delta z$. With three categories, there are
+then ten coefficients, requiring rank ten. Filling $h=0$ alone would wrongly
+assign missing-income households the observed average-income response; the
+separate indicator terms avoid that restriction, but still require data support.
+
+`income_design_rank.json` calculates the numerical rank and column-scaled singular
+values of the observed relative design, including any extra controls. This checks
+the empirical rank counterpart of the proof. It does not validate exogeneity,
+unknown initial exposure, bracket-midpoint measurement, or mean-price fallbacks.
+At a constrained optimum or under separation, finite interior inference needs
+additional care even if rank is full. The clustered standard errors address
+within-household score dependence; they do not recover omitted latent tastes.
+
 ## 5. Persistent heterogeneity: what changes in the proof?
 
-The default step-4 model specifies
+The optional `--heterogeneity random` step-4 model specifies
 
 $$
 \beta_{ij}=\mu_j+\tau_j\nu_{ij},\quad \nu_{ij}\sim N(0,1),

@@ -3,9 +3,10 @@
 `est_step4.py` estimates conditional flavor demand for single-person households
 buying single-serving yogurt. The default `flavor` column uses the draft's three
 categories: 0 = other, 1 = berry, 2 = plain. An individual-flavor column can be
-supplied explicitly. Its default model has persistent heterogeneous
-flavor tastes and **one common own-flavor fatigue coefficient**. It is deliberately
-smaller than the heterogeneous beta-and-gamma specification in `est_step2.py`.
+supplied explicitly. Its default model uses **household-income interactions for
+both flavor preferences and fatigue, with no simulation draws or taste SDs**.
+The legacy normal random-coefficient model remains available through
+`--heterogeneity random`.
 
 The script also supports exact-flavor-specific fatigue, heterogeneous common
 fatigue, flavor-family exposure, menu brand/style controls, dose/timing
@@ -105,7 +106,91 @@ common history slopes cannot be separately identified. Do not enable
 
 ## 4. Utility, tastes, and normalizations
 
-The default systematic utility is
+### Default: observed income heterogeneity
+
+Let $h_i$ be standardized log household income. The model is
+
+$$
+\beta_{ij}=b_j+c_jh_i,\qquad \gamma_i=g_0+g_1h_i,
+$$
+$$
+v_{itsj}=b_j+c_jh_i+\alpha p_{tsj}
+-(g_0+g_1h_i)\log(1+S_{itj})+W_{itsj}'\kappa.
+$$
+
+Both reference-flavor preference coefficients, $b_0$ and $c_0$, are zero.
+Gamma applies to all flavors. A common income main effect alone would cancel
+from conditional flavor probabilities, so income interacts with category
+indicators and exposure instead. For the three-category baseline there are
+seven coefficients: two flavor intercepts, two income-preference slopes, gamma,
+gamma-income, and price. There are no normal taste draws and no SD parameters.
+This changes the economic restriction: observed income explains systematic
+heterogeneity; remaining persistent household tastes are not estimated.
+
+`household_income` is assumed to contain bracket codes. The script copies the
+midpoint mapping from `est_step3.py` without importing that file or triggering
+its data loading. The open top bracket is represented by $100,000. A code is not
+treated as a dollar amount. For a genuine dollars column, use
+`--income-encoding dollars --income-column COLUMN`.
+
+Choose each household's earliest observed usable income and hold it fixed.
+Calculate the mean and population SD of log income once across the retained
+households with usable income, giving households equal weight. Thus $h=0$ means
+average log income and $h=1$ means one log-income SD above that average, not one
+SD of dollar income. Save the transformation and code diagnostics in the summary.
+At least two distinct usable incomes are necessary to estimate these interactions.
+
+Missing, invalid, and unmapped incomes do not remove households. They receive
+$h=0$ and a missing-income indicator $m_i$. If any are present, estimate separate
+$b_j^M m_i$ preference terms and a $g_M m_i$ fatigue term. This avoids representing
+an unknown income as a genuinely observed average-income household. With three
+categories, missing income adds three coefficients. These additional coefficients
+also need variation to be identified; small missing-income groups may not provide it.
+
+The relative log odds are linear in parameters:
+
+$$
+\log(P_j/P_0)=b_j+c_jh_i+\alpha\Delta p_j
+-g_0\Delta z_j-g_1h_i\Delta z_j,
+\quad z_j=\log(1+S_j),
+$$
+
+plus missing-income and other control terms when applicable. `income_design_rank.json`
+reports column rank and singular values of the **relative** design. With three
+categories and complete incomes, rank seven is required to distinguish all seven
+coefficients. The implementation scales columns to unit norm for the numerical
+rank check. A full sample rank supports the model's rank argument but does not
+prove price/history exogeneity or validate price imputations. See
+`est_step4_identification.md` for the formal argument.
+
+The deterministic logit likelihood sums counted-choice log probabilities;
+there is no integration over types. Analytic gradients and exact logit curvature
+use the same design as utility. The objective is convex in these coefficients
+for fixed histories/covariates, though a minimizer can lie on bounds or fail to
+be finite under separation. Multiple starts remain a numerical check.
+
+Income-mode estimates include household-cluster sandwich standard errors:
+
+$$
+H=\sum_{i,t,s}N_{its}\operatorname{Cov}_{P}(X_{itsj}),\qquad
+s_i=\sum_{t,s,j}(y_{itsj}-N_{its}P_{itsj})X_{itsj},
+$$
+$$
+\widehat V=\frac{G}{G-1}H^{-1}\left(\sum_i s_i s_i'\right)H^{-1}.
+$$
+
+Here $G$ counts households. Clustering permits within-household score dependence;
+it does not correct omitted-variable bias or establish the assumed conditional
+mean. Standard errors are omitted when optimization fails, curvature is singular
+or ill-conditioned, or the coefficient is at a bound. Reported 95% intervals
+use the normal approximation for interior coefficients. No Wald p-values are
+automatically reported. The gamma profile fixes $g_0$ and re-estimates $g_1$;
+fixing $g_0=0$ alone does not remove all fatigue. The no-fatigue comparison fixes
+both gamma coefficients (and all optional history terms) to zero.
+
+### Optional: normal random-coefficient heterogeneity
+
+With `--heterogeneity random`, systematic utility is
 
 $$
 v_{itsj}=\beta_{ij}+\alpha p_{tsj}
@@ -201,7 +286,8 @@ numerical inverse-Hessian standard errors or Wald p-values.
 ## 6. Building choices, menus, and controls
 
 Purchase inputs require `household_code`, `store_code_uc`, `week_end`, `quantity`,
-`price`, and the selected exact-flavor column (`flavor_descr` by default).
+`price`, and the selected flavor column (`flavor` by default). The default income
+specification also requires the selected income column (`household_income`).
 CSV and Parquet are supported. Parquet requires a pandas-compatible engine.
 Prices must already be per-cup prices in dollars; the script cannot infer whether
 a source column is a transaction total. Verify this before estimation.
@@ -349,8 +435,9 @@ repeats the following experiment:
 
 1. Keep observed household panel lengths, purchase dates, stores, prices, menus,
    and per-store basket totals.
-2. Draw one continuous normal taste type per household (and gamma type when
-   requested), independently of the estimation quadrature nodes.
+2. Income mode holds observed household income fixed; random mode draws one
+   continuous normal taste type per household (and gamma type when requested),
+   independently of the estimation quadrature nodes.
 3. Simulate flavor counts in chronological order, including first-week purchases.
 4. Update stock from the **simulated** counts, regenerate history interactions,
    and continue. Never use the original history as a frozen covariate.
@@ -379,6 +466,12 @@ python3 est_step4.py --self-test
 # Use the default scanner-panel input:
 python3 est_step4.py
 
+# Income heterogeneity is the default; results go to step4_income_output:
+python3 est_step4.py --profile -0.1 0 0.05 0.1 0.2 --recovery-reps 5
+
+# Reproduce the previous normal random-coefficient specification:
+python3 est_step4.py --heterogeneity random
+
 # Inspect sample counts without fitting; writes fresh audit files:
 python3 est_step4.py --audit-only --output step4_audit
 
@@ -395,16 +488,20 @@ python3 est_step4.py --input purchases.parquet --menu yogurt_menu.parquet \
   --timing-controls --family-effect --output step4_family_timing
 
 # Richer heterogeneity only after the baseline behaves well:
-python3 est_step4.py --input purchases.parquet --menu yogurt_menu.parquet \
+python3 est_step4.py --heterogeneity random --input purchases.parquet --menu yogurt_menu.parquet \
   --gamma-mode random --draws 256 --output step4_random_gamma
 
-python3 est_step4.py --input purchases.parquet --menu yogurt_menu.parquet \
+python3 est_step4.py --heterogeneity random --input purchases.parquet --menu yogurt_menu.parquet \
   --gamma-mode flavor --output step4_flavor_gamma
 ```
 
 Use distinct output folders for different specifications. Reusing an output
 folder overwrites the current run's files and may leave optional outputs from
 an earlier run; do not combine stale profiles/recovery with a new summary.
+The default income output folder is `step4_income_output`; random mode uses
+`step4_output`. The earlier random-coefficient results are therefore preserved
+when running the new default income specification. `--draws` has no effect in
+income mode, and `actual_draws` is recorded as zero.
 
 Outputs are `estimates.csv`, `no_fatigue_estimates.csv`, `identification.csv`,
 `run_summary.json`, and, when requested, `gamma_profile.csv` and `recovery.csv`.
@@ -413,6 +510,7 @@ Outputs are `estimates.csv`, `no_fatigue_estimates.csv`, `identification.csv`,
 the two-purchase-week restriction and retention of all eligible households' rows.
 Audit-only mode
 saves these, `identification.csv`, and `sample_audit.json` without estimation.
+Income mode also saves `household_income.csv` and `income_design_rank.json`.
 
 The summary records the sample, menus, price assumptions, optimizer status,
 draw count, initial-stock treatment, and lack of price correction. SDs and bound
@@ -420,7 +518,8 @@ flags in `estimates.csv` use the actual fitted parameterization.
 
 The self-test checks multi-store stock aggregation, calendar decay, explicit
 household integration, the zero-heterogeneity likelihood limit, unavailable
-alternatives, recursively generated histories, and parameter recovery in a
+alternatives, the income log-odds identity, analytic gradients, rank, clustered
+inference, no-fatigue restrictions, recursively generated histories, and recovery in a
 small synthetic panel. It does not replace validation on Nielsen data.
 
 ## 12. Suggested empirical sequence
@@ -438,17 +537,17 @@ credible. Short panels may support the mean effect but not a distribution of
 fatigue types.
 
 For a change in own exposure from $S_a$ to $S_b$, holding other attributes fixed,
-the default utility change is
+the default utility change for a household with income $h_i$ is
 
 $$
-\Delta v=-\gamma\,[\log(1+S_b)-\log(1+S_a)].
+\Delta v=-(g_0+g_1h_i)\,[\log(1+S_b)-\log(1+S_a)].
 $$
 
 If alpha is strictly negative, the corresponding per-cup compensating discount
 for a positive fatigue loss is
 
 $$
-d=\frac{\gamma[\log(1+S_b)-\log(1+S_a)]}{-\alpha}.
+d=\frac{(g_0+g_1h_i)[\log(1+S_b)-\log(1+S_a)]}{-\alpha}.
 $$
 
 Gamma divided by alpha alone is not an economically specified willingness to

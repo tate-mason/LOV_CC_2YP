@@ -3,6 +3,7 @@
 #   sbatch 2026-10-16/run_slurm.sh --draws 128 --starts 3
 # Add cluster-specific options (e.g. --account or --partition) before the script.
 #SBATCH --job-name=flavor-comparison
+#SBATCH --partition=highmem_p		# Partition name (batch, highmem_p, or gpu_p)
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1

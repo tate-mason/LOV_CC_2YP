@@ -1,0 +1,7 @@
+parameter,estimate
+beta[PLAIN],-0.18856799492560186
+beta[VANILLA],-0.2644775323172666
+sd_beta[PLAIN],0.0
+sd_beta[VANILLA],0.0
+gamma,0.0
+alpha_price,-0.7268795090579576

@@ -1,0 +1,6 @@
+store_code_uc,upc,week_end,_exact_rms_key,_price_status,_missing_join_key,_nearby_rms_key_only,distinct_source_rows,positive_source_values,source_price_min,source_price_max,_any_positive_source_price,_conflicting_positive_source_prices
+1,2,2024-01-06,True,missing,False,False,1,1,1.210858385392742,1.210858385392742,True,False
+1,1,2024-01-13,True,malformed,False,False,1,1,2.1824582036268954,2.1824582036268954,True,False
+1,3,2024-01-13,True,zero,False,False,1,1,1.9424747535717724,1.9424747535717724,True,False
+1,1,2024-01-20,True,negative,False,False,1,1,0.8571880335704276,0.8571880335704276,True,False
+1,2,2024-01-20,True,infinite,False,False,1,1,1.0401490751558389,1.0401490751558389,True,False

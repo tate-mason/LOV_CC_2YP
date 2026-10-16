@@ -1,0 +1,7 @@
+parameter,estimate,fixed,at_bound
+beta[PLAIN],-0.07802252951846075,False,False
+beta[VANILLA],-0.1135606510620182,False,False
+sd_beta[PLAIN],0.0,True,True
+sd_beta[VANILLA],0.0,True,True
+gamma,-0.34436352778179785,False,False
+alpha_price,-0.77934005864416,False,False

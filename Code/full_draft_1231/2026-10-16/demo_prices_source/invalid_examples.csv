@@ -1,0 +1,6 @@
+household_code,store_code_uc,upc,week_end,flavor,quantity,price,_price_status,line_spend
+0,1,2,2024-01-06,STRAWBERRY,5,,missing,6.054291926963709
+0,1,1,2024-01-13,PLAIN,2,bad,malformed,4.364916407253791
+0,1,3,2024-01-13,VANILLA,3,0,zero,5.827424260715317
+0,1,1,2024-01-20,PLAIN,3,-1,negative,2.571564100711283
+0,1,2,2024-01-20,STRAWBERRY,1,inf,infinite,1.0401490751558389

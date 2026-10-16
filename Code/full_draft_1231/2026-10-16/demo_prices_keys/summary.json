@@ -1,0 +1,31 @@
+{
+  "rows": 351,
+  "price_column": "price",
+  "price_status_counts": {
+    "valid": 346,
+    "missing": 1,
+    "malformed": 1,
+    "zero": 1,
+    "negative": 1,
+    "infinite": 1
+  },
+  "invalid_quantity_rows": 0,
+  "columns": [
+    "household_code",
+    "store_code_uc",
+    "week_end",
+    "flavor",
+    "upc",
+    "quantity",
+    "price",
+    "line_spend",
+    "_price_status",
+    "_invalid_price",
+    "_valid_price",
+    "_year",
+    "_month"
+  ],
+  "interpretation": "Missing price is not proof of a failed RMS match. Key verification requires original RMS. No prices are replaced by this audit.",
+  "rms_exact_key_rows": 351,
+  "rms_note": "Keys normalized for dates, whitespace, numeric .0 and leading zeros. Exact key existence does not establish nonmissing RMS price values. Nearby dates are diagnostic only. RMS keys are collected in memory."
+}

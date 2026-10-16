@@ -1,0 +1,3 @@
+sd_cap,nll,gamma,converged,optimizer_message,start_objectives,no_history_nll,no_history_converged,no_history_beats_full,profile_beats_full,free_parameter_at_bound,actual_draws
+0.0,780.0546663599026,-0.34436352778179785,True,CONVERGENCE: RELATIVE REDUCTION OF F <= FACTR*EPSMCH,[780.0546663599026],786.6316247023493,True,False,False,False,16
+2.0,766.6773049555624,0.6238257208672402,True,CONVERGENCE: RELATIVE REDUCTION OF F <= FACTR*EPSMCH,[766.6773049555624],772.0569289006719,True,False,False,False,16

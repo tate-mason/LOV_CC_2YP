@@ -1,0 +1,7 @@
+_price_status,_exact_rms_key,_any_positive_source_price,_conflicting_positive_source_prices,rows
+infinite,True,True,False,1
+malformed,True,True,False,1
+missing,True,True,False,1
+negative,True,True,False,1
+valid,True,True,False,346
+zero,True,True,False,1

@@ -1,0 +1,7 @@
+_price_status,_missing_join_key,_exact_rms_key,_nearby_rms_key_only,rows
+infinite,False,True,False,1
+malformed,False,True,False,1
+missing,False,True,False,1
+negative,False,True,False,1
+valid,False,True,False,346
+zero,False,True,False,1

@@ -1,0 +1,6 @@
+{
+  "success": false,
+  "message": "STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT",
+  "fun": 19474.99013294369,
+  "warning": "Short-panel incidental-parameter bias and separated HH flavor intercepts are possible; no bias correction or SEs."
+}

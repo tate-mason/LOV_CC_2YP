@@ -1,0 +1,319 @@
+From github.com:tate-mason/LOV_CC_2YP
+   ea5f45e..55d4dd0  main       -> origin/main
+Updating ea5f45e..55d4dd0
+Fast-forward
+ Code/full_draft_1231/2026-10-16/.gitignore         |    1 -
+ Code/full_draft_1231/2026-10-16/CORE_REFERENCE.md  |  556 ------
+ Code/full_draft_1231/2026-10-16/README.md          |  282 ---
+ Code/full_draft_1231/2026-10-16/demand_core.py     | 1213 -------------
+ Code/full_draft_1231/2026-10-16/demo_data/menu.csv |   16 -
+ .../2026-10-16/demo_data/price_failures.csv        |  352 ----
+ .../2026-10-16/demo_data/purchases.csv             |  352 ----
+ .../2026-10-16/demo_data/rms.parquet               |  Bin 3582 -> 0 bytes
+ .../2026-10-16/demo_data/truth.json                |    1 -
+ .../full_draft_1231/2026-10-16/demo_fit/audit.json |  115 --
+ .../2026-10-16/demo_fit/flavor_variation.csv       |    4 -
+ .../2026-10-16/demo_fit/household_attrition.csv    |   31 -
+ .../2026-10-16/demo_fit/household_variation.csv    |   31 -
+ .../2026-10-16/demo_fit/model_comparison.csv       |    3 -
+ .../2026-10-16/demo_fit/recovery.csv               |   25 -
+ .../2026-10-16/demo_fit/sd_cap_0/estimates.csv     |    7 -
+ .../2026-10-16/demo_fit/sd_cap_0/fit.json          |   16 -
+ .../2026-10-16/demo_fit/sd_cap_0/gamma_profile.csv |    3 -
+ .../demo_fit/sd_cap_0/no_history_estimates.csv     |    7 -
+ .../2026-10-16/demo_fit/sd_cap_2/estimates.csv     |    7 -
+ .../2026-10-16/demo_fit/sd_cap_2/fit.json          |   16 -
+ .../2026-10-16/demo_fit/sd_cap_2/gamma_profile.csv |    3 -
+ .../demo_fit/sd_cap_2/no_history_estimates.csv     |    7 -
+ .../2026-10-16/demo_prices/by__month.csv           |    3 -
+ .../2026-10-16/demo_prices/by__year.csv            |    2 -
+ .../2026-10-16/demo_prices/by_flavor.csv           |    4 -
+ .../2026-10-16/demo_prices/by_store_code_uc.csv    |    2 -
+ .../2026-10-16/demo_prices/by_upc.csv              |    4 -
+ .../2026-10-16/demo_prices/candidate_fields.csv    |    3 -
+ .../2026-10-16/demo_prices/invalid_examples.csv    |    6 -
+ .../2026-10-16/demo_prices/payment_comparison.csv  |  352 ----
+ .../2026-10-16/demo_prices/price_status.csv        |    7 -
+ .../2026-10-16/demo_prices/sample_stages.csv       |    6 -
+ .../2026-10-16/demo_prices/summary.json            |   35 -
+ .../2026-10-16/demo_prices_keys/by__month.csv      |    3 -
+ .../2026-10-16/demo_prices_keys/by__year.csv       |    2 -
+ .../2026-10-16/demo_prices_keys/by_flavor.csv      |    4 -
+ .../demo_prices_keys/by_store_code_uc.csv          |    2 -
+ .../2026-10-16/demo_prices_keys/by_upc.csv         |    4 -
+ .../demo_prices_keys/candidate_fields.csv          |    3 -
+ .../demo_prices_keys/invalid_examples.csv          |    6 -
+ .../2026-10-16/demo_prices_keys/price_status.csv   |    7 -
+ .../demo_prices_keys/rms_key_cross_tab.csv         |    7 -
+ .../2026-10-16/demo_prices_keys/sample_stages.csv  |    6 -
+ .../2026-10-16/demo_prices_keys/summary.json       |   31 -
+ .../demo_prices_keys/unmatched_key_examples.csv    |    1 -
+ .../2026-10-16/demo_prices_source/by__month.csv    |    3 -
+ .../2026-10-16/demo_prices_source/by__year.csv     |    2 -
+ .../2026-10-16/demo_prices_source/by_flavor.csv    |    4 -
+ .../demo_prices_source/by_store_code_uc.csv        |    2 -
+ .../2026-10-16/demo_prices_source/by_upc.csv       |    4 -
+ .../demo_prices_source/candidate_fields.csv        |    3 -
+ .../demo_prices_source/invalid_examples.csv        |    6 -
+ .../invalid_target_with_valid_source_examples.csv  |    6 -
+ .../2026-10-16/demo_prices_source/price_status.csv |    7 -
+ .../demo_prices_source/rms_key_cross_tab.csv       |    7 -
+ .../rms_source_price_cross_tab.csv                 |    7 -
+ .../demo_prices_source/sample_stages.csv           |    6 -
+ .../2026-10-16/demo_prices_source/summary.json     |   32 -
+ .../demo_prices_source/unmatched_key_examples.csv  |    1 -
+ Code/full_draft_1231/2026-10-16/diagnostics.py     |   46 -
+ Code/full_draft_1231/2026-10-16/estimate.py        |  112 --
+ Code/full_draft_1231/2026-10-16/make_demo.py       |   55 -
+ Code/full_draft_1231/2026-10-16/price_audit.py     |  161 --
+ Code/full_draft_1231/2026-10-16/requirements.txt   |    6 -
+ Code/full_draft_1231/2026-10-16/run_slurm.sh       |   21 -
+ .../full_draft_1231/2026-10-16/test_diagnostics.py |   52 -
+ .../__pycache__/est_step4.cpython-313.pyc          |  Bin 79517 -> 42419 bytes
+ Code/full_draft_1231/est_step4.md                  | 1077 ++++++-----
+ Code/full_draft_1231/est_step4.py                  | 1887 ++++++++------------
+ Code/full_draft_1231/est_step4_identification.md   |  326 ----
+ Code/full_draft_1231/estimation_satiation.py       | 1042 -----------
+ Code/full_draft_1231/estimation_simple.py          |  578 ------
+ .../step4_income_output/choice_sample_stages.csv   |    3 -
+ .../step4_income_output/estimates.csv              |    8 -
+ .../step4_income_output/household_attrition.csv    |  999 -----------
+ .../step4_income_output/household_income.csv       |  551 ------
+ .../step4_income_output/identification.csv         |    4 -
+ .../step4_income_output/income_design_rank.json    |   17 -
+ .../step4_income_output/no_fatigue_estimates.csv   |    8 -
+ .../step4_income_output/run_summary.json           |  149 --
+ .../step4_income_output/source_sample_stages.csv   |    6 -
+ .../step4_output/choice_sample_stages.csv          |    3 -
+ Code/full_draft_1231/step4_output/estimates.csv    |    7 -
+ .../step4_output/household_attrition.csv           |  999 -----------
+ .../step4_output/identification.csv                |    4 -
+ .../step4_output/no_fatigue_estimates.csv          |    7 -
+ Code/full_draft_1231/step4_output/run_summary.json |  108 --
+ .../step4_output/source_sample_stages.csv          |    6 -
+ Code/full_draft_1231/tests/test_merge_synthetic.py |   43 -
+ 90 files changed, 1245 insertions(+), 10678 deletions(-)
+ delete mode 100644 Code/full_draft_1231/2026-10-16/.gitignore
+ delete mode 100644 Code/full_draft_1231/2026-10-16/CORE_REFERENCE.md
+ delete mode 100644 Code/full_draft_1231/2026-10-16/README.md
+ delete mode 100644 Code/full_draft_1231/2026-10-16/demand_core.py
+ delete mode 100644 Code/full_draft_1231/2026-10-16/demo_data/menu.csv
+ delete mode 100644 Code/full_draft_1231/2026-10-16/demo_data/price_failures.csv
+ delete mode 100644 Code/full_draft_1231/2026-10-16/demo_data/purchases.csv
+ delete mode 100644 Code/full_draft_1231/2026-10-16/demo_data/rms.parquet
+ delete mode 100644 Code/full_draft_1231/2026-10-16/demo_data/truth.json
+ delete mode 100644 Code/full_draft_1231/2026-10-16/demo_fit/audit.json
+ delete mode 100644 Code/full_draft_1231/2026-10-16/demo_fit/flavor_variation.csv
+ delete mode 100644 Code/full_draft_1231/2026-10-16/demo_fit/household_attrition.csv
+ delete mode 100644 Code/full_draft_1231/2026-10-16/demo_fit/household_variation.csv
+ delete mode 100644 Code/full_draft_1231/2026-10-16/demo_fit/model_comparison.csv
+ delete mode 100644 Code/full_draft_1231/2026-10-16/demo_fit/recovery.csv
+ delete mode 100644 Code/full_draft_1231/2026-10-16/demo_fit/sd_cap_0/estimates.csv
+ delete mode 100644 Code/full_draft_1231/2026-10-16/demo_fit/sd_cap_0/fit.json
+ delete mode 100644 Code/full_draft_1231/2026-10-16/demo_fit/sd_cap_0/gamma_profile.csv
+ delete mode 100644 Code/full_draft_1231/2026-10-16/demo_fit/sd_cap_0/no_history_estimates.csv
+ delete mode 100644 Code/full_draft_1231/2026-10-16/demo_fit/sd_cap_2/estimates.csv
+ delete mode 100644 Code/full_draft_1231/2026-10-16/demo_fit/sd_cap_2/fit.json
+ delete mode 100644 Code/full_draft_1231/2026-10-16/demo_fit/sd_cap_2/gamma_profile.csv
+ delete mode 100644 Code/full_draft_1231/2026-10-16/demo_fit/sd_cap_2/no_history_estimates.csv
+ delete mode 100644 Code/full_draft_1231/2026-10-16/demo_prices/by__month.csv
+ delete mode 100644 Code/full_draft_1231/2026-10-16/demo_prices/by__year.csv
+ delete mode 100644 Code/full_draft_1231/2026-10-16/demo_prices/by_flavor.csv
+ delete mode 100644 Code/full_draft_1231/2026-10-16/demo_prices/by_store_code_uc.csv
+ delete mode 100644 Code/full_draft_1231/2026-10-16/demo_prices/by_upc.csv
+ delete mode 100644 Code/full_draft_1231/2026-10-16/demo_prices/candidate_fields.csv
+ delete mode 100644 Code/full_draft_1231/2026-10-16/demo_prices/invalid_examples.csv
+ delete mode 100644 Code/full_draft_1231/2026-10-16/demo_prices/payment_comparison.csv
+ delete mode 100644 Code/full_draft_1231/2026-10-16/demo_prices/price_status.csv
+ delete mode 100644 Code/full_draft_1231/2026-10-16/demo_prices/sample_stages.csv
+ delete mode 100644 Code/full_draft_1231/2026-10-16/demo_prices/summary.json
+ delete mode 100644 Code/full_draft_1231/2026-10-16/demo_prices_keys/by__month.csv
+ delete mode 100644 Code/full_draft_1231/2026-10-16/demo_prices_keys/by__year.csv
+ delete mode 100644 Code/full_draft_1231/2026-10-16/demo_prices_keys/by_flavor.csv
+ delete mode 100644 Code/full_draft_1231/2026-10-16/demo_prices_keys/by_store_code_uc.csv
+ delete mode 100644 Code/full_draft_1231/2026-10-16/demo_prices_keys/by_upc.csv
+ delete mode 100644 Code/full_draft_1231/2026-10-16/demo_prices_keys/candidate_fields.csv
+ delete mode 100644 Code/full_draft_1231/2026-10-16/demo_prices_keys/invalid_examples.csv
+ delete mode 100644 Code/full_draft_1231/2026-10-16/demo_prices_keys/price_status.csv
+ delete mode 100644 Code/full_draft_1231/2026-10-16/demo_prices_keys/rms_key_cross_tab.csv
+ delete mode 100644 Code/full_draft_1231/2026-10-16/demo_prices_keys/sample_stages.csv
+ delete mode 100644 Code/full_draft_1231/2026-10-16/demo_prices_keys/summary.json
+ delete mode 100644 Code/full_draft_1231/2026-10-16/demo_prices_keys/unmatched_key_examples.csv
+ delete mode 100644 Code/full_draft_1231/2026-10-16/demo_prices_source/by__month.csv
+ delete mode 100644 Code/full_draft_1231/2026-10-16/demo_prices_source/by__year.csv
+ delete mode 100644 Code/full_draft_1231/2026-10-16/demo_prices_source/by_flavor.csv
+ delete mode 100644 Code/full_draft_1231/2026-10-16/demo_prices_source/by_store_code_uc.csv
+ delete mode 100644 Code/full_draft_1231/2026-10-16/demo_prices_source/by_upc.csv
+ delete mode 100644 Code/full_draft_1231/2026-10-16/demo_prices_source/candidate_fields.csv
+ delete mode 100644 Code/full_draft_1231/2026-10-16/demo_prices_source/invalid_examples.csv
+ delete mode 100644 Code/full_draft_1231/2026-10-16/demo_prices_source/invalid_target_with_valid_source_examples.csv
+ delete mode 100644 Code/full_draft_1231/2026-10-16/demo_prices_source/price_status.csv
+ delete mode 100644 Code/full_draft_1231/2026-10-16/demo_prices_source/rms_key_cross_tab.csv
+ delete mode 100644 Code/full_draft_1231/2026-10-16/demo_prices_source/rms_source_price_cross_tab.csv
+ delete mode 100644 Code/full_draft_1231/2026-10-16/demo_prices_source/sample_stages.csv
+ delete mode 100644 Code/full_draft_1231/2026-10-16/demo_prices_source/summary.json
+ delete mode 100644 Code/full_draft_1231/2026-10-16/demo_prices_source/unmatched_key_examples.csv
+ delete mode 100644 Code/full_draft_1231/2026-10-16/diagnostics.py
+ delete mode 100644 Code/full_draft_1231/2026-10-16/estimate.py
+ delete mode 100644 Code/full_draft_1231/2026-10-16/make_demo.py
+ delete mode 100644 Code/full_draft_1231/2026-10-16/price_audit.py
+ delete mode 100644 Code/full_draft_1231/2026-10-16/requirements.txt
+ delete mode 100755 Code/full_draft_1231/2026-10-16/run_slurm.sh
+ delete mode 100644 Code/full_draft_1231/2026-10-16/test_diagnostics.py
+ delete mode 100644 Code/full_draft_1231/est_step4_identification.md
+ delete mode 100644 Code/full_draft_1231/estimation_satiation.py
+ delete mode 100644 Code/full_draft_1231/estimation_simple.py
+ delete mode 100644 Code/full_draft_1231/step4_income_output/choice_sample_stages.csv
+ delete mode 100644 Code/full_draft_1231/step4_income_output/estimates.csv
+ delete mode 100644 Code/full_draft_1231/step4_income_output/household_attrition.csv
+ delete mode 100644 Code/full_draft_1231/step4_income_output/household_income.csv
+ delete mode 100644 Code/full_draft_1231/step4_income_output/identification.csv
+ delete mode 100644 Code/full_draft_1231/step4_income_output/income_design_rank.json
+ delete mode 100644 Code/full_draft_1231/step4_income_output/no_fatigue_estimates.csv
+ delete mode 100644 Code/full_draft_1231/step4_income_output/run_summary.json
+ delete mode 100644 Code/full_draft_1231/step4_income_output/source_sample_stages.csv
+ delete mode 100644 Code/full_draft_1231/step4_output/choice_sample_stages.csv
+ delete mode 100644 Code/full_draft_1231/step4_output/estimates.csv
+ delete mode 100644 Code/full_draft_1231/step4_output/household_attrition.csv
+ delete mode 100644 Code/full_draft_1231/step4_output/identification.csv
+ delete mode 100644 Code/full_draft_1231/step4_output/no_fatigue_estimates.csv
+ delete mode 100644 Code/full_draft_1231/step4_output/run_summary.json
+ delete mode 100644 Code/full_draft_1231/step4_output/source_sample_stages.csv
+ delete mode 100644 Code/full_draft_1231/tests/test_merge_synthetic.py
+
+=====================================================
+          PANEL SAMPLE HOUSEHOLD SUMMARY             
+=====================================================
+Total Unique Households:       550
+Total Choice Observations:     3,543
+Mean Purchase Weeks / HH:      6.44
+=====================================================
+
+
+=====================================================
+ PART 1: NAIVE SPECIFICATIONS (NO SATIATION / NO GAMMAS)
+=====================================================
+
+--- Estimating Standard Logit (No Gammas) ---
+                 STANDARD LOGIT (NO SATIATION)                  
+┏━━━━━━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━━━━┓
+┃ Parameter     ┃ Estimate ┃ Std. Error ┃  z-stat ┃    p-value ┃
+┡━━━━━━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━━━━━┩
+│ Constant      │   0.8799 │     0.0415 │  21.207 │ 0.0000 *** │
+│ beta_ber      │  -0.7699 │     0.0133 │ -57.721 │ 0.0000 *** │
+│ beta_pl       │  -1.3822 │     0.0187 │ -74.011 │ 0.0000 *** │
+│ Price         │  -0.9057 │     0.0312 │ -28.996 │ 0.0000 *** │
+│ Control Func. │   0.2269 │     0.0306 │   7.418 │ 0.0000 *** │
+└───────────────┴──────────┴────────────┴─────────┴────────────┘
+Optimization Success: True
+Final LL Objective: 64353.7507
+STANDARD LOGIT (NO SATIATION) - WILLINGNESS TO
+                PAY (WTP in $)                
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━┓
+┃ Attribute / Parameter            ┃ WTP ($) ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━┩
+│ WTP: Berry Preference (vs Other) │   $0.85 │
+│ WTP: Plain Preference (vs Other) │   $1.53 │
+└──────────────────────────────────┴─────────┘
+
+
+
+--- Estimating Random-Coefficient Logit (No Gammas) ---
+             RANDOM COEFFICIENT LOGIT (NO SATIATION)              
+┏━━━━━━━━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━━━━┓
+┃ Parameter       ┃ Estimate ┃ Std. Error ┃  z-stat ┃    p-value ┃
+┡━━━━━━━━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━━━━━┩
+│ Constant        │   0.8793 │     0.0415 │  21.193 │ 0.0000 *** │
+│ Mean beta_berry │  -0.7695 │     0.0134 │ -57.242 │ 0.0000 *** │
+│ Mean beta_plain │  -1.3837 │     0.0219 │ -63.184 │ 0.0000 *** │
+│ SD beta_berry   │   0.0033 │     0.0782 │   0.042 │     0.9663 │
+│ SD beta_plain   │   0.0191 │     0.1037 │   0.184 │     0.8540 │
+│ Price           │  -0.9052 │     0.0312 │ -28.981 │ 0.0000 *** │
+│ Control Func.   │   0.2270 │     0.0306 │   7.425 │ 0.0000 *** │
+└─────────────────┴──────────┴────────────┴─────────┴────────────┘
+Optimization Success: True
+Final LL Objective: 64353.7593
+  RANDOM COEFFICIENT LOGIT (NO SATIATION) -   
+        WILLINGNESS TO PAY (WTP in $)         
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━┓
+┃ Attribute / Parameter            ┃ WTP ($) ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━┩
+│ WTP: Berry Preference (vs Other) │   $0.85 │
+│ WTP: Plain Preference (vs Other) │   $1.53 │
+└──────────────────────────────────┴─────────┘
+
+
+
+=====================================================
+ PART 2: FLAVOR SATIATION SPECIFICATIONS (WITH GAMMAS)
+=====================================================
+
+--- Estimating Standard Flavor-Specific Satiation Logit ---
+                STANDARD FLAVOR SATIATION LOGIT                 
+┏━━━━━━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━━━━┓
+┃ Parameter     ┃ Estimate ┃ Std. Error ┃  z-stat ┃    p-value ┃
+┡━━━━━━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━━━━━┩
+│ Constant      │   0.8784 │     0.0415 │  21.182 │ 0.0000 *** │
+│ beta_ber      │  -0.7631 │     0.0134 │ -57.085 │ 0.0000 *** │
+│ beta_pl       │  -1.3817 │     0.0187 │ -73.725 │ 0.0000 *** │
+│ gamma_berry   │  -0.7365 │     0.1492 │  -4.938 │ 0.0000 *** │
+│ gamma_plain   │  -0.0613 │     0.1022 │  -0.600 │     0.5487 │
+│ Price         │  -0.9045 │     0.0312 │ -28.976 │ 0.0000 *** │
+│ Control Func. │   0.2267 │     0.0306 │   7.419 │ 0.0000 *** │
+└───────────────┴──────────┴────────────┴─────────┴────────────┘
+Optimization Success: True
+Final LL Objective: 64332.4017
+ STANDARD FLAVOR SATIATION LOGIT - WILLINGNESS 
+               TO PAY (WTP in $)               
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━┓
+┃ Attribute / Parameter             ┃ WTP ($) ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━┩
+│ WTP: Berry Preference (vs Other)  │   $0.84 │
+│ WTP: Plain Preference (vs Other)  │   $1.53 │
+│ WTP: Satiation Disutility (Berry) │   $0.81 │
+│ WTP: Satiation Disutility (Plain) │   $0.07 │
+└───────────────────────────────────┴─────────┘
+
+
+
+--- Estimating Random-Coefficient Flavor-Specific Satiation Logit ---
+             RANDOM COEFFICIENT FLAVOR SATIATION LOGIT             
+┏━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━━━━┓
+┃ Parameter        ┃ Estimate ┃ Std. Error ┃  z-stat ┃    p-value ┃
+┡━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━━━━━┩
+│ Constant         │   0.8763 │     0.0414 │  21.148 │ 0.0000 *** │
+│ Mean beta_berry  │  -0.7540 │     0.0135 │ -55.691 │ 0.0000 *** │
+│ Mean beta_plain  │  -1.3876 │     0.0275 │ -50.458 │ 0.0000 *** │
+│ Mean gamma_berry │  -7.2143 │     1.5368 │  -4.694 │ 0.0000 *** │
+│ Mean gamma_plain │  -0.0805 │     0.1044 │  -0.771 │     0.4405 │
+│ SD beta_berry    │   1.0513 │     0.1183 │   8.885 │ 0.0000 *** │
+│ SD beta_plain    │   1.0513 │     0.1552 │   6.772 │ 0.0000 *** │
+│ SD gamma_berry   │ 148.4132 │   154.7499 │   0.959 │     0.3375 │
+│ SD gamma_plain   │   1.0513 │     0.1671 │   6.293 │ 0.0000 *** │
+│ Price            │  -0.9028 │     0.0312 │ -28.948 │ 0.0000 *** │
+│ Control Func.    │   0.2251 │     0.0306 │   7.369 │ 0.0000 *** │
+└──────────────────┴──────────┴────────────┴─────────┴────────────┘
+Optimization Success: True
+Final LL Objective: 64284.4633
+  RANDOM COEFFICIENT FLAVOR SATIATION LOGIT -  
+         WILLINGNESS TO PAY (WTP in $)         
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━┓
+┃ Attribute / Parameter             ┃ WTP ($) ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━┩
+│ WTP: Berry Preference (vs Other)  │   $0.84 │
+│ WTP: Plain Preference (vs Other)  │   $1.54 │
+│ WTP: Satiation Disutility (Berry) │   $7.99 │
+│ WTP: Satiation Disutility (Plain) │   $0.09 │
+└───────────────────────────────────┴─────────┘
+
+
+Generating Figure 4: Marginal Type Distributions...
+Generating Figure 5: Joint Beta vs. Gamma Distribution...
+Generating Figure 6: Willingness-to-Pay Distributions...
+/scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/full_draft_1231/est_step2.py:951: FutureWarning: 
+
+Passing `palette` without assigning `hue` is deprecated and will be removed in v0.14.0. Assign the `x` variable to `hue` and set `legend=False` for the same effect.
+
+  sns.boxplot(
+Type distribution figures saved to ../Output/Plots
+

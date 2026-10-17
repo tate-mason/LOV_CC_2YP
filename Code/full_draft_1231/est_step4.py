@@ -21,14 +21,14 @@ cat_map = {name: j for j, name in enumerate(CATEGORIES)}
 
 # Flip these switches independently. Expensive diagnostics are off by default.
 RUN_WITHIN_DIAGNOSTICS = True
-RUN_WITHIN_FIXED_EFFECTS = True
+RUN_WITHIN_FIXED_EFFECTS = False
 RUN_HOMOGENEOUS = True
 RUN_RANDOM_BETA = True
 RUN_RANDOM_BETA_GAMMA = True
-RUN_PROFILES = False
+RUN_PROFILES = True
 RUN_RECOVERY = False
-RUN_DRAW_SENSITIVITY = False
-COMPUTE_STANDARD_ERRORS = True
+RUN_DRAW_SENSITIVITY = True
+COMPUTE_STANDARD_ERRORS = False
 USE_CONTROL_FUNCTION = True
 
 # Seven is the outside-choice threshold, NOT a cap on recorded inside purchases.
@@ -91,9 +91,7 @@ def load_and_preprocess():
 
     merged_master = merged_df.copy()
     # Infinite prices are missing observations, not usable first-stage outcomes.
-    merged_master["price"] = merged_master["price"].replace(
-        [np.inf, -np.inf], np.nan
-    )
+    merged_master["price"] = merged_master["price"].replace([np.inf, -np.inf], np.nan)
 
     descr_cols = [
         c
@@ -158,9 +156,9 @@ def load_and_preprocess():
             res_std if res_std > 0 else 1.0
         )
 
-    merged_master["iv_res"] = merged_master["iv_res"].replace(
-        [np.inf, -np.inf], np.nan
-    ).fillna(0.0)
+    merged_master["iv_res"] = (
+        merged_master["iv_res"].replace([np.inf, -np.inf], np.nan).fillna(0.0)
+    )
 
     def map_flavor_category(flavor):
         if pd.isna(flavor):

@@ -1,0 +1,90 @@
+From github.com:tate-mason/LOV_CC_2YP
+   55d4dd0..635d072  main       -> origin/main
+Updating 55d4dd0..635d072
+Fast-forward
+ .../__pycache__/est_step4.cpython-313.pyc          | Bin 42419 -> 43634 bytes
+ Code/full_draft_1231/est_step4.md                  | 826 +++++++++++----------
+ Code/full_draft_1231/est_step4.py                  |  49 +-
+ 3 files changed, 458 insertions(+), 417 deletions(-)
+       within_sd          state_range           share_changes       
+            mean   median        mean    median          mean median
+flavor                                                              
+berry   0.100709  0.00000    0.286407  0.000000      1.358182    0.0
+other   0.177754  0.17406    0.512901  0.413147      1.376364    0.0
+plain   0.038194  0.00000    0.113606  0.000000      0.310909    0.0
+  flavor  within_sd  residual_sd
+0  other   0.301001     0.258001
+1  berry   0.208758     0.192566
+2  plain   0.144314     0.138199
+Households: 550; purchase weeks: 3452; weeks above seven: 1447
+Price fallback fraction: 0.839
+Within-household fixed-effect benchmark
+{
+    'gamma_other': np.float64(-0.14164300617584516),
+    'gamma_berry': np.float64(-0.6423970819502643),
+    'gamma_plain': np.float64(-0.0037602618971966395),
+    'price': np.float64(-0.18371471974622638),
+    'control_function': np.float64(-0.037534104085890696)
+}
+{
+    'success': False,
+    'message': 'STOP: TOTAL NO. OF ITERATIONS REACHED LIMIT',
+    'fun': 19474.99013294369,
+    'warning': 'Short-panel incidental-parameter bias and separated HH flavor 
+intercepts are possible; no bias correction or SEs.'
+}
+                  homogeneous                   
+┏━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━━━━━━┓
+┃ Parameter        ┃ Estimate ┃ HH sandwich SE ┃
+┡━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━━━━━━━┩
+│ constant         │ 1.97628  │ 0.30668        │
+│ beta_berry       │ -0.92963 │ 0.06636        │
+│ beta_plain       │ -2.09790 │ 0.12063        │
+│ gamma_other      │ 1.62909  │ 0.10629        │
+│ gamma_berry      │ 2.09558  │ 0.11490        │
+│ gamma_plain      │ 3.08505  │ 0.38632        │
+│ price            │ -0.58880 │ 0.22015        │
+│ control_function │ 0.19521  │ 0.14464        │
+└──────────────────┴──────────┴────────────────┘
+Converged: True; negative LL: 31134.7616; CONVERGENCE: RELATIVE REDUCTION OF F 
+<= FACTR*EPSMCH
+Boundary parameters: []; Hessian condition: 42.816343861188415
+                  random_beta                   
+┏━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━━━━━━┓
+┃ Parameter        ┃ Estimate ┃ HH sandwich SE ┃
+┡━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━━━━━━━┩
+│ constant         │ 1.63412  │ 0.32084        │
+│ beta_berry       │ -2.96403 │ 0.15024        │
+│ beta_plain       │ -5.39338 │ 0.33830        │
+│ gamma_other      │ 0.97178  │ 0.11550        │
+│ gamma_berry      │ -0.33063 │ 0.16853        │
+│ gamma_plain      │ 0.71640  │ 0.11571        │
+│ price            │ -0.40317 │ 0.23340        │
+│ control_function │ 0.02483  │ 0.12725        │
+│ sd_beta_berry    │ 3.43251  │ 0.24066        │
+│ sd_beta_plain    │ 4.77443  │ 0.31611        │
+└──────────────────┴──────────┴────────────────┘
+Converged: True; negative LL: 24837.4458; CONVERGENCE: RELATIVE REDUCTION OF F 
+<= FACTR*EPSMCH
+Boundary parameters: []; Hessian condition: 591.4582226587214
+               random_beta_gamma                
+┏━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━━━━━━┓
+┃ Parameter        ┃ Estimate ┃ HH sandwich SE ┃
+┡━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━━━━━━━┩
+│ constant         │ 1.87626  │ 0.35133        │
+│ beta_berry       │ -3.84177 │ 0.45604        │
+│ beta_plain       │ -6.29014 │ 0.31244        │
+│ gamma_other      │ 1.67623  │ 0.11951        │
+│ gamma_berry      │ -1.13188 │ 0.16267        │
+│ gamma_plain      │ 0.76234  │ 0.15144        │
+│ price            │ -0.30873 │ 0.26204        │
+│ control_function │ 0.04485  │ 0.13697        │
+│ sd_beta_berry    │ 2.96080  │ 0.30836        │
+│ sd_beta_plain    │ 4.87699  │ 0.23379        │
+│ sd_gamma_other   │ 3.69464  │ 0.31563        │
+│ sd_gamma_berry   │ 2.29547  │ 0.24988        │
+│ sd_gamma_plain   │ 0.07877  │ 0.08199        │
+└──────────────────┴──────────┴────────────────┘
+Converged: True; negative LL: 23439.7684; CONVERGENCE: RELATIVE REDUCTION OF F 
+<= FACTR*EPSMCH
+Boundary parameters: []; Hessian condition: 284.6431059294778

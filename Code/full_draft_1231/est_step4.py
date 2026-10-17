@@ -90,6 +90,10 @@ def load_and_preprocess():
     ).fillna(0)
 
     merged_master = merged_df.copy()
+    # Infinite prices are missing observations, not usable first-stage outcomes.
+    merged_master["price"] = merged_master["price"].replace(
+        [np.inf, -np.inf], np.nan
+    )
 
     descr_cols = [
         c
@@ -154,7 +158,9 @@ def load_and_preprocess():
             res_std if res_std > 0 else 1.0
         )
 
-    merged_master["iv_res"] = merged_master["iv_res"].fillna(0.0)
+    merged_master["iv_res"] = merged_master["iv_res"].replace(
+        [np.inf, -np.inf], np.nan
+    ).fillna(0.0)
 
     def map_flavor_category(flavor):
         if pd.isna(flavor):
@@ -232,16 +238,11 @@ def load_and_preprocess():
             for cat in CATEGORIES[:3]:
                 key = (row.store_code_uc, row.week_end, cat)
                 wk_key = (row.week_end, cat)
-                if key in store_prices.index:
-                    values, flag = store_prices.loc[key], 0
-                elif wk_key in week_prices.index:
-                    values, flag = week_prices.loc[wk_key], 1
-                elif cat in overall.index:
-                    values, flag = overall.loc[cat], 2
-                else:
-                    raise ValueError(f"No price observations for {cat}")
-                p.append(values["price"])
-                r.append(values["iv_res"] if USE_CONTROL_FUNCTION else 0.0)
+                price, residual, flag = resolve_price_inputs(
+                    store_prices, week_prices, overall, key, wk_key, cat
+                )
+                p.append(price)
+                r.append(residual if USE_CONTROL_FUNCTION else 0.0)
                 flags.append(flag)
             prices.append(p)
             resids.append(r)
@@ -269,6 +270,32 @@ def load_and_preprocess():
             raise ValueError("Nonfinite price/control-function inputs.")
     center_states(households)
     return households
+
+
+def resolve_price_inputs(store_prices, week_prices, overall, key, wk_key, cat):
+    # An existing group can still have an entirely missing price column.
+    # Fall back on VALUE validity, not merely presence of the group key.
+    for table, lookup, flag in [
+        (store_prices, key, 0),
+        (week_prices, wk_key, 1),
+        (overall, cat, 2),
+    ]:
+        if lookup not in table.index:
+            continue
+        values = table.loc[lookup]
+        price = values["price"]
+        if pd.isna(price) or not np.isfinite(price) or price <= 0.1:
+            continue
+        residual = values["iv_res"]
+        # Preserve step2's explicit zero convention for missing control residuals.
+        if pd.isna(residual) or not np.isfinite(residual):
+            residual = 0.0
+        return float(price), float(residual), flag
+    raise ValueError(
+        f"No finite price > 0.1 for flavor {cat!r}: store-week={key!r}. "
+        "Store-week, week-flavor, and overall-flavor fallbacks all failed. "
+        "Inspect source prices and sample restrictions."
+    )
 
 
 def compute_satiation_state(inside_counts, dates):

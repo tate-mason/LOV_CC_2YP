@@ -1,0 +1,70 @@
+{
+  "stage": "random_beta_gamma",
+  "names": [
+    "constant",
+    "beta_berry",
+    "beta_plain",
+    "gamma_other",
+    "gamma_berry",
+    "gamma_plain",
+    "price",
+    "control_function",
+    "sd_beta_berry",
+    "sd_beta_plain",
+    "sd_gamma_other",
+    "sd_gamma_berry",
+    "sd_gamma_plain"
+  ],
+  "params": [
+    1.7495033844682715,
+    -3.8170483039878755,
+    -6.23805863072261,
+    1.380020224353284,
+    -1.5585750717722828,
+    0.49401188512796784,
+    -0.3164208113205635,
+    0.038279224542885924,
+    3.1335019181461834,
+    5.0,
+    4.081037278422317,
+    2.223230914117394,
+    0.21553566793445367
+  ],
+  "se": [
+    NaN,
+    NaN,
+    NaN,
+    NaN,
+    NaN,
+    NaN,
+    NaN,
+    NaN,
+    NaN,
+    NaN,
+    NaN,
+    NaN,
+    NaN
+  ],
+  "fun": 23316.920282072504,
+  "success": true,
+  "message": "CONVERGENCE: RELATIVE REDUCTION OF F <= FACTR*EPSMCH",
+  "boundary": [
+    "sd_beta_plain"
+  ],
+  "hessian_eigenvalues": [],
+  "hessian_condition": null,
+  "starts": [
+    {
+      "fun": 23321.27233845301,
+      "success": true
+    },
+    {
+      "fun": 23316.920282072504,
+      "success": true
+    },
+    {
+      "fun": 23321.272335109556,
+      "success": true
+    }
+  ]
+}

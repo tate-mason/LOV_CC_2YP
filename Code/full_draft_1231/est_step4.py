@@ -1,4 +1,5 @@
 """Household-week own-flavor estimation. See est_step4.md before interpreting results."""
+
 from pathlib import Path
 import argparse
 import json
@@ -169,25 +170,46 @@ def load_and_preprocess():
     inside_df = merged_master[merged_master["category"] != "outside"].copy()
 
     quantities = inside_df["quantity"].to_numpy(dtype=float)
-    if not np.isfinite(quantities).all() or np.any(quantities < 0) or not np.allclose(quantities, np.round(quantities)):
-        raise ValueError("Source quantities must be finite nonnegative integer yogurt units.")
+    if (
+        not np.isfinite(quantities).all()
+        or np.any(quantities < 0)
+        or not np.allclose(quantities, np.round(quantities))
+    ):
+        raise ValueError(
+            "Source quantities must be finite nonnegative integer yogurt units."
+        )
     inside_df = inside_df.loc[inside_df["quantity"] > 0].copy()
     # Aggregate all stores ONCE into household-week flavor counts.
-    weekly = inside_df.groupby(["household_code", "week_end", "category"])["quantity"].sum().unstack("category", fill_value=0)
+    weekly = (
+        inside_df.groupby(["household_code", "week_end", "category"])["quantity"]
+        .sum()
+        .unstack("category", fill_value=0)
+    )
     weekly = weekly.reindex(columns=CATEGORIES[:3], fill_value=0).reset_index()
     weekly["week_end"] = pd.to_datetime(weekly["week_end"])
 
     # A single reference store per HH-week: most purchased units, deterministic ties.
-    stores = inside_df.groupby(["household_code", "week_end", "store_code_uc"], as_index=False)["quantity"].sum()
+    stores = inside_df.groupby(
+        ["household_code", "week_end", "store_code_uc"], as_index=False
+    )["quantity"].sum()
     stores["week_end"] = pd.to_datetime(stores["week_end"])
-    stores = stores.sort_values(["household_code", "week_end", "quantity", "store_code_uc"], ascending=[True, True, False, True])
+    stores = stores.sort_values(
+        ["household_code", "week_end", "quantity", "store_code_uc"],
+        ascending=[True, True, False, True],
+    )
     stores = stores.drop_duplicates(["household_code", "week_end"])
-    weekly = weekly.merge(stores[["household_code", "week_end", "store_code_uc"]], validate="one_to_one")
+    weekly = weekly.merge(
+        stores[["household_code", "week_end", "store_code_uc"]], validate="one_to_one"
+    )
 
     # Keep step2's transaction-based price proxies, with explicit fallback flags.
     inside_df["week_end"] = pd.to_datetime(inside_df["week_end"])
-    store_prices = inside_df.groupby(["store_code_uc", "week_end", "category"])[["price", "iv_res"]].mean()
-    week_prices = inside_df.groupby(["week_end", "category"])[["price", "iv_res"]].mean()
+    store_prices = inside_df.groupby(["store_code_uc", "week_end", "category"])[
+        ["price", "iv_res"]
+    ].mean()
+    week_prices = inside_df.groupby(["week_end", "category"])[
+        ["price", "iv_res"]
+    ].mean()
     overall = inside_df.groupby("category")[["price", "iv_res"]].mean()
     households = []
     for hh_id, group in weekly.groupby("household_code", sort=True):
@@ -200,7 +222,9 @@ def load_and_preprocess():
             if np.any(q < 0) or not np.allclose(q, np.round(q)):
                 raise ValueError("Quantities must be nonnegative integer yogurt units.")
             if OUTSIDE_RULE == "strict" and q.sum() > WEEKLY_CAPACITY:
-                raise ValueError(f"HH {hh_id}: weekly units exceed capacity; inspect units or use threshold rule.")
+                raise ValueError(
+                    f"HH {hh_id}: weekly units exceed capacity; inspect units or use threshold rule."
+                )
             if OUTSIDE_RULE not in ("strict", "threshold"):
                 raise ValueError("Unknown OUTSIDE_RULE")
             counts.append(np.append(q, max(WEEKLY_CAPACITY - q.sum(), 0)))
@@ -225,9 +249,17 @@ def load_and_preprocess():
             fallback.append(flags)
         choices = np.asarray(counts)
         stock = compute_satiation_state(choices[:, :3], dates)
-        households.append(dict(household_code=str(hh_id), prices=np.asarray(prices),
-                               resids=np.asarray(resids), choices=choices, dates=pd.DatetimeIndex(dates),
-                               stock=stock, fallback=np.asarray(fallback)))
+        households.append(
+            dict(
+                household_code=str(hh_id),
+                prices=np.asarray(prices),
+                resids=np.asarray(resids),
+                choices=choices,
+                dates=pd.DatetimeIndex(dates),
+                stock=stock,
+                fallback=np.asarray(fallback),
+            )
+        )
         if MAX_HOUSEHOLDS is not None and len(households) >= MAX_HOUSEHOLDS:
             break
     if not households:
@@ -248,14 +280,16 @@ def compute_satiation_state(inside_counts, dates):
             raise ValueError("Household dates must be unique and increasing.")
         previous = inside_counts[t - 1]
         shares = previous / previous.sum() if previous.sum() > 0 else np.zeros(3)
-        stock[t] = DELTA_DISCOUNT ** elapsed * (stock[t - 1] + shares)
+        stock[t] = DELTA_DISCOUNT**elapsed * (stock[t - 1] + shares)
     return stock
 
 
 def center_states(households, reference=None):
     # Global centering preserves the model and zero-stock interpretation via conversion.
     if reference is None:
-        reference = np.concatenate([np.log1p(h["stock"]) for h in households]).mean(axis=0)
+        reference = np.concatenate([np.log1p(h["stock"]) for h in households]).mean(
+            axis=0
+        )
     for hh in households:
         hh["z"] = np.log1p(hh["stock"]) - reference
         hh["reference"] = np.asarray(reference)
@@ -272,12 +306,23 @@ def diagnose_within(households, output_dir):
         shares = hh["choices"][:, :3] / hh["choices"][:, :3].sum(axis=1, keepdims=True)
         # All estimation observations are purchase weeks, so the denominator is positive.
         for j, cat in enumerate(CATEGORIES[:3]):
-            rows.append(dict(household=hh["household_code"], flavor=cat, weeks=len(z),
-                             within_sd=float(z[:, j].std()), state_range=float(np.ptp(z[:, j])),
-                             share_changes=int(np.count_nonzero(np.diff(shares[:, j])))))
+            rows.append(
+                dict(
+                    household=hh["household_code"],
+                    flavor=cat,
+                    weeks=len(z),
+                    within_sd=float(z[:, j].std()),
+                    state_range=float(np.ptp(z[:, j])),
+                    share_changes=int(np.count_nonzero(np.diff(shares[:, j]))),
+                )
+            )
     frame = pd.DataFrame(rows)
     frame.to_csv(output_dir / "within_household.csv", index=False)
-    console.print(frame.groupby("flavor")[["within_sd", "state_range", "share_changes"]].agg(["mean", "median"]))
+    console.print(
+        frame.groupby("flavor")[["within_sd", "state_range", "share_changes"]].agg(
+            ["mean", "median"]
+        )
+    )
     # Residualize state against HH intercepts, then price, control, and calendar week.
     dates = np.concatenate([h["dates"].asi8 for h in households])
     _, week_idx = np.unique(dates, return_inverse=True)
@@ -291,18 +336,35 @@ def diagnose_within(households, output_dir):
         # Sparse projection avoids a dense household-dummy matrix.
         from scipy.sparse import coo_matrix, hstack
         from scipy.sparse.linalg import lsqr
+
         n = len(target)
-        hd = coo_matrix((np.ones(n), (np.arange(n), hh_idx)), shape=(n, len(sizes))).tocsr()
+        hd = coo_matrix(
+            (np.ones(n), (np.arange(n), hh_idx)), shape=(n, len(sizes))
+        ).tocsr()
         wd = coo_matrix((np.ones(n), (np.arange(n), week_idx))).tocsr()
         design = hstack([hd, wd, coo_matrix(np.column_stack([price, resid]))]).tocsr()
         residual = target - design @ lsqr(design, target, atol=1e-10, btol=1e-10)[0]
-        within = np.concatenate([h["z"][:, j] - h["z"][:, j].mean() for h in households])
-        blocks.append(dict(flavor=cat, within_sd=float(within.std()), residual_sd=float(residual.std())))
-    pd.DataFrame(blocks).to_csv(output_dir / "residual_state_variation.csv", index=False)
+        within = np.concatenate(
+            [h["z"][:, j] - h["z"][:, j].mean() for h in households]
+        )
+        blocks.append(
+            dict(
+                flavor=cat,
+                within_sd=float(within.std()),
+                residual_sd=float(residual.std()),
+            )
+        )
+    pd.DataFrame(blocks).to_csv(
+        output_dir / "residual_state_variation.csv", index=False
+    )
     console.print(pd.DataFrame(blocks))
     all_choices = np.concatenate([h["choices"] for h in households])
-    console.print(f"Households: {len(households)}; purchase weeks: {len(all_choices)}; weeks above seven: {(all_choices[:, :3].sum(axis=1) > 7).sum()}")
-    console.print(f"Price fallback fraction: {(np.concatenate([h['fallback'] for h in households]) > 0).mean():.3f}")
+    console.print(
+        f"Households: {len(households)}; purchase weeks: {len(all_choices)}; weeks above seven: {(all_choices[:, :3].sum(axis=1) > 7).sum()}"
+    )
+    console.print(
+        f"Price fallback fraction: {(np.concatenate([h['fallback'] for h in households]) > 0).mean():.3f}"
+    )
 
 
 # =========================================================
@@ -313,6 +375,7 @@ def estimate_within_fixed_effects(households, output_dir):
     # This is a short-panel sensitivity benchmark, not a bias-corrected estimator.
     n_hh = len(households)
     n_common = 5 if USE_CONTROL_FUNCTION else 4
+
     def objective_gradient(params):
         gamma, alpha = params[:3], params[3]
         intercepts = params[n_common:].reshape(n_hh, 3)
@@ -325,30 +388,61 @@ def estimate_within_fixed_effects(households, output_dir):
             u = np.column_stack([inside, np.zeros(len(inside))])
             lp = u - logsumexp(u, axis=1, keepdims=True)
             value -= np.sum(hh["choices"] * lp)
-            error = (hh["choices"].sum(axis=1, keepdims=True) * np.exp(lp) - hh["choices"])[:, :3]
+            error = (
+                hh["choices"].sum(axis=1, keepdims=True) * np.exp(lp) - hh["choices"]
+            )[:, :3]
             gradient[:3] += np.sum(error * hh["z"], axis=0)
             gradient[3] += np.sum(error * hh["prices"])
             if USE_CONTROL_FUNCTION:
                 gradient[4] += np.sum(error * hh["resids"])
-            gradient[n_common + 3*h:n_common + 3*h + 3] = error.sum(axis=0)
+            gradient[n_common + 3 * h : n_common + 3 * h + 3] = error.sum(axis=0)
         return float(value), gradient
-    initial = np.zeros(n_common + 3*n_hh)
+
+    initial = np.zeros(n_common + 3 * n_hh)
     initial[3] = -0.1
     bounds = [(None, None)] * len(initial)
     bounds[3] = (None, 0.0)
-    fit = minimize(objective_gradient, initial, jac=True, method="L-BFGS-B", bounds=bounds,
-                   options=dict(maxiter=MAX_ITER, ftol=1e-10, gtol=1e-5))
-    names = ["gamma_other", "gamma_berry", "gamma_plain", "price"] + (["control_function"] if USE_CONTROL_FUNCTION else [])
-    pd.DataFrame(dict(parameter=names, estimate=fit.x[:n_common])).to_csv(output_dir / "within_fixed_effects.csv", index=False)
-    metadata = dict(success=bool(fit.success), message=str(fit.message), fun=float(fit.fun),
-                    warning="Short-panel incidental-parameter bias and separated HH flavor intercepts are possible; no bias correction or SEs.")
-    (output_dir / "within_fixed_effects.json").write_text(json.dumps(metadata, indent=2))
-    console.print("Within-household fixed-effect benchmark", dict(zip(names, fit.x[:n_common])), metadata)
+    fit = minimize(
+        objective_gradient,
+        initial,
+        jac=True,
+        method="L-BFGS-B",
+        bounds=bounds,
+        options=dict(maxiter=MAX_ITER, ftol=1e-10, gtol=1e-5),
+    )
+    names = ["gamma_other", "gamma_berry", "gamma_plain", "price"] + (
+        ["control_function"] if USE_CONTROL_FUNCTION else []
+    )
+    pd.DataFrame(dict(parameter=names, estimate=fit.x[:n_common])).to_csv(
+        output_dir / "within_fixed_effects.csv", index=False
+    )
+    metadata = dict(
+        success=bool(fit.success),
+        message=str(fit.message),
+        fun=float(fit.fun),
+        warning="Short-panel incidental-parameter bias and separated HH flavor intercepts are possible; no bias correction or SEs.",
+    )
+    (output_dir / "within_fixed_effects.json").write_text(
+        json.dumps(metadata, indent=2)
+    )
+    console.print(
+        "Within-household fixed-effect benchmark",
+        dict(zip(names, fit.x[:n_common])),
+        metadata,
+    )
     return fit
 
 
 def parameter_names(stage):
-    names = ["constant", "beta_berry", "beta_plain", "gamma_other", "gamma_berry", "gamma_plain", "price"]
+    names = [
+        "constant",
+        "beta_berry",
+        "beta_plain",
+        "gamma_other",
+        "gamma_berry",
+        "gamma_plain",
+        "price",
+    ]
     if USE_CONTROL_FUNCTION:
         names += ["control_function"]
     if stage in ("random_beta", "random_beta_gamma"):
@@ -364,16 +458,18 @@ def utility_draws(params, hh, stage, draws):
     gamma = np.tile(params[3:6], (n, 1))
     offset = 8 if USE_CONTROL_FUNCTION else 7
     if stage != "homogeneous":
-        beta[:, 1:] += draws[:, :2] * params[offset:offset + 2]
+        beta[:, 1:] += draws[:, :2] * params[offset : offset + 2]
     if stage == "random_beta_gamma":
-        deviations = draws[:, 2:5] * params[offset + 2:offset + 5]
+        deviations = draws[:, 2:5] * params[offset + 2 : offset + 5]
         gamma += deviations
         # Anchor independent random intercepts at ZERO stock despite global centering.
         beta += deviations * hh.get("reference", np.zeros(3))
     base = params[0] + params[6] * hh["prices"]
     if USE_CONTROL_FUNCTION:
         base += params[7] * hh["resids"]
-    inside = base[:, None, :] + beta[None, :, :] + gamma[None, :, :] * hh["z"][:, None, :]
+    inside = (
+        base[:, None, :] + beta[None, :, :] + gamma[None, :, :] * hh["z"][:, None, :]
+    )
     return np.concatenate([inside, np.zeros((len(inside), n, 1))], axis=2)
 
 
@@ -396,12 +492,22 @@ def total_objective(params, households, stage, draws):
 def numerical_hessian(function, params):
     # Differentiate numerical gradients; symmetrize before curvature diagnostics.
     from scipy.optimize._numdiff import approx_derivative
-    gradient = lambda x: approx_derivative(lambda y: np.array([function(y)]), x, method="3-point").ravel()
+
+    gradient = lambda x: approx_derivative(
+        lambda y: np.array([function(y)]), x, method="3-point"
+    ).ravel()
     matrix = approx_derivative(gradient, params, method="3-point")
     return (matrix + matrix.T) / 2
 
 
-def estimate_model(households, stage, draws, warm_start=None, starts=N_STARTS, compute_se=COMPUTE_STANDARD_ERRORS):
+def estimate_model(
+    households,
+    stage,
+    draws,
+    warm_start=None,
+    starts=N_STARTS,
+    compute_se=COMPUTE_STANDARD_ERRORS,
+):
     names = parameter_names(stage)
     x0 = np.zeros(len(names))
     x0[3:6] = -0.1
@@ -412,38 +518,72 @@ def estimate_model(households, stage, draws, warm_start=None, starts=N_STARTS, c
         if warm_start is not None and name in warm_start["names"]:
             x0[i] = warm_start["params"][warm_start["names"].index(name)]
     # Direct SDs, including zero: reporting and objective use identical units.
-    bounds = [(0.0, 5.0) if name.startswith("sd_") else (None, 0.0) if name == "price" else (None, None) for name in names]
+    bounds = [
+        (0.0, 5.0)
+        if name.startswith("sd_")
+        else (None, 0.0)
+        if name == "price"
+        else (None, None)
+        for name in names
+    ]
     objective = lambda p: total_objective(p, households, stage, draws)
     results = []
     rng = np.random.default_rng(SEED)
     for k in range(starts):
         initial = x0.copy() if k == 0 else x0 + rng.normal(0, 0.15, len(x0))
         for i, (lo, hi) in enumerate(bounds):
-            initial[i] = np.clip(initial[i], -np.inf if lo is None else lo, np.inf if hi is None else hi)
-        results.append(minimize(objective, initial, method="L-BFGS-B", bounds=bounds,
-                                options=dict(maxiter=MAX_ITER, ftol=1e-10, gtol=1e-5)))
+            initial[i] = np.clip(
+                initial[i], -np.inf if lo is None else lo, np.inf if hi is None else hi
+            )
+        results.append(
+            minimize(
+                objective,
+                initial,
+                method="L-BFGS-B",
+                bounds=bounds,
+                options=dict(maxiter=MAX_ITER, ftol=1e-10, gtol=1e-5),
+            )
+        )
     converged = [r for r in results if r.success]
     best = min(converged or results, key=lambda r: r.fun)
     se = np.full(len(names), np.nan)
     eigenvalues = np.array([])
     condition = None
-    boundary = [name for name, p, (lo, hi) in zip(names, best.x, bounds)
-                if (lo is not None and abs(p - lo) < 1e-5) or (hi is not None and abs(p - hi) < 1e-5)]
+    boundary = [
+        name
+        for name, p, (lo, hi) in zip(names, best.x, bounds)
+        if (lo is not None and abs(p - lo) < 1e-5)
+        or (hi is not None and abs(p - hi) < 1e-5)
+    ]
     if compute_se:
         from scipy.optimize._numdiff import approx_derivative
+
         hessian = numerical_hessian(objective, best.x)
         eigenvalues = np.linalg.eigvalsh(hessian)
         condition = float(np.linalg.cond(hessian))
         if eigenvalues.min() > 0 and not boundary:
             # Household score sandwich, conditional on the fitted first-stage residuals.
-            scores = approx_derivative(lambda p: household_loglikes(p, households, stage, draws), best.x, method="3-point")
+            scores = approx_derivative(
+                lambda p: household_loglikes(p, households, stage, draws),
+                best.x,
+                method="3-point",
+            )
             bread = np.linalg.inv(hessian)
             covariance = bread @ (scores.T @ scores) @ bread
             se = np.sqrt(np.maximum(0, np.diag(covariance)))
-    return dict(stage=stage, names=names, params=best.x, se=se, fun=float(best.fun),
-                success=bool(best.success), message=str(best.message), boundary=boundary,
-                hessian_eigenvalues=eigenvalues, hessian_condition=condition,
-                starts=[dict(fun=float(r.fun), success=bool(r.success)) for r in results])
+    return dict(
+        stage=stage,
+        names=names,
+        params=best.x,
+        se=se,
+        fun=float(best.fun),
+        success=bool(best.success),
+        message=str(best.message),
+        boundary=boundary,
+        hessian_eigenvalues=eigenvalues,
+        hessian_condition=condition,
+        starts=[dict(fun=float(r.fun), success=bool(r.success)) for r in results],
+    )
 
 
 def display_results(result, output_dir, suffix=""):
@@ -453,11 +593,22 @@ def display_results(result, output_dir, suffix=""):
     for name, value, se in zip(result["names"], result["params"], result["se"]):
         table.add_row(name, f"{value:.5f}", f"{se:.5f}")
     console.print(table)
-    console.print(f"Converged: {result['success']}; negative LL: {result['fun']:.4f}; {result['message']}")
-    console.print(f"Boundary parameters: {result['boundary']}; Hessian condition: {result['hessian_condition']}")
-    pd.DataFrame(dict(parameter=result["names"], estimate=result["params"], se=result["se"])).to_csv(output_dir / f"{result['stage']}{suffix}.csv", index=False)
-    serial = {key: value.tolist() if isinstance(value, np.ndarray) else value for key, value in result.items()}
-    (output_dir / f"{result['stage']}{suffix}.json").write_text(json.dumps(serial, indent=2))
+    console.print(
+        f"Converged: {result['success']}; negative LL: {result['fun']:.4f}; {result['message']}"
+    )
+    console.print(
+        f"Boundary parameters: {result['boundary']}; Hessian condition: {result['hessian_condition']}"
+    )
+    pd.DataFrame(
+        dict(parameter=result["names"], estimate=result["params"], se=result["se"])
+    ).to_csv(output_dir / f"{result['stage']}{suffix}.csv", index=False)
+    serial = {
+        key: value.tolist() if isinstance(value, np.ndarray) else value
+        for key, value in result.items()
+    }
+    (output_dir / f"{result['stage']}{suffix}.json").write_text(
+        json.dumps(serial, indent=2)
+    )
 
 
 # =========================================================
@@ -471,40 +622,80 @@ def profile_parameters(result, households, draws, output_dir):
             continue
         # Reoptimize ALL nuisance coefficients, including beta, at each fixed gamma.
         keep = np.arange(len(fitted)) != index
+
         def expand(free, fixed):
             p = fitted.copy()
             p[keep], p[index] = free, fixed
             return p
-        bounds = [(0, 5) if n.startswith("sd_") else (None, 0) if n == "price" else (None, None) for i, n in enumerate(names) if i != index]
-        for fixed in np.linspace(fitted[index] - PROFILE_WIDTH, fitted[index] + PROFILE_WIDTH, PROFILE_POINTS):
-            fit = minimize(lambda free: total_objective(expand(free, fixed), households, result["stage"], draws),
-                           fitted[keep], method="L-BFGS-B", bounds=bounds, options=dict(maxiter=MAX_ITER, ftol=1e-10))
+
+        bounds = [
+            (0, 5)
+            if n.startswith("sd_")
+            else (None, 0)
+            if n == "price"
+            else (None, None)
+            for i, n in enumerate(names)
+            if i != index
+        ]
+        for fixed in np.linspace(
+            fitted[index] - PROFILE_WIDTH, fitted[index] + PROFILE_WIDTH, PROFILE_POINTS
+        ):
+            fit = minimize(
+                lambda free: total_objective(
+                    expand(free, fixed), households, result["stage"], draws
+                ),
+                fitted[keep],
+                method="L-BFGS-B",
+                bounds=bounds,
+                options=dict(maxiter=MAX_ITER, ftol=1e-10),
+            )
             p = expand(fit.x, fixed)
-            rows.append(dict(parameter=name, fixed=fixed, nll=float(fit.fun), delta_nll=float(fit.fun - result["fun"]),
-                             beta_berry=p[1], beta_plain=p[2], success=bool(fit.success)))
+            rows.append(
+                dict(
+                    parameter=name,
+                    fixed=fixed,
+                    nll=float(fit.fun),
+                    delta_nll=float(fit.fun - result["fun"]),
+                    beta_berry=p[1],
+                    beta_plain=p[2],
+                    success=bool(fit.success),
+                )
+            )
     pd.DataFrame(rows).to_csv(output_dir / "gamma_profiles.csv", index=False)
 
 
 def simulate_panel(seed, n_hh=RECOVERY_HOUSEHOLDS, n_weeks=RECOVERY_WEEKS):
     # Simulate choices and then update histories: never reuse observed endogenous stocks.
     rng = np.random.default_rng(seed)
-    truth = np.array([-0.4, 0.6, -0.2, -0.7, -1.0, -0.8, -0.4] + ([0.0] if USE_CONTROL_FUNCTION else []) + [0.5, 0.4, 0.25, 0.3, 0.2])
+    truth = np.array(
+        [-0.4, 0.6, -0.2, -0.7, -1.0, -0.8, -0.4]
+        + ([0.0] if USE_CONTROL_FUNCTION else [])
+        + [0.5, 0.4, 0.25, 0.3, 0.2]
+    )
     households = []
     for h in range(n_hh):
         dates = pd.date_range("2020-01-04", periods=n_weeks, freq="7D")
-        hh = dict(household_code=str(h), prices=rng.uniform(0.5, 3, (n_weeks, 3)),
-                  resids=rng.normal(size=(n_weeks, 3)), choices=np.zeros((n_weeks, 4)),
-                  dates=dates, stock=np.zeros((n_weeks, 3)), fallback=np.zeros((n_weeks, 3)))
+        hh = dict(
+            household_code=str(h),
+            prices=rng.uniform(0.5, 3, (n_weeks, 3)),
+            resids=rng.normal(size=(n_weeks, 3)),
+            choices=np.zeros((n_weeks, 4)),
+            dates=dates,
+            stock=np.zeros((n_weeks, 3)),
+            fallback=np.zeros((n_weeks, 3)),
+        )
         type_draw = rng.normal(size=(1, 5))
         for t in range(n_weeks):
             if t:
                 previous = hh["choices"][t - 1, :3]
                 shares = previous / previous.sum() if previous.sum() else np.zeros(3)
                 hh["stock"][t] = DELTA_DISCOUNT * (hh["stock"][t - 1] + shares)
-            one = {key: hh[key][t:t + 1] for key in ("prices", "resids")}
-            one["z"] = np.log1p(hh["stock"][t:t + 1])
+            one = {key: hh[key][t : t + 1] for key in ("prices", "resids")}
+            one["z"] = np.log1p(hh["stock"][t : t + 1])
             u = utility_draws(truth, one, "random_beta_gamma", type_draw)[0, 0]
-            hh["choices"][t] = rng.multinomial(WEEKLY_CAPACITY, np.exp(u - logsumexp(u)))
+            hh["choices"][t] = rng.multinomial(
+                WEEKLY_CAPACITY, np.exp(u - logsumexp(u))
+            )
         households.append(hh)
     reference = center_states(households)
     truth[0] += truth[3] * reference[0]
@@ -518,18 +709,34 @@ def run_recovery(output_dir, draws):
         households, truth = simulate_panel(SEED + 1000 + replication)
         fit = estimate_model(households, "random_beta_gamma", draws, compute_se=False)
         for name, true, estimate in zip(fit["names"], truth, fit["params"]):
-            rows.append(dict(replication=replication, parameter=name, truth=true, estimate=estimate,
-                             error=estimate - true, success=fit["success"]))
+            rows.append(
+                dict(
+                    replication=replication,
+                    parameter=name,
+                    truth=true,
+                    estimate=estimate,
+                    error=estimate - true,
+                    success=fit["success"],
+                )
+            )
     pd.DataFrame(rows).to_csv(output_dir / "recovery.csv", index=False)
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--simulate-only", action="store_true", help="Run recovery without reading Nielsen data")
+    parser.add_argument(
+        "--simulate-only",
+        action="store_true",
+        help="Run recovery without reading Nielsen data",
+    )
     args = parser.parse_args()
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     draws = make_draws()
-    settings = {key: value for key, value in globals().items() if key.isupper() and isinstance(value, (str, int, float, bool, type(None)))}
+    settings = {
+        key: value
+        for key, value in globals().items()
+        if key.isupper() and isinstance(value, (str, int, float, bool, type(None)))
+    }
     (OUTPUT_DIR / "settings.json").write_text(json.dumps(settings, indent=2))
     if args.simulate_only:
         run_recovery(OUTPUT_DIR, draws)
@@ -537,11 +744,17 @@ def main():
     households = load_and_preprocess()
     if RUN_WITHIN_DIAGNOSTICS:
         diagnose_within(households, OUTPUT_DIR)
-    pd.DataFrame({"flavor": CATEGORIES[:3], "log_stock_reference": households[0]["reference"]}).to_csv(OUTPUT_DIR / "state_reference.csv", index=False)
+    pd.DataFrame(
+        {"flavor": CATEGORIES[:3], "log_stock_reference": households[0]["reference"]}
+    ).to_csv(OUTPUT_DIR / "state_reference.csv", index=False)
     if RUN_WITHIN_FIXED_EFFECTS:
         estimate_within_fixed_effects(households, OUTPUT_DIR)
     last = None
-    for stage, enabled in [("homogeneous", RUN_HOMOGENEOUS), ("random_beta", RUN_RANDOM_BETA), ("random_beta_gamma", RUN_RANDOM_BETA_GAMMA)]:
+    for stage, enabled in [
+        ("homogeneous", RUN_HOMOGENEOUS),
+        ("random_beta", RUN_RANDOM_BETA),
+        ("random_beta_gamma", RUN_RANDOM_BETA_GAMMA),
+    ]:
         if enabled:
             last = estimate_model(households, stage, draws, warm_start=last)
             display_results(last, OUTPUT_DIR)
@@ -549,7 +762,9 @@ def main():
         profile_parameters(last, households, draws, OUTPUT_DIR)
     if RUN_DRAW_SENSITIVITY and last is not None and last["stage"] != "homogeneous":
         for n, seed in [(N_DRAWS, SEED + 1), (2 * N_DRAWS, SEED)]:
-            fit = estimate_model(households, last["stage"], make_draws(n, seed), warm_start=last)
+            fit = estimate_model(
+                households, last["stage"], make_draws(n, seed), warm_start=last
+            )
             display_results(fit, OUTPUT_DIR, suffix=f"_draws{n}_seed{seed}")
     if RUN_RECOVERY:
         run_recovery(OUTPUT_DIR, draws)

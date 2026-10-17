@@ -1,7 +1,0 @@
-_price_status,rows,recorded_quantity
-infinite,1,1
-malformed,1,2
-missing,1,5
-negative,1,3
-valid,346,736
-zero,1,3

@@ -1,6 +1,0 @@
-stage,source_rows,households
-input,895754,3806
-after_household_size_restriction,895754,3806
-after_serving_per_container_cd_restriction,73463,2807
-after_product_module_code_hms_restriction,17538,998
-after_retained_flavor_restriction,17538,998

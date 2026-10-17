@@ -1,3 +1,0 @@
-gamma_fixed,negative_log_likelihood,converged,beta[PLAIN],beta[VANILLA],sd_beta[PLAIN],sd_beta[VANILLA],gamma,alpha_price,twice_log_likelihood_loss,profile_beats_unrestricted
-0.0,786.6316247023493,True,-0.18856799492560186,-0.2644775323172666,0.0,0.0,0.0,-0.7268795090579576,13.153916684893375,False
-0.5,820.0598478306753,True,-0.34085326266416716,-0.4854319413867209,0.0,0.0,0.5,-0.6818558470935218,80.01036294154528,False

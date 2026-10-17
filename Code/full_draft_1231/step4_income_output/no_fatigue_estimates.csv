@@ -1,8 +1,0 @@
-parameter,estimate
-beta[1],-0.48281552198148286
-beta[2],-1.2105892699211782
-beta_income[1],-0.00026632029070250077
-beta_income[2],0.41134009231343854
-gamma,0.0
-gamma_income,0.0
-alpha_price,-0.8021114441361173

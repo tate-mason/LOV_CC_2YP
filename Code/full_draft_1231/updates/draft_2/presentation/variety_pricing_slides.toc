@@ -1,0 +1,6 @@
+\beamer@sectionintoc {1}{Motivation and contribution}{3}{0}{1}
+\beamer@sectionintoc {2}{Data and descriptive evidence}{7}{0}{2}
+\beamer@sectionintoc {3}{Monte Carlo motivation}{13}{0}{3}
+\beamer@sectionintoc {4}{Demand estimation and results}{16}{0}{4}
+\beamer@sectionintoc {5}{Pricing and learning}{29}{0}{5}
+\beamer@sectionintoc {6}{Conclusions and discussion}{38}{0}{6}

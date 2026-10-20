@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.8.17)  20 OCT 2026 11:28
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.8.17)  20 OCT 2026 18:44
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1084,20 +1084,20 @@ s been generated with the most recent feature set (\pgfplotsset{compat=1.18}).
 (./variety_pricing_slides.nav) [1
 
 {/usr/local/texlive/2026/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
-LaTeX Font Info:    Trying to load font information for U+msa on input line 49.
+LaTeX Font Info:    Trying to load font information for U+msa on input line 54.
 
 
 (/usr/local/texlive/2026/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Trying to load font information for U+msb on input line 49.
+LaTeX Font Info:    Trying to load font information for U+msb on input line 54.
 
 
 (/usr/local/texlive/2026/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 )
 LaTeX Font Info:    Trying to load font information for OT1+mathkerncmss on inp
-ut line 49.
+ut line 54.
 
 (/usr/local/texlive/2026/texmf-dist/tex/latex/sansmathaccent/ot1mathkerncmss.fd
 File: ot1mathkerncmss.fd 2020/01/31 Fontinst v1.933 font definitions for OT1/ma
@@ -1110,11 +1110,14 @@ thkerncmss.
 
 ]
 LaTeX Font Info:    Font shape `OT1/cmss/b/n' in size <10.95> not available
-(Font)              Font shape `OT1/cmss/bx/n' tried instead on input line 95.
+(Font)              Font shape `OT1/cmss/bx/n' tried instead on input line 110.
+
 LaTeX Font Info:    Font shape `OT1/cmss/b/n' in size <8> not available
-(Font)              Font shape `OT1/cmss/bx/n' tried instead on input line 95.
+(Font)              Font shape `OT1/cmss/bx/n' tried instead on input line 110.
+
 LaTeX Font Info:    Font shape `OT1/cmss/b/n' in size <6> not available
-(Font)              Font shape `OT1/cmss/bx/n' tried instead on input line 95.
+(Font)              Font shape `OT1/cmss/bx/n' tried instead on input line 110.
+
  [5
 
 ] [6
@@ -1140,7 +1143,7 @@ LaTeX Font Info:    Font shape `OT1/cmss/b/n' in size <6> not available
 File: assets/fig1_flavor_hhi_distribution.pdf Graphic file (type pdf)
 <use assets/fig1_flavor_hhi_distribution.pdf>
 Package pdftex.def Info: assets/fig1_flavor_hhi_distribution.pdf  used on input
- line 203.
+ line 218.
 (pdftex.def)             Requested size: 265.9567pt x 145.66713pt.
  [14
 
@@ -1149,7 +1152,7 @@ Package pdftex.def Info: assets/fig1_flavor_hhi_distribution.pdf  used on input
 File: assets/fig2_basket_share_by_volume.pdf Graphic file (type pdf)
 <use assets/fig2_basket_share_by_volume.pdf>
 Package pdftex.def Info: assets/fig2_basket_share_by_volume.pdf  used on input 
-line 208.
+line 223.
 (pdftex.def)             Requested size: 220.43161pt x 145.66953pt.
  [15
 
@@ -1163,13 +1166,13 @@ line 208.
 
 ]
 LaTeX Font Info:    Font shape `OT1/cmss/b/n' in size <10> not available
-(Font)              Font shape `OT1/cmss/bx/n' tried instead on input line 288.
+(Font)              Font shape `OT1/cmss/bx/n' tried instead on input line 312.
 
 LaTeX Font Info:    Font shape `OT1/cmss/b/n' in size <7> not available
-(Font)              Font shape `OT1/cmss/bx/n' tried instead on input line 288.
+(Font)              Font shape `OT1/cmss/bx/n' tried instead on input line 312.
 
 LaTeX Font Info:    Font shape `OT1/cmss/b/n' in size <5> not available
-(Font)              Font shape `OT1/cmss/bx/n' tried instead on input line 288.
+(Font)              Font shape `OT1/cmss/bx/n' tried instead on input line 312.
 
  [20
 
@@ -1185,7 +1188,7 @@ LaTeX Font Info:    Font shape `OT1/cmss/b/n' in size <5> not available
 ]
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `\translate ' on input line 343.
+(hyperref)                removing `\translate ' on input line 367.
 
 [25
 
@@ -1204,7 +1207,7 @@ Package hyperref Warning: Token not allowed in a PDF string (Unicode):
 File: assets/fig3_flavor_share_timeseries.pdf Graphic file (type pdf)
 <use assets/fig3_flavor_share_timeseries.pdf>
 Package pdftex.def Info: assets/fig3_flavor_share_timeseries.pdf  used on input
- line 454.
+ line 478.
 (pdftex.def)             Requested size: 333.1914pt x 164.36183pt.
  [31
 
@@ -1214,7 +1217,7 @@ t>
 File: assets/fig4_marginal_type_distributions.pdf Graphic file (type pdf)
 <use assets/fig4_marginal_type_distributions.pdf>
 Package pdftex.def Info: assets/fig4_marginal_type_distributions.pdf  used on i
-nput line 457.
+nput line 481.
 (pdftex.def)             Requested size: 403.95143pt x 164.36589pt.
 
 [32
@@ -1224,7 +1227,7 @@ nput line 457.
 File: assets/fig5_joint_type_distributions.pdf Graphic file (type pdf)
 <use assets/fig5_joint_type_distributions.pdf>
 Package pdftex.def Info: assets/fig5_joint_type_distributions.pdf  used on inpu
-t line 460.
+t line 484.
 (pdftex.def)             Requested size: 367.36996pt x 164.3626pt.
  [33
 
@@ -1247,13 +1250,13 @@ L3 programming layer <2026-07-20>
  ***********
 Package rerunfilecheck Info: File `variety_pricing_slides.out' has not changed.
 
-(rerunfilecheck)             Checksum: B5EB725F480AC5877C98B41A99118165;597.
+(rerunfilecheck)             Checksum: B7F1F4C3BFE2739A20D53721E63A6F5E;587.
  ) 
 Here is how much of TeX's memory you used:
- 36005 strings out of 467159
- 868033 string characters out of 5409218
+ 36032 strings out of 467159
+ 868874 string characters out of 5409218
  1387649 words of memory out of 5000000
- 64553 multiletter control sequences out of 15000+600000
+ 64580 multiletter control sequences out of 15000+600000
  642931 words of font info for 94 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  128i,19n,123p,743b,2230s stack positions out of 10000i,1000n,20000p,200000b,200000s
@@ -1275,7 +1278,7 @@ ive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texli
 ve/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/local/texlive
 /2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/local/texlive/2
 026/texmf-dist/fonts/type1/public/cm-super/sfss1095.pfb>
-Output written on variety_pricing_slides.pdf (34 pages, 436942 bytes).
+Output written on variety_pricing_slides.pdf (34 pages, 438347 bytes).
 PDF statistics:
  2321 PDF objects out of 2487 (max. 8388607)
  1110 compressed objects within 12 object streams

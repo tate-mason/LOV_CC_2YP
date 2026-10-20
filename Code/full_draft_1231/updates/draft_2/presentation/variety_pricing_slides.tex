@@ -40,25 +40,36 @@
 
 \section{Introduction}
 \begin{frame}{Introduction}
+\begin{block}{Research question}How do firms augment their optimal pricing strategy when love of variety is present?\end{block}
 \begin{itemize}
 \item Repeated consumption may reduce the appeal of a product.
 \item Purchase histories can reveal when a consumer is ready to switch.
 \item Retailers can leverage that information to optimally price according to the distribution of consumers.
-\end{itemize}\begin{block}{Research question}How do firms augment their optimal pricing strategy when love of variety is present?\end{block}
+  \begin{itemize}
+    \item Dynamic price setting
+    \item Targeting
+  \end{itemize}
+\end{itemize}
 \note{Use the example of someone who likes berry yogurt but wants something different after repeated purchases. Distinguish a stable taste from fatigue.}
 \end{frame}
 
-\begin{frame}{Motivation and Contribution}
+\begin{frame}{Motivation}
 \begin{block}{Motivation}
 \begin{itemize}
-\item \textbf{Pricing simulation:} knowing switching types raises per-unit profits by up to about 2 cents in the reported normalization.
+\item \textbf{Pricing:} knowing switching types raises per-unit profits by up to about 2 cents in the reported normalization.
 \item \textbf{Demand:} flavor preferences change little when fatigue is included; some fatigue parameters are weakly identified.
 \end{itemize}
 \end{block}
 \begin{block}{Contribution}
 \begin{itemize}
-\item Study attribute switching within brands as well as across brands.
-\item Connect switching preferences and state dependence to the information a retailer uses for pricing.
+  \item Estimate distribution of LOV types 
+  \begin{itemize}
+    \item Lattin (1987), Chintagunta (1996), Dub\'e (2003)
+  \end{itemize}
+  \item Connect switching preferences and state dependence to the information a retailer uses for pricing
+  \begin{itemize}
+    \item Dub\'e and Misra (2023), Moorthy and Tehrani (2023), Karle and Reisinger (2024)
+  \end{itemize}
 \end{itemize}
 \end{block}
 \note{Explain upfront that the empirical demand model and toy supply model are separate exercises.
@@ -66,11 +77,15 @@
 Position relative to attribute satiation in McAlister and Lattin, brand dynamics in Chintagunta, and personalized pricing in Dube and Misra. References are in the backup slides.}
 \end{frame}
 
-\section{Supply exercise}
-\begin{frame}{Supply exercise}
+\section{Pricing Model}
+\begin{frame}{Pricing Model}
 \begin{itemize}
 \item Purchase histories can reveal preferences for switching between products.
 \item The supply exercise asks how a retailer would price if switching types were known or inferred.
+  \begin{itemize}
+    \item How do they dynamically price?
+    \item How does the firm price discriminate?
+  \end{itemize}
 \item Two products, two types, two periods.
 \end{itemize}
 \note{Introduce the illustrative supply exercise before turning to demand. Supply uses a positive reward for switching, whereas demand uses a negative coefficient on a fatigue stock.}
@@ -79,8 +94,8 @@ Position relative to attribute satiation in McAlister and Lattin, brand dynamics
 \begin{frame}{Supply model}
 \begin{block}{Consumer's value from choosing product $j$}
 \[
-V_{rjt}=\underbrace{\beta_{0j}}_{\text{baseline appeal}}
-+\underbrace{\gamma_r\mathbf{1}\{j\ne j_{t-1}\}}_{\text{reward for switching}}
+V_{rjt}=\underbrace{\beta_{0j}}_{\text{baseline preferences}}
++\underbrace{\gamma_r\mathbf{1}\{j\ne j_{t-1}\}}_{\text{love of variety}}
 +\underbrace{\alpha p_{rjt}}_{\text{price effect}},
 \qquad r\in\{H,L\}.
 \]
@@ -94,7 +109,8 @@ V_{rjt}=\underbrace{\beta_{0j}}_{\text{baseline appeal}}
 \note{Explain the equation from the consumer's perspective: baseline product appeal, a reward for choosing a different product from last period, and a negative price effect. V is deterministic current-period utility, not a forward-looking consumer Bellman value. Adding independent type-I extreme-value shocks gives logit choice probabilities including an outside option. The retailer uses these probabilities in its pricing problem. Use s for a probability or share, not a sum of probabilities over consumers. Population size multiplies per-consumer profits.}
 \end{frame}
 
-\begin{frame}{Full information}
+\begin{frame}{Perfect information}
+\begin{block}{Perfect information}The retailer conditions prices on known type and observed purchase history.\end{block}
 $W_r(j)$ is the retailer\textquotesingle s optimal period-two profit per consumer, given type $r$ and first-period choice $j$.
 \[
 W_r(j)=\max_{\mathbf p_2(j)}\sum_k s_{rk2}(j)\bigl(p_{rk2}(j)-c_k\bigr),
@@ -103,7 +119,6 @@ W_r(j)=\max_{\mathbf p_2(j)}\sum_k s_{rk2}(j)\bigl(p_{rk2}(j)-c_k\bigr),
 \Pi^{\rm full}=\sum_r N_r\sum_j s_{rj1}
 \left[p_{rj1}-c_j+\delta W_r(j)\right].
 \]
-\begin{block}{Perfect information}The retailer conditions prices on type and purchase history.\end{block}
 A lower price today can move a consumer into a more profitable state tomorrow.
 \note{Here j includes all first-period outcomes, including no purchase, with zero outside margin and an explicitly defined continuation state. This compact objective avoids reproducing the draft long first-order conditions, whose outside-option treatment is ambiguous.}
 \end{frame}
@@ -216,6 +231,11 @@ U_{ijt}=\underbrace{\beta_0+\beta_i'X_{jt}}_{\text{baseline tastes}}
 +\underbrace{\gamma_i\Xi_{ijt}}_{\text{history state}}
 +\underbrace{\alpha p_{jt}}_{\text{price}}+\varepsilon_{ijt}.
 \]
+
+  \[
+  \text{s.t.} \ 
+  \Xi_{ijt} = \lambda\sum_{s=1}^8\delta^{t-s}\Xi_{ij,t-s} + (1-\lambda)\sum_{k\ne j}\rho_kX_{k,t-1}
+\]
 \begin{itemize}
 \item Inside choices: berry, plain, other; outside utility normalized to zero.
 \item $\Xi_{ijt}$ summarizes prior consumption and switching.
@@ -278,11 +298,15 @@ Random coefficient logit & Heterogeneous $\beta$; $\gamma=0$ & Heterogeneous $\b
 \centering\small
 \begin{tabular}{lrrrr}\toprule
 & \multicolumn{2}{c}{Standard logit} & \multicolumn{2}{c}{Random coefficients}\\
-& No fatigue & Fatigue & No fatigue & Fatigue\\\midrule
+& No Variety & Variety & No Variety & Variety\\\midrule
 Berry preference & $-.7635$ & $-.7576$ & $-.7632$ & $-.7489$\\
 Plain preference & $-1.3899$ & $-1.3897$ & $-1.3930$ & $-1.3956$\\
 Price & $-.9836$ & $-.9821$ & $-.9836$ & $-.9804$\\
 Control function & $.1670$ & $.1667$ & $.1654$ & $.1662$\\\bottomrule\end{tabular}
+  \begin{itemize}
+    \item All estimates relative to other flavors and the outside option
+  \end{itemize}
+
 \begin{block}{Main empirical result}The largest baseline flavor change is about 1.9\% for berry in the random coefficient model.\end{block}
 \note{Flavor coefficients are relative to other; the intercept locates inside utility relative to the outside option. The largest percentage change is in magnitude. These estimates are reported as significant in the source tables.}
 \end{frame}
@@ -291,11 +315,11 @@ Control function & $.1670$ & $.1667$ & $.1654$ & $.1662$\\\bottomrule\end{tabula
 \centering
 \begin{tabular}{lrr}\toprule
  & Standard logit & Random coefficients\\\midrule
-Berry fatigue & $-.7262$ & $-7.2030$\\
+Berry LOV & $-.7262$ & $-7.2030$\\
 Standard error & $(.1485)$ & $(1.5424)$\\[2mm]
-Plain fatigue & $-.0351$ & $-.0555$\\
+Plain LOV & $-.0351$ & $-.0555$\\
 Standard error & $(.1009)$ & $(.1032)$\\\bottomrule\end{tabular}
-\begin{itemize}\item Berry has a negative estimated history coefficient.\item Plain fatigue is not statistically distinguishable from zero.\item Large changes across specifications warrant caution.\end{itemize}
+\begin{itemize}\item Berry has a negative estimated history coefficient.\item Plain is not statistically distinguishable from zero.\item Large changes across specifications warrant caution.\end{itemize}
 \note{A negative coefficient means history lowers utility under the fatigue index interpretation. Do not confuse a significant mean with precise identification of its heterogeneity.}
 \end{frame}
 
@@ -308,7 +332,7 @@ $\beta_{\rm plain}$ & 1.0513 & .1492\\
 $\gamma_{\rm berry}$ & 148.4132 & 155.3868\\
 $\gamma_{\rm plain}$ & 1.0513 & .1641\\\bottomrule\end{tabular}
 \end{column}\begin{column}{.46\textwidth}
-\begin{block}{Diagnostic}The berry fatigue dispersion is extremely large and imprecisely estimated.\end{block}
+\begin{block}{Diagnostic}The berry LOV dispersion is extremely large and imprecisely estimated.\end{block}
 Optimization success alone does not establish reliable identification.
 \end{column}\end{columns}
 \note{These values contradict the prose claim of little taste heterogeneity. The repeated standard deviations and large berry value should be audited against estimation code. Treat them as reported estimates, not validated structural distributions.}
@@ -324,12 +348,12 @@ Plain fatigue & .04 & .06\\\bottomrule\end{tabular}
 \[
 \text{Implied WTP}=\frac{|\text{utility coefficient}|}{|\alpha|}.
 \]
-\begin{block}{Interpretation}The large \$7.35 number belongs to berry fatigue and is sensitive to the specification.\end{block}
+\begin{block}{Interpretation}The large \$7.35 number belongs to berry LOV and is sensitive to the specification.\end{block}
 \note{These are magnitudes, not positive willingness to pay for a disliked flavor. The fatigue ratio is per unit of the history index, not automatically the discount needed after one repeated purchase. Avoid treating the large mixed-logit ratio as a precise policy target.}
 \end{frame}
 
 \section{Conclusion}
-\begin{frame}{Policy discussion}
+\begin{frame}{Conclusion}
 \begin{itemize}
 \item Restricting type information can reduce retailer profits in this model.
 \item The loss is greatest when the population contains both switching types.

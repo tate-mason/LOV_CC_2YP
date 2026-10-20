@@ -1,5 +1,5 @@
 # Fdb version 4
-["pdflatex"] 1792510100.46833 "variety_pricing_slides.tex" "variety_pricing_slides.pdf" "variety_pricing_slides" 1792510103.63413 0
+["pdflatex"] 1792536264.90767 "variety_pricing_slides.tex" "variety_pricing_slides.pdf" "variety_pricing_slides" 1792536268.07267 0
   "/usr/local/texlive/2026/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc" 1136849721 2900 1537cc8184ad1792082cd229ecc269f4 ""
   "/usr/local/texlive/2026/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/usr/local/texlive/2026/texmf-dist/fonts/tfm/jknappen/ec/tcss1095.tfm" 1136768653 1536 f0fa079cdc83a6ffeda21e42352cf1ea ""
@@ -273,11 +273,11 @@
   "assets/fig3_flavor_share_timeseries.pdf" 1792354771.56423 23013 9790928ad79450601b4c4ff821e6be62 ""
   "assets/fig4_marginal_type_distributions.pdf" 1792354771.56464 38430 1e550cf73babcf46b20dbf1a9e8e1662 ""
   "assets/fig5_joint_type_distributions.pdf" 1792354771.56503 67424 76933874af446e0e11eec46d4adfbc0e ""
-  "assets/pricing_exercise_table.tex" 1792355714.56782 978 486cf94bf7fa08a7cf75a3e3418e7919 ""
-  "variety_pricing_slides.aux" 1792510103.52701 8750 ff245e518a68188a19d59b56e587f841 "pdflatex"
-  "variety_pricing_slides.nav" 1792510103.52845 4390 88c2f0e7d117b5d2ce0662e23fea7628 "pdflatex"
-  "variety_pricing_slides.out" 1792510103.52825 597 b5eb725f480ac5877c98b41a99118165 "pdflatex"
-  "variety_pricing_slides.tex" 1792510100.38957 25184 e58097f475fc1b64fb250f1b9fa4b92d ""
+  "assets/pricing_exercise_table.tex" 1792536261.58794 978 486cf94bf7fa08a7cf75a3e3418e7919 ""
+  "variety_pricing_slides.aux" 1792536267.96663 8740 f7ed11285d0357205fa52b20682b96cd "pdflatex"
+  "variety_pricing_slides.nav" 1792536267.96807 4386 546a937a8130e77cd333b0c9c7bf3922 "pdflatex"
+  "variety_pricing_slides.out" 1792536267.96786 587 b7f1f4c3bfe2739a20d53721e63a6f5e "pdflatex"
+  "variety_pricing_slides.tex" 1792536261.5876 25830 c0605a559f1cb5754ffcda75f944e194 ""
   (generated)
   "variety_pricing_slides.aux"
   "variety_pricing_slides.log"

@@ -154,262 +154,220 @@
 % -------------------------------------------------
 \begin{document}
 
-\section{Demand Side}
-Suppose there are $N$ consumers, each endowed with a type $\gamma_r$ for $r\in\{H,L\}$, corresponding to high or low utility from variety in products consumed. As such, there are $N_r\in N$ consumers of each type, $r\in\{H,L\}$. Consumers maximize utility according to the following:
-
-\begin{gather*}
-  U_{irjt} = \beta_0 + \gamma_r\ind\{j_t\ne j_{t-1}\} + \alpha p_{rjt} +
-  \varepsilon_{irjt}
-\end{gather*}
-
-Where utility is over individuals $i\in N$, type $r\in\{H,L\}$, products $j\in J$, and time $t\in T$. $\beta_0$ is an intercept, representing the baseline utility from consuming. $\gamma_i$ is the consumer's utility from consuming different products, and is active if they switched products from one period to the next. $\alpha$ is disutility of price, which can be lowered via a discount from advertising. Finally, $\varepsilon_{ijt}$ is the Gumbel error, giving us a closed form Logit.
-
-This equation can be written in terms of deterministic vs. random utility:
-
-\begin{gather*}
-  U_{irjt} = V_{irjt} + \varepsilon_{irjt} \\
- \text{s.t.} \\
-  V_{irjt} = \beta_0 + \gamma_r\ind\{j_t\ne j_{t-1}\} + \alpha(p_{jt} - d_{rjt})
-\end{gather*}
-
-Next, choice probabilities of consuming the inside option(s) is written as such:
-
-\begin{gather*}
-  P_{irjt} = \frac{e^{V_{irjt}}}{1 + \sum_ke^{V_{irkt}}}
-\end{gather*}
-
-Where we normalize the outside option utility to be zero, with a choice
-probability of:
-
-\begin{gather*}
-  P_{ir0t} = \frac{1}{1+\sum_ke^{V_{irkt}}}
-\end{gather*}
-
-Next, because consumers of the same type $r$ are homogenous, we can say:
-
-\begin{gather*}
-  s_{rjt} = P_{irjt} \ \text{for r $\in$ \{H,L\}}
-\end{gather*}
-
-Taking the derivative with respect to prices, we can get the own and cross price
-elasticities:
-
-\begin{gather*}
-  \epsilon_{jj}^p = \alpha p_{jt}(1-s_{rjt}) \\
-  \epsilon_{jk}^p = -\alpha p_{kt}s_{rkt} \ \ \text{for
-  k$\ne$j}
-\end{gather*}
-
-Thus, since $\alpha<0$, we can see that own price elasticity is negative and
-cross-price is positive. 
-
-\section{Supply Side}
-
-Now, a supermarket is in the market. The supermarket is able to control prices
-$\bar{p}_j$ for a product $j$. The supermarket can also offer a discount
-$d_{rjt}$ which is tailored to our switching types $r\in\{H,L\}$. The firm's
-actual price is written as:
-
-\begin{gather*}
-  p_{rjt} \equiv \bar{p}_j - d_{rjt} \\
-  \text{s.t.} \\
-  d_{rjt}>0
-\end{gather*}
-
-So, as we raise the discount, we raise utility as $\alpha<0$ so $-\alpha d_{rjt}>0$. It is through this discounting that firm can induce switching. The firm's profit margin for a product j is given by
-\begin{gather*}
-  m_{rjt} = p_{rjt} - c_j \\
-  = \bar{p}_j - d_{rjt} - c_j
-\end{gather*}
-
-This says that as we raise the discount, we raise market share on the product being discounted but lose profit margin. 
-
-With these definitions in mind, we can get into two scenarios. We will be looking at a two period model in, first, the case where the firm has perfect information on the consumers' types and can thus perfectly price. In the second case, we will look at the case of imperfect information, where the firm is using Bayesian updating to approximate the type distribution.
-
-\subsection{Perfect Information}
-
-Here, we assume the firm has perfect information over the distribution of types. That is, the supermarket perfectly observes each consumer type $r$ and thus knows the mass $N_r$ of each type. Define period one profit, $\pi_1$ as such:
-
-\begin{gather*}
-  \pi_1 = \sum_rN_r\sum_js_{rj1}(m_{rj1}) \\
-  \text{s.t.} \\
-  s_{rj1} = P_{irj1} \\
-  m_{rj1} = \bar{p}_j - d_{rj1} - c_j
-\end{gather*}
-
-Here, the firm is understanding how each type's market share for each product impacts their market share. We can similarly define period two profits, $\pi_2$ like so:
-
-\begin{gather*}
-  \pi_2 = \sum_rN_r\sum_js_{rj1}[\sum_ks_{rk2}(j)(m_{rk2}(j))]
-\end{gather*}
-
-Here, the only addition is the firm now understands all of the possible margins for a consumer of type $r$ who chose product $j$ in period 1, and product $k$ in period 2. For the sake of conciseness in notation, $w_r(j) = \sum_ks_{rk2}(j)(m_rk2(j))$. We can now write total profit, $\Pi$,
-
-\begin{gather*}
-  \Pi = \pi_1 + \pi_2 \\
-  = \sum_rN_r\sum_js_{rj1}(m_{rj1} + \delta w_r(j))
-\end{gather*}
-
-Where $\delta$ is a discount factor. Taking the derivative with respect to period one prices for a product $j$ yields:
-\begin{gather*}
-  \frac{\partial \Pi}{\partial p_{rj1}}: 0 = 1 + \alpha\sum_{k\ne j}s_{rk1}[(m_{rj1} - m_{rk1}) + \delta(w_r(j) - w_r(k))]
-\end{gather*}
-
-Here, the firm sets prices according to the current margin difference and the future profit difference between switching a consumer between product $j$ vs. product $k$. When we do the same for period two, we recover the following:
-
-\begin{gather*}
-  \frac{\partial \Pi}{\partial p_{rk2}}: 0= 1+\alpha\sum_{l\ne k}s_{rl2}(j)[(m_{rk2}(j) - m_{rl2}(j))]
-\end{gather*}
-
-Here, the firm again thinks of the tradeoff, without having to think about future profit as period two is terminal. Under perfect information, the supermarket chooses its prices by evaluating the current margin and future profit associated with reallocating consumers across products. Now, we move to the case of imperfect information.
-
-\subsection{Imperfect Information}
-
-In this case, the supermarket does not know consumer types with certainty, nor do they know the mass of either type. So, they must infer the distribution from from consumer purchases. Define the following objects:
-\begin{gather*}
-  \lambda_1 = Pr(r = H) \\
-  \lambda_2 = Pr(r=H|j) \Rightarrow \lambda_2(j) = \frac{\lambda_1s_{Hj1}}{\lambda_1s_{Hj1} + (1-\lambda_1)s_{Lj1}} \\
-  \tilde{s}_{j1} = \lambda_1s_{Hj1} + (1-\lambda_1)s_{Lj1} \\
-  \tilde{s}_{k2}(j) = \lambda_2(j)s_{Hk2}(j) + (1-\lambda_2(j))s_{Lk2}(j)
-\end{gather*}
-
-Now, we can define the profit functions much like we did before:
-\begin{gather*}
-  \pi_1 = N\sum_j\tilde{s}_{j1}m_{j1} \\
-  \pi_2 = N\sum_j\tilde{s}_{j1}\sum_k\tilde{s}_{k2}(j)m_{k2}(j)
-\end{gather*}
-
-The key difference here is that the firm must now update their beliefs from period to period rather than being able to discount according to the tradeoffs between two products. This implies that there is room for error in discounting. When combining the two into overall profit, we get:
-
-\begin{gather*}
-  \Pi = N\sum_j\tilde{s}_{j1}[m_{j1} + \delta\sum_k\tilde{s}_{k2}(j)m_{k2}(j)]
-\end{gather*}
-Now, we can take the derivative with respect to period one prices for product $j$:
-
-\begin{align*}
-  \frac{\partial \Pi}{\partial p_{j1}}: 0 &= N\tilde{s}_{j1}+\alpha N[\lambda_1s_{Hj1}(1-s_{Hj1}) + (1-\lambda_1)s_{Lj1}(1-s_{Lj1})][m_{j1}+\delta\sum_k\tilde{s}_{k2}(j)m_{k2}(j)] \\
-  &- \alpha N\sum_{h\ne j}[\lambda_1s_{Hh1}s_{Hj1} + (1-\lambda_1)s_{Lh1}s_{Lj1}][m_{h1} + \delta\sum_k\tilde{s}_{k2}(h)m_{k2}(h)] \\
-  &+\delta\sum_h\tilde{s}_{h1}\frac{\partial\lambda_2(h)}{\partial p_{j1}}[\pi_{H2}(h) - \pi_{L2}(h)]
-\end{align*}
-
-This is much the same as the perfect information case. However, looking at the third line, we can see where the firm incorporates their belief updating. Define the derivative in the third line as such:
-
-\begin{gather*}
-  \frac{\partial\lambda_2(h)}{\partial p_{j1}} = 
-  \begin{cases}
-    0 = \frac{\alpha\lambda_1(1-\lambda_1)}{\tilde{s}_{j1}^2}[s_{Hj1}s_{Lj1}(s_{Lj1}-s_{Hj1})] \ \text{if $h=j$} \\
-    0 = \frac{\alpha\lambda_1(1-\lambda_1)}{\tilde{s}_{h1}^2}[s_{Hh1}s_{Lh1}(s_{Lj1}-s_{Hj1})] \ \text{if $h\ne j$} \\
-  \end{cases}
-\end{gather*}
-
-So, the firm updates its belief about the distribution of consumer types upon observing period one consumption. The magnitude and direction of this update depends on how likely that choice is for each type. In total, the third line of the derivative interacts the probability of purchasing item $h$ with the effect of price on the firm's posterior belief and the value of believing in one type or the other.
-
-\section{Solving for Optimal Prices}
-
-I can solve for optimal prices in both cases, beginning with the simpler perfect information specification.
-
-\subsection{Perfect Information}
-
-We begin from our derivative with respect to prices as recovered in the previous section. Remember that is given by:
-
-\newpage
-
-\begin{gather*}
-  0 = 1 + \alpha[\sum_{k\ne j}s_{rk1}(m_{rj1} - m_{rk1}) + \delta(w_r(j) - w_r(k))] \\
-  \shortintertext{s.t.} \\
-  m_{rj1} = p_{rj1} - c_j \\
-  m_{rk1} = p_{rk1} - c_k
-\end{gather*}
-
-Now, expanding the expression and solving:
-
-\begin{gather*}
-  0 = 1 + \alpha[\sum_{k\ne j}s_{rk1}((p_{rj1} - c_j) - (p_{rk1} - c_k) + \delta(w_r(j) - w_r(k)))] \\
-  0 = 1 + \alpha(p_{rj1} - c_j)\sum_{k\ne j}s_{rk1} - \alpha\sum_{k\ne j}s_{rk1}(p_{rk1} - c_k) + \alpha\delta\sum_{k\ne j}s_{rk1}(w_r(j) - w_r(k)) \\
-  \alpha(p_{rj1} - c_j)\sum_{k\ne j}s_{rk1} = -1 + \alpha\sum_{k\ne j}s_{rk1}(p_{rk1} - c_k) - \alpha\delta\sum_{k\ne j}s_{rk1}(w_r(j) - w_r(k)) \\
-  \alpha p_{rj1}\sum_{k\ne j}s_{rk1} = \alpha c_j\sum_{k\ne j}s_{rk1} - 1 + \alpha\sum_{k\ne j}s_{rk1}(p_{rk1} - c_k) - \alpha\delta\sum_{k\ne j}s_{rk1}(w_r(j) - w_r(k)) \\
-  p^*_{rj1} = c_j - \frac{1}{\alpha\sum_{k\ne j}s_{rk1}} + \frac{\sum_{k\ne j}s_{rk1}(p_{rk1} - c_k)}{\sum_{k\ne j}s_{rk1}} - \delta\frac{\sum_{k\ne j}s_{rk1}(w_r(j) - w_r(k))}{\sum_{k\ne j}s_{rk1}} \\
-  p^*_{rj1} = c_j - \frac{1}{\alpha(1-s_{rj1})} + \frac{\sum_{k\ne j}s_{rk1}m_{rk1}}{1-s_{rj1}} - \delta\frac{\sum_{k\ne j}s_{rk1}(w_r(j) - w_r(k))}{1-s_{rj1}} \\
-\end{gather*}
-
-From this, the firm with perfect information sets each type $r$'s price to equal the cost plus some logit markup plus the share weighted average margin of alternatives $k\ne j$ minus the intertemporal tradeoff. Here, the firm will be willing to lower the price of good $j$ today if it implies higher profits tomorrow ($w_r(j) > w_r(k)$), increasing probability of purchase. In the opposite case, the firm would raise prices on product $j$ to encourage shifting from product $j$ to product $k$ tomorrow. That is, they use the past choice to determine consumer state and thus future profits for each product.
-
-\subsection{Imperfect Information}
-
-\newpage
-\begin{align*}
-  0 &= N\tilde{s}_{j1}
-  + \alpha N[\lambda_1s_{Hj1}(1-s_{Hj1}) + (1-\lambda_1)s_{Lj1}(1-s_{Lj1})]
-  [m_{j1}+\delta\sum_k\tilde{s}_{k2}(j)m_{k2}(j)] \\
-  &\quad - \alpha N\sum_{h\ne j}
-  [\lambda_1s_{Hh1}s_{Hj1} + (1-\lambda_1)s_{Lh1}s_{Lj1}]
-  [m_{h1} + \delta\sum_k\tilde{s}_{k2}(h)m_{k2}(h)] \\
-  &\quad + \delta\sum_h\tilde{s}_{h1}
-  \frac{\partial\lambda_2(h)}{\partial p_{j1}}
-  [\pi_{H2}(h) - \pi_{L2}(h)] \\
-  \shortintertext{s.t.}
-  m_{j1} &= p_{j1} - c_j \\
-  \lambda_1 &= \Pr(r = H) \\
-  \lambda_2 &= \Pr(r=H|j)
-  \Rightarrow
-  \lambda_2(j) =
-  \frac{\lambda_1s_{Hj1}}
-  {\lambda_1s_{Hj1} + (1-\lambda_1)s_{Lj1}} \\
-  \tilde{s}_{j1} &= \lambda_1s_{Hj1} + (1-\lambda_1)s_{Lj1} \\
-  \tilde{s}_{k2}(j) &= \lambda_2(j)s_{Hk2}(j) + (1-\lambda_2(j))s_{Lk2}(j) \\
-  \pi_2 &= N\sum_j\tilde{s}_{j1}\sum_k\tilde{s}_{k2}(j)m_{k2}(j) \\
-  \mathbb{A} &= [\lambda_1s_{Hj1}(1-s_{Hj1}) + (1-\lambda_1)s_{Lj1}(1-s_{Lj1})]
-\end{align*}
-
-Now, we can solve for $p_{j1}$ via the following steps. First,
-
-\begin{align*}
-  \alpha N\mathbb{A}[p_{j1} - c_j &+ \delta\sum_k\tilde{s}_{k2}(j)m_{k2}(j)] =\\
-  &- N\tilde{s}_{j1} + \alpha N\sum_{h\ne j}[\lambda_1s_{Hh1}s_{Hj1} + (1-\lambda_1)s_{Lh1}s_{Lj1}][m_{h1} + \delta\sum_{k}\tilde{s}_{k2}(h)m_{k2}(h)] \\
-  &-N\delta\sum_h\tilde{s}_{h1}\frac{\partial\lambda_2(h)}{\partial p_{j1}}[\pi_{H2}(h) - \pi_{L2}(h)]
-\end{align*}
-
-Now, we isolate $p_{j1}$:
-
-\begin{align*}
-  \alpha N\mathbb{A}p_{j1} &= \alpha N\mathbb{A}c_j - \alpha N\mathbb{A}\delta\sum_k\tilde{s}_{k2}(j)m_{k2}(j) \\
-  &- N\tilde{s}_{j1} + \alpha N\sum_{h\ne j}[\lambda_1s_{Hh1}s_{Hj1} + (1-\lambda_1)s_{Lh1}s_{Lj1}][m_{h1}+\delta\sum_k\tilde{s}_{k2}(h)m_{k2}(h)] \\
-  &- N\delta\sum_h\tilde{s}_{h1}[\frac{\partial\lambda_2(h)}{\partial p_{j1}}(\pi_{2H}(h) - \pi_{2L}(h))]
-\end{align*}
-
-And simplify:
-
-\begin{align*}
-  p_{j1} &= c_j -\delta\sum_k\tilde{s}_{k2}(j)m_{k2}(j) - \frac{\tilde{s}_{j1}}{\alpha A} \\
-  &+ \frac{\sum_{h\ne j}[\lambda_1s_{Hh1}s_{Hj1} + (1-\lambda_1)s_{Lh1}s_{Lj1}]}{\mathbb{A}}[m_{h1} + \delta\sum_k\tilde{s}_{k2}(h)m_{k2}(h)] \\
-  &- \frac{\delta}{\alpha \mathbb{A}}[\sum_h\tilde{s}_{h1}\frac{\partial\lambda_2(h)}{\partial   p_{j1}}(\pi_{2H}(h) - \pi_{2L}(h))] \\
-\end{align*}
-
-
-So, breaking down the optimal price term-by-term, we have that optimal price is made up of the marginal cost, minus the own-product discounted continuation value, plus a markup term and the the value of alternative products, and lastly a term referring to the learning adjustment from period one behavior. In the imperfect-information specification, today's prices affect current demand and the distribution of future states as well as the information that can be learned from consumer purchases. Period one prices alter the likelihood of purchase, thus affecting the posterior over consumer type and, by extension, optimal pricing in period two.
-
-\section{Difference from Two Period Pricing}
-
-I will briefly show how this differs from a normal two-period pricing game without state dependence. The perfect information case is easier to show this with, so I will proceed with it. Recall from the optimal pricing:
-
-\begin{gather*}
-  p^*_{rj1} = c_j - \frac{1}{\alpha(1-s_{rj1})} + \frac{\sum_{k\ne j}s_{rk1}m_{rk1}}{1-s_{rj1}} - \delta\frac{\sum_{k\ne j}s_{rk1}(w_r(j) - w_r(k))}{1-s_{rj1}} \\
-\end{gather*}
-
-In the traditional pricing game, the firm would not track past purchases, only types $r$. Thus, period two demand does not depend on period one purchases. That is, $w_r(j) = w_r(k)$ and we would lose the last term resulting in
-
-\begin{gather*}
-  p^*_{rj1} = c_j - \frac{1}{\alpha(1-s_{rj1})} + \frac{\sum_{k\ne j}s_{rk1}m_{rk1}}{1-s_{rj1}} \\
-\end{gather*}
-
-Or marginal cost plus a markup plus the value of alternatives. To put it simply, the profit function for the traditional game is:
-
-\begin{gather*}
-  \Pi = \pi_1(p_{rj1}) + \delta\pi_2(p_{rj2}) \\
-  \shortintertext{s.t.} \\
-  \frac{\partial\pi_2}{\partial p_{rj1}} = 0
-\end{gather*}
-
-Where prices can be set independently of each other. In the model proposed above, period two is directly influenced by period one since the firm is keeping track of past purchases. 
+\section{Demand and Timing}
+There are two inside goods owned by one monopolist and an outside option with
+normalized utility zero. Type $r$ has variety preference $\gamma_r$, with
+$\Pr(r=H)=\lambda$ and $\Pr(r=L)=1-\lambda$. Consumers are myopic:
+\[
+ V_{rjt}(h)=\beta_j+\gamma_r\ind\{j\ne h\}+\alpha p_{rjt}(h),
+ \qquad \alpha<0,\qquad
+ s_{rjt}(h)=\frac{\exp V_{rjt}(h)}{1+\sum_{k=1}^J\exp V_{rkt}(h)}.
+\]
+Here $p$ is the net transaction price. If $p=\bar p-d$, do not subtract $d$
+again inside utility. Discounts can be zero. No separate discount constraint
+is imposed in the numerical model; net prices lie in $[1,8]$.
+
+The initial inside history $h$ is distributed according to $q_h$ independently
+of type. Period-one prices are pooled across this initial history, even under
+perfect type information. After period one the firm observes the inside
+purchase $j$ and can condition period-two prices on it. As in the original
+code, a period-one outside choice exits permanently, contributing no future
+profit. This is an explicit modeling assumption: allowing outside purchasers
+to return would require an additional continuation state.
+
+Conditional on a single history, the share Jacobian is
+\[
+ D_{r,jk}(h)=\alpha s_{rj}(h)(\ind\{j=k\}-s_{rk}(h)).
+\]
+The corresponding own elasticity is $\alpha p_j(1-s_{rj}(h))$, and the cross
+elasticity is $-\alpha p_k s_{rk}(h)$. For pooled initial history define
+\[
+ S_{rj}=\sum_h q_hs_{rj1}(h),\qquad
+ D_{r,jk}=\sum_hq_h\alpha s_{rj1}(h)(\ind\{j=k\}-s_{rk1}(h)).
+\]
+In general $D_r\ne\alpha(\operatorname{diag}(S_r)-S_rS_r')$.
+Thus applying the single-logit derivative directly to averaged shares is incorrect.
+
+\section{Perfect Information and Backward Induction}
+Let $m_{rjt}=p_{rjt}-c_j$. Terminal continuation profits are
+\[
+ w_r(j)=\max_{p_{r2}(j)}\sum_k s_{rk2}(j)(p_{rk2}(j)-c_k).
+\]
+The firm first solves these terminal problems and then chooses period-one
+prices to maximize profit per type-$r$ initial consumer:
+\[
+ \Pi_r=\sum_j S_{rj}\{p_{rj1}-c_j+\delta w_r(j)\}.
+\]
+Aggregate profit is $N\sum_r\omega_r\Pi_r$, where
+$\omega_H=\lambda$ and $\omega_L=1-\lambda$. In particular the discount factor
+belongs in $\Pi=\pi_1+\delta\pi_2$, not $\pi_1+\pi_2$.
+
+The exact pooled-history first-order condition at an interior optimum is
+\[
+ 0=S_{rj}+\sum_kD_{r,kj}\{m_{rk1}+\delta w_r(k)\}.
+\]
+For a \emph{single} initial history, put $a_{rj}=m_{rj1}+\delta w_r(j)$.
+Dividing by the positive own share gives
+\[
+ 0=1+\alpha\left[a_{rj}-\sum_{k=1}^Js_{rk1}a_{rk}\right]
+ =1+\alpha\left[s_{r01}a_{rj}
+       +\sum_{k\ne j}s_{rk1}(a_{rj}-a_{rk})\right].
+\]
+The original calculation omitted $s_{r01}a_{rj}$ even though demand has an
+outside option. In particular $\sum_{k\ne j,\,k\ge1}s_{rk1}=1-s_{r01}-s_{rj1}$,
+not $1-s_{rj1}$. Equivalently, one can sum over the outside option as well,
+provided its margin and continuation value are both zero.
+
+For a single history the corrected price identity is
+\[
+ p_{rj1}=c_j-\delta w_r(j)-\frac{1}{\alpha}
+             +\sum_ks_{rk1}\{m_{rk1}+\delta w_r(k)\}.
+\]
+These are implicit price identities because shares depend on prices. They are
+not closed-form solutions. Comparing the equations for goods $j$ and $k$ yields
+\[
+ p_{rj1}-p_{rk1}=c_j-c_k-\delta\{w_r(j)-w_r(k)\}.
+\]
+This relative-price identity applies only to the single-history case, not in
+general to the pooled-history first period used in the code.
+
+In period two there is a single observed history $j$, so the corrected
+terminal conditions are
+\[
+ 0=1+\alpha\left[m_{rk2}(j)-\sum_ls_{rl2}(j)m_{rl2}(j)\right].
+\]
+For a multiproduct monopolist with common $\alpha$, interior margins are equal
+across inside products, say $M_r(j)$. Therefore
+\[
+ M_r(j)=-\frac{1}{\alpha s_{r02}(j)},\qquad
+ p_{rk2}(j)-p_{rl2}(j)=c_k-c_l.
+\]
+The markdown's extra term $-1/(\alpha s_{rj2}(j))$ in the relative terminal
+price is incorrect. It resulted from the omitted outside share. Consequently
+the proposed period-one formula obtained by substituting that expression is
+also incorrect. Binding price bounds require inequality conditions instead of
+these interior equalities.
+
+\section{Common Prices and Bayesian Updating}
+The firm knows the prior type distribution but cannot observe individual type.
+``Uniform'' here means common across types, not a single scalar price for both
+goods or both periods. The posterior after an inside choice $h$ is
+\[
+ T_h=\sum_r\omega_r S_{rh},\qquad
+ \lambda_2(h)=\frac{\lambda S_{Hh}}{T_h}.
+\]
+At each history the firm reoptimizes terminal prices using this posterior:
+\[
+ p_2^*(h)\in\argmax_p\sum_r\omega_r(h)w_r(h;p),\qquad
+ w_r(h;p)=\sum_ks_{rk2}(h;p)(p_k-c_k).
+\]
+There is no commitment to a terminal price that is suboptimal at the updated
+posterior. The total objective can be written without posterior denominators:
+\[
+ \Pi/N=\sum_r\omega_r\sum_h S_{rh}
+                 \{p_{h1}-c_h+\delta w_r(h;p_2^*(h))\}.
+\]
+The envelope theorem then gives the particularly simple exact gradient
+\[
+ \frac{1}{N}\frac{\partial\Pi}{\partial p_{j1}}
+ =\sum_r\omega_r\left[S_{rj}
+       +\sum_hD_{r,hj}\{m_{h1}+\delta w_r(h;p_2^*(h))\}\right].
+\]
+This accounts for learning: type-specific continuation profits remain inside
+the weighted derivative. Derivatives of optimized terminal prices drop out by
+the envelope theorem, not derivatives of the posterior.
+
+For completeness the exact posterior derivative is
+\[
+ \frac{\partial\lambda_2(h)}{\partial p_{j1}}
+ =\frac{\lambda(1-\lambda)}{T_h^2}
+       \{D_{H,hj}S_{Lh}-S_{Hh}D_{L,hj}\}.
+\]
+For a single initial history this simplifies, for both $h=j$ and $h\ne j$, to
+\[
+ \frac{\alpha\lambda(1-\lambda)S_{Hh}S_{Lh}}{T_h^2}
+       (S_{Lj}-S_{Hj}).
+\]
+The original ``$0=$'' prefixes are erroneous: these derivatives generally are
+nonzero. In the expanded aggregate-profit derivative, the learning term must
+also carry $N$ if the other terms do. In an isolated-price expression the
+alternative-product value must stay \emph{inside} its sum over $h$; it cannot
+retain a free $h$ outside that sum. The exact gradient above avoids both issues.
+
+\section{The Three Numerical Questions}
+The code uses $\beta=(2.2,2.0)$, $c=(1.2,1.0)$, $\alpha=-1.5$,
+$\delta=0.95$, $\gamma_H=2$, $\gamma_L=0.1$, and $q=(1/2,1/2)$.
+Consumers maximize current utility; only the firm solves a dynamic problem.
+Forward-looking consumers would require a different demand system.
+
+Existing consumers' types are observed exogenously. With full information
+and unrestricted type-specific prices, each type's problem separates and its
+price is independent of its population mass. These observed-type prices and
+the common-price policy are useful benchmarks.
+
+A newborn consumer is an unobserved equal-probability draw of H or L and has no
+purchase history. Its 50/50 type probability is an initial prior, without an
+individual history to update it. This is distinct from the code's original
+50/50 population, which pools consumers who each have a previous inside
+purchase. The newborn experiment removes the initial product history: first-period
+utility is $\beta_j+\alpha p_{j1}$, without a switching bonus. Hence the first
+purchase does not reveal type. Type remains unobserved in period two; the prior
+$q=\Pr(L)$ persists. No fixed adoption cost or noisy classifier is introduced.
+
+The firm compares two fixed offers. The regular menu is the dynamic policy
+optimized for a known H consumer. The discounted menu keeps this first-period
+price but replaces period-two prices by the known-L terminal optimum. All these
+terminal prices are verified to be below the regular menu. Holding the initial
+price fixed matters: a known H consumer actually receives a lower introductory
+price than L because their future value makes customer acquisition attractive.
+Thus the entire low-type dynamic policy is not a discount from the H policy.
+
+Let $\Delta_r$ be the discounted two-period profit change from offering this
+period-two discount to a newborn of true type $r$. The expected gain is
+\[
+ B(q)=(1-q)\Delta_H+q\Delta_L.
+\]
+Numerically $\Delta_H=-0.04484198$ and $\Delta_L=0.02410654$. The cost of
+getting type wrong is already contained in $\Delta_H$; it is not an additional
+fee. The exact break-even probability is
+\[
+ q^*=-\frac{\Delta_H}{\Delta_L-\Delta_H}=0.650369.
+\]
+Therefore do not offer this discount when the probability of L is below
+approximately 65.04\%; offer above this probability, with indifference at the
+cutoff. At the equal-probability birth prior, the offer is unprofitable.
+This is equivalent to not discounting when $\Pr(H)>0.349631$.
+
+The executable sweeps $q=0.01,0.02,\ldots,0.99$ and reports the regular-menu
+profit, discount-menu profit, expected gain, and choice. It also reoptimizes
+common prices freely at each prior, which weakly dominates either fixed menu.
+The fixed-offer cutoff depends on the menus and does not imply a discontinuity
+in freely optimized prices. If instead one varied the probability $a$ of
+sending a fixed offer, expected profit would be regular profit plus $aB(q)$:
+the optimal $a$ would be zero or one, or any value at indifference.
+
+See \texttt{newborn\_results.md}, \texttt{newborn\_prices.csv}, and
+\path{newborn_discount_probability.csv} in the results directory; the figure
+is \texttt{newborn\_discount\_cutoff.png} (also available as PDF).
+
+The old numerical objective already jointly optimized prices in both periods.
+It did not use the incorrect written first-order conditions. With unconstrained
+terminal menus, joint optimization has optimal continuation prices at each
+reached posterior, so explicit backward induction should reproduce the old
+benchmark results. Correcting the written mathematics alone therefore need
+not change those numerical results.
+
+The executable computes common prices at the known 50/50 prior, sweeps the
+population high-type share, and plots expected profits conditional on a grid
+of variety preferences. In the latter experiment it compares prices optimized
+for each $\gamma$ against the fixed policy optimized for the original 50/50
+population. A conditional expected-profit curve is not a probability density.
+Under the two-type distribution, profits have masses $\lambda$ and $1-\lambda$
+at their respective conditional expectations. A continuous profit distribution
+requires a specified continuous type distribution.
+
+Run \texttt{python3 toy\_model.py}; outputs are CSV tables, a numerical report,
+and PNG/PDF figures in \texttt{updates/toy\_model/results}. The terminal and initial optimizations use
+bounded multistart numerical optimization; they do not prove global optimality.
 
 \end{document}

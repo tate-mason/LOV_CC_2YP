@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.8.17)  6 OCT 2026 09:40
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.8.17)  20 OCT 2026 19:21
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -679,66 +679,75 @@ Package hyperref Info: Link coloring ON on input line 155.
 \@outlinefile=\write3
 \openout3 = `toy_model.out'.
 
-LaTeX Font Info:    Trying to load font information for OT1+lmr on input line 158.
+LaTeX Font Info:    Trying to load font information for OT1+lmr on input line 159.
  (/usr/local/texlive/2026/texmf-dist/tex/latex/lm/ot1lmr.fd
 File: ot1lmr.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
-LaTeX Font Info:    Trying to load font information for OML+lmm on input line 158.
+LaTeX Font Info:    Trying to load font information for OML+lmm on input line 159.
  (/usr/local/texlive/2026/texmf-dist/tex/latex/lm/omllmm.fd
 File: omllmm.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
-LaTeX Font Info:    Trying to load font information for OMS+lmsy on input line 158.
+LaTeX Font Info:    Trying to load font information for OMS+lmsy on input line 159.
  (/usr/local/texlive/2026/texmf-dist/tex/latex/lm/omslmsy.fd
 File: omslmsy.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
-LaTeX Font Info:    Trying to load font information for OMX+lmex on input line 158.
+LaTeX Font Info:    Trying to load font information for OMX+lmex on input line 159.
  (/usr/local/texlive/2026/texmf-dist/tex/latex/lm/omxlmex.fd
 File: omxlmex.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <12> on input line 158.
+(Font)              <12> on input line 159.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <8> on input line 158.
+(Font)              <8> on input line 159.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <6> on input line 158.
-LaTeX Font Info:    Trying to load font information for U+msa on input line 158.
+(Font)              <6> on input line 159.
+LaTeX Font Info:    Trying to load font information for U+msa on input line 159.
  (/usr/local/texlive/2026/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 ) (/usr/local/texlive/2026/texmf-dist/tex/latex/microtype/mt-msa.cfg
 File: mt-msa.cfg 2006/02/04 v1.1 microtype config. file: AMS symbols (a) (RS)
 )
-LaTeX Font Info:    Trying to load font information for U+msb on input line 158.
+LaTeX Font Info:    Trying to load font information for U+msb on input line 159.
  (/usr/local/texlive/2026/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 ) (/usr/local/texlive/2026/texmf-dist/tex/latex/microtype/mt-msb.cfg
 File: mt-msb.cfg 2005/06/01 v1.0 microtype config. file: AMS symbols (b) (RS)
 )
-LaTeX Font Info:    Trying to load font information for U+bbm on input line 163.
+LaTeX Font Info:    Trying to load font information for U+bbm on input line 162.
  (/usr/local/texlive/2026/texmf-dist/tex/latex/bbm-macros/ubbm.fd
 File: ubbm.fd 1999/03/15 V 1.2 Font definition for bbm font - TH
 ) [1
 
-{/usr/local/texlive/2026/texmf-var/fonts/map/pdftex/updmap/pdftex.map}{/usr/local/texlive/2026/texmf-dist/fonts/enc/dvips/lm/lm-ec.enc}{/usr/local/texlive/2026/texmf-dist/fonts/enc/dvips/lm/lm-mathit.enc}{/usr/local/texlive/2026/texmf-dist/fonts/enc/dvips/lm/lm-mathsy.enc}{/usr/local/texlive/2026/texmf-dist/fonts/enc/dvips/lm/lm-rm.enc}{/usr/local/texlive/2026/texmf-dist/fonts/enc/dvips/lm/lm-mathex.enc}] [2] [3] [4] [5] [6] [7] [8] [9] (./toy_model.aux)
+{/usr/local/texlive/2026/texmf-var/fonts/map/pdftex/updmap/pdftex.map}{/usr/local/texlive/2026/texmf-dist/fonts/enc/dvips/lm/lm-ec.enc}{/usr/local/texlive/2026/texmf-dist/fonts/enc/dvips/lm/lm-mathit.enc}{/usr/local/texlive/2026/texmf-dist/fonts/enc/dvips/lm/lm-rm.enc}{/usr/local/texlive/2026/texmf-dist/fonts/enc/dvips/lm/lm-mathsy.enc}{/usr/local/texlive/2026/texmf-dist/fonts/enc/dvips/lm/lm-mathex.enc}] [2] [3] [4]
+LaTeX Font Info:    Trying to load font information for T1+lmtt on input line 349.
+ (/usr/local/texlive/2026/texmf-dist/tex/latex/lm/t1lmtt.fd
+File: t1lmtt.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
+)
+Package microtype Info: Loading generic protrusion settings for font family
+(microtype)             `lmtt' (encoding: T1).
+(microtype)             For optimal results, create family-specific settings.
+(microtype)             See the microtype manual for details.
+ [5] (./toy_model.aux)
  ***********
 LaTeX2e <2026-06-01>
 L3 programming layer <2026-07-20>
  ***********
 Package rerunfilecheck Info: File `toy_model.out' has not changed.
-(rerunfilecheck)             Checksum: 7F3763629D109230234F146C3D46D9D6;1249.
+(rerunfilecheck)             Checksum: 60A91B8129BCB85A8ADFDEF8F84F46E4;826.
  ) 
 Here is how much of TeX's memory you used:
- 22835 strings out of 467159
- 439247 string characters out of 5409218
- 881912 words of memory out of 5000000
- 51710 multiletter control sequences out of 15000+600000
- 682385 words of font info for 136 fonts, out of 8000000 for 9000
+ 22820 strings out of 467159
+ 439178 string characters out of 5409218
+ 876912 words of memory out of 5000000
+ 51721 multiletter control sequences out of 15000+600000
+ 669889 words of font info for 120 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 74i,19n,80p,1006b,1051s stack positions out of 10000i,1000n,20000p,200000b,200000s
- </Users/tate/Library/texlive/2026/texmf-var/fonts/pk/ljfour/public/bbm/bbm12.600pk></usr/local/texlive/2026/texmf-dist/fonts/type1/public/lm/lmbx12.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/lm/lmex10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/lm/lmmi12.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/lm/lmmi6.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/lm/lmmi8.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/lm/lmr12.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/lm/lmr6.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/lm/lmr8.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/lm/lmsy10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/lm/lmsy8.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb>
-Output written on toy_model.pdf (9 pages, 161831 bytes).
+ 74i,12n,80p,1006b,1049s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ </Users/tate/Library/texlive/2026/texmf-var/fonts/pk/ljfour/public/bbm/bbm12.600pk></usr/local/texlive/2026/texmf-dist/fonts/type1/public/lm/lmbx12.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/lm/lmex10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/lm/lmmi12.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/lm/lmmi6.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/lm/lmmi8.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/lm/lmr12.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/lm/lmr6.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/lm/lmr8.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/lm/lmri12.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/lm/lmsy10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/lm/lmsy8.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/lm/lmtt12.pfb>
+Output written on toy_model.pdf (5 pages, 187635 bytes).
 PDF statistics:
- 152 PDF objects out of 1000 (max. 8388607)
- 115 compressed objects within 2 object streams
- 18 named destinations out of 1000 (max. 500000)
- 28737 words of extra memory for PDF output out of 29859 (max. 10000000)
+ 121 PDF objects out of 1000 (max. 8388607)
+ 87 compressed objects within 1 object stream
+ 10 named destinations out of 1000 (max. 500000)
+ 21025 words of extra memory for PDF output out of 24883 (max. 10000000)
 

@@ -1,5 +1,5 @@
 # Fdb version 4
-["pdflatex"] 1792355714.64868 "variety_pricing_slides.tex" "variety_pricing_slides.pdf" "variety_pricing_slides" 1792355716.34929 0
+["pdflatex"] 1792510100.46833 "variety_pricing_slides.tex" "variety_pricing_slides.pdf" "variety_pricing_slides" 1792510103.63413 0
   "/usr/local/texlive/2026/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc" 1136849721 2900 1537cc8184ad1792082cd229ecc269f4 ""
   "/usr/local/texlive/2026/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/usr/local/texlive/2026/texmf-dist/fonts/tfm/jknappen/ec/tcss1095.tfm" 1136768653 1536 f0fa079cdc83a6ffeda21e42352cf1ea ""
@@ -17,7 +17,6 @@
   "/usr/local/texlive/2026/texmf-dist/fonts/tfm/public/cm/cmmi6.tfm" 1136768653 1512 f21f83efb36853c0b70002322c1ab3ad ""
   "/usr/local/texlive/2026/texmf-dist/fonts/tfm/public/cm/cmmi8.tfm" 1136768653 1520 eccf95517727cb11801f4f1aee3a21b4 ""
   "/usr/local/texlive/2026/texmf-dist/fonts/tfm/public/cm/cmr10.tfm" 1136768653 1296 45809c5a464d5f32c8f98ba97c1bb47f ""
-  "/usr/local/texlive/2026/texmf-dist/fonts/tfm/public/cm/cmr12.tfm" 1136768653 1288 655e228510b4c2a1abe905c368440826 ""
   "/usr/local/texlive/2026/texmf-dist/fonts/tfm/public/cm/cmr6.tfm" 1136768653 1300 b62933e007d01cfd073f79b963c01526 ""
   "/usr/local/texlive/2026/texmf-dist/fonts/tfm/public/cm/cmr8.tfm" 1136768653 1292 21c1c5bfeaebccffdb478fd231a0997d ""
   "/usr/local/texlive/2026/texmf-dist/fonts/tfm/public/cm/cmss10.tfm" 1136768653 1316 b636689f1933f24d1294acdf6041daaa ""
@@ -42,6 +41,7 @@
   "/usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmss8.pfb" 1248133631 24420 52dbb8e8aa0069a1b987309557f8d303 ""
   "/usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmssbx10.pfb" 1248133631 28902 2f5c04fd2884d1878057baa5aad22765 ""
   "/usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmssi10.pfb" 1248133631 25150 e0d09798d232ab9d00c5c0a8df6cc22d ""
+  "/usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmssi12.pfb" 1248133631 25095 0ff1f6d531b320ecbbd6ea84d875816c ""
   "/usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmssi8.pfb" 1248133631 25168 33771b85f45c82138dd7745db7092d1c ""
   "/usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb" 1248133631 32569 5e5ddc8df908dea60932f3c484a54c0d ""
   "/usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb" 1248133631 32716 08e384dc442464e7285e891af9f45947 ""
@@ -210,6 +210,7 @@
   "/usr/local/texlive/2026/texmf-dist/tex/latex/beamer/beamerinnerthemerounded.sty" 1684185199 1002 063bf9e9a79365fd3185a6b9a8e96af9 ""
   "/usr/local/texlive/2026/texmf-dist/tex/latex/beamer/beamerouterthemedefault.sty" 1769116489 6863 d6145cc56a0889e90947c72bfcf50a52 ""
   "/usr/local/texlive/2026/texmf-dist/tex/latex/beamer/beamerouterthemeinfolines.sty" 1769116489 2362 f4966301b59c0581b96c6ebf1b56a67b ""
+  "/usr/local/texlive/2026/texmf-dist/tex/latex/beamer/beamerouterthememiniframes.sty" 1738788133 5157 f6fc0882917a6ad715583b4484f7db1e ""
   "/usr/local/texlive/2026/texmf-dist/tex/latex/beamer/beamerthemeBoadilla.sty" 1769116489 1041 21e0ca68277801b9da0567bc79d4f3d3 ""
   "/usr/local/texlive/2026/texmf-dist/tex/latex/beamer/beamerthemedefault.sty" 1684185199 345 b9f1afd5eccd808064d49a802f119443 ""
   "/usr/local/texlive/2026/texmf-dist/tex/latex/booktabs/booktabs.sty" 1579038678 6078 f1cb470c9199e7110a27851508ed7a5c ""
@@ -273,11 +274,10 @@
   "assets/fig4_marginal_type_distributions.pdf" 1792354771.56464 38430 1e550cf73babcf46b20dbf1a9e8e1662 ""
   "assets/fig5_joint_type_distributions.pdf" 1792354771.56503 67424 76933874af446e0e11eec46d4adfbc0e ""
   "assets/pricing_exercise_table.tex" 1792355714.56782 978 486cf94bf7fa08a7cf75a3e3418e7919 ""
-  "variety_pricing_slides.aux" 1792355716.24549 8516 669fb11fad081776a7a1cd9ebbfbd068 "pdflatex"
-  "variety_pricing_slides.nav" 1792355716.24693 5729 3f3e59b2180477b4cc6a396a7feb301f "pdflatex"
-  "variety_pricing_slides.out" 1792355716.24673 1146 e5ffa744b0d527928abe9d80bbe0317e "pdflatex"
-  "variety_pricing_slides.tex" 1792355714.568 27311 0dd27141834a63d4ad28d1b05a71ae0c ""
-  "variety_pricing_slides.toc" 1792355716.24696 373 1409ceba835230a07ac4091ab5848562 "pdflatex"
+  "variety_pricing_slides.aux" 1792510103.52701 8750 ff245e518a68188a19d59b56e587f841 "pdflatex"
+  "variety_pricing_slides.nav" 1792510103.52845 4390 88c2f0e7d117b5d2ce0662e23fea7628 "pdflatex"
+  "variety_pricing_slides.out" 1792510103.52825 597 b5eb725f480ac5877c98b41a99118165 "pdflatex"
+  "variety_pricing_slides.tex" 1792510100.38957 25184 e58097f475fc1b64fb250f1b9fa4b92d ""
   (generated)
   "variety_pricing_slides.aux"
   "variety_pricing_slides.log"

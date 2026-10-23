@@ -1,0 +1,10 @@
+policy,period,history,price_good1,price_good2,margin_good1,margin_good2
+uniform_50_50,1,no prior product,2.0,2.0,0.8,1.8
+uniform_50_50,2,good1,2.0,1.9506514852717667,0.8,1.7506514852717667
+uniform_50_50,2,good2,2.0,2.0,0.8,1.8
+targeted_H,1,no prior product,2.0,2.0,0.8,1.8
+targeted_H,2,good1,2.0,2.0,0.8,1.8
+targeted_H,2,good2,2.0,2.0,0.8,1.8
+targeted_L,1,no prior product,2.0,2.0,0.8,1.8
+targeted_L,2,good1,2.0,1.5066616670791433,0.8,1.3066616670791433
+targeted_L,2,good2,2.0,2.0,0.8,1.8

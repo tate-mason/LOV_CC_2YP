@@ -27,6 +27,7 @@
 \setbeamerfont{frametitle}{size=\Large}
 \setlength{\parskip}{6pt}
 \graphicspath{{assets/}}
+\input{assets/pricing_numbers.tex}
 \title[Dynamic Optimal Pricing]{Dynamic Optimal Pricing with Love of Variety}
 \author{Tate Mason}
 \date{MacrIOT 2026}
@@ -56,7 +57,7 @@
 \begin{frame}{Motivation}
 \begin{block}{Motivation}
 \begin{itemize}
-\item \textbf{Pricing:} knowing switching types raises per-unit profits by up to about 2 cents in the reported normalization.
+\item \textbf{Pricing:} knowing how much consumers value variety helps firms tailor prices. In the model, this raises profit by about \$0.01 per consumer over two periods.
 \item \textbf{Demand:} flavor preferences change little when fatigue is included; some fatigue parameters are weakly identified.
 \end{itemize}
 \end{block}
@@ -78,103 +79,140 @@ Position relative to attribute satiation in McAlister and Lattin, brand dynamics
 \end{frame}
 
 \section{Pricing Model}
-\begin{frame}{Pricing Model}
+\begin{frame}[label=pricing-setup]{Consumer problem: switching in both periods}
+\small\setlength{\parskip}{3pt}
+$r\in\{H,L\}$ is type; $t\in\{1,2\}$ is period; $\ell\in\{j,k\}$ indexes products.\\
+$h_0=a\in\{j,k,0\}$ is the observed initial state; $h_1$ is the first choice. State $0$ means no prior product.
+\[
+U_{r\ell t}=\underbrace{\beta_\ell}_{\text{baseline utility}}
++\underbrace{\gamma_r\mathbf1\{h_{t-1}\ne0,\ell\ne h_{t-1}\}}_{\text{switching reward}}
++\underbrace{\alpha p_{\ell t}}_{\text{price effect}}+\varepsilon_{\ell t},\qquad U_{r0t}=\varepsilon_{0t}.
+\]
 \begin{itemize}
-\item Purchase histories can reveal preferences for switching between products.
-\item The supply exercise asks how a retailer would price if switching types were known or inferred.
-  \begin{itemize}
-    \item How do they dynamically price?
-    \item How does the firm price discriminate?
-  \end{itemize}
-\item Two products, two types, two periods.
+\item $\gamma_H>\gamma_L$: H values switching more; $\alpha<0$ is the common price coefficient.
+\item $p_{\ell1}(a)$ and $p_{\ell2}(a,h_1)$ are freely chosen transaction prices.
+  \item $\varepsilon$ are independent type-I extreme-value shocks; $V_{rlt}=U_{rlt}-\varepsilon_{lt}$ is deterministic utility.
 \end{itemize}
-\note{Introduce the illustrative supply exercise before turning to demand. Supply uses a positive reward for switching, whereas demand uses a negative coefficient on a fatigue stock.}
+\[
+s_{r\ell t}=\Pr(h_t=\ell\mid r,\text{history})=
+\frac{e^{V_{r\ell t}}}{1+\sum_{m\in\{j,k\}}e^{V_{rmt}}};
+\quad s_{r0t}=1-s_{rjt}-s_{rkt}.
+\]
+\footnotesize Consumers maximize current utility. Initial states are equally likely and independent of type; a period-1 outside choice exits permanently.
+\note{Both periods permit switching. Initial state 0 has no switching reward, while switching between j and k receives gamma. The firm observes initial state and subsequent choices. First purchases can be informative about type.}
 \end{frame}
 
-\begin{frame}{Supply model}
-\begin{block}{Consumer's value from choosing product $j$}
+\begin{frame}[label=producer-problem]{Producer problem: induce, then harvest}
+\small\setlength{\parskip}{3pt}
+$P=\{p_{\ell1}(a),p_{\ell2}(a,h)\}$ is the full price menu; $c_\ell$ is unit cost.\\
+$\mu_a=\Pr(h_0=a)=1/3$, $q=\Pr(H)$, and $\delta\in(0,1]$ discounts firm profit.
 \[
-V_{rjt}=\underbrace{\beta_{0j}}_{\text{baseline preferences}}
-+\underbrace{\gamma_r\mathbf{1}\{j\ne j_{t-1}\}}_{\text{love of variety}}
-+\underbrace{\alpha p_{rjt}}_{\text{price effect}},
-\qquad r\in\{H,L\}.
+\underbrace{w_r(a,h)}_{\text{terminal profit after first purchase }h}
+=\sum_{\ell\in\{j,k\}}s_{r\ell2}(a,h)
+\underbrace{[p_{\ell2}(a,h)-c_\ell]}_{\text{unit margin}},
 \]
+\[
+\underbrace{\pi_r(P)}_{\text{value per arriving type-}r\text{ consumer}}
+=\sum_{a\in\{j,k,0\}}\mu_a\sum_{h\in\{j,k\}}s_{rh1}(a)
+\left[p_{h1}(a)-c_h+\delta w_r(a,h)\right].
+\]
+\[
+P^*(q)\in\arg\max_P\{q\pi_H(P)+(1-q)\pi_L(P)\}.
+\]
+\begin{itemize}
+\item Common menu: type is unobserved; prices depend on observed history. Observed type: optimize a separate menu for each $r$.
+\item Commit before choices; account for type sorting into histories. Period-1 prices affect current earnings and future profit.
+\end{itemize}
+\note{There is no coupon restriction or imposed price bound. The outer expectation integrates over initial states; the inner expectation includes only surviving first purchases. Period-one outside choices earn no current or future profit.}
+\end{frame}
+
+\begin{frame}[label=optimal-price-conditions]{Optimal prices when type is known}
+\small For type $r$, $c_\ell$ is unit cost, $\alpha<0$ is the price coefficient, and $s_{r0t}$ is the outside share. The initial state is $a$; the first purchase is $h$.
+\par\medskip\textbf{Period 2: harvest}
+\[
+p^*_{r\ell2}(a,h)-c_\ell=-\frac{1}{\alpha s^*_{r02}(a,h)},\qquad \ell\in\{j,k\}.
+\]
+Terminal unit margins are equal across products at each history.
+
+\par\medskip\textbf{Period 1: induce with continuation value}
+\[
+p^*_{r\ell1}(a)-c_\ell+\delta w_r^*(a,\ell)
+=-\frac{1}{\alpha s^*_{r01}(a)},\qquad \ell\in\{j,k\}.
+\]
+$w_r^*(a,\ell)$ is optimal period-2 profit after buying $\ell$; $\delta$ is the firm discount factor.\\
+Larger continuation value supports a lower current margin, holding the right-hand side fixed.
+
+\footnotesize Interior conditions; shares and continuation values are evaluated at optimal prices.
+\hfill\hyperlink{unobserved-price-conditions}{\beamerbutton{Unobserved type}}
+\note{These known-type conditions use independent logit shocks and free prices. The first-period formula is the static logit markup condition applied to effective cost c minus delta w. The continuation value differs by the first product chosen. The linked appendix derives weighted conditions for unobserved types and accounts for selection into histories.}
+\end{frame}
+
+\begin{frame}[label=Simulation]{Free pricing: what changes?}
+\begin{block}{Illustrative calibration}
+$\beta=(2.2,2.0)$, $c=(1.2,0.8)$, $\alpha=-1.5$, $\delta=0.95$.\\
+Baseline $(\gamma_H,\gamma_L)=(2,1)$; initial states $\mu_j=\mu_k=\mu_0=1/3$.
 \end{block}
 \begin{itemize}
-\item $V_{rjt}$ is the deterministic utility of product $j$ for a type-$r$ consumer at time $t$.
-\item Switching from the previously chosen product $j_{t-1}$ adds $\gamma_r$; choosing it again adds no switching reward.
-\item High types value switching more: $\gamma_H>\gamma_L$. A higher price lowers utility ($\alpha<0$).
-\item Consumers choose the highest utility after logit choice shocks; the outside option allows no purchase.
+\item Optimize all product prices separately by period and observed history.
+\item For known type, interior terminal prices imply equal product margins at each history.
+\item Measure induction by current profit sacrificed relative to the one-period optimum; measure harvesting by period-2 profit.
 \end{itemize}
-\note{Explain the equation from the consumer's perspective: baseline product appeal, a reward for choosing a different product from last period, and a negative price effect. V is deterministic current-period utility, not a forward-looking consumer Bellman value. Adding independent type-I extreme-value shocks gives logit choice probabilities including an outside option. The retailer uses these probabilities in its pricing problem. Use s for a probability or share, not a sum of probabilities over consumers. Population size multiplies per-consumer profits.}
+\small These are model illustrations, not estimated customer values.
+\hyperlink{pricing-details}{\beamerbutton{Pricing conditions}}
 \end{frame}
 
-\begin{frame}{Perfect information}
-\begin{block}{Perfect information}The retailer conditions prices on known type and observed purchase history.\end{block}
-$W_r(j)$ is the retailer\textquotesingle s optimal period-two profit per consumer, given type $r$ and first-period choice $j$.
-\[
-W_r(j)=\max_{\mathbf p_2(j)}\sum_k s_{rk2}(j)\bigl(p_{rk2}(j)-c_k\bigr),
-\]
-\[
-\Pi^{\rm full}=\sum_r N_r\sum_j s_{rj1}
-\left[p_{rj1}-c_j+\delta W_r(j)\right].
-\]
-A lower price today can move a consumer into a more profitable state tomorrow.
-\note{Here j includes all first-period outcomes, including no purchase, with zero outside margin and an explicitly defined continuation state. This compact objective avoids reproducing the draft long first-order conditions, whose outside-option treatment is ambiguous.}
+\begin{frame}[label=pricing-menus]{Optimal prices depend on the initial state}
+\centering\footnotesize\setlength{\tabcolsep}{9pt}\renewcommand{\arraystretch}{1.0}\setlength{\parskip}{0pt}
+\input{assets/pricing_current_menus.tex}
+\par\vspace{4pt}\scriptsize All prices shown. $j,k$: previous product; $0$: no prior product. Common menu uses $q=0.5$.
+\note{Prices are transaction prices, with no regular-price or coupon restriction. All initial states receive separate optimized prices. Margins subtract the same costs in every comparison.}
 \end{frame}
 
-\begin{frame}{Learning}
-\[
-q=\Pr(r=H),\qquad \tilde s_{j1}=q s_{Hj1}+(1-q)s_{Lj1},
-\]
-\[
-q_2(j)=\Pr(H\mid j)=\frac{q s_{Hj1}}{q s_{Hj1}+(1-q)s_{Lj1}}.
-\]
-\begin{itemize}\item Period-one prices are common across unobserved types.\item Period-two prices depend on observed purchase history.\item A choice relatively more likely for high types raises the posterior.\end{itemize}
-\note{A posterior above the prior conditional on a purchase is not inherently biased or an overestimate. Bayes plausibility requires averaging over all outcomes, including no purchase. The simulation table reports only the inside-good posteriors.}
-\end{frame}
-
-\begin{frame}{Limited information}
-\[
-\Pi^{\rm limited}=N\sum_j\tilde s_{j1}(\mathbf p_1)
-\left[p_{j1}-c_j+\delta W\bigl(j,q_2(j;\mathbf p_1)\bigr)\right].
-\]
-\begin{enumerate}\item Current margin versus current demand.\item How purchases change future consumption states.\item How purchases reveal switching type.\end{enumerate}
-\begin{block}{Mechanism}Prices influence both allocation and the informativeness of observed choices.\end{block}
-\note{This objective expresses the mechanism without relying on the source algebra for the learning derivative. The sign of a price response is not universal; focus on the reported simulation. Include outside histories when implementing the objective.}
+\begin{frame}{Period-1 induction and period-2 harvesting: results}
+\centering\small\setlength{\tabcolsep}{7pt}\renewcommand{\arraystretch}{1.35}
+\input{assets/pricing_period_results.tex}
+\par\medskip
+\begin{itemize}
+\item Profit is per arriving consumer, averaged over all initial states and choice shocks.
+\item Total equals period-1 profit plus discounted period-2 profit.
+\end{itemize}
+\note{These results use gamma H=2, gamma L=1, delta=0.95, and equal initial-state probabilities. Common-menu entries evaluate each true type under the same optimized 50/50 prices. Observed-type entries optimize prices separately.}
 \end{frame}
 
 
 
-\begin{frame}[label=supply-results]{Supply results}
-\begin{columns}\begin{column}{.58\textwidth}
-\begin{tikzpicture}\begin{axis}[width=.96\linewidth,height=5cm,xlabel={High-type population share (\%)},ylabel={Profit gap (cents)},xmin=0,xmax=100,ymin=0,ymax=2.2,xtick={0,25,50,75,100},grid=major]
-\addplot[color=ugared,very thick,mark=*] coordinates {(0,0)(25,1.78)(50,1.94)(75,1.23)(100,0)};
-\end{axis}\end{tikzpicture}
-\end{column}\begin{column}{.38\textwidth}
-\begin{block}{Reported value of information}Full-information profit minus limited-information profit.\end{block}
-Largest gap: \alert{1.94 cents} at a 50/50 type mix.
-\end{column}\end{columns}
-\note{Chart is redrawn from the value-of-information column, not recalculated from rounded profit columns. Retain the reported normalization; the draft calls it per unit but the objective is written per consumer over two periods. This requires clarification before quantitative policy use.}
-\par\smallskip
-\hyperlink{supply-parameters}{\beamerbutton{Simulation parameters}}
+\begin{frame}[label=supply-results]{Profits and the value of type information}
+\centering\includegraphics[width=.9\textwidth]{pricing_population_profits.pdf}\par
+\small At $q=0.5$: common profit $\ProfitCommon$, observed-type profit $\ProfitObserved$, gain $\InfoGain$.
+\note{Profits are per arriving consumer, integrating over the same initial-state distribution. Observed type permits separate full price menus. The information comparison uses identical costs and pricing flexibility.}
 \end{frame}
 
-\begin{frame}{Pricing results}
-\centering
-{\small Information Structure, Optimal Pricing, and Value of Information Across Population Mixes\par}
-\vspace{5mm}
-\input{assets/pricing_exercise_table.tex}
-\note{Table from the full paper with the redundant percentage-high and percentage-low columns removed; population mixes, prices, posterior beliefs, profits, and reported information values are retained.}
+\begin{frame}{Choosing among three fixed price menus}
+\centering\includegraphics[width=.92\textwidth]{pricing_fixed_menu_transitions.pdf}\par
+\small H, L, and 50/50 benchmark menus remain fixed as $q$ varies. Freely reoptimizing prices weakly dominates these three choices.
+\note{Each fixed menu generates an affine population-profit line. Crossings describe a restricted menu comparison, not a discontinuity in freely optimized prices.}
 \end{frame}
 
+\begin{frame}{Mispricing: the true type stays fixed}
+\centering\includegraphics[width=.86\textwidth]{pricing_mispricing_profits.pdf}\par
+\footnotesize Customer value $\pi_r(P)=\mathbb E[\text{period-1 profit}\mid r]+\delta\mathbb E[\text{period-2 profit}\mid r]$, $\delta=0.95$.\\
+Firm profit per arriving consumer; averages over initial states and choices. Period-1 exit earns zero thereafter.\\
+Both panels use $q=\Pr(H)$: correct certainty is $q=1$ for H and $q=0$ for L.
+\note{Evaluate the same actual type under common menus optimized for different assumed type probabilities. All prices are reoptimized at each probability. The actual type and initial-state distribution stay fixed within each panel.}
+\end{frame}
 
+\begin{frame}{Who is most valuable as $\gamma_H$ changes?}
+\centering\includegraphics[width=.92\textwidth]{pricing_customer_value.pdf}\par
+\footnotesize Hold $\gamma_L=1$, $q=0.5$; reoptimize at $\gamma_H=1.5,2,\ldots,10$ (steps of $0.5$).\\
+Left: total value by information regime. Right: period contributions under common prices.
+\note{Solid total-value lines use a common price menu optimized for the two-type population. Dashed total-value lines optimize separately for known types. The L value can change under common pricing even though gamma L is fixed, because the shared optimal menu changes.}
+\end{frame}
 
-
-
-
-
-
+\begin{frame}{Induction in period 1 and harvesting in period 2}
+\centering\includegraphics[width=.92\textwidth]{pricing_induction_harvesting.pdf}\par
+\small Known-H benchmark: induction sacrifice is one-period optimal profit minus dynamic period-1 profit. Harvesting includes survival and is discounted by $\delta$.
+\note{This benchmark isolates the value of future profit in pricing. It does not establish a coupon effect. Comparisons against a common static menu mix intertemporal incentives with type information.}
+\end{frame}
 
 \section{Data}
 \begin{frame}{Data}
@@ -356,29 +394,81 @@ Plain fatigue & .04 & .06\\\bottomrule\end{tabular}
 \begin{frame}{Conclusion}
 \begin{itemize}
 \item Restricting type information can reduce retailer profits in this model.
-\item The loss is greatest when the population contains both switching types.
+\item Type information changes optimal induction and harvesting prices.
 \item Attribute fatigue lowers consumer utility
 \item Difficult to disentangle preferences from love of variety
 \end{itemize}
 \note{Distinguish the illustrated cost of an information constraint from a causal estimate of an actual regulation. A policy conclusion needs consumer welfare, collection costs, and an explicit policy mapping.}
 \end{frame}
 
+\begin{frame}
+  \centering
+  \huge Thank You!\\
+\vspace{0.5cm}
+  \large email: tate.mason@uga.edu
+\end{frame}
+
 \appendix
 \setbeamertemplate{headline}{}
 
-\begin{frame}[noframenumbering,label=supply-parameters]{Simulation parameters}
-\centering\begin{tabular}{ll}\toprule
-Baseline product utilities & $(2.2,2.0)$\\
-Switching utility $(\gamma_H,\gamma_L)$ & $(2.0,0.1)$\\
-Price coefficient $\alpha$ & $-1.5$\\
-Discount factor $\delta$ & $0.95$\\
-Unit costs $(c_1,c_2)$ & $(1.2,1.0)$\\
-Initial product-state weights & $(0.5,0.5)$\\
-Price bounds & $[\$1,\$8]$\\\bottomrule\end{tabular}
-\begin{block}{Comparison}Vary the high-type population share under full and limited information.\end{block}
-\note{No empirical calibration is claimed. The source does not fully document the profit denominator or the initial-history implementation; preserve the table values and label the normalization cautiously.}
-\par\smallskip
-\hyperlink{supply-results}{\beamerreturnbutton{Supply results}}
+\begin{frame}[noframenumbering,label=unobserved-price-conditions]{Optimal prices when type is unobserved}
+\small\setlength{\parskip}{3pt}
+Let $\omega_H=q$, $\omega_L=1-q$, $m_{\ell t}=p_{\ell t}-c_\ell$, and
+\[
+M_{r\ell}(a)=m_{\ell1}(a)+\delta w_r(a,\ell),\qquad
+v_r(a)=\sum_{h\in\{j,k\}}s_{rh1}(a)M_{rh}(a).
+\]
+\textbf{Period 1: current margin plus continuation value}
+\[
+\sum_{r\in\{H,L\}}\omega_r s_{r\ell1}(a)
+\left[1+\alpha\{M_{r\ell}(a)-v_r(a)\}\right]=0.
+\]
+\textbf{Period 2: harvest from the consumers reaching history $(a,h)$}
+\[
+\sum_{r\in\{H,L\}}\omega_r s_{rh1}(a)s_{r\ell2}(a,h)
+\left[1+\alpha\{m_{\ell2}(a,h)-w_r(a,h)\}\right]=0.
+\]
+\footnotesize Conditions hold for each product and observed history. In period 2, $\omega_rs_{rh1}(a)$ accounts for type selection into the first purchase.
+\par\medskip\hyperlink{optimal-price-conditions}{\beamerreturnbutton{Known-type conditions}}
+\note{These are derivatives of the full committed-menu objective, with all other price coordinates held fixed. The period-two condition omits the positive common factor delta mu a; its type weights include first-period selection. The period-one condition includes continuation profits, which are held fixed in the price-coordinate derivative. Known-type formulas follow using the outside share at each history. No imposed price bounds or coupon constraints are used.}
+\end{frame}
+
+\begin{frame}[noframenumbering,label=supply-parameters]{Pricing exercise: parameters and timing}
+\begin{itemize}
+\item $\beta=(2.2,2.0)$, $c=(1.2,0.8)$, $\alpha=-1.5$, $\delta=0.95$.
+\item Initial states $j,k,0$ have equal probabilities, independent of type; the firm observes the state.
+\item Baseline $\gamma_H=2$, $\gamma_L=1$; sensitivity varies $\gamma_H$ from $1.5$ to $10$ in steps of $0.5$ with $q=0.5$.
+\item Commit to free prices by observed history. Consumers choose myopically; first-period outside choices exit.
+\item Three unconstrained optimizer starts per initial state, analytic gradients, and numerical stationarity checks.
+\end{itemize}
+\hyperlink{supply-results}{\beamerreturnbutton{Profits}}
+\end{frame}
+
+\begin{frame}[noframenumbering,label=pricing-details]{Free-price conditions: dynamic induction}
+\small For known type, define $w_r(h)$ as terminal profit and $s_{r0t}$ as the outside share. At an interior optimum:
+\[
+p_{r\ell2}(h)-c_\ell=-\frac{1}{\alpha s_{r02}(h)},
+\]
+\[
+p_{rh1}(a)-c_h+\delta w_r(a,h)=-\frac{1}{\alpha s_{r01}(a)}.
+\]
+\begin{itemize}
+\item Terminal margins are equal across products for each known type and history.
+\item Larger continuation value lowers the optimal first-period margin, all else equal.
+\item With unobserved heterogeneous types, optimize the weighted full objective; known-type formulas cannot be applied to pooled shares.
+\end{itemize}
+\hyperlink{producer-problem}{\beamerreturnbutton{Producer problem}}
+\end{frame}
+
+\begin{frame}[noframenumbering]{Profit conditional on the true switching preference}
+\centering\includegraphics[width=.9\textwidth]{pricing_profit_by_type.pdf}\par
+\small This varies the actual preference under fixed benchmark menus or known-type optimized prices. It differs from varying $\gamma_H$ while reoptimizing a two-type common menu.
+\end{frame}
+
+\begin{frame}[noframenumbering]{The cost of choosing the wrong prices}
+\centering\includegraphics[width=.9\textwidth]{pricing_mispricing_losses.pdf}\par
+\small Even beliefs: H loss $\LossHEven$, L loss $\LossLEven$.\\
+Wrong certainty: H loss $\LossHWrong$, L loss $\LossLWrong$. Both axes show $\Pr(H)$.
 \end{frame}
 
 \begin{frame}[noframenumbering,label=simulation-procedure]{Simulation procedure}

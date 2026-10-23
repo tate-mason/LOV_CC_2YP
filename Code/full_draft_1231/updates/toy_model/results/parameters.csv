@@ -1,0 +1,2 @@
+regular_price_good1,regular_price_good2,cost_good1,cost_good2,gamma_H,gamma_L,alpha,delta,discount_max,first_share_good1,first_share_good2,first_share_outside,discount_H,discount_L,discount_common50,fixed_discount_cutoff_L,delta_H,delta_L
+2.0,2.0,1.2,0.2,2.0,0.1,-1.5,0.95,1.0,0.24726330937581464,0.2024420754938147,0.5502946151303707,0.0,0.4933383329208567,0.04934851472823328,0.7640244478501835,-0.03953614641501646,0.012211080426040133

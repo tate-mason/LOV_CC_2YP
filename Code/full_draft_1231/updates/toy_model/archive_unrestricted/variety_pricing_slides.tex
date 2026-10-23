@@ -1,0 +1,649 @@
+\documentclass[aspectratio=169,11pt]{beamer}
+\usepackage{amsmath,amssymb,booktabs,graphicx,tikz,pgfplots}
+\pgfplotsset{compat=1.18}
+\usetheme{Boadilla}
+\useoutertheme[subsection=false]{miniframes}
+\definecolor{ugared}{HTML}{BA0C2F}
+\definecolor{ugablack}{HTML}{000000}
+\setbeamercolor{structure}{fg=ugared}
+\setbeamercolor{alerted text}{fg=ugared}
+\setbeamercolor{normal text}{fg=ugablack,bg=white}
+\setbeamercolor{frametitle}{fg=white,bg=ugared}
+\setbeamercolor{title}{fg=white,bg=ugared}
+\setbeamercolor{block title}{fg=white,bg=ugablack}
+\setbeamercolor{block body}{fg=ugablack,bg=ugared!5!white}
+\setbeamercolor{section in toc}{fg=ugared}
+\setbeamercolor{palette primary}{fg=white,bg=ugared}
+\setbeamercolor{palette secondary}{fg=white,bg=ugablack}
+\setbeamercolor{section in head/foot}{fg=ugared,bg=white}
+\setbeamercolor{mini frame}{fg=ugared,bg=white}
+\setbeamercolor{upper separation line head}{bg=white}
+\setbeamercolor{lower separation line head}{bg=ugared}
+\setbeamerfont{section in head/foot}{size=\scriptsize}
+\setbeamertemplate{mini frames}[default]
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{footline}{\hfill\insertshorttitle\quad|\quad\insertframenumber\hspace{5mm}\vspace{3mm}}
+\setbeamertemplate{itemize items}[circle]
+\setbeamerfont{frametitle}{size=\Large}
+\setlength{\parskip}{6pt}
+\graphicspath{{assets/}}
+\title[Dynamic Optimal Pricing]{Dynamic Optimal Pricing with Love of Variety}
+\author{Tate Mason}
+\date{MacrIOT 2026}
+% Speaker notes are embedded but hidden. To print notes, add:
+% \\setbeameroption{show notes}
+\begin{document}
+\begin{frame}[plain]
+\titlepage
+\note{Introduce the research question: what can purchase histories tell firms about preferences for switching?}
+\end{frame}
+
+\section{Introduction}
+\begin{frame}{Introduction}
+\begin{block}{Research question}How do firms augment their optimal pricing strategy when love of variety is present?\end{block}
+\begin{itemize}
+\item Repeated consumption may reduce the appeal of a product.
+\item Purchase histories can reveal when a consumer is ready to switch.
+\item Retailers can leverage that information to optimally price according to the distribution of consumers.
+  \begin{itemize}
+    \item Dynamic price setting
+    \item Targeting
+  \end{itemize}
+\end{itemize}
+\note{Use the example of someone who likes berry yogurt but wants something different after repeated purchases. Distinguish a stable taste from fatigue.}
+\end{frame}
+
+\begin{frame}{Motivation}
+\begin{block}{Motivation}
+\begin{itemize}
+\item \textbf{Pricing:} observing switching types raises two-period profit by about 0.0106 per initial consumer at a 50/50 mix.
+\item \textbf{Demand:} flavor preferences change little when fatigue is included; some fatigue parameters are weakly identified.
+\end{itemize}
+\end{block}
+\begin{block}{Contribution}
+\begin{itemize}
+  \item Estimate distribution of LOV types 
+  \begin{itemize}
+    \item Lattin (1987), Chintagunta (1996), Dub\'e (2003)
+  \end{itemize}
+  \item Connect switching preferences and state dependence to the information a retailer uses for pricing
+  \begin{itemize}
+    \item Dub\'e and Misra (2023), Moorthy and Tehrani (2023), Karle and Reisinger (2024)
+  \end{itemize}
+\end{itemize}
+\end{block}
+\note{Explain upfront that the empirical demand model and toy supply model are separate exercises.
+
+Position relative to attribute satiation in McAlister and Lattin, brand dynamics in Chintagunta, and personalized pricing in Dube and Misra. References are in the backup slides.}
+\end{frame}
+
+\section{Pricing Model}
+\begin{frame}[label=pricing-setup]{Consumer problem}
+\begin{itemize}
+\item Two products, two periods; high types value switching more: $\gamma_H>\gamma_L$.
+\item Consumers start with no prior purchase and choose myopically. A first-period outside choice exits permanently.
+\end{itemize}
+\[
+U_{rjt}=V_{rjt}+\varepsilon_{jt},\qquad
+j_t\in\arg\max_{j\in\{0,1,2\}}U_{rjt},
+\]
+\[
+V_{rj1}=\beta_j+\alpha p_{j1},\qquad
+V_{rj2}(h)=\beta_j+\gamma_r\mathbf1\{j\ne h\}+\alpha p_{j2}(h).
+\]
+\[
+s_{rjt}(h)=\frac{\exp V_{rjt}(h)}{1+\sum_{k=1}^2\exp V_{rkt}(h)}.
+\]
+\small $h$: first purchase; $\alpha<0$; independent type-I extreme-value shocks. Outside deterministic utility is zero; omit $h$ in period one.
+\note{This is the consumer part of the Pricing Model section, separate from the presentation Introduction. Variety utility begins only in period two. Initial purchase probabilities are identical across types, so the first purchase does not reveal type. The choice includes the outside option; first-period outside choices exit permanently.}
+\end{frame}
+
+\begin{frame}[label=producer-problem]{Producer problem}
+\small
+\setlength{\parskip}{1pt}
+Commit to $P=(\mathbf p_1,\mathbf p_2(1),\mathbf p_2(2))$. Let $b_h=s_{Hh1}=s_{Lh1}$.
+\[
+\pi_r(P)=\sum_{h=1}^2 b_h(\mathbf p_1)\left[
+\underbrace{p_{h1}-c_h}_{\text{current margin}}+
+\delta\sum_{k=1}^2 s_{rk2}(h;P)\underbrace{\bigl(p_{k2}(h)-c_k\bigr)}_{\text{terminal margin}}
+\right].
+\]
+\[
+P^*(q)\in\arg\max_P\{q\pi_H(P)+(1-q)\pi_L(P)\},\qquad q=\Pr(H).
+\]
+$\pi_r(P)$ is discounted profit per initial type-$r$ consumer. Type masses are fixed; no learning. With type observed, maximize $\pi_r(P)$ separately for each type.
+\begin{block}{Which good has the higher margin?}
+Unit margin is $p_j-c_j$, with $(c_1,c_2)=(1.2,1.0)$. At known-type terminal optima, both goods have equal margins. Under the 50/50 common menu, the switching good has the higher terminal margin: good 2 after $h=1$; good 1 after $h=2$.
+\end{block}
+\hyperlink{pricing-details}{\beamerbutton{Model details}}\quad
+\hyperlink{supply-parameters}{\beamerbutton{Parameters}}
+\note{There are six committed prices: two initially and two for each terminal purchase history. Profit includes both periods, discounted by delta=0.95, per initial consumer with N=1; first-period outside choices contribute zero. Costs alone do not determine the margin ranking. Known-type interior terminal optimal margins equal -1/(alpha times the terminal outside share). In the common 50/50 menu, after good 1 the margins are 1.24128 for good 1 and 1.44305 for good 2; after good 2 they are 1.42410 for good 1 and 1.23589 for good 2. Thus the common-menu higher-margin good depends on history. Initial good-2 margins are slightly higher in all three displayed menus. These statements concern unit margins, not total profit contributions, which also depend on quantities.}
+\end{frame}
+
+\begin{frame}[label=pricing-menus]{Optimal prices: common versus observed type}
+\centering\footnotesize
+\setlength{\parskip}{3pt}
+\input{assets/pricing_current_menus.tex}
+\begin{itemize}
+\item Initial unit margins are slightly higher for good 2 in all three menus.
+\item H prices are lower initially but higher in period two than L prices.
+\item The common menu is optimized for a 50/50 mix; observed-type menus are optimized separately for H and L.
+\end{itemize}
+
+\note{The initial price incorporates continuation profit, so the H menu need not have higher prices in both periods. The terminal discount experiment uses H initial prices and L terminal prices, rather than the full L menu.}
+\end{frame}
+
+\begin{frame}[label=supply-results]{Population profits and the value of type information}
+\centering\includegraphics[width=.88\textwidth]{pricing_population_profits.pdf}\par
+\small At $q=0.5$: common profit $0.68367$, observed-type profit $0.69428$, gain $0.01061$.
+\par\hyperlink{supply-parameters}{\beamerbutton{Parameters}}\quad
+\hyperlink{pricing-menus}{\beamerbutton{Price menus}}
+\note{Profits are per initial consumer over two periods, not per unit sold. Each point reoptimizes common prices. V is convex in q because it is the maximum of affine menu-profit functions; observed-type profit is affine and the information gain is concave. Its largest sampled value is about 0.01066 at q=0.45, rather than necessarily at an even split. Results are numerical, with three optimization starts and solver-status checks, not a proof of global optimality.}
+\end{frame}
+
+\begin{frame}{Fixed-menu profits and transitions}
+\centering\includegraphics[width=.92\textwidth]{pricing_fixed_menu_transitions.pdf}\par
+\small Hold H, L, and 50/50 menus fixed: choose L below $q=0.20709$, 50/50 until $q=0.75402$, then H.
+\note{The left panel shows levels and the right panel subtracts the fixed 50/50 menu. Dotted lines mark the two actual menu transitions. These plots hold each menu fixed rather than resolving the pricing problem at every probability.}
+\end{frame}
+
+\begin{frame}{Mispricing reduces profits from a fixed true type}
+\centering\includegraphics[width=.92\textwidth]{pricing_mispricing_profits.pdf}\par
+\small True type stays fixed; prices are optimized for the assumed mix.\\
+$e=0$: correct certainty; $e=0.5$: even probabilities; $e=1$: wrong certainty.
+\note{The H panel is the user's fixed-true-H comparison. The L panel gives the symmetric experiment. Prices are reoptimized for the assumed mixture at every point; only the true evaluation type is fixed. Concavity is numerical evidence for this calibration, not a general theorem. Common initial prices decrease as the assumed H mass rises, whereas terminal prices generally rise: the menu mismatch is not a uniform price increase.}
+\end{frame}
+
+\section{Data}
+\begin{frame}{Data}
+\begin{itemize}
+\item Nielsen HomeScan and MarketScan, 2022--2024.
+\item Eight markets: Atlanta, Chicago, Denver, Houston, Des Moines, Phoenix, Philadelphia, San Diego.
+\item Single-person households reduce ambiguity about whose tastes drive purchases.
+\item Single-serving yogurt offers flavor variation and limited storability.
+\end{itemize}
+\note{Single-person households help with interpretation but do not eliminate measurement issues or purchases for others.}
+\end{frame}
+
+\begin{frame}{Sample}
+\centering
+\begin{tabular}{lrr}\toprule
+ & Full sample & Estimation sample\\\midrule
+Households & 5,408 & 998\\
+Mean store trips / household & 308.15 & 400.05\\
+Mean observed yogurt choice weeks & --- & 3.91\\
+Coupon / deal purchase rate & 26.52\% & 23.10\%\\
+Mean weekly yogurt units (purchasers) & --- & 8.44\\\bottomrule
+\end{tabular}
+\vspace{4mm}
+\begin{block}{Implication}The panel contains limited yogurt history for many households.\end{block}
+\note{Report these as the draft table statistics. Do not infer a trip frequency from the eight-week observation description; the aggregation needs reconciliation before doing so.}
+\end{frame}
+
+\begin{frame}{Flavor groups}
+\begin{itemize}
+\item \textbf{Berry:} berry-labeled flavors plus cherry.
+\item \textbf{Plain:} a separate category.
+\item \textbf{Other:} all remaining flavors.
+\item \textbf{Outside option:} no yogurt purchase.
+\end{itemize}\begin{block}{Tradeoff}Aggregation makes estimation tractable but hides switching within a flavor group.\end{block}
+\note{Emphasize that changing from vanilla to peach is invisible in the other category. This can suppress measured variety seeking.}
+\end{frame}
+
+\begin{frame}{Flavor concentration}
+\centering\includegraphics[height=.67\textheight,width=.94\textwidth,keepaspectratio]{fig1_flavor_hhi_distribution.pdf}
+\note{The draft reports that over 70 percent are nearly loyal to one group. Concentration is at the aggregate flavor level, not necessarily at the individual flavor or brand level.}
+\end{frame}
+
+\begin{frame}{Flavor shares}
+\centering\includegraphics[height=.67\textheight,width=.94\textwidth,keepaspectratio]{fig2_basket_share_by_volume.pdf}
+\note{Other is around 60 percent across volume groups. Discuss how the uneven breadth of the categories affects interpretation.}
+\end{frame}
+
+
+
+\section{Empirical exercise}
+\begin{frame}[label=demand-model]{Demand model}
+\[
+U_{ijt}=\underbrace{\beta_0+\beta_i'X_{jt}}_{\text{baseline tastes}}
++\underbrace{\gamma_i\Xi_{ijt}}_{\text{history state}}
++\underbrace{\alpha p_{jt}}_{\text{price}}+\varepsilon_{ijt}.
+\]
+
+  \[
+  \text{s.t.} \ 
+  \Xi_{ijt} = \lambda\sum_{s=1}^8\delta^{t-s}\Xi_{ij,t-s} + (1-\lambda)\sum_{k\ne j}\rho_kX_{k,t-1}
+\]
+\begin{itemize}
+\item Inside choices: berry, plain, other; outside utility normalized to zero.
+\item $\Xi_{ijt}$ summarizes prior consumption and switching.
+\item Negative fatigue coefficients reduce utility as the history index rises.
+\end{itemize}
+\note{The next slides define the full manuscript-style history index and show its update. Distinguish the intended fatigue motivation from the cross-flavor construction. Demand history coefficients and supply switching rewards have different sign conventions.}
+\par\smallskip
+\hyperlink{simulation-procedure}{\beamerbutton{Simulation procedure}}\quad
+\hyperlink{simulation-results}{\beamerbutton{Simulation results}}\quad
+\hyperlink{utility-specification}{\beamerbutton{Utility specification}}
+\end{frame}
+
+\begin{frame}{Identification}
+\begin{itemize}
+\item \textbf{Stable tastes:} persistent differences in flavor choices.
+\item \textbf{Fatigue:} changes in choices associated with a household\textquotesingle s own history.
+\item \textbf{Challenge:} heterogeneity, prices, and unobserved shocks can also generate switching.
+\item \textbf{Limited history and coarse groups} make the distinction difficult.
+\end{itemize}
+\note{A switching pattern alone does not identify fatigue. Discuss initial conditions, serially correlated shocks, and the amount of within-household variation required.}
+\end{frame}
+\begin{frame}{Price control function}
+\[
+p_{jmt}=a+b\underbrace{\bar p_{j,-m,t}}_{\text{other-market price}}
++\tau_t+\eta_{jmt},\qquad
+\hat\eta_{jmt}=p_{jmt}-\hat p_{jmt}.
+\]
+\begin{enumerate}
+\item Match household choices to flavor-specific prices and purchase histories.
+\item Regress local prices on other-market prices and time controls.
+\item Include the fitted residual in utility to account for endogenous prices.
+\end{enumerate}
+\begin{block}{Required exclusion}Other-market prices must shift local prices without sharing unobserved local demand shocks, conditional on the controls.\end{block}
+\note{This is the Petrin--Train control-function approach used in the draft. First-stage coefficients are written explicitly. The draft does not provide instrument strength diagnostics and is inconsistent about the number of other markets.}
+\end{frame}
+
+
+
+
+\begin{frame}[label=specifications]{Specifications}
+\centering
+\begin{tabular}{lcc}\toprule
+ & No fatigue & With fatigue\\\midrule
+Standard logit & Fixed $\beta$; $\gamma=0$ & Fixed $\beta,\gamma$\\[2mm]
+Random coefficient logit & Heterogeneous $\beta$; $\gamma=0$ & Heterogeneous $\beta,\gamma$\\\bottomrule
+\end{tabular}
+\begin{itemize}
+\item Price and the control-function residual enter all four specifications.
+\item Compare baseline flavor tastes and price effects across columns.
+\item Assess fatigue means and dispersion separately from optimizer convergence.
+\item Identification depends on within-household history variation, valid price instruments, and the treatment of initial histories.
+\end{itemize}
+\note{The distribution and numerical integration details should be checked against the estimation implementation before presenting this likelihood as a verified account of the code. National common demand shocks can threaten the price instrument. Results follow immediately.}
+\par\smallskip
+\hyperlink{panel-likelihood}{\beamerbutton{Panel likelihood}}
+\end{frame}
+
+
+\begin{frame}{Demand estimates}
+\centering\small
+\begin{tabular}{lrrrr}\toprule
+& \multicolumn{2}{c}{Standard logit} & \multicolumn{2}{c}{Random coefficients}\\
+& No Variety & Variety & No Variety & Variety\\\midrule
+Berry preference & $-.7635$ & $-.7576$ & $-.7632$ & $-.7489$\\
+Plain preference & $-1.3899$ & $-1.3897$ & $-1.3930$ & $-1.3956$\\
+Price & $-.9836$ & $-.9821$ & $-.9836$ & $-.9804$\\
+Control function & $.1670$ & $.1667$ & $.1654$ & $.1662$\\\bottomrule\end{tabular}
+  \begin{itemize}
+    \item All estimates relative to other flavors and the outside option
+  \end{itemize}
+
+\begin{block}{Main empirical result}The largest baseline flavor change is about 1.9\% for berry in the random coefficient model.\end{block}
+\note{Flavor coefficients are relative to other; the intercept locates inside utility relative to the outside option. The largest percentage change is in magnitude. These estimates are reported as significant in the source tables.}
+\end{frame}
+
+\begin{frame}{LOV coefficients}
+\centering
+\begin{tabular}{lrr}\toprule
+ & Standard logit & Random coefficients\\\midrule
+Berry LOV & $-.7262$ & $-7.2030$\\
+Standard error & $(.1485)$ & $(1.5424)$\\[2mm]
+Plain LOV & $-.0351$ & $-.0555$\\
+Standard error & $(.1009)$ & $(.1032)$\\\bottomrule\end{tabular}
+\begin{itemize}\item Berry has a negative estimated history coefficient.\item Plain is not statistically distinguishable from zero.\item Large changes across specifications warrant caution.\end{itemize}
+\note{A negative coefficient means history lowers utility under the fatigue index interpretation. Do not confuse a significant mean with precise identification of its heterogeneity.}
+\end{frame}
+
+\begin{frame}{Heterogeneity}
+\begin{columns}[T]\begin{column}{.5\textwidth}
+\small\begin{tabular}{lrr}\toprule
+Random coefficient SD & Estimate & SE\\\midrule
+$\beta_{\rm berry}$ & 1.0513 & .0916\\
+$\beta_{\rm plain}$ & 1.0513 & .1492\\
+$\gamma_{\rm berry}$ & 148.4132 & 155.3868\\
+$\gamma_{\rm plain}$ & 1.0513 & .1641\\\bottomrule\end{tabular}
+\end{column}\begin{column}{.46\textwidth}
+\begin{block}{Diagnostic}The berry LOV dispersion is extremely large and imprecisely estimated.\end{block}
+Optimization success alone does not establish reliable identification.
+\end{column}\end{columns}
+\note{These values contradict the prose claim of little taste heterogeneity. The repeated standard deviations and large berry value should be audited against estimation code. Treat them as reported estimates, not validated structural distributions.}
+\end{frame}
+
+\begin{frame}{Implied WTP}
+\centering\begin{tabular}{lrr}\toprule
+Magnitude in dollars & Standard & Random coefficients\\\midrule
+Berry preference & .77 & .76\\
+Plain preference & 1.42 & 1.42\\
+Berry fatigue & .74 & 7.35\\
+Plain fatigue & .04 & .06\\\bottomrule\end{tabular}
+\[
+\text{Implied WTP}=\frac{|\text{utility coefficient}|}{|\alpha|}.
+\]
+\begin{block}{Interpretation}The large \$7.35 number belongs to berry LOV and is sensitive to the specification.\end{block}
+\note{These are magnitudes, not positive willingness to pay for a disliked flavor. The fatigue ratio is per unit of the history index, not automatically the discount needed after one repeated purchase. Avoid treating the large mixed-logit ratio as a precise policy target.}
+\end{frame}
+
+\section{Conclusion}
+\begin{frame}{Conclusion}
+\begin{itemize}
+\item Restricting type information can reduce retailer profits in this model.
+\item Type information has value in mixed populations; mispricing also reduces profit conditional on a fixed true type.
+\item Attribute fatigue lowers consumer utility
+\item Difficult to disentangle preferences from love of variety
+\end{itemize}
+\note{Distinguish the illustrated cost of an information constraint from a causal estimate of an actual regulation. A policy conclusion needs consumer welfare, collection costs, and an explicit policy mapping.}
+\end{frame}
+
+\appendix
+\setbeamertemplate{headline}{}
+
+\begin{frame}[noframenumbering,label=supply-parameters]{Simulation parameters}
+\centering\begin{tabular}{ll}\toprule
+Baseline product utilities & $(2.2,2.0)$\\
+Switching utility $(\gamma_H,\gamma_L)$ & $(2.0,0.1)$\\
+Price coefficient $\alpha$ & $-1.5$\\
+Discount factor $\delta$ & $0.95$\\
+Unit costs $(c_1,c_2)$ & $(1.2,1.0)$\\
+Initial purchase state & No prior product\\
+Price bounds & $[\$1,\$8]$\\\bottomrule\end{tabular}
+\begin{block}{Comparison}Vary the known high-type share; compare common and observed-type menus.\end{block}
+\note{Illustrative parameters, not an empirical calibration. Profits are per initial consumer with N=1. There is no initial product distribution. All prices are committed in advance; consumers are myopic and first-period outside choices exit. The solver uses three starts, analytic gradients, bounds, and status checks.}
+\par\smallskip
+\hyperlink{supply-results}{\beamerreturnbutton{Supply results}}
+\end{frame}
+
+
+\begin{frame}[noframenumbering,label=pricing-details]{Pricing exercise: timing and information}
+\begin{itemize}
+\item Two products, two periods, two persistent switching types: $\gamma_H>\gamma_L$.
+\item Consumers start with \alert{no prior purchase}. Variety utility begins only after the first purchase.
+\item Consumers are myopic. Choosing outside in period one exits permanently.
+\item The retailer commits to the full price menu before choices occur; second-period prices may depend on the first product purchased.
+\item Type masses are known and fixed. Compare common prices with prices conditional on observed type.
+\end{itemize}
+\begin{block}{Scope}An illustrative pricing model, separate from the estimated flavor-fatigue model. No learning, classifier, targeting cost, or welfare calculation.\end{block}
+\note{The common-price experiment uses known population masses, not an estimated posterior. Later mispricing figures instead hold the actual consumer type fixed and vary the probability used to choose prices. All profits are expected discounted profits per initial consumer, with population normalized to one.}
+\par\hyperlink{pricing-setup}{\beamerreturnbutton{Pricing problem}}
+\end{frame}
+
+\begin{frame}[noframenumbering]{Consumer utility and purchase probabilities}
+\[
+V_{rj1}=\beta_j+\alpha p_{j1},\qquad
+V_{rj2}(h)=\beta_j+\gamma_r\mathbf1\{j\ne h\}+\alpha p_{j2}(h).
+\]
+\[
+s_{rjt}(h)=\frac{\exp V_{rjt}(h)}{1+\sum_{k=1}^2\exp V_{rkt}(h)},\qquad
+s_{r0t}(h)=\frac{1}{1+\sum_{k=1}^2\exp V_{rkt}(h)}.
+\]
+\begin{itemize}
+\item $h\in\{1,2\}$ is the period-one purchase; the history argument is omitted at $t=1$.
+\item Independent type-I extreme-value shocks; outside deterministic utility is zero.
+\item Switching earns $\gamma_r$; higher prices reduce utility ($\alpha<0$).
+\item First-period shares are identical across types: $s_{Hh1}=s_{Lh1}\equiv b_h$.
+\end{itemize}
+\note{V is deterministic current utility, not a consumer Bellman value. First-period utility contains no switching reward because there is no previous product. Thus the first purchase does not reveal type in this specification. Outside demand is included in each logit denominator.}
+\par\hyperlink{pricing-setup}{\beamerreturnbutton{Pricing problem}}
+\end{frame}
+
+\begin{frame}[noframenumbering]{The firm's committed pricing problem}
+For a full menu $P=(\mathbf p_1,\mathbf p_2(1),\mathbf p_2(2))$, define
+\[
+w_r(h;P)=\sum_{k=1}^2s_{rk2}(h;P)\bigl[p_{k2}(h)-c_k\bigr],
+\]
+\[
+\pi_r(P)=\sum_{h=1}^2 b_h(\mathbf p_1)
+\left[p_{h1}-c_h+\delta w_r(h;P)\right].
+\]
+\begin{itemize}
+\item $\pi_r(P)$ is profit conditional on true type $r$, before its first purchase.
+\item First-period outside choices generate zero current and future profit.
+\item Prices vary by product, period, and purchase history; ``common'' means common across types.
+\end{itemize}
+\note{A full common menu has six prices: two initial prices and two terminal prices for each of two histories. Initial prices affect both current demand and the mass reaching each terminal history. There is no averaging over an exogenous initial product state.}
+\par\hyperlink{pricing-setup}{\beamerreturnbutton{Pricing problem}}
+\end{frame}
+
+\begin{frame}[noframenumbering]{Observed versus unobserved type}
+Let $q=\Pr(H)$ be the known high-type population share.
+\[
+P^*(q)\in\arg\max_P\{q\pi_H(P)+(1-q)\pi_L(P)\},
+\qquad V(q)=q\pi_H(P^*(q))+(1-q)\pi_L(P^*(q)).
+\]
+\[
+P_r^*\in\arg\max_P\pi_r(P),\qquad
+V^{\rm obs}(q)=q\pi_H(P_H^*)+(1-q)\pi_L(P_L^*).
+\]
+\[
+G(q)=V^{\rm obs}(q)-V(q)\geq0.
+\]
+\begin{itemize}
+\item With observed type, each type receives its own entire price menu.
+\item Without observed type, the retailer optimizes one common menu at each $q$.
+\item Since $b_h$ does not depend on type, $\Pr(H\mid h)=q$: no purchase-based learning.
+\end{itemize}
+\note{The observed-type benchmark uses separate first-period as well as terminal prices. The firm commits before choices in both regimes. A known single-type population at q=0 or q=1 requires no additional type information, so G is zero at the endpoints.}
+\par\hyperlink{pricing-setup}{\beamerreturnbutton{Pricing problem}}
+\end{frame}
+
+\begin{frame}[noframenumbering]{Pricing incentives and product margins}
+\small
+Let $\mathbf m_r(h)=\mathbf p_{r2}(h)-\mathbf c$; $J_1$ and $J_{r2}(h)$ are price Jacobians of shares.
+\[
+\nabla_{\mathbf p_2} w_r(h)=\mathbf s_{r2}(h)+J_{r2}(h)'\mathbf m_r(h)=0.
+\]
+For a known type at an interior terminal optimum,
+\[
+p_{rk2}(h)-c_k=-\frac{1}{\alpha s_{r02}(h)},\qquad k=1,2.
+\]
+For a common menu, let $\bar w(h)=q w_H(h)+(1-q)w_L(h)$:
+\[
+0=\nabla_{\mathbf p_1}\Pi
+=\mathbf b+J_1'\bigl[\mathbf p_1-\mathbf c+\delta\bar{\mathbf w}\bigr],
+\quad
+0=q\nabla w_H(h)+(1-q)\nabla w_L(h).
+\]
+\begin{block}{Interpretation}Initial prices account for continuation profit. Known-type terminal optima have equal margins across goods: switching need not lead to a higher-margin product.\end{block}
+\note{These are interior first-order conditions; the numerical solver enforces price bounds. In the common terminal condition the positive factor delta times b_h has been canceled. Equal terminal margins follow from the multiproduct logit FOC with a common price coefficient. They do not generally hold for a mixture of types.}
+\par\hyperlink{pricing-setup}{\beamerreturnbutton{Pricing problem}}
+\end{frame}
+
+\begin{frame}[noframenumbering]{Choosing among three fixed price menus}
+Construct $P_H^*$, $P_L^*$, and $P_M^*=P^*(0.5)$ once, then hold all prices fixed.
+\[
+F_m(q)=q\pi_H(P_m^*)+(1-q)\pi_L(P_m^*),
+\qquad m\in\{H,L,M\}.
+\]
+For two menus $a,b$, write $D_r=\pi_r(P_a^*)-\pi_r(P_b^*)$. Their crossing is
+\[
+q_{ab}=-\frac{D_L}{D_H-D_L}.
+\]
+\begin{block}{Preferred fixed menu}
+$P_L^*$ for $q<0.20709$; $P_M^*$ for $0.20709<q<0.75402$; $P_H^*$ for $q>0.75402$.
+\end{block}
+Only crossings on the upper envelope change the preferred menu; adjacent menus tie at the boundaries.
+\note{These thresholds concern a restricted choice among three fixed menus. They are not thresholds for fully reoptimized common prices. V(q) weakly dominates all three lines. The 50/50 menu is common across types, as are the H and L benchmark menus when offered without observing type.}
+\par\hyperlink{pricing-setup}{\beamerreturnbutton{Pricing problem}}
+\end{frame}
+
+\begin{frame}[noframenumbering]{Profit conditional on the true switching preference}
+\centering\includegraphics[width=.86\textwidth]{pricing_profit_by_type.pdf}\par
+\small Left: three fixed menus. Right: prices optimized for each true $\gamma$ versus the fixed 50/50 menu.
+\note{Here the horizontal axis changes true variety preference, not the probability of H. This counterfactual evaluates consumers beyond the two population support points gamma_L=0.1 and gamma_H=2. A profit-versus-gamma curve is not a profit density. A distribution over gamma would be needed to construct such a density.}
+\par\hyperlink{pricing-setup}{\beamerreturnbutton{Pricing problem}}
+\end{frame}
+
+\begin{frame}[noframenumbering]{Mispricing: hold the true type fixed}
+Let $\hat q$ be the H probability used to choose prices; the actual consumer remains type $r$.
+\[
+P^*(\hat q)\in\arg\max_P\{\hat q\pi_H(P)+(1-\hat q)\pi_L(P)\}.
+\]
+Index mispricing by probability $e$ assigned to the \emph{wrong} type:
+\[
+f_H(e)=\pi_H\bigl(P^*(1-e)\bigr),\qquad
+f_L(e)=\pi_L\bigl(P^*(e)\bigr),\qquad e\in[0,1].
+\]
+\[
+\ell_r(e)=\pi_r(P_r^*)-f_r(e)\geq0.
+\]
+\begin{itemize}
+\item $e=0$: correct certainty; $e=0.5$: even probabilities; $e=1$: wrong certainty.
+\item From $0$ to $0.5$, uncertainty increases; beyond $0.5$, certainty about the wrong type increases.
+\end{itemize}
+\note{This is conditional profit for a fixed actual type, not population-average profit. It is a policy mismatch experiment, not a model of a noisy classifier. The assumed probability selects an entire two-period menu; e is not a price deviation or the probability of randomly offering a discount.}
+\par\hyperlink{pricing-setup}{\beamerreturnbutton{Pricing problem}}
+\end{frame}
+
+\begin{frame}[noframenumbering]{The cost of mispricing}
+\centering\includegraphics[width=.86\textwidth]{pricing_mispricing_losses.pdf}\par
+\small At even probabilities: losses $0.00917$ for H and $0.01206$ for L.\\
+At wrong certainty: losses $0.05533$ for H and $0.04015$ for L.
+\note{Losses are measured relative to the optimal full menu for the actual type. Profit decreases at an increasing rate on the computed grid, so the plotted loss curves are convex there. These conditional losses should not be confused with the aggregate value of observing type, which also weights how many consumers of each type exist.}
+\par\hyperlink{pricing-setup}{\beamerreturnbutton{Pricing problem}}
+\end{frame}
+
+\begin{frame}[noframenumbering]{A fixed terminal-discount decision}
+\small
+Regular menu $R=P_H^*$. Discount menu $D$ keeps $\mathbf p_1^H$ and replaces only terminal prices with $\mathbf p_2^L(h)$.
+\[
+\Delta_r=\pi_r(D)-\pi_r(R),\qquad
+\Delta_H=-0.04484,\quad \Delta_L=0.02411.
+\]
+Let $u=\Pr(L)$. The expected gain from the fixed discount is
+\[
+B(u)=(1-u)\Delta_H+u\Delta_L,\qquad
+u^*=-\frac{\Delta_H}{\Delta_L-\Delta_H}=0.65037.
+\]
+\begin{itemize}
+\item Offer the discount when $u>u^*$; indifferent at equality.
+\item All terminal prices in $D$ are weakly below $R$; $D$ differs from the full L menu because first-period prices stay fixed.
+\item This binary offer comparison differs from freely reoptimizing all prices.
+\end{itemize}
+\note{The same no-prior-purchase consumers are used. Both menus are constructed exogenously from known-type benchmark optimizations, then held fixed as u varies. There is no fixed offer cost. Randomizing the offer with probability a gives profit pi(R)+a B(u), so the optimal a is an endpoint except at indifference.}
+\par\hyperlink{pricing-setup}{\beamerreturnbutton{Pricing problem}}
+\end{frame}
+
+\begin{frame}[noframenumbering]{When does the fixed terminal discount pay?}
+\centering\includegraphics[width=.86\textwidth]{pricing_terminal_discount.pdf}\par
+\small At a 50/50 mix, the discount loses $0.01037$ relative to $R$; the break-even L probability is $0.65037$.
+\note{The green reoptimized common curve weakly dominates both fixed alternatives. A discrete switch between these two offers is not a discontinuity in the unrestricted optimal price menu. The cutoff differs from the three-menu cutoffs because the discount alternative holds initial prices fixed.}
+\par\hyperlink{pricing-setup}{\beamerreturnbutton{Pricing problem}}
+\end{frame}
+
+\begin{frame}[noframenumbering,label=simulation-procedure]{Simulation procedure}
+\small
+\begin{tabular}{ll}\toprule
+Simulation design & Assigned value\\\midrule
+Replications / evaluation periods / burn-in & $1{,}000\;/\;100\;/\;5$\\
+Product attributes / baseline taste & $X_j\in\{1,2,3,4,5\}\;;\;\beta=2$\\
+Variety grid / choice shocks & $\gamma\in\{0,3,6,9\}\;;\;\varepsilon_{jt}\sim\mathrm{T1EV}$\\\bottomrule
+\end{tabular}
+\begin{enumerate}
+\item For each $\gamma$, initialize consumption histories during burn-in.
+\item At each evaluation date, combine baseline attribute utility with the history-dependent distance reward and a choice shock.
+\item Record the selected product, update its consumption history, and repeat.
+\item Summarize choice probabilities across the simulated runs.
+\end{enumerate}
+\textbf{Purpose:} show how variety changes choices in a controlled setting.
+\note{The procedure summarizes the simulation described in the manuscript. Its distance-based mechanism differs from the empirical flavor-fatigue index. Simulation code is not re-estimated here.}
+\par\smallskip
+\hyperlink{simulation-results}{\beamerbutton{Simulation results}}\quad \hyperlink{demand-model}{\beamerreturnbutton{Demand model}}
+\end{frame}
+
+\begin{frame}[noframenumbering,label=simulation-results]{Simulation results}
+\centering
+\begin{tabular}{lrrrr}\toprule
+ & $\gamma=0$ & $\gamma=3$ & $\gamma=6$ & $\gamma=9$\\\midrule
+Product 1 ($X=1$) & .0016 & .1352 & .3321 & .3973\\
+Product 2 ($X=2$) & .0084 & .1325 & .0541 & .0084\\
+Product 3 ($X=3$) & .0437 & .0844 & .0026 & .0000\\
+Product 4 ($X=4$) & .1934 & .0553 & .0023 & .0002\\
+Product 5 ($X=5$) & .7529 & .5926 & .6089 & .5941\\\bottomrule
+\end{tabular}
+\begin{block}{Interpretation}Without variety, the highest-attribute product dominates. With stronger variety, choices concentrate at the endpoints.\end{block}
+\small This motivates modeling history; it does not establish identification in the yogurt panel.
+\note{Walk through product 1 and product 5, then the disappearance of the middle products. Values are taken directly from the source table.}
+\par\smallskip
+\hyperlink{simulation-procedure}{\beamerbutton{Simulation procedure}}\quad \hyperlink{demand-model}{\beamerreturnbutton{Demand model}}
+\end{frame}
+
+\begin{frame}[noframenumbering,label=utility-specification]{Utility specification}
+\small
+For $j\in\{B,P,O\}$ (berry, plain, other), let $D_j^f=\mathbf1\{j=f\}$:
+\[
+\begin{aligned}
+U_{ijt}&=V_{ijt}+\varepsilon_{ijt},\\
+V_{ijt}&=\beta_0+\beta_i^B D_j^B+\beta_i^P D_j^P\\
+&\quad+\gamma_i^B D_j^B\Xi_{ijt}
++\gamma_i^P D_j^P\Xi_{ijt}
++\alpha p_{j,m(i),t}+\sigma\hat\eta_{j,m(i),t}.
+\end{aligned}
+\]
+\begin{itemize}
+\item Other flavor is the reference; outside deterministic utility is zero.
+\item $\Xi_{ijt}$ summarizes own past consumption and alternative-flavor history.
+\item History weight $\lambda=0.7$ and decay $\delta=0.9$ are fixed.
+\item Random coefficients allow persistent household differences in tastes and fatigue.
+\end{itemize}
+\note{This expands the estimation formula using the flavor-specific parameters actually reported in the draft tables. The preceding slides define the manuscript-style history recursion using only past observed periods and explain its cross-flavor construction. The reference category normalizations match the reported tables.}
+\par\smallskip
+\hyperlink{demand-model}{\beamerreturnbutton{Demand model}}
+\end{frame}
+
+\begin{frame}[noframenumbering,label=panel-likelihood]{Panel likelihood}
+\small
+Conditional on household coefficients $b_i=(\beta_i^B,\beta_i^P,\gamma_i^B,\gamma_i^P)$:
+\[
+P_{ijt}(b_i)=\frac{e^{V_{ijt}(b_i)}}{1+\sum_{k\in\{B,P,O\}}e^{V_{ikt}(b_i)}},\qquad
+P_{i0t}(b_i)=\frac{1}{1+\sum_k e^{V_{ikt}(b_i)}}.
+\]
+\[
+L_i(b_i)=\prod_{t\in\mathcal T_i}\prod_{j\in\{0,B,P,O\}}
+P_{ijt}(b_i)^{y_{ijt}},\qquad y_{ijt}=\mathbf1\{\text{observed choice is }j\}.
+\]
+\[
+\boxed{\hat\theta=\arg\max_\theta\sum_i\log\!\left[\int L_i(b)\,dF(b;\theta)\right]}
+\]
+Simulation approximation: $\int L_i(b)dF(b;\theta)\approx R^{-1}\sum_{r=1}^R L_i(b_i^{(r)})$.
+
+Maximize log-likelihood: $\ell(\theta)=\sum_{i,t,j}y_{ijt}\log P_{ijt}(\theta)$.
+\note{Show that persistent household heterogeneity requires integrating the product over a household history, rather than multiplying separately integrated marginal probabilities. This is the full panel mixed-logit estimation target; the manuscript does not document the draw count or coefficient distribution, so neither is asserted here.}
+\par\smallskip
+\hyperlink{specifications}{\beamerreturnbutton{Specifications}}
+\end{frame}
+
+\begin{frame}[noframenumbering]{Discussion}
+\begin{block}{Questions for discussion}
+How can fatigue be distinguished from persistent unobserved tastes?\medskip
+
+Which purchase histories are most informative about switching types?\medskip
+
+What consumer-welfare evidence is needed to evaluate privacy restrictions?
+\end{block}
+\note{Optional discussion prompts.}
+\end{frame}
+\begin{frame}[noframenumbering]{Flavor shares over time}
+\centering\includegraphics[height=.69\textheight,width=.95\textwidth,keepaspectratio]{fig3_flavor_share_timeseries.pdf}
+\end{frame}
+\begin{frame}[noframenumbering]{Marginal distributions}
+\centering\includegraphics[height=.69\textheight,width=.95\textwidth,keepaspectratio]{fig4_marginal_type_distributions.pdf}
+\end{frame}
+\begin{frame}[noframenumbering]{Joint distributions}
+\centering\includegraphics[height=.69\textheight,width=.95\textwidth,keepaspectratio]{fig5_joint_type_distributions.pdf}
+\end{frame}
+\begin{frame}[noframenumbering]{References}
+\begin{itemize}
+\item Attribute satiation: McAlister; Lattin (1987).
+\item Variety and brand choice: Givon (1984); Chintagunta (1999).
+\item Bundles and variety: Dub\'e (2004).
+\item Price control functions: Petrin and Train (2010).
+\item Personalized pricing: Dub\'e and Misra (2023).
+\end{itemize}\small Full bibliographic entries appear in the accompanying paper.
+\end{frame}
+\end{document}

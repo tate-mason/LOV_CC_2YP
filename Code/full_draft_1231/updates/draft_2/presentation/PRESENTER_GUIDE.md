@@ -1,191 +1,102 @@
 # Presenter guide
 
-The main presentation contains 24 slides. Supply simulation parameters, the demand simulation, utility specification, and panel likelihood are in the appendix. Buttons on Supply results, Demand model, and Specifications open the relevant backup slides; each has a return button. Repeated section roadmaps have been removed. Slide wording is unchanged.
+The active model freely optimizes prices in both periods with observed random initial histories. All former coupon restrictions and no-initial-history claims have been removed from the active pricing slides. The empirical section retains its source-data caveats.
 
-## Main presentation
+## Pricing slides
 
-### 1. Dynamic Optimal Pricing with Love of Variety
+1. Title: dynamic monopoly pricing with love of variety.
+2. Introduction: distinguish stable tastes and switching preferences.
+3. Motivation: the model information gain is an illustrative firm-profit comparison.
+4. Consumer problem: define types, products, periods, initial state, choices, prices, switching utility, shocks, and logit shares. Initial states j, k, and 0 are equally likely and independent of type. Initial 0 has no switching reward. Consumers are myopic; choosing outside in period 1 exits permanently.
+5. Producer problem: define the complete menu P, cost c, initial-state probability mu, type probability q, firm discount factor delta, terminal profit w, and total type-conditional value pi. Period-two prices can use both initial state and first purchase. Initial states are observed. Common menus cannot directly condition on type but account for endogenous selection into observed histories.
+6. Known-type optimal prices: solve backward from period 2. Terminal product margins equal -1/(alpha times terminal outside share). In period 1, add discounted continuation profit to the current margin before applying the corresponding markup condition. Define all terms explicitly. A button links to the unobserved-type conditions in the appendix, with a return button. This slide precedes the free-pricing calibration slide.
+7. Free pricing: the calibration retains beta=(2.2,2), costs=(1.2,0.8), alpha=-1.5, and delta=.95. Both prices in both periods are free to rise or fall. Known-type interior terminal margins are equal across products, so the former higher-margin coupon claim does not apply.
+8. Full prices: one table with shared policy headers and two panels. Period 1 shows all three initial-state period-one price pairs. Period 2 shows all six full-history period-two price pairs. All three policies are shown; no terminal histories are omitted. Prices are transaction prices. Common 50/50 means common across types, not across products or histories.
+9. Period results: show period-one profit, discounted period-two profit, and total value for each type under common and observed-type prices. Every profit is per arriving consumer; terminal profit already includes the probability of reaching period 2.
+10. Population profits: optimize a common menu at every q. Observed-type profit averages the two separately optimized type values. The difference measures the value of direct type information in this model.
+11. Fixed menus: compare three menus held fixed as q changes. Each generates an affine line. Freely reoptimizing prices weakly dominates this restricted set of choices.
+12. Mispricing: hold true type fixed in each panel while varying the firm's assumed probability q=Pr(H). Both x-axes use q. Correct certainty is q=1 for H and q=0 for L. Expected two-period firm profit is expected period-one profit plus delta times expected period-two profit, averaging over initial states and choice shocks, including permanent initial exit. This is the meaning of customer value on the graphs.
+13. Who is most valuable: fix gamma_L=1 and q=.5; vary gamma_H from 1.5 to 10 in steps of 0.5 and reoptimize the common menu. Show common-menu type values, known-type values, current profit, and discounted harvesting separately. In the simulated range H value increases and exceeds L for gamma_H>gamma_L. L's common-menu value can change despite fixed gamma_L, because prices change.
+14. Induction and harvesting: known-type benchmark comparing optimized static current profit with dynamic current profit and discounted terminal profit. The difference between static and dynamic current earnings measures profit sacrificed for continuation. It does not identify a coupon effect.
 
-Introduce the research question: what can purchase histories tell firms about preferences for switching?
+## Empirical slides
 
-### 2. Introduction
-
-Use the example of someone who likes berry yogurt but wants something different after repeated purchases. Distinguish a stable taste from fatigue.
-
-### 3. Motivation and Contribution
-
-Explain upfront that the empirical demand model and toy supply model are separate exercises.
-
-Position relative to attribute satiation in McAlister and Lattin, brand dynamics in Chintagunta, and personalized pricing in Dube and Misra. References are in the backup slides.
-
-### 4. Supply exercise
-
-Introduce the illustrative supply exercise before turning to demand. Supply uses a positive reward for switching, whereas demand uses a negative coefficient on a fatigue stock.
-
-### 5. Supply model
-
-Explain the equation from the consumer's perspective: baseline product appeal, a reward for choosing a different product from last period, and a negative price effect. V is deterministic current-period utility, not a forward-looking consumer Bellman value. Adding independent type-I extreme-value shocks gives logit choice probabilities including an outside option. The retailer uses these probabilities in its pricing problem. Use s for a probability or share, not a sum of probabilities over consumers. Population size multiplies per-consumer profits.
-
-### 6. Full information
-
-Here j includes all first-period outcomes, including no purchase, with zero outside margin and an explicitly defined continuation state. This compact objective avoids reproducing the draft long first-order conditions, whose outside-option treatment is ambiguous.
-
-### 7. Learning
-
-A posterior above the prior conditional on a purchase is not inherently biased or an overestimate. Bayes plausibility requires averaging over all outcomes, including no purchase. The simulation table reports only the inside-good posteriors.
-
-### 8. Limited information
-
-This objective expresses the mechanism without relying on the source algebra for the learning derivative. The sign of a price response is not universal; focus on the reported simulation. Include outside histories when implementing the objective.
-
-### 9. Supply results
-
-Chart is redrawn from the value-of-information column, not recalculated from rounded profit columns. Retain the reported normalization; the draft calls it per unit but the objective is written per consumer over two periods. This requires clarification before quantitative policy use.}
-\par\smallskip
-\hyperlink{supply-parameters}{\beamerbutton{Simulation parameters}
-
-### 10. Pricing results
-
-Table from the full paper with the redundant percentage-high and percentage-low columns removed; population mixes, prices, posterior beliefs, profits, and reported information values are retained.
-
-### 11. Data
+### 15. Data
 
 Single-person households help with interpretation but do not eliminate measurement issues or purchases for others.
 
-### 12. Sample
+### 16. Sample
 
 Report these as the draft table statistics. Do not infer a trip frequency from the eight-week observation description; the aggregation needs reconciliation before doing so.
 
-### 13. Flavor groups
+### 17. Flavor groups
 
 Emphasize that changing from vanilla to peach is invisible in the other category. This can suppress measured variety seeking.
 
-### 14. Flavor concentration
+### 18. Flavor concentration
 
 The draft reports that over 70 percent are nearly loyal to one group. Concentration is at the aggregate flavor level, not necessarily at the individual flavor or brand level.
 
-### 15. Flavor shares
+### 19. Flavor shares
 
 Other is around 60 percent across volume groups. Discuss how the uneven breadth of the categories affects interpretation.
 
-### 16. Demand model
+### 20. Demand model
 
-The next slides define the full manuscript-style history index and show its update. Distinguish the intended fatigue motivation from the cross-flavor construction. Demand history coefficients and supply switching rewards have different sign conventions.}
-\par\smallskip
-\hyperlink{simulation-procedure}{\beamerbutton{Simulation procedure}}\quad
-\hyperlink{simulation-results}{\beamerbutton{Simulation results}}\quad
-\hyperlink{utility-specification}{\beamerbutton{Utility specification}
+The next slides define the full manuscript-style history index and show its update. Distinguish the intended fatigue motivation from the cross-flavor construction. Demand history coefficients and supply switching rewards have different sign conventions.
 
-### 17. Identification
+### 21. Identification
 
 A switching pattern alone does not identify fatigue. Discuss initial conditions, serially correlated shocks, and the amount of within-household variation required.
 
-### 18. Price control function
+### 22. Price control function
 
 This is the Petrin--Train control-function approach used in the draft. First-stage coefficients are written explicitly. The draft does not provide instrument strength diagnostics and is inconsistent about the number of other markets.
 
-### 19. Specifications
+### 23. Specifications
 
-The distribution and numerical integration details should be checked against the estimation implementation before presenting this likelihood as a verified account of the code. National common demand shocks can threaten the price instrument. Results follow immediately.}
-\par\smallskip
-\hyperlink{panel-likelihood}{\beamerbutton{Panel likelihood}
+The distribution and numerical integration details should be checked against the estimation implementation before presenting this likelihood as a verified account of the code. National common demand shocks can threaten the price instrument. Results follow immediately.
 
-### 20. Demand estimates
+### 24. Demand estimates
 
 Flavor coefficients are relative to other; the intercept locates inside utility relative to the outside option. The largest percentage change is in magnitude. These estimates are reported as significant in the source tables.
 
-### 21. LOV coefficients
+### 25. LOV coefficients
 
 A negative coefficient means history lowers utility under the fatigue index interpretation. Do not confuse a significant mean with precise identification of its heterogeneity.
 
-### 22. Heterogeneity
+### 26. Heterogeneity
 
 These values contradict the prose claim of little taste heterogeneity. The repeated standard deviations and large berry value should be audited against estimation code. Treat them as reported estimates, not validated structural distributions.
 
-### 23. Implied WTP
+### 27. Implied WTP
 
 These are magnitudes, not positive willingness to pay for a disliked flavor. The fatigue ratio is per unit of the history index, not automatically the discount needed after one repeated purchase. Avoid treating the large mixed-logit ratio as a precise policy target.
 
-### 24. Policy discussion
+### 28. Conclusion
 
 Distinguish the illustrated cost of an information constraint from a causal estimate of an actual regulation. A policy conclusion needs consumer welfare, collection costs, and an explicit policy mapping.
 
-## Appendix
+## Pricing appendix
 
-### 1. Simulation parameters
+The linked unobserved-type slide defines type weights omega, current margin m, first-period effective margin M, and initial-state conditional value v. Its terminal condition weights each type by its probability of reaching the first purchase; the first-period condition includes continuation value.
 
-No empirical calibration is claimed. The source does not fully document the profit denominator or the initial-history implementation; preserve the table values and label the normalization cautiously.}
-\par\smallskip
-\hyperlink{supply-results}{\beamerreturnbutton{Supply results}
+The parameters/timing slide states the initial-history and pricing information assumptions. Known-type first-order conditions follow backward from terminal equal margins; the first-period effective margin includes continuation value. They cannot be applied to pooled shares under heterogeneous types. The true-gamma comparison uses fixed benchmark menus and separately optimized known-type menus. Mispricing losses compare each true type with its own optimum, and both axes use Pr(H).
 
-### 2. Simulation procedure
+The simulation and empirical appendix material retains its original source limitations. No empirical parameters are re-estimated in this task.
 
-The procedure summarizes the simulation described in the manuscript. Its distance-based mechanism differs from the empirical flavor-fatigue index. Simulation code is not re-estimated here.}
-\par\smallskip
-\hyperlink{simulation-results}{\beamerbutton{Simulation results}}\quad \hyperlink{demand-model}{\beamerreturnbutton{Demand model}
+## Sources and rebuilding
 
-### 3. Simulation results
+Active code: `../../../toy_model.py`. Derivation: `../../toy_model/toy_model.tex`. Current data: `../../toy_model/results/`, especially `gamma_H_sweep.csv`, `value_distribution.csv`, and `prices_50_50.csv`. Former coupon/newborn files in the results folder are historical and not current deck inputs. The older fixed-price and no-initial-state unrestricted exercises are retained in their existing historical directories.
 
-Walk through product 1 and product 5, then the disappearance of the middle products. Values are taken directly from the source table.}
-\par\smallskip
-\hyperlink{simulation-procedure}{\beamerbutton{Simulation procedure}}\quad \hyperlink{demand-model}{\beamerreturnbutton{Demand model}
-
-### 4. Utility specification
-
-This expands the estimation formula using the flavor-specific parameters actually reported in the draft tables. The preceding slides define the manuscript-style history recursion using only past observed periods and explain its cross-flavor construction. The reference category normalizations match the reported tables.}
-\par\smallskip
-\hyperlink{demand-model}{\beamerreturnbutton{Demand model}
-
-### 5. Panel likelihood
-
-Show that persistent household heterogeneity requires integrating the product over a household history, rather than multiplying separately integrated marginal probabilities. This is the full panel mixed-logit estimation target; the manuscript does not document the draw count or coefficient distribution, so neither is asserted here.}
-\par\smallskip
-\hyperlink{specifications}{\beamerreturnbutton{Specifications}
-
-### 6. Discussion
-
-Optional discussion prompts.
-
-### 7. Flavor shares over time
-
-Present the supporting figure or reference.
-
-### 8. Marginal distributions
-
-Present the supporting figure or reference.
-
-### 9. Joint distributions
-
-Present the supporting figure or reference.
-
-### 10. References
-
-Present the supporting figure or reference.
-
-## Source and editorial choices
-
-Base: `../draft_1010.tex`. The original manuscript is unchanged. Figures are copied into `assets/` so the deck can be moved as a folder. Tables are shortened and the information-value chart is redrawn directly from reported values.
-
-The slides favor source tables over conflicting prose: the $7.35 fatigue magnitude belongs to berry; the Monte Carlo comparison grid ends at gamma=9; and the random coefficient estimates do not support a blanket claim of little taste heterogeneity. Conditional purchase posteriors are not labeled biased estimates of the population share.
-
-Demand probabilities use deterministic utility after integrating extreme-value shocks. Supply is presented through compact objectives rather than reproducing ambiguous first-order conditions. Outside-option histories must be accounted for in a full implementation. The history index is explicitly defined using a past-only version of the manuscript recursion, cross-flavor purchase shares, and zero initialization, matching the earlier `../../est_step2.py` history function. The newer `../../est_step4.py` uses a different own-flavor stock. Exact provenance of the reported tables remains unverified.
-
-Before quantitative policy use, reconcile observation/trip aggregation, the number of markets used in the instrument, initial conditions/history construction, supply optimization details, and the denominator of reported profits. No new empirical estimates or welfare results are introduced.
-
-## Build
-
-Run from this folder:
+From the repository root:
 
 ```sh
-latexmk -pdf -interaction=nonstopmode -halt-on-error variety_pricing_slides.tex
+.venv/bin/python toy_model.py
+MPLCONFIGDIR=/tmp/toy-mpl .venv/bin/python updates/draft_2/presentation/build_pricing_figures.py
+.venv/bin/python -m unittest test_toy_model -v
+latexmk -pdf -cd updates/draft_2/presentation/variety_pricing_slides.tex
+latexmk -pdf -cd updates/toy_model/toy_model.tex
 ```
 
-Speaker notes are embedded in the TeX and hidden in the audience PDF. Add `\setbeameroption{show notes}` in the preamble to include them.
-
-
-## Estimation detail added in this revision
-
-The deck writes the full panel mixed-logit target, integrating a household’s product of conditional probabilities over persistent random coefficients. This expands the paper’s abbreviated likelihood exposition. Distributional assumptions, simulation draw count, and initial-condition implementation are not supplied in the manuscript and are not asserted in the slides. The numerical results remain those reported in the source tables.
-
-
-The pricing results slide now includes the exact full-paper table body in `assets/pricing_exercise_table.tex`, preserving the paper’s population labels, prices, posterior beliefs, profits, and numeric precision, with the redundant percentage-high and percentage-low columns removed. The abbreviated backup profit table has been removed.
+The figure builder generates numerical macros, the complete two-panel price table, and period-profit results from the active model. The known-type solution uses backward interior equations; heterogeneous common-price optimization uses three unconstrained BFGS starts per initial state and analytic gradients. Tests include independent derivative-free optimization, finite-difference gradients, profit and survival accounting, initial switching, known-type price conditions, and information dominance.

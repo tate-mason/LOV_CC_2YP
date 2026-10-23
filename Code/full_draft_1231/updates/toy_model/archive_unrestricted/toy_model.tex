@@ -1,0 +1,557 @@
+\documentclass[12pt]{article}
+
+% -------------------------------------------------
+% Encoding, fonts, and typography
+% -------------------------------------------------
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+
+% -------------------------------------------------
+% Page layout
+% -------------------------------------------------
+\usepackage[
+  margin=1in
+]{geometry}
+
+\usepackage{setspace}
+\onehalfspacing
+
+% -------------------------------------------------
+% Mathematics
+% -------------------------------------------------
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{mathtools}
+\usepackage{bm}
+\usepackage{bbm}
+
+% -------------------------------------------------
+% Tables
+% -------------------------------------------------
+\usepackage{booktabs}
+\usepackage{threeparttable}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{makecell}
+\usepackage{siunitx}
+
+\sisetup{
+  detect-all,
+  group-separator = {,},
+  group-minimum-digits = 4
+}
+
+% -------------------------------------------------
+% Figures
+% -------------------------------------------------
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{float}
+
+% -------------------------------------------------
+% Lists and formatting
+% -------------------------------------------------
+\usepackage{enumitem}
+\usepackage{xcolor}
+
+% -------------------------------------------------
+% References and citations
+% -------------------------------------------------
+\usepackage[
+  authoryear,
+  round
+]{natbib}
+
+\bibliographystyle{aer}
+
+% -------------------------------------------------
+% Hyperlinks and cross-references
+% -------------------------------------------------
+\usepackage[
+  colorlinks=true,
+  linkcolor=blue,
+  citecolor=blue,
+  urlcolor=blue
+]{hyperref}
+
+\usepackage[nameinlink,noabbrev]{cleveref}
+
+% -------------------------------------------------
+% Headers and footers
+% -------------------------------------------------
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0pt}
+
+% -------------------------------------------------
+% Section formatting
+% -------------------------------------------------
+\usepackage{titlesec}
+
+\titleformat{\section}
+  {\large\bfseries}
+  {\thesection.}
+  {0.5em}
+  {}
+
+\titleformat{\subsection}
+  {\normalsize\bfseries}
+  {\thesubsection.}
+  {0.5em}
+  {}
+
+% -------------------------------------------------
+% Theorem environments
+% -------------------------------------------------
+\newtheorem{proposition}{Proposition}
+\newtheorem{lemma}{Lemma}
+\newtheorem{corollary}{Corollary}
+\newtheorem{assumption}{Assumption}
+
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+
+\theoremstyle{remark}
+\newtheorem{remark}{Remark}
+
+% -------------------------------------------------
+% Common economics/math operators
+% -------------------------------------------------
+\DeclareMathOperator{\E}{\mathbb{E}}
+\DeclareMathOperator{\Var}{Var}
+\DeclareMathOperator{\Cov}{Cov}
+\DeclareMathOperator{\Corr}{Corr}
+\DeclareMathOperator{\argmax}{arg\,max}
+\DeclareMathOperator{\argmin}{arg\,min}
+
+% -------------------------------------------------
+% Common shortcuts
+% -------------------------------------------------
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\ind}{\mathbbm{1}}
+\newcommand{\eps}{\varepsilon}
+\newcommand{\dd}{\,\mathrm{d}}
+
+% -------------------------------------------------
+% Equation numbering
+% -------------------------------------------------
+\numberwithin{equation}{section}
+
+% -------------------------------------------------
+% Paragraph formatting
+% -------------------------------------------------
+\setlength{\parindent}{1.5em}
+\setlength{\parskip}{0pt}
+
+% -------------------------------------------------
+% Document
+% -------------------------------------------------
+\begin{document}
+
+\section{Known type masses and timing}
+There are $N$ consumers, two inside goods $j\in\{1,2\}$ owned by a
+monopolist, and an outside option $0$. Types are $r\in\{H,L\}$, with known,
+fixed probability masses
+\[
+ \omega_H=\lambda,\qquad \omega_L=1-\lambda,\qquad
+ 0\leq\lambda\leq1,\qquad \omega_H+\omega_L=1.
+\]
+Individual type is unobserved in the main common-price problem. The firm
+chooses its entire price menu before purchases occur, using these known masses.
+There is no learning, estimation, posterior, or subsequent belief-based
+repricing. A terminal menu may depend on the purchased product because that
+product determines the next period's variety utility; this is a preannounced
+pricing rule. Commitment makes this timing explicit.
+
+Consumers are myopic, while the firm discounts second-period profits by
+$\delta$. Consumers begin with no prior purchase. First-period utility has
+no variety bonus; variety utility begins in period two.
+An outside purchase in period one exits permanently. In period two, $h$
+denotes the inside product purchased in period one. All prices are net
+transaction prices in $[\underline p,\overline p]=[1,8]$.
+
+\section{Demand: every differentiation step}
+At a history $h$, define
+\begin{align}
+ V_{rj}(h;p)&=\beta_j+\gamma_r\ind\{j\ne h\}+\alpha p_j,
+ &\alpha&<0,\\
+ Z_r(h;p)&=1+\sum_{k=1}^2 e^{V_{rk}(h;p)},\\
+ s_{rj}(h;p)&=\frac{e^{V_{rj}(h;p)}}{Z_r(h;p)},
+ &s_{r0}(h;p)&=\frac1{Z_r(h;p)},\\
+ s_{r0}+s_{r1}+s_{r2}
+ &=\frac{1+e^{V_{r1}}+e^{V_{r2}}}{Z_r}=1.
+\end{align}
+Suppress history and prices temporarily. For a price $p_j$,
+\begin{align}
+ \frac{\partial V_{rk}}{\partial p_j}&=\alpha\ind\{k=j\},\\
+ \frac{\partial e^{V_{rk}}}{\partial p_j}
+ &=e^{V_{rk}}\frac{\partial V_{rk}}{\partial p_j}
+ =\alpha e^{V_{rk}}\ind\{k=j\},\\
+ \frac{\partial Z_r}{\partial p_j}
+ &=\sum_{l=1}^2\alpha e^{V_{rl}}\ind\{l=j\}
+ =\alpha e^{V_{rj}},\\
+ \frac{\partial s_{rk}}{\partial p_j}
+ &=\frac{Z_r\alpha e^{V_{rk}}\ind\{k=j\}
+               -e^{V_{rk}}\alpha e^{V_{rj}}}{Z_r^2}\\
+ &=\alpha\frac{e^{V_{rk}}}{Z_r}\ind\{k=j\}
+       -\alpha\frac{e^{V_{rk}}}{Z_r}\frac{e^{V_{rj}}}{Z_r}\\
+ &=\alpha s_{rk}(\ind\{k=j\}-s_{rj}).
+\end{align}
+Thus the own and cross elasticities are, respectively,
+\begin{align}
+ \epsilon_{rjj}
+ &=\frac{p_j}{s_{rj}}\frac{\partial s_{rj}}{\partial p_j}
+ =\frac{p_j}{s_{rj}}\alpha s_{rj}(1-s_{rj})
+ =\alpha p_j(1-s_{rj}),\\
+ \epsilon_{rkj}
+ &=\frac{p_j}{s_{rk}}\frac{\partial s_{rk}}{\partial p_j}
+ =\frac{p_j}{s_{rk}}(-\alpha s_{rk}s_{rj})
+ =-\alpha p_js_{rj},\qquad k\ne j.
+\end{align}
+First-period utility and shares have no purchase-history state:
+\begin{align}
+ V_{rj1}&=\beta_j+\alpha p_{j1},\\
+ S_{rj}(p_1)&=\frac{e^{\beta_j+\alpha p_{j1}}}
+ {1+\sum_k e^{\beta_k+\alpha p_{k1}}},\\
+ S_{Hj}&=S_{Lj},\\
+ D_{r,kj}(p_1):=\frac{\partial S_{rk}}{\partial p_{j1}}
+ &=\alpha S_{rk}(\ind\{k=j\}-S_{rj}).
+\end{align}
+The first purchase has the same demand for both types. Thus purchase masses
+$\omega_r S_{rh}$ factor into the known type mass and a common purchase rate.
+
+\section{Common prices chosen using the known masses}
+Write $p_{k2}(h)$ for the terminal price of product $k$ following product $h$.
+For any proposed menu, define
+\begin{align}
+ m_{j1}&=p_{j1}-c_j,& m_{k2}(h)&=p_{k2}(h)-c_k,\\
+ w_r(h;p_2(h))&=\sum_{k=1}^2s_{rk}(h;p_2(h))m_{k2}(h),\\
+ A_{rh}&=m_{h1}+\delta w_r(h;p_2(h)).
+\end{align}
+The expected mass of type-$r$ consumers purchasing $h$ is
+$N\omega_rS_{rh}$. This is a joint purchase mass, computed before purchases,
+not an updated type probability. Expected profits follow by multiplying each
+mass by its associated margin:
+\begin{align}
+ \pi_1&=N\sum_r\sum_h\omega_rS_{rh}m_{h1},\\
+ \pi_2&=N\sum_r\sum_h\sum_k\omega_rS_{rh}
+                   s_{rk}(h;p_2(h))m_{k2}(h),\\
+ \Pi&=\pi_1+\delta\pi_2\\
+ &=N\sum_r\sum_h\omega_rS_{rh}m_{h1}
+    +N\delta\sum_r\sum_h\omega_rS_{rh}
+                         \sum_k s_{rk}(h;p_2(h))m_{k2}(h)\\
+ &=N\sum_r\omega_r\sum_hS_{rh}
+                  [m_{h1}+\delta w_r(h;p_2(h))]\\
+ &=N\sum_r\omega_r\sum_hS_{rh}A_{rh}.
+\end{align}
+The common-menu problem is
+\[
+ \max_{p_1,p_2(1),p_2(2)\in[1,8]^2}\Pi.
+\]
+All six prices are selected together. ``Common'' means across types; products,
+periods, and purchase histories may have different prices.
+
+\subsection{First-period derivatives}
+For a partial derivative, hold the other menu entries fixed. In particular,
+$w_r(h;p_2(h))$ has no direct dependence on $p_{j1}$. Therefore
+\begin{align}
+ \frac{\partial m_{h1}}{\partial p_{j1}}&=\ind\{h=j\},\\
+ \frac{\partial A_{rh}}{\partial p_{j1}}
+ &=\ind\{h=j\}+\delta\,0=\ind\{h=j\},\\
+ \frac1N\frac{\partial\Pi}{\partial p_{j1}}
+ &=\sum_r\omega_r\sum_h
+       \frac{\partial(S_{rh}A_{rh})}{\partial p_{j1}}\\
+ &=\sum_r\omega_r\sum_h
+       \left[\frac{\partial S_{rh}}{\partial p_{j1}}A_{rh}
+                   +S_{rh}\frac{\partial A_{rh}}{\partial p_{j1}}\right]\\
+ &=\sum_r\omega_r\left[\sum_hD_{r,hj}A_{rh}
+                          +\sum_hS_{rh}\ind\{h=j\}\right]\\
+ &=\sum_r\omega_r\left[S_{rj}+\sum_hD_{r,hj}
+                         (m_{h1}+\delta w_r(h;p_2(h)))\right].
+\end{align}
+At an interior optimum this equals zero. With two types it is explicitly
+\begin{align}
+ 0={}&\lambda\left[S_{Hj}+D_{H,1j}A_{H1}+D_{H,2j}A_{H2}\right]\notag\\
+ &+(1-\lambda)\left[S_{Lj}+D_{L,1j}A_{L1}+D_{L,2j}A_{L2}\right].
+\end{align}
+No derivative of a type probability appears: $\lambda$ is fixed.
+
+\subsection{Second-period derivatives}
+For a given history $h$, first differentiate conditional terminal profit:
+\begin{align}
+ \frac{\partial w_r(h)}{\partial p_{j2}(h)}
+ &=\sum_k\left[\frac{\partial s_{rk}(h)}{\partial p_{j2}(h)}m_{k2}(h)
+                      +s_{rk}(h)\ind\{k=j\}\right]\\
+ &=\sum_k\alpha s_{rk}(h)(\ind\{k=j\}-s_{rj}(h))m_{k2}(h)
+          +s_{rj}(h)\\
+ &=\alpha s_{rj}(h)m_{j2}(h)
+       -\alpha s_{rj}(h)\sum_ks_{rk}(h)m_{k2}(h)+s_{rj}(h)\\
+ &=s_{rj}(h)\left[1+\alpha(m_{j2}(h)-w_r(h))\right].
+\end{align}
+Only continuation at history $h$ uses the entry $p_{j2}(h)$, so
+\begin{align}
+ \frac1N\frac{\partial\Pi}{\partial p_{j2}(h)}
+ &=\delta\sum_r\omega_rS_{rh}\frac{\partial w_r(h)}{\partial p_{j2}(h)}\\
+ &=\delta\sum_r\omega_rS_{rh}s_{rj}(h)
+                   [1+\alpha(m_{j2}(h)-w_r(h))]\\
+ &=\delta\{\lambda S_{Hh}s_{Hj}(h)[1+\alpha(m_{j2}(h)-w_H(h))]\notag\\
+ &\hspace{2.4em}+(1-\lambda)S_{Lh}s_{Lj}(h)
+                         [1+\alpha(m_{j2}(h)-w_L(h))]\}.
+\end{align}
+Since $S_{Hh}=S_{Lh}$, the common first-period purchase rate factors out
+of each terminal condition. Terminal prices therefore maximize
+$\sum_r\omega_r w_r(h)$ directly using the known type masses.
+Equal terminal markups across goods need not hold for a mixture of types.
+
+For any price coordinate $x$, write $g_x=\partial\Pi/\partial x$.
+The necessary bound conditions for maximization are
+\[
+ g_x=0\ \text{if }1<x<8,\qquad
+ g_x\leq0\ \text{if }x=1,\qquad
+ g_x\geq0\ \text{if }x=8.
+\]
+At the lower bound only increases are feasible, so a positive derivative
+would improve profit; at the upper bound only decreases are feasible, so a
+negative derivative would improve profit. These conditions are necessary,
+not a proof of a global maximum.
+
+\section{Observed-type benchmark and price identities}
+If type is observed exogenously, give each type a separate menu. Then
+\begin{align}
+ \Pi^{\mathrm{obs}}&=N\sum_r\omega_r\Pi_r,\\
+ \Pi_r&=\sum_hS_{rh}[p_{rh1}-c_h+\delta w_r(h)],\\
+ w_r(h)&=\max_{p_{r2}(h)\in[1,8]^2}
+               \sum_ks_{rk}(h;p_{r2}(h))[p_{rk2}(h)-c_k].
+\end{align}
+For $\omega_r>0$, multiplying $\Pi_r$ by $N\omega_r$ does not change its
+maximizing menu, because it multiplies every profit comparison by a positive
+constant. At zero mass its menu is irrelevant to aggregate profit; the code
+still computes it as a benchmark. These observed-type menus have no learning.
+Terminal prices can be solved first, followed by the initial prices.
+
+The initial derivative is the common-price derivative with a single type:
+\[
+ 0=S_{rj}+\sum_hD_{r,hj}[m_{rh1}+\delta w_r(h)].
+\]
+Write $s_{rk1}=S_{rk}$ and
+$a_{rk}=m_{rk1}+\delta w_r(k)$. Substitution and division by $s_{rj1}>0$ give
+\begin{align}
+ 0&=s_{rj1}+\sum_k\alpha s_{rk1}(\ind\{k=j\}-s_{rj1})a_{rk}\\
+ &=s_{rj1}+\alpha s_{rj1}a_{rj}
+                         -\alpha s_{rj1}\sum_ks_{rk1}a_{rk},\\
+ 0&=1+\alpha\left[a_{rj}-\sum_ks_{rk1}a_{rk}\right].
+\end{align}
+To display the outside option explicitly,
+\begin{align}
+ a_{rj}-\sum_ks_{rk1}a_{rk}
+ &=(1-s_{rj1})a_{rj}-\sum_{k\ne j}s_{rk1}a_{rk}\\
+ &=\left(s_{r01}+\sum_{k\ne j}s_{rk1}\right)a_{rj}
+                              -\sum_{k\ne j}s_{rk1}a_{rk}\\
+ &=s_{r01}a_{rj}+\sum_{k\ne j}s_{rk1}(a_{rj}-a_{rk}).
+\end{align}
+Solving the first-order equation algebraically,
+\begin{align}
+ -1&=\alpha\left[a_{rj}-\sum_ks_{rk1}a_{rk}\right],\\
+ -\frac1\alpha&=a_{rj}-\sum_ks_{rk1}a_{rk},\\
+ a_{rj}&=-\frac1\alpha+\sum_ks_{rk1}a_{rk},\\
+ p_{rj1}-c_j+\delta w_r(j)
+ &=-\frac1\alpha+\sum_ks_{rk1}[p_{rk1}-c_k+\delta w_r(k)],\\
+ p_{rj1}&=c_j-\delta w_r(j)-\frac1\alpha
+                  +\sum_ks_{rk1}[p_{rk1}-c_k+\delta w_r(k)].
+\end{align}
+Subtracting the equations for $j$ and $l$ cancels the common sum:
+\begin{align}
+ a_{rj}-a_{rl}&=0,\\
+ (p_{rj1}-c_j+\delta w_r(j))-(p_{rl1}-c_l+\delta w_r(l))&=0,\\
+ p_{rj1}-p_{rl1}&=c_j-c_l-\delta[w_r(j)-w_r(l)].
+\end{align}
+These identities are implicit, since shares depend on prices, and this
+relative-price identity assumes interior prices.
+
+For a single observed type at terminal history $h$, the terminal derivative
+already derived gives
+\begin{align}
+ 0&=s_{rj2}(h)[1+\alpha(m_{rj2}(h)-w_r(h))],\\
+ 0&=1+\alpha(m_{rj2}(h)-w_r(h)),\\
+ m_{rj2}(h)&=w_r(h)-1/\alpha.
+\end{align}
+The right side is the same for every $j$, so all inside margins equal $M_r(h)$.
+Consequently
+\begin{align}
+ w_r(h)&=\sum_ks_{rk2}(h)M_r(h)
+       =(1-s_{r02}(h))M_r(h),\\
+ M_r(h)&=(1-s_{r02}(h))M_r(h)-1/\alpha,\\
+ M_r(h)-(1-s_{r02}(h))M_r(h)&=-1/\alpha,\\
+ s_{r02}(h)M_r(h)&=-1/\alpha,\\
+ M_r(h)&=-\frac1{\alpha s_{r02}(h)},\\
+ p_{rj2}(h)-p_{rl2}(h)
+ &=[c_j+M_r(h)]-[c_l+M_r(h)]=c_j-c_l.
+\end{align}
+The outside share must be retained. These equalities assume interior prices.
+
+\section{Pricing directly from a known two-point distribution}
+All consumers begin with no previous product. Write $\rho=\Pr(L)=1-\lambda$, so
+$\Pr(H)=1-\rho$. There is no first-period switching bonus:
+\begin{align}
+ V_{rj1}^{B}&=\beta_j+\alpha p_{j1},\\
+ b_j(p_1)&=\frac{\exp(\beta_j+\alpha p_{j1})}
+                    {1+\sum_k\exp(\beta_k+\alpha p_{k1})},\\
+ S_{Hj}^{B}&=S_{Lj}^{B}=b_j(p_1).
+\end{align}
+Known type masses are used directly in terminal expected profits:
+\begin{align}
+ \bar w(h;p)&=(1-\rho)w_H(h;p)+\rho w_L(h;p),\\
+ p_2^*(h;\rho)&\in\argmax_{p\in[1,8]^2}\bar w(h;p),\\
+ W_h(\rho)&=\bar w(h;p_2^*(h;\rho)).
+\end{align}
+The terminal interior condition is explicitly
+\begin{align}
+ 0=\frac{\partial\bar w(h;p)}{\partial p_j}
+ ={}&(1-\rho)s_{Hj}(h;p)[1+\alpha(p_j-c_j-w_H(h;p))]\notag\\
+ &+\rho s_{Lj}(h;p)[1+\alpha(p_j-c_j-w_L(h;p))].
+\end{align}
+Since first-period shares are identical across types, the total objective
+factors without any conditioning on type:
+\begin{align}
+ \Pi^{B}/N
+ &=(1-\rho)\sum_hb_h[m_{h1}+\delta w_H(h)]
+       +\rho\sum_hb_h[m_{h1}+\delta w_L(h)]\\
+ &=\sum_hb_h[(1-\rho)m_{h1}+\rho m_{h1}
+                 +\delta((1-\rho)w_H(h)+\rho w_L(h))]\\
+ &=\sum_hb_h[m_{h1}+\delta\bar w(h)]\\
+ &=\sum_hb_h[p_{h1}-c_h+\delta W_h(\rho)]
+       \quad\text{at the optimal terminal menu}.
+\end{align}
+Because $W_h(\rho)$ has no dependence on $p_1$, terminal prices can be chosen
+first. Put $A_h^B=p_{h1}-c_h+\delta W_h(\rho)$. Then
+\begin{align}
+ \frac1N\frac{\partial\Pi^B}{\partial p_{j1}}
+ &=\sum_h\left[\alpha b_h(\ind\{h=j\}-b_j)A_h^B
+                                  +b_h\ind\{h=j\}\right]\\
+ &=\alpha b_jA_j^B-\alpha b_j\sum_hb_hA_h^B+b_j\\
+ &=b_j\left[1+\alpha\left(A_j^B-\sum_hb_hA_h^B\right)\right].
+\end{align}
+For an interior solution, divide by $b_j>0$ and rearrange:
+\begin{align}
+ 0&=1+\alpha\left(A_j^B-\sum_hb_hA_h^B\right),\\
+ A_j^B&=-1/\alpha+\sum_hb_hA_h^B,\\
+ p_{j1}&=c_j-\delta W_j(\rho)-1/\alpha
+                   +\sum_hb_h[p_{h1}-c_h+\delta W_h(\rho)].
+\end{align}
+This is pricing under a known probability mass function, with no learning.
+
+\subsection{A fixed discount decision and every cutoff step}
+Construct a regular menu $R$ from the known-H newborn optimum. Construct menu
+$D$ by holding its initial prices fixed and replacing terminal prices with the
+known-L terminal optimum. The code verifies that these terminal prices are
+weakly lower. The full known-L dynamic policy is not necessarily a discount:
+its introductory prices can be higher because the H consumer has greater
+continuation value. Both comparison menus stay fixed as $\rho$ varies.
+
+For $X\in\{R,D\}$, define profits conditional on true type and the profit
+change from discounting:
+\begin{align}
+ F_r^X&=\sum_h b_h(p_1^R)
+      [p_{h1}^R-c_h+\delta w_r(h;p_2^X(h))],\\
+ \Delta_r&=F_r^D-F_r^R\\
+ &=\sum_hb_h(p_1^R)\{[p_{h1}^R-c_h+\delta w_r(h;p_2^D(h))]
+                         -[p_{h1}^R-c_h+\delta w_r(h;p_2^R(h))]\}\\
+ &=\delta\sum_hb_h(p_1^R)
+                         [w_r(h;p_2^D(h))-w_r(h;p_2^R(h))].
+\end{align}
+By the known type probabilities, the expected gain is
+\begin{align}
+ B(\rho)&=[(1-\rho)F_H^D+\rho F_L^D]
+                         -[(1-\rho)F_H^R+\rho F_L^R]\\
+ &=(1-\rho)(F_H^D-F_H^R)+\rho(F_L^D-F_L^R)\\
+ &=(1-\rho)\Delta_H+\rho\Delta_L\\
+ &=\Delta_H-\rho\Delta_H+\rho\Delta_L\\
+ &=\Delta_H+\rho(\Delta_L-\Delta_H).
+\end{align}
+For $\Delta_H<0<\Delta_L$, the slope is positive, and the indifference point
+satisfies
+\begin{align}
+ 0&=\Delta_H+\rho^*(\Delta_L-\Delta_H),\\
+ -\Delta_H&=\rho^*(\Delta_L-\Delta_H),\\
+ \rho^*&=\frac{-\Delta_H}{\Delta_L-\Delta_H}.
+\end{align}
+Because the denominator is positive, the discount rule is obtained without
+reversing the inequality:
+\begin{align}
+ B(\rho)>0
+ &\iff\Delta_H+\rho(\Delta_L-\Delta_H)>0\\
+ &\iff\rho(\Delta_L-\Delta_H)>-\Delta_H\\
+ &\iff\rho>\frac{-\Delta_H}{\Delta_L-\Delta_H}=\rho^*.
+\end{align}
+For these menus the numerical values are approximately
+\begin{align}
+ \Delta_H&=-0.04484198,&\Delta_L&=0.02410654,\\
+ \Delta_L-\Delta_H&=0.02410654-(-0.04484198)=0.06894852,\\
+ \rho^*&\simeq\frac{0.04484198}{0.06894852}=0.650369,\\
+ B(1/2)&\simeq\tfrac12(-0.04484198)+\tfrac12(0.02410654)\\
+ &=-0.02242099+0.01205327=-0.01036772,\\
+ 1-\rho^*&\simeq1-0.650369=0.349631.
+\end{align}
+Offer the fixed discount above approximately $65.04\%$ probability of L;
+below it retain the regular menu; at equality either menu is optimal.
+At a 50/50 mass the discount loses profit. The cost of discounting an H type
+is included in $\Delta_H$ and requires no extra fee.
+
+If $a\in[0,1]$ instead denotes the probability of sending the fixed discount,
+\begin{align}
+ F(a;\rho)&=(1-a)F^R(\rho)+aF^D(\rho)\\
+ &=F^R(\rho)-aF^R(\rho)+aF^D(\rho)\\
+ &=F^R(\rho)+aB(\rho),\\
+ \frac{\partial F(a;\rho)}{\partial a}&=B(\rho).
+\end{align}
+Thus $a=1$ maximizes profit when $B>0$, $a=0$ when $B<0$, and every $a$
+is optimal when $B=0$. This is distinct from varying the type mass $\rho$.
+A freely optimized common menu weakly dominates either fixed menu because
+both fixed menus are feasible choices in its optimization problem.
+
+\section{Numerical implementation and profit distribution}
+The parameters are
+\[
+ \beta=(2.2,2.0),\quad c=(1.2,1.0),\quad\alpha=-1.5,\quad
+ \delta=0.95,\quad\gamma_H=2,\quad\gamma_L=0.1.
+\]
+Run \texttt{python3 toy\_model.py}. The common-menu solver jointly
+chooses all prices using the fixed mass objective above. Terminal problems
+can also be solved first because first-period demand is identical across types.
+Optimization uses three starting values and checked solver status; this is not
+a global optimality proof. The fixed terminal-discount comparison uses the same
+model and holds the regular first-period prices fixed.
+
+The results directory contains \path{prices_50_50.csv},
+\path{population_mix.csv}, \path{profit_by_gamma.csv},
+\path{newborn_prices.csv}, and
+\path{newborn_discount_probability.csv}, together
+with reports and figures. The newborn CSV labels $\rho$ as
+\texttt{probability\_L}. The population experiment varies $\lambda=\Pr(H)$;
+the newborn experiment varies $\rho=\Pr(L)$.
+
+For any fixed common policy $P$, let $f_r(P)$ be expected discounted profit
+conditional on type. The distribution of these conditional expectations has
+two masses, with cumulative distribution function
+\[
+ \Pr(f_r(P)\leq x)
+ =\lambda\ind\{f_H(P)\leq x\}
+       +(1-\lambda)\ind\{f_L(P)\leq x\}.
+\]
+Its expectation is
+\[
+ \E[f_r(P)]=\lambda f_H(P)+(1-\lambda)f_L(P).
+\]
+If both profit values coincide, their masses add to one at that value.
+This describes type-conditional expected profits, rather than realized
+transaction profits. A curve of expected profit against $\gamma$ is not a
+probability density; a continuous type distribution would have to be specified
+to construct a continuous distribution of conditional expected profits.
+
+\end{document}

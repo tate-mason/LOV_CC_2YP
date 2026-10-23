@@ -1,25 +1,24 @@
-# Newborn discount decision
+# Fixed regular prices and targeted discounts
 
-The newborn has no previous product. Their type is unobserved and Pr(L)=q, Pr(H)=1-q. The first purchase has no switching bonus and therefore does not reveal type. Type remains unobserved in period two.
+Effective price = regular price - discount. Only good 2 can be discounted, in period two after buying good 1. All other prices remain at the fixed regular price.
 
-The regular menu is the two-period policy optimized for a known H type. The discount menu replaces terminal prices with the known-L optimum while keeping the regular first-period price. All its prices are verified to be weakly below regular prices. Both menus are fixed while q varies. Period-two offers depend on the first product purchased. The firm knows both types exogenously for purposes of constructing these benchmark menus.
+Illustrative regular prices (2.00, 2.00), costs (1.20, 0.20), price coefficient -1.5, gamma_H=2, gamma_L=0.1, delta=0.95. The cost gap and fixed-price restriction replace the previous unrestricted-price calibration. The monopolist can set regular prices before the targeted-offer stage. This exercise is conditional on posted regular prices; it does not solve the upstream regular-price problem or claim a joint unrestricted monopoly optimum.
 
-Profit change from discounting an H newborn: -0.04484198
+No prior purchase, myopic logit consumers, permanent exit after period-one outside. First purchases do not reveal type. Known type probabilities; no Bayesian learning or classifier. Profits are per initial consumer.
 
-Profit change from discounting an L newborn: 0.02410654
+H discount: 0.00000000; L discount: 0.49333833; 50/50 common discount: 0.04934851.
 
-Break-even Pr(L): 0.65036900
+50/50 common profit: 0.90215442; observed-type profit: 0.90809988; information gain: 0.00594546.
 
-Break-even Pr(H): 0.34963100
+Offering the fixed L-optimal coupon instead of no coupon breaks even at Pr(L)=0.76402445. Continuous discount optimization is a different problem.
 
-50/50 regular profit: 0.67420560
+Fixed discount regions (q=Pr(H)):
+- 0.00000000 < q < 0.21215451: low discount.
+- 0.21215451 < q < 0.54295850: uniform_50_50 discount.
+- 0.54295850 < q < 1.00000000: high discount.
 
-50/50 discount profit: 0.66383788
+The discount increases demand for good 2 and reduces its unit margin. In this calibration the L-optimal discount leaves good 2 with a larger margin than good 1. H has zero optimal discount; logit switching is nevertheless probabilistic, not guaranteed.
 
-50/50 reoptimized common profit: 0.68367095
+Only the good-1 history is eligible for a coupon. This isolates switching toward good 2; after good 2 a coupon would instead induce retention. Population profits include both first-period purchase histories.
 
-Expected gain = (1-q)*Delta_H + q*Delta_L. The exact cutoff is -Delta_H/(Delta_L-Delta_H). Offer the fixed discount when the expected gain is positive; at zero the firm is indifferent. No fixed adoption cost or classifier error is added.
-
-The CSV sweeps q from 0.01 through 0.99 and also solves freely reoptimized common prices at every q. The fixed-menu cutoff does not imply a discontinuity in those freely optimized prices. It depends on the specified regular and discount menus.
-
-If the probability being varied instead means the random offer probability a, expected profit is regular_profit + a*(discount_profit-regular_profit). Then the optimum is a=0 or a=1 (or any a at indifference), rather than an interior threshold in a.
+Solver checks boundaries and all stationary roots bracketed by a 129-point derivative grid. Tests compare solutions with independent bounded maximization and dense feasible grids. Concavity of conditional mispricing profits is not imposed.

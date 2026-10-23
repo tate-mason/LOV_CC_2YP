@@ -1,0 +1,15 @@
+\renewcommand{\arraystretch}{1.25} % Adds comfortable vertical breathing room
+\resizebox{\textwidth}{!}{% Fits perfectly to text margins without crowding
+\begin{tabular}{l r r r r r r r}
+\toprule
+\textbf{Population Mix} & \multicolumn{2}{c}{\textbf{Imperfect Price ($P_1$)}} & \multicolumn{2}{c}{\textbf{Posterior Beliefs}} & \textbf{Imperfect} & \textbf{Perfect} & \textbf{Value of} \\
+& \textbf{Good 1} & \textbf{Good 2} & \textbf{G1} & \textbf{G2} & \textbf{Profit} & \textbf{Profit} & \textbf{Info} \\
+\midrule
+100\% LOW           & 2.0633 & 1.8646 & 0.0000 & 0.0000 & 0.6031 & 0.6031 & -0.0000 \\
+25\% HIGH, 75\% LOW & 2.1847 & 1.9944 & 0.3727 & 0.3641 & 0.7820 & 0.7999 &  0.0178 \\
+50\% HIGH, 50\% LOW & 2.2819 & 2.1049 & 0.6510 & 0.6448 & 0.9773 & 0.9966 &  0.0194 \\
+75\% HIGH, 25\% LOW & 2.3542 & 2.1887 & 0.8528 & 0.8504 & 1.1811 & 1.1934 &  0.0123 \\
+100\% HIGH         & 2.4067 & 2.2494 & 1.0000 & 1.0000 & 1.3902 & 1.3902 &  0.0000 \\
+\bottomrule
+\end{tabular}%
+}

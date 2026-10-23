@@ -1,379 +1,206 @@
-"""Two-period monopoly with myopic logit consumers and variety preferences.
-
-Run python3 toy_model.py --help. Prices are net transaction prices. A period-one
-outside choice exits permanently; initial inside history is unobserved by the
-pricing rule and distributed according to init_state_dist. Profits are per
-initial consumer. 'Uniform' means common across types, not across products.
+"""Free two-period monopoly prices with observed random initial states.
+Myopic logit consumers; period-one outside choices exit permanently.
+Menus commit before choices, depend on full observed history, and incorporate
+endogenous type selection without adding a signal or a learning intervention.
 """
 from argparse import ArgumentParser
 from dataclasses import dataclass
 from pathlib import Path
-
 import numpy as np
 import pandas as pd
-from scipy.optimize import minimize
+from scipy.optimize import minimize, brentq
 
-beta_0 = np.array([2.2, 2.0])
-gamma_H, gamma_L = 2.0, 0.1
-alpha, delta = -1.5, 0.95
-costs = np.array([1.2, 1.0])
-J = len(costs)
-init_state_dist = np.array([0.5, 0.5])
-PRICE_MIN, PRICE_MAX = 1.0, 8.0
-
-
-def logit_probs(V):
-    full = np.r_[0.0, V]
-    e = np.exp(full - full.max())
-    prob = e / e.sum()
-    return prob[1:], float(prob[0])
+beta_0=np.array([2.2,2.0])
+gamma_H,gamma_L=2.,1.
+alpha,delta=-1.5,.95
+costs=np.array([1.2,.8])
+STATES=(0,1,None)  # products j, k, no previous product
+INITIAL_WEIGHTS=np.ones(3)/3
 
 
-def val_state(p, prev_j, gamma_r):
-    return beta_0 + gamma_r * (np.arange(J) != prev_j) + alpha * np.asarray(p)
+def logit_probs(v):
+    v=np.r_[0.,v]; e=np.exp(v-v.max()); s=e/e.sum()
+    return s[1:],float(s[0])
 
 
-def shares_jac(p, gamma, state=None):
-    """Average conditional Jacobians, never apply logit derivative to a mixture."""
-    states = range(J) if state is None else [state]
-    weights = init_state_dist if state is None else [1.0]
-    s, jac = np.zeros(J), np.zeros((J, J))
-    for h, weight in zip(states, weights):
-        sh, _ = logit_probs(val_state(p, h, gamma))
-        s += weight * sh
-        jac += weight * alpha * (np.diag(sh) - np.outer(sh, sh))
-    return s, jac
+def shares_jac(p,gamma,state):
+    v=beta_0+alpha*np.asarray(p)
+    if state is not None:v=v+gamma*(np.arange(2)!=state)
+    s,_=logit_probs(v)
+    return s,alpha*(np.diag(s)-np.outer(s,s))
 
 
-def maximize(fun):
-    """Bounded multistart optimization with analytic gradients and status checks."""
-    candidates = []
-    for markup in (0.3, 1.2, 3.0):
-        res = minimize(lambda p: -fun(p)[0], costs + markup,
-                       jac=lambda p: -fun(p)[1], method='L-BFGS-B',
-                       bounds=[(PRICE_MIN, PRICE_MAX)] * J,
-                       options={'ftol': 1e-13, 'gtol': 1e-9, 'maxiter': 400})
-        if res.success:
-            candidates.append(res)
-    if not candidates:
-        raise RuntimeError('All pricing optimization starts failed')
-    return min(candidates, key=lambda res: res.fun).x
+def state_objective(flat,gammas,weights,state):
+    p1=flat[:2];p2=flat[2:].reshape(2,2)
+    value=0.;g1=np.zeros(2);g2=np.zeros((2,2))
+    for gamma,weight in zip(gammas,weights):
+        s1,j1=shares_jac(p1,gamma,state); w=np.zeros(2)
+        for h in range(2):
+            s2,j2=shares_jac(p2[h],gamma,h);m=p2[h]-costs
+            w[h]=s2@m
+            g2[h]+=delta*weight*s1[h]*(s2+j2.T@m)
+        effective=p1-costs+delta*w
+        value+=weight*(s1@effective)
+        g1+=weight*(s1+j1.T@effective)
+    return float(value),np.r_[g1,g2.ravel()]
 
 
 @dataclass
 class Policy:
-    p1: np.ndarray
-    p2: np.ndarray  # history j, destination k
-    profit: float
-    type_profits: np.ndarray
-    posterior: np.ndarray
+    p1:np.ndarray  # initial state, product
+    p2:np.ndarray  # initial state, first purchase, product
+    profit:float
+    type_profits:np.ndarray
 
 
-def evaluate_policy(p1, p2, gammas):
-    """Expected discounted profit conditional on each type, before initial history."""
-    values = []
+def components(p1,p2,gammas):
+    rows=[]
     for gamma in gammas:
-        s1, _ = shares_jac(p1, gamma)
-        w = np.array([shares_jac(p2[j], gamma, j)[0] @ (p2[j] - costs)
-                      for j in range(J)])
-        values.append(s1 @ (p1 - costs + delta * w))
-    return np.array(values)
+        first=second=survival=0.
+        for a,state in enumerate(STATES):
+            s1,_=shares_jac(p1[a],gamma,state)
+            w=np.array([shares_jac(p2[a,h],gamma,h)[0]@(p2[a,h]-costs) for h in range(2)])
+            first+=INITIAL_WEIGHTS[a]*(s1@(p1[a]-costs))
+            second+=INITIAL_WEIGHTS[a]*(s1@w)
+            survival+=INITIAL_WEIGHTS[a]*s1.sum()
+        rows.append([first,second,first+delta*second,survival])
+    return np.asarray(rows)
 
 
-def solve_common(gammas, weights):
-    """Backward induction: reoptimize terminal prices at each induced posterior.
-
-    The envelope derivative holds optimized terminal prices fixed but retains
-    type-specific continuation profits, thus including the learning effect.
-    """
-    gammas, weights = np.asarray(gammas), np.asarray(weights, dtype=float)
-    if len(gammas) != len(weights) or np.any(weights < 0) or not np.isclose(weights.sum(), 1):
-        raise ValueError('Nonnegative type weights must sum to one')
-    cache = {}
-
-    def backward(p1):
-        key = tuple(p1)
-        if key in cache:
-            return cache[key]
-        demand = [shares_jac(p1, g) for g in gammas]
-        s1 = np.array([v[0] for v in demand])
-        joint = weights[:, None] * s1
-        posterior = joint / joint.sum(axis=0)
-        p2, continuation = [], []
-        for j in range(J):
-            def terminal(p):
-                vals, grads = [], []
-                for g in gammas:
-                    s, jac = shares_jac(p, g, j)
-                    vals.append(s @ (p - costs))
-                    grads.append(s + jac.T @ (p - costs))
-                return posterior[:, j] @ vals, posterior[:, j] @ np.array(grads)
-            price = maximize(terminal)
-            p2.append(price)
-            continuation.append([shares_jac(price, g, j)[0] @ (price - costs)
-                                 for g in gammas])
-        w = np.array(continuation).T
-        effective = p1 - costs + delta * w
-        by_type = np.sum(s1 * effective, axis=1)
-        grad = sum(weights[r] * (s1[r] + demand[r][1].T @ effective[r])
-                   for r in range(len(gammas)))
-        result = (weights @ by_type, grad, np.array(p2), by_type, posterior)
-        cache[key] = result
-        return result
-
-    p1 = maximize(lambda p: backward(p)[:2])
-    profit, _, p2, type_profits, posterior = backward(p1)
-    return Policy(p1, p2, profit, type_profits, posterior)
+def evaluate_policy(p1,p2,gammas):return components(p1,p2,gammas)[:,2]
 
 
-def solve_perfect_info(l1):
-    """Legacy tuple interface; each type is solved even at zero population weight."""
-    policies = [solve_common([g], [1.0]) for g in (gamma_H, gamma_L)]
-    return (np.array([p.p1 for p in policies]), np.array([p.p2 for p in policies]),
-            l1 * policies[0].profit + (1 - l1) * policies[1].profit)
+def solve_common(gammas,weights):
+    gammas=np.asarray(gammas);weights=np.asarray(weights,dtype=float)
+    if (gammas.ndim!=1 or not len(gammas) or gammas.shape!=weights.shape
+        or not np.all(np.isfinite(gammas)) or not np.all(np.isfinite(weights))
+        or np.any(weights<0) or not np.isclose(weights.sum(),1)):
+        raise ValueError('Finite gammas and nonnegative weights summing to one required')
+    active=weights>0
+    if np.count_nonzero(active)==1:
+        # Backward solution for a single type: common effective margin M.
+        gamma=float(gammas[active][0]);a=-alpha
+        def one_period(effective_cost,state):
+            utility=beta_0+alpha*effective_cost
+            if state is not None:utility=utility+gamma*(np.arange(2)!=state)
+            # a*M = 1 + sum exp(utility-a*M), using log-sum-exp stability.
+            def equation(m):
+                terms=np.r_[0.,utility-a*m];top=terms.max()
+                return np.log(a*m)-(top+np.log(np.exp(terms-top).sum()))
+            upper=max(2.,float(np.max(utility)/a+2))
+            while equation(upper)<0:upper*=2
+            margin=brentq(equation,1/a,upper,xtol=1e-13)
+            prices=effective_cost+margin
+            return prices,float(shares_jac(prices,gamma,state)[0]@(prices-costs))
+        terminal=np.array([one_period(costs,h)[0] for h in range(2)])
+        w=np.array([shares_jac(terminal[h],gamma,h)[0]@(terminal[h]-costs) for h in range(2)])
+        p1=np.array([one_period(costs-delta*w,state)[0] for state in STATES])
+        p2=np.tile(terminal,(3,1,1));values=evaluate_policy(p1,p2,gammas)
+        return Policy(p1,p2,float(weights@values),values)
+    solutions=[]
+    for state in STATES:
+        candidates=[]
+        for markup in (.3,1.2,3.):
+            result=minimize(lambda x:-state_objective(x,gammas,weights,state)[0],
+                np.tile(costs+markup,3),jac=lambda x:-state_objective(x,gammas,weights,state)[1],
+                method='BFGS',options={'gtol':1e-8,'maxiter':600})
+            if np.isfinite(result.fun) and np.max(np.abs(result.jac))<2e-6:candidates.append(result)
+        if not candidates:raise RuntimeError(f'No converged price solution: {state}')
+        solutions.append(min(candidates,key=lambda r:r.fun).x)
+    p1=np.array([x[:2] for x in solutions]);p2=np.array([x[2:].reshape(2,2) for x in solutions])
+    values=evaluate_policy(p1,p2,gammas)
+    return Policy(p1,p2,float(weights@values),values)
 
 
-def solve_imperfect_info(l1):
-    p = solve_common([gamma_H, gamma_L], [l1, 1 - l1])
-    return p.p1, p.p2, p.profit
+def fixed_menu_regions(values):
+    values=np.asarray(values); intercept=values[:,1];slope=values[:,0]-intercept
+    breaks=[0.,1.]
+    for i in range(len(values)):
+        for j in range(i):
+            if abs(slope[i]-slope[j])>1e-12:
+                q=(intercept[j]-intercept[i])/(slope[i]-slope[j])
+                if 0<q<1:breaks.append(float(q))
+    regions=[];breaks=sorted(set(breaks))
+    for a,b in zip(breaks[:-1],breaks[1:]):
+        k=int(np.argmax(intercept+(a+b)/2*slope))
+        if regions and regions[-1][2]==k:regions[-1]=(regions[-1][0],b,k)
+        else:regions.append((a,b,k))
+    return regions
 
 
-def solve_newborn(gammas, weights):
-    """Common prices for a newborn with no prior product and unobserved type.
+def run_analysis(output,points=61,gamma_max=10.,gamma_min=1.5,gamma_step=.5):
+    out=Path(output);out.mkdir(parents=True,exist_ok=True)
+    types=[gamma_H,gamma_L];personal=[solve_common([g],[1]) for g in types]
+    common=solve_common(types,[.5,.5]);policies=[*personal,common];labels=['high','low','uniform_50_50']
+    mix=[]
+    for q in np.unique(np.r_[np.linspace(0,1,points),.5]):
+        p=solve_common(types,[q,1-q]);obs=q*personal[0].profit+(1-q)*personal[1].profit
+        mix.append(dict(high_share=q,common_profit=p.profit,targeted_profit=obs,targeting_gain=obs-p.profit,
+            common_profit_H=p.type_profits[0],common_profit_L=p.type_profits[1]))
+    mix=pd.DataFrame(mix);mix.to_csv(out/'population_mix.csv',index=False)
+    values=np.array([evaluate_policy(p.p1,p.p2,types) for p in policies]);regions=fixed_menu_regions(values)
+    pd.DataFrame([dict(probability_H_min=a,probability_H_max=b,best_menu=labels[k]) for a,b,k in regions]).to_csv(out/'fixed_menu_regions.csv',index=False)
+    q=np.linspace(0,1,1001);v=q[:,None]*values[:,0]+(1-q[:,None])*values[:,1]
+    fixed=pd.DataFrame(v,columns=[f'profit_{n}' for n in labels]);fixed.insert(0,'probability_H',q)
+    fixed.to_csv(out/'fixed_menu_comparison.csv',index=False)
+    prices=[]
+    for name,p in zip(['targeted_H','targeted_L','uniform_50_50'],policies):
+        for a,state in enumerate(['j','k','0']):
+            for t,h,pr in [(1,state,p.p1[a])]+[(2,f'{state} to {h}',p.p2[a,b]) for b,h in enumerate(['j','k'])]:
+                prices.append(dict(policy=name,period=t,history=h,price_good1=pr[0],price_good2=pr[1],margin_good1=pr[0]-costs[0],margin_good2=pr[1]-costs[1]))
+    pd.DataFrame(prices).to_csv(out/'prices_50_50.csv',index=False)
+    sweep=[];by_gamma=[];distribution=[]
+    for g in np.arange(gamma_min,gamma_max+gamma_step/2,gamma_step):
+        pH=solve_common([g],[1]);p=solve_common([g,gamma_L],[.5,.5])
+        c=components(p.p1,p.p2,[g,gamma_L]);known=components(pH.p1,pH.p2,[g])[0]
+        row=dict(gamma_H=g,gamma_L=gamma_L)
+        for i,kind in enumerate(['H','L']):
+            for j,key in enumerate(['period1','period2','total','survival']):row[f'{kind}_{key}']=c[i,j]
+            row[f'{kind}_period2_survivor']=c[i,1]/c[i,3]
+            distribution.append(dict(gamma_H=g,true_type=kind,probability=.5,value=c[i,2],period2_value=delta*c[i,1]))
+        row.update(known_H_total=known[2],known_L_total=personal[1].profit,
+                   known_H_period1=known[0],known_H_period2=known[1])
+        # A clean induction benchmark: optimize one-period prices at the same arriving state.
+        static=0.
+        for a,state in enumerate(STATES):
+            def objective(pr):
+                s,j=shares_jac(pr,g,state);m=pr-costs
+                return -(s@m),-(s+j.T@m)
+            r=minimize(objective,costs+1,jac=True,method='BFGS',options={'gtol':1e-9})
+            static+=INITIAL_WEIGHTS[a]*(-r.fun)
+        row['known_H_static_period1']=static
+        row['known_H_induction_sacrifice']=static-known[0]
+        sweep.append(row)
+        by_gamma.append(dict(gamma=g,targeted_profit=pH.profit,uniform_50_50_profit=evaluate_policy(common.p1,common.p2,[g])[0],**{f'profit_{n}':evaluate_policy(pol.p1,pol.p2,[g])[0] for n,pol in zip(labels,policies)}))
+    pd.DataFrame(sweep).to_csv(out/'gamma_H_sweep.csv',index=False)
+    pd.DataFrame(distribution).to_csv(out/'value_distribution.csv',index=False)
+    pd.DataFrame(by_gamma).to_csv(out/'profit_by_gamma.csv',index=False)
+    pd.DataFrame(by_gamma).to_csv(out/'fixed_menu_profit_by_gamma.csv',index=False)
+    middle=mix.iloc[(mix.high_share-.5).abs().argmin()]
+    report=f'''# Free prices with random initial histories
 
-    There is no switching bonus in the first purchase. Consequently that purchase
-    conveys no type information, and the terminal posterior equals the prior.
-    The firm can condition terminal prices on the purchased product, not type.
-    """
-    gammas, weights = np.asarray(gammas), np.asarray(weights)
-    p2, values = [], []
-    for j in range(J):
-        def terminal(p):
-            value, gradient = 0.0, np.zeros(J)
-            for g, weight in zip(gammas, weights):
-                s, jac = shares_jac(p, g, j)
-                value += weight * (s @ (p - costs))
-                gradient += weight * (s + jac.T @ (p - costs))
-            return value, gradient
-        p = maximize(terminal)
-        p2.append(p)
-        values.append([shares_jac(p, g, j)[0] @ (p - costs) for g in gammas])
-    p2, w = np.array(p2), np.array(values).T
-    average_w = weights @ w
+Initial state is j, k, or 0, each with probability 1/3 independently of type. Initial 0 means no prior product and no switching bonus. Initial state is observed. Period-one outside choices exit permanently.
+Prices for both goods in both periods are freely optimized, with no coupon restriction, price floor, or price ceiling. Period-two menus can depend on both initial state and period-one purchase. Consumers are myopic. All menus are committed before choices; endogenous selection of types into purchase histories enters the objective. First purchases can now be informative about type.
 
-    def first(p):
-        s, _ = logit_probs(beta_0 + alpha * p)
-        jac = alpha * (np.diag(s) - np.outer(s, s))
-        effective = p - costs + delta * average_w
-        return s @ effective, s + jac.T @ effective
+Parameters: beta=(2.2,2), costs=(1.2,0.8), alpha=-1.5, delta=.95. Good 2 costs 0.8 versus 1.2 for good 1; both prices remain freely optimized.
+50/50 common profit: {middle.common_profit:.8f}; observed-type profit: {middle.targeted_profit:.8f}; information gain: {middle.targeting_gain:.8f}.
 
-    p1 = maximize(first)
-    s1, _ = logit_probs(beta_0 + alpha * p1)
-    by_type = np.array([s1 @ (p1 - costs + delta * wr) for wr in w])
-    return Policy(p1, p2, weights @ by_type, by_type, np.tile(weights[:, None], (1, J)))
+The gamma_H sweep uses gamma_H={gamma_min:g} to {gamma_max:g} in steps of {gamma_step:g}, holds gamma_L={gamma_L:g} and Pr(H)=0.5 fixed and reoptimizes all common prices for every gamma_H. It reports each true type's period-one profit, undiscounted period-two profit per arriving consumer, total discounted value, survival probability, and period-two profit per survivor. The known-type comparison separately optimizes each type. Induction sacrifice compares known-type dynamic period-one profit with its optimized one-period benchmark; it is not a causal effect of a coupon.
 
+The value distribution has two atoms with masses 0.5, rather than a continuous density. value_distribution.csv records these atoms. A continuous value density would require a continuous distribution over gamma. The distribution is of expected customer values, not realized transaction profits.
 
-def evaluate_newborn(p1, p2, gammas):
-    s1, _ = logit_probs(beta_0 + alpha * p1)
-    return np.array([s1 @ (p1 - costs + delta * np.array([
-        shares_jac(p2[j], g, j)[0] @ (p2[j] - costs) for j in range(J)]))
-        for g in gammas])
+Known-type prices use backward interior equations. Heterogeneous common-price optimization uses analytic gradients and three unconstrained BFGS starts per initial state, accepting stationary solutions with maximum gradient below 2e-6. Multistart checks provide numerical evidence, not a global theorem. With known type, interior terminal margins are equal across products at each history; a higher-margin destination is no longer maintained.
+'''
+    (out/'results.md').write_text(report);print(report)
+    return mix
 
-
-def newborn_discount_analysis(output):
-    """Choose between fixed high-type regular and low-type discounted menus.
-
-    The discount is a period-two offer; the first-period price is held fixed.
-    q is Pr(L), not the probability of randomly sending an offer. At q=1/2
-    discount recipients are equally likely to be H or L. Sending probability
-    itself yields an affine objective and has no interior optimum.
-    """
-    types = [gamma_H, gamma_L]
-    regular = solve_newborn([gamma_H], [1.0])
-    discounted = solve_newborn([gamma_L], [1.0])
-    # Compare terminal discounts only: high types receive introductory investment
-    # in period one, so their first price need not exceed low-type prices.
-    discounted.p1 = regular.p1.copy()
-    if np.any(discounted.p1 > regular.p1 + 1e-7) or np.any(discounted.p2 > regular.p2 + 1e-7):
-        raise RuntimeError('Low-type menu is not a pure discount from the high-type menu')
-    regular_values = evaluate_newborn(regular.p1, regular.p2, types)
-    discount_values = evaluate_newborn(discounted.p1, discounted.p2, types)
-    gains = discount_values - regular_values
-    slope = gains[1] - gains[0]
-    root = -gains[0] / slope if abs(slope) > 1e-12 else np.nan
-    threshold = root if 0 <= root <= 1 else np.nan
-    rows = []
-    for q in np.arange(1, 100) / 100:
-        common = solve_newborn(types, [1-q, q])
-        regular_profit = (1-q) * regular_values[0] + q * regular_values[1]
-        discount_profit = (1-q) * discount_values[0] + q * discount_values[1]
-        rows.append(dict(probability_L=q, probability_H=1-q,
-            regular_profit=regular_profit, discount_profit=discount_profit,
-            discount_gain=discount_profit-regular_profit,
-            offer_discount=discount_profit > regular_profit + 1e-9,
-            best_fixed_menu_profit=max(regular_profit, discount_profit),
-            reoptimized_common_profit=common.profit,
-            common_p1_good1=common.p1[0], common_p1_good2=common.p1[1]))
-    frame = pd.DataFrame(rows)
-    frame.to_csv(output / 'newborn_discount_probability.csv', index=False)
-    price_rows = []
-    common50 = solve_newborn(types, [0.5, 0.5])
-    for name, policy in [('regular_H_menu', regular), ('discount_L_menu', discounted),
-                          ('newborn_common_50_50', common50)]:
-        for period, history, price in [(1, 'no prior product', policy.p1)] + [
-                (2, f'good{j+1}', policy.p2[j]) for j in range(J)]:
-            price_rows.append(dict(menu=name, period=period, history=history,
-                                   price_good1=price[0], price_good2=price[1]))
-    pd.DataFrame(price_rows).to_csv(output / 'newborn_prices.csv', index=False)
-    report = ('# Newborn discount decision\n\n'
-        'The newborn has no previous product. Their type is unobserved and '
-        'Pr(L)=q, Pr(H)=1-q. The first purchase has no switching bonus and therefore '
-        'does not reveal type. Type remains unobserved in period two.\n\n'
-        'The regular menu is the two-period policy optimized for a known H type. '
-        'The discount menu replaces terminal prices with the known-L optimum while keeping '
-        'the regular first-period price. All its prices '
-        'are verified to be weakly below regular prices. Both menus are fixed while q varies. '
-        'Period-two offers depend on the first product purchased. The firm knows both '
-        'types exogenously for purposes of constructing these benchmark menus.\n\n'
-        f'Profit change from discounting an H newborn: {gains[0]:.8f}\n\n'
-        f'Profit change from discounting an L newborn: {gains[1]:.8f}\n\n'
-        f'Break-even Pr(L): {threshold:.8f}\n\n'
-        f'Break-even Pr(H): {1-threshold:.8f}\n\n'
-        f'50/50 regular profit: {regular_values.mean():.8f}\n\n'
-        f'50/50 discount profit: {discount_values.mean():.8f}\n\n'
-        f'50/50 reoptimized common profit: {common50.profit:.8f}\n\n'
-        'Expected gain = (1-q)*Delta_H + q*Delta_L. The exact cutoff is '
-        '-Delta_H/(Delta_L-Delta_H). Offer the fixed discount when the expected '
-        'gain is positive; at zero the firm is indifferent. No fixed adoption cost '
-        'or classifier error is added.\n\n'
-        'The CSV sweeps q from 0.01 through 0.99 and also solves freely reoptimized '
-        'common prices at every q. The fixed-menu cutoff does not imply a discontinuity '
-        'in those freely optimized prices. It depends on the specified regular and '
-        'discount menus.\n\n'
-        'If the probability being varied instead means the random offer probability a, '
-        'expected profit is regular_profit + a*(discount_profit-regular_profit). '
-        'Then the optimum is a=0 or a=1 (or any a at indifference), rather than an '
-        'interior threshold in a.\n')
-    (output / 'newborn_results.md').write_text(report)
-    print(report)
-    return frame, threshold
-
-
-def run_analysis(output, points=21, gamma_max=3.0):
-    output = Path(output)
-    output.mkdir(parents=True, exist_ok=True)
-    types = [gamma_H, gamma_L]
-    personal = [solve_common([g], [1.0]) for g in types]
-    uniform = solve_common(types, [0.5, 0.5])
-    mix_cache = {}
-
-    def mixture(lam):
-        if lam not in mix_cache:
-            common = solve_common(types, [lam, 1 - lam])
-            perfect = lam * personal[0].profit + (1 - lam) * personal[1].profit
-            mix_cache[lam] = common, perfect, perfect - common.profit
-        return mix_cache[lam]
-
-    rows = []
-    grid = np.unique(np.r_[np.linspace(0, 1, points), 0.5])
-    for lam in grid:
-        p, perfect, gain = mixture(float(lam))
-        row = dict(high_share=lam, common_profit=p.profit, targeted_profit=perfect,
-                   targeting_gain=gain,
-                   common_profit_H=p.type_profits[0], common_profit_L=p.type_profits[1])
-        for j in range(J):
-            row[f'p1_good{j+1}'] = p.p1[j]
-            row[f'posterior_H_given_good{j+1}'] = p.posterior[0, j]
-        rows.append(row)
-    mix = pd.DataFrame(rows)
-    mix.to_csv(output / 'population_mix.csv', index=False)
-
-    gamma_rows = []
-    for g in np.unique(np.r_[np.linspace(0, gamma_max, points), types]):
-        p = solve_common([g], [1.0])
-        common_value = evaluate_policy(uniform.p1, uniform.p2, [g])[0]
-        row = dict(gamma=g, targeted_profit=p.profit, uniform_50_50_profit=common_value,
-                   gain_for_type=p.profit - common_value)
-        for j in range(J):
-            row[f'targeted_p1_good{j+1}'] = p.p1[j]
-        gamma_rows.append(row)
-    gamma_df = pd.DataFrame(gamma_rows)
-    gamma_df.to_csv(output / 'profit_by_gamma.csv', index=False)
-    policy_rows = []
-    for label, p in [('uniform_50_50', uniform), ('targeted_H', personal[0]), ('targeted_L', personal[1])]:
-        for period, history, prices in [(1, 'initial history pooled', p.p1)] + [
-                (2, f'good{j+1}', p.p2[j]) for j in range(J)]:
-            policy_rows.append(dict(policy=label, period=period, history=history,
-                                    **{f'price_good{k+1}': prices[k] for k in range(J)}))
-    pd.DataFrame(policy_rows).to_csv(output / 'prices_50_50.csv', index=False)
-
-    newborn, newborn_cutoff = newborn_discount_analysis(output)
-
-    import matplotlib
-    matplotlib.use('Agg')
-    import matplotlib.pyplot as plt
-    fig, axes = plt.subplots(1, 3, figsize=(15, 4.5))
-    axes[0].plot(mix.high_share, mix.common_profit, label='Common across types')
-    axes[0].plot(mix.high_share, mix.targeted_profit, label='Observed type')
-    axes[0].set(xlabel='Population share of high type', ylabel='Profit per initial consumer')
-    axes[1].plot(mix.high_share, mix.targeting_gain, label='Gross gain from targeting')
-    axes[1].axhline(0, color='black', linestyle='--')
-    axes[1].set(xlabel='Population share of high type', ylabel='Profit gain')
-    axes[2].plot(gamma_df.gamma, gamma_df.targeted_profit, label='Prices optimized for gamma')
-    axes[2].plot(gamma_df.gamma, gamma_df.uniform_50_50_profit, label='Fixed 50/50 common policy')
-    axes[2].set(xlabel='Variety preference gamma', ylabel='Conditional expected profit')
-    for ax in axes:
-        ax.legend(fontsize=8)
-        ax.grid(alpha=0.25)
-    fig.tight_layout()
-    fig.savefig(output / 'profits.png', dpi=180)
-    fig.savefig(output / 'profits.pdf')
-    plt.close(fig)
-    fig, axes = plt.subplots(1, 2, figsize=(11, 4.5))
-    axes[0].plot(newborn.probability_L, newborn.regular_profit, label='Regular H menu')
-    axes[0].plot(newborn.probability_L, newborn.discount_profit, label='Discount L menu')
-    axes[0].plot(newborn.probability_L, newborn.reoptimized_common_profit, label='Reoptimized common menu')
-    axes[0].set(xlabel='Probability newborn is low type', ylabel='Profit per newborn')
-    axes[1].plot(newborn.probability_L, newborn.discount_gain, label='Gain from fixed discount')
-    axes[1].axhline(0, color='black', linestyle='--')
-    axes[1].set(xlabel='Probability newborn is low type', ylabel='Discount profit minus regular profit')
-    if np.isfinite(newborn_cutoff):
-        for ax in axes:
-            ax.axvline(newborn_cutoff, color='gray', linestyle=':',
-                       label=f'Cutoff {newborn_cutoff:.3f}')
-    for ax in axes:
-        ax.grid(alpha=0.25)
-        ax.legend(fontsize=8)
-    fig.tight_layout()
-    fig.savefig(output / 'newborn_discount_cutoff.png', dpi=180)
-    fig.savefig(output / 'newborn_discount_cutoff.pdf')
-    plt.close(fig)
-    report = ('# Toy model numerical results\n\n'
-              'Uniform means common across types; prices vary by product and period-one purchase history.\n'
-              'Consumers are myopic. Period-one outside choices exit. Initial history is pooled.\n'
-              'Profits are per initial consumer, with N normalized to one.\n\n'
-              f'50/50 common profit: {uniform.profit:.8f}\n\n'
-              f'50/50 targeted profit: {mixture(0.5)[1]:.8f}\n\n'
-              f'50/50 targeting gain: {mixture(0.5)[2]:.8f}\n\n'
-              'These are incumbent-history benchmarks. Newborn consumers have no purchase history; '
-              'their discount decision is reported separately in newborn_results.md. No fixed adoption cost '
-              'or noisy classifier is assumed.\n\n'
-              'profit_by_gamma.csv reports conditional expected profits, not a probability density: '
-              'a density over profits requires specifying a distribution over gamma. The population experiment '
-              'uses two point masses, H and L.\n\n'
-              'Optimization uses three starts and checks solver status; this is numerical evidence, '
-              'not a proof of global optimality. See prices_50_50.csv for all prices.\n')
-    (output / 'results.md').write_text(report)
-    print(report)
-    print(pd.DataFrame(policy_rows).to_string(index=False))
-
-
-if __name__ == '__main__':
-    parser = ArgumentParser(description=__doc__)
-    parser.add_argument('--output-dir', default='updates/toy_model/results')
-    parser.add_argument('--points', type=int, default=21)
-    parser.add_argument('--gamma-max', type=float, default=3.0)
-    args = parser.parse_args()
-    if args.points < 3 or args.gamma_max < 0:
-        parser.error('Need points >= 3, gamma-max >= 0')
-    run_analysis(args.output_dir, args.points, args.gamma_max)
+if __name__=='__main__':
+    parser=ArgumentParser(description=__doc__);parser.add_argument('--output-dir',default='updates/toy_model/results')
+    parser.add_argument('--points',type=int,default=61);parser.add_argument('--gamma-max',type=float,default=10.)
+    parser.add_argument('--gamma-min',type=float,default=1.5);parser.add_argument('--gamma-step',type=float,default=.5)
+    args=parser.parse_args()
+    if (args.points<3 or not np.all(np.isfinite([args.gamma_min,args.gamma_max,args.gamma_step]))
+        or args.gamma_step<=0 or args.gamma_min<=gamma_L or args.gamma_max<args.gamma_min
+        or not np.isclose((args.gamma_max-args.gamma_min)/args.gamma_step,round((args.gamma_max-args.gamma_min)/args.gamma_step))):
+        parser.error('Need points >=3, gamma-min > gamma_L, positive step, and endpoints on the grid')
+    run_analysis(args.output_dir,args.points,args.gamma_max,args.gamma_min,args.gamma_step)

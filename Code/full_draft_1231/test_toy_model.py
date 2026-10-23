@@ -1,70 +1,68 @@
-"""Numerical checks for the demand derivatives and backward-induction policy."""
+"""Economic accounting, first-order conditions, and independent solver checks."""
 import unittest
 import numpy as np
-from scipy.optimize._numdiff import approx_derivative
+from scipy.optimize import minimize
 import toy_model as tm
 
+class PricingChecks(unittest.TestCase):
+    def test_full_gradient(self):
+        x=np.array([1.1,1.5,2.2,1.4,2.5,1.8]);types=[2.,1.];weights=[.4,.6]
+        for state in tm.STATES:
+            _,grad=tm.state_objective(x,types,weights,state)
+            numerical=[]
+            for i in range(6):
+                eps=np.zeros(6);eps[i]=1e-6
+                numerical.append((tm.state_objective(x+eps,types,weights,state)[0]-tm.state_objective(x-eps,types,weights,state)[0])/2e-6)
+            np.testing.assert_allclose(grad,numerical,atol=3e-10)
 
-class ToyModelChecks(unittest.TestCase):
-    def test_pooled_share_derivative(self):
-        prices = np.array([1.7, 2.3])
-        for gamma in (0.1, 2.0):
-            _, analytic = tm.shares_jac(prices, gamma)
-            numeric = approx_derivative(lambda p: tm.shares_jac(p, gamma)[0], prices)
-            np.testing.assert_allclose(analytic, numeric, atol=1e-9)
+    def test_initial_switching_and_no_history(self):
+        p=[2.,2.]
+        for state in [0,1]:
+            low=tm.shares_jac(p,1.,state)[0];high=tm.shares_jac(p,2,state)[0]
+            self.assertGreater(high[1-state],low[1-state])
+        np.testing.assert_array_equal(tm.shares_jac(p,1.,None)[0],tm.shares_jac(p,2,None)[0])
 
-    def test_targeting_dominance_and_endpoints(self):
-        high = tm.solve_common([tm.gamma_H], [1.0])
-        low = tm.solve_common([tm.gamma_L], [1.0])
-        common = tm.solve_common([tm.gamma_H, tm.gamma_L], [0.5, 0.5])
-        self.assertGreaterEqual((high.profit + low.profit) / 2, common.profit - 1e-8)
-        for weight, own in [(0.0, low), (1.0, high)]:
-            endpoint = tm.solve_common([tm.gamma_H, tm.gamma_L], [weight, 1-weight])
-            self.assertAlmostEqual(endpoint.profit, own.profit, places=7)
-        np.testing.assert_allclose(common.type_profits,
-            tm.evaluate_policy(common.p1, common.p2, [tm.gamma_H, tm.gamma_L]), atol=1e-10)
+    def test_accounting_and_exit(self):
+        p=tm.solve_common([2.,1.],[.5,.5]);c=tm.components(p.p1,p.p2,[2.,1.])
+        np.testing.assert_allclose(c[:,2],c[:,0]+tm.delta*c[:,1])
+        for i,gamma in enumerate([2.,1.]):
+            expected=0.;survival=0.
+            for a,state in enumerate(tm.STATES):
+                s1,_=tm.shares_jac(p.p1[a],gamma,state)
+                survival+=tm.INITIAL_WEIGHTS[a]*s1.sum()
+                for h in range(2):
+                    s2,_=tm.shares_jac(p.p2[a,h],gamma,h)
+                    expected+=tm.INITIAL_WEIGHTS[a]*s1[h]*(p.p1[a,h]-tm.costs[h]+tm.delta*(s2@(p.p2[a,h]-tm.costs)))
+            self.assertAlmostEqual(c[i,2],expected,places=12)
+            self.assertAlmostEqual(c[i,3],survival,places=12)
+            self.assertLess(survival,1)
 
-    def test_terminal_equal_markup_and_outside_share(self):
-        policy = tm.solve_common([tm.gamma_H], [1.0])
-        for j, prices in enumerate(policy.p2):
-            margins = prices - tm.costs
-            _, outside = tm.logit_probs(tm.val_state(prices, j, tm.gamma_H))
-            np.testing.assert_allclose(margins, -1 / (tm.alpha * outside), atol=2e-6)
+    def test_known_type_price_conditions(self):
+        for gamma in [1.,1.5,2.,10.]:
+            p=tm.solve_common([gamma],[1])
+            for a,state in enumerate(tm.STATES):
+                s1,_=tm.shares_jac(p.p1[a],gamma,state);w=[]
+                for h in range(2):
+                    s2,_=tm.shares_jac(p.p2[a,h],gamma,h);m=p.p2[a,h]-tm.costs
+                    np.testing.assert_allclose(m,-1/(tm.alpha*(1-s2.sum())),atol=2e-5)
+                    w.append(s2@m)
+                np.testing.assert_allclose(p.p1[a]-tm.costs+tm.delta*np.array(w),-1/(tm.alpha*(1-s1.sum())),atol=2e-5)
 
-    def test_posterior_and_envelope_gradient(self):
-        policy = tm.solve_common([tm.gamma_H, tm.gamma_L], [0.5, 0.5])
-        s = np.array([tm.shares_jac(policy.p1, g)[0] for g in (tm.gamma_H, tm.gamma_L)])
-        np.testing.assert_allclose(policy.posterior[0], s[0] / s.sum(axis=0))
-        # Holding the terminal policy fixed gives the same first-order gradient
-        # as the optimized continuation value (envelope theorem).
-        grad = approx_derivative(lambda p: np.mean(tm.evaluate_policy(
-            p, policy.p2, [tm.gamma_H, tm.gamma_L])), policy.p1).ravel()
-        np.testing.assert_allclose(grad, 0, atol=2e-6)
+    def test_information_dominance_and_independent_optimizer(self):
+        types=[2.,1.];personal=[tm.solve_common([g],[1]) for g in types]
+        for q in [0,.25,.5,.75,1]:
+            p=tm.solve_common(types,[q,1-q])
+            self.assertLessEqual(p.profit,q*personal[0].profit+(1-q)*personal[1].profit+1e-8)
+            for i in range(2):self.assertLessEqual(p.type_profits[i],personal[i].profit+1e-8)
+            for a,state in enumerate(tm.STATES):
+                x=np.r_[p.p1[a],p.p2[a].ravel()]
+                val,grad=tm.state_objective(x,types,[q,1-q],state)
+                self.assertLess(np.max(np.abs(grad)),2e-6)
+                independent=minimize(lambda y:-tm.state_objective(y,types,[q,1-q],state)[0],np.tile(tm.costs+2,3),method='Nelder-Mead',options={'maxiter':4000,'xatol':1e-8,'fatol':1e-11})
+                self.assertGreaterEqual(val+1e-7,-independent.fun)
 
-    def test_newborn_has_no_initial_type_signal(self):
-        policy = tm.solve_newborn([tm.gamma_H, tm.gamma_L], [0.5, 0.5])
-        np.testing.assert_allclose(policy.posterior, 0.5)
-        np.testing.assert_allclose(policy.type_profits,
-            tm.evaluate_newborn(policy.p1, policy.p2, [tm.gamma_H, tm.gamma_L]))
+    def test_invalid_inputs(self):
+        for weights in [[.5,.6],[-.1,1.1],[np.nan,1]]:
+            with self.assertRaises(ValueError):tm.solve_common([2.,1.],weights)
 
-    def test_newborn_fixed_discount_cutoff(self):
-        types = [tm.gamma_H, tm.gamma_L]
-        regular = tm.solve_newborn([tm.gamma_H], [1.0])
-        offer = tm.solve_newborn([tm.gamma_L], [1.0])
-        offer.p1 = regular.p1.copy()
-        gains = (tm.evaluate_newborn(offer.p1, offer.p2, types)
-                 - tm.evaluate_newborn(regular.p1, regular.p2, types))
-        self.assertLess(gains[0], 0)
-        self.assertGreater(gains[1], 0)
-        cutoff = -gains[0] / (gains[1] - gains[0])
-        self.assertTrue(0 < cutoff < 1)
-        self.assertAlmostEqual(np.array([1-cutoff, cutoff]) @ gains, 0, places=12)
-        for q in (0.01, 0.5, 0.99):
-            common = tm.solve_newborn(types, [1-q, q])
-            for menu in (regular, offer):
-                value = np.array([1-q, q]) @ tm.evaluate_newborn(menu.p1, menu.p2, types)
-                self.assertGreaterEqual(common.profit + 1e-8, value)
-
-
-if __name__ == '__main__':
-    unittest.main()
+if __name__=='__main__':unittest.main()

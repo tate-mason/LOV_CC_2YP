@@ -1,0 +1,679 @@
+\documentclass[12pt]{article}
+
+% ============================================================
+% PACKAGES
+% ============================================================
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{mathtools}
+\usepackage{bm}
+
+\usepackage{booktabs}
+\usepackage{threeparttable}
+\usepackage{multirow}
+\usepackage{array}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{subcaption}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{setspace}
+\onehalfspacing
+
+\usepackage[authoryear,round]{natbib}
+
+\usepackage[
+    colorlinks=true,
+    citecolor=blue,
+    linkcolor=blue,
+    urlcolor=blue
+]{hyperref}
+
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{microtype}
+
+% ============================================================
+% THEOREM ENVIRONMENTS
+% ============================================================
+
+\newtheorem{proposition}{Proposition}
+\newtheorem{lemma}{Lemma}
+\newtheorem{corollary}{Corollary}
+\newtheorem{assumption}{Assumption}
+
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+
+\theoremstyle{remark}
+\newtheorem{remark}{Remark}
+
+% ============================================================
+% CUSTOM COMMANDS
+% ============================================================
+
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Var}{\operatorname{Var}}
+\newcommand{\Cov}{\operatorname{Cov}}
+\newcommand{\Prob}{\mathbb{P}}
+
+\newcommand{\argmax}{\operatorname*{arg\,max}}
+\newcommand{\argmin}{\operatorname*{arg\,min}}
+
+% ============================================================
+% TITLE
+% ============================================================
+
+\title{Dynamic Optimal Pricing with Consumtpion Fatigue}
+\author{Tate Mason}
+\date{\today}
+
+% ============================================================
+% DOCUMENT
+% ============================================================
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+
+Targeting, dynamic pricing, switching, consumption fatigue, empirical estimation, type distribution, nielsen, yogurt
+
+\end{abstract}
+
+\newpage
+
+% ============================================================
+% INTRODUCTION
+% ============================================================
+
+\section{Introduction}
+\label{sec:introduction}
+
+
+% ============================================================
+% BACKGROUND AND LITERATURE
+% ============================================================
+
+\section{Related Literature and Contribution}
+\label{sec:literature}
+
+The variety-seeking and state dependence literature has been primarily focused on understanding the dynamics of consumer preferences over time. Earlier papers in this literature, like those of \citet{mcalister_dynamic_2026} and \citet{lattin_model_1987} are most closely linked with this paper's interpretation of variety. They posit that a consumer's preferences for a specific product attribute is satiated with repeated purchases. McAlister finds her model of dynamic attribute satiation outperforms models with independent choice occasions in accuracy and significance of estimates. Lattin finds that there is heterogeneity in the variety-seeking types, though he uses a tiny cross-section of his own students for the study. The satiation-based approach was then built upon by \citet{givon_variety_1984} who used an inertia model to show how consumers can differ by preference for brand versus preference for variety. By using the brand rather than a specific attribute of a product, Givon is not able to pick up on specific drivers of product switching. \citet{erdem_decision-making_1996} also looks at the brand choice problem, modeling decision making when consumers do not have perfect knowledge of preferences over products. The authors use a Bayesian updating framework by which consumers can learn about products via experience or advertising. Their key finding is that consumers are risk averse in consumption, leading them to stay with brands they are familiar with. This model is informative as the reverse-side of my supply-side framework. Marketing researchers, \citet{chintagunta_variety_1999} and \citet{dube_multiple_2004}, greatly inform the demand side of this paper. \citet{chintagunta_variety_1999} shows the validity of what he terms the "Lightning Bolt" model of brand choice. He allows for time-varying variety seeking, implying the variety-seeking type can change with time. He finds that state dependence over time and marketing variables are informative in demand estimation. \citet{dube_multiple_2004} progresses Chintagunta's work, showing how consumers seek variety in quantities purchased through the lens of carbonated sodas. Dub\'e successfully estimates consumer preferences over bundles of products within a category, finding that consumer demographics were key in determining the joint distribution. Both of these papers are primarily concerned with brand choice rather than classifying types of consumers. Finally, \citet{ackerberg_advertising_2003} adds to Erdem and Keane's work, allowing for consumers to learn about product attributes via advertising. The key finding here is that switching is primarily induced by the signals put out by advertisements.
+
+% Supply Literature
+
+The literature on personalized pricing is mostly theoretical for physical goods. \citet{grossman_informative_1984} develops a model of advertising expenditure in which the firm is trying to inform consumers of their products' attributes. Their key finding is that advertising provides a social function by improving consumer and product matching. They also find there are excessive levels of advertising in nearly all cases. \citet{karle_imperfect_nodate} model optimal advertising strategies for the firm. Using a theoretical model with two firms, he finds that firms' profits change non-monotonically with targeting ability, decreasing as targeting improves before increasing again. \citet{moorthy_targeting_2023} derives the optimal conditions for targeted advertising. Using a Hotelling framework, the authors find that the key driver of optimal expenditure levels is product differentiation, claiming it as a managerial framework in the face of targeting regulation. \citet{dube_personalized_2023} uses a randomized control trial (RCT) to understand how price personalization impacts firm profits and consumer welfare. He finds that total consumer surplus declines with personalized pricing, 60\% of consumers benefit and, under some conditions, consumer welfare may increase.
+
+% Where I Fit and Large Findings
+
+My contribution is twofold. Firstly, I am primarily concerned with attribute variety rather than brand variety, where much of the previous work is focused. When looking at variety in attributes, I am able to see how consumers switch both within brand as well as between brands. Further, I seek to validate love of variety's application in consumer demand. On the supply side, I develop a simple model which can derive optimal pricing depending on consumer switching-type. This model is then used to simulate the effect of data privacy policy around targeted advertising by obscuring the firm's information around consumer types. 
+
+
+
+% ============================================================
+% THEORETICAL SUPPLY SIDE
+% ============================================================
+
+\section{Theoretical Framework}
+\label{sec:theory}
+
+Consider a two-period model in which there is a distribution of consumers who are born with a switching type
+$\gamma_r$ such that $r\in\{H,L\}$ and $\gamma_H>\gamma_L$, implying some people
+get more utility from novel consumption than others. Further, consumers are born
+with an initial consumption state $h_0 = \mu_a\mathbbm{1}\{a=j\} +
+(1-\mu_a)\mathbbm{1}\{a=0\}$ with an equal probabilty $\mu_a=0.5$. There is a monopolistic firm which produces one product. This firm is pricing to
+induce consumers to switch from the outside good to their product. The firm sets type specific prices $p_{rjt}$ for each period $t=\{1,2\}$ to optimize profit. The consumer's purchase history in a period $t$ will also determine prices. 
+
+
+\subsection{Consumer Demand}
+\label{subsec:model-demand}
+
+Consumers optimize utility over consumption by maximizing the following:
+
+\begin{equation}
+  U_{rjt} = \beta + \gamma_r\mathbbm{1}\{y_t\ne y_{t-1}\} + \alpha p_{rjt} +
+  \varepsilon_{rjt}
+\end{equation}
+
+Where $\beta$ is baseline consumption utility, $\gamma_r\mathbbm{y_t\ne y_{t-1}}$
+captures utility from novelty in consumption obtained by switching products,
+$\alpha p_{rjt}$ is disutility from pricing as $\alpha<0$. Finally,
+$\varepsilon_{rjt}$ is an i.i.d. Gumbel error. The utility function can be
+composed into a deterministic component and a random component,
+
+\begin{align*}
+  U_{rjt} &= V_{rjt} + \varepsilon_{rjt}\\
+  \text{s.t.} \ V_{rjt} &= \beta + \gamma_r\mathbbm{1}\{y_t\ne y_{t-1}\} + \alpha p_{rjt}
+\end{align*}
+
+Using the indirect utility function $V_{rjt}$, choice probabilities can be
+defined as such:
+
+\begin{align*}
+  P_{rjt} &= \frac{\exp\{V_{rjt}\}}{1 + \exp\{V_{rjt}\}} \\
+  &= \frac{\exp\{\beta + \gamma_r\mathbbm{1}\{y_t\ne y_{t-1}\} + \alpha
+  p_{rjt}\}}{1 + \exp\{\beta + \gamma_r\mathbbm{1}\{y_t\ne y_{t-1}\} + \alpha
+  p_{rjt}\}}
+\end{align*}
+
+Because consumers only differ by type, shares are equal to choice probabilities:
+
+\begin{equation}
+  s_{rjt} = P_{rjt}
+\end{equation}
+
+And outside option shares are normalized:
+
+\begin{equation}
+  s_{r0t} = P_{r0t} = \frac{1}{1 + \exp\{V_{rjt}\}}
+\end{equation}
+
+Own price elasticity is given by the derivative of share of product $j$ with respect to price of $j$
+while cross-price is share of outside option with respect to price of $j$. They
+equate to the following:
+
+\begin{align*}
+  \epsilon_{jj} &= \alpha s_{rjt}(1-s_{rjt}) \\
+  &= \alpha s_{rjt}s_{r0t} \\
+  \epsilon_{0j} &= -\alpha s_{r0t}(1-s_{r0t}) \\
+  &= -\alpha s_{r0t}s_{rjt}
+\end{align*}
+
+\subsection{Firm's Problem}
+\label{subsec:firm-problem}
+
+The firm maximizes profits according to the following:
+
+\begin{equation}
+  \Pi = \pi_1(p_{rj1}(h_0)) + \delta\pi_2(p_{rj2}(h_1))
+\end{equation}
+
+Here, $\pi_1(p_{rj1}(h_0))$ is period one profits, a function of period one prices
+given initial state. $\pi_1(p_{rj2}(j1))$ is period two profits, a function of
+period two profits given period one purchase state. Period two profits are
+discounted by $\delta$. Period one profit is defined as follows:
+
+\begin{equation}
+  \pi_1 = \sum_rN_rs_{rj1}(p_{rj1}(h_0) - c_j)
+\end{equation}
+
+$N_r$ is the total population of type $r$, $s_{rj1}$ is the share of agents
+buying product $j$ in period one, and $(p_{rj1}(h_0) - c_j)$ is the profit
+margin for product $j$. 
+
+Period two profits are similarly defined,
+
+\begin{equation}
+  \pi_2 = \sum_rN_rs_{rj1}(s_{rj2}(p_{rj2}(h_1) - c_j))
+\end{equation}
+
+Here, period two profits are made up of the type $r$ $N_r$, the share who
+purchased in period one $s_{rj1}$, the share who purchased in period two
+$s_{rj2}$, and the period two profit margin for product $j$, $(p_{rj2}(h_1) - c_j))$.
+
+With these terms defined, total profit can be rewritten thusly:
+
+\begin{align}
+  \Pi &= \sum_rN_rs_{rj1}(h_0)(p_{rj1} - c_j) + \delta\sum_rN_rs_{rj1}(h_0)(s_{rj2}(h_1)(p_{rj2} - c_j)) \\
+  &= \sum_rN_rs_{rj1}(h_0)(p_{rj1} - c_j + \delta s_{rj2}(h_1)(p_{rj2}-c_j))
+\end{align}
+
+With this in mind, we can solve for optimal price conditions.
+
+% ============================================================
+% OPTIMAL PRICING
+% ============================================================
+
+\section{Optimal Pricing}
+\label{sec:optimal-pricing}
+
+\subsection{First-Order Conditions}
+\label{subsec:foc}
+
+First, we take the derivative of period-two profit with respect to period-two prices.
+
+\begin{align}
+  \frac{\partial\pi_2}{\partial p_{rj2}(h_1)}: 0 &= N_rs_{rj1}(h_0)s_{rj2}(h_1) +
+  \frac{\partial s_{rj2}(h_1)}{\partial p_{rj2}(h_1)}(p_{rj2}(h_1) - c_j) \\
+  &= N_rs_{rj1}(h_0)s_{rj2}(h_1) + \alpha
+  N_rs_{rj1}(h_0)s_{rj2}(h_1)s_{r02}(h_1)(p_{rj2}(h_1) - c_j) \\
+  &= s_{rj2}(h_1) + \alpha s_{rj2}(h_1)s_{r02}(h_1)(p_{rj2}(h_1) - c_j)
+\end{align}
+
+Now, we can take the derivative of total profit with respect to period-one prices.
+
+\begin{align}
+  \frac{\partial\Pi}{\partial p_{rj1}(h_0)}: 0 &= N_rs_{rj1}(h_0) +
+  N_r\frac{\partial s_{rj1}(h_0)}{\partial p_{rj1}(h_0)}[(p_{rj1}(h_0) - c_j +
+  \delta s_{rj2}(h_1)(p_{rj2} - c_j)] \\
+  &= s_{rj1}(h_0) + \alpha s_{rj1}(h_0)s_{r01}(h_0)[(p_{rj1}(h_0) - c_j) + \delta
+  s_{rj2}(h_1)(p_{rj2}(h_1) - c_j)]
+\end{align}
+
+\subsection{Derivation of Optimal Prices}
+\label{subsec:price-derivation}
+
+Using the first order condition found in (9), we can solve for period-two prices
+and then use them to solve for period-one prices.
+
+\begin{align}
+  \alpha s_{rj2}(h_1)s_{r02}(h_1)p_{rj2}(h_1) &= \alpha s_{rj2}(h_1)s_{r02}(h_1)c_j
+  - s_{rj2}(h_1) \\
+  p_{rj2}^*(h_1) &= c_j - \frac{1}{\alpha s_{r02}(h_1)}
+\end{align}
+
+From (13), period-two prices are cost of good plus a logit markup term for
+demand of the outside good. Using this condition, we can solve for period-one's
+price.
+
+\begin{align}
+  \alpha s_{rj1}(h_0)s_{r01}(h_0)p_{rj1}(h_0) &= \alpha
+  s_{rj1}(h_0)s_{r01}(h_0)c_j - \delta(s_{rj2}(h_1)(c_j - \frac{1}{\alpha
+  s_{r02}(h_1)} - c_j)) \\
+  &= \alpha
+  s_{rj1}(h_0)s_{r01}(h_0)c_j +
+  \frac{\delta}{\alpha}(\frac{s_{rj2}(h_1)}{s_{r02}(h_1)}) \\
+  p_{rj1}^*(h_0) &= c_j - \frac{1}{\alpha s_{r01}(h_0)} +
+  \frac{\delta}{\alpha}\frac{s_{rj2}(h_1)}{s_{r02}(h_1)}
+\end{align}
+
+From (18), period-one prices are mostly similar to period-two. The firm prices
+at cost plus a markup for demand of outside good. However, they must also
+account for demand next period. Thus, they lower the price by the demand for
+good $j$ relative to the outside good. This is then discounted by $\delta$
+divided by price sensitivity. This third term is what can induce purchase today
+to then harvest consumers next period with a price raise.
+
+
+% ============================================================
+% COMPARATIVE STATICS AND PROPOSITIONS
+% ============================================================
+
+\section{Comparative Statics}
+\label{sec:comparative-statics}
+\subsection{Main Theoretical Results}
+
+\begin{proposition}
+\label{prop:one}
+Holding all else fixed, an increase in a firm's discount factor decreases the
+  firm's optimal first-period price.
+\end{proposition}
+
+\begin{proof}
+  Differentiating optimal period-one prices $p_{rjt}^*(h_0)$ with respect to the
+  firm's discount factor $\delta$ yields
+  \begin{align*}
+    \frac{\partial p_{rj1}^*(h_1)}{\partial\delta} &= \frac{1}{\alpha s^2_{r02}(h_1)}\frac{d s_{r02}(h_1)}{d\delta} + \frac{1}{\alpha}\frac{s_{rj2}(h_1)}{s_{r02}(h_1)} \\
+    &= \frac{1}{\alpha s_{r02}^2(h_1)}(-\alpha
+    s_{r01}(h_0)s_{rj1}(h_0)\frac{\partial p^*_{rj1}(h_0)}{\partial\delta}) +
+    \frac{1}{\alpha}\frac{s_{rj2}(h_1)}{s_{r02}(h_1)} \\
+    &= -\frac{s_{rj1}(h_0)}{s_{r01}(h_0)}\frac{\partial p^*_{rj1}(h_0)}{\partial\delta} +
+    \frac{1}{\alpha}\frac{s_{rj2}(h_1)}{s_{r02}(h_1)} \\
+    \frac{\partial
+    p^*_{rj1}(h_0)}{\partial\delta}(1+\frac{s_{rj1}(h_0)}{s_{r01}(h_0)}) &=
+    \frac{1}{\alpha}\frac{s_{rj2}(h_1)}{s_{r02}(h_1)} \\
+    \frac{\partial
+    p^*_{rj1}(h_0)}{\partial\delta}(\frac{1}{s_{r01}(h_0)}) &=
+    \frac{1}{\alpha}\frac{s_{rj2}(h_1)}{s_{r02}(h_1)} \\
+    \frac{\partial
+    p^*_{rj1}(h_0)}{\partial\delta} &= \frac{s_{r01}(h_0)s_{rj2}(h_1)}{\alpha
+    s_{r02}(h_1)}
+  \end{align*}
+  Because $\alpha<0$,
+  \begin{equation}
+    \frac{\partial p_{rj1}^*(h_0)}{\partial\delta} < 0
+  \end{equation}
+\end{proof}
+
+\begin{proposition}
+\label{prop:two}
+  Let $z_t = \mathbbm{1}\{y_t\ne y_{t-1}\}$ indicate that a consumer switched
+  products between periods. If $z_1 = 1, \ z_2=0$, first period prices increase
+  with switching type. If $z_1, \ z_2 = 1$, first period prices increase with
+  switching type, but less than in the case when only $z_1=1$. Finally, if $z_1=0, \ z_2=1$, the optimal first-period price decreases as switching type increases.
+\end{proposition}
+
+\begin{proof}
+  Differentiating optimal first-period prices $p_{rj1}^*(h_0)$ with respect to
+  consumer switching type $\gamma_r$ yields
+  \begin{align*}
+    \frac{\partial p_{rj1}^*(h_1)}{\parital\gamma_r} &= -\frac{1}{\alpha
+    s_{r01}^2(h_0)}\frac{ds_{r01}(h_0)}{d\gamma} +
+    \frac{\delta}{\alpha}\frac{d}{d\gamma}(\frac{s_{rj2}(h_1)}{s_{r02}(h_1)}) \\
+    &= -\frac{1}{\alpha s_{r01}(h_0)}(-z_1s_{rj1}(h_0)s_{r01}(h_0) - \alpha
+    s_{rj1}(h_0)s_{r01}(h_0)\frac{\partial p_{rj1}^*(h_0)}{\partial\gamma})  \\
+    &+
+    \frac{\delta}{\alpha}[\frac{s_{rj2}(h_1)}{s_{r02}(h_1)}(z_2(1+s_{rj2}(h_1)))] \\
+    \frac{\partial p_{rj1}^*(h_1)}{\parital\gamma_r}(1+\frac{s_{rj1}(h_0)}{s_{r01}(h_0)}) &=
+    -\frac{z_1s_{rj1}(h_0)}{\alpha s_{r01}(h_0)} +
+    \frac{\delta}{\alpha}[\frac{s_{rj2}(h_1)}{s_{r02}(h_1)}(z_2(1+s_{rj2}(h_1)))] \\ 
+    \frac{\partial
+    p_{rj1}^*(h_0)}{\partial\gamma_r}&=-\frac{z_1s_{rj1}(h_0)}{\alpha} +
+    \frac{\delta
+    s_{r01}(h_0)}{\alpha}[\frac{s_{rj2}(h_1)}{s_{r02}(h_1)}(z_2(1+s_{rj2}(h_1)))]
+  \end{align*}
+  
+  Because $\alpha < 0$, if $z_1=1$,
+  \begin{equation}
+    \frac{\partial p_{rj1}^*(h_0)}{\partial\gamma_r} > 0
+  \end{equation}
+  if $z_1, z_2=1$,
+  \begin{equation}
+    \frac{\partial p_{rj1}^*(h_0)}{\partial\gamma_r} > 0 
+  \end{equation}
+  if $z_2=1$,
+  \begin{equation}
+    \frac{\partial p_{rj1}^*(h_0)}{\partial\gamma_r} < 0 
+  \end{equation}
+
+\end{proof}
+
+\begin{proposition}
+\label{prop:three}
+  An increase in consumers' price sensitivity decreases the firm's optimal
+  first-period price.
+\end{proposition}
+
+\begin{proof}
+  Differentiating the firm's optimal first-period pricing rule $p_{rj1}^*(h_0)$
+  wirth respect to consumer price sensitivity $\alpha$ yields
+  \begin{align*}
+    \frac{\partial p_{rj1}^*(h_0)}{\partial\alpha} &= \frac{1}{\alpha s_{r01}^2(h_0)} + \frac{1}{\alpha s_{r01}(h_0)}\frac{ds_{r01}}{d\alpha} + \frac{d}{d\alpha}[\frac{\delta}{\alpha}\frac{s_{rj2}(h_1)}{s_{r02}(h_1)}] \\
+    &= \frac{1}{\alpha s_{r01}(h_0)} + \frac{1}{\alpha
+    s_{r01}(h_0)}(-p_{rj1}(h_0)s_{rj1}(h_0)s_{r01}(h_0) - \alpha
+    s_{rj1}(h_0)s_{r01}(h_0)\frac{\partial p_{rj1}^*(h_0)}{\partial \alpha})\\ &+
+    \frac{d}{d\alpha}[\frac{\delta}{\alpha}\frac{s_{rj2}(h_1)}{s_{r02}(h_1)}] \\
+    &= \frac{1}{s_{r01}^2(h_0)} - \frac{p_{rj1}(h_0)s_{rj1}(h_0)}{\alpha s_{r01}(h_0)} - \frac{s_{rj1}(h_0)}{s_{r01}(h_0)}\frac{\partial p_{rj1}(h_0)}{\partial\alpha} \\
+    &-
+    \frac{\delta}{\alpha}(\frac{s_{rj2}(h_1)}{s_{r02}(h_1)})[\frac{1}{\alpha}(\frac{1}{\alpha
+    s_{r02}(h_1)}-\frac{p_{rj2}(h_1)s_{rj2}(h_1)}{\alpha}] \\
+    \frac{\partial p_{rj1}^*(h_0)}{\partial\alpha}(1+\frac{s_{rj1}(h_0)}{s_{r01}(h_0)}) &= \frac{1}{s_{r01}^2(h_1)} - \frac{p_{rj1}(h_0)s_{rj1}(h_0)}{\alpha s_{r01}(h_0)} -
+    \frac{\delta}{\alpha}(\frac{s_{rj2}(h_1)}{s_{r02}(h_1)})[\frac{1}{\alpha}(\frac{1}{\alpha
+    s_{r02}(h_1)}-\frac{p_{rj2}(h_1)s_{rj2}(h_1)}{\alpha})] \\
+    \frac{\partial p_{rj1}^*(h_0)}{\alpha} &=
+    \frac{1}{\alpha}[\frac{1}{s_{r01}(h_0)} - p_{rj1}(h_0)s_{rj1}(h_0) -
+    \frac{\delta}{\alpha}(\frac{s_{rj2}(h_1)}{s_{r02}(h_1)})(\frac{1}{s_{r02}} -
+    p_{rj2}(h_1)s_{rj2}(h_1)]
+  \end{align*}
+
+  Because $\alpha < 0$, 
+  \begin{equation}
+    \frac{\partial p_{rj1}^*(h_0)}{\partial\alpha} < 0.
+  \end{equation}
+
+  Thus, greater consumer price sensitivity leads the firm to lower their optimal
+  first-period price.
+\end{proof}
+
+\begin{proposition}
+\label{prop:four}
+  As $\beta$ increases, period-one price effects are ambiguous.
+\end{proposition}
+
+\begin{proof}
+  Differentiating the firm's optimal first-period pricing rule $p_{rj1}^*(h_0)$
+  with respect to consumer preferences $\beta$ yields
+  \begin{align*}
+    \frac{\partial p_{rj1}^*(h_0)}{\partial\beta} &= \frac{1}{\alpha s_{r01}^2(h_0)}\frac{ds_{r01}(h_0)}{d\beta} + \frac{\delta}{\alpha}\frac{s_{rj2}(h_1)}{s_{r02}(h_1)}\frac{d}{d\beta}\\
+    &=\frac{1}{\alpha s_{r01}(h_0)}(-s_{rj1}(h_0)s_{r01}(h_0) - \alpha
+    s_{rj1}(h_0)s_{r01}(h_0)\frac{\partial p^*_{rj1}(h_0)}{\partial\beta}) +
+    \frac{\delta}{\alpha}s_{rj2}(h_1)
+    \\
+    \frac{\partial
+    p_{rj1}^*(h_0)}{\partial\beta}(1+\frac{s_{rj1}(h_0)}{s_{r01}(h_0)}) &=
+    -\frac{s_{rj1}(h_0)}{\alpha s_{r01}(h_0)} +
+    \frac{\delta}{\alpha}s_{rj2}(h_1) \\
+    \frac{\partial p_{rj1}^*(h_0)}{\partial\beta} &=
+    -\frac{s_{rj1}(h_0)}{\alpha} + \frac{\delta}{\alpha}s_{rj2}(h_1)s_{r01}(h_0)\\
+    \frac{\partial p_{rj1}^*(h_0)}{\partial\beta} &=
+    \frac{1}{\alpha}[\delta s_{rj2}(h_1)s_{r01}(h_0) - s_{rj1}(h_0)]
+  \end{align*}
+
+  Because $\alpha<0$,
+  \begin{align}
+    \frac{\partial p_{rj1}^*(h_0)}{\partial\beta} > 0 &\iff \delta
+    s_{rj2}(h_1)s_{r01}(h_0) > s_{rj1}(h_0) \\
+    \frac{\partial p_{rj1}^*(h_0)}{\partial\beta} < 0 &\iff s_{rj1}(h_0) > \delta
+    s_{rj2}(h_1)s_{r01}(h_0)
+  \end{align}
+
+  Therefore, the direction of the effect of a change in $\beta$ depends on on
+  the firm's preferences for current profit versus a consumer's dynamic value.
+\end{proof}
+
+% ============================================================
+% DISCUSSION OF THEORETICAL RESULTS
+% ============================================================
+
+\section{Discussion of Theoretical Results}
+\label{sec:theory-discussion}
+
+Proposition \ref{prop:one} states that, since $\alpha < 0$, as the firm becomes more patient, they are more willing to
+lower their period one price. If they are less patient, they will price period
+one more highly. This trade-off is central to the idea of induce and harvest: a
+more patient firm is more willing to sacrifice today, further inducing period
+one switchers, in pursuit of higher future profits.
+
+Proposition \ref{prop:two} shows that switching has different effects on
+period-one prices depending on switching behavior and timing. Because
+$\alpha<0$, if an agent only switches in period one from their initial state,
+but then stays on that product, the firm will increase the price to extract as
+much value from that consumer as possible. If the consumer switches in only
+period two, the firm will lower prices in period one, inducing them towards
+their product before raising prices in period two. Finally, if the consumer
+switches in both periods, the firm will raise prices, but to a lesser degree
+than if they switched in period one and then stayed. This shows the importance
+of $\gamma_r$ on firm pricing. 
+
+From proposition \ref{prop:three}, we see that as price sensitivity increases,
+the firm will lower its period-one price and raise its period-two prices to
+offset this. The first two terms are the revenue from selling to
+consumers minus a markdown for demand for the outside good. The next grouping is
+discounted period two revenue minus the period-two markdown for demand for the
+outside good. 
+
+Lastly, proposition \ref{prop:four}, the effect of consumer preferences on prices
+is dependent upon the trade-off between the product's current share of
+consumption $s_{rj1}(h_0)$ versus the value of future demand given a switch from
+the outside good to the inside good $\delta s_{rj2}(h_1)s_{r01}(h_0)$. Stronger
+preferences lower the optimal first-period price when the current-period
+incentive dominates. If the discounted future value of demand is sufficiently
+large, the firm will raise the price. 
+
+Preferences for consumption and switching provide the most interesting dynamics.
+Proposition \ref{prop:two} shows that different states of consumption influence
+prices differently. If the consumer is already a consumer of product $j$, the
+firm will raise prices, not needing to lower prices to induce consumption. If
+the consumer is not a consumer in period one, they will lower the optimal period-one price to
+acquire them in period two. Interestingly, if they are a two period consumer, the firm will raise the optimal period-one price, but to a lesser extent than when they do not switch in period two. Thus, if they are a two period switcher, the firm still wants to induce them to be a consumer of $j$ in period two, but not to the same extent as those who only switch to $j$ in period two. Preferences for consumption, as shown in \ref{prop:four}, have an ambiguous effect on period-one prices. The firm needs to make a trade-off between current revenue and future value of demand. Consumer preferences have a decreasing effect on the period-one share of product $j$. So, if the share of consumption on product $j$, the more the firm will raise the price. However, if the firm is more patient, if product $j$'s future share is larger, or if the outside share in period-one is larger, the firm will lower period-one optimal price to gain future value.
+
+% ============================================================
+% EMPIRICAL DEMAND SIDE
+% ============================================================
+
+\section{Data}
+\label{sec:data}
+
+\subsection{Data Sources}
+
+\subsection{Sample Construction}
+
+\subsection{Variable Construction}
+
+\subsection{Summary Statistics}
+
+% ============================================================
+% DEMAND MODEL
+% ============================================================
+
+\section{Demand Model}
+\label{sec:demand-model}
+
+  In each period $t$, the consumer $i$ chooses a product $j$ from the menu of available products $J_t$. The available products are $J_t = \{0,1,2,3\}$ where $j=0$ is the outside option, $j=1$ is purchasing berry yogurt, $j=2$ is purchasing plain yogurt, and $j=3$ is purchasing other flavors. Consumers are assumed to be state-dependent, carrying previous choices forward when love of variety is present. Otherwise, they only internalize characteristic utility and price utility. Each product $j\in J_t$ is a bundle of $k\in K$ characteristics such that $X_{jt}^k \in \mathcal{X}_{jt}$. The consumer's utility from choosing product $j$ at time $t$ is given by:
+\begin{equation}
+\label{eq:utility}
+  U_{ijt} = \beta_0 + \beta_jX_{tj} + \gamma_i\Xi_{itj} + \alpha_ip_{jt} +
+  \varepsilon_{ijt}
+\end{equation}
+
+\begin{alignat*}
+  \text{such that} \\
+    \Xi_{ijt} &= \lambda\sum_{s=1}^{8}\delta^{t-s}\Xi_{ijs} + (1-\lambda)\sum_{j\ne k}\rho x_{k,t-1} \\
+    \varepsilon_{ijt} &\sim \text{T1EV}(0,1) \\
+    \text{$U_{i0t}$}&=\varepsilon_0 
+\end{alignat*}
+
+    In the utility function, there are the following components: $\beta_0$ is a constant, $\beta_j$ is a consumer's utility for characteristic $X_{jt}$ associated with product $j$ in time $t$. Following \citet{lattin_model_1987}, love of variety preference is captured by $\gamma_i$. A consumer's history is given by $\Xi_{ijt}$ where $\lambda$ is a weight on past consumption of good $j$ $\Xi_{ijs}$, discounted with time $\delta^{t-s}$. $\rho$ is an indicator for if a consumer bought a product $x_{k,t-1}$ where $k\ne j$. $\alpha_i$ is the a consumer's price sensitivity. Prices for good $j$ in time $t$ are $p_{jt}$ and $\varepsilon_{ijt}$ is the Gumbel shock.
+
+\subsection{Choice Probabilities}
+
+\begin{equation}
+\label{eq:choice-probability}
+  P_{ijt} = \frac{\exp\{U_{ijt}\}}{1+\sum_{k\in J}\exp\{U_{ikt}\}}
+\end{equation}
+
+We normalize the outside option, not purchasing yogurt, to be zero by construction such that 
+\begin{equation}
+  P_{i0t} = \frac{1}{1 + \sum_{k\in J}\exp\{U_{ikt}\}}
+\end{equation}
+
+\subsection{State Dependence and Consumer Heterogeneity}
+
+\subsection{Market Shares}
+
+
+% ============================================================
+% ESTIMATION
+% ============================================================
+
+\section{Estimation}
+\label{sec:estimation}
+
+\subsection{Identification}
+\label{subsec:identification}
+
+\subsection{Estimation Procedure}
+\label{subsec:estimation-procedure}
+
+\subsection{Likelihood or Moment Conditions}
+
+%\begin{equation}
+%\label{eq:estimation-objective}
+%
+%\end{equation}
+
+\subsection{Standard Errors and Inference}
+
+
+% ============================================================
+% EMPIRICAL RESULTS
+% ============================================================
+
+\section{Results}
+\label{sec:results}
+
+\subsection{Demand Estimates}
+
+\subsection{Price Elasticities}
+
+\subsection{State Dependence}
+
+\subsection{Consumer Heterogeneity}
+
+% ============================================================
+% ROBUSTNESS
+% ============================================================
+%
+%\section{Robustness}
+%\label{sec:robustness}
+%
+%\subsection{Alternative Specifications}
+%
+%\subsection{Alternative Samples}
+%
+%\subsection{Alternative Definitions}
+
+
+% ============================================================
+% DISCUSSION OF EMPIRICAL RESULTS
+% ============================================================
+
+\section{Discussion of Empirical Results}
+\label{sec:empirical-discussion}
+
+\subsection{Economic Magnitudes}
+
+\subsection{Relationship to Theoretical Predictions}
+
+\subsection{Economic Interpretation}
+
+
+% ============================================================
+% SUPPLY-DEMAND CONNECTION
+% ============================================================
+
+\section{Connecting Demand Estimates to Firm Pricing}
+\label{sec:supply-demand}
+
+\subsection{Estimated Demand and Optimal Prices}
+
+\subsection{Counterfactual Pricing}
+
+\subsection{Counterfactual Outcomes}
+
+
+% ============================================================
+% COUNTERFACTUALS AND WELFARE
+% ============================================================
+
+\section{Counterfactuals and Welfare}
+\label{sec:counterfactuals}
+
+\subsection{Counterfactual Experiments}
+
+\subsection{Consumer Surplus}
+
+\subsection{Firm Profits}
+
+\subsection{Total Welfare}
+
+
+% ============================================================
+% CONCLUSION
+% ============================================================
+
+\section{Conclusion}
+\label{sec:conclusion}
+
+
+% ============================================================
+% REFERENCES
+% ============================================================
+
+\bibliographystyle{aer}
+\bibliography{references}
+
+
+% ============================================================
+% APPENDIX
+% ============================================================
+
+\newpage
+\appendix
+
+\section{Additional Data Details}
+\label{app:data}
+
+
+\section{Additional Estimation Details}
+\label{app:estimation}
+
+
+\section{Additional Results}
+\label{app:results}
+
+
+\end{document}

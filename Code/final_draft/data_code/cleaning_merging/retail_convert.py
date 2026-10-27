@@ -6,7 +6,7 @@ input_dir = "/scratch/dtm63837/Kilts_Panel/nielsen_extracts/nielsen_extracts/RMS
 output_dir = "/scratch/dtm63837/Kilts_Panel/Data/RMS"
 os.makedirs(output_dir, exist_ok=True)
 
-annual = 0
+annual = 1
 master = 1
 
 years = range(2006, 2016)
@@ -94,6 +94,15 @@ parquet_files = glob.glob(os.path.join(output_dir, "*.parquet"))
 
 for filepath in sorted(parquet_files):
     filename = os.path.basename(filepath)
-    cols = pl.scan_parquet(filepath).collect_schema().names()
-    print(f"\n--- {filename} ({len(cols)} columns) ---")
-    print(cols)
+
+    # Check if file is empty before reading
+    if os.path.getsize(filepath) == 0:
+        print(f"\n--- {filename} is EMPTY (0 bytes), skipping ---")
+        continue
+
+    try:
+        cols = pl.scan_parquet(filepath).collect_schema().names()
+        print(f"\n--- {filename} ({len(cols)} columns) ---")
+        print(cols)
+    except Exception as e:
+        print(f"\n--- Could not read {filename} (corrupted or partial file): {e} ---")

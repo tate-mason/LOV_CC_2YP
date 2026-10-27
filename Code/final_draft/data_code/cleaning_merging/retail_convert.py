@@ -1,3 +1,4 @@
+import glob
 import os
 import polars as pl
 
@@ -85,3 +86,12 @@ if master:
             print(f"Converted: {tsv_filename} -> {out_name}.parquet")
         else:
             print(f"FAILED: File not found {tsv_filename}")
+
+
+parquet_files = glob.glob(os.path.join(output_dir, "*.parquet"))
+
+for filepath in sorted(parquet_files):
+    filename = os.path.basename(filepath)
+    cols = pl.scan_parquet(filepath).collect_schema().names()
+    print(f"\n--- {filename} ({len(cols)} columns) ---")
+    print(cols)

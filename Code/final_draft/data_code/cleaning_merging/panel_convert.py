@@ -127,7 +127,7 @@ for filepath in glob.glob(os.path.join(base_out_dir, "*.parquet")):
 
     if table_type in columns_to_keep:
         target_cols = columns_to_keep[table_type]
-        cleaned_path = os.path.join(cleaned_dir, filename)
+        cleaned_path = os.path.join(base_out_dir, f"cleaned_{filename}")
 
         (pl.scan_parquet(filepath).select(target_cols).sink_parquet(cleaned_path))
         print(f"Cleaned {filename} -> saved to {cleaned_path}")

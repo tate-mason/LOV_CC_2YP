@@ -6,7 +6,7 @@ import polars as pl
 ## === Define Locals === ##
 
 annual = 0
-master = 1
+master = 0
 
 years = range(2006, 2016)
 base_raw_dir = "/scratch/dtm63837/Kilts_Panel/nielsen_extracts/nielsen_extracts/nielsen_extracts/HMS"
@@ -102,4 +102,25 @@ columns_to_keep = {
         "store_code_uc",
         "panel_year",
     ],
+    "products": [
+        "upc",
+        "product_module_code",
+        "product_module_descr",
+        "product_group_code",
+        "product_group_descr",
+        "brand_code_uc",
+        "brand_descr",
+        "size1_amount",
+        "size1_units",
+    ],
 }
+
+for filepath in glob.glob(os.path.join(base_out_dir, "*.parquet")):
+    filename = os.path.basename(filepath)
+    table_type = filename.rsplit("_", 1)[0]
+    if table_type in columns_to_keep:
+        target_cols = columns_to_keep[table_type]
+        cleaned_path = os.path.join(base_out_dir, f"cleaned_{filename}")
+
+        (pl.scan_parquet(filepath).select(target_cols).sink_parquet(cleaned_path))
+        print(f"Cleaned {filename} -> kept {len(target_cols)} columns")

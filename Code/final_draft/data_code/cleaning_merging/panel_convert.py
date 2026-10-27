@@ -45,24 +45,23 @@ if annual:
             else:
                 print(f"WARNING: File not found {tsv_path}")
 if master:
-    for y in years:
-        for base_tsv, out_name in master_mappings.items():
-            tsv_filename = f"{base_tsv}.tsv"
-            tsv_path = os.path.join(base_raw_dir, "Master_Files/Latest", tsv_filename)
-            parquet_out = os.path.join(base_out_dir, f"{out_name}_{y}.parquet")
+    for base_tsv, out_name in master_mappings.items():
+        tsv_filename = f"{base_tsv}.tsv"
+        tsv_path = os.path.join(base_raw_dir, "Master_Files/Latest", tsv_filename)
+        parquet_out = os.path.join(base_out_dir, f"{out_name}.parquet")
 
-            if os.path.exists(tsv_path):
-                (
-                    pl.scan_csv(
-                        tsv_path,
-                        separator="\t",
-                        quote_char=None,
-                        infer_schema_length=10000,
-                        encoding="utf8-lossy",
-                    )
-                    .rename(str.lower)
-                    .sink_parquet(parquet_out)
+        if os.path.exists(tsv_path):
+            (
+                pl.scan_csv(
+                    tsv_path,
+                    separator="\t",
+                    quote_char=None,
+                    infer_schema_length=10000,
+                    encoding="utf8-lossy",
                 )
+                .rename(str.lower)
+                .sink_parquet(parquet_out)
+            )
 
 ## === Cleaning === ##
 

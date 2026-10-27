@@ -9,11 +9,11 @@ os.makedirs(output_dir, exist_ok=True)
 annual = 1
 master = 1
 
-years = range(2005, 2016)
+years = range(2006, 2016)
 
 annual_mapping = {
     "products_extra": "products_extra",
-    "rms_verisons": "rms",
+    "rms_versions": "rms",
     "stores": "stores",
 }
 movement_mapping = {
@@ -68,7 +68,9 @@ if annual:
 if master:
     for base_mapping, out_name in master_mapping.items():
         tsv_filename = f"{base_mapping}.tsv"
-        tsv_path = os.path.join(input_dir, "Master_Files_2006-2020", tsv_filename)
+        tsv_path = os.path.join(
+            input_dir, "Master_Files_2006-2020/Latest", tsv_filename
+        )
         parquet_out = os.path.join(output_dir, f"{out_name}.parquet")
 
         if os.path.exists(tsv_path):

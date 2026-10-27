@@ -5,6 +5,9 @@ import polars as pl
 
 ## === Define Locals === ##
 
+annual = 0
+master = 1
+
 years = range(2006, 2016)
 base_raw_dir = "/scratch/dtm63837/Kilts_Panel/nielsen_extracts/nielsen_extracts/nielsen_extracts/HMS"
 base_out_dir = "/scratch/dtm63837/Kilts_Panel/Data"
@@ -15,43 +18,51 @@ base_mapping = {
     "purchases": "purchases",
     "trips": "trips",
 }
-
+master_mappings = {"products": "products", "retailers": "retailers"}
 ## === Conversion Function === ##
 
-# for y in years:
-#    print(f"\n--- Converting year {y} ---")
-#
-#    for base_tsv, out_name in base_mapping.items():
-#        tsv_filename = f"{base_tsv}_{y}.tsv"
-#        tsv_path = os.path.join(base_raw_dir, str(y), "Annual_Files", tsv_filename)
-#        parquet_out = os.path.join(base_out_dir, f"{out_name}_{y}.parquet")
-#
-#        if os.path.exists(tsv_path):
-#            (
-#                pl.scan_csv(
-#                    tsv_path, separator="\t", quote_char=None, infer_schema_length=10000
-#                )
-#                .rename(str.lower)
-#                .sink_parquet(parquet_out)
-#            )
-#            print(f"Converted: {tsv_filename} -> {out_name}_{y}.parquet")
-#        else:
-#            print(f"WARNING: File not found {tsv_path}")
-master_mappings = {"products": "products", "retailers": "retailers"}
-for y in years:
-    for base_tsv, out_name in master_mappings.items():
-        tsv_filename = f"{base_tsv}.tsv"
-        tsv_path = os.path.join(base_raw_dir, "Master_Files/Latest", tsv_filename)
-        parquet_out = os.path.join(base_out_dir, f"{out_name}_{y}.parquet")
+if annual:
+    for y in years:
+        print(f"\n--- Converting year {y} ---")
 
-        if os.path.exists(tsv_path):
-            (
-                pl.scan_csv(
-                    tsv_path, separator="\t", quote_char=None, infer_schema_length=10000
+        for base_tsv, out_name in base_mapping.items():
+            tsv_filename = f"{base_tsv}_{y}.tsv"
+            tsv_path = os.path.join(base_raw_dir, str(y), "Annual_Files", tsv_filename)
+            parquet_out = os.path.join(base_out_dir, f"{out_name}_{y}.parquet")
+
+            if os.path.exists(tsv_path):
+                (
+                    pl.scan_csv(
+                        tsv_path,
+                        separator="\t",
+                        quote_char=None,
+                        infer_schema_length=10000,
+                    )
+                    .rename(str.lower)
+                    .sink_parquet(parquet_out)
                 )
-                .rename(str.lower)
-                .sink_parquet(parquet_out)
-            )
+                print(f"Converted: {tsv_filename} -> {out_name}_{y}.parquet")
+            else:
+                print(f"WARNING: File not found {tsv_path}")
+if master:
+    for y in years:
+        for base_tsv, out_name in master_mappings.items():
+            tsv_filename = f"{base_tsv}.tsv"
+            tsv_path = os.path.join(base_raw_dir, "Master_Files/Latest", tsv_filename)
+            parquet_out = os.path.join(base_out_dir, f"{out_name}_{y}.parquet")
+
+            if os.path.exists(tsv_path):
+                (
+                    pl.scan_csv(
+                        tsv_path,
+                        separator="\t",
+                        quote_char=None,
+                        infer_schema_length=10000,
+                        encoding="utf-8-lossy",
+                    )
+                    .rename(str.lower)
+                    .sink_parquet(parquet_out)
+                )
 
 ## === Cleaning === ##
 

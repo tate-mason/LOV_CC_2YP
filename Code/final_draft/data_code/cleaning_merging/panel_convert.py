@@ -75,7 +75,7 @@ for filepath in sorted(parquet_files):
 
 columns_to_keep = {
     "panelists": [
-        "household_cd",
+        pl.col("household_cd").alias("household_code"),
         "panel_year",
         "household_income",
         "household_size",
@@ -113,6 +113,7 @@ columns_to_keep = {
         "size1_amount",
         "size1_units",
     ],
+    "retailers": [pl.col("retailer_code").alias("store_code_uc"), "channel_type"],
 }
 
 for filepath in glob.glob(os.path.join(base_out_dir, "*.parquet")):

@@ -11,7 +11,7 @@ os.makedirs(final_dir, exist_ok=True)
 
 concat_list = ["panelists", "purchases", "trips"]
 for table in concat_list:
-    file_pattern = os.path.join(base_out_dir, f"{table}_*.parquet")
+    file_pattern = os.path.join(base_out_dir, f"cleaned_{table}_*.parquet")
     concat_out = os.path.join(final_dir, f"{table}.parquet")
 
     print(f"Combining {table} files...")

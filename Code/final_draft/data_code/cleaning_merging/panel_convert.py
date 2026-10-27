@@ -29,7 +29,7 @@ for y in years:
         if os.path.exists(tsv_path):
             (
                 pl.scan_csv(
-                    tsv_path, separator="\t", quote_char=None, infer_schema_length=0
+                    tsv_path, separator="\t", quote_char=None, infer_schema_length=10000
                 )
                 .rename(str.lower)
                 .sink_parquet(parquet_out)
@@ -49,7 +49,7 @@ for y in years:
         if os.path.exists(tsv_path):
             (
                 pl.scan_csv(
-                    tsv_path, separator="\t", quote_char=None, infer_schema_length=0
+                    tsv_path, separator="\t", quote_char=None, infer_schema_length=10000
                 )
                 .rename(str.lower)
                 .sink_parquet(parquet_out)

@@ -10,8 +10,8 @@ panelists = pl.scan_parquet(os.path.join(base_dir, "combined/panelists.parquet")
 purchases = pl.scan_parquet(os.path.join(base_dir, "combined/purchases.parquet"))
 trips = pl.scan_parquet(os.path.join(base_dir, "combined/trips.parquet"))
 
-products = pl.scan_parquet(os.path.join(base_dir, "products.parquet"))
-retailers = pl.scan_parquet(os.path.join(base_dir, "retailers.parquet"))
+products = pl.scan_parquet(os.path.join(base_dir, "cleaned_products.parquet"))
+retailers = pl.scan_parquet(os.path.join(base_dir, "cleaned_retailers.parquet"))
 
 ## === Merge === ##
 merged = (

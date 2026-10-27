@@ -64,3 +64,34 @@ for filepath in sorted(parquet_files):
     cols = pl.scan_parquet(filepath).collect_schema().names()
     print(f"\n--- {filename} ({len(cols)} columns) ---")
     print(cols)
+
+columns_to_keep = {
+    "panelists": [
+        "household_cd",
+        "panel_year",
+        "household_income",
+        "household_size",
+        "male_head_age",
+        "female_head_age",
+        "male_head_employment",
+        "female_head_employment",
+        "race",
+        "hispanic_origin",
+        "dma_cd",
+        "dma_name",
+    ],
+    "purchases": [
+        "trip_code_uc",
+        "upc",
+        "quantity",
+        "total_price_paid",
+        "deal_flag_uc",
+    ],
+    "trips": [
+        "trip_code_uc",
+        "household_code",
+        "purchase_date",
+        "store_code_uc",
+        "panel_year",
+    ],
+}

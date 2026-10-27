@@ -7,7 +7,7 @@ output_dir = "/scratch/dtm63837/Kilts_Panel/Data/RMS"
 os.makedirs(output_dir, exist_ok=True)
 
 annual = 0
-master = 0
+master = 1
 
 years = range(2006, 2016)
 

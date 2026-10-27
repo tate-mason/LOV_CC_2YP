@@ -58,7 +58,7 @@ if master:
                         separator="\t",
                         quote_char=None,
                         infer_schema_length=10000,
-                        encoding="utf-8-lossy",
+                        encoding="utf8-lossy",
                     )
                     .rename(str.lower)
                     .sink_parquet(parquet_out)

@@ -118,10 +118,16 @@ columns_to_keep = {
 
 for filepath in glob.glob(os.path.join(base_out_dir, "*.parquet")):
     filename = os.path.basename(filepath)
-    table_type = filename.rsplit("_", 1)[0]
+
+    # Remove .parquet extension first
+    clean_name = os.path.splitext(filename)[0]  # e.g., "retailers" or "trips_2011"
+
+    # Split by underscore if present to get the table name
+    table_type = clean_name.split("_")[0]  # e.g., "retailers", "trips", "panelists"
+
     if table_type in columns_to_keep:
         target_cols = columns_to_keep[table_type]
-        cleaned_path = os.path.join(base_out_dir, f"cleaned_{filename}")
+        cleaned_path = os.path.join(cleaned_dir, filename)
 
         (pl.scan_parquet(filepath).select(target_cols).sink_parquet(cleaned_path))
-        print(f"Cleaned {filename} -> kept {len(target_cols)} columns")
+        print(f"Cleaned {filename} -> saved to {cleaned_path}")

@@ -5,11 +5,17 @@ import numpy as np
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+import sympy as sp
 from model.numerical import solve
+from model.symbols import alpha, delta, sj1, s01, sj2, s02, z1, z2
+from comparative_statics.gamma_p1beta import dp1dbeta_dgamma_clean
 
 OUT = Path('figures')
 PARAMETERS = dict(alpha=-2., beta=-1., delta=.7, c=1.)
 CASES = {'(0,0)':(0,0), '(1,0)':(1,0), '(0,1)':(0,1)}
+MIXED_DERIVATIVE = sp.lambdify(
+    (alpha, delta, sj1, s01, sj2, s02, z1, z2),
+    dp1dbeta_dgamma_clean, 'numpy')
 
 
 def main():
@@ -22,21 +28,24 @@ def main():
         p1,p2,s1,s2,profit=result.T
         a,d=PARAMETERS['alpha'],PARAMETERS['delta']
         derivative=(-p2*z1*s1+z2*s2*(p1+d*(1-s1)*p2))/(a*p2**2)
-        curves[label]=(p1,p2,s1,s2,profit,derivative)
-        rows.extend(zip([label]*len(grid),grid,p1,p2,s1,s2,profit,p1/p2,derivative))
+        mixed_derivative=MIXED_DERIVATIVE(a,d,s1,1-s1,s2,1-s2,z1,z2)
+        curves[label]=(p1,p2,s1,s2,profit,derivative,mixed_derivative)
+        rows.extend(zip([label]*len(grid),grid,p1,p2,s1,s2,profit,p1/p2,derivative,mixed_derivative))
     with (OUT/'solutions.csv').open('w') as f:
         writer=csv.writer(f)
-        writer.writerow(['history','gamma','p1','p2','s1','s2','profit','ratio','ratio_derivative'])
+        writer.writerow(['history','gamma','p1','p2','s1','s2','profit','ratio','ratio_derivative','dp1_dbeta_dgamma'])
         writer.writerows(rows)
     specs=[('profit_by_gamma',4,'Optimized expected profit'),
            ('price_ratio_by_gamma',None,'Optimal price ratio p1/p2'),
-           ('price_ratio_derivative_cases',5,'d(p1/p2)/d gamma')]
+           ('price_ratio_derivative_cases',5,'d(p1/p2)/d gamma'),
+           ('beta_p1_derivative_by_gamma',6,
+            r'$\mathrm{d}(\mathrm{d}p_{j1}^*/\mathrm{d}\beta)/\mathrm{d}\gamma$')]
     for name,index,ylabel in specs:
         fig,ax=plt.subplots(figsize=(7,4.5))
         for label,values in curves.items():
             y=values[0]/values[1] if index is None else values[index]
             ax.plot(grid,y,label=label,linewidth=2)
-        if index==5:
+        if index in (5,6):
             ax.axhline(0,color='black',linewidth=.7)
         ax.set(xlabel='Switching preference gamma',ylabel=ylabel)
         ax.set_title('Solutions of both logit pricing FOCs')
@@ -47,7 +56,7 @@ def main():
         for ext in ('png','pdf'):
             fig.savefig(OUT/f'{name}.{ext}',dpi=180)
         plt.close(fig)
-    print(f'Saved three figures (PNG/PDF) and solutions.csv in {OUT}/')
+    print(f'Saved {len(specs)} figures (PNG/PDF) and solutions.csv in {OUT}/')
 
 if __name__=='__main__':
     main()

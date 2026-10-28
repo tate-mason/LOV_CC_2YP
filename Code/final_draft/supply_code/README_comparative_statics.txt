@@ -7,6 +7,9 @@ validation coverage, reproducibility, and suggested figure extensions.
 
 Figures are saved as PNG and PDF under figures/, alongside solutions.csv.
 Both pricing FOCs are re-solved at each gamma; all shares adjust endogenously.
+The mixed derivative d(dp_j1/dbeta)/dgamma is plotted in
+figures/beta_p1_derivative_by_gamma.png (and .pdf), with values in
+the dp1_dbeta_dgamma column of solutions.csv.
 
 For alpha<0, positive prices and interior shares:
 d(p1/p2)/dgamma is zero for (0,0), positive for (1,0), negative for (0,1).

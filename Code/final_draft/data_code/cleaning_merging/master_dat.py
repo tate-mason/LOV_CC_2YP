@@ -7,12 +7,15 @@ final_out = os.path.join(input_dir, "merged_df.parquet")
 HMS = (
     pl.scan_parquet(os.path.join(input_dir, "merged_panel.parquet"))
     .with_columns(
-        purchase_date=pl.col("purchase_date").cast(pl.String).str.to_date("%Y%m%d")
+        # Parses "YYYY-MM-DD" directly to Date
+        purchase_date=pl.col("purchase_date").str.to_date()
     )
     .with_columns(
-        # Snap directly to the Saturday ending the week
-        week_end=pl.col("purchase_date")
-        .dt.truncate("1w_sat")
+        # Compute Saturday week_end and convert to integer YYYYMMDD (e.g., 20060527)
+        week_end=(
+            pl.col("purchase_date")
+            + pl.duration(days=(6 - (pl.col("purchase_date").dt.weekday() % 7)))
+        )
         .dt.strftime("%Y%m%d")
         .cast(pl.Int64)
     )

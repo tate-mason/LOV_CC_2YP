@@ -7,6 +7,7 @@ final_out = os.path.join(base_dir, "merged_rms.parquet")
 print("Loading lazy frames...")
 
 # 1. Load movement anchor
+# 1. Load movement anchor and derive panel_year from week_end
 movements = pl.concat(
     [
         pl.scan_parquet(os.path.join(base_dir, "combined/3612.parquet")),
@@ -16,7 +17,9 @@ movements = pl.concat(
     [
         pl.col("upc").cast(pl.Int64),
         pl.col("store_code_uc").cast(pl.Int64),
-        pl.col("panel_year").cast(pl.Int32),
+        # Extract 4-digit year from week_end (handles both Date and String formats)
+        pl.col("week_end").str.slice(0, 4).cast(pl.Int32).alias("panel_year"),
+        # If week_end is already a Polars Date type, use: pl.col("week_end").dt.year().cast(pl.Int32).alias("panel_year")
     ]
 )
 

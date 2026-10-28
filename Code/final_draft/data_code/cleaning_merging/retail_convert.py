@@ -122,7 +122,7 @@ columns_to_keep = {
     "products_extra": ["upc", "panel_year", "flavor_code", "flavor_descr"],
     "stores": [
         "store_code_uc",
-        pl.col("year").alias("panel_year"),
+        "year",  # Keep as string 'year' during initial extraction
         "retailer_code",
         "channel_code",
         "dma_code",

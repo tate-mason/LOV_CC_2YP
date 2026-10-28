@@ -37,9 +37,12 @@ products = (
 # 4. Stores table (unique on store + year)
 stores = (
     pl.scan_parquet(os.path.join(base_dir, "combined/stores.parquet"))
-    .rename({"year": "panel_year"})
+    .rename({"year": "panel_year"})  # Safely renames 'year' to 'panel_year'
     .with_columns(
-        [pl.col("store_code_uc").cast(pl.Int64), pl.col("panel_year").cast(pl.Int32)]
+        [
+            pl.col("store_code_uc").cast(pl.Int64),
+            pl.col("panel_year").cast(pl.Int32),
+        ]
     )
     .unique(subset=["store_code_uc", "panel_year"], keep="first")
 )

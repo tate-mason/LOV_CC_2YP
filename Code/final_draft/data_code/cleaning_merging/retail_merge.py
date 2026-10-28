@@ -11,8 +11,8 @@ rms = pl.scan_parquet(os.path.join(base_dir, "combined/rms.parquet"))
 products_extra = pl.scan_parquet(
     os.path.join(base_dir, "combined/products_extra.parquet")
 )
-movements = pl.scan_parquet(os.path.join(base_dir, "combined/3612")).join(
-    pl.scan_parquet(os.path.join(base_dir, "combined/3603")),
+movements = pl.scan_parquet(os.path.join(base_dir, "combined/3612.parquet")).join(
+    pl.scan_parquet(os.path.join(base_dir, "combined/3603.parquet")),
     on=["upc", "price"],
     how="inner",
 )

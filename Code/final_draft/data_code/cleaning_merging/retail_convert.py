@@ -112,6 +112,7 @@ columns_to_keep = {
     "3612": ["store_code_uc", "upc", "week_end", "price"],
     "products": [
         "upc",
+        "upc_ver_uc",
         "product_module_code",
         "brand_code_uc",
         "brand_descr",
@@ -119,7 +120,13 @@ columns_to_keep = {
         "size1_amount",
         "size1_units",
     ],
-    "products_extra": ["upc", "panel_year", "flavor_code", "flavor_descr"],
+    "products_extra": [
+        "upc",
+        "upc_ver_uc",
+        "panel_year",
+        "flavor_code",
+        "flavor_descr",
+    ],
     "stores": [
         "store_code_uc",
         "year",  # Keep as string 'year' during initial extraction

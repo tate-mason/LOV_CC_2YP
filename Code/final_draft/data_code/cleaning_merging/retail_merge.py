@@ -25,7 +25,7 @@ merged = (
     .join(rms, on="upc", how="left", suffix="_rms")
     .join(stores, on=["store_code_uc", "panel_year"], how="left", suffix="_str")
     .join(products_extra, on="upc", suffix="_xtra")
-    .join(brand_var, on="brand", suffix="_brand")
+    .join(brand_var, on="brand_code_uc", suffix="_brand")
 )
 print("Merging all tables and streaming...")
 merged.sink_parquet(final_out)

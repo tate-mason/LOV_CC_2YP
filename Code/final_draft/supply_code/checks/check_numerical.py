@@ -11,6 +11,9 @@ from comparative_statics.alpha_p1 import dp1_dalpha
 from comparative_statics.delta_p1 import dp1_ddelta
 from comparative_statics.gamma_profit import dPi_dgamma
 from comparative_statics.gamma_p1beta import dp1dbeta_dgamma_clean
+from comparative_statics.gamma2_p1 import d2p1_dgamma2
+from comparative_statics.gamma2_p2 import d2p2_dgamma2
+from comparative_statics.gamma_p2beta import dp2dbeta_dgamma
 from comparative_statics.gamma_p1p2 import ratio_derivative
 
 profit = sj1_expr*(p1-c+delta*sj2_expr*(p2-c))
@@ -40,5 +43,10 @@ for a,b,d,cost in [(-2.,-1.,.7,1.),(-1.,.2,.4,1.),(-3.,1.,.9,.5)]:
                     def beta_slope(result):
                         return (d*result[3]*(1-result[2])-result[2])/a
                     assert np.isclose((beta_slope(plus)-beta_slope(minus))/(2*h),float(dp1dbeta_dgamma_clean.subs(sub)),rtol=2e-5,atol=1e-8)
+                    def gamma_slope(result):
+                        return (-history[0]*result[2]+d*history[1]*result[3]*(1-result[2]))/a
+                    assert np.isclose((gamma_slope(plus)-gamma_slope(minus))/(2*h),float(d2p1_dgamma2.subs(sub)),rtol=2e-5,atol=1e-8)
+                    assert np.isclose((-plus[3]/a+minus[3]/a)/(2*h),float(dp2dbeta_dgamma.subs(sub)),rtol=2e-5,atol=1e-8)
+                    assert np.isclose((-history[1]*plus[3]/a+history[1]*minus[3]/a)/(2*h),float(d2p2_dgamma2.subs(sub)),rtol=2e-5,atol=1e-8)
             count+=1
 print(f'Numerical FOCs, negative definite Hessians, and re-solved finite differences: PASS ({count} solutions)')

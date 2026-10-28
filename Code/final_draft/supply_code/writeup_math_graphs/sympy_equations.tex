@@ -1,0 +1,39 @@
+\section*{Model and pricing conditions}
+\[
+v_1 = \alpha p_{1} + \beta + \gamma z_{1}
+\]
+\[
+v_2 = \alpha p_{2} + \beta + \gamma z_{2}
+\]
+\[
+s_1 = \frac{e^{\alpha p_{1} + \beta + \gamma z_{1}}}{e^{\alpha p_{1} + \beta + \gamma z_{1}} + 1}
+\]
+\[
+s_2 = \frac{e^{\alpha p_{2} + \beta + \gamma z_{2}}}{e^{\alpha p_{2} + \beta + \gamma z_{2}} + 1}
+\]
+\[
+\Pi = \delta s_{1} s_{2} \left(- c + p_{2}\right) + s_{1} \left(- c + p_{1}\right)
+\]
+\subsection*{First-order conditions for both prices}
+\[
+F_1 = \frac{\partial\Pi}{\partial p_1} = \alpha s_{1} \left(1 - s_{1}\right) \left(- c + \delta s_{2} \left(- c + p_{2}\right) + p_{1}\right) + s_{1}
+\]
+\[
+\frac{\partial\Pi}{\partial p_2} = \delta s_1 F_2 = \delta s_{1} \left(- \alpha c s_{2} \left(1 - s_{2}\right) + \alpha p_{2} s_{2} \left(1 - s_{2}\right) + s_{2}\right)
+\]
+\[
+F_2 = - \alpha c s_{2} \left(1 - s_{2}\right) + \alpha p_{2} s_{2} \left(1 - s_{2}\right) + s_{2}
+\]
+\[F_1=F_2=0\]
+\[
+0 = \frac{F_1}{s_1} = - \alpha \left(1 - s_{1}\right) \left(c + \delta s_{2} \left(c - p_{2}\right) - p_{1}\right) + 1
+\]
+\[
+0 = \frac{F_2}{s_2} = - \alpha c \left(1 - s_{2}\right) + \alpha p_{2} \left(1 - s_{2}\right) + 1
+\]
+\[
+p_2^* = c - \frac{1}{\alpha \left(1 - s_{2}\right)}
+\]
+\[
+p_1^* = c + \frac{\delta s_{2}}{\alpha \left(1 - s_{2}\right)} - \frac{1}{\alpha \left(1 - s_{1}\right)}
+\]

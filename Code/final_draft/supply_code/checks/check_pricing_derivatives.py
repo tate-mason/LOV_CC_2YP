@@ -7,7 +7,9 @@ from comparative_statics.gamma_p2 import dp2_dgamma
 from comparative_statics.beta_p1 import dp1_dbeta
 from comparative_statics.beta_p2 import dp2_dbeta
 from comparative_statics.alpha_p1 import dp1_dalpha
+from comparative_statics.alpha_p2 import dp2_dalpha
 from comparative_statics.delta_p1 import dp1_ddelta
+from comparative_statics.delta_p2 import dp2_ddelta
 from comparative_statics.gamma_profit import dPi_dgamma
 from model.profit import Pi
 
@@ -17,8 +19,8 @@ J = F.jacobian([p1,p2])
 shares = {sj1:sj1_expr, s01:1-sj1_expr, sj2:sj2_expr, s02:1-sj2_expr}
 for parameter, expected in [
     (gamma,[dp1_dgamma,dp2_dgamma]), (beta,[dp1_dbeta,dp2_dbeta]),
-    (alpha,[dp1_dalpha,(1-alpha*p2*sj2_expr)/alpha**2]),
-    (delta,[dp1_ddelta,0])]:
+    (alpha,[dp1_dalpha,dp2_dalpha]),
+    (delta,[dp1_ddelta,dp2_ddelta])]:
     residual = J * sp.Matrix([sp.sympify(t).subs(shares) for t in expected]) + F.diff(parameter)
     for actual in residual:
         assert sp.simplify(actual) == 0, (parameter, sp.simplify(actual))

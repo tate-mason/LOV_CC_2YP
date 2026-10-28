@@ -1,0 +1,611 @@
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.8.17)  28 OCT 2026 16:16
+entering extended mode
+ restricted \write18 enabled.
+ %&-line parsing enabled.
+**comparative_statics_figures.tex
+(./comparative_statics_figures.tex
+LaTeX2e <2026-06-01>
+L3 programming layer <2026-07-20>
+(/usr/local/texlive/2026/texmf-dist/tex/latex/base/article.cls
+Document Class: article 2025/01/22 v1.4n Standard LaTeX document class
+(/usr/local/texlive/2026/texmf-dist/tex/latex/base/size11.clo
+File: size11.clo 2025/01/22 v1.4n Standard LaTeX file (size option)
+)
+\c@part=\count276
+\c@section=\count277
+\c@subsection=\count278
+\c@subsubsection=\count279
+\c@paragraph=\count280
+\c@subparagraph=\count281
+\c@figure=\count282
+\c@table=\count283
+\abovecaptionskip=\skip49
+\belowcaptionskip=\skip50
+\bibindent=\dimen150
+)
+(/usr/local/texlive/2026/texmf-dist/tex/latex/geometry/geometry.sty
+Package: geometry 2026/03/07 v6.0 Page Geometry
+
+(/usr/local/texlive/2026/texmf-dist/tex/latex/graphics/keyval.sty
+Package: keyval 2026-05-17 v1.15 key=value parser (DPC)
+\KV@toks@=\toks17
+)
+(/usr/local/texlive/2026/texmf-dist/tex/generic/iftex/ifvtex.sty
+Package: ifvtex 2019/10/25 v1.7 ifvtex legacy package. Use iftex instead.
+
+(/usr/local/texlive/2026/texmf-dist/tex/generic/iftex/iftex.sty
+Package: iftex 2024/12/12 v1.0g TeX engine tests
+))
+\Gm@cnth=\count284
+\Gm@cntv=\count285
+\c@Gm@tempcnt=\count286
+\Gm@bindingoffset=\dimen151
+\Gm@wd@mp=\dimen152
+\Gm@odd@mp=\dimen153
+\Gm@even@mp=\dimen154
+\Gm@layoutwidth=\dimen155
+\Gm@layoutheight=\dimen156
+\Gm@layouthoffset=\dimen157
+\Gm@layoutvoffset=\dimen158
+\Gm@dimlist=\toks18
+)
+(/usr/local/texlive/2026/texmf-dist/tex/latex/amsmath/amsmath.sty
+Package: amsmath 2026/05/19 v2.18d AMS math features
+\@mathmargin=\skip51
+
+For additional information on amsmath, use the `?' option.
+(/usr/local/texlive/2026/texmf-dist/tex/latex/amsmath/amstext.sty
+Package: amstext 2024/11/17 v2.01 AMS text
+
+(/usr/local/texlive/2026/texmf-dist/tex/latex/amsmath/amsgen.sty
+File: amsgen.sty 1999/11/30 v2.0 generic functions
+\@emptytoks=\toks19
+\ex@=\dimen159
+))
+(/usr/local/texlive/2026/texmf-dist/tex/latex/amsmath/amsbsy.sty
+Package: amsbsy 1999/11/29 v1.2d Bold Symbols
+\pmbraise@=\dimen160
+)
+(/usr/local/texlive/2026/texmf-dist/tex/latex/amsmath/amsopn.sty
+Package: amsopn 2022/04/08 v2.04 operator names
+)
+\inf@bad=\count287
+LaTeX Info: Redefining \frac on input line 233.
+\uproot@=\count288
+\leftroot@=\count289
+LaTeX Info: Redefining \overline on input line 398.
+LaTeX Info: Redefining \colon on input line 409.
+\classnum@=\count290
+\DOTSCASE@=\count291
+LaTeX Info: Redefining \ldots on input line 495.
+LaTeX Info: Redefining \dots on input line 498.
+LaTeX Info: Redefining \cdots on input line 619.
+\Mathstrutbox@=\box53
+\strutbox@=\box54
+LaTeX Info: Redefining \big on input line 721.
+LaTeX Info: Redefining \Big on input line 722.
+LaTeX Info: Redefining \bigg on input line 723.
+LaTeX Info: Redefining \Bigg on input line 724.
+\big@size=\dimen161
+LaTeX Font Info:    Redeclaring font encoding OML on input line 742.
+LaTeX Font Info:    Redeclaring font encoding OMS on input line 743.
+\macc@depth=\count292
+LaTeX Info: Redefining \bmod on input line 904.
+LaTeX Info: Redefining \pmod on input line 909.
+LaTeX Info: Redefining \smash on input line 939.
+LaTeX Info: Redefining \relbar on input line 969.
+LaTeX Info: Redefining \Relbar on input line 970.
+\c@MaxMatrixCols=\count293
+\dotsspace@=\muskip17
+\c@parentequation=\count294
+\dspbrk@lvl=\count295
+\tag@help=\toks20
+\row@=\count296
+\column@=\count297
+\maxfields@=\count298
+\andhelp@=\toks21
+\eqnshift@=\dimen162
+\alignsep@=\dimen163
+\tagshift@=\dimen164
+\tagwidth@=\dimen165
+\totwidth@=\dimen166
+\lineht@=\dimen167
+\@envbody=\toks22
+\multlinegap=\skip52
+\multlinetaggap=\skip53
+\mathdisplay@stack=\toks23
+LaTeX Info: Redefining \[ on input line 2965.
+LaTeX Info: Redefining \] on input line 2966.
+)
+(/usr/local/texlive/2026/texmf-dist/tex/latex/amsfonts/amssymb.sty
+Package: amssymb 2013/01/14 v3.01 AMS font symbols
+
+(/usr/local/texlive/2026/texmf-dist/tex/latex/amsfonts/amsfonts.sty
+Package: amsfonts 2013/01/14 v3.01 Basic AMSFonts support
+\symAMSa=\mathgroup4
+\symAMSb=\mathgroup5
+LaTeX Font Info:    Redeclaring math symbol \hbar on input line 98.
+LaTeX Font Info:    Overwriting math alphabet `\mathfrak' in version `bold'
+(Font)                  U/euf/m/n --> U/euf/b/n on input line 106.
+))
+(/usr/local/texlive/2026/texmf-dist/tex/latex/graphics/graphicx.sty
+Package: graphicx 2026-05-17 v1.2e Enhanced LaTeX Graphics (DPC,SPQR)
+
+(/usr/local/texlive/2026/texmf-dist/tex/latex/graphics/graphics.sty
+Package: graphics 2026-05-17 v1.4h Standard LaTeX Graphics (DPC,SPQR)
+
+(/usr/local/texlive/2026/texmf-dist/tex/latex/graphics/trig.sty
+Package: trig 2023/12/02 v1.11 sin cos tan (DPC)
+)
+(/usr/local/texlive/2026/texmf-dist/tex/latex/graphics-cfg/graphics.cfg
+File: graphics.cfg 2016/06/04 v1.11 sample graphics configuration
+)
+Package graphics Info: Driver file: pdftex.def on input line 106.
+
+(/usr/local/texlive/2026/texmf-dist/tex/latex/graphics-def/pdftex.def
+File: pdftex.def 2025/09/29 v1.2d Graphics/color driver for pdftex
+))
+\Gin@req@height=\dimen168
+\Gin@req@width=\dimen169
+)
+(/usr/local/texlive/2026/texmf-dist/tex/latex/tools/array.sty
+Package: array 2026/02/24 v2.7b Tabular extension package (FMi)
+\col@sep=\dimen170
+\ar@mcellbox=\box55
+\extrarowheight=\dimen171
+\NC@list=\toks24
+\extratabsurround=\skip54
+\backup@length=\skip55
+\ar@cellbox=\box56
+)
+(/usr/local/texlive/2026/texmf-dist/tex/latex/hyperref/hyperref.sty
+Package: hyperref 2026-06-17 v7.01r Hypertext links for LaTeX
+
+(/usr/local/texlive/2026/texmf-dist/tex/latex/kvsetkeys/kvsetkeys.sty
+Package: kvsetkeys 2022-10-05 v1.19 Key value parser (HO)
+)
+(/usr/local/texlive/2026/texmf-dist/tex/generic/kvdefinekeys/kvdefinekeys.sty
+Package: kvdefinekeys 2019-12-19 v1.6 Define keys (HO)
+)
+(/usr/local/texlive/2026/texmf-dist/tex/generic/pdfescape/pdfescape.sty
+Package: pdfescape 2019/12/09 v1.15 Implements pdfTeX's escape features (HO)
+
+(/usr/local/texlive/2026/texmf-dist/tex/generic/ltxcmds/ltxcmds.sty
+Package: ltxcmds 2023-12-04 v1.26 LaTeX kernel commands for general use (HO)
+)
+(/usr/local/texlive/2026/texmf-dist/tex/generic/pdftexcmds/pdftexcmds.sty
+Package: pdftexcmds 2020-06-27 v0.33 Utility functions of pdfTeX for LuaTeX (HO
+)
+
+(/usr/local/texlive/2026/texmf-dist/tex/generic/infwarerr/infwarerr.sty
+Package: infwarerr 2019/12/03 v1.5 Providing info/warning/error messages (HO)
+)
+Package pdftexcmds Info: \pdf@primitive is available.
+Package pdftexcmds Info: \pdf@ifprimitive is available.
+Package pdftexcmds Info: \pdfdraftmode found.
+))
+(/usr/local/texlive/2026/texmf-dist/tex/latex/hycolor/hycolor.sty
+Package: hycolor 2020-01-27 v1.10 Color options for hyperref/bookmark (HO)
+)
+(/usr/local/texlive/2026/texmf-dist/tex/latex/hyperref/nameref.sty
+Package: nameref 2026-01-29 v2.58 Cross-referencing by name of section
+
+(/usr/local/texlive/2026/texmf-dist/tex/latex/refcount/refcount.sty
+Package: refcount 2019/12/15 v3.6 Data extraction from label references (HO)
+)
+(/usr/local/texlive/2026/texmf-dist/tex/generic/gettitlestring/gettitlestring.s
+ty
+Package: gettitlestring 2019/12/15 v1.6 Cleanup title references (HO)
+ (/usr/local/texlive/2026/texmf-dist/tex/latex/kvoptions/kvoptions.sty
+Package: kvoptions 2022-06-15 v3.15 Key value format for package options (HO)
+))
+\c@section@level=\count299
+)
+(/usr/local/texlive/2026/texmf-dist/tex/latex/etoolbox/etoolbox.sty
+Package: etoolbox 2025/10/02 v2.5m e-TeX tools for LaTeX (JAW)
+\etb@tempcnta=\count300
+)
+(/usr/local/texlive/2026/texmf-dist/tex/generic/stringenc/stringenc.sty
+Package: stringenc 2019/11/29 v1.12 Convert strings between diff. encodings (HO
+)
+)
+\@linkdim=\dimen172
+\Hy@linkcounter=\count301
+\Hy@pagecounter=\count302
+
+(/usr/local/texlive/2026/texmf-dist/tex/latex/hyperref/pd1enc.def
+File: pd1enc.def 2026-06-17 v7.01r Hyperref: PDFDocEncoding definition (HO)
+Now handling font encoding PD1 ...
+... no UTF-8 mapping file for font encoding PD1
+)
+(/usr/local/texlive/2026/texmf-dist/tex/generic/intcalc/intcalc.sty
+Package: intcalc 2019/12/15 v1.3 Expandable calculations with integers (HO)
+)
+\Hy@SavedSpaceFactor=\count303
+
+(/usr/local/texlive/2026/texmf-dist/tex/latex/hyperref/puenc.def
+File: puenc.def 2026-06-17 v7.01r Hyperref: PDF Unicode definition (HO)
+Now handling font encoding PU ...
+... no UTF-8 mapping file for font encoding PU
+)
+Package hyperref Info: Hyper figures OFF on input line 4199.
+Package hyperref Info: Link nesting OFF on input line 4204.
+Package hyperref Info: Hyper index ON on input line 4207.
+Package hyperref Info: Plain pages OFF on input line 4214.
+Package hyperref Info: Backreferencing OFF on input line 4219.
+Package hyperref Info: Implicit mode ON; LaTeX internals redefined.
+Package hyperref Info: Bookmarks ON on input line 4466.
+\c@Hy@tempcnt=\count304
+
+(/usr/local/texlive/2026/texmf-dist/tex/latex/url/url.sty
+\Urlmuskip=\muskip18
+Package: url 2013/09/16  ver 3.4  Verb mode for urls, etc.
+)
+LaTeX Info: Redefining \url on input line 4805.
+\XeTeXLinkMargin=\dimen173
+
+(/usr/local/texlive/2026/texmf-dist/tex/generic/bitset/bitset.sty
+Package: bitset 2019/12/09 v1.3 Handle bit-vector datatype (HO)
+
+(/usr/local/texlive/2026/texmf-dist/tex/generic/bigintcalc/bigintcalc.sty
+Package: bigintcalc 2019/12/15 v1.5 Expandable calculations on big integers (HO
+)
+))
+\Fld@menulength=\count305
+\Field@Width=\dimen174
+\Fld@charsize=\dimen175
+Package hyperref Info: Hyper figures OFF on input line 6091.
+Package hyperref Info: Link nesting OFF on input line 6096.
+Package hyperref Info: Hyper index ON on input line 6099.
+Package hyperref Info: backreferencing OFF on input line 6106.
+Package hyperref Info: Link coloring OFF on input line 6111.
+Package hyperref Info: Link coloring with OCG OFF on input line 6116.
+Package hyperref Info: PDF/A mode OFF on input line 6121.
+\Hy@abspage=\count306
+\c@Item=\count307
+\c@Hfootnote=\count308
+)
+Package hyperref Info: Driver (autodetected): hpdftex.
+
+(/usr/local/texlive/2026/texmf-dist/tex/latex/hyperref/hpdftex.def
+File: hpdftex.def 2026-06-17 v7.01r Hyperref driver for pdfTeX
+\Fld@listcount=\count309
+\c@bookmark@seq@number=\count310
+
+(/usr/local/texlive/2026/texmf-dist/tex/latex/rerunfilecheck/rerunfilecheck.sty
+Package: rerunfilecheck 2025-06-21 v1.11 Rerun checks for auxiliary files (HO)
+
+(/usr/local/texlive/2026/texmf-dist/tex/generic/uniquecounter/uniquecounter.sty
+Package: uniquecounter 2019/12/15 v1.4 Provide unlimited unique counter (HO)
+)
+Package uniquecounter Info: New unique counter `rerunfilecheck' on input line 2
+84.
+)
+\Hy@SectionHShift=\skip56
+)
+(/usr/local/texlive/2026/texmf-dist/tex/latex/l3backend/l3backend-pdftex.def
+File: l3backend-pdftex.def 2026-07-20 L3 backend support: PDF output (pdfTeX)
+\l__color_backend_stack_int=\count311
+)
+(./comparative_statics_figures.aux)
+\openout1 = `comparative_statics_figures.aux'.
+
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 7.
+LaTeX Font Info:    ... okay on input line 7.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 7.
+LaTeX Font Info:    ... okay on input line 7.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 7.
+LaTeX Font Info:    ... okay on input line 7.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 7.
+LaTeX Font Info:    ... okay on input line 7.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 7.
+LaTeX Font Info:    ... okay on input line 7.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 7.
+LaTeX Font Info:    ... okay on input line 7.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 7.
+LaTeX Font Info:    ... okay on input line 7.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 7.
+LaTeX Font Info:    ... okay on input line 7.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 7.
+LaTeX Font Info:    ... okay on input line 7.
+
+*geometry* driver: auto-detecting
+*geometry* detected driver: pdftex
+*geometry* verbose mode - [ preamble ] result:
+* driver: pdftex
+* paper: <default>
+* layout: <same size as paper>
+* layoutoffset:(h,v)=(0.0pt,0.0pt)
+* modes: 
+* h-part:(L,W,R)=(72.26999pt, 469.75502pt, 72.26999pt)
+* v-part:(T,H,B)=(72.26999pt, 650.43001pt, 72.26999pt)
+* \paperwidth=614.295pt
+* \paperheight=794.96999pt
+* \textwidth=469.75502pt
+* \textheight=650.43001pt
+* \oddsidemargin=0.0pt
+* \evensidemargin=0.0pt
+* \topmargin=-37.0pt
+* \headheight=12.0pt
+* \headsep=25.0pt
+* \topskip=11.0pt
+* \footskip=30.0pt
+* \marginparwidth=59.0pt
+* \marginparsep=10.0pt
+* \columnsep=10.0pt
+* \skip\footins=10.0pt plus 4.0pt minus 2.0pt
+* \hoffset=0.0pt
+* \voffset=0.0pt
+* \mag=1000
+* \@twocolumnfalse
+* \@twosidefalse
+* \@mparswitchfalse
+* \@reversemarginfalse
+* (1in=72.27pt=25.4mm, 1cm=28.453pt)
+
+(/usr/local/texlive/2026/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
+[Loading MPS to PDF converter (version 2006.09.02).]
+\scratchcounter=\count312
+\scratchdimen=\dimen176
+\scratchbox=\box57
+\nofMPsegments=\count313
+\nofMParguments=\count314
+\everyMPshowfont=\toks25
+\MPscratchCnt=\count315
+\MPscratchDim=\dimen177
+\MPnumerator=\count316
+\makeMPintoPDFobject=\count317
+\everyMPtoPDFconversion=\toks26
+) (/usr/local/texlive/2026/texmf-dist/tex/latex/epstopdf-pkg/epstopdf-base.sty
+Package: epstopdf-base 2020-01-24 v2.11 Base part for package epstopdf
+Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 4
+85.
+
+(/usr/local/texlive/2026/texmf-dist/tex/latex/latexconfig/epstopdf-sys.cfg
+File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Liv
+e
+))
+Package hyperref Info: Link coloring OFF on input line 7.
+
+(./comparative_statics_figures.out) (./comparative_statics_figures.out)
+\@outlinefile=\write3
+\openout3 = `comparative_statics_figures.out'.
+
+LaTeX Font Info:    Trying to load font information for U+msa on input line 10.
+
+
+(/usr/local/texlive/2026/texmf-dist/tex/latex/amsfonts/umsa.fd
+File: umsa.fd 2013/01/14 v3.01 AMS symbols A
+)
+LaTeX Font Info:    Trying to load font information for U+msb on input line 10.
+
+
+(/usr/local/texlive/2026/texmf-dist/tex/latex/amsfonts/umsb.fd
+File: umsb.fd 2013/01/14 v3.01 AMS symbols B
+) [1
+
+{/usr/local/texlive/2026/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
+(./sympy_equations.tex) [2
+
+]
+<figures/profit_by_gamma.pdf, id=25, 505.89pt x 325.215pt>
+File: figures/profit_by_gamma.pdf Graphic file (type pdf)
+<use figures/profit_by_gamma.pdf>
+Package pdftex.def Info: figures/profit_by_gamma.pdf  used on input line 54.
+(pdftex.def)             Requested size: 469.75502pt x 301.99028pt.
+ [3
+
+ <./figures/profit_by_gamma.pdf>]
+<figures/price_ratio_by_gamma.pdf, id=79, 505.89pt x 325.215pt>
+File: figures/price_ratio_by_gamma.pdf Graphic file (type pdf)
+<use figures/price_ratio_by_gamma.pdf>
+Package pdftex.def Info: figures/price_ratio_by_gamma.pdf  used on input line 6
+3.
+(pdftex.def)             Requested size: 469.75502pt x 301.99028pt.
+ [4
+
+ <./figures/price_ratio_by_gamma.pdf>]
+<figures/price_ratio_derivative_cases.pdf, id=131, 505.89pt x 325.215pt>
+File: figures/price_ratio_derivative_cases.pdf Graphic file (type pdf)
+<use figures/price_ratio_derivative_cases.pdf>
+Package pdftex.def Info: figures/price_ratio_derivative_cases.pdf  used on inpu
+t line 72.
+(pdftex.def)             Requested size: 469.75502pt x 301.99028pt.
+ [5
+
+ <./figures/price_ratio_derivative_cases.pdf>]
+<figures/p1_by_gamma.pdf, id=183, 505.89pt x 325.215pt>
+File: figures/p1_by_gamma.pdf Graphic file (type pdf)
+<use figures/p1_by_gamma.pdf>
+Package pdftex.def Info: figures/p1_by_gamma.pdf  used on input line 81.
+(pdftex.def)             Requested size: 469.75502pt x 301.99028pt.
+
+[6
+
+ <./figures/p1_by_gamma.pdf>]
+<figures/p2_by_gamma.pdf, id=235, 505.89pt x 325.215pt>
+File: figures/p2_by_gamma.pdf Graphic file (type pdf)
+<use figures/p2_by_gamma.pdf>
+Package pdftex.def Info: figures/p2_by_gamma.pdf  used on input line 90.
+(pdftex.def)             Requested size: 469.75502pt x 301.99028pt.
+ [7
+
+ <./figures/p2_by_gamma.pdf>]
+<figures/beta_p1_derivative_by_gamma.pdf, id=289, 505.89pt x 325.215pt>
+File: figures/beta_p1_derivative_by_gamma.pdf Graphic file (type pdf)
+<use figures/beta_p1_derivative_by_gamma.pdf>
+Package pdftex.def Info: figures/beta_p1_derivative_by_gamma.pdf  used on input
+ line 97.
+(pdftex.def)             Requested size: 469.75502pt x 301.99028pt.
+ [8
+
+ <./figures/beta_p1_derivative_by_gamma.pdf>]
+<figures/beta_p2_derivative_by_gamma.pdf, id=353, 505.89pt x 325.215pt>
+File: figures/beta_p2_derivative_by_gamma.pdf Graphic file (type pdf)
+<use figures/beta_p2_derivative_by_gamma.pdf>
+Package pdftex.def Info: figures/beta_p2_derivative_by_gamma.pdf  used on input
+ line 106.
+(pdftex.def)             Requested size: 469.75502pt x 301.99028pt.
+ [9
+
+ <./figures/beta_p2_derivative_by_gamma.pdf>]
+<figures/gamma2_p1_by_gamma.pdf, id=414, 505.89pt x 325.215pt>
+File: figures/gamma2_p1_by_gamma.pdf Graphic file (type pdf)
+<use figures/gamma2_p1_by_gamma.pdf>
+Package pdftex.def Info: figures/gamma2_p1_by_gamma.pdf  used on input line 115
+.
+(pdftex.def)             Requested size: 469.75502pt x 301.99028pt.
+ [10
+
+ <./figures/gamma2_p1_by_gamma.pdf>]
+<figures/gamma2_p2_by_gamma.pdf, id=475, 505.89pt x 325.215pt>
+File: figures/gamma2_p2_by_gamma.pdf Graphic file (type pdf)
+<use figures/gamma2_p2_by_gamma.pdf>
+Package pdftex.def Info: figures/gamma2_p2_by_gamma.pdf  used on input line 124
+.
+(pdftex.def)             Requested size: 469.75502pt x 301.99028pt.
+ [11
+
+ <./figures/gamma2_p2_by_gamma.pdf>]
+<figures/gamma_p1_by_gamma.pdf, id=536, 505.89pt x 325.215pt>
+File: figures/gamma_p1_by_gamma.pdf Graphic file (type pdf)
+<use figures/gamma_p1_by_gamma.pdf>
+Package pdftex.def Info: figures/gamma_p1_by_gamma.pdf  used on input line 133.
+
+(pdftex.def)             Requested size: 469.75502pt x 301.99028pt.
+ [12
+
+ <./figures/gamma_p1_by_gamma.pdf>]
+<figures/gamma_p2_by_gamma.pdf, id=595, 505.89pt x 325.215pt>
+File: figures/gamma_p2_by_gamma.pdf Graphic file (type pdf)
+<use figures/gamma_p2_by_gamma.pdf>
+Package pdftex.def Info: figures/gamma_p2_by_gamma.pdf  used on input line 142.
+
+(pdftex.def)             Requested size: 469.75502pt x 301.99028pt.
+ [13
+
+ <./figures/gamma_p2_by_gamma.pdf>]
+<figures/beta_p1_by_gamma.pdf, id=657, 505.89pt x 325.215pt>
+File: figures/beta_p1_by_gamma.pdf Graphic file (type pdf)
+<use figures/beta_p1_by_gamma.pdf>
+Package pdftex.def Info: figures/beta_p1_by_gamma.pdf  used on input line 151.
+(pdftex.def)             Requested size: 469.75502pt x 301.99028pt.
+ [14
+
+ <./figures/beta_p1_by_gamma.pdf>]
+<figures/beta_p2_by_gamma.pdf, id=716, 505.89pt x 325.215pt>
+File: figures/beta_p2_by_gamma.pdf Graphic file (type pdf)
+<use figures/beta_p2_by_gamma.pdf>
+Package pdftex.def Info: figures/beta_p2_by_gamma.pdf  used on input line 160.
+(pdftex.def)             Requested size: 469.75502pt x 301.99028pt.
+ [15
+
+ <./figures/beta_p2_by_gamma.pdf>]
+<figures/alpha_p1_by_gamma.pdf, id=777, 505.89pt x 325.215pt>
+File: figures/alpha_p1_by_gamma.pdf Graphic file (type pdf)
+<use figures/alpha_p1_by_gamma.pdf>
+Package pdftex.def Info: figures/alpha_p1_by_gamma.pdf  used on input line 169.
+
+(pdftex.def)             Requested size: 469.75502pt x 301.99028pt.
+
+[16
+
+ <./figures/alpha_p1_by_gamma.pdf>]
+<figures/alpha_p2_by_gamma.pdf, id=836, 505.89pt x 325.215pt>
+File: figures/alpha_p2_by_gamma.pdf Graphic file (type pdf)
+<use figures/alpha_p2_by_gamma.pdf>
+Package pdftex.def Info: figures/alpha_p2_by_gamma.pdf  used on input line 178.
+
+(pdftex.def)             Requested size: 469.75502pt x 301.99028pt.
+ [17
+
+ <./figures/alpha_p2_by_gamma.pdf>]
+<figures/delta_p1_by_gamma.pdf, id=895, 505.89pt x 325.215pt>
+File: figures/delta_p1_by_gamma.pdf Graphic file (type pdf)
+<use figures/delta_p1_by_gamma.pdf>
+Package pdftex.def Info: figures/delta_p1_by_gamma.pdf  used on input line 187.
+
+(pdftex.def)             Requested size: 469.75502pt x 301.99028pt.
+
+[18
+
+ <./figures/delta_p1_by_gamma.pdf>]
+<figures/delta_p2_by_gamma.pdf, id=957, 505.89pt x 325.215pt>
+File: figures/delta_p2_by_gamma.pdf Graphic file (type pdf)
+<use figures/delta_p2_by_gamma.pdf>
+Package pdftex.def Info: figures/delta_p2_by_gamma.pdf  used on input line 196.
+
+(pdftex.def)             Requested size: 469.75502pt x 301.99028pt.
+ [19
+
+ <./figures/delta_p2_by_gamma.pdf>]
+<figures/gamma_profit_by_gamma.pdf, id=1019, 505.89pt x 325.215pt>
+File: figures/gamma_profit_by_gamma.pdf Graphic file (type pdf)
+<use figures/gamma_profit_by_gamma.pdf>
+Package pdftex.def Info: figures/gamma_profit_by_gamma.pdf  used on input line 
+205.
+(pdftex.def)             Requested size: 469.75502pt x 301.99028pt.
+
+[20
+
+ <./figures/gamma_profit_by_gamma.pdf>]
+<figures/beta_price_ratio_by_gamma.pdf, id=1080, 505.89pt x 325.215pt>
+File: figures/beta_price_ratio_by_gamma.pdf Graphic file (type pdf)
+<use figures/beta_price_ratio_by_gamma.pdf>
+Package pdftex.def Info: figures/beta_price_ratio_by_gamma.pdf  used on input l
+ine 214.
+(pdftex.def)             Requested size: 469.75502pt x 301.99028pt.
+ [21
+
+ <./figures/beta_price_ratio_by_gamma.pdf>]
+<figures/period1_foc.pdf, id=1142, 505.89pt x 325.215pt>
+File: figures/period1_foc.pdf Graphic file (type pdf)
+<use figures/period1_foc.pdf>
+Package pdftex.def Info: figures/period1_foc.pdf  used on input line 223.
+(pdftex.def)             Requested size: 469.75502pt x 301.99028pt.
+ [22
+
+ <./figures/period1_foc.pdf>]
+<figures/period2_foc.pdf, id=1193, 505.89pt x 325.215pt>
+File: figures/period2_foc.pdf Graphic file (type pdf)
+<use figures/period2_foc.pdf>
+Package pdftex.def Info: figures/period2_foc.pdf  used on input line 232.
+(pdftex.def)             Requested size: 469.75502pt x 301.99028pt.
+ [23
+
+ <./figures/period2_foc.pdf>]
+(./comparative_statics_figures.aux)
+ ***********
+LaTeX2e <2026-06-01>
+L3 programming layer <2026-07-20>
+ ***********
+Package rerunfilecheck Info: File `comparative_statics_figures.out' has not cha
+nged.
+(rerunfilecheck)             Checksum: D41D8CD98F00B204E9800998ECF8427E;0.
+ ) 
+Here is how much of TeX's memory you used:
+ 10416 strings out of 467159
+ 162395 string characters out of 5409218
+ 592251 words of memory out of 5000000
+ 39533 multiletter control sequences out of 15000+600000
+ 635880 words of font info for 72 fonts, out of 8000000 for 9000
+ 1141 hyphenation exceptions out of 8191
+ 74i,9n,79p,522b,446s stack positions out of 10000i,1000n,20000p,200000b,200000s
+</usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb
+></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb>
+</usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb><
+/usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></
+usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></us
+r/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/
+local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/lo
+cal/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></usr/local
+/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/local/te
+xlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/tex
+live/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb>
+Output written on comparative_statics_figures.pdf (23 pages, 435983 bytes).
+PDF statistics:
+ 1304 PDF objects out of 1440 (max. 8388607)
+ 307 compressed objects within 4 object streams
+ 48 named destinations out of 1000 (max. 500000)
+ 106 words of extra memory for PDF output out of 10000 (max. 10000000)
+

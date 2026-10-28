@@ -6,18 +6,18 @@ final_out = os.path.join(base_dir, "merged_rms.parquet")
 
 ## === Load Data === ##
 
-stores = pl.scan_parquet(os.path.join(base_dir, "combined/cleaned_stores.parquet"))
+stores = pl.scan_parquet(os.path.join(base_dir, "combined/stores.parquet"))
 rms = pl.scan_parquet(os.path.join(base_dir, "combined/rms.parquet"))
 products_extra = pl.scan_parquet(
-    os.path.join(base_dir, "combined/cleaned_products_extra.parquet")
+    os.path.join(base_dir, "combined/products_extra.parquet")
 )
-movements = pl.scan_parquet(os.path.join(base_dir, "combined/cleaned_3612")).join(
-    pl.scan_parquet(os.path.join(base_dir, "combined/cleaned_3603")),
+movements = pl.scan_parquet(os.path.join(base_dir, "combined/3612")).join(
+    pl.scan_parquet(os.path.join(base_dir, "combined/3603")),
     on=["upc", "price"],
     how="inner",
 )
 products = pl.scan_parquet(os.path.join(base_dir, "cleaned_products.parquet"))
-brand_var = pl.scan_parquet(os.path.join(base_dir, "cleaned_brand_variations.parquet"))
+brand_var = pl.scan_parquet(os.path.join(base_dir, "brand_variations.parquet"))
 
 ## === Merge === ##
 merged = (

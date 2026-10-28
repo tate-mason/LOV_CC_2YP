@@ -11,8 +11,8 @@ c = sp.symbols("c", real=True)
 # Prices
 
 p1, p2 = sp.symbols("p1 p2", positive=True)
-p1_star = sp.Symbol("p_{rj1}^*")
-p2_star = sp.Symbol("p_{rj2}^*")
+p1_star_sym = sp.Symbol("p_{rj1}^*")
+p2_star_sym = sp.Symbol("p_{rj2}^*")
 
 # Shares
 

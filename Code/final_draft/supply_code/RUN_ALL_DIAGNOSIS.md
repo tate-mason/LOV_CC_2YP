@@ -1,5 +1,7 @@
 # Why `run_all.py` fails
 
+> **Status update (2026-10-28):** The failures below describe the earlier investigation. The current source contains all four proposed fixes, and a fresh `python3 run_all.py` run exits successfully. See the current status and recommended next steps at the end of this document.
+
 Running `python3 run_all.py` reproduces an assertion failure in `checks/check_focs.py:12`. The runner itself is working: it launches each check with `check=True`, so the first unsuccessful check stops execution and produces the outer `subprocess.CalledProcessError`. That outer exception is a consequence of the failed assertion.
 
 ## 1. Immediate cause: missing denominator parentheses
@@ -58,7 +60,7 @@ I verified that this corrected comparison simplifies to zero. Fixing only the sh
 ## Results from running each check separately
 
 | Command | Observed result |
-|---|---|
+| --- | --- |
 | `python3 -m checks.check_focs` | Fails at the period-2 FOC assertion |
 | `python3 -m checks.check_gamma` | Exits successfully; prints expressions and cases |
 | `python3 -m checks.check_beta` | Exits successfully; no output |
@@ -82,3 +84,19 @@ These do not cause the reproduced `run_all.py` failure, but deserve attention be
 4. Correct the two pricing issues and add meaningful checks for those expressions before relying on an “All checks passed” message as model validation.
 
 This investigation changed no Python source files. The proposed fixes were checked with isolated symbolic calculations; they have not been applied to the project.
+
+## Current status and recommended next steps (2026-10-28)
+
+On reinspection, the four share denominators are parenthesized, the alpha assertion compares the two total derivatives, the period-1 price expression includes the multiplication operator, and the collected period-1 FOC retains the standalone `sj1` term. Running `python3 run_all.py` now exits with status 0 and prints “All checks passed!”. The earlier statement that the fixes have not been applied is historical.
+
+The next priority is stronger validation rather than further changes to those repaired expressions:
+
+1. **Protect the period-1 fixes with regression checks.** Extend `checks/check_focs.py` to assert that `foc1_raw - foc1_collected` simplifies to zero. Also derive the period-1 FOC from the profit expression and compare it with the implemented FOC under explicitly stated price dependencies. Add an import check for `pricing.period1_price` and verify its price equation against the FOC after substituting the period-2 pricing relation. Include these checks in `run_all.py` so those modules are actually exercised.
+2. **Turn the beta and gamma scripts into checks.** `checks/check_beta.py` currently constructs expressions without asserting anything; `checks/check_gamma.py` prints formulas and cases. Independently differentiate the defining pricing equations and compare the resulting derivatives with the comparative-statics modules. Assert the quotient rule for the price ratio and the gamma cases `(0,0)`, `(1,0)`, and `(0,1)`. Under the documented assumptions, the ratio derivative should be zero, positive, and negative, respectively, for these cases.
+3. **Make derivative conventions explicit.** Document which prices respond to each parameter and which quantities are held fixed. Review `model/shares.py`, especially `dsj2_dgamma_total = sj2 * s02`: a total derivative of the stated period-2 logit share would generally include `z2 + alpha * dp2/dgamma`. Establish whether this variable is intended as a coefficient, a partial derivative, or a total derivative before changing it. Likewise, the delta check holds `R2` fixed; document that restriction when interpreting its result.
+4. **Check assumptions and numerical consistency.** `model/assumptions.py` records assumptions as strings; it does not impose them on SymPy expressions. Apply suitable assumptions or explicit substitutions when checking signs. At several feasible parameter values, solve the pricing equations, check FOC residuals and second-order conditions, and compare symbolic comparative statics with finite differences of the solved prices. Re-solve prices after each parameter perturbation and ensure prices and shares satisfy the stated feasibility conditions.
+5. **Reconcile outputs before regenerating figures.** Compare the modular formulas with `comparative_statics_symbolic.py` and `make_comparative_static_figures.py`, including the negative `(0,1)` ratio derivative documented in `README_comparative_statics.txt`. Once the assertions and numerical comparisons pass, regenerate the figures and inspect their sign labels.
+
+Completion should mean that every check in the runner makes a meaningful assertion, both periods' pricing expressions are covered, and numerical comparisons support the symbolic formulas under documented assumptions. A successful runner exit currently establishes only the assertions it actually executes.
+
+This status update changes documentation only. The runner was executed successfully; the additional checks recommended above have not yet been implemented.

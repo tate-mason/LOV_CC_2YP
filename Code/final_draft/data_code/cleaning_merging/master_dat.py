@@ -14,7 +14,7 @@ HMS = (
         + pl.duration(days=(6 - pl.col("purchase_date").dt.weekday()) % 7)
     )
 )
-RMS = pl.scan_parquet(os.path.join(input_dir, "merged_retail.parquet"))
+RMS = pl.scan_parquet(os.path.join(input_dir, "merged_rms.parquet"))
 
 merged = HMS.join(
     RMS,

@@ -106,3 +106,42 @@ for filepath in sorted(parquet_files):
         print(cols)
     except Exception as e:
         print(f"\n--- Could not read {filename} (corrupted or partial file): {e} ---")
+
+columns_to_keep = {
+    "3603": ["store_code_uc", "upc", "week_end", "price"],
+    "3612": ["store_code_uc", "upc", "week_end", "price"],
+    "products": [
+        "upc",
+        "product_module_code",
+        "brand_code_uc",
+        "brand_descr",
+        "size1_code_uc",
+        "size1_amount",
+        "size1_units",
+    ],
+    "products_extra": ["upc", "panel_year", "flavor_code", "flavor_descr"],
+    "stores": [
+        "store_code_uc",
+        pl.col("year").alias("panel_year"),
+        "retailer_code",
+        "channel_code",
+        "dma_code",
+        "dma_descr",
+    ],
+}
+
+for filepath in glob.glob(os.path.join(output_dir, "*.parquet")):
+    filename = os.path.basename(filepath)
+
+    # Remove .parquet extension first
+    clean_name = os.path.splitext(filename)[0]  # e.g., "retailers" or "trips_2011"
+
+    # Split by underscore if present to get the table name
+    table_type = clean_name.split("_")[0]  # e.g., "retailers", "trips", "panelists"
+
+    if table_type in columns_to_keep:
+        target_cols = columns_to_keep[table_type]
+        cleaned_path = os.path.join(output_dir, f"cleaned_{filename}")
+
+        (pl.scan_parquet(filepath).select(target_cols).sink_parquet(cleaned_path))
+        print(f"Cleaned {filename} -> saved to {cleaned_path}")

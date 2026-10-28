@@ -130,18 +130,31 @@ columns_to_keep = {
     ],
 }
 
+# Sort keys by length descending so "products_extra" is tested before "products"
+table_keys_by_length = sorted(columns_to_keep.keys(), key=len, reverse=True)
+
 for filepath in glob.glob(os.path.join(output_dir, "*.parquet")):
     filename = os.path.basename(filepath)
 
-    # Remove .parquet extension first
-    clean_name = os.path.splitext(filename)[0]  # e.g., "retailers" or "trips_2011"
+    # Skip files that have already been cleaned
+    if filename.startswith("cleaned_"):
+        continue
 
-    # Split by underscore if present to get the table name
-    table_type = clean_name.split("_")[0]  # e.g., "retailers", "trips", "panelists"
+    # Remove extension -> "products_extra_2011"
+    clean_name = os.path.splitext(filename)[0]
 
-    if table_type in columns_to_keep:
-        target_cols = columns_to_keep[table_type]
+    # Match against dictionary keys taking exact boundaries into account
+    matched_table = None
+    for key in table_keys_by_length:
+        if clean_name == key or clean_name.startswith(f"{key}_"):
+            matched_table = key
+            break
+
+    if matched_table:
+        target_cols = columns_to_keep[matched_table]
         cleaned_path = os.path.join(output_dir, f"cleaned_{filename}")
 
         (pl.scan_parquet(filepath).select(target_cols).sink_parquet(cleaned_path))
-        print(f"Cleaned {filename} -> saved to {cleaned_path}")
+        print(
+            f"Cleaned {filename} (Matched: {matched_table}) -> saved to cleaned_{filename}"
+        )

@@ -7,6 +7,8 @@ checks = [
     "checks.check_beta",
     "checks.check_alpha",
     "checks.check_delta",
+    "checks.check_pricing_derivatives",
+    "checks.check_numerical",
 ]
 
 for check in checks:

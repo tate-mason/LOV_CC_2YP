@@ -100,3 +100,7 @@ The next priority is stronger validation rather than further changes to those re
 Completion should mean that every check in the runner makes a meaningful assertion, both periods' pricing expressions are covered, and numerical comparisons support the symbolic formulas under documented assumptions. A successful runner exit currently establishes only the assertions it actually executes.
 
 This status update changes documentation only. The runner was executed successfully; the additional checks recommended above have not yet been implemented.
+
+## Recommended work completed (2026-10-28)
+
+All five recommendations above have now been implemented. See `MODEL_CONVENTIONS.md` for derivative conventions, corrected formulas, validation scope, and figure guidance. Both FOCs and pricing equations have regression checks; beta/gamma scripts assert quotient rules and gamma signs; implicit price derivatives and the profit envelope are checked symbolically. Numerical checks re-solve prices, verify feasibility, FOC residuals and negative definite profit Hessians, and compare comparative statics with finite differences at 27 solutions. The alpha, mixed beta-gamma, and profit derivative formulas required corrections. The standalone symbolic script imports the modular formulas. Figures now use re-solved prices and endogenous shares and are exported to `figures/` with CSV source data; the (0,1) ratio slope is negative. Earlier statements that the additional checks remain unimplemented are historical.

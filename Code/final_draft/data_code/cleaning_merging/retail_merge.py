@@ -37,6 +37,7 @@ products = (
 # 4. Stores table (unique on store + year)
 stores = (
     pl.scan_parquet(os.path.join(base_dir, "combined/stores.parquet"))
+    .rename({"year": "panel_year"})
     .with_columns(
         [pl.col("store_code_uc").cast(pl.Int64), pl.col("panel_year").cast(pl.Int32)]
     )
@@ -65,7 +66,7 @@ merged = (
     .join(rms, on="upc", how="left", suffix="_rms")
     # Step B: Match exact version in products
     .join(products, on=["upc", "upc_ver_uc"], how="left", suffix="_prod")
-    # Step C: Match store metadata by store + year
+    # Step C: Match store metadata by store
     .join(stores, on=["store_code_uc", "panel_year"], how="left", suffix="_str")
     # Step D: Match extra annual metadata
     .join(products_extra, on=["upc", "panel_year"], how="left", suffix="_xtra")

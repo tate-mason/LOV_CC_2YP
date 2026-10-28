@@ -1,135 +1,53 @@
-
+"""Re-solve both FOCs at each gamma; save reproducible figures and source data."""
+from pathlib import Path
+import csv
 import numpy as np
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+from model.numerical import solve
 
-# -------------------------
-# Illustrative parameters
-# -------------------------
-alpha = -2.0
-delta = 0.7
+OUT = Path('figures')
+PARAMETERS = dict(alpha=-2., beta=-1., delta=.7, c=1.)
+CASES = {'(0,0)':(0,0), '(1,0)':(1,0), '(0,1)':(0,1)}
 
-# For the simple comparative-static illustrations below,
-# shares are held fixed to make the sign logic transparent.
-s1 = 0.35
-s2 = 0.40
-s01 = 0.65
 
-gamma_grid = np.linspace(0, 3, 200)
+def main():
+    OUT.mkdir(exist_ok=True)
+    grid=np.linspace(0,3,201)
+    curves={}
+    rows=[]
+    for label,(z1,z2) in CASES.items():
+        result=np.array([solve(**PARAMETERS,gamma=g,z1=z1,z2=z2) for g in grid])
+        p1,p2,s1,s2,profit=result.T
+        a,d=PARAMETERS['alpha'],PARAMETERS['delta']
+        derivative=(-p2*z1*s1+z2*s2*(p1+d*(1-s1)*p2))/(a*p2**2)
+        curves[label]=(p1,p2,s1,s2,profit,derivative)
+        rows.extend(zip([label]*len(grid),grid,p1,p2,s1,s2,profit,p1/p2,derivative))
+    with (OUT/'solutions.csv').open('w') as f:
+        writer=csv.writer(f)
+        writer.writerow(['history','gamma','p1','p2','s1','s2','profit','ratio','ratio_derivative'])
+        writer.writerows(rows)
+    specs=[('profit_by_gamma',4,'Optimized expected profit'),
+           ('price_ratio_by_gamma',None,'Optimal price ratio p1/p2'),
+           ('price_ratio_derivative_cases',5,'d(p1/p2)/d gamma')]
+    for name,index,ylabel in specs:
+        fig,ax=plt.subplots(figsize=(7,4.5))
+        for label,values in curves.items():
+            y=values[0]/values[1] if index is None else values[index]
+            ax.plot(grid,y,label=label,linewidth=2)
+        if index==5:
+            ax.axhline(0,color='black',linewidth=.7)
+        ax.set(xlabel='Switching preference gamma',ylabel=ylabel)
+        ax.set_title('Solutions of both logit pricing FOCs')
+        ax.legend(title='(z1,z2)')
+        ax.grid(alpha=.2)
+        fig.text(.5,.01,'alpha=-2, beta=-1, delta=0.7, c=1; shares adjust with prices',ha='center',fontsize=8)
+        fig.tight_layout(rect=(0,.03,1,1))
+        for ext in ('png','pdf'):
+            fig.savefig(OUT/f'{name}.{ext}',dpi=180)
+        plt.close(fig)
+    print(f'Saved three figures (PNG/PDF) and solutions.csv in {OUT}/')
 
-# ============================================================
-# FIGURE 1: CONDITIONAL PROFIT BY FEASIBLE HISTORY
-# dPi/dgamma = -(1/alpha) [ z1*s1 + delta*z2*s2 ]
-# ============================================================
-
-base_profit = 0.50
-
-profit_cases = {
-    "(0,0) customer stays": (0,0),
-    "(0,1) customer leaves": (0,1),
-    "(1,0) outsider joins": (1,0),
-}
-
-plt.figure(figsize=(9,6))
-
-for label, (z1,z2) in profit_cases.items():
-    slope = -(1/alpha)*(z1*s1 + delta*z2*s2)
-    profit = base_profit + slope*gamma_grid
-    plt.plot(gamma_grid, profit, linewidth=2.5, label=f"{label}, slope={slope:.3f}")
-
-plt.xlabel(r"Switching preference $\gamma$")
-plt.ylabel(r"Illustrative optimized profit $\Pi^*(h)$")
-plt.title(r"Conditional Profit as $\gamma$ Changes")
-plt.legend()
-plt.grid(alpha=0.3)
-plt.tight_layout()
-plt.savefig("profit_by_gamma.png", dpi=180)
-plt.close()
-
-# ============================================================
-# FIGURE 2: PRICE-RATIO COMPARATIVE STATIC
-#
-# d/dgamma (p1/p2)
-# =
-# [-p2*z1*s1 + z2*s2*(p1 + delta*s01*p2)]
-# / [alpha*p2^2]
-#
-# To make a picture, we need actual p1(gamma), p2(gamma).
-# Here we build them from the comparative-static slopes:
-#
-# dp1/dgamma = (-z1*s1 + delta*z2*s01*s2)/alpha
-# dp2/dgamma = -(z2*s2)/alpha
-#
-# and choose starting prices p1(0), p2(0).
-# ============================================================
-
-p1_0 = 1.20
-p2_0 = 1.00
-
-ratio_cases = {
-    "(0,0) customer stays": (0,0),
-    "(0,1) customer leaves": (0,1),
-    "(1,0) outsider joins": (1,0),
-}
-
-plt.figure(figsize=(9,6))
-
-for label, (z1,z2) in ratio_cases.items():
-    dp1 = (-z1*s1 + delta*z2*s01*s2) / alpha
-    dp2 = -(z2*s2) / alpha
-
-    p1 = p1_0 + dp1*gamma_grid
-    p2 = p2_0 + dp2*gamma_grid
-
-    ratio = p1/p2
-
-    plt.plot(gamma_grid, ratio, linewidth=2.5, label=label)
-
-plt.xlabel(r"Switching preference $\gamma$")
-plt.ylabel(r"Optimal price ratio $p_{rj1}^*/p_{rj2}^*$")
-plt.title(r"Optimal Price Ratio as $\gamma$ Changes")
-plt.legend()
-plt.grid(alpha=0.3)
-plt.tight_layout()
-plt.savefig("price_ratio_by_gamma.png", dpi=180)
-plt.close()
-
-# ============================================================
-# FIGURE 3: DIRECTLY PLOT THE SIGN OF THE RATIO DERIVATIVE
-# at chosen fixed p1,p2 and shares.
-#
-# This isolates the comparative-static formula itself.
-# ============================================================
-
-p1 = 1.20
-p2 = 1.00
-
-def dratio_dgamma(z1,z2):
-    numerator = -p2*z1*s1 + z2*s2*(p1 + delta*s01*p2)
-    denominator = alpha*(p2**2)
-    return numerator/denominator
-
-labels = []
-values = []
-
-for label, (z1,z2) in ratio_cases.items():
-    labels.append(label)
-    values.append(dratio_dgamma(z1,z2))
-
-plt.figure(figsize=(9,6))
-plt.bar(labels, values)
-plt.axhline(0, linewidth=1)
-plt.ylabel(r"$\partial (p_{rj1}^*/p_{rj2}^*)/\partial\gamma$")
-plt.title(r"Sign of the Price-Ratio Comparative Static")
-plt.xticks(rotation=20, ha="right")
-plt.tight_layout()
-plt.savefig("price_ratio_derivative_cases.png", dpi=180)
-plt.close()
-
-print("Saved:")
-print("  profit_by_gamma.png")
-print("  price_ratio_by_gamma.png")
-print("  price_ratio_derivative_cases.png")
-
-print("\nCase-by-case ratio derivative:")
-for label, (z1,z2) in ratio_cases.items():
-    print(label, dratio_dgamma(z1,z2))
+if __name__=='__main__':
+    main()

@@ -10,12 +10,14 @@ HMS = (
         purchase_date=pl.col("purchase_date").cast(pl.String).str.to_date("%Y%m%d")
     )
     .with_columns(
+        # Snap directly to the Saturday ending the week
         week_end=pl.col("purchase_date")
-        + pl.duration(days=(6 - pl.col("purchase_date").dt.weekday()) % 7).cast(
-            pl.Int64
-        )
+        .dt.truncate("1w_sat")
+        .dt.strftime("%Y%m%d")
+        .cast(pl.Int64)
     )
 )
+
 RMS = pl.scan_parquet(os.path.join(input_dir, "merged_rms.parquet"))
 
 merged = HMS.join(

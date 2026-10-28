@@ -6,10 +6,17 @@ base_out_dir = "/scratch/dtm63837/Kilts_Panel/Data/RMS"
 final_dir = os.path.join(base_out_dir, "combined")
 os.makedirs(final_dir, exist_ok=True)
 
-concat_list = ["stores", "rms", "products_extra", "3612", "3603"]
+# Map table names to their exact wildcard pattern
+concat_targets = {
+    "stores": "cleaned_stores_*.parquet",
+    "products_extra": "cleaned_products_extra_*.parquet",
+    "3612": "cleaned_3612_*.parquet",
+    "3603": "cleaned_3603_*.parquet",
+    "rms": "rms_*.parquet",  # No "cleaned_" prefix
+}
 
-for table in concat_list:
-    file_pattern = os.path.join(base_out_dir, f"cleaned_{table}_*.parquet")
+for table, pattern in concat_targets.items():
+    file_pattern = os.path.join(base_out_dir, pattern)
     matching_files = glob.glob(file_pattern)
 
     if not matching_files:

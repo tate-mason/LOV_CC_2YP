@@ -11,7 +11,9 @@ HMS = (
     )
     .with_columns(
         week_end=pl.col("purchase_date")
-        + pl.duration(days=(6 - pl.col("purchase_date").dt.weekday()) % 7)
+        + pl.duration(days=(6 - pl.col("purchase_date").dt.weekday()) % 7).cast(
+            pl.Int64
+        )
     )
 )
 RMS = pl.scan_parquet(os.path.join(input_dir, "merged_rms.parquet"))

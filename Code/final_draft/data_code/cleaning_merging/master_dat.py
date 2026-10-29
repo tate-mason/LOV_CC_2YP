@@ -6,19 +6,16 @@ final_out = os.path.join(input_dir, "merged_df.parquet")
 
 print("Loading lazy frames with column projection...")
 
-# 1. Load HMS (select only key join & analysis columns)
+# 1. Scan pre-computed HMS panel and RMS movement data
 HMS = pl.scan_parquet(os.path.join(input_dir, "merged_panel.parquet"))
-
-HMS_scan = HMS
-
-# 2. Load RMS
 RMS = pl.scan_parquet(os.path.join(input_dir, "merged_rms.parquet"))
 
-# 3. Perform Direct Integer Hash Join
-print("Executing fast hash join...")
+# 2. Perform direct integer hash join
+print("Executing fast integer hash join...")
 merged = HMS.join(RMS, on=["panel_year", "week_end", "upc"], how="left", suffix="_rms")
 
-print("Streaming HMS-RMS merge to disk (this will take a few minutes)...")
+# 3. Stream merged dataset to disk ONCE
+print(f"Streaming HMS-RMS merge to disk (this will take a few minutes)...")
 merged.sink_parquet(final_out)
 print(f"\n[SUCCESS] Saved merged file to: {final_out}")
 
@@ -27,7 +24,7 @@ print("\n" + "=" * 60)
 print("RUNNING MERGE AUDIT: HMS x RMS DATASETS")
 print("=" * 60)
 
-# 1. Scan output dataset lazily from disk
+# 1. Scan the newly saved output dataset lazily
 merged_scan = pl.scan_parquet(final_out)
 
 # 2. Total Row Count Check & HMS Anchor Retention
@@ -47,12 +44,7 @@ if total_merged_rows > hms_anchor_rows:
 
 # 3. Match Rate Check (How many HMS purchases matched to RMS store prices)
 print("\n[2] RMS Join Match Rate:")
-# Pick a column unique to RMS (e.g., 'price' or 'store_code_uc')
-rms_cols = [
-    c
-    for c in RMS.collect_schema().names()
-    if c not in ["panel_year", "week_end", "upc"]
-]
+rms_cols = [c for c in RMS.schema.names() if c not in ["panel_year", "week_end", "upc"]]
 match_check_col = rms_cols[0] if rms_cols else None
 
 if match_check_col:
@@ -85,7 +77,7 @@ for key, count in null_counts.items():
 
 # 5. Disk & Column Summary
 file_size_gb = os.path.getsize(final_out) / (1024**3)
-schema_cols = merged_scan.collect_schema().names()
+schema_cols = merged_scan.schema.names()
 
 print("\n[4] Output File Summary:")
 print(f"    - Total Columns: {len(schema_cols)}")

@@ -12,7 +12,7 @@ composite_keys = ["panel_year", "week_end", "upc", "store_code_uc"]
 # 2. Filter RMS to Yogurt and deduplicate within each week/year/store/UPC combination
 RMS_yogurt = (
     pl.scan_parquet(os.path.join(input_dir, "merged_rms.parquet"))
-    .filter(pl.col("product_module_descr").is_in([3612, 3603]))
+    .filter(pl.col("product_module_code").is_in([3612, 3603]))
     .unique(subset=composite_keys, keep="first")
 )
 

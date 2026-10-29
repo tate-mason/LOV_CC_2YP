@@ -18,10 +18,6 @@ RMS = pl.scan_parquet(os.path.join(input_dir, "merged_rms.parquet"))
 print("Executing fast hash join...")
 merged = HMS.join(RMS, on=["panel_year", "week_end", "upc"], how="left", suffix="_rms")
 
-print(f"Streaming output to {final_out}...")
-merged.sink_parquet(final_out)
-print("Merge complete!")
-
 print("Streaming HMS-RMS merge to disk (this will take a few minutes)...")
 merged.sink_parquet(final_out)
 print(f"\n[SUCCESS] Saved merged file to: {final_out}")

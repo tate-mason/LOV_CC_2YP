@@ -228,7 +228,76 @@ with open(os.path.join(output_dir, "table2_estimation_sample.tex"), "w") as f:
     f.write(latex_est_summary)
 
 print("  --> Saved table2_estimation_sample.tex", flush=True)
+#
+# ==============================================================================
+# OPTION 2: HOUSEHOLD BRAND LOYALTY & CHOICE SET DYNAMICS
+# ==============================================================================
+print(
+    "\n[OPTION 2] Calculating Household Loyalty & Choice Set Concentration...",
+    flush=True,
+)
 
+# 1. Compute total purchases and per-flavor purchase counts per household
+hh_flavor_counts = (
+    est_df.group_by(["household_code", "flavor"])
+    .agg(pl.len().alias("flavor_purchases"))
+    .with_columns(
+        pl.col("flavor_purchases")
+        .sum()
+        .over("household_code")
+        .alias("total_hh_purchases")
+    )
+    .with_columns(
+        (pl.col("flavor_purchases") / pl.col("total_hh_purchases")).alias(
+            "flavor_share"
+        )
+    )
+)
+
+# 2. Household-Level Flavor HHI and Favorite Flavor Share
+hh_choice_metrics = hh_flavor_counts.group_by("household_code").agg(
+    [
+        # Primary flavor loyalty (Max share dedicated to a single flavor)
+        pl.col("flavor_share").max().alias("primary_flavor_share"),
+        # Household-Level Flavor HHI (Sum of squared percentage shares)
+        ((pl.col("flavor_share") * 100) ** 2).sum().alias("hh_flavor_hhi"),
+        # Number of unique flavors comprising household choice set
+        pl.col("flavor").n_unique().alias("total_flavors_tried"),
+    ]
+)
+
+# 3. Summary Statistics Table for Household Choice Concentration
+loyalty_summary_dict = {
+    "Metric": [
+        "Primary Flavor Share (Mean)",
+        "Primary Flavor Share (Median)",
+        "Household Flavor HHI (Mean)",
+        "Household Flavor HHI (Median)",
+        "Flavors Tried per Household (Mean)",
+    ],
+    "Value": [
+        f"{hh_choice_metrics['primary_flavor_share'].mean():.2%}",
+        f"{hh_choice_metrics['primary_flavor_share'].median():.2%}",
+        f"{hh_choice_metrics['hh_flavor_hhi'].mean():.1f}",
+        f"{hh_choice_metrics['hh_flavor_hhi'].median():.1f}",
+        f"{hh_choice_metrics['total_flavors_tried'].mean():.2f}",
+    ],
+}
+
+df_loyalty_summary = pd.DataFrame(loyalty_summary_dict)
+
+# Export Section LaTeX Table
+latex_loyalty_summary = df_loyalty_summary.to_latex(
+    index=False,
+    caption="Household Flavor Choice Concentration and Primary Share Loyalty",
+    label="tab:household_loyalty_summary",
+    column_format="lc",
+)
+
+with open(os.path.join(output_dir, "table3_household_loyalty.tex"), "w") as f:
+    f.write(latex_loyalty_summary)
+
+print("  --> Saved table3_household_loyalty.tex", flush=True)
 
 # ==============================================================================
 # SECTION 3: VISUALIZATIONS & FLAVOR HHI / SWITCHING HEATMAP

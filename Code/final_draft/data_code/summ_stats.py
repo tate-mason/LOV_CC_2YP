@@ -28,6 +28,11 @@ HISPANIC_LABELS = {}
 AGE_LABELS = {}
 
 
+def valid_flavor_labels(frame):
+    labels = frame["flavor_descr"].fillna("").astype(str).str.strip().str.lower()
+    return ~labels.isin(["", "na", "n/a", "nan", "null", "none"])
+
+
 def scan_purchases(path, first_year, last_year):
     """Project needed columns before loading; accept the names in current code."""
     scan = pl.scan_parquet(path)
@@ -219,12 +224,21 @@ def demographic_tables(households, output, prefix):
     )
 
 
-def flavor_reference(path, detailed=False):
+def flavor_reference(path, detailed=False, output=None):
     """Classify descriptors; module/product_module_code is not flavor text."""
     frame = pd.read_csv(path, dtype={"upc": str})
     missing = {"upc", "flavor_descr"} - set(frame.columns)
     if missing:
         raise ValueError(f"{path}: missing columns {sorted(missing)}")
+    frame["upc"] = frame["upc"].str.strip()
+    if frame["upc"].isna().any() or frame["upc"].eq("").any():
+        raise ValueError(f"{path}: flavor reference contains missing UPCs.")
+    # Missing-flavor exclusion disabled pending checks of older reference files.
+    # has_description = valid_flavor_labels(frame)
+    # print(f"Dropping {(~has_description).sum():,} reference rows with missing/NA flavor.", flush=True)
+    # frame = frame.loc[has_description].copy()
+    # if frame.empty:
+    #     raise ValueError(f"{path}: no nonmissing flavor labels remain.")
     text = frame["flavor_descr"].fillna("")
     if "product_descr" in frame.columns:
         text = text + " " + frame["product_descr"].fillna("")
@@ -246,8 +260,22 @@ def flavor_reference(path, detailed=False):
             .str.replace(r"\s+", " ", regex=True)
             .replace({"": "unknown", "unflavored": "plain"})
         )
-    if frame.groupby("upc")["flavor"].nunique().max() > 1:
-        raise ValueError("Conflicting flavor classifications for a UPC.")
+    counts = frame.groupby("upc")["flavor"].nunique()
+    conflicts = frame.loc[frame["upc"].isin(counts[counts > 1].index)].sort_values("upc")
+    if not conflicts.empty:
+        columns = [c for c in ["upc", "flavor_descr", "product_descr", "module", "product_module_code", "flavor"] if c in conflicts]
+        conflicts = conflicts[columns].drop_duplicates()
+        print("\nConflicting flavor-reference rows (first 30):", flush=True)
+        print(conflicts.head(30).to_string(index=False), flush=True)
+        location = ""
+        if output is not None:
+            conflict_path = output / ("detailed_flavor_conflicts.csv" if detailed else "aggregated_flavor_conflicts.csv")
+            conflicts.to_csv(conflict_path, index=False)
+            location = f" See {conflict_path}."
+        raise ValueError(
+            f"{len(counts[counts > 1]):,} UPCs have conflicting flavor classifications."
+            + location + " Resolve these labels in the reference CSV before rerunning."
+        )
     print(
         f"Flavor-reference rows with blank descriptors: {(frame['flavor_descr'].fillna('').str.strip() == '').sum():,}"
     )
@@ -492,11 +520,24 @@ def main():
             .to_pandas()
         )
         save_table(coverage, output, f"{name}_year_coverage", "Sample coverage by year")
-    reference = flavor_reference(args.flavors, detailed=True)
+    # Exclude purchases only when their reference UPC has no valid flavor.
+    # UPCs absent from the reference still fail the unmatched-flavor audit.
+    # Disabled pending checks of older reference files.
+    # raw_reference = pd.read_csv(args.flavors, dtype={"upc": str})
+    # raw_reference["upc"] = raw_reference["upc"].str.strip()
+    # valid_labels = valid_flavor_labels(raw_reference)
+    # excluded_upcs = set(raw_reference.loc[~valid_labels, "upc"].dropna()) - set(
+    #     raw_reference.loc[valid_labels, "upc"].dropna()
+    # )
+    # flavor_yogurt = yogurt.filter(~pl.col("upc").is_in(sorted(excluded_upcs)))
+    # dropped_lines = yogurt.filter(pl.col("upc").is_in(sorted(excluded_upcs))).select(pl.len()).collect().item()
+    # print(f"Excluded {len(excluded_upcs):,} UPCs and {dropped_lines:,} purchase lines with missing/NA flavor from flavor summaries.", flush=True)
+    flavor_yogurt = yogurt
+    reference = flavor_reference(args.flavors, detailed=True, output=output)
     flavors = sorted(reference["flavor"].unique().to_list())
     reference.write_csv(output / "detailed_flavor_reference.csv")
-    print("\nDetailed flavors use normalized flavor_descr; blank labels are unknown.", flush=True)
-    weekly, audit = yogurt_weeks(yogurt, reference, flavors)
+    print("\nDetailed flavors use normalized flavor_descr; missing labels are retained as unknown.", flush=True)
+    weekly, audit = yogurt_weeks(flavor_yogurt, reference, flavors)
     print("\nYogurt sample audit", flush=True)
     print(audit.to_string(index=False), flush=True)
     audit.to_csv(output / "yogurt_sample_audit.csv", index=False)
@@ -506,7 +547,7 @@ def main():
     # Keep the estimation's three flavor groups as a separate comparison.
     grouped_output = output / "aggregated_flavors"
     grouped_output.mkdir(parents=True, exist_ok=True)
-    grouped_weekly, _ = yogurt_weeks(yogurt, flavor_reference(args.flavors))
+    grouped_weekly, _ = yogurt_weeks(flavor_yogurt, flavor_reference(args.flavors, output=output))
     print("\nThree-group comparison (other, berry, plain)", flush=True)
     grouped_shares, grouped_transitions = flavor_summaries(grouped_weekly, grouped_output)
     if not args.no_figures:

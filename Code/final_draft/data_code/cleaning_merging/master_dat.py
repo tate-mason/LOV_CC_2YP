@@ -4,30 +4,23 @@ import polars as pl
 input_dir = "/scratch/dtm63837/Kilts_Panel/Data"
 final_out = os.path.join(input_dir, "merged_df.parquet")
 
-HMS = (
-    pl.scan_parquet(os.path.join(input_dir, "merged_panel.parquet"))
-    .with_columns(
-        # Parses "YYYY-MM-DD" directly to Date
-        purchase_date=pl.col("purchase_date").str.to_date()
-    )
-    .with_columns(
-        # Compute Saturday week_end and convert to integer YYYYMMDD (e.g., 20060527)
-        week_end=(
-            pl.col("purchase_date")
-            + pl.duration(days=(6 - (pl.col("purchase_date").dt.weekday() % 7)))
-        )
-        .dt.strftime("%Y%m%d")
-        .cast(pl.Int64)
-    )
-)
+print("Loading lazy frames with column projection...")
 
+# 1. Load HMS (select only key join & analysis columns)
+HMS = pl.scan_parquet(os.path.join(input_dir, "merged_panel.parquet"))
+
+HMS_scan = HMS
+
+# 2. Load RMS
 RMS = pl.scan_parquet(os.path.join(input_dir, "merged_rms.parquet"))
 
-merged = HMS.join(
-    RMS,
-    on=["panel_year", "week_end", "upc"],
-    how="left",
-)
+# 3. Perform Direct Integer Hash Join
+print("Executing fast hash join...")
+merged = HMS.join(RMS, on=["panel_year", "week_end", "upc"], how="left", suffix="_rms")
+
+print(f"Streaming output to {final_out}...")
+merged.sink_parquet(final_out)
+print("Merge complete!")
 
 print("Streaming HMS-RMS merge to disk (this will take a few minutes)...")
 merged.sink_parquet(final_out)

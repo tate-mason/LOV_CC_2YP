@@ -7,8 +7,6 @@ final_out = os.path.join(base_dir, "merged_rms.parquet")
 print("Loading lazy frames...")
 
 # 1. Load movement anchor
-# 1. Load movement anchor and derive panel_year from week_end
-# 1. Load movement anchor and derive panel_year using integer arithmetic
 movements = pl.concat(
     [
         pl.scan_parquet(os.path.join(base_dir, "combined/3612.parquet")),

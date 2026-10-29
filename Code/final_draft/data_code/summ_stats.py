@@ -158,6 +158,8 @@ def household_summary(scan):
 
 def save_table(frame, output, name, caption):
     """Keep machine-readable CSV beside the paper-ready LaTeX table."""
+    print(f"\n{caption} [{name}]", flush=True)
+    print(frame.to_string(index=False, float_format=lambda value: f"{value:.2f}"), flush=True)
     frame.to_csv(output / f"{name}.csv", index=False)
     (output / f"{name}.tex").write_text(
         frame.to_latex(index=False, escape=True, float_format="%.2f", caption=caption)
@@ -217,7 +219,7 @@ def demographic_tables(households, output, prefix):
     )
 
 
-def flavor_reference(path):
+def flavor_reference(path, detailed=False):
     """Classify descriptors; module/product_module_code is not flavor text."""
     frame = pd.read_csv(path, dtype={"upc": str})
     missing = {"upc", "flavor_descr"} - set(frame.columns)
@@ -236,15 +238,23 @@ def flavor_reference(path):
         ["plain", "berry"],
         default="other",
     )
+    if detailed:
+        # Preserve individual reported flavors and combinations; never infer a
+        # single flavor from one keyword in a mixed-flavor description.
+        frame["flavor"] = (
+            frame["flavor_descr"].fillna("").str.lower().str.strip()
+            .str.replace(r"\s+", " ", regex=True)
+            .replace({"": "unknown", "unflavored": "plain"})
+        )
     if frame.groupby("upc")["flavor"].nunique().max() > 1:
         raise ValueError("Conflicting flavor classifications for a UPC.")
     print(
-        f"Flavor-reference rows with blank descriptors (classified other): {(text.str.strip() == '').sum():,}"
+        f"Flavor-reference rows with blank descriptors: {(frame['flavor_descr'].fillna('').str.strip() == '').sum():,}"
     )
     return pl.from_pandas(frame[["upc", "flavor"]].drop_duplicates())
 
 
-def yogurt_weeks(scan, reference):
+def yogurt_weeks(scan, reference, flavors=FLAVORS):
     """Aggregate mixed baskets before computing flavor shares or transitions."""
     joined = scan.join(reference.lazy(), on="upc", how="left")
     audit = (
@@ -288,7 +298,7 @@ def yogurt_weeks(scan, reference):
             index=["household_code", "week"], columns="flavor", values="quantity"
         )
         .fillna(0)
-        .reindex(columns=FLAVORS, fill_value=0)
+        .reindex(columns=flavors, fill_value=0)
         .reset_index()
     )
     weekly["week"] = pd.to_datetime(weekly["week"])
@@ -296,11 +306,11 @@ def yogurt_weeks(scan, reference):
     return weekly, audit
 
 
-def flavor_summaries(weekly, output):
-    totals = weekly[FLAVORS].sum()
+def flavor_summaries(weekly, output, flavors=FLAVORS):
+    totals = weekly[flavors].sum()
     shares = pd.DataFrame(
         {
-            "flavor": FLAVORS,
+            "flavor": flavors,
             "packages": totals.to_numpy(),
             "percent_packages": 100 * totals.to_numpy() / totals.sum(),
         }
@@ -308,7 +318,7 @@ def flavor_summaries(weekly, output):
     save_table(
         shares, output, "yogurt_flavor_shares", "Flavor shares of purchased packages"
     )
-    hh_counts = weekly.groupby("household_code")[FLAVORS].sum()
+    hh_counts = weekly.groupby("household_code")[flavors].sum()
     hh_shares = hh_counts.div(hh_counts.sum(axis=1), axis=0)
     households = pd.DataFrame(
         {
@@ -318,11 +328,11 @@ def flavor_summaries(weekly, output):
         }
     )
     households.to_csv(output / "yogurt_household_flavors.csv")
-    weekly["packages"] = weekly[FLAVORS].sum(axis=1)
-    weekly["flavors_in_basket"] = (weekly[FLAVORS] > 0).sum(axis=1)
+    weekly["packages"] = weekly[flavors].sum(axis=1)
+    weekly["flavors_in_basket"] = (weekly[flavors] > 0).sum(axis=1)
     # No arbitrary ordering of multiple flavors bought on the same trip/week.
     weekly["single_flavor"] = (
-        weekly[FLAVORS].idxmax(axis=1).where(weekly["flavors_in_basket"] == 1)
+        weekly[flavors].idxmax(axis=1).where(weekly["flavors_in_basket"] == 1)
     )
     group = weekly.groupby("household_code")
     weekly["previous_flavor"] = group["single_flavor"].shift()
@@ -335,9 +345,13 @@ def flavor_summaries(weekly, output):
     transitions = pd.crosstab(
         weekly.loc[eligible, "previous_flavor"], weekly.loc[eligible, "single_flavor"]
     )
-    transitions = transitions.reindex(index=FLAVORS, columns=FLAVORS, fill_value=0)
+    transitions = transitions.reindex(index=flavors, columns=flavors, fill_value=0)
+    print("\nYogurt transition counts (previous flavor → current flavor)", flush=True)
+    print(transitions.to_string(), flush=True)
     transitions.to_csv(output / "yogurt_transition_counts.csv")
     probabilities = transitions.div(transitions.sum(axis=1).replace(0, np.nan), axis=0)
+    print("\nYogurt transition probabilities (previous flavor → current flavor)", flush=True)
+    print(probabilities.to_string(float_format=lambda value: f"{value:.2f}"), flush=True)
     probabilities.to_csv(output / "yogurt_transition_probabilities.csv")
     # Include STAYS in the denominator; otherwise a switching rate is overstated.
     switches = (
@@ -387,31 +401,35 @@ def flavor_summaries(weekly, output):
 
 
 def make_figures(shares, transitions, output):
+    flavors = shares["flavor"].tolist()
     # Import plotting only if requested (use --no-figures for tables alone).
     import matplotlib
 
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
 
-    fig, ax = plt.subplots(figsize=(6, 4))
+    fig, ax = plt.subplots(figsize=(max(6, len(flavors) * 0.35), 5))
     ax.bar(shares["flavor"], shares["percent_packages"], color="steelblue")
+    ax.tick_params(axis="x", labelrotation=90)
     ax.set(ylabel="Share of purchased packages (%)", title="Yogurt flavor shares")
     fig.tight_layout()
-    fig.savefig(output / "flavor_shares.png", dpi=200)
+    fig.savefig(output / "flavor_shares.pdf")
     plt.close(fig)
-    fig, ax = plt.subplots(figsize=(6, 4))
+    side = max(6, len(flavors) * 0.4)
+    fig, ax = plt.subplots(figsize=(side, side))
     image = ax.imshow(transitions.to_numpy(), vmin=0, vmax=1, cmap="Blues")
     ax.set(
-        xticks=range(3),
-        yticks=range(3),
-        xticklabels=FLAVORS,
-        yticklabels=FLAVORS,
+        xticks=range(len(flavors)),
+        yticks=range(len(flavors)),
+        xticklabels=flavors,
+        yticklabels=flavors,
         xlabel="Current flavor",
         ylabel="Previous flavor",
         title="Adjacent single-flavor purchase weeks",
     )
-    for i in range(3):
-        for j in range(3):
+    ax.tick_params(axis="x", labelrotation=90)
+    for i in range(len(flavors)):
+        for j in range(len(flavors)):
             value = transitions.iloc[i, j]
             ax.text(
                 j,
@@ -422,7 +440,7 @@ def make_figures(shares, transitions, output):
             )
     fig.colorbar(image, ax=ax)
     fig.tight_layout()
-    fig.savefig(output / "flavor_transitions.png", dpi=200)
+    fig.savefig(output / "flavor_transitions.pdf")
     plt.close(fig)
 
 
@@ -474,11 +492,25 @@ def main():
             .to_pandas()
         )
         save_table(coverage, output, f"{name}_year_coverage", "Sample coverage by year")
-    weekly, audit = yogurt_weeks(yogurt, flavor_reference(args.flavors))
+    reference = flavor_reference(args.flavors, detailed=True)
+    flavors = sorted(reference["flavor"].unique().to_list())
+    reference.write_csv(output / "detailed_flavor_reference.csv")
+    print("\nDetailed flavors use normalized flavor_descr; blank labels are unknown.", flush=True)
+    weekly, audit = yogurt_weeks(yogurt, reference, flavors)
+    print("\nYogurt sample audit", flush=True)
+    print(audit.to_string(index=False), flush=True)
     audit.to_csv(output / "yogurt_sample_audit.csv", index=False)
-    shares, transitions = flavor_summaries(weekly, output)
+    shares, transitions = flavor_summaries(weekly, output, flavors)
     if not args.no_figures:
         make_figures(shares, transitions, output)
+    # Keep the estimation's three flavor groups as a separate comparison.
+    grouped_output = output / "aggregated_flavors"
+    grouped_output.mkdir(parents=True, exist_ok=True)
+    grouped_weekly, _ = yogurt_weeks(yogurt, flavor_reference(args.flavors))
+    print("\nThree-group comparison (other, berry, plain)", flush=True)
+    grouped_shares, grouped_transitions = flavor_summaries(grouped_weekly, grouped_output)
+    if not args.no_figures:
+        make_figures(grouped_shares, grouped_transitions, grouped_output)
     print(f"Saved summaries to {output}", flush=True)
 
     # OPTIONAL: compare flavor loyalty by income (codes stay categorical).

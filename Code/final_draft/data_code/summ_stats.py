@@ -12,6 +12,11 @@ import pandas as pd
 import polars as pl
 
 DATA_DIR = Path("/scratch/dtm63837/Kilts_Panel/Data")
+# Set this to the flavor-reference CSV's full path on the Slurm server.
+FLAVOR_FILE = (
+    DATA_DIR
+    / "../nielsen_extracts/nielsen_extracts/RMS/Reference_Documentation/2006-2020_Documentation/Latest_Flavor_2010.csv"
+)
 FLAVORS = ["other", "berry", "plain"]
 
 # Add labels ONLY after checking the codebook for the years you use.
@@ -90,10 +95,12 @@ def repeated_yogurt_households(scan):
     week = pl.col("purchase_date") + pl.duration(
         days=(6 - pl.col("purchase_date").dt.weekday()) % 7
     )
-    ids = (scan.group_by("household_code")
-           .agg(week.n_unique().alias("observed_weeks"))
-           .filter(pl.col("observed_weeks") >= 2)
-           .select("household_code"))
+    ids = (
+        scan.group_by("household_code")
+        .agg(week.n_unique().alias("observed_weeks"))
+        .filter(pl.col("observed_weeks") >= 2)
+        .select("household_code")
+    )
     return scan.join(ids, on="household_code", how="semi")
 
 
@@ -211,11 +218,16 @@ def demographic_tables(households, output, prefix):
 
 
 def flavor_reference(path):
-    """Plain takes precedence over berry, matching the estimation script."""
+    """Classify descriptors; module/product_module_code is not flavor text."""
     frame = pd.read_csv(path, dtype={"upc": str})
-    text = (
-        frame["flavor_descr"].fillna("") + " " + frame["product_descr"].fillna("")
-    ).str.lower()
+    missing = {"upc", "flavor_descr"} - set(frame.columns)
+    if missing:
+        raise ValueError(f"{path}: missing columns {sorted(missing)}")
+    text = frame["flavor_descr"].fillna("")
+    if "product_descr" in frame.columns:
+        text = text + " " + frame["product_descr"].fillna("")
+    text = text.str.lower()
+    # Plain takes precedence over berry, matching the estimation script.
     frame["flavor"] = np.select(
         [
             text.str.contains("plain|unflavored"),
@@ -417,7 +429,12 @@ def make_figures(shares, transitions, output):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--data-dir", type=Path, default=DATA_DIR)
-    parser.add_argument("--flavors", type=Path, required=True)
+    parser.add_argument(
+        "--flavors",
+        type=Path,
+        default=FLAVOR_FILE,
+        help="Flavor-reference CSV (defaults to FLAVOR_FILE set above).",
+    )
     parser.add_argument("--output", type=Path)
     parser.add_argument("--first-year", type=int, default=2006)
     parser.add_argument("--last-year", type=int, default=2015)

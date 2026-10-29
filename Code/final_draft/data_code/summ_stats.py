@@ -60,7 +60,7 @@ def scan_purchases(path, first_year, last_year):
         if "price" in names
         else pl.lit(None, dtype=pl.Float64).alias("price")
     )
-    return (
+    purchases = (
         scan.select(expressions)
         .filter(pl.col("panel_year").is_between(first_year, last_year))
         .with_columns(
@@ -69,6 +69,16 @@ def scan_purchases(path, first_year, last_year):
             pl.col("quantity").cast(pl.Float64),
         )
     )
+    # Create overall head age from the gender-specific categories.
+    # Treat zero as absent; prefer female head age when both are available.
+    age_columns = ["female_head_age", "male_head_age"]
+    purchases = purchases.with_columns(
+        [
+            pl.when(pl.col(c) == "0").then(None).otherwise(pl.col(c)).alias(c)
+            for c in age_columns
+        ]
+    )
+    return purchases.with_columns(pl.coalesce(age_columns).alias("head_age"))
 
 
 def repeated_yogurt_households(scan):
@@ -94,6 +104,7 @@ def household_summary(scan):
         "income",
         "hispanic_origin",
         "household_size",
+        "head_age",
         "female_head_age",
         "male_head_age",
         "dma_cd",
@@ -153,6 +164,7 @@ def demographic_tables(households, output, prefix):
         ("hispanic_origin", HISPANIC_LABELS),
         ("income", INCOME_LABELS),
         ("household_size", {}),
+        ("head_age", AGE_LABELS),
         ("female_head_age", AGE_LABELS),
         ("male_head_age", AGE_LABELS),
     ]

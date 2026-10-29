@@ -18,8 +18,7 @@ os.makedirs(output_dir, exist_ok=True)
 panel_path = os.path.join(data_dir, "merged_panel.parquet")
 estimation_path = os.path.join(data_dir, "yogurt_estimation_sample.parquet")
 flavor_table_path = os.path.join(
-    data_dir,
-    "../nielsen_extracts/RMS/Reference_Documentation/2006-2020_Documentation/Latest_Flavor_2010.csv",
+    data_dir, "flavor_dictionary.parquet"
 )  # Adjust path if needed
 
 
@@ -31,28 +30,23 @@ print("\n[SECTION 1] Processing Overall Panel Demographics & Behavior...", flush
 # Lazy scan of overall panel
 panel_lazy = pl.scan_parquet(panel_path)
 
-# Demographics & Weekly Trips Calculation
-# Grouping by Household to get demographic distributions and weekly behavior
+# Demographics & Weekly Trips Calculation in Polars
 hh_panel_stats = (
     panel_lazy.group_by("household_code")
     .agg(
         [
             pl.col("panel_year").min().alias("start_year"),
             pl.col("panel_year").max().alias("end_year"),
-            # Categorical brackets: take mode/first non-null observation per household
             pl.col("age").drop_nulls().first().alias("age_bracket"),
             pl.col("race").drop_nulls().first().alias("race_bracket"),
             pl.col("income").drop_nulls().first().alias("income_bracket"),
-            # Total distinct purchases/products
             pl.col("upc").n_unique().alias("distinct_products_bought"),
             pl.col("upc").count().alias("total_items_bought"),
-            # Distinct trips per household using purchase_date
             pl.col("purchase_date").n_unique().alias("total_trips"),
         ]
     )
     .with_columns(
         [
-            # Approximate weeks active to compute average weekly trips
             ((pl.col("end_year") - pl.col("start_year") + 1) * 52).alias(
                 "active_weeks"
             ),
@@ -64,18 +58,9 @@ hh_panel_stats = (
     .collect()
 )
 
-# Build Demographic Distributions (Shares by Bracket)
-age_dist = (
-    hh_panel_stats["age_bracket"].value_counts(normalize=True).sort("age_bracket")
-)
-race_dist = (
-    hh_panel_stats["race_bracket"].value_counts(normalize=True).sort("race_bracket")
-)
-income_dist = (
-    hh_panel_stats["income_bracket"].value_counts(normalize=True).sort("income_bracket")
-)
+# Polars --> Pandas for Summary Table Formatting
+df_hh_panel_stats = hh_panel_stats.to_pandas()
 
-# Summary Table for Overall Panel
 panel_summary_dict = {
     "Metric": [
         "Total Households",
@@ -85,11 +70,11 @@ panel_summary_dict = {
         "Total Items Bought per HH (Mean)",
     ],
     "Value": [
-        f"{len(hh_panel_stats):,}",
-        f"{hh_panel_stats['trips_per_week'].mean():.2f}",
-        f"{hh_panel_stats['trips_per_week'].median():.2f}",
-        f"{hh_panel_stats['distinct_products_bought'].mean():.2f}",
-        f"{hh_panel_stats['total_items_bought'].mean():.2f}",
+        f"{len(df_hh_panel_stats):,}",
+        f"{df_hh_panel_stats['trips_per_week'].mean():.2f}",
+        f"{df_hh_panel_stats['trips_per_week'].median():.2f}",
+        f"{df_hh_panel_stats['distinct_products_bought'].mean():.2f}",
+        f"{df_hh_panel_stats['total_items_bought'].mean():.2f}",
     ],
 }
 
@@ -116,30 +101,26 @@ print(
     "\n[SECTION 2] Processing Yogurt Estimation Sample & Flavor Dynamics...", flush=True
 )
 
-# Load Estimation Sample and Merge Flavor Data
+# Load Estimation Sample and Merge Flavor Data via Polars
 est_lazy = pl.scan_parquet(estimation_path)
 
 if os.path.exists(flavor_table_path):
-    flavor_df = pl.scan_csv(flavor_table_path)
+    flavor_df = pl.scan_parquet(flavor_table_path)
     est_lazy = est_lazy.join(flavor_df, on="upc", how="left")
 else:
-    # Placeholder if flavor table is merged downstream: uses mock/fallback column
     print(
         "  [NOTE] Flavor dictionary path not found; using existing 'flavor' column.",
         flush=True,
     )
 
-# Ensure sorted order for sequence and spell calculations
+# Polars Sequence and Spell Calculations
 est_df = (
     est_lazy.filter(pl.col("flavor").is_not_null())
     .sort(["household_code", "purchase_date"])
     .collect()
 )
 
-# ------------------------------------------------------------------------------
-# 2A. Compute Household Flavor Switching & Spells
-# ------------------------------------------------------------------------------
-# Identify switches when consecutive purchases within a household differ in flavor
+# 2A. Compute Household Flavor Switching & Spells in Polars
 est_df = est_df.with_columns(
     [
         pl.col("flavor").shift(1).over("household_code").alias("prev_flavor"),
@@ -158,12 +139,12 @@ est_df = est_df.with_columns(
     ]
 )
 
-# Compute consecutive run/spell IDs for each household-flavor streak
+# Consecutive spell IDs per household
 est_df = est_df.with_columns(
     [pl.col("is_switch").cum_sum().over("household_code").alias("spell_id")]
 )
 
-# Aggregate spell lengths (number of consecutive purchases per flavor spell)
+# Aggregate spell lengths in Polars
 spell_lengths = est_df.group_by(["household_code", "spell_id"]).agg(
     [
         pl.col("flavor").first().alias("flavor"),
@@ -174,7 +155,7 @@ spell_lengths = est_df.group_by(["household_code", "spell_id"]).agg(
     ]
 )
 
-# Household-level summary metrics
+# Household-level summary metrics in Polars
 hh_est_stats = est_df.group_by("household_code").agg(
     [
         pl.col("flavor").n_unique().alias("n_flavors_bought"),
@@ -184,7 +165,6 @@ hh_est_stats = est_df.group_by("household_code").agg(
     ]
 )
 
-# Merge back household spell averages
 hh_avg_spells = spell_lengths.group_by("household_code").agg(
     [
         pl.col("spell_length_purchases").mean().alias("avg_spell_purchases"),
@@ -192,7 +172,10 @@ hh_avg_spells = spell_lengths.group_by("household_code").agg(
     ]
 )
 
-hh_est_stats = hh_est_stats.join(hh_avg_spells, on="household_code", how="left")
+# Join aggregated statistics in Polars and convert to Pandas
+hh_est_stats_pd = hh_est_stats.join(
+    hh_avg_spells, on="household_code", how="left"
+).to_pandas()
 
 # Format Estimation Sample Summary Table
 est_summary_dict = {
@@ -205,12 +188,12 @@ est_summary_dict = {
         "Average Spell Duration (Days)",
     ],
     "Value": [
-        f"{len(hh_est_stats):,}",
-        f"{hh_est_stats['n_flavors_bought'].mean():.2f}",
-        f"{hh_est_stats['n_flavors_bought'].median():.2f}",
-        f"{hh_est_stats['total_flavor_switches'].mean():.2f}",
-        f"{hh_est_stats['avg_spell_purchases'].mean():.2f}",
-        f"{hh_est_stats['avg_spell_days'].mean():.2f}",
+        f"{len(hh_est_stats_pd):,}",
+        f"{hh_est_stats_pd['n_flavors_bought'].mean():.2f}",
+        f"{hh_est_stats_pd['n_flavors_bought'].median():.2f}",
+        f"{hh_est_stats_pd['total_flavor_switches'].mean():.2f}",
+        f"{hh_est_stats_pd['avg_spell_purchases'].mean():.2f}",
+        f"{hh_est_stats_pd['avg_spell_days'].mean():.2f}",
     ],
 }
 
@@ -228,76 +211,7 @@ with open(os.path.join(output_dir, "table2_estimation_sample.tex"), "w") as f:
     f.write(latex_est_summary)
 
 print("  --> Saved table2_estimation_sample.tex", flush=True)
-#
-# ==============================================================================
-# OPTION 2: HOUSEHOLD BRAND LOYALTY & CHOICE SET DYNAMICS
-# ==============================================================================
-print(
-    "\n[OPTION 2] Calculating Household Loyalty & Choice Set Concentration...",
-    flush=True,
-)
 
-# 1. Compute total purchases and per-flavor purchase counts per household
-hh_flavor_counts = (
-    est_df.group_by(["household_code", "flavor"])
-    .agg(pl.len().alias("flavor_purchases"))
-    .with_columns(
-        pl.col("flavor_purchases")
-        .sum()
-        .over("household_code")
-        .alias("total_hh_purchases")
-    )
-    .with_columns(
-        (pl.col("flavor_purchases") / pl.col("total_hh_purchases")).alias(
-            "flavor_share"
-        )
-    )
-)
-
-# 2. Household-Level Flavor HHI and Favorite Flavor Share
-hh_choice_metrics = hh_flavor_counts.group_by("household_code").agg(
-    [
-        # Primary flavor loyalty (Max share dedicated to a single flavor)
-        pl.col("flavor_share").max().alias("primary_flavor_share"),
-        # Household-Level Flavor HHI (Sum of squared percentage shares)
-        ((pl.col("flavor_share") * 100) ** 2).sum().alias("hh_flavor_hhi"),
-        # Number of unique flavors comprising household choice set
-        pl.col("flavor").n_unique().alias("total_flavors_tried"),
-    ]
-)
-
-# 3. Summary Statistics Table for Household Choice Concentration
-loyalty_summary_dict = {
-    "Metric": [
-        "Primary Flavor Share (Mean)",
-        "Primary Flavor Share (Median)",
-        "Household Flavor HHI (Mean)",
-        "Household Flavor HHI (Median)",
-        "Flavors Tried per Household (Mean)",
-    ],
-    "Value": [
-        f"{hh_choice_metrics['primary_flavor_share'].mean():.2%}",
-        f"{hh_choice_metrics['primary_flavor_share'].median():.2%}",
-        f"{hh_choice_metrics['hh_flavor_hhi'].mean():.1f}",
-        f"{hh_choice_metrics['hh_flavor_hhi'].median():.1f}",
-        f"{hh_choice_metrics['total_flavors_tried'].mean():.2f}",
-    ],
-}
-
-df_loyalty_summary = pd.DataFrame(loyalty_summary_dict)
-
-# Export Section LaTeX Table
-latex_loyalty_summary = df_loyalty_summary.to_latex(
-    index=False,
-    caption="Household Flavor Choice Concentration and Primary Share Loyalty",
-    label="tab:household_loyalty_summary",
-    column_format="lc",
-)
-
-with open(os.path.join(output_dir, "table3_household_loyalty.tex"), "w") as f:
-    f.write(latex_loyalty_summary)
-
-print("  --> Saved table3_household_loyalty.tex", flush=True)
 
 # ==============================================================================
 # SECTION 3: VISUALIZATIONS & FLAVOR HHI / SWITCHING HEATMAP
@@ -305,22 +219,23 @@ print("  --> Saved table3_household_loyalty.tex", flush=True)
 print("\n[SECTION 3] Generating Visualizations...", flush=True)
 
 # ------------------------------------------------------------------------------
-# 3A. Top 10 Flavor Shares & HHI Calculation
+# 3A. Top 10 Flavor Shares & HHI Calculation (Polars --> Pandas)
 # ------------------------------------------------------------------------------
 flavor_shares = (
     est_df["flavor"].value_counts(normalize=True).sort("count", descending=True)
 )
 
-# Compute HHI across all flavors: Sum of (Share * 100)^2
 hhi_value = ((flavor_shares["count"] * 100) ** 2).sum()
 
 top_10_flavors = flavor_shares.head(10)
 top_10_list = top_10_flavors["flavor"].to_list()
 
-# Bar Chart for Top 10 Flavors
+# Convert Top 10 Polars DataFrame to Pandas for Seaborn Plotting
+df_top_10_pandas = top_10_flavors.to_pandas()
+
 plt.figure(figsize=(10, 5))
 ax = sns.barplot(
-    data=top_10_flavors.to_pandas(),
+    data=df_top_10_pandas,
     x="count",
     y="flavor",
     palette="Blues_r",
@@ -333,7 +248,6 @@ plt.title(
 plt.xlabel("Market Share")
 plt.ylabel("Flavor")
 
-# Format x-axis as percentage
 ax.xaxis.set_major_formatter(plt.FuncFormatter(lambda x, _: f"{x:.0%}"))
 
 plt.tight_layout()
@@ -344,35 +258,31 @@ plt.close()
 print(f"  --> Saved fig1_flavor_shares_hhi.png (HHI = {hhi_value:.1f})", flush=True)
 
 # ------------------------------------------------------------------------------
-# 3B. Transition / Switching Heatmap for Top 10 Flavors
+# 3B. Transition / Switching Heatmap for Top 10 Flavors (Polars --> Pandas)
 # ------------------------------------------------------------------------------
-# Filter transitions where both previous and current flavor are in top 10
+# Compute counts in Polars then send to Pandas pivot table
 switching_df = (
     est_df.filter(
         pl.col("flavor").is_in(top_10_list)
         & pl.col("prev_flavor").is_in(top_10_list)
-        & (pl.col("flavor") != pl.col("prev_flavor"))  # Only include actual switches
+        & (pl.col("flavor") != pl.col("prev_flavor"))
     )
     .group_by(["prev_flavor", "flavor"])
     .len()
     .to_pandas()
 )
 
-# Pivot into square matrix
 transition_matrix = switching_df.pivot(
     index="prev_flavor", columns="flavor", values="len"
 ).fillna(0)
 
-# Reindex matrix to match top 10 order
 transition_matrix = transition_matrix.reindex(
     index=top_10_list, columns=top_10_list, fill_value=0
 )
 
-# Normalize by row (probability of switching to flavor Y given starting at flavor X)
 row_sums = transition_matrix.sum(axis=1)
 transition_prob = transition_matrix.div(row_sums, axis=0).fillna(0)
 
-# Plot Heatmap
 plt.figure(figsize=(10, 8))
 sns.heatmap(
     transition_prob,
@@ -415,7 +325,7 @@ ADDITIONAL RECOMMENDED SUMMARY STATISTICS FOR STRUCTURAL/DEMAND MODELS:
        (pl.col("featured") == 1).mean().alias("pct_featured"),
        (pl.col("display") == 1).mean().alias("pct_display"),
        pl.col("price_per_oz").mean().alias("mean_price_per_oz"),
-   ])
+   ]).to_pandas()
 
 2. HOUSEHOLD BRAND LOYALTY & CHOICE SET SIZE:
    - Share of household wallet devoted to their primary favorite flavor (Max Share per HH).
@@ -428,6 +338,7 @@ ADDITIONAL RECOMMENDED SUMMARY STATISTICS FOR STRUCTURAL/DEMAND MODELS:
        .with_columns((pl.col("len") / pl.col("len").sum().over("household_code")).alias("share"))
        .group_by("household_code")
        .agg(((pl.col("share") * 100)**2).sum().alias("hh_flavor_hhi"))
+       .to_pandas()
    )
 
 3. INTER-PURCHASE TIME DYNAMICS (INVENTORY EFFECTS):

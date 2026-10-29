@@ -7,6 +7,24 @@ The current instructions supersede the older draft: beta is common across
 households; gamma and alpha are heterogeneous; delta is one; own-flavor history
 includes all earlier periods.
 
+## Four model specifications
+
+Beta is common across households in all four models. Each entry point accepts
+all the same data, price-control, optimization, and bootstrap options:
+
+| Entry point | `--model` | Gamma | Alpha |
+| --- | --- | --- | --- |
+| `est_naive.py` | `naive` | Absent | Common |
+| `est_gamma.py` | `homogeneous` | Common, flavor-specific | Common |
+| `est_het_naive.py` | `mixed_naive` | Absent | Varies across households |
+| `est_het_gamma.py` | `heterogeneous` | Varies across households and flavors | Varies across households |
+
+For example, run each entry point with `--flavors /path/to/flavors.csv` and a
+separate `--output` directory. Equivalently use `est.py --model MODEL`.
+The default for `est.py` remains `heterogeneous`. Mixed models integrate a
+persistent household alpha; the gamma model also integrates persistent gamma.
+All four use the same sample requiring at least two usable purchase weeks.
+
 ## Run on the server
 
 Install packages in your usual Python environment:
@@ -47,7 +65,8 @@ DMA codes must be positive integers; missing DMA codes stop processing. The scri
 on missing matches or conflicting flavor labels. A blank description is assigned
 "other", following `summ_stats.py`; inspect the reference before using this rule.
 
-All households in the new matched sample are eligible. The old single-person
+Households must have at least two distinct usable purchase weeks after menu/IV
+exclusions. Weeks need not be consecutive. The old single-person
 household and serving-code filters are not carried forward. The development
 limit takes the lowest household IDs deterministically; it is not a random sample.
 
@@ -270,7 +289,10 @@ and [Dube, multiple discreteness](https://doi.org/10.1287/mksc.1030.0041).
 ## Summary statistics
 
 `../data_code/summ_stats.py` produces demographic tables for the full panel and
-matched yogurt sample, before final menu/IV exclusions. Run it with the same
+matched yogurt sample, before final menu/IV exclusions. Matched yogurt summaries
+require at least two distinct purchase weeks within the selected years; this
+restriction applies to demographics, coverage, and purchase dynamics. Full-panel
+summaries retain all households. Run it with the same
 flavor reference and year range. It writes CSV and LaTeX, plus optional figures:
 
 ```bash

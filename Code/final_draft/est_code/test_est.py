@@ -71,12 +71,13 @@ class EstimationChecks(unittest.TestCase):
                 model="heterogeneous", draws=8, starts=1, maxiter=5, seed=306,
                 output=root / "output")
             frame = prepare_data(args)
-            self.assertEqual(len(frame), 3)
+            self.assertEqual(len(frame), 2)
+            self.assertEqual(frame.household_code.unique().tolist(), [10])
             self.assertEqual(frame.loc[0, "other"], 2)
             self.assertEqual(frame.loc[0, "berry"], 1)
             self.assertEqual(frame.loc[0, "store_code_uc"], 100)
             self.assertEqual(frame.loc[0, "price_other"], 1.5)
-            np.testing.assert_allclose(frame.filter(like="stock_").iloc[2], 0)
+            np.testing.assert_allclose(frame.filter(like="stock_").iloc[0], 0)
             fit = fit_model(make_arrays(frame, 0), args)
             self.assertTrue(np.isfinite(fit.fun))
             self.assertTrue((args.output / "fit.json").exists())
@@ -90,6 +91,14 @@ class EstimationChecks(unittest.TestCase):
                 pl.lit(3, dtype=pl.Int32).alias("dma_code"),
                 (pl.col("price") + 4).alias("price"))
             pl.concat([rms, extra], how="vertical_relaxed").write_parquet(args.rms)
+            # Two observed weeks but only one complete menu must also be dropped.
+            incomplete = pl.read_parquet(args.rms).filter(
+                ~((pl.col("week_end") == 20100102) & (pl.col("upc") == 3)))
+            original_rms = pl.read_parquet(args.rms)
+            incomplete.write_parquet(args.rms)
+            with self.assertRaisesRegex(ValueError, "at least two usable"):
+                prepare_data(args)
+            original_rms.write_parquet(args.rms)
             args.no_price_control = False
             args.household_dma_column = "dma_cd"
             args.retail_dma_column = "dma_code"
@@ -112,6 +121,38 @@ class EstimationChecks(unittest.TestCase):
             logp = utility - logsumexp(utility, axis=1, keepdims=True)
             by_draw.append(np.sum(data["counts"]*logp))
         self.assertAlmostEqual(actual, logsumexp(by_draw)-np.log(8))
+
+    def test_four_model_specifications(self):
+        for model, gamma, alpha_sd, gamma_sd in [
+            ("naive", False, False, False),
+            ("homogeneous", True, False, False),
+            ("mixed_naive", False, True, False),
+            ("heterogeneous", True, True, True),
+        ]:
+            with self.subTest(model=model):
+                names = parameter_names(model, False)
+                self.assertEqual("mean_gamma_other" in names, gamma)
+                self.assertEqual("sd_log_minus_alpha" in names, alpha_sd)
+                self.assertEqual("sd_gamma_other" in names, gamma_sd)
+                self.assertFalse(any("sd_beta" in n for n in names))
+
+    def test_mixed_naive_integrates_only_alpha(self):
+        data = make_arrays(add_stocks(self.frame()), 0)
+        draws = make_draws(8, 306)
+        theta = np.array([.1, -.2, -.4, .6])
+        actual = household_loglike(theta, data, draws, "mixed_naive")
+        independent = []
+        for z in draws:
+            alpha = -np.exp(-.4 + .6*z[0])
+            utility = np.array([0., .1, -.2]) + alpha*data["prices"]
+            logp = utility - logsumexp(utility, axis=1, keepdims=True)
+            independent.append(np.sum(data["counts"]*logp))
+        np.testing.assert_allclose(actual, [logsumexp(independent)-np.log(len(draws))])
+        changed = dict(data, xi=data["xi"] + 100.)
+        np.testing.assert_allclose(actual, household_loglike(theta, changed, draws, "mixed_naive"))
+        np.testing.assert_allclose(
+            household_loglike(theta[:3], data, draws, "naive"),
+            household_loglike(np.r_[theta[:3], 0.], data, draws, "mixed_naive"))
 
     def test_zero_heterogeneity_nests_homogeneous_model(self):
         data = make_arrays(add_stocks(self.frame()), 0)

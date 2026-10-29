@@ -1,4 +1,4 @@
-"""Weekly yogurt demand with common beta and random gamma/alpha.
+"""Weekly yogurt demand: fixed or mixed logit, with or without gamma.
 
 Read README.md first. Run `python3 est.py --help` for server paths and options.
 The raw data are not required for importing or testing the likelihood.
@@ -152,9 +152,14 @@ def prepare_data(args):
               f"{(complete & ~iv_complete).sum():,}", flush=True)
         complete &= iv_complete
     weekly = weekly.loc[complete].copy()
+    # Count usable household-weeks after all menu/IV exclusions.
+    repeated = weekly.groupby("household_code")["week"].transform("nunique") >= 2
+    print(f"Households excluded for fewer than two usable weeks: "
+          f"{weekly.loc[~repeated, 'household_code'].nunique():,}", flush=True)
+    weekly = weekly.loc[repeated].reset_index(drop=True)
     weekly["outside"] = np.maximum(args.capacity - weekly[FLAVORS].sum(axis=1), 0)
     if weekly.empty:
-        raise ValueError("No weeks with complete flavor menus.")
+        raise ValueError("No households with at least two usable purchase weeks.")
     return weekly
 
 
@@ -221,10 +226,12 @@ def make_draws(number, seed):
 def parameter_names(model, outside, control=False):
     names = (["inside_constant"] if outside else []) + ["beta_berry", "beta_plain"]
     names += ["mu_log_minus_alpha"]
-    if model != "naive":
+    if model in ("homogeneous", "heterogeneous"):
         names += ["mean_gamma_" + f for f in FLAVORS]
+    if model in ("mixed_naive", "heterogeneous"):
+        names += ["sd_log_minus_alpha"]
     if model == "heterogeneous":
-        names += ["sd_log_minus_alpha"] + ["sd_gamma_" + f for f in FLAVORS]
+        names += ["sd_gamma_" + f for f in FLAVORS]
     if control:
         names += ["price_control"]
     return names
@@ -241,7 +248,7 @@ def household_loglike(theta, data, draws, model):
     beta = np.array([0., p["beta_berry"], p["beta_plain"]])
     beta += p.get("inside_constant", 0.)
     loglikes = []
-    active_draws = draws if model == "heterogeneous" else np.zeros((1, 4))
+    active_draws = draws if model in ("mixed_naive", "heterogeneous") else np.zeros((1, 4))
     for z in active_draws:
         alpha = -np.exp(p["mu_log_minus_alpha"] + p.get("sd_log_minus_alpha", 0.) * z[0])
         gamma = np.array([p.get("mean_gamma_" + f, 0.)
@@ -346,7 +353,7 @@ def main(default_model="heterogeneous"):
     parser.add_argument("--rms", type=Path, default=DATA_DIR / "merged_rms.parquet")
     parser.add_argument("--flavors", type=Path, required=True)
     parser.add_argument("--output", type=Path, default=Path("estimation_output"))
-    parser.add_argument("--model", choices=["naive", "homogeneous", "heterogeneous"], default=default_model)
+    parser.add_argument("--model", choices=["naive", "homogeneous", "mixed_naive", "heterogeneous"], default=default_model)
     parser.add_argument("--first-year", type=int, default=2006)
     parser.add_argument("--last-year", type=int, default=2015)
     parser.add_argument("--max-households", type=int)

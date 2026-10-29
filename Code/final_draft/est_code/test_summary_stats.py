@@ -39,6 +39,11 @@ class SummaryChecks(unittest.TestCase):
             reference = pl.DataFrame({"upc": ["1", "2", "3"], "flavor": ["other", "berry", "plain"]})
             weekly, _ = summary.yogurt_weeks(scan, reference)
             self.assertEqual(weekly.loc[weekly.household_code == 2, "week"].iloc[0], pd.Timestamp("2010-01-09"))
+            repeated = summary.repeated_yogurt_households(scan)
+            self.assertEqual(summary.household_summary(repeated).household_code.tolist(), [1])
+            # Several purchases in a single week still do not qualify.
+            one_week = scan.filter(pl.col("purchase_date") <= pl.date(2010, 1, 3))
+            self.assertEqual(summary.repeated_yogurt_households(one_week).collect().height, 0)
             shares, transitions = summary.flavor_summaries(weekly, root)
             self.assertEqual(weekly.loc[0, "flavors_in_basket"], 2)
             self.assertTrue(transitions.isna().all().all())

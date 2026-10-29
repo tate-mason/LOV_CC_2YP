@@ -71,6 +71,22 @@ def scan_purchases(path, first_year, last_year):
     )
 
 
+def repeated_yogurt_households(scan):
+    """Keep households with two distinct Saturday-ending purchase weeks.
+
+    Apply after year selection; multiple lines/trips in one week count once.
+    Summaries precede the estimation-only menu and IV exclusions.
+    """
+    week = pl.col("purchase_date") + pl.duration(
+        days=(6 - pl.col("purchase_date").dt.weekday()) % 7
+    )
+    ids = (scan.group_by("household_code")
+           .agg(week.n_unique().alias("observed_weeks"))
+           .filter(pl.col("observed_weeks") >= 2)
+           .select("household_code"))
+    return scan.join(ids, on="household_code", how="semi")
+
+
 def household_summary(scan):
     """One row per household, so frequent shoppers do not dominate demographics."""
     demographics = [
@@ -406,6 +422,7 @@ def main():
         args.first_year,
         args.last_year,
     )
+    yogurt = repeated_yogurt_households(yogurt)
     panel_households = household_summary(panel)
     yogurt_households = household_summary(yogurt)
     if panel_households.empty or yogurt_households.empty:

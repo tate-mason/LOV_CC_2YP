@@ -7,7 +7,7 @@ import polars as pl
 import numpy as np
 import pandas as pd
 from scipy.special import logsumexp
-from est import prepare_data, fit_model, add_stocks, make_arrays, household_loglike, make_draws, parameter_names
+from est import read_flavors, prepare_data, fit_model, add_stocks, make_arrays, household_loglike, make_draws, parameter_names
 
 
 class EstimationChecks(unittest.TestCase):
@@ -48,7 +48,9 @@ class EstimationChecks(unittest.TestCase):
             flavor = pd.DataFrame({"upc": [1, 2, 3],
                                    "flavor_descr": ["vanilla", "berry", "plain"],
                                    "product_descr": ["yogurt"]*3})
-            flavor.to_csv(root / "flavors.csv", index=False)
+            flavor.loc[flavor["upc"] != 3].to_csv(root / "flavors.csv", index=False)
+            pl.DataFrame({"upc": [1, 3, 3], "flavor_descr": ["berry", "vanilla", "plain"],
+                          "panel_year": [2006, 2011, 2010]}).write_parquet(root / "products_extra.parquet")
             # Two stores in one household-week must produce ONE basket.
             pl.DataFrame({
                 "household_code": [10, 10, 10, 20], "panel_year": [2010]*4,
@@ -65,7 +67,7 @@ class EstimationChecks(unittest.TestCase):
             pl.DataFrame(rows).write_parquet(root / "rms.parquet")
             args = SimpleNamespace(
                 flavors=root / "flavors.csv", sample=root / "sample.parquet",
-                rms=root / "rms.parquet", first_year=2010, last_year=2010,
+                rms=root / "rms.parquet", products_extra=root / "products_extra.parquet", first_year=2010, last_year=2010,
                 max_households=2, habit_weight=.7, capacity=0, no_price_control=True,
                 se_method="none",
                 model="heterogeneous", draws=8, starts=1, maxiter=5, seed=306,

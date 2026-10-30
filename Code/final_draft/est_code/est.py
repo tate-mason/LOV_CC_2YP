@@ -43,7 +43,7 @@ def normalized_upc_expr():
     )
 
 
-def read_flavors(path):
+def read_flavors(path, products_extra=None):
     """Use the same plain-first classification as data_code/summ_stats.py."""
     frame = pd.read_csv(path, dtype={"upc": str})
     missing = {"upc", "flavor_descr"} - set(frame.columns)
@@ -52,6 +52,34 @@ def read_flavors(path):
     frame["upc"] = normalize_upcs(frame["upc"])
     if frame["upc"].isna().any() or frame["upc"].eq("").any():
         raise ValueError(f"{path}: flavor reference contains missing UPCs.")
+    if products_extra is not None:
+        products_extra = Path(products_extra)
+        if products_extra.exists():
+            products = pl.scan_parquet(products_extra)
+            names = products.collect_schema().names()
+            if not {"upc", "flavor_descr"}.issubset(names):
+                raise ValueError(f"{products_extra}: needs upc and flavor_descr columns.")
+            columns = [c for c in ["upc", "flavor_descr", "product_descr", "panel_year"] if c in names]
+            products = (products.select(columns).with_columns(normalized_upc_expr())
+                        .join(pl.DataFrame({"upc": frame["upc"].dropna().unique().tolist()}).lazy(),
+                              on="upc", how="anti"))
+            products = products.filter(
+                pl.col("upc").is_not_null() & pl.col("flavor_descr").is_not_null()
+                & ~pl.col("flavor_descr").cast(pl.String).str.strip_chars().str.to_lowercase()
+                .is_in(["", "na", "n/a", "nan", "null", "none"])
+            )
+            if "panel_year" in names:
+                products = products.group_by("upc").agg([
+                    pl.col(c).sort_by("panel_year", nulls_last=True).first().alias(c)
+                    for c in columns if c != "upc"
+                ])
+            else:
+                products = products.unique(subset="upc", keep="first", maintain_order=True)
+            recovered = products.collect(engine="streaming").to_pandas()
+            frame = pd.concat([frame, recovered], ignore_index=True)
+            print(f"Recovered flavor labels for {len(recovered):,} additional UPCs from {products_extra}.", flush=True)
+        else:
+            print(f"Flavor recovery source not found: {products_extra}; using CSV reference only.", flush=True)
     text = frame["flavor_descr"].fillna("")
     if "product_descr" in frame.columns:
         text = text + " " + frame["product_descr"].fillna("")
@@ -92,7 +120,8 @@ def prepare_data(args):
     Prices are equal-weight means over UPCs in a store/week/flavor.
     No prices are filled from the household's chosen product or future weeks.
     """
-    flavor = read_flavors(args.flavors)
+    products_extra = getattr(args, "products_extra", None) or Path(args.rms).parent / "RMS/combined/products_extra.parquet"
+    flavor = read_flavors(args.flavors, products_extra)
     scan = pl.scan_parquet(args.sample)
     required = [
         "household_code",
@@ -518,6 +547,8 @@ def main(default_model="heterogeneous"):
     )
     parser.add_argument("--rms", type=Path, default=DATA_DIR / "merged_rms.parquet")
     parser.add_argument("--flavors", type=Path, default=FLAVOR_FILE)
+    parser.add_argument("--products-extra", type=Path,
+                        help="Annual flavor metadata; defaults to RMS/combined/products_extra.parquet beside the RMS data directory.")
     parser.add_argument("--output", type=Path, default=Path("estimation_output"))
     parser.add_argument(
         "--model",

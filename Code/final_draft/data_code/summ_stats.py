@@ -272,14 +272,16 @@ def flavor_reference(path, detailed=False, output=None):
             conflict_path = output / ("detailed_flavor_conflicts.csv" if detailed else "aggregated_flavor_conflicts.csv")
             conflicts.to_csv(conflict_path, index=False)
             location = f" See {conflict_path}."
-        raise ValueError(
-            f"{len(counts[counts > 1]):,} UPCs have conflicting flavor classifications."
-            + location + " Resolve these labels in the reference CSV before rerunning."
+        print(
+            f"{len(counts[counts > 1]):,} UPCs have conflicting flavor classifications; "
+            "keeping the first flavor in CSV row order."
+            + location,
+            flush=True,
         )
     print(
         f"Flavor-reference rows with blank descriptors: {(frame['flavor_descr'].fillna('').str.strip() == '').sum():,}"
     )
-    return pl.from_pandas(frame[["upc", "flavor"]].drop_duplicates())
+    return pl.from_pandas(frame[["upc", "flavor"]].drop_duplicates(subset="upc", keep="first"))
 
 
 def yogurt_weeks(scan, reference, flavors=FLAVORS):

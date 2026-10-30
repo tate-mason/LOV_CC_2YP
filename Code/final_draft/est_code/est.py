@@ -20,10 +20,7 @@ from bootstrap_se import bootstrap_standard_errors
 FLAVORS = ["other", "berry", "plain"]
 DATA_DIR = Path("/scratch/dtm63837/Kilts_Panel/Data")
 # Set this to the flavor-reference CSV on the Slurm server.
-FLAVOR_FILE = (
-    DATA_DIR
-    / "../nielsen_extracts/nielsen_extracts/RMS/Reference_Documentation/2006-2020_Documentation/Latest_Flavor_2010.csv"
-)
+FLAVOR_FILE = DATA_DIR / "recovered_flavor_reference.csv"
 
 
 def normalize_upcs(values):
@@ -38,9 +35,12 @@ def normalized_upc_expr():
     text = pl.col("upc").cast(pl.String).str.strip_chars()
     numeric = text.str.contains(r"^[0-9]+(?:\.0+)?$")
     canonical = text.str.replace(r"\.0+$", "").str.strip_chars_start("0")
-    return pl.when(numeric).then(
-        pl.when(canonical == "").then(pl.lit("0")).otherwise(canonical)
-    ).otherwise(text).alias("upc")
+    return (
+        pl.when(numeric)
+        .then(pl.when(canonical == "").then(pl.lit("0")).otherwise(canonical))
+        .otherwise(text)
+        .alias("upc")
+    )
 
 
 def read_flavors(path):
@@ -123,10 +123,13 @@ def prepare_data(args):
     lines = lines.merge(flavor, on="upc", how="left", validate="many_to_one")
     if lines["flavor"].isna().any():
         args.output.mkdir(parents=True, exist_ok=True)
-        unmatched = (lines.loc[lines["flavor"].isna()]
-                     .groupby("upc", dropna=False).agg(
-                         purchase_lines=("quantity", "size"), packages=("quantity", "sum"))
-                     .reset_index().sort_values("purchase_lines", ascending=False))
+        unmatched = (
+            lines.loc[lines["flavor"].isna()]
+            .groupby("upc", dropna=False)
+            .agg(purchase_lines=("quantity", "size"), packages=("quantity", "sum"))
+            .reset_index()
+            .sort_values("purchase_lines", ascending=False)
+        )
         unmatched.to_csv(args.output / "unmatched_purchase_upcs.csv", index=False)
         print(unmatched.head(20).to_string(index=False), flush=True)
         raise ValueError(

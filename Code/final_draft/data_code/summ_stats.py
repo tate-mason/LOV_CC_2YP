@@ -219,8 +219,29 @@ def demographic_tables(households, output, prefix):
             ],
         }
     )
+    # These source fields are categorical codes. Do not label their means as
+    # years or dollars without a verified codebook conversion.
+    age = pd.to_numeric(households["head_age"], errors="coerce")
+    income = pd.to_numeric(households["income"], errors="coerce")
+    demographic_metrics = [
+        ("Mean head age (source category code)", age.mean()),
+        ("Households with numeric head age", age.count()),
+        ("Mean household income (source category code)", income.mean()),
+        ("Households with numeric income", income.count()),
+    ]
+    race = households["race"].fillna("Missing").astype(str)
+    for code, count in race.value_counts().sort_index().items():
+        label = RACE_LABELS.get(code, code)
+        demographic_metrics.append(
+            (f"Race: {label} (% of all households)", 100 * count / len(households))
+        )
+    metrics = pd.concat(
+        [metrics, pd.DataFrame(demographic_metrics, columns=["metric", "value"])],
+        ignore_index=True,
+    )
     save_table(
-        metrics, output, f"{prefix}_overview", "Household purchase summary (unweighted)"
+        metrics, output, f"{prefix}_overview",
+        f"{prefix.replace('_', ' ').title()}: Household purchase summary (unweighted)",
     )
 
 

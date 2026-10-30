@@ -88,7 +88,8 @@ def prepare_data(args):
     """Read purchase lines, aggregate baskets, and attach RMS menu prices.
 
     Polars filters/projects on the server before converting smaller tables to
-    pandas. Prices are equal-weight means over UPCs in a store/week/flavor.
+    pandas. RMS price is used directly, without a multiplier adjustment.
+    Prices are equal-weight means over UPCs in a store/week/flavor.
     No prices are filled from the household's chosen product or future weeks.
     """
     flavor = read_flavors(args.flavors)
@@ -167,10 +168,7 @@ def prepare_data(args):
         weekly = weekly.merge(dmas, on=keys, validate="one_to_one")
 
     rms = pl.scan_parquet(args.rms)
-    cols = ["upc", "store_code_uc", "week_end", "price", "prmult"]
-    names = rms.collect_schema().names()
-    if "prmult" not in names:
-        raise ValueError("RMS needs prmult to convert quoted prices to package prices.")
+    cols = ["upc", "store_code_uc", "week_end", "price"]
     if not args.no_price_control:
         cols.append(pl.col(args.retail_dma_column).alias("dma_code"))
     # Keep the national RMS scan available: IVs must not be limited to stores
@@ -183,7 +181,7 @@ def prepare_data(args):
             )
         )
         .select(cols)
-        .with_columns((pl.col("price") / pl.col("prmult")).alias("unit_price"))
+        .with_columns(pl.col("price").cast(pl.Float64).alias("unit_price"))
     )
     retail = (
         national.filter(
@@ -209,7 +207,6 @@ def prepare_data(args):
     good = (
         np.isfinite(retail["unit_price"])
         & (retail["unit_price"] > 0)
-        & (retail["prmult"] > 0)
     )
     print(f"Invalid RMS prices excluded: {(~good).sum():,}", flush=True)
     menus = (
@@ -242,7 +239,6 @@ def prepare_data(args):
         valid_national = national.filter(
             pl.col("unit_price").is_finite()
             & (pl.col("unit_price") > 0)
-            & (pl.col("prmult") > 0)
         )
         dma_prices = (
             valid_national.group_by(["upc", "week_end", "dma_code"])

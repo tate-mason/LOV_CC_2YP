@@ -61,7 +61,7 @@ class EstimationChecks(unittest.TestCase):
                 for store in [100, 200]:
                     for upc in [1, 2, 3]:
                         rows.append(dict(upc=upc, store_code_uc=store, week_end=week,
-                                         price=2.+upc, prmult=2, product_module_code=3612))
+                                         price=2.+upc, product_module_code=3612))
             pl.DataFrame(rows).write_parquet(root / "rms.parquet")
             args = SimpleNamespace(
                 flavors=root / "flavors.csv", sample=root / "sample.parquet",
@@ -76,7 +76,7 @@ class EstimationChecks(unittest.TestCase):
             self.assertEqual(frame.loc[0, "other"], 2)
             self.assertEqual(frame.loc[0, "berry"], 1)
             self.assertEqual(frame.loc[0, "store_code_uc"], 100)
-            self.assertEqual(frame.loc[0, "price_other"], 1.5)
+            self.assertEqual(frame.loc[0, "price_other"], 3.0)
             np.testing.assert_allclose(frame.filter(like="stock_").iloc[0], 0)
             fit = fit_model(make_arrays(frame, 0), args)
             self.assertTrue(np.isfinite(fit.fun))
@@ -103,7 +103,7 @@ class EstimationChecks(unittest.TestCase):
             args.household_dma_column = "dma_cd"
             args.retail_dma_column = "dma_code"
             controlled = prepare_data(args)
-            np.testing.assert_allclose(controlled["iv_other"], 2.5)
+            np.testing.assert_allclose(controlled["iv_other"], 5.0)
 
     def test_persistent_household_integration(self):
         data = make_arrays(add_stocks(self.frame()), 7)

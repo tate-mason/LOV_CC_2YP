@@ -262,6 +262,44 @@ def demographic_tables(households, output, prefix):
     )
 
 
+def recover_flavor_reference(reference_path, products_path, output):
+    reference = pd.read_csv(reference_path, dtype={"upc": str})
+    if not {"upc", "flavor_descr"}.issubset(reference.columns):
+        raise ValueError("Reference needs upc and flavor_descr columns.")
+    reference["upc"] = normalize_upcs(reference["upc"])
+    products = pl.scan_parquet(products_path)
+    names = products.collect_schema().names()
+    if not {"upc", "flavor_descr"}.issubset(names):
+        raise ValueError(f"{products_path}: needs upc and flavor_descr columns.")
+    columns = [c for c in ["upc", "flavor_descr", "panel_year", "product_descr"] if c in names]
+    products = products.select(columns).with_columns(normalized_upc_expr())
+    products = products.filter(
+        pl.col("upc").is_not_null()
+        & ~pl.col("upc").is_in(reference["upc"].dropna().tolist())
+        & pl.col("flavor_descr").is_not_null()
+        & ~pl.col("flavor_descr").cast(pl.String).str.strip_chars().str.to_lowercase()
+        .is_in(["", "na", "n/a", "nan", "null", "none"])
+    )
+    # Process earlier years first; ties preserve source row order.
+    if "panel_year" in names:
+        products = products.sort("panel_year", maintain_order=True, nulls_last=True)
+    candidates = products.unique(subset=["upc", "flavor_descr"], keep="first", maintain_order=True).collect().to_pandas()
+    candidates = candidates.loc[valid_flavor_labels(candidates)]
+    conflicts = candidates.groupby("upc")["flavor_descr"].nunique().gt(1).sum()
+    recovered = candidates.drop_duplicates("upc", keep="first")
+    output = Path(output)
+    output.parent.mkdir(parents=True, exist_ok=True)
+    if output.resolve() == Path(reference_path).resolve():
+        raise ValueError("Choose a separate output file to preserve the original reference.")
+    recovered.to_csv(output.with_name(output.stem + "_recovered_rows.csv"), index=False)
+    result = pd.concat([reference, recovered], ignore_index=True)
+    result.to_csv(output, index=False)
+    print(f"Recovered labels for {len(recovered):,} additional UPCs.", flush=True)
+    print(f"Recovered UPCs with multiple labels (first retained): {conflicts:,}", flush=True)
+    print(f"Existing reference entries, including blank labels, retained. Saved {output}", flush=True)
+    return result
+
+
 def flavor_reference(path, detailed=False, output=None):
     """Classify descriptors; module/product_module_code is not flavor text."""
     frame = pd.read_csv(path, dtype={"upc": str})
@@ -531,6 +569,8 @@ def main():
         default=FLAVOR_FILE,
         help="Flavor-reference CSV (defaults to FLAVOR_FILE set above).",
     )
+    parser.add_argument("--products-extra", type=Path,
+                        help="Annual flavor metadata; defaults to DATA_DIR/RMS/combined/products_extra.parquet.")
     parser.add_argument("--output", type=Path)
     parser.add_argument("--first-year", type=int, default=2006)
     parser.add_argument("--last-year", type=int, default=2015)
@@ -538,6 +578,16 @@ def main():
     args = parser.parse_args()
     output = args.output or args.data_dir / "summary_outputs"
     output.mkdir(parents=True, exist_ok=True)
+    products_extra = args.products_extra or args.data_dir / "RMS/combined/products_extra.parquet"
+    flavor_path = args.flavors
+    if products_extra.exists():
+        recovered_path = output / "recovered_flavor_reference.csv"
+        if recovered_path.resolve() == flavor_path.resolve():
+            recovered_path = output / "supplemented_flavor_reference.csv"
+        recover_flavor_reference(flavor_path, products_extra, recovered_path)
+        flavor_path = recovered_path
+    else:
+        print(f"Flavor recovery source not found: {products_extra}; using the CSV reference.", flush=True)
     print("Summarizing household demographics and purchases...", flush=True)
     panel = scan_purchases(
         args.data_dir / "merged_panel.parquet", args.first_year, args.last_year
@@ -583,7 +633,7 @@ def main():
     # dropped_lines = yogurt.filter(pl.col("upc").is_in(sorted(excluded_upcs))).select(pl.len()).collect().item()
     # print(f"Excluded {len(excluded_upcs):,} UPCs and {dropped_lines:,} purchase lines with missing/NA flavor from flavor summaries.", flush=True)
     flavor_yogurt = yogurt
-    reference = flavor_reference(args.flavors, detailed=True, output=output)
+    reference = flavor_reference(flavor_path, detailed=True, output=output)
     flavors = sorted(reference["flavor"].unique().to_list())
     reference.write_csv(output / "detailed_flavor_reference.csv")
     print("\nDetailed flavors use normalized flavor_descr; missing labels are retained as unknown.", flush=True)
@@ -597,7 +647,7 @@ def main():
     # Keep the estimation's three flavor groups as a separate comparison.
     grouped_output = output / "aggregated_flavors"
     grouped_output.mkdir(parents=True, exist_ok=True)
-    grouped_weekly, _ = yogurt_weeks(flavor_yogurt, flavor_reference(args.flavors, output=output), output=output)
+    grouped_weekly, _ = yogurt_weeks(flavor_yogurt, flavor_reference(flavor_path, output=output), output=output)
     print("\nThree-group comparison (other, berry, plain)", flush=True)
     grouped_shares, grouped_transitions = flavor_summaries(grouped_weekly, grouped_output)
     if not args.no_figures:

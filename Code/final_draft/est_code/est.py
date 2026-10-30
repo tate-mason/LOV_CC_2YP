@@ -204,10 +204,7 @@ def prepare_data(args):
     rk = ["store_code_uc", "week", "upc"]
     if retail.duplicated(rk).any():
         raise ValueError("Duplicate RMS store/week/UPC keys; audit retail merge first.")
-    good = (
-        np.isfinite(retail["unit_price"])
-        & (retail["unit_price"] > 0)
-    )
+    good = np.isfinite(retail["unit_price"]) & (retail["unit_price"] > 0)
     print(f"Invalid RMS prices excluded: {(~good).sum():,}", flush=True)
     menus = (
         retail.loc[good]
@@ -237,8 +234,7 @@ def prepare_data(args):
         if len(duplicate):
             raise ValueError("Duplicate national RMS store/week/UPC keys; audit merge.")
         valid_national = national.filter(
-            pl.col("unit_price").is_finite()
-            & (pl.col("unit_price") > 0)
+            pl.col("unit_price").is_finite() & (pl.col("unit_price") > 0)
         )
         dma_prices = (
             valid_national.group_by(["upc", "week_end", "dma_code"])

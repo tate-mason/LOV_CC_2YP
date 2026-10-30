@@ -6,6 +6,7 @@ No data are loaded when this file is imported.
 
 from pathlib import Path
 import argparse
+import tempfile
 
 import numpy as np
 import pandas as pd
@@ -119,11 +120,13 @@ def repeated_yogurt_households(scan):
     )
     ids = (
         scan.group_by("household_code")
-        .agg(week.n_unique().alias("observed_weeks"))
-        .filter(pl.col("observed_weeks") >= 2)
+        .agg(week.min().alias("first_week"), week.max().alias("last_week"))
+        .filter(pl.col("first_week") != pl.col("last_week"))
         .select("household_code")
     )
-    return scan.join(ids, on="household_code", how="semi")
+    # Materialize only household IDs so the repeated scan cannot cache all purchases.
+    ids = ids.collect(engine="streaming")
+    return scan.join(ids.lazy(), on="household_code", how="semi")
 
 
 def household_summary(scan):
@@ -164,22 +167,39 @@ def household_summary(scan):
             .first()
             .alias(column)
         )
-    households = scan.group_by("household_code").agg(expressions).collect().to_pandas()
-    # Use Hispanic as a race category, following the original script's code=1.
-    # Retain reported race for optional alternative tabulations.
-    households["race_original"] = households["race"]
-    households.loc[households["hispanic_origin"] == "1", "race"] = "Hispanic"
-    # Only observed panel years count: a gap between years is NOT enrollment.
-    # This is an approximate full-year exposure measure, not verified enrollment.
-    households["approx_observed_weeks"] = households["observed_years"] * 365.25 / 7
-    households["trips_per_observed_week"] = (
-        households["trips"] / households["approx_observed_weeks"]
+    households = scan.group_by("household_code").agg(expressions)
+    return households.with_columns(
+        pl.col("race").alias("race_original"),
+        pl.when(pl.col("hispanic_origin") == "1").then(pl.lit("Hispanic"))
+        .otherwise(pl.col("race")).alias("race"),
+        (pl.col("observed_years") * 365.25 / 7).alias("approx_observed_weeks"),
+    ).with_columns(
+        (pl.col("trips") / pl.col("approx_observed_weeks")).alias("trips_per_observed_week")
     )
-    return households
+
+
+def as_lazy(frame):
+    if isinstance(frame, pl.LazyFrame):
+        return frame
+    if isinstance(frame, pd.DataFrame):
+        return pl.from_pandas(frame).lazy()
+    return frame.lazy()
+
+
+def household_batches(scan, work, prefix, batches):
+    # Exact distinct trip/UPC counts can have large state even in streaming
+    # mode. Each household belongs to one hash batch, preserving all its rows.
+    for batch in range(batches):
+        print(f"{prefix}: household batch {batch + 1}/{batches}", flush=True)
+        subset = scan.filter(pl.col("household_code").hash(seed=0) % batches == batch)
+        household_summary(subset).sink_parquet(work / f"{prefix}_{batch}.parquet", engine="streaming")
+    return pl.scan_parquet(work / f"{prefix}_*.parquet")
 
 
 def save_table(frame, output, name, caption):
     """Keep machine-readable CSV beside the paper-ready LaTeX table."""
+    if isinstance(frame, (pl.LazyFrame, pl.DataFrame)):
+        frame = as_lazy(frame).collect(engine="streaming").to_pandas()
     print(f"\n{caption} [{name}]", flush=True)
     print(frame.to_string(index=False, float_format=lambda value: f"{value:.2f}"), flush=True)
     frame.to_csv(output / f"{name}.csv", index=False)
@@ -189,335 +209,224 @@ def save_table(frame, output, name, caption):
 
 
 def demographic_tables(households, output, prefix):
-    """Main race table includes Hispanic; origin is also available separately."""
-    categories = [
-        ("race", RACE_LABELS),
-        ("hispanic_origin", HISPANIC_LABELS),
-        ("income", INCOME_LABELS),
-        ("household_size", {}),
-        ("head_age", AGE_LABELS),
-        ("female_head_age", AGE_LABELS),
-        ("male_head_age", AGE_LABELS),
-    ]
-    for column, labels in categories:
-        values = households[column].fillna("Missing").astype(str)
-        counts = values.value_counts(dropna=False).sort_index()
-        table = counts.rename_axis("code").reset_index(name="households")
+    households = as_lazy(households)
+    count = households.select(pl.len()).collect(engine="streaming").item()
+    race_table = None
+    for column, labels in [("race", RACE_LABELS), ("hispanic_origin", HISPANIC_LABELS),
+                           ("income", INCOME_LABELS), ("household_size", {}),
+                           ("head_age", AGE_LABELS), ("female_head_age", AGE_LABELS),
+                           ("male_head_age", AGE_LABELS)]:
+        table = (households.select(pl.col(column).cast(pl.String).fill_null("Missing").alias("code"))
+                 .group_by("code").len(name="households").sort("code")
+                 .collect(engine="streaming").to_pandas())
         table["category"] = table["code"].map(labels).fillna(table["code"])
-        # Missing is part of the denominator and appears as its own row.
-        table["percent_all_households"] = 100 * table["households"] / len(households)
-        save_table(
-            table,
-            output,
-            f"{prefix}_{column}",
-            f"{prefix.replace('_', ' ').title()}: {column.replace('_', ' ')} (unweighted)",
-        )
-    metrics = pd.DataFrame(
-        {
-            "metric": [
-                "Households",
-                "Mean observed panel years",
-                "Mean trips per household",
-                "Mean trips per approximate observed week",
-                "Median trips per approximate observed week",
-                "Mean distinct UPCs per household",
-                "Mean purchase lines per household",
-                "Mean packages per household",
-            ],
-            "value": [
-                len(households),
-                households["observed_years"].mean(),
-                households["trips"].mean(),
-                households["trips_per_observed_week"].mean(),
-                households["trips_per_observed_week"].median(),
-                households["distinct_upcs"].mean(),
-                households["purchase_lines"].mean(),
-                households["packages"].mean(),
-            ],
-        }
-    )
-    # These source fields are categorical codes. Do not label their means as
-    # years or dollars without a verified codebook conversion.
-    age = pd.to_numeric(households["head_age"], errors="coerce")
-    income = pd.to_numeric(households["income"], errors="coerce")
-    demographic_metrics = [
-        ("Mean head age (source category code)", age.mean()),
-        ("Households with numeric head age", age.count()),
-        ("Mean household income (source category code)", income.mean()),
-        ("Households with numeric income", income.count()),
+        table["percent_all_households"] = 100 * table["households"] / count
+        save_table(table, output, f"{prefix}_{column}",
+                   f"{prefix.replace('_', ' ').title()}: {column.replace('_', ' ')} (unweighted)")
+        if column == "race":
+            race_table = table
+    specs = [
+        ("Households", pl.len()),
+        ("Mean observed panel years", pl.col("observed_years").mean()),
+        ("Mean trips per household", pl.col("trips").mean()),
+        ("Mean trips per approximate observed week", pl.col("trips_per_observed_week").mean()),
+        ("Median trips per approximate observed week", pl.col("trips_per_observed_week").median()),
+        ("Mean distinct UPCs per household", pl.col("distinct_upcs").mean()),
+        ("Mean purchase lines per household", pl.col("purchase_lines").mean()),
+        ("Mean packages per household", pl.col("packages").mean()),
+        ("Mean head age (source category code)", pl.col("head_age").cast(pl.Float64, strict=False).mean()),
+        ("Households with numeric head age", pl.col("head_age").cast(pl.Float64, strict=False).count()),
+        ("Mean household income (source category code)", pl.col("income").cast(pl.Float64, strict=False).mean()),
+        ("Households with numeric income", pl.col("income").cast(pl.Float64, strict=False).count()),
     ]
-    race = households["race"].fillna("Missing").astype(str)
-    for code, count in race.value_counts().sort_index().items():
-        label = RACE_LABELS.get(code, code)
-        demographic_metrics.append(
-            (f"Race: {label} (% of all households)", 100 * count / len(households))
-        )
-    metrics = pd.concat(
-        [metrics, pd.DataFrame(demographic_metrics, columns=["metric", "value"])],
-        ignore_index=True,
-    )
-    save_table(
-        metrics, output, f"{prefix}_overview",
-        f"{prefix.replace('_', ' ').title()}: Household purchase summary (unweighted)",
-    )
+    values = households.select([expr.alias(str(i)) for i, (_, expr) in enumerate(specs)]).collect(engine="streaming").row(0)
+    rows = [(name, value) for (name, _), value in zip(specs, values)]
+    rows.extend((f"Race: {row.category} (% of all households)", row.percent_all_households)
+                for row in race_table.itertuples())
+    save_table(pd.DataFrame(rows, columns=["metric", "value"]), output, f"{prefix}_overview",
+               f"{prefix.replace('_', ' ').title()}: Household purchase summary (unweighted)")
+
+
+def scan_reference(path):
+    return pl.scan_csv(path, infer_schema=False,
+                       null_values=["NA", "N/A", "NaN", "nan", "NULL", "null", "None", "<NA>"])
 
 
 def recover_flavor_reference(reference_path, products_path, output):
-    reference = pd.read_csv(reference_path, dtype={"upc": str})
-    if not {"upc", "flavor_descr"}.issubset(reference.columns):
+    reference = scan_reference(reference_path).with_columns(normalized_upc_expr())
+    if not {"upc", "flavor_descr"}.issubset(reference.collect_schema().names()):
         raise ValueError("Reference needs upc and flavor_descr columns.")
-    reference["upc"] = normalize_upcs(reference["upc"])
     products = pl.scan_parquet(products_path)
     names = products.collect_schema().names()
     if not {"upc", "flavor_descr"}.issubset(names):
         raise ValueError(f"{products_path}: needs upc and flavor_descr columns.")
     columns = [c for c in ["upc", "flavor_descr", "panel_year", "product_descr"] if c in names]
-    products = products.select(columns).with_columns(normalized_upc_expr())
+    products = (products.select(columns).with_columns(normalized_upc_expr())
+                .join(reference.select("upc").unique(), on="upc", how="anti"))
     products = products.filter(
-        pl.col("upc").is_not_null()
-        & ~pl.col("upc").is_in(reference["upc"].dropna().tolist())
-        & pl.col("flavor_descr").is_not_null()
+        pl.col("upc").is_not_null() & pl.col("flavor_descr").is_not_null()
         & ~pl.col("flavor_descr").cast(pl.String).str.strip_chars().str.to_lowercase()
         .is_in(["", "na", "n/a", "nan", "null", "none"])
     )
-    # Process earlier years first; ties preserve source row order.
     if "panel_year" in names:
-        products = products.sort("panel_year", maintain_order=True, nulls_last=True)
-    candidates = products.unique(subset=["upc", "flavor_descr"], keep="first", maintain_order=True).collect().to_pandas()
-    candidates = candidates.loc[valid_flavor_labels(candidates)]
-    conflicts = candidates.groupby("upc")["flavor_descr"].nunique().gt(1).sum()
-    recovered = candidates.drop_duplicates("upc", keep="first")
+        recovered = products.group_by("upc").agg([
+            pl.col(c).sort_by("panel_year", nulls_last=True).first().alias(c)
+            for c in columns if c != "upc"
+        ])
+    else:
+        recovered = products.unique(subset="upc", keep="first", maintain_order=True)
     output = Path(output)
     output.parent.mkdir(parents=True, exist_ok=True)
     if output.resolve() == Path(reference_path).resolve():
         raise ValueError("Choose a separate output file to preserve the original reference.")
-    recovered.to_csv(output.with_name(output.stem + "_recovered_rows.csv"), index=False)
-    result = pd.concat([reference, recovered], ignore_index=True)
-    result.to_csv(output, index=False)
-    print(f"Recovered labels for {len(recovered):,} additional UPCs.", flush=True)
-    print(f"Recovered UPCs with multiple labels (first retained): {conflicts:,}", flush=True)
-    print(f"Existing reference entries, including blank labels, retained. Saved {output}", flush=True)
-    return result
+    recovered_path = output.with_name(output.stem + "_recovered_rows.csv")
+    recovered.sink_csv(recovered_path, engine="streaming")
+    additions = scan_reference(recovered_path)
+    pl.concat([reference, additions], how="diagonal_relaxed").sink_csv(output, engine="streaming")
+    count = additions.select(pl.len()).collect(engine="streaming").item()
+    print(f"Recovered labels for {count:,} additional UPCs. Existing entries retained. Saved {output}", flush=True)
+    return output
 
 
 def flavor_reference(path, detailed=False, output=None):
-    """Classify descriptors; module/product_module_code is not flavor text."""
-    frame = pd.read_csv(path, dtype={"upc": str})
-    missing = {"upc", "flavor_descr"} - set(frame.columns)
+    """Use first reference row per normalized UPC; keep missing descriptors."""
+    frame = scan_reference(path)
+    names = frame.collect_schema().names()
+    missing = {"upc", "flavor_descr"} - set(names)
     if missing:
         raise ValueError(f"{path}: missing columns {sorted(missing)}")
-    frame["upc"] = normalize_upcs(frame["upc"])
-    if frame["upc"].isna().any() or frame["upc"].eq("").any():
+    frame = frame.with_columns(normalized_upc_expr())
+    if frame.select((pl.col("upc").is_null() | (pl.col("upc") == "")).any()).collect(engine="streaming").item():
         raise ValueError(f"{path}: flavor reference contains missing UPCs.")
-    # Missing-flavor exclusion disabled pending checks of older reference files.
-    # has_description = valid_flavor_labels(frame)
-    # print(f"Dropping {(~has_description).sum():,} reference rows with missing/NA flavor.", flush=True)
-    # frame = frame.loc[has_description].copy()
-    # if frame.empty:
-    #     raise ValueError(f"{path}: no nonmissing flavor labels remain.")
-    text = frame["flavor_descr"].fillna("")
-    if "product_descr" in frame.columns:
-        text = text + " " + frame["product_descr"].fillna("")
-    text = text.str.lower()
-    # Plain takes precedence over berry, matching the estimation script.
-    frame["flavor"] = np.select(
-        [
-            text.str.contains("plain|unflavored"),
-            text.str.contains("berry|straw|blue|rasp|black|cran|cherry|wildberry"),
-        ],
-        ["plain", "berry"],
-        default="other",
-    )
+    text = pl.col("flavor_descr").fill_null("")
+    if "product_descr" in names:
+        text = text + pl.lit(" ") + pl.col("product_descr").fill_null("")
+    text = text.str.to_lowercase()
     if detailed:
-        # Preserve individual reported flavors and combinations; never infer a
-        # single flavor from one keyword in a mixed-flavor description.
-        frame["flavor"] = (
-            frame["flavor_descr"].fillna("").str.lower().str.strip()
-            .str.replace(r"\s+", " ", regex=True)
-            .replace({"": "unknown", "unflavored": "plain"})
-        )
-    counts = frame.groupby("upc")["flavor"].nunique()
-    conflicts = frame.loc[frame["upc"].isin(counts[counts > 1].index)].sort_values("upc")
-    if not conflicts.empty:
-        columns = [c for c in ["upc", "flavor_descr", "product_descr", "module", "product_module_code", "flavor"] if c in conflicts]
-        conflicts = conflicts[columns].drop_duplicates()
-        print("\nConflicting flavor-reference rows (first 30):", flush=True)
-        print(conflicts.head(30).to_string(index=False), flush=True)
-        location = ""
+        flavor = (pl.col("flavor_descr").fill_null("").str.to_lowercase().str.strip_chars()
+                  .str.replace_all(r"\s+", " ").replace({"": "unknown", "unflavored": "plain"}))
+    else:
+        flavor = (pl.when(text.str.contains("plain|unflavored")).then(pl.lit("plain"))
+                  .when(text.str.contains("berry|straw|blue|rasp|black|cran|cherry|wildberry"))
+                  .then(pl.lit("berry")).otherwise(pl.lit("other")))
+    frame = frame.with_columns(flavor.alias("flavor"))
+    conflicting = frame.group_by("upc").agg(pl.col("flavor").n_unique().alias("n")).filter(pl.col("n") > 1)
+    count = conflicting.select(pl.len()).collect(engine="streaming").item()
+    if count:
+        print(f"{count:,} UPCs have conflicting flavor classifications; keeping the first CSV row.", flush=True)
         if output is not None:
-            conflict_path = output / ("detailed_flavor_conflicts.csv" if detailed else "aggregated_flavor_conflicts.csv")
-            conflicts.to_csv(conflict_path, index=False)
-            location = f" See {conflict_path}."
-        print(
-            f"{len(counts[counts > 1]):,} UPCs have conflicting flavor classifications; "
-            "keeping the first flavor in CSV row order."
-            + location,
-            flush=True,
-        )
-    print(
-        f"Flavor-reference rows with blank descriptors: {(frame['flavor_descr'].fillna('').str.strip() == '').sum():,}"
-    )
-    return pl.from_pandas(frame[["upc", "flavor"]].drop_duplicates(subset="upc", keep="first"))
+            name = "detailed_flavor_conflicts.csv" if detailed else "aggregated_flavor_conflicts.csv"
+            frame.join(conflicting.select("upc"), on="upc", how="semi").sink_csv(output / name, engine="streaming")
+    blanks = frame.select((pl.col("flavor_descr").fill_null("").str.strip_chars() == "").sum()).collect(engine="streaming").item()
+    print(f"Flavor-reference rows with blank descriptors: {blanks:,}", flush=True)
+    return frame.select("upc", "flavor").unique(subset="upc", keep="first", maintain_order=True).collect(engine="streaming")
 
 
 def yogurt_weeks(scan, reference, flavors=FLAVORS, output=None):
-    """Aggregate mixed baskets before computing flavor shares or transitions."""
+    """Keep sparse household/week/flavor counts rather than a dense pivot."""
     joined = scan.join(reference.lazy(), on="upc", how="left")
-    audit = (
-        joined.select(
-            pl.len().alias("purchase_lines"),
-            pl.col("flavor").is_null().sum().alias("unmatched_flavor_lines"),
-            ((~pl.col("price").is_finite()) | (pl.col("price") <= 0))
-            .fill_null(True)
-            .sum()
-            .alias("missing_or_nonpositive_quoted_prices"),
-            ((~pl.col("quantity").is_finite()) | (pl.col("quantity") <= 0))
-            .fill_null(True)
-            .sum()
-            .alias("invalid_quantity_lines"),
-        )
-        .collect()
-        .to_pandas()
-    )
-    if audit.loc[0, "unmatched_flavor_lines"]:
-        unmatched = (
-            joined.filter(pl.col("flavor").is_null()).group_by("upc")
-            .agg(pl.len().alias("purchase_lines"), pl.col("quantity").sum().alias("packages"))
-            .sort("purchase_lines", descending=True).collect()
-        )
-        print("\nUPCs still unmatched after formatting normalization (first 20):", flush=True)
-        print(unmatched.head(20), flush=True)
+    audit = joined.select(
+        pl.len().alias("purchase_lines"),
+        pl.col("flavor").is_null().sum().alias("unmatched_flavor_lines"),
+        ((~pl.col("price").is_finite()) | (pl.col("price") <= 0)).fill_null(True).sum().alias("missing_or_nonpositive_quoted_prices"),
+        ((~pl.col("quantity").is_finite()) | (pl.col("quantity") <= 0)).fill_null(True).sum().alias("invalid_quantity_lines"),
+    ).collect(engine="streaming")
+    if audit["unmatched_flavor_lines"][0]:
+        unmatched = (joined.filter(pl.col("flavor").is_null()).group_by("upc")
+                     .agg(pl.len().alias("purchase_lines"), pl.col("quantity").sum().alias("packages")))
         if output is not None:
-            unmatched.write_csv(output / "unmatched_purchase_upcs.csv")
-        raise ValueError(
-            "Purchased UPCs still lack flavor labels after formatting normalization; "
-            "see unmatched_purchase_upcs.csv in the output folder."
-        )
-    if audit.loc[0, "invalid_quantity_lines"]:
-        raise ValueError(
-            "Nonpositive or missing quantities; audit the matched sample first."
-        )
-    joined = joined.with_columns(
-        (
-            pl.col("purchase_date")
-            + pl.duration(days=(6 - pl.col("purchase_date").dt.weekday()) % 7)
-        ).alias("week")
-    )
-    grouped = (
-        joined.group_by(["household_code", "week", "flavor"])
-        .agg(pl.col("quantity").sum())
-        .collect()
-        .to_pandas()
-    )
-    weekly = (
-        grouped.pivot(
-            index=["household_code", "week"], columns="flavor", values="quantity"
-        )
-        .fillna(0)
-        .reindex(columns=flavors, fill_value=0)
-        .reset_index()
-    )
-    weekly["week"] = pd.to_datetime(weekly["week"])
-    weekly = weekly.sort_values(["household_code", "week"]).reset_index(drop=True)
-    return weekly, audit
+            unmatched.sink_csv(output / "unmatched_purchase_upcs.csv", engine="streaming")
+        raise ValueError("Purchased UPCs still lack flavor labels; see unmatched_purchase_upcs.csv.")
+    if audit["invalid_quantity_lines"][0]:
+        raise ValueError("Nonpositive or missing quantities; audit the matched sample first.")
+    week = pl.col("purchase_date") + pl.duration(days=(6 - pl.col("purchase_date").dt.weekday()) % 7)
+    grouped = (joined.with_columns(week.alias("week"))
+               .group_by(["household_code", "week", "flavor"]).agg(pl.col("quantity").sum()))
+    return grouped, audit
 
 
 def flavor_summaries(weekly, output, flavors=FLAVORS):
-    totals = weekly[flavors].sum()
-    shares = pd.DataFrame(
-        {
-            "flavor": flavors,
-            "packages": totals.to_numpy(),
-            "percent_packages": 100 * totals.to_numpy() / totals.sum(),
-        }
-    )
-    save_table(
-        shares, output, "yogurt_flavor_shares", "Flavor shares of purchased packages"
-    )
-    hh_counts = weekly.groupby("household_code")[flavors].sum()
-    hh_shares = hh_counts.div(hh_counts.sum(axis=1), axis=0)
-    households = pd.DataFrame(
-        {
-            "flavors_bought": (hh_counts > 0).sum(axis=1),
-            "flavor_HHI": (hh_shares**2).sum(axis=1),
-            "largest_flavor_share": hh_shares.max(axis=1),
-        }
-    )
-    households.to_csv(output / "yogurt_household_flavors.csv")
-    weekly["packages"] = weekly[flavors].sum(axis=1)
-    weekly["flavors_in_basket"] = (weekly[flavors] > 0).sum(axis=1)
-    # No arbitrary ordering of multiple flavors bought on the same trip/week.
-    weekly["single_flavor"] = (
-        weekly[flavors].idxmax(axis=1).where(weekly["flavors_in_basket"] == 1)
-    )
-    group = weekly.groupby("household_code")
-    weekly["previous_flavor"] = group["single_flavor"].shift()
-    weekly["gap_weeks"] = group["week"].diff().dt.days / 7
-    eligible = (
-        weekly["single_flavor"].notna()
-        & weekly["previous_flavor"].notna()
-        & (weekly["gap_weeks"] == 1)
-    )
-    transitions = pd.crosstab(
-        weekly.loc[eligible, "previous_flavor"], weekly.loc[eligible, "single_flavor"]
-    )
-    transitions = transitions.reindex(index=flavors, columns=flavors, fill_value=0)
-    print("\nYogurt transition counts (previous flavor → current flavor)", flush=True)
-    print(transitions.to_string(), flush=True)
-    transitions.to_csv(output / "yogurt_transition_counts.csv")
-    probabilities = transitions.div(transitions.sum(axis=1).replace(0, np.nan), axis=0)
-    print("\nYogurt transition probabilities (previous flavor → current flavor)", flush=True)
-    print(probabilities.to_string(float_format=lambda value: f"{value:.2f}"), flush=True)
-    probabilities.to_csv(output / "yogurt_transition_probabilities.csv")
-    # Include STAYS in the denominator; otherwise a switching rate is overstated.
-    switches = (
-        weekly.loc[eligible, "single_flavor"] != weekly.loc[eligible, "previous_flavor"]
-    )
-    continued = eligible & (weekly["single_flavor"] == weekly["previous_flavor"])
-    weekly["spell"] = (~continued).cumsum()
-    spells = (
-        weekly.loc[weekly["single_flavor"].notna()]
-        .groupby(["household_code", "spell"])
-        .agg(flavor=("single_flavor", "first"), weeks=("week", "size"))
-    )
-    spells.to_csv(output / "yogurt_single_flavor_spells.csv")
-    metrics = pd.DataFrame(
-        {
-            "metric": [
-                "Matched households",
-                "Observed yogurt purchase weeks",
-                "Mean flavors bought per household",
-                "Mean household flavor HHI (0 to 1)",
-                "Mixed-flavor weeks (%)",
-                "Weeks above seven packages (%)",
-                "Eligible adjacent single-flavor week pairs",
-                "Switch rate in eligible pairs (%)",
-                "Mean single-flavor spell length (consecutive calendar weeks)",
-                "Median gap between purchase weeks",
-            ],
-            "value": [
-                len(households),
-                len(weekly),
-                households["flavors_bought"].mean(),
-                households["flavor_HHI"].mean(),
-                100 * (weekly["flavors_in_basket"] > 1).mean(),
-                100 * (weekly["packages"] > 7).mean(),
-                eligible.sum(),
-                100 * switches.mean(),
-                spells["weeks"].mean(),
-                weekly["gap_weeks"].median(),
-            ],
-        }
-    )
-    save_table(
-        metrics, output, "yogurt_dynamics", "Matched yogurt sample: purchase dynamics"
-    )
-    weekly.to_csv(output / "yogurt_weekly_baskets.csv", index=False)
-    return shares, probabilities
+    weekly = as_lazy(weekly)
+    totals = weekly.group_by("flavor").agg(pl.col("quantity").sum().alias("packages")).collect(engine="streaming")
+    if flavors != FLAVORS:
+        flavors = sorted(totals["flavor"].to_list())
+    # Detailed tables include observed flavors; the three estimation groups stay fixed.
+    shares = (pl.DataFrame({"flavor": flavors}).join(totals, on="flavor", how="left")
+              .with_columns(pl.col("packages").fill_null(0))
+              .with_columns((100 * pl.col("packages") / pl.col("packages").sum()).alias("percent_packages")))
+    save_table(shares, output, "yogurt_flavor_shares", "Flavor shares of purchased packages")
+    counts = weekly.group_by(["household_code", "flavor"]).agg(pl.col("quantity").sum())
+    households = (counts.group_by("household_code").agg(
+        pl.len().alias("flavors_bought"), pl.col("quantity").sum().alias("packages"),
+        pl.col("quantity").pow(2).sum().alias("squared_packages"),
+        pl.col("quantity").max().alias("largest_packages"))
+        .with_columns((pl.col("squared_packages") / pl.col("packages").pow(2)).alias("flavor_HHI"),
+                      (pl.col("largest_packages") / pl.col("packages")).alias("largest_flavor_share"))
+        .select("household_code", "flavors_bought", "flavor_HHI", "largest_flavor_share"))
+    hh_path = output / "yogurt_household_flavors.csv"
+    households.sink_csv(hh_path, engine="streaming")
+    hh_metrics = pl.scan_csv(hh_path).select(pl.len(), pl.col("flavors_bought").mean(), pl.col("flavor_HHI").mean()).collect(engine="streaming").row(0)
+    baskets = (weekly.group_by(["household_code", "week"]).agg(
+        pl.col("quantity").sum().alias("packages"), pl.len().alias("flavors_in_basket"),
+        pl.when(pl.len() == 1).then(pl.col("flavor").first()).otherwise(None).alias("single_flavor"))
+        .sort(["household_code", "week"])
+        .with_columns(pl.col("single_flavor").shift().over("household_code").alias("previous_flavor"),
+                      (pl.col("week").diff().over("household_code").dt.total_days() / 7).alias("gap_weeks"))
+        .with_columns((pl.col("single_flavor").is_not_null() & pl.col("previous_flavor").is_not_null()
+                       & (pl.col("gap_weeks") == 1)).fill_null(False).alias("eligible"))
+        .with_columns((~(pl.col("eligible") & (pl.col("single_flavor") == pl.col("previous_flavor"))).fill_null(False))
+                      .cast(pl.UInt64).cum_sum().alias("spell")))
+    # Reuse a disk checkpoint for transitions, spells, and global medians.
+    with tempfile.TemporaryDirectory(prefix="baskets-", dir=output) as tmp:
+        checkpoint = Path(tmp) / "baskets.parquet"
+        baskets.sink_parquet(checkpoint, engine="streaming")
+        baskets = pl.scan_parquet(checkpoint)
+        baskets.sink_csv(output / "yogurt_weekly_baskets.csv", engine="streaming")
+        weekly.sink_csv(output / "yogurt_weekly_flavor_quantities.csv", engine="streaming")
+        transitions = (baskets.filter(pl.col("eligible")).group_by(["previous_flavor", "single_flavor"])
+                       .len().collect(engine="streaming").to_pandas())
+        if transitions.empty:
+            matrix = pd.DataFrame(0, index=flavors, columns=flavors)
+        else:
+            matrix = transitions.pivot(index="previous_flavor", columns="single_flavor", values="len").fillna(0).reindex(index=flavors, columns=flavors, fill_value=0)
+        matrix.index.name = "previous_flavor"
+        matrix.columns.name = "single_flavor"
+        matrix.to_csv(output / "yogurt_transition_counts.csv")
+        probabilities = matrix.div(matrix.sum(axis=1).replace(0, np.nan), axis=0)
+        probabilities.to_csv(output / "yogurt_transition_probabilities.csv")
+        print("\nYogurt transition counts", flush=True)
+        print(matrix.to_string(), flush=True)
+        print("\nYogurt transition probabilities", flush=True)
+        print(probabilities.to_string(float_format=lambda v: f"{v:.2f}"), flush=True)
+        spells = (baskets.filter(pl.col("single_flavor").is_not_null()).group_by(["household_code", "spell"])
+                  .agg(pl.col("single_flavor").first().alias("flavor"), pl.len().alias("weeks")))
+        spells_path = Path(tmp) / "spells.parquet"
+        spells.sink_parquet(spells_path, engine="streaming")
+        spells = pl.scan_parquet(spells_path)
+        spells.sink_csv(output / "yogurt_single_flavor_spells.csv", engine="streaming")
+        spell_mean = spells.select(pl.col("weeks").mean()).collect(engine="streaming").item()
+        bm = baskets.select(
+            pl.len().alias("weeks"), (100 * (pl.col("flavors_in_basket") > 1).mean()).alias("mixed"),
+            (100 * (pl.col("packages") > 7).mean()).alias("above_seven"), pl.col("eligible").sum().alias("pairs"),
+            (100 * (pl.col("single_flavor") != pl.col("previous_flavor")).filter(pl.col("eligible")).mean()).alias("switch_rate"),
+            pl.col("gap_weeks").median().alias("gap"),
+        ).collect(engine="streaming").row(0, named=True)
+    rows = [
+        ("Matched households", hh_metrics[0]), ("Observed yogurt purchase weeks", bm["weeks"]),
+        ("Mean flavors bought per household", hh_metrics[1]), ("Mean household flavor HHI (0 to 1)", hh_metrics[2]),
+        ("Mixed-flavor weeks (%)", bm["mixed"]), ("Weeks above seven packages (%)", bm["above_seven"]),
+        ("Eligible adjacent single-flavor week pairs", bm["pairs"]), ("Switch rate in eligible pairs (%)", bm["switch_rate"]),
+        ("Mean single-flavor spell length (consecutive calendar weeks)", spell_mean), ("Median gap between purchase weeks", bm["gap"]),
+    ]
+    save_table(pd.DataFrame(rows, columns=["metric", "value"]), output, "yogurt_dynamics", "Matched yogurt sample: purchase dynamics")
+    return shares.to_pandas(), probabilities
 
 
 def make_figures(shares, transitions, output):
+    # Limit figure dimensions; all flavors remain in the saved tables.
+    shares = shares.sort_values("packages", ascending=False).head(20)
     flavors = shares["flavor"].tolist()
+    transitions = transitions.reindex(index=flavors, columns=flavors)
     # Import plotting only if requested (use --no-figures for tables alone).
     import matplotlib
 
@@ -527,7 +436,7 @@ def make_figures(shares, transitions, output):
     fig, ax = plt.subplots(figsize=(max(6, len(flavors) * 0.35), 5))
     ax.bar(shares["flavor"], shares["percent_packages"], color="steelblue")
     ax.tick_params(axis="x", labelrotation=90)
-    ax.set(ylabel="Share of purchased packages (%)", title="Yogurt flavor shares")
+    ax.set(ylabel="Share of purchased packages (%)", title="Yogurt flavor shares (up to 20 most purchased flavors)")
     fig.tight_layout()
     fig.savefig(output / "flavor_shares.pdf")
     plt.close(fig)
@@ -560,24 +469,7 @@ def make_figures(shares, transitions, output):
     plt.close(fig)
 
 
-def main():
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--data-dir", type=Path, default=DATA_DIR)
-    parser.add_argument(
-        "--flavors",
-        type=Path,
-        default=FLAVOR_FILE,
-        help="Flavor-reference CSV (defaults to FLAVOR_FILE set above).",
-    )
-    parser.add_argument("--products-extra", type=Path,
-                        help="Annual flavor metadata; defaults to DATA_DIR/RMS/combined/products_extra.parquet.")
-    parser.add_argument("--output", type=Path)
-    parser.add_argument("--first-year", type=int, default=2006)
-    parser.add_argument("--last-year", type=int, default=2015)
-    parser.add_argument("--no-figures", action="store_true")
-    args = parser.parse_args()
-    output = args.output or args.data_dir / "summary_outputs"
-    output.mkdir(parents=True, exist_ok=True)
+def run(args, output, work):
     products_extra = args.products_extra or args.data_dir / "RMS/combined/products_extra.parquet"
     flavor_path = args.flavors
     if products_extra.exists():
@@ -588,90 +480,71 @@ def main():
         flavor_path = recovered_path
     else:
         print(f"Flavor recovery source not found: {products_extra}; using the CSV reference.", flush=True)
-    print("Summarizing household demographics and purchases...", flush=True)
-    panel = scan_purchases(
-        args.data_dir / "merged_panel.parquet", args.first_year, args.last_year
-    )
-    yogurt = scan_purchases(
-        args.data_dir / "yogurt_estimation_sample.parquet",
-        args.first_year,
-        args.last_year,
-    )
-    yogurt = repeated_yogurt_households(yogurt)
-    panel_households = household_summary(panel)
-    yogurt_households = household_summary(yogurt)
-    if panel_households.empty or yogurt_households.empty:
-        raise ValueError("Empty panel or yogurt sample in selected years.")
-    demographic_tables(panel_households, output, "full_panel")
-    demographic_tables(yogurt_households, output, "matched_yogurt")
-    panel_households.to_csv(output / "full_panel_households.csv", index=False)
-    yogurt_households.to_csv(output / "matched_yogurt_households.csv", index=False)
-    for name, source in [("full_panel", panel), ("matched_yogurt", yogurt)]:
-        coverage = (
-            source.group_by("panel_year")
-            .agg(
+    sources = {}
+    for prefix, filename in [("full_panel", "merged_panel.parquet"), ("matched_yogurt", "yogurt_estimation_sample.parquet")]:
+        source = scan_purchases(args.data_dir / filename, args.first_year, args.last_year)
+        if prefix == "matched_yogurt":
+            source = repeated_yogurt_households(source)
+        sources[prefix] = source
+        households = household_batches(source, work, prefix, args.household_batches)
+        if households.select(pl.len()).collect(engine="streaming").item() == 0:
+            raise ValueError(f"Empty {prefix} sample in selected years.")
+        demographic_tables(households, output, prefix)
+        households.sink_csv(output / f"{prefix}_households.csv", engine="streaming")
+        # Exact distinct-trip counts for one year at a time bound aggregation state.
+        years = source.select("panel_year").unique().sort("panel_year").collect(engine="streaming")["panel_year"]
+        coverage_rows = []
+        for year in years:
+            coverage_rows.append(source.filter(pl.col("panel_year") == year).select(
+                pl.lit(year).alias("panel_year"),
                 pl.col("household_code").n_unique().alias("households"),
-                pl.col("trip_code_uc").n_unique().alias("trips"),
-                pl.len().alias("purchase_lines"),
-                pl.col("quantity").sum().alias("packages"),
-            )
-            .sort("panel_year")
-            .collect()
-            .to_pandas()
-        )
-        save_table(coverage, output, f"{name}_year_coverage", "Sample coverage by year")
-    # Exclude purchases only when their reference UPC has no valid flavor.
-    # UPCs absent from the reference still fail the unmatched-flavor audit.
-    # Disabled pending checks of older reference files.
-    # raw_reference = pd.read_csv(args.flavors, dtype={"upc": str})
-    # raw_reference["upc"] = raw_reference["upc"].str.strip()
-    # valid_labels = valid_flavor_labels(raw_reference)
-    # excluded_upcs = set(raw_reference.loc[~valid_labels, "upc"].dropna()) - set(
-    #     raw_reference.loc[valid_labels, "upc"].dropna()
-    # )
-    # flavor_yogurt = yogurt.filter(~pl.col("upc").is_in(sorted(excluded_upcs)))
-    # dropped_lines = yogurt.filter(pl.col("upc").is_in(sorted(excluded_upcs))).select(pl.len()).collect().item()
-    # print(f"Excluded {len(excluded_upcs):,} UPCs and {dropped_lines:,} purchase lines with missing/NA flavor from flavor summaries.", flush=True)
-    flavor_yogurt = yogurt
-    reference = flavor_reference(flavor_path, detailed=True, output=output)
-    flavors = sorted(reference["flavor"].unique().to_list())
-    reference.write_csv(output / "detailed_flavor_reference.csv")
-    print("\nDetailed flavors use normalized flavor_descr; missing labels are retained as unknown.", flush=True)
-    weekly, audit = yogurt_weeks(flavor_yogurt, reference, flavors, output=output)
-    print("\nYogurt sample audit", flush=True)
-    print(audit.to_string(index=False), flush=True)
-    audit.to_csv(output / "yogurt_sample_audit.csv", index=False)
-    shares, transitions = flavor_summaries(weekly, output, flavors)
-    if not args.no_figures:
-        make_figures(shares, transitions, output)
-    # Keep the estimation's three flavor groups as a separate comparison.
-    grouped_output = output / "aggregated_flavors"
-    grouped_output.mkdir(parents=True, exist_ok=True)
-    grouped_weekly, _ = yogurt_weeks(flavor_yogurt, flavor_reference(flavor_path, output=output), output=output)
-    print("\nThree-group comparison (other, berry, plain)", flush=True)
-    grouped_shares, grouped_transitions = flavor_summaries(grouped_weekly, grouped_output)
-    if not args.no_figures:
-        make_figures(grouped_shares, grouped_transitions, grouped_output)
+                pl.col("trip_code_uc").n_unique().alias("trips"), pl.len().alias("purchase_lines"),
+                pl.col("quantity").sum().alias("packages")).collect(engine="streaming"))
+        coverage = pl.concat(coverage_rows)
+        save_table(coverage, output, f"{prefix}_year_coverage", "Sample coverage by year")
+    for detailed in [True, False]:
+        folder = output if detailed else output / "aggregated_flavors"
+        folder.mkdir(parents=True, exist_ok=True)
+        reference = flavor_reference(flavor_path, detailed=detailed, output=output)
+        flavors = sorted(reference["flavor"].unique().to_list()) if detailed else FLAVORS
+        if detailed:
+            reference.write_csv(output / "detailed_flavor_reference.csv")
+        # Process household batches independently, keeping weekly baskets long.
+        audit_total = None
+        tag = "detailed" if detailed else "grouped"
+        for batch in range(args.household_batches):
+            print(f"{tag}: yogurt week batch {batch + 1}/{args.household_batches}", flush=True)
+            subset = sources["matched_yogurt"].filter(pl.col("household_code").hash(seed=0) % args.household_batches == batch)
+            weekly, audit = yogurt_weeks(subset, reference, flavors, output=folder)
+            weekly.sink_parquet(work / f"{tag}_weeks_{batch}.parquet", engine="streaming")
+            audit_total = audit if audit_total is None else pl.concat([audit_total, audit]).select(pl.all().sum())
+        if detailed:
+            save_table(audit_total, output, "yogurt_sample_audit", "Yogurt sample audit")
+        weekly = pl.scan_parquet(work / f"{tag}_weeks_*.parquet")
+        shares, transitions = flavor_summaries(weekly, folder, flavors)
+        if not args.no_figures:
+            make_figures(shares, transitions, folder)
     print(f"Saved summaries to {output}", flush=True)
 
-    # OPTIONAL: compare flavor loyalty by income (codes stay categorical).
-    # loyalty = pd.read_csv(output / "yogurt_household_flavors.csv")
-    # comparison = yogurt_households.merge(loyalty, on="household_code", validate="one_to_one")
-    # comparison.groupby("income", dropna=False)["flavor_HHI"].agg(["count", "mean"]).to_csv(
-    #     output / "flavor_loyalty_by_income.csv")
 
-    # OPTIONAL: distribution of the actual estimation inputs AFTER menu/IV exclusions.
-    # inputs = pd.read_csv("/path/to/estimation_output/weekly_inputs.csv")
-    # inputs.filter(regex=r"^(price_|iv_|cf_|stock_|novelty_|xi_)").describe().T.to_csv(
-    #     output / "estimation_variable_summary.csv")
-
-    # OPTIONAL: demographic selection into the final estimation sample.
-    # ids = inputs[["household_code"]].drop_duplicates()
-    # final_households = yogurt_households.merge(ids, on="household_code", validate="one_to_one")
-    # demographic_tables(final_households, output, "final_estimation")
-
-    # OPTIONAL: survey-weighted demographics require household-year weights and
-    # an explicit choice of reference year. Do not weight repeated purchase lines.
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--data-dir", type=Path, default=DATA_DIR)
+    parser.add_argument("--flavors", type=Path, default=FLAVOR_FILE)
+    parser.add_argument("--products-extra", type=Path)
+    parser.add_argument("--output", type=Path)
+    parser.add_argument("--first-year", type=int, default=2006)
+    parser.add_argument("--last-year", type=int, default=2015)
+    parser.add_argument("--household-batches", type=int, default=16,
+                        help="More batches reduce aggregation memory but require more scans (default 16).")
+    parser.add_argument("--no-figures", action="store_true")
+    args = parser.parse_args()
+    if args.household_batches < 1:
+        parser.error("--household-batches must be positive")
+    output = args.output or args.data_dir / "summary_outputs"
+    output.mkdir(parents=True, exist_ok=True)
+    with tempfile.TemporaryDirectory(prefix="summary-work-", dir=output) as tmp:
+        run(args, output, Path(tmp))
 
 
 if __name__ == "__main__":

@@ -184,6 +184,7 @@ def prepare_data(args):
         columns.append(pl.col(consumer_dma).alias("dma_cd"))
     base = base.select(columns).with_columns(
         pl.col("purchase_date").cast(pl.String).str.slice(0, 10).str.to_date())
+    base = base.filter(pl.col("price").is_finite() & (pl.col("price") > 0))
     base = base.with_columns((pl.col("purchase_date") + pl.duration(
         days=(6 - pl.col("purchase_date").dt.weekday()) % 7)).alias("week"))
     # Keep the full merged table for prices/IVs, even in a household-limited run.
@@ -262,8 +263,12 @@ def prepare_data(args):
         print("IV: overall same-week mean price outside consumer dma_cd, pooled across flavors.", flush=True)
     weekly = add_stocks(weekly.sort_values(keys).reset_index(drop=True), args.habit_weight)
     price_cols = ["price_" + f for f in FLAVORS]
-    complete = np.isfinite(weekly[price_cols]).all(axis=1) & (weekly[price_cols] > 0).all(axis=1)
-    print(f"Weeks excluded for incomplete/invalid merged price menus: {(~complete).sum():,}", flush=True)
+    available = np.isfinite(weekly[price_cols].to_numpy(float)) & (weekly[price_cols].to_numpy(float) > 0)
+    counts = weekly[FLAVORS].to_numpy(float)
+    complete = available.any(axis=1) & ((counts == 0) | available).all(axis=1)
+    for j, f in enumerate(FLAVORS):
+        weekly["available_" + f] = available[:, j]
+    print(f"Weeks excluded for purchased flavors without a covered price: {(~complete).sum():,}", flush=True)
     if not args.no_price_control:
         iv_cols = ["iv_" + f for f in FLAVORS]
         iv_complete = np.isfinite(weekly[iv_cols]).all(axis=1)
@@ -323,8 +328,13 @@ def make_arrays(frame, capacity):
     counts = frame[FLAVORS + (["outside"] if capacity else [])].to_numpy(float)
     prices = frame[["price_" + f for f in FLAVORS]].to_numpy(float)
     xi = frame[["xi_" + f for f in FLAVORS]].to_numpy(float)
-    if not all(np.isfinite(x).all() for x in [counts, prices, xi]):
+    available = np.isfinite(prices) & (prices > 0)
+    if not all(np.isfinite(x).all() for x in [counts, xi]):
         raise ValueError("Nonfinite estimation inputs.")
+    if ((counts[:, :3] > 0) & ~available).any() or not available.any(axis=1).all():
+        raise ValueError("Purchased flavors must have covered prices and a nonempty choice set.")
+    # Zero placeholders are masked out of utility, never treated as free goods.
+    prices = np.where(available, prices, 0.)
     cf_cols = ["cf_" + f for f in FLAVORS]
     control = all(c in frame for c in cf_cols)
     cf = frame[cf_cols].to_numpy(float) if control else np.zeros_like(prices)
@@ -333,6 +343,7 @@ def make_arrays(frame, capacity):
     return dict(
         counts=counts,
         prices=prices,
+        available=available,
         xi=xi,
         cf=cf,
         control=control,
@@ -395,10 +406,11 @@ def household_loglike(theta, data, draws, model):
             + gamma * data["xi"]
             + p.get("price_control", 0.0) * data["cf"]
         )
+        utility = np.where(data["available"], utility, -np.inf)
         if data["outside"]:
             utility = np.column_stack([utility, np.zeros(len(utility))])
         logprob = utility - logsumexp(utility, axis=1, keepdims=True)
-        row_ll = (data["counts"] * logprob).sum(axis=1)
+        row_ll = (data["counts"] * np.where(data["counts"] > 0, logprob, 0.)).sum(axis=1)
         loglikes.append(
             np.bincount(data["hh"], weights=row_ll, minlength=data["n_households"])
         )
@@ -553,7 +565,7 @@ def main(default_model="heterogeneous"):
     parser.add_argument(
         "--se-method", choices=["bootstrap", "none"], default="bootstrap"
     )
-    parser.add_argument("--bootstrap-reps", type=int, default=199)
+    parser.add_argument("--bootstrap-reps", type=int, default=49)
     parser.add_argument("--bootstrap-starts", type=int, default=2)
     parser.add_argument("--habit-weight", type=float, default=0.7)
     parser.add_argument("--draws", type=int, default=128)

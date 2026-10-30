@@ -84,8 +84,10 @@ class EstimationChecks(unittest.TestCase):
             incomplete = original.filter(~((pl.col("purchase_date") == "2010-01-02")
                                              & (pl.col("store_code_uc") == 100) & (pl.col("upc") == "3")))
             incomplete.write_parquet(sample)
-            with self.assertRaisesRegex(ValueError, "at least two usable"):
-                prepare_data(args)
+            partial = prepare_data(args)
+            self.assertEqual(len(partial), 2)
+            self.assertFalse(partial.loc[0, "available_plain"])
+            self.assertTrue(np.isnan(partial.loc[0, "price_plain"]))
             original.write_parquet(sample)
             args.no_price_control = False
             controlled = prepare_data(args)
@@ -102,6 +104,20 @@ class EstimationChecks(unittest.TestCase):
                                             .then(pl.col("upc").cast(pl.Float64) + 2).otherwise(pl.col("price")).alias("price"))
             changed.write_parquet(sample)
             np.testing.assert_allclose(prepare_data(args)["iv_overall"], 6.)
+
+    def test_unavailable_flavor_is_excluded_from_logit_denominator(self):
+        frame = self.frame()
+        frame["price_plain"] = np.nan
+        data = make_arrays(add_stocks(frame), 0)
+        theta = np.array([.1, -.2, -.4])
+        actual = household_loglike(theta, data, make_draws(8, 306), "naive")[0]
+        utility = np.array([0., .1]) - np.exp(-.4) * frame[["price_other", "price_berry"]].to_numpy()
+        expected = (frame[["other", "berry"]].to_numpy() * (utility - logsumexp(utility, axis=1, keepdims=True))).sum()
+        self.assertAlmostEqual(actual, expected)
+        self.assertFalse(data["available"][:, 2].any())
+        frame.loc[0, "plain"] = 1
+        with self.assertRaisesRegex(ValueError, "Purchased flavors"):
+            make_arrays(add_stocks(frame), 0)
 
     def test_persistent_household_integration(self):
         data = make_arrays(add_stocks(self.frame()), 7)

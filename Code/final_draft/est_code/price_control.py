@@ -77,13 +77,17 @@ def add_price_controls(frame):
     """
     result = frame.copy()
     reports = []
-    hh, households = pd.factorize(result["household_code"], sort=True)
     for flavor in FLAVORS:
         columns = ["price_" + flavor, "iv_" + flavor] + ["xi_" + f for f in FLAVORS]
-        values = result[columns].to_numpy(float)
+        covered = np.isfinite(result["price_" + flavor]) & (result["price_" + flavor] > 0)
+        sample = result.loc[covered]
+        if sample.empty:
+            raise ValueError(f"No covered prices for the {flavor} first stage.")
+        hh, households = pd.factorize(sample["household_code"], sort=True)
+        values = sample[columns].to_numpy(float)
         if not np.isfinite(values).all():
             raise ValueError(f"Nonfinite first-stage inputs for {flavor}.")
-        within = absorb_effects(values, [result["week"], result["dma_cd"]])
+        within = absorb_effects(values, [sample["week"], sample["dma_cd"]])
         y, z, controls = within[:, 0], within[:, 1], within[:, 2:]
         # Partial out Xi before estimating the excluded instrument's coefficient.
         # This tolerates redundant Xi columns, but NOT a redundant instrument.
@@ -97,7 +101,8 @@ def add_price_controls(frame):
         residual = y - pi*z - controls @ control_beta
         if np.std(residual) < 1e-10:
             raise ValueError(f"First-stage residual for {flavor} is essentially zero.")
-        result["cf_" + flavor] = residual
+        result["cf_" + flavor] = 0.
+        result.loc[covered, "cf_" + flavor] = residual
         # Household-clustered partial-IV t/F diagnostic (not a weak-IV-robust test).
         scores = np.bincount(hh, weights=z_partial * residual, minlength=len(households))
         pi_se = np.sqrt((scores @ scores) / z_ss**2)
@@ -111,5 +116,5 @@ def add_price_controls(frame):
                             iv_pvalue=float(2*student_t.sf(np.sqrt(f_stat), len(households)-1))
                             if len(households) > 1 else np.nan,
                             partial_R2=float(partial_r2), residual_sd=float(np.std(residual)),
-                            observations=len(result), households=len(households)))
+                            observations=len(sample), households=len(households)))
     return result, pd.DataFrame(reports)

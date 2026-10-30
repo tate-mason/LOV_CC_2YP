@@ -23,7 +23,7 @@ class MemorySummaryChecks(unittest.TestCase):
                 "quantity": [2, 1, 1, 3, 1, 2, 1], "race": [1, 1, 1, 1, 2, 2, 3],
                 "hispanic_origin": [2, 2, 2, 2, 1, 1, 2], "household_income": [5, 5, 5, 5, 8, 8, 9],
                 "female_head_age": [3, 3, 3, 3, 0, 0, 4], "male_head_age": [4, 4, 4, 4, 2, 2, 5],
-                "household_size": [2] * 7, "store_code_uc": [100] * 7,
+                "household_size": [2] * 7, "store_code_uc": [100] * 7, "price": [1.] * 7,
                 "original_metadata": ["preserved"] * 7,
             })
             for name in ["merged_panel", "yogurt_estimation_sample"]:
@@ -61,6 +61,22 @@ class MemorySummaryChecks(unittest.TestCase):
             self.assertEqual(metrics["Eligible adjacent single-flavor week pairs"], 1)
             self.assertEqual(metrics["Switch rate in eligible pairs (%)"], 100)
             self.assertEqual(metrics["Median gap between purchase weeks"], 1)
+            # Price filtering precedes the two-week household rule.
+            unpriced = source.with_columns(pl.when(
+                ((pl.col("household_code") == 2) & (pl.col("purchase_date") == "2010-01-09"))
+                | ((pl.col("household_code") == 1) & (pl.col("purchase_date") == "2010-01-09") & (pl.col("upc") == 1))
+                ).then(None).otherwise(pl.col("price")).alias("price"))
+            unpriced.write_parquet(root / "yogurt_estimation_sample.parquet")
+            out, work = root / "filtered", root / "filtered_work"
+            out.mkdir()
+            work.mkdir()
+            args.household_batches = 2
+            summary.run(args, out, work)
+            filtered = pl.read_parquet(out / "yogurt_estimation_sample.parquet")
+            self.assertEqual(filtered.height, 3)
+            self.assertEqual(filtered["household_code"].unique().to_list(), [1])
+            self.assertTrue(filtered["price"].is_not_null().all())
+            self.assertEqual(pl.read_csv(out / "yogurt_price_coverage.csv")["purchase_lines_without_price_coverage"][0], 2)
             # Sparse quantity output has one row per observed flavor/week, not
             # one column for every flavor in the full reference.
             quantities = pl.read_csv(root / "out3/yogurt_weekly_flavor_quantities.csv")

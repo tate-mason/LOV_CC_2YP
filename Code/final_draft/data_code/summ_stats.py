@@ -83,9 +83,10 @@ def scan_purchases(path, first_year, last_year):
         )
         expressions.append(expression.alias(target))
     # Price is optional: it is audited, not used to drop demographic observations.
+    price_column = next((c for c in ["price", "price_rms"] if c in names), None)
     expressions.append(
-        pl.col("price").cast(pl.Float64)
-        if "price" in names
+        pl.col(price_column).cast(pl.Float64).alias("price")
+        if price_column
         else pl.lit(None, dtype=pl.Float64).alias("price")
     )
     purchases = (
@@ -488,6 +489,11 @@ def run(args, output, work):
     for prefix, filename in [("full_panel", "merged_panel.parquet"), ("matched_yogurt", "yogurt_estimation_sample.parquet")]:
         source = scan_purchases(args.data_dir / filename, args.first_year, args.last_year)
         if prefix == "matched_yogurt":
+            covered = (pl.col("price").is_finite() & (pl.col("price") > 0)).fill_null(False)
+            audit = source.select(pl.len().alias("purchase_lines_before_price_filter"),
+                                  (~covered).sum().alias("purchase_lines_without_price_coverage"))
+            save_table(audit, output, "yogurt_price_coverage", "Yogurt matched-price coverage")
+            source = source.filter(covered)
             source = repeated_yogurt_households(source)
         sources[prefix] = source
         households = household_batches(source, work, prefix, args.household_batches)
@@ -536,7 +542,13 @@ def run(args, output, work):
     # and DMA fields that demographic projections do not otherwise need.
     eligible = sources["matched_yogurt"].select("household_code").unique().collect(engine="streaming")
     prepared = pl.scan_parquet(args.data_dir / "yogurt_estimation_sample.parquet")
-    if "flavor" in prepared.collect_schema().names():
+    original_names = prepared.collect_schema().names()
+    price_column = next((c for c in ["price", "price_rms"] if c in original_names), None)
+    if price_column is None:
+        raise ValueError("Yogurt purchase table needs price or price_rms for matched-price coverage.")
+    prepared = prepared.filter(pl.col(price_column).cast(pl.Float64).is_finite()
+                               & (pl.col(price_column).cast(pl.Float64) > 0))
+    if "flavor" in original_names:
         prepared = prepared.drop("flavor")
     prepared = (prepared.filter(pl.col("panel_year").is_between(args.first_year, args.last_year))
                 .with_columns(normalized_upc_expr(),

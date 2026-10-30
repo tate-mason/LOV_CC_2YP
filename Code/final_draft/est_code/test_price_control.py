@@ -79,6 +79,25 @@ class PriceControlChecks(unittest.TestCase):
         self.assertTrue(data["control"])
         np.testing.assert_allclose(data["cf"], controlled[["cf_"+f for f in FLAVORS]])
 
+    def test_first_stage_uses_only_covered_flavor_prices(self):
+        frame = synthetic_panel()
+        for j, flavor in enumerate(FLAVORS):
+            missing = np.arange(len(frame)) % 4 == j
+            next_flavor = FLAVORS[(j + 1) % 3]
+            frame.loc[missing, next_flavor] += frame.loc[missing, flavor]
+            frame.loc[missing, flavor] = 0
+            frame.loc[missing, "price_" + flavor] = np.nan
+        controlled, report = add_price_controls(frame)
+        for flavor in FLAVORS:
+            available = frame["price_" + flavor].notna()
+            self.assertEqual(report.set_index("flavor").loc[flavor, "observations"], available.sum())
+            self.assertTrue((controlled.loc[~available, "cf_" + flavor] == 0).all())
+            self.assertAlmostEqual(float(controlled.loc[available, "cf_" + flavor]
+                                         @ frame.loc[available, "iv_" + flavor]), 0., places=7)
+        arrays = make_arrays(controlled, 0)
+        self.assertFalse(arrays["available"].all())
+        self.assertTrue(np.isfinite(arrays["cf"]).all())
+
     def test_resampling_preserves_histories_and_relabels_duplicates(self):
         frame = synthetic_panel()
         sampled = resample_households(frame, np.random.default_rng(1))

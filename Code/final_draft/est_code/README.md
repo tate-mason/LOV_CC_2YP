@@ -45,7 +45,7 @@ Then run the full sample, increasing draws if estimates change materially:
 
 ```bash
 python3 est.py \
-  --draws 128 --starts 5 --bootstrap-reps 199 --output results_full
+  --draws 128 --starts 5 --bootstrap-reps 49 --output results_full
 ```
 
 Defaults point to `/scratch/dtm63837/Kilts_Panel/Data/`:
@@ -164,10 +164,16 @@ The exposure store is the household's store with most purchased packages that
 week; ties use the lowest store code. Price coverage is limited to the records
 in the merged table, rather than a separate retail assortment file.
 
-All three flavor prices must be observed; there is no price imputation. Weeks
-with incomplete menus are excluded after contributing to subsequent history.
-The script prints exclusion counts. Conflicting prices or flavors for the same
-store/week/UPC stop estimation.
+`summ_stats.py` drops yogurt purchase lines without finite positive matched
+prices, then requires at least two distinct purchase weeks before saving the
+prepared table. Full-panel demographic summaries retain the full panel.
+
+Choice sets contain the flavors with finite positive prices at the exposure
+store/week. An unpriced, unpurchased flavor is excluded from the logit denominator;
+it does not cause the household-week to be dropped. Every purchased flavor must
+have a covered price. Weeks failing that condition are excluded after updating
+history; the two-usable-week rule is then reapplied. No prices are imputed.
+Conflicting prices or flavors for the same store/week/UPC stop estimation.
 
 The script recomputes Saturday weeks from purchase dates. `panel_week.py` can map
 Sunday purchases to the preceding Saturday; because `master_dat.py` already
@@ -188,7 +194,9 @@ The same `iv_overall` is stored as `iv_other`, `iv_berry`, and `iv_plain` for th
 three existing price first stages. Missing instruments exclude that week's
 likelihood after updating its purchase history.
 
-Estimate three separate OLS first stages on the retained household-week exposures:
+Estimate each flavor's OLS first stage only on retained household-weeks where
+that flavor has a covered price. Unavailable alternatives have no first-stage
+observation and their utilities are masked out of the likelihood:
 
 ```text
 price_ijt = pi_j * instrument_it + coefficients_j * (Xi_other, Xi_berry, Xi_plain)
@@ -309,3 +317,6 @@ the sequence. Transition denominators include stays. Commented examples cover
 loyalty by income and summaries/selection for final estimation inputs.
 
 Control-function reference: [Petrin and Train](https://emlab.berkeley.edu/~train/papers/petrintrain.pdf).
+
+The default bootstrap uses 49 replications (override with `--bootstrap-reps`).
+The main demand fit retains 128 simulation draws.

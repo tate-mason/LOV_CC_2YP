@@ -37,7 +37,6 @@ Start with a small sample and separate output directory:
 
 ```bash
 python3 est.py \
-  --flavors /path/to/Latest_Flavor_2010.csv \
   --max-households 100 --draws 32 --starts 2 --se-method none \
   --output results_small
 ```
@@ -46,24 +45,20 @@ Then run the full sample, increasing draws if estimates change materially:
 
 ```bash
 python3 est.py \
-  --flavors /path/to/Latest_Flavor_2010.csv \
   --draws 128 --starts 5 --bootstrap-reps 199 --output results_full
 ```
 
 Defaults point to `/scratch/dtm63837/Kilts_Panel/Data/`:
 
-- `--sample`: `yogurt_estimation_sample.parquet` (matched HMS purchases).
-- `--rms`: `merged_rms.parquet` (retail menus, including unchosen alternatives).
+- `--sample`: `summary_outputs/yogurt_estimation_sample.parquet`, the full prepared
+  purchase table saved at the end of `summ_stats.py`.
 - Years: 2006–2015. Change with `--first-year` and `--last-year`.
 
-Check the RMS path on the server: some upstream code writes it under `Data/RMS/`.
-The flavor CSV needs `upc`, `flavor_descr`, and `product_descr`, and must cover
-purchased UPCs **and** yogurt UPCs in the retained RMS stores.
-For price controls, the panel also needs `dma_cd`, and RMS needs `dma_code`.
-Override names with `--household-dma-column` and `--retail-dma-column`.
-DMA codes must be positive integers; missing DMA codes stop processing. The script stops
-on missing matches or conflicting flavor labels. A blank description is assigned
-"other", following `summ_stats.py`; inspect the reference before using this rule.
+Run `summ_stats.py` first. Estimation uses the saved `flavor` labels and merged
+`price` column directly; it does not reload RMS or rematch its UPCs. `price_rms`
+is accepted if `price` is absent. Price controls use the consumer `dma_cd`
+(`--household-dma-column` overrides the name). DMA codes must be positive integers.
+The optional flavor CSV is only used for older input tables without saved labels.
 
 Households must have at least two distinct usable purchase weeks after menu/IV
 exclusions. Weeks need not be consecutive. The old single-person
@@ -162,43 +157,41 @@ outcome. Fits under different capacities have different outcomes and likelihoods
 
 ## Prices and sample audits
 
-Retail prices are `price / prmult`, then equal-weight averages across distinct
-UPCs of each flavor at a store in that week. This corrects the quoted multiple
-price but does not standardize package sizes. The exposure store is the household's
-store with most purchased packages that week; ties use the lowest store code.
-This is an exposure proxy, not an estimated store-choice model.
+Prices use the merged `price` column directly, without a `prmult` adjustment.
+Repeated observations of a store/week/UPC quote are deduplicated, then prices
+are averaged across the observed UPCs of each flavor at that store/week.
+The exposure store is the household's store with most purchased packages that
+week; ties use the lowest store code. Price coverage is limited to the records
+in the merged table, rather than a separate retail assortment file.
 
 All three flavor prices must be observed; there is no price imputation. Weeks
-with incomplete menus are excluded from the likelihood after their purchases
-have contributed to future history. The script prints exclusion counts. RMS
-movement is an availability proxy, not an observed complete shelf assortment.
+with incomplete menus are excluded after contributing to subsequent history.
+The script prints exclusion counts. Conflicting prices or flavors for the same
+store/week/UPC stop estimation.
 
 The script recomputes Saturday weeks from purchase dates. `panel_week.py` can map
 Sunday purchases to the preceding Saturday; because `master_dat.py` already
 inner-joined using that variable, recomputing dates cannot recover purchases lost
 upstream. Audit and rebuild that merge before treating the sample as final.
-Duplicate RMS store/week/UPC rows stop estimation for upstream inspection.
+
 
 ## Other-DMA price control (on by default)
 
-For each UPC and week, average valid `price/prmult` across stores in each DMA.
-The instrument for consumer DMA d is the equal-weight average of these DMA means
-across **every available DMA other than d**. There is no selected-market list.
-Exclude the consumer's DMA, even if their exposure store is in a different DMA.
-If the consumer's DMA has no retail observation for that UPC/week, all observed
-DMAs are eligible. At least one other DMA is required for each UPC.
+For each week, pool valid merged price quotes across **all flavors** and compute
+one overall mean outside the consumer's `dma_cd`. Repeated purchases of the same
+store/week/UPC quote within a DMA count once. Each remaining quote has equal
+weight; this is not a mean of DMA means or a flavor-specific instrument.
+Prices come from the full merged input even when `--max-households` limits demand
+estimation. At least one other-DMA quote is required.
 
-Next average the UPC instruments within the exposure store's flavor assortment,
-using the same equal UPC weights as the local flavor price. This avoids comparing
-one local assortment with a different national assortment. If any UPC lacks an
-other-DMA instrument, the entire flavor instrument is missing, and that week's
-likelihood is excluded. Its purchases still contribute to history. Retail prices
-come from all DMAs, including stores never visited by selected households.
+The same `iv_overall` is stored as `iv_other`, `iv_berry`, and `iv_plain` for the
+three existing price first stages. Missing instruments exclude that week's
+likelihood after updating its purchase history.
 
 Estimate three separate OLS first stages on the retained household-week exposures:
 
 ```text
-price_ijt = pi_j * instrument_ijt + coefficients_j * (Xi_other, Xi_berry, Xi_plain)
+price_ijt = pi_j * instrument_it + coefficients_j * (Xi_other, Xi_berry, Xi_plain)
             + week fixed effects_j + consumer DMA fixed effects_j + residual_ijt
 ```
 

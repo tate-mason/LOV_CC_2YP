@@ -14,7 +14,7 @@ import polars as pl
 from scipy.optimize import minimize
 from scipy.special import logsumexp
 
-from price_control import check_dma, other_dma_instruments, add_price_controls
+from price_control import check_dma, add_price_controls
 from bootstrap_se import bootstrap_standard_errors
 
 FLAVORS = ["other", "berry", "plain"]
@@ -49,12 +49,17 @@ def read_flavors(path, products_extra=None):
     if {"upc", "flavor"}.issubset(frame.columns):
         # Consume the exact mapping saved by summ_stats; no recovery or relabeling.
         frame["upc"] = normalize_upcs(frame["upc"])
-        if (frame["upc"].isna().any() or frame["upc"].eq("").any()
-                or frame["upc"].duplicated().any()):
+        if (
+            frame["upc"].isna().any()
+            or frame["upc"].eq("").any()
+            or frame["upc"].duplicated().any()
+        ):
             raise ValueError(f"{path}: saved mapping needs unique, nonmissing UPCs.")
         if not frame["flavor"].isin(FLAVORS).all():
             raise ValueError(f"{path}: saved mapping must use other, berry, plain.")
-        print(f"Loaded {len(frame):,} resolved UPC flavor labels from {path}.", flush=True)
+        print(
+            f"Loaded {len(frame):,} resolved UPC flavor labels from {path}.", flush=True
+        )
         return frame[["upc", "flavor"]]
     missing = {"upc", "flavor_descr"} - set(frame.columns)
     if missing:
@@ -68,28 +73,60 @@ def read_flavors(path, products_extra=None):
             products = pl.scan_parquet(products_extra)
             names = products.collect_schema().names()
             if not {"upc", "flavor_descr"}.issubset(names):
-                raise ValueError(f"{products_extra}: needs upc and flavor_descr columns.")
-            columns = [c for c in ["upc", "flavor_descr", "product_descr", "panel_year"] if c in names]
-            products = (products.select(columns).with_columns(normalized_upc_expr())
-                        .join(pl.DataFrame({"upc": frame["upc"].dropna().unique().tolist()}).lazy(),
-                              on="upc", how="anti"))
+                raise ValueError(
+                    f"{products_extra}: needs upc and flavor_descr columns."
+                )
+            columns = [
+                c
+                for c in ["upc", "flavor_descr", "product_descr", "panel_year"]
+                if c in names
+            ]
+            products = (
+                products.select(columns)
+                .with_columns(normalized_upc_expr())
+                .join(
+                    pl.DataFrame(
+                        {"upc": frame["upc"].dropna().unique().tolist()}
+                    ).lazy(),
+                    on="upc",
+                    how="anti",
+                )
+            )
             products = products.filter(
-                pl.col("upc").is_not_null() & pl.col("flavor_descr").is_not_null()
-                & ~pl.col("flavor_descr").cast(pl.String).str.strip_chars().str.to_lowercase()
+                pl.col("upc").is_not_null()
+                & pl.col("flavor_descr").is_not_null()
+                & ~pl.col("flavor_descr")
+                .cast(pl.String)
+                .str.strip_chars()
+                .str.to_lowercase()
                 .is_in(["", "na", "n/a", "nan", "null", "none"])
             )
             if "panel_year" in names:
-                products = products.group_by("upc").agg([
-                    pl.col(c).sort_by("panel_year", nulls_last=True).first().alias(c)
-                    for c in columns if c != "upc"
-                ])
+                products = products.group_by("upc").agg(
+                    [
+                        pl.col(c)
+                        .sort_by("panel_year", nulls_last=True)
+                        .first()
+                        .alias(c)
+                        for c in columns
+                        if c != "upc"
+                    ]
+                )
             else:
-                products = products.unique(subset="upc", keep="first", maintain_order=True)
+                products = products.unique(
+                    subset="upc", keep="first", maintain_order=True
+                )
             recovered = products.collect(engine="streaming").to_pandas()
             frame = pd.concat([frame, recovered], ignore_index=True)
-            print(f"Recovered flavor labels for {len(recovered):,} additional UPCs from {products_extra}.", flush=True)
+            print(
+                f"Recovered flavor labels for {len(recovered):,} additional UPCs from {products_extra}.",
+                flush=True,
+            )
         else:
-            print(f"Flavor recovery source not found: {products_extra}; using CSV reference only.", flush=True)
+            print(
+                f"Flavor recovery source not found: {products_extra}; using CSV reference only.",
+                flush=True,
+            )
     text = frame["flavor_descr"].fillna("")
     if "product_descr" in frame.columns:
         text = text + " " + frame["product_descr"].fillna("")
@@ -123,197 +160,118 @@ def week_dates(values):
 
 
 def prepare_data(args):
-    """Read purchase lines, aggregate baskets, and attach RMS menu prices.
+    """Use only the merged purchase table, including its existing prices.
 
-    Polars filters/projects on the server before converting smaller tables to
-    pandas. RMS price is used directly, without a multiplier adjustment.
-    Prices are equal-weight means over UPCs in a store/week/flavor.
-    No prices are filled from the household's chosen product or future weeks.
+    The IV pools all flavors: the same-week average observed price outside the
+    consumer's DMA. Repeated purchases do not duplicate store/UPC price quotes.
     """
-    products_extra = getattr(args, "products_extra", None) or Path(args.rms).parent / "RMS/combined/products_extra.parquet"
-    flavor = read_flavors(args.flavors, products_extra)
-    scan = pl.scan_parquet(args.sample)
-    prepared_sample = "flavor" in scan.collect_schema().names()
-    required = [
-        "household_code",
-        "panel_year",
-        "purchase_date",
-        "trip_code_uc",
-        "upc",
-        "store_code_uc",
-        "quantity",
-    ]
-    if prepared_sample:
-        required.append("flavor")
+    base = pl.scan_parquet(args.sample)
+    names = base.collect_schema().names()
+    base = base.filter(pl.col("panel_year").is_between(args.first_year, args.last_year))
+    if "flavor" not in names:
+        products_extra = getattr(args, "products_extra", None) or DATA_DIR / "RMS/combined/products_extra.parquet"
+        flavor = read_flavors(args.flavors, products_extra)
+        base = base.with_columns(normalized_upc_expr()).join(pl.from_pandas(flavor).lazy(), on="upc", how="left")
+    else:
+        base = base.with_columns(normalized_upc_expr())
+    price_column = next((c for c in ["price", "price_rms"] if c in names), None)
+    if price_column is None:
+        raise ValueError("Merged purchase table needs a price or price_rms column.")
+    consumer_dma = getattr(args, "household_dma_column", "dma_cd")
+    columns = ["household_code", "panel_year", "purchase_date", "trip_code_uc", "upc",
+               "store_code_uc", "quantity", "flavor", pl.col(price_column).cast(pl.Float64).alias("price")]
     if not args.no_price_control:
-        required.append(pl.col(args.household_dma_column).alias("dma_cd"))
-    scan = scan.select(required).filter(
-        pl.col("panel_year").is_between(args.first_year, args.last_year)
-    )
+        columns.append(pl.col(consumer_dma).alias("dma_cd"))
+    base = base.select(columns).with_columns(
+        pl.col("purchase_date").cast(pl.String).str.slice(0, 10).str.to_date())
+    base = base.with_columns((pl.col("purchase_date") + pl.duration(
+        days=(6 - pl.col("purchase_date").dt.weekday()) % 7)).alias("week"))
+    # Keep the full merged table for prices/IVs, even in a household-limited run.
+    selected = base
     if args.max_households:
-        ids = (
-            scan.select("household_code")
-            .unique()
-            .sort("household_code")
-            .limit(args.max_households)
-            .collect()["household_code"]
-        )
-        scan = scan.filter(pl.col("household_code").is_in(ids.implode()))
-    lines = scan.collect().to_pandas()
+        ids = (base.select("household_code").unique().sort("household_code")
+               .limit(args.max_households).collect(engine="streaming")["household_code"])
+        selected = base.filter(pl.col("household_code").is_in(ids.implode()))
+    print(f"Loading merged purchase table: {args.sample}", flush=True)
+    lines = selected.collect(engine="streaming").to_pandas()
     if lines.empty:
         raise ValueError("No purchase lines in selected sample.")
-    if prepared_sample:
-        if not lines["flavor"].dropna().isin(FLAVORS).all():
-            raise ValueError("Prepared purchase table has invalid flavor labels.")
-        print("Using the full prepared purchase table saved by summ_stats.", flush=True)
-    else:
-        lines["upc"] = normalize_upcs(lines["upc"])
-        lines = lines.merge(flavor, on="upc", how="left", validate="many_to_one")
-    if lines["flavor"].isna().any():
-        args.output.mkdir(parents=True, exist_ok=True)
-        unmatched = (
-            lines.loc[lines["flavor"].isna()]
-            .groupby("upc", dropna=False)
-            .agg(purchase_lines=("quantity", "size"), packages=("quantity", "sum"))
-            .reset_index()
-            .sort_values("purchase_lines", ascending=False)
-        )
-        unmatched.to_csv(args.output / "unmatched_purchase_upcs.csv", index=False)
-        print(unmatched.head(20).to_string(index=False), flush=True)
-        raise ValueError(
-            "Purchased UPCs still lack flavor labels after formatting normalization; "
-            f"see {args.output / 'unmatched_purchase_upcs.csv'}."
-        )
+    if lines["flavor"].isna().any() or not lines["flavor"].isin(FLAVORS).all():
+        raise ValueError("Merged purchase table has missing or invalid flavor labels.")
     q = lines["quantity"].to_numpy(float)
     if not np.isfinite(q).all() or (q <= 0).any() or not np.allclose(q, np.round(q)):
         raise ValueError("Quantity must be positive integer package counts.")
-    dates = pd.to_datetime(lines["purchase_date"], errors="raise")
-    # Recompute Saturday weeks: upstream panel_week.py maps Sundays backwards.
-    lines["week"] = (
-        dates + pd.to_timedelta((5 - dates.dt.dayofweek) % 7, unit="D")
-    ).dt.normalize()
+    lines["week"] = pd.to_datetime(lines["week"])
     keys = ["household_code", "week"]
-    weekly = (
-        lines.groupby(keys + ["flavor"])["quantity"]
-        .sum()
-        .unstack("flavor", fill_value=0)
-        .reindex(columns=FLAVORS, fill_value=0)
-        .reset_index()
-    )
-    # Select one exposure store, but count purchases at ALL stores exactly once.
+    weekly = (lines.groupby(keys + ["flavor"])["quantity"].sum().unstack("flavor", fill_value=0)
+              .reindex(columns=FLAVORS, fill_value=0).reset_index())
     stores = lines.groupby(keys + ["store_code_uc"], as_index=False)["quantity"].sum()
-    stores = stores.sort_values(
-        keys + ["quantity", "store_code_uc"], ascending=[True, True, False, True]
-    )
+    stores = stores.sort_values(keys + ["quantity", "store_code_uc"], ascending=[True, True, False, True])
     stores = stores.drop_duplicates(keys)[keys + ["store_code_uc"]]
     weekly = weekly.merge(stores, on=keys, validate="one_to_one")
     if not args.no_price_control:
         lines["dma_cd"] = check_dma(lines["dma_cd"], "consumer")
         if (lines.groupby(keys)["dma_cd"].nunique() > 1).any():
             raise ValueError("Multiple consumer DMAs within a household-week.")
-        dmas = lines[keys + ["dma_cd"]].drop_duplicates()
-        weekly = weekly.merge(dmas, on=keys, validate="one_to_one")
+        weekly = weekly.merge(lines[keys + ["dma_cd"]].drop_duplicates(), on=keys, validate="one_to_one")
 
-    rms = pl.scan_parquet(args.rms)
-    cols = ["upc", "store_code_uc", "week_end", "price"]
+    quote_keys = ["store_code_uc", "week", "upc"]
+    price_columns = quote_keys + ["flavor", "price"]
     if not args.no_price_control:
-        cols.append(pl.col(args.retail_dma_column).alias("dma_code"))
-    # Keep the national RMS scan available: IVs must not be limited to stores
-    # visited by the selected households.
-    national = (
-        rms.filter(pl.col("product_module_code").is_in([3603, 3612]))
-        .filter(
-            pl.col("week_end").is_between(
-                args.first_year * 10000 + 101, (args.last_year + 1) * 10000 + 107
-            )
-        )
-        .select(cols)
-        .with_columns(pl.col("price").cast(pl.Float64).alias("unit_price"))
-    )
-    retail = (
-        national.filter(
-            pl.col("store_code_uc").is_in(weekly["store_code_uc"].unique().tolist())
-        )
-        .collect()
-        .to_pandas()
-    )
-    retail["upc"] = normalize_upcs(retail["upc"])
-    retail = retail.merge(flavor, on="upc", how="left", validate="many_to_one")
-    if retail["flavor"].isna().any():
-        args.output.mkdir(parents=True, exist_ok=True)
-        unmatched = retail.loc[retail["flavor"].isna(), ["upc"]].drop_duplicates()
-        unmatched.to_csv(args.output / "unmatched_retail_upcs.csv", index=False)
-        raise ValueError(
-            "RMS UPCs still lack flavor labels after formatting normalization; "
-            f"see {args.output / 'unmatched_retail_upcs.csv'}."
-        )
-    retail["week"] = week_dates(retail["week_end"])
-    rk = ["store_code_uc", "week", "upc"]
-    if retail.duplicated(rk).any():
-        raise ValueError("Duplicate RMS store/week/UPC keys; audit retail merge first.")
-    good = np.isfinite(retail["unit_price"]) & (retail["unit_price"] > 0)
-    print(f"Invalid RMS prices excluded: {(~good).sum():,}", flush=True)
-    menus = (
-        retail.loc[good]
-        .groupby(["store_code_uc", "week", "flavor"])["unit_price"]
-        .mean()
-        .unstack("flavor")
-        .reindex(columns=FLAVORS)
-        .rename(columns={f: "price_" + f for f in FLAVORS})
-        .reset_index()
-    )
-    weekly = weekly.merge(
-        menus, on=["store_code_uc", "week"], how="left", validate="many_to_one"
-    )
+        price_columns.append("dma_cd")
+    quotes = (base.filter(pl.col("price").is_finite() & (pl.col("price") > 0))
+              .select(price_columns).unique())
+    # A store/week/UPC should have one price and one flavor. Consumer DMA may
+    # differ when consumers from different markets visit the same store.
+    local = quotes.select(quote_keys + ["flavor", "price"]).unique()
+    conflicting = (local.group_by(quote_keys).len().filter(pl.col("len") > 1)
+                   .limit(1).collect(engine="streaming"))
+    if len(conflicting):
+        raise ValueError("Conflicting merged prices or flavors for the same store/week/UPC.")
+    menus = (local.group_by(["store_code_uc", "week", "flavor"])
+             .agg(pl.col("price").mean()).collect(engine="streaming").to_pandas())
+    menus["week"] = pd.to_datetime(menus["week"])
+    menus = (menus.pivot(index=["store_code_uc", "week"], columns="flavor", values="price")
+             .reindex(columns=FLAVORS).rename(columns={f: "price_" + f for f in FLAVORS}).reset_index())
+    weekly = weekly.merge(menus, on=["store_code_uc", "week"], how="left", validate="many_to_one")
+    print("Using merged prices directly; no separate RMS data are loaded.", flush=True)
     if not args.no_price_control:
-        # Only these UPCs are needed, but their prices come from ALL retail DMAs.
-        upcs = retail["upc"].unique().tolist()
-        national = national.with_columns(normalized_upc_expr()).filter(
-            pl.col("upc").is_in(upcs)
-        )
-        duplicate = (
-            national.group_by(["store_code_uc", "week_end", "upc"])
-            .len()
-            .filter(pl.col("len") > 1)
-            .limit(1)
-            .collect()
-        )
-        if len(duplicate):
-            raise ValueError("Duplicate national RMS store/week/UPC keys; audit merge.")
-        valid_national = national.filter(
-            pl.col("unit_price").is_finite() & (pl.col("unit_price") > 0)
-        )
-        dma_prices = (
-            valid_national.group_by(["upc", "week_end", "dma_code"])
-            .agg(pl.col("unit_price").mean().alias("dma_price"))
-            .collect()
-            .to_pandas()
-        )
-        dma_prices["week"] = week_dates(dma_prices.pop("week_end"))
-        exposure_upcs = retail.loc[good, ["store_code_uc", "week", "upc", "flavor"]]
-        weekly = other_dma_instruments(weekly, exposure_upcs, dma_prices)
-    weekly = weekly.sort_values(keys).reset_index(drop=True)
-    weekly = add_stocks(weekly, args.habit_weight)
-    # Missing menus are excluded from the likelihood AFTER updating history.
+        invalid_dma = quotes.select(
+            ((pl.col("dma_cd").cast(pl.Float64, strict=False).is_null())
+             | (pl.col("dma_cd").cast(pl.Float64, strict=False) <= 0)
+             | (pl.col("dma_cd").cast(pl.Float64, strict=False) != pl.col("dma_cd").cast(pl.Float64, strict=False).floor()))
+            .fill_null(True).any()).collect(engine="streaming").item()
+        if invalid_dma:
+            raise ValueError("Merged price records contain invalid dma_cd values for the other-DMA IV.")
+        # Pool across ALL flavors. Deduplicate quote repeats within each DMA.
+        by_dma = (quotes.with_columns(pl.col("dma_cd").cast(pl.Float64).cast(pl.Int64))
+                  .group_by(["week", "dma_cd"]).agg(
+                      pl.col("price").sum().alias("dma_sum"), pl.len().alias("dma_count"))
+                  .collect(engine="streaming").to_pandas())
+        by_dma["week"] = pd.to_datetime(by_dma["week"])
+        totals = (by_dma.groupby("week", as_index=False)[["dma_sum", "dma_count"]].sum()
+                  .rename(columns={"dma_sum": "total_sum", "dma_count": "total_count"}))
+        weekly = weekly.merge(totals, on="week", how="left", validate="many_to_one")
+        weekly = weekly.merge(by_dma, on=["week", "dma_cd"], how="left", validate="many_to_one")
+        denominator = weekly["total_count"] - weekly["dma_count"].fillna(0)
+        weekly["iv_overall"] = ((weekly["total_sum"] - weekly["dma_sum"].fillna(0))
+                                / denominator.where(denominator > 0))
+        for f in FLAVORS:
+            weekly["iv_" + f] = weekly["iv_overall"]
+        weekly = weekly.drop(columns=["total_sum", "total_count", "dma_sum", "dma_count"])
+        print("IV: overall same-week mean price outside consumer dma_cd, pooled across flavors.", flush=True)
+    weekly = add_stocks(weekly.sort_values(keys).reset_index(drop=True), args.habit_weight)
     price_cols = ["price_" + f for f in FLAVORS]
-    complete = np.isfinite(weekly[price_cols]).all(axis=1)
-    print(f"Weeks excluded for incomplete menus: {(~complete).sum():,}", flush=True)
+    complete = np.isfinite(weekly[price_cols]).all(axis=1) & (weekly[price_cols] > 0).all(axis=1)
+    print(f"Weeks excluded for incomplete/invalid merged price menus: {(~complete).sum():,}", flush=True)
     if not args.no_price_control:
-        iv_complete = np.isfinite(weekly[["iv_" + f for f in FLAVORS]]).all(axis=1)
-        print(
-            f"Additional weeks excluded for missing other-DMA IVs: "
-            f"{(complete & ~iv_complete).sum():,}",
-            flush=True,
-        )
+        iv_cols = ["iv_" + f for f in FLAVORS]
+        iv_complete = np.isfinite(weekly[iv_cols]).all(axis=1)
+        print(f"Additional weeks excluded for missing other-DMA IVs: {(complete & ~iv_complete).sum():,}", flush=True)
         complete &= iv_complete
     weekly = weekly.loc[complete].copy()
-    # Count usable household-weeks after all menu/IV exclusions.
     repeated = weekly.groupby("household_code")["week"].transform("nunique") >= 2
-    print(
-        f"Households excluded for fewer than two usable weeks: "
-        f"{weekly.loc[~repeated, 'household_code'].nunique():,}",
-        flush=True,
-    )
+    print(f"Households excluded for fewer than two usable weeks: {weekly.loc[~repeated, 'household_code'].nunique():,}", flush=True)
     weekly = weekly.loc[repeated].reset_index(drop=True)
     weekly["outside"] = np.maximum(args.capacity - weekly[FLAVORS].sum(axis=1), 0)
     if weekly.empty:
@@ -561,12 +519,16 @@ def fit_model(data, args, frame=None):
 def main(default_model="heterogeneous"):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
-        "--sample", type=Path, default=DATA_DIR / "summary_outputs/yogurt_estimation_sample.parquet"
+        "--sample",
+        type=Path,
+        default=DATA_DIR / "summary_outputs/yogurt_estimation_sample.parquet",
     )
-    parser.add_argument("--rms", type=Path, default=DATA_DIR / "merged_rms.parquet")
     parser.add_argument("--flavors", type=Path, default=FLAVOR_FILE)
-    parser.add_argument("--products-extra", type=Path,
-                        help="Annual flavor metadata; defaults to RMS/combined/products_extra.parquet beside the RMS data directory.")
+    parser.add_argument(
+        "--products-extra",
+        type=Path,
+        help="Annual flavor metadata; defaults to RMS/combined/products_extra.parquet beside the RMS data directory.",
+    )
     parser.add_argument("--output", type=Path, default=Path("estimation_output"))
     parser.add_argument(
         "--model",
@@ -585,10 +547,9 @@ def main(default_model="heterogeneous"):
     parser.add_argument(
         "--no-price-control",
         action="store_true",
-        help="Explicitly disable the other-DMA price control function",
+        help="Disable the price control using the overall other-DMA mean-price IV",
     )
     parser.add_argument("--household-dma-column", default="dma_cd")
-    parser.add_argument("--retail-dma-column", default="dma_code")
     parser.add_argument(
         "--se-method", choices=["bootstrap", "none"], default="bootstrap"
     )

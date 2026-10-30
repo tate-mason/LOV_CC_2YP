@@ -45,76 +45,63 @@ class EstimationChecks(unittest.TestCase):
     def test_parquet_pipeline_and_fit(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
-            flavor = pd.DataFrame({"upc": [1, 2, 3],
-                                   "flavor_descr": ["vanilla", "berry", "plain"],
-                                   "product_descr": ["yogurt"]*3})
-            flavor.loc[flavor["upc"] != 3].to_csv(root / "flavors.csv", index=False)
-            pl.DataFrame({"upc": [1, 3, 3], "flavor_descr": ["berry", "vanilla", "plain"],
-                          "panel_year": [2006, 2011, 2010]}).write_parquet(root / "products_extra.parquet")
-            # Two stores in one household-week must produce ONE basket.
-            pl.DataFrame({
-                "household_code": [10, 10, 10, 20], "panel_year": [2010]*4,
-                "purchase_date": ["2010-01-02", "2010-01-02", "2010-01-09", "2010-01-09"],
-                "trip_code_uc": [1, 2, 3, 4], "upc": [1, 2, 2, 3],
-                "store_code_uc": [100, 200, 100, 100], "quantity": [2, 1, 2, 1],
-            }).write_parquet(root / "sample.parquet")
             rows = []
+            def append(household, week, upc, store, dma, price, quantity=1):
+                rows.append(dict(household_code=household, panel_year=2010,
+                                 purchase_date=str(pd.to_datetime(str(week), format="%Y%m%d").date()),
+                                 trip_code_uc=len(rows) + 1, upc=str(upc), store_code_uc=store,
+                                 quantity=quantity, price=float(price), dma_cd=dma,
+                                 flavor={1: "other", 2: "berry", 3: "plain"}[upc]))
+            append(10, 20100102, 1, 100, 1, 3, 2)
+            append(10, 20100102, 2, 200, 1, 4)
+            append(10, 20100109, 2, 100, 1, 4, 2)
             for week in [20100102, 20100109]:
-                for store in [100, 200]:
-                    for upc in [1, 2, 3]:
-                        rows.append(dict(upc=upc, store_code_uc=store, week_end=week,
-                                         price=2.+upc, product_module_code=3612))
-            pl.DataFrame(rows).write_parquet(root / "rms.parquet")
+                for upc in [1, 2, 3]:
+                    append(20, week, upc, 200, 2, 2 + upc)
+                    append(30, week, upc, 300, 3, 6 + upc)
+                    append(40, week, upc, 100, 1, 2 + upc)
+            # Repeat a cheap quote: it must not overweight the overall IV.
+            append(20, 20100102, 1, 200, 2, 3)
+            sample = root / "prepared.parquet"
+            original = pl.DataFrame(rows)
+            original.write_parquet(sample)
             args = SimpleNamespace(
-                flavors=root / "flavors.csv", sample=root / "sample.parquet",
-                rms=root / "rms.parquet", products_extra=root / "products_extra.parquet", first_year=2010, last_year=2010,
-                max_households=2, habit_weight=.7, capacity=0, no_price_control=True,
-                se_method="none",
-                model="heterogeneous", draws=8, starts=1, maxiter=5, seed=306,
-                output=root / "output")
+                sample=sample, flavors=root / "not_needed.csv", rms=root / "does_not_exist.parquet",
+                first_year=2010, last_year=2010, max_households=1, habit_weight=.7,
+                capacity=0, no_price_control=True, household_dma_column="dma_cd", se_method="none",
+                model="heterogeneous", draws=8, starts=1, maxiter=5, seed=306, output=root / "output")
             frame = prepare_data(args)
-            # Read a full prepared purchase table and exact saved flavor mapping.
-            mapping = read_flavors(args.flavors, args.products_extra)
-            mapping.to_csv(root / "estimation_flavor_reference.csv", index=False)
-            raw = pl.read_parquet(args.sample).with_columns(pl.col("upc").cast(pl.String))
-            raw.join(pl.from_pandas(mapping), on="upc", how="left").write_parquet(root / "prepared.parquet")
-            args.sample = root / "prepared.parquet"
-            args.flavors = root / "estimation_flavor_reference.csv"
-            prepared_frame = prepare_data(args)
-            pd.testing.assert_frame_equal(frame, prepared_frame)
             self.assertEqual(len(frame), 2)
             self.assertEqual(frame.household_code.unique().tolist(), [10])
             self.assertEqual(frame.loc[0, "other"], 2)
             self.assertEqual(frame.loc[0, "berry"], 1)
             self.assertEqual(frame.loc[0, "store_code_uc"], 100)
-            self.assertEqual(frame.loc[0, "price_other"], 3.0)
+            self.assertEqual(frame.loc[0, "price_other"], 3)
             np.testing.assert_allclose(frame.filter(like="stock_").iloc[0], 0)
             fit = fit_model(make_arrays(frame, 0), args)
             self.assertTrue(np.isfinite(fit.fun))
             self.assertTrue((args.output / "fit.json").exists())
-            # The instrument must include an unvisited store in a third DMA.
-            panel = pl.read_parquet(args.sample).with_columns(pl.lit(1).alias("dma_cd"))
-            panel.write_parquet(args.sample)
-            rms = pl.read_parquet(args.rms).with_columns(
-                pl.when(pl.col("store_code_uc") == 100).then(1).otherwise(2).alias("dma_code"))
-            extra = rms.filter(pl.col("store_code_uc") == 100).with_columns(
-                pl.lit(300, dtype=pl.Int64).alias("store_code_uc"),
-                pl.lit(3, dtype=pl.Int32).alias("dma_code"),
-                (pl.col("price") + 4).alias("price"))
-            pl.concat([rms, extra], how="vertical_relaxed").write_parquet(args.rms)
-            # Two observed weeks but only one complete menu must also be dropped.
-            incomplete = pl.read_parquet(args.rms).filter(
-                ~((pl.col("week_end") == 20100102) & (pl.col("upc") == 3)))
-            original_rms = pl.read_parquet(args.rms)
-            incomplete.write_parquet(args.rms)
+            incomplete = original.filter(~((pl.col("purchase_date") == "2010-01-02")
+                                             & (pl.col("store_code_uc") == 100) & (pl.col("upc") == "3")))
+            incomplete.write_parquet(sample)
             with self.assertRaisesRegex(ValueError, "at least two usable"):
                 prepare_data(args)
-            original_rms.write_parquet(args.rms)
+            original.write_parquet(sample)
             args.no_price_control = False
-            args.household_dma_column = "dma_cd"
-            args.retail_dma_column = "dma_code"
             controlled = prepare_data(args)
-            np.testing.assert_allclose(controlled["iv_other"], 5.0)
+            # Pool DMA 2's quotes 3,4,5 and DMA 3's 7,8,9; mean = 6.
+            for name in ["iv_overall", "iv_other", "iv_berry", "iv_plain"]:
+                np.testing.assert_allclose(controlled[name], 6.)
+            # Changing every own-DMA quote cannot change the instrument.
+            changed = original.with_columns(pl.when(pl.col("dma_cd") == 1)
+                                            .then(pl.col("price") + 100).otherwise(pl.col("price")).alias("price"))
+            changed.write_parquet(sample)
+            # Store 200 is shared across DMAs in this fixture. Update both copies
+            # of its quoted price to keep local store/week/UPC prices consistent.
+            changed = changed.with_columns(pl.when(pl.col("store_code_uc") == 200)
+                                            .then(pl.col("upc").cast(pl.Float64) + 2).otherwise(pl.col("price")).alias("price"))
+            changed.write_parquet(sample)
+            np.testing.assert_allclose(prepare_data(args)["iv_overall"], 6.)
 
     def test_persistent_household_integration(self):
         data = make_arrays(add_stocks(self.frame()), 7)

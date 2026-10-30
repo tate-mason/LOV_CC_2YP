@@ -1,3 +1,5 @@
+> Historical October 28 diagnosis, superseded by the October 30 symmetric-switching model. See MODEL_CONVENTIONS.md and the current compiled appendix.
+
 # Derivative changes: previous formulas versus corrected formulas
 
 This document compares the formulas present before the diagnostic follow-up with the corrected formulas. Three existing derivative formulas changed: the period-1 price derivative with respect to alpha, the optimized-profit derivative with respect to gamma, and the mixed beta–gamma derivative of period-1 price. The gamma price derivatives and their price-ratio derivative did **not** change.

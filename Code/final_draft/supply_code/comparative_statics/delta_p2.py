@@ -1,3 +1,3 @@
-from model.symbols import *
-
-dp2_ddelta = sp.Integer(0)
+from model.symbols import delta
+from comparative_statics.canonical import price2_derivative
+dp2_ddelta = price2_derivative(delta)

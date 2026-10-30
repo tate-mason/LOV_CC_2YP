@@ -1,3 +1,5 @@
+> Historical October 28 diagnosis, superseded by the October 30 symmetric-switching model. See MODEL_CONVENTIONS.md and the current compiled appendix.
+
 # Why `run_all.py` fails
 
 > **Status update (2026-10-28):** The failures below describe the earlier investigation. The current source contains all four proposed fixes, and a fresh `python3 run_all.py` run exits successfully. See the current status and recommended next steps at the end of this document.

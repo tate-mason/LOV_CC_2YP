@@ -1,0 +1,1 @@
+from comparative_statics.gamma_p1beta import dp1dbeta_dgamma_clean

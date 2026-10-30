@@ -1,21 +1,12 @@
+"""Reproducibility entry point: tests, requested figures, symbolic LaTeX."""
 import subprocess
 import sys
-
-checks = [
-    "checks.check_focs",
-    "checks.check_gamma",
-    "checks.check_beta",
-    "checks.check_alpha",
-    "checks.check_delta",
-    "checks.check_pricing_derivatives",
-    "checks.check_numerical",
-]
-
-for check in checks:
-    print(f"\nRunning {check}", flush=True)
-
-    subprocess.run([sys.executable, "-m", check], check=True)
-
-print("\nAll checks passed!")
-
-print("\nDone!")
+from pathlib import Path
+ROOT=Path(__file__).resolve().parent
+for command in [
+    ['-m','unittest','-v','checks.test_symmetric'],
+    ['make_comparative_static_figures.py'],
+    ['make_latex_document.py'],
+]:
+    subprocess.run([sys.executable,*command],cwd=ROOT,check=True)
+print('All checks passed; figures and LaTeX regenerated. Compile the TeX with latexmk.')

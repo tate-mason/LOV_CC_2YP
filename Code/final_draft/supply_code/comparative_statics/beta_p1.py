@@ -1,3 +1,3 @@
-from model.symbols import *
-
-dp1_dbeta = (delta * sj2 * s01 - sj1) / alpha
+from model.symbols import beta
+from comparative_statics.canonical import price1_derivative
+dp1_dbeta = price1_derivative(beta)

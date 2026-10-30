@@ -1,39 +1,32 @@
-\section*{Model and pricing conditions}
+\section{Symbolically derived equations}
+Here $q_2=q(x_1)$, $s_2=s_2(x_1)$ and $p_2=p_2(x_1)$ describe a fixed terminal history. Price equations and comparative-static right-hand sides use equilibrium shares; the profit and FOCs use shares at the candidate prices.
 \[
-v_1 = \alpha p_{1} + \beta + \gamma z_{1}
+v_1 = \alpha p_{1} + \beta + \gamma q
 \]
 \[
-v_2 = \alpha p_{2} + \beta + \gamma z_{2}
+v_2 = \alpha p_{2} + \beta + \gamma q_{2}
 \]
 \[
-s_1 = \frac{e^{\alpha p_{1} + \beta + \gamma z_{1}}}{e^{\alpha p_{1} + \beta + \gamma z_{1}} + 1}
+\Pi = \delta \left(V_{20} \left(1 - s\right) + V_{2j} s\right) + s \left(- c + p_{1}\right)
 \]
 \[
-s_2 = \frac{e^{\alpha p_{2} + \beta + \gamma z_{2}}}{e^{\alpha p_{2} + \beta + \gamma z_{2}} + 1}
+F_1 = \alpha s \left(1 - s\right) \left(- c + \delta \left(- V_{20} + V_{2j}\right) + p_{1}\right) + s
 \]
 \[
-\Pi = \delta s_{1} s_{2} \left(- c + p_{2}\right) + s_{1} \left(- c + p_{1}\right)
-\]
-\subsection*{First-order conditions for both prices}
-\[
-F_1 = \frac{\partial\Pi}{\partial p_1} = \alpha s_{1} \left(1 - s_{1}\right) \left(- c + \delta s_{2} \left(- c + p_{2}\right) + p_{1}\right) + s_{1}
+F_2 = \alpha s_{2} \left(1 - s_{2}\right) \left(- c + p_{2}\right) + s_{2}
 \]
 \[
-\frac{\partial\Pi}{\partial p_2} = \delta s_1 F_2 = \delta s_{1} \left(- \alpha c s_{2} \left(1 - s_{2}\right) + \alpha p_{2} s_{2} \left(1 - s_{2}\right) + s_{2}\right)
-\]
-\[
-F_2 = - \alpha c s_{2} \left(1 - s_{2}\right) + \alpha p_{2} s_{2} \left(1 - s_{2}\right) + s_{2}
-\]
-\[F_1=F_2=0\]
-\[
-0 = \frac{F_1}{s_1} = - \alpha \left(1 - s_{1}\right) \left(c + \delta s_{2} \left(c - p_{2}\right) - p_{1}\right) + 1
-\]
-\[
-0 = \frac{F_2}{s_2} = - \alpha c \left(1 - s_{2}\right) + \alpha p_{2} \left(1 - s_{2}\right) + 1
+p_1^* = c - \delta \left(- V_{20} + V_{2j}\right) - \frac{1}{\alpha \left(1 - s\right)}
 \]
 \[
 p_2^* = c - \frac{1}{\alpha \left(1 - s_{2}\right)}
 \]
 \[
-p_1^* = c + \frac{\delta s_{2}}{\alpha \left(1 - s_{2}\right)} - \frac{1}{\alpha \left(1 - s_{1}\right)}
+\frac{dp_1^*}{d\gamma} = \frac{\delta \left(s - 1\right) \left(u + v\right) - q s}{\alpha}
+\]
+\[
+\frac{dp_2^*}{d\gamma} = - \frac{q_{2} s_{2}}{\alpha}
+\]
+\[
+\frac{d\Pi^*}{d\gamma} = \frac{\delta \left(s u + v \left(s - 1\right)\right) - q s}{\alpha}
 \]

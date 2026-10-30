@@ -1,29 +1,12 @@
+"""Symbols for a fixed type and signed realized histories."""
 import sympy as sp
-
-# Parameters
-
-alpha, beta, gamma, delta = sp.symbols("alpha beta gamma delta", real=True)
-
-# Cost
-
-c = sp.symbols("c", real=True)
-
-# Prices
-
-p1, p2 = sp.symbols("p1 p2", positive=True)
-p1_star_sym = sp.Symbol("p_{rj1}^*")
-p2_star_sym = sp.Symbol("p_{rj2}^*")
-
-# Shares
-
-sj1, sj2 = sp.symbols("s_j1 s_j2", positive=True)
-
-s01, s02 = sp.symbols("s_01 s_02", positive=True)
-
-# Switching
-
-z1, z2 = sp.symbols("z_1, z_2")
-
-# Histories
-
+alpha, beta, gamma, delta, c = sp.symbols("alpha beta gamma delta c", real=True)
+p1, p2, p2j, p20 = sp.symbols("p_1 p_2 p_{2j} p_{20}", real=True)
+q, q2 = sp.symbols("q q_2", real=True)
+sj1, sj2, u, v = sp.symbols("s s_2 u v", positive=True)
+s01, s02 = 1-sj1, 1-sj2
+Vj, V0 = sp.symbols("V_{2j} V_{20}", real=True)
 h0, h1 = sp.symbols("h_0 h_1")
+p1_star_sym, p2_star_sym = sp.symbols("p_1^* p_2^*")
+# Legacy names are signed coefficients now, never the former 0/1 indicators.
+z1, z2 = q, q2

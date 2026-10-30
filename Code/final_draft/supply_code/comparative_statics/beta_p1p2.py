@@ -1,5 +1,3 @@
 from model.symbols import *
-from comparative_statics.beta_p1 import dp1_dbeta
-from comparative_statics.beta_p2 import dp2_dbeta
-
-ratio_derivative = (p2 * dp1_dbeta - p1 * dp2_dbeta) / p2**2
+from comparative_statics.canonical import price1_derivative, price2_derivative
+ratio_derivative = (p2*price1_derivative(beta)-p1*price2_derivative(beta))/p2**2

@@ -1,7 +1,3 @@
-ASSUMPTIONS = {
-    "alpha": "alpha < 0",
-    "delta": "0 < delta < 1",
-    "shares": "0 < s_jt, s_0t < 1",
-    "prices": "p_t > 0",
-    "cost": "c >= 0",
-}
+assumptions = {"alpha": "<0", "delta": "0<delta<1", "prices": "unconstrained real",
+               "cost": "fixed", "shares": "strictly interior", "type": "fixed and observed",
+               "history": "realized j or 0; both continuation states integrated"}

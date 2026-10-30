@@ -73,6 +73,15 @@ class EstimationChecks(unittest.TestCase):
                 model="heterogeneous", draws=8, starts=1, maxiter=5, seed=306,
                 output=root / "output")
             frame = prepare_data(args)
+            # Read a full prepared purchase table and exact saved flavor mapping.
+            mapping = read_flavors(args.flavors, args.products_extra)
+            mapping.to_csv(root / "estimation_flavor_reference.csv", index=False)
+            raw = pl.read_parquet(args.sample).with_columns(pl.col("upc").cast(pl.String))
+            raw.join(pl.from_pandas(mapping), on="upc", how="left").write_parquet(root / "prepared.parquet")
+            args.sample = root / "prepared.parquet"
+            args.flavors = root / "estimation_flavor_reference.csv"
+            prepared_frame = prepare_data(args)
+            pd.testing.assert_frame_equal(frame, prepared_frame)
             self.assertEqual(len(frame), 2)
             self.assertEqual(frame.household_code.unique().tolist(), [10])
             self.assertEqual(frame.loc[0, "other"], 2)

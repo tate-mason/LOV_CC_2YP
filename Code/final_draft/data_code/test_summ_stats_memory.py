@@ -23,7 +23,8 @@ class MemorySummaryChecks(unittest.TestCase):
                 "quantity": [2, 1, 1, 3, 1, 2, 1], "race": [1, 1, 1, 1, 2, 2, 3],
                 "hispanic_origin": [2, 2, 2, 2, 1, 1, 2], "household_income": [5, 5, 5, 5, 8, 8, 9],
                 "female_head_age": [3, 3, 3, 3, 0, 0, 4], "male_head_age": [4, 4, 4, 4, 2, 2, 5],
-                "household_size": [2] * 7,
+                "household_size": [2] * 7, "store_code_uc": [100] * 7,
+                "original_metadata": ["preserved"] * 7,
             })
             for name in ["merged_panel", "yogurt_estimation_sample"]:
                 source.write_parquet(root / f"{name}.parquet")
@@ -45,6 +46,13 @@ class MemorySummaryChecks(unittest.TestCase):
                 left = pd.read_csv(root / "out1" / f"{name}.csv").sort_values(keys).reset_index(drop=True)
                 right = pd.read_csv(root / "out3" / f"{name}.csv").sort_values(keys).reset_index(drop=True)
                 pd.testing.assert_frame_equal(left, right)
+            prepared = pl.read_parquet(root / "out3/yogurt_estimation_sample.parquet")
+            self.assertEqual(prepared.height, 6)
+            self.assertTrue(set(source.columns).issubset(prepared.columns))
+            self.assertEqual(set(prepared["household_code"].to_list()), {1, 2})
+            self.assertEqual(prepared["original_metadata"].unique().to_list(), ["preserved"])
+            self.assertEqual(set(prepared["upc"].to_list()), {"1", "2", "3"})
+            self.assertEqual(prepared["flavor"].null_count(), 0)
             hh = pd.read_csv(root / "out3/yogurt_household_flavors.csv").set_index("household_code")
             self.assertEqual(set(hh.index), {1, 2})
             self.assertAlmostEqual(hh.loc[1, "flavor_HHI"], 19 / 49)

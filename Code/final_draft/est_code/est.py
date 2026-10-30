@@ -20,7 +20,7 @@ from bootstrap_se import bootstrap_standard_errors
 FLAVORS = ["other", "berry", "plain"]
 DATA_DIR = Path("/scratch/dtm63837/Kilts_Panel/Data")
 # Set this to the flavor-reference CSV on the Slurm server.
-FLAVOR_FILE = DATA_DIR / "recovered_flavor_reference.csv"
+FLAVOR_FILE = DATA_DIR / "summary_outputs/estimation_flavor_reference.csv"
 
 
 def normalize_upcs(values):
@@ -46,6 +46,16 @@ def normalized_upc_expr():
 def read_flavors(path, products_extra=None):
     """Use the same plain-first classification as data_code/summ_stats.py."""
     frame = pd.read_csv(path, dtype={"upc": str})
+    if {"upc", "flavor"}.issubset(frame.columns):
+        # Consume the exact mapping saved by summ_stats; no recovery or relabeling.
+        frame["upc"] = normalize_upcs(frame["upc"])
+        if (frame["upc"].isna().any() or frame["upc"].eq("").any()
+                or frame["upc"].duplicated().any()):
+            raise ValueError(f"{path}: saved mapping needs unique, nonmissing UPCs.")
+        if not frame["flavor"].isin(FLAVORS).all():
+            raise ValueError(f"{path}: saved mapping must use other, berry, plain.")
+        print(f"Loaded {len(frame):,} resolved UPC flavor labels from {path}.", flush=True)
+        return frame[["upc", "flavor"]]
     missing = {"upc", "flavor_descr"} - set(frame.columns)
     if missing:
         raise ValueError(f"{path}: missing columns {sorted(missing)}")
@@ -123,6 +133,7 @@ def prepare_data(args):
     products_extra = getattr(args, "products_extra", None) or Path(args.rms).parent / "RMS/combined/products_extra.parquet"
     flavor = read_flavors(args.flavors, products_extra)
     scan = pl.scan_parquet(args.sample)
+    prepared_sample = "flavor" in scan.collect_schema().names()
     required = [
         "household_code",
         "panel_year",
@@ -132,6 +143,8 @@ def prepare_data(args):
         "store_code_uc",
         "quantity",
     ]
+    if prepared_sample:
+        required.append("flavor")
     if not args.no_price_control:
         required.append(pl.col(args.household_dma_column).alias("dma_cd"))
     scan = scan.select(required).filter(
@@ -149,8 +162,13 @@ def prepare_data(args):
     lines = scan.collect().to_pandas()
     if lines.empty:
         raise ValueError("No purchase lines in selected sample.")
-    lines["upc"] = normalize_upcs(lines["upc"])
-    lines = lines.merge(flavor, on="upc", how="left", validate="many_to_one")
+    if prepared_sample:
+        if not lines["flavor"].dropna().isin(FLAVORS).all():
+            raise ValueError("Prepared purchase table has invalid flavor labels.")
+        print("Using the full prepared purchase table saved by summ_stats.", flush=True)
+    else:
+        lines["upc"] = normalize_upcs(lines["upc"])
+        lines = lines.merge(flavor, on="upc", how="left", validate="many_to_one")
     if lines["flavor"].isna().any():
         args.output.mkdir(parents=True, exist_ok=True)
         unmatched = (
@@ -543,7 +561,7 @@ def fit_model(data, args, frame=None):
 def main(default_model="heterogeneous"):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
-        "--sample", type=Path, default=DATA_DIR / "yogurt_estimation_sample.parquet"
+        "--sample", type=Path, default=DATA_DIR / "summary_outputs/yogurt_estimation_sample.parquet"
     )
     parser.add_argument("--rms", type=Path, default=DATA_DIR / "merged_rms.parquet")
     parser.add_argument("--flavors", type=Path, default=FLAVOR_FILE)

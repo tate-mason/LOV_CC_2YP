@@ -528,6 +528,26 @@ def run(args, output, work):
         shares, transitions = flavor_summaries(weekly, folder, flavors)
         if not args.no_figures:
             make_figures(shares, transitions, folder)
+    # The last pass uses the estimation's three groups. Persist its exact
+    # resolved mapping so estimation can consume labels without reclassifying.
+    reference.write_csv(output / "estimation_flavor_reference.csv")
+    print(f"Saved estimation flavor mapping to {output / 'estimation_flavor_reference.csv'}", flush=True)
+    # Retain every original purchase column needed downstream, including store
+    # and DMA fields that demographic projections do not otherwise need.
+    eligible = sources["matched_yogurt"].select("household_code").unique().collect(engine="streaming")
+    prepared = pl.scan_parquet(args.data_dir / "yogurt_estimation_sample.parquet")
+    if "flavor" in prepared.collect_schema().names():
+        prepared = prepared.drop("flavor")
+    prepared = (prepared.filter(pl.col("panel_year").is_between(args.first_year, args.last_year))
+                .with_columns(normalized_upc_expr(),
+                              pl.col("purchase_date").cast(pl.String).str.slice(0, 10).str.to_date())
+                .join(eligible.lazy(), on="household_code", how="semi")
+                .join(reference.lazy(), on="upc", how="left"))
+    sample_path = output / "yogurt_estimation_sample.parquet"
+    if sample_path.resolve() == (args.data_dir / "yogurt_estimation_sample.parquet").resolve():
+        raise ValueError("Choose an output folder separate from the original data directory.")
+    prepared.sink_parquet(sample_path, engine="streaming")
+    print(f"Saved full prepared yogurt purchase table to {sample_path}", flush=True)
     print(f"Saved summaries to {output}", flush=True)
 
 

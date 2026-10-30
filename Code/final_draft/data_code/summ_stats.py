@@ -28,6 +28,23 @@ HISPANIC_LABELS = {}
 AGE_LABELS = {}
 
 
+def normalize_upcs(values):
+    """Canonical numeric UPC keys without floating-point conversion."""
+    text = values.astype("string").str.strip()
+    numeric = text.str.fullmatch(r"[0-9]+(?:\.0+)?", na=False)
+    canonical = text.str.replace(r"\.0+$", "", regex=True).str.lstrip("0")
+    return text.where(~numeric, canonical.replace("", "0"))
+
+
+def normalized_upc_expr():
+    text = pl.col("upc").cast(pl.String).str.strip_chars()
+    numeric = text.str.contains(r"^[0-9]+(?:\.0+)?$")
+    canonical = text.str.replace(r"\.0+$", "").str.strip_chars_start("0")
+    return pl.when(numeric).then(
+        pl.when(canonical == "").then(pl.lit("0")).otherwise(canonical)
+    ).otherwise(text).alias("upc")
+
+
 def valid_flavor_labels(frame):
     labels = frame["flavor_descr"].fillna("").astype(str).str.strip().str.lower()
     return ~labels.isin(["", "na", "n/a", "nan", "null", "none"])
@@ -75,7 +92,7 @@ def scan_purchases(path, first_year, last_year):
         .filter(pl.col("panel_year").is_between(first_year, last_year))
         .with_columns(
             pl.col("purchase_date").cast(pl.String).str.slice(0, 10).str.to_date(),
-            pl.col("upc").cast(pl.String),
+            normalized_upc_expr(),
             pl.col("quantity").cast(pl.Float64),
         )
     )
@@ -251,7 +268,7 @@ def flavor_reference(path, detailed=False, output=None):
     missing = {"upc", "flavor_descr"} - set(frame.columns)
     if missing:
         raise ValueError(f"{path}: missing columns {sorted(missing)}")
-    frame["upc"] = frame["upc"].str.strip()
+    frame["upc"] = normalize_upcs(frame["upc"])
     if frame["upc"].isna().any() or frame["upc"].eq("").any():
         raise ValueError(f"{path}: flavor reference contains missing UPCs.")
     # Missing-flavor exclusion disabled pending checks of older reference files.
@@ -305,7 +322,7 @@ def flavor_reference(path, detailed=False, output=None):
     return pl.from_pandas(frame[["upc", "flavor"]].drop_duplicates(subset="upc", keep="first"))
 
 
-def yogurt_weeks(scan, reference, flavors=FLAVORS):
+def yogurt_weeks(scan, reference, flavors=FLAVORS, output=None):
     """Aggregate mixed baskets before computing flavor shares or transitions."""
     joined = scan.join(reference.lazy(), on="upc", how="left")
     audit = (
@@ -325,8 +342,18 @@ def yogurt_weeks(scan, reference, flavors=FLAVORS):
         .to_pandas()
     )
     if audit.loc[0, "unmatched_flavor_lines"]:
+        unmatched = (
+            joined.filter(pl.col("flavor").is_null()).group_by("upc")
+            .agg(pl.len().alias("purchase_lines"), pl.col("quantity").sum().alias("packages"))
+            .sort("purchase_lines", descending=True).collect()
+        )
+        print("\nUPCs still unmatched after formatting normalization (first 20):", flush=True)
+        print(unmatched.head(20), flush=True)
+        if output is not None:
+            unmatched.write_csv(output / "unmatched_purchase_upcs.csv")
         raise ValueError(
-            "Purchased UPCs lack flavor labels; update the flavor reference."
+            "Purchased UPCs still lack flavor labels after formatting normalization; "
+            "see unmatched_purchase_upcs.csv in the output folder."
         )
     if audit.loc[0, "invalid_quantity_lines"]:
         raise ValueError(
@@ -560,7 +587,7 @@ def main():
     flavors = sorted(reference["flavor"].unique().to_list())
     reference.write_csv(output / "detailed_flavor_reference.csv")
     print("\nDetailed flavors use normalized flavor_descr; missing labels are retained as unknown.", flush=True)
-    weekly, audit = yogurt_weeks(flavor_yogurt, reference, flavors)
+    weekly, audit = yogurt_weeks(flavor_yogurt, reference, flavors, output=output)
     print("\nYogurt sample audit", flush=True)
     print(audit.to_string(index=False), flush=True)
     audit.to_csv(output / "yogurt_sample_audit.csv", index=False)
@@ -570,7 +597,7 @@ def main():
     # Keep the estimation's three flavor groups as a separate comparison.
     grouped_output = output / "aggregated_flavors"
     grouped_output.mkdir(parents=True, exist_ok=True)
-    grouped_weekly, _ = yogurt_weeks(flavor_yogurt, flavor_reference(args.flavors, output=output))
+    grouped_weekly, _ = yogurt_weeks(flavor_yogurt, flavor_reference(args.flavors, output=output), output=output)
     print("\nThree-group comparison (other, berry, plain)", flush=True)
     grouped_shares, grouped_transitions = flavor_summaries(grouped_weekly, grouped_output)
     if not args.no_figures:

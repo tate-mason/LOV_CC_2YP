@@ -26,13 +26,30 @@ FLAVOR_FILE = (
 )
 
 
+def normalize_upcs(values):
+    """Canonical numeric UPC keys without floating-point conversion."""
+    text = values.astype("string").str.strip()
+    numeric = text.str.fullmatch(r"[0-9]+(?:\.0+)?", na=False)
+    canonical = text.str.replace(r"\.0+$", "", regex=True).str.lstrip("0")
+    return text.where(~numeric, canonical.replace("", "0"))
+
+
+def normalized_upc_expr():
+    text = pl.col("upc").cast(pl.String).str.strip_chars()
+    numeric = text.str.contains(r"^[0-9]+(?:\.0+)?$")
+    canonical = text.str.replace(r"\.0+$", "").str.strip_chars_start("0")
+    return pl.when(numeric).then(
+        pl.when(canonical == "").then(pl.lit("0")).otherwise(canonical)
+    ).otherwise(text).alias("upc")
+
+
 def read_flavors(path):
     """Use the same plain-first classification as data_code/summ_stats.py."""
     frame = pd.read_csv(path, dtype={"upc": str})
     missing = {"upc", "flavor_descr"} - set(frame.columns)
     if missing:
         raise ValueError(f"{path}: missing columns {sorted(missing)}")
-    frame["upc"] = frame["upc"].str.strip()
+    frame["upc"] = normalize_upcs(frame["upc"])
     if frame["upc"].isna().any() or frame["upc"].eq("").any():
         raise ValueError(f"{path}: flavor reference contains missing UPCs.")
     text = frame["flavor_descr"].fillna("")
@@ -102,11 +119,19 @@ def prepare_data(args):
     lines = scan.collect().to_pandas()
     if lines.empty:
         raise ValueError("No purchase lines in selected sample.")
-    lines["upc"] = lines["upc"].astype(str)
+    lines["upc"] = normalize_upcs(lines["upc"])
     lines = lines.merge(flavor, on="upc", how="left", validate="many_to_one")
     if lines["flavor"].isna().any():
+        args.output.mkdir(parents=True, exist_ok=True)
+        unmatched = (lines.loc[lines["flavor"].isna()]
+                     .groupby("upc", dropna=False).agg(
+                         purchase_lines=("quantity", "size"), packages=("quantity", "sum"))
+                     .reset_index().sort_values("purchase_lines", ascending=False))
+        unmatched.to_csv(args.output / "unmatched_purchase_upcs.csv", index=False)
+        print(unmatched.head(20).to_string(index=False), flush=True)
         raise ValueError(
-            "Some purchased UPCs lack flavor labels; update the reference."
+            "Purchased UPCs still lack flavor labels after formatting normalization; "
+            f"see {args.output / 'unmatched_purchase_upcs.csv'}."
         )
     q = lines["quantity"].to_numpy(float)
     if not np.isfinite(q).all() or (q <= 0).any() or not np.allclose(q, np.round(q)):
@@ -164,11 +189,15 @@ def prepare_data(args):
         .collect()
         .to_pandas()
     )
-    retail["upc"] = retail["upc"].astype(str)
+    retail["upc"] = normalize_upcs(retail["upc"])
     retail = retail.merge(flavor, on="upc", how="left", validate="many_to_one")
     if retail["flavor"].isna().any():
+        args.output.mkdir(parents=True, exist_ok=True)
+        unmatched = retail.loc[retail["flavor"].isna(), ["upc"]].drop_duplicates()
+        unmatched.to_csv(args.output / "unmatched_retail_upcs.csv", index=False)
         raise ValueError(
-            "RMS yogurt UPCs lack flavor labels; expand the flavor reference."
+            "RMS UPCs still lack flavor labels after formatting normalization; "
+            f"see {args.output / 'unmatched_retail_upcs.csv'}."
         )
     retail["week"] = week_dates(retail["week_end"])
     rk = ["store_code_uc", "week", "upc"]
@@ -195,7 +224,7 @@ def prepare_data(args):
     if not args.no_price_control:
         # Only these UPCs are needed, but their prices come from ALL retail DMAs.
         upcs = retail["upc"].unique().tolist()
-        national = national.with_columns(pl.col("upc").cast(pl.String)).filter(
+        national = national.with_columns(normalized_upc_expr()).filter(
             pl.col("upc").is_in(upcs)
         )
         duplicate = (

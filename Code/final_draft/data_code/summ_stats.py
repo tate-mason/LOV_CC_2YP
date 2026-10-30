@@ -354,6 +354,10 @@ def flavor_summaries(weekly, output, flavors=FLAVORS):
     shares = (pl.DataFrame({"flavor": flavors}).join(totals, on="flavor", how="left")
               .with_columns(pl.col("packages").fill_null(0))
               .with_columns((100 * pl.col("packages") / pl.col("packages").sum()).alias("percent_packages")))
+    # Match the table's two-decimal display; keep the original denominator.
+    shares = shares.filter(pl.col("percent_packages").round(2) > 0).sort(
+        ["percent_packages", "flavor"], descending=[True, False]
+    )
     save_table(shares, output, "yogurt_flavor_shares", "Flavor shares of purchased packages")
     counts = weekly.group_by(["household_code", "flavor"]).agg(pl.col("quantity").sum())
     households = (counts.group_by("household_code").agg(

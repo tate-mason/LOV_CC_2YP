@@ -4,7 +4,7 @@ The main script is `est.py`. It uses the revised sample construction in
 `../data_code`, the model discussion in `../../full_draft_1231/updates/draft_2/draft_1010.tex`,
 and the weekly aggregation lessons in `../../full_draft_1231/EST_STEP4_HANDOFF.md`.
 The current instructions supersede the older draft: beta is common across
-households; gamma and alpha are heterogeneous; delta is one; own-flavor history
+households; gamma and alpha are heterogeneous across households; gamma is common across flavors; delta is one; own-flavor history
 includes all earlier periods.
 
 ## Four model specifications
@@ -15,9 +15,9 @@ all the same data, price-control, optimization, and bootstrap options:
 | Entry point | `--model` | Gamma | Alpha |
 | --- | --- | --- | --- |
 | `est_naive.py` | `naive` | Absent | Common |
-| `est_gamma.py` | `homogeneous` | Common, flavor-specific | Common |
+| `est_gamma.py` | `homogeneous` | Common across flavors | Common |
 | `est_het_naive.py` | `mixed_naive` | Absent | Varies across households |
-| `est_het_gamma.py` | `heterogeneous` | Varies across households and flavors | Varies across households |
+| `est_het_gamma.py` | `heterogeneous` | Varies across households | Varies across households |
 
 For example, run each entry point with `--flavors /path/to/flavors.csv` and a
 separate `--output` directory. Equivalently use `est.py --model MODEL`.
@@ -109,16 +109,16 @@ the panel, so check sensitivity to panel length and the unknown initial history.
 For each inside flavor j:
 
 ```text
-V_ijt = beta_j + gamma_ij * Xi_ijt + alpha_i * price_jt + sigma * residual_jt
+V_ijt = beta_j + gamma_i * Xi_ijt + alpha_i * price_jt + sigma * residual_jt
 beta_other = 0
 beta_berry, beta_plain are common across households
 
-gamma_ij = mean_gamma_j + sd_gamma_j * z_ij
+gamma_i  = mean_gamma + sd_gamma * z_i_gamma
 alpha_i  = -exp(mu_log_minus_alpha + sd_log_minus_alpha * z_i_alpha)
 ```
 
-Four independent standard normal draws represent one price coefficient and
-three flavor-specific history coefficients. Independence is a simplifying
+Two independent standard normal draws represent one price coefficient and
+one history coefficient common to all flavors. Independence is a simplifying
 restriction; correlated gamma/alpha are not estimated. Beta never varies with
 draws. Alpha is always negative. The population mean alpha is
 `-exp(mu_log_minus_alpha + sd_log_minus_alpha**2 / 2)`, not
@@ -320,3 +320,30 @@ Control-function reference: [Petrin and Train](https://emlab.berkeley.edu/~train
 
 The default bootstrap uses 49 replications (override with `--bootstrap-reps`).
 The main demand fit retains 128 simulation draws.
+
+
+Estimation now uses an analytic gradient of the same household-integrated
+likelihood. It reports progress every ten iterations and saves completed starts
+in `starts_checkpoint.json`. The full model has seven parameters with the price
+control (eight with the constructed outside option). Existing running jobs must
+be restarted with the updated code to use these changes; old flavor-specific
+parameter vectors are incompatible.
+
+For development, use `--draws 32 --starts 1 --se-method none`; confirm the final
+fit with more draws and starts before running the bootstrap. Reducing draws
+changes simulation accuracy. Additional allocated CPUs alone do not parallelize
+this implementation.
+
+Summary figures now include `flavor_hhi_histogram.pdf` and `flavor_hhi_cdf.pdf`
+in the main summary directory for detailed, unaggregated flavor labels, and in
+`aggregated_flavors/` for the three groups. HHI sums squared household quantity
+shares across all observed flavors over the selected years; each household has
+equal weight. `--no-figures` disables these along with the existing figures.
+
+Gamma models save `gamma_distribution.pdf` immediately after the main fit,
+before bootstrapping. It shows the fitted population normal density with its
+mean, SD, and implied share below zero; negative gamma represents habit under
+the specified Xi index. Common gamma or zero estimated SD appears as a point
+mass. This is the distribution across household types, not a confidence interval
+or the distribution of household posterior estimates. Nonconverged or boundary
+fits are marked provisional. Naive models have no gamma graph.

@@ -7,7 +7,7 @@ import polars as pl
 import numpy as np
 import pandas as pd
 from scipy.special import logsumexp
-from est import read_flavors, prepare_data, fit_model, add_stocks, make_arrays, household_loglike, make_draws, parameter_names
+from est import read_flavors, prepare_data, fit_model, add_stocks, make_arrays, household_loglike, make_draws, parameter_names, demand_objective_gradient
 
 
 class EstimationChecks(unittest.TestCase):
@@ -81,6 +81,7 @@ class EstimationChecks(unittest.TestCase):
             fit = fit_model(make_arrays(frame, 0), args)
             self.assertTrue(np.isfinite(fit.fun))
             self.assertTrue((args.output / "fit.json").exists())
+            self.assertTrue((args.output / "gamma_distribution.pdf").exists())
             incomplete = original.filter(~((pl.col("purchase_date") == "2010-01-02")
                                              & (pl.col("store_code_uc") == 100) & (pl.col("upc") == "3")))
             incomplete.write_parquet(sample)
@@ -129,12 +130,26 @@ class EstimationChecks(unittest.TestCase):
         by_draw = []
         for z in draws:
             alpha = -np.exp(.2 + .4*z[0])
-            gamma = .2 + .4*z[1:]
+            gamma = .2 + .4*z[1]
             utility = np.array([.2, .4, .4]) + alpha*data["prices"] + gamma*data["xi"]
             utility = np.column_stack([utility, np.zeros(3)])
             logp = utility - logsumexp(utility, axis=1, keepdims=True)
             by_draw.append(np.sum(data["counts"]*logp))
         self.assertAlmostEqual(actual, logsumexp(by_draw)-np.log(8))
+
+    def test_analytic_gradient(self):
+        from scipy.optimize._numdiff import approx_derivative
+        for capacity in [0, 7]:
+            frame = add_stocks(self.frame())
+            frame["cf_other"], frame["cf_berry"], frame["cf_plain"] = .1, -.2, .3
+            data = make_arrays(frame, capacity)
+            for model in ["naive", "homogeneous", "mixed_naive", "heterogeneous"]:
+                theta = np.full(len(parameter_names(model, bool(capacity), True)), .2)
+                draws = make_draws(8, 306)
+                value, gradient = demand_objective_gradient(theta, data, draws, model)
+                objective = lambda t: -household_loglike(t, data, draws, model).mean()
+                self.assertAlmostEqual(value, objective(theta))
+                np.testing.assert_allclose(gradient, approx_derivative(objective, theta).ravel(), rtol=1e-5, atol=1e-7)
 
     def test_four_model_specifications(self):
         for model, gamma, alpha_sd, gamma_sd in [
@@ -145,9 +160,9 @@ class EstimationChecks(unittest.TestCase):
         ]:
             with self.subTest(model=model):
                 names = parameter_names(model, False)
-                self.assertEqual("mean_gamma_other" in names, gamma)
+                self.assertEqual("mean_gamma" in names, gamma)
                 self.assertEqual("sd_log_minus_alpha" in names, alpha_sd)
-                self.assertEqual("sd_gamma_other" in names, gamma_sd)
+                self.assertEqual("sd_gamma" in names, gamma_sd)
                 self.assertFalse(any("sd_beta" in n for n in names))
 
     def test_mixed_naive_integrates_only_alpha(self):
@@ -170,8 +185,8 @@ class EstimationChecks(unittest.TestCase):
 
     def test_zero_heterogeneity_nests_homogeneous_model(self):
         data = make_arrays(add_stocks(self.frame()), 0)
-        fixed = np.array([.1, -.2, -.4, .3, -.2, .5])
-        random = np.r_[fixed, np.zeros(4)]
+        fixed = np.array([.1, -.2, -.4, .3])
+        random = np.r_[fixed, np.zeros(2)]
         draws = make_draws(8, 306)
         np.testing.assert_allclose(
             household_loglike(fixed, data, draws, "homogeneous"),

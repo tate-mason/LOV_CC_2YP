@@ -427,6 +427,29 @@ def flavor_summaries(weekly, output, flavors=FLAVORS):
     return shares.to_pandas(), probabilities
 
 
+def make_hhi_figures(output):
+    """Equal-household distributions using all flavor labels, without top-20 truncation."""
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
+    values = pd.read_csv(output / "yogurt_household_flavors.csv", usecols=["flavor_HHI"])["flavor_HHI"].dropna().to_numpy()
+    if not len(values):
+        return
+    for kind in ["histogram", "cdf"]:
+        fig, ax = plt.subplots(figsize=(7, 5))
+        if kind == "histogram":
+            ax.hist(values, bins=np.linspace(0, 1, 41), weights=np.full(len(values), 100 / len(values)), color="steelblue")
+            ax.set_ylabel("Households (%)")
+        else:
+            ax.step(np.r_[0., np.sort(values)], np.r_[0., 100 * np.arange(1, len(values) + 1) / len(values)], where="post")
+            ax.set_ylabel("Cumulative households (%)")
+        ax.set(xlim=(0, 1), xlabel="Household flavor HHI (quantity shares)", title="Yogurt flavor concentration")
+        fig.tight_layout()
+        fig.savefig(output / f"flavor_hhi_{kind}.pdf")
+        plt.close(fig)
+
+
 def make_figures(shares, transitions, output):
     # Limit figure dimensions; all flavors remain in the saved tables.
     shares = shares.sort_values("packages", ascending=False).head(20)
@@ -534,6 +557,7 @@ def run(args, output, work):
         shares, transitions = flavor_summaries(weekly, folder, flavors)
         if not args.no_figures:
             make_figures(shares, transitions, folder)
+            make_hhi_figures(folder)
     # The last pass uses the estimation's three groups. Persist its exact
     # resolved mapping so estimation can consume labels without reclassifying.
     reference.write_csv(output / "estimation_flavor_reference.csv")

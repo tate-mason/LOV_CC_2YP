@@ -7,6 +7,7 @@ The raw data are not required for importing or testing the likelihood.
 from pathlib import Path
 import argparse
 import json
+import time
 
 import numpy as np
 import pandas as pd
@@ -358,7 +359,7 @@ def make_draws(number, seed):
     """Fixed antithetic normal draws, reused throughout optimization."""
     if number < 2 or number % 2:
         raise ValueError("Use an even number of draws, at least two.")
-    z = np.random.default_rng(seed).standard_normal((number // 2, 4))
+    z = np.random.default_rng(seed).standard_normal((number // 2, 2))
     return np.vstack([z, -z])
 
 
@@ -366,11 +367,11 @@ def parameter_names(model, outside, control=False):
     names = (["inside_constant"] if outside else []) + ["beta_berry", "beta_plain"]
     names += ["mu_log_minus_alpha"]
     if model in ("homogeneous", "heterogeneous"):
-        names += ["mean_gamma_" + f for f in FLAVORS]
+        names += ["mean_gamma"]
     if model in ("mixed_naive", "heterogeneous"):
         names += ["sd_log_minus_alpha"]
     if model == "heterogeneous":
-        names += ["sd_gamma_" + f for f in FLAVORS]
+        names += ["sd_gamma"]
     if control:
         names += ["price_control"]
     return names
@@ -379,7 +380,7 @@ def parameter_names(model, outside, control=False):
 def household_loglike(theta, data, draws, model):
     """L_i = mean_r exp(sum_t sum_j count_itj * log P_itj,r).
 
-    Gamma is normal; alpha = -exp(mu + sd*z). Beta never varies by draw.
+    Gamma is normal and common across flavors; alpha = -exp(mu + sd*z). Beta never varies by draw.
     Process one draw at a time to avoid a weeks x draws x products array.
     The multinomial combinatorial constant is omitted (independent of theta).
     """
@@ -388,18 +389,13 @@ def household_loglike(theta, data, draws, model):
     beta += p.get("inside_constant", 0.0)
     loglikes = []
     active_draws = (
-        draws if model in ("mixed_naive", "heterogeneous") else np.zeros((1, 4))
+        draws if model in ("mixed_naive", "heterogeneous") else np.zeros((1, 2))
     )
     for z in active_draws:
         alpha = -np.exp(
             p["mu_log_minus_alpha"] + p.get("sd_log_minus_alpha", 0.0) * z[0]
         )
-        gamma = np.array(
-            [
-                p.get("mean_gamma_" + f, 0.0) + p.get("sd_gamma_" + f, 0.0) * z[j + 1]
-                for j, f in enumerate(FLAVORS)
-            ]
-        )
+        gamma = p.get("mean_gamma", 0.) + p.get("sd_gamma", 0.) * z[1]
         utility = (
             beta
             + alpha * data["prices"]
@@ -415,6 +411,41 @@ def household_loglike(theta, data, draws, model):
             np.bincount(data["hh"], weights=row_ll, minlength=data["n_households"])
         )
     return logsumexp(loglikes, axis=0) - np.log(len(active_draws))
+
+
+def demand_objective_gradient(theta, data, draws, model):
+    """Exact simulated likelihood score, weighted by household type posteriors."""
+    names = parameter_names(model, data["outside"], data["control"])
+    p = dict(zip(names, theta))
+    active = draws if model in ("mixed_naive", "heterogeneous") else np.zeros((1, 2))
+    likelihoods, scores = [], []
+    total = data["counts"].sum(axis=1)
+    for z in active:
+        alpha = -np.exp(p["mu_log_minus_alpha"] + p.get("sd_log_minus_alpha", 0.) * z[0])
+        gamma = p.get("mean_gamma", 0.) + p.get("sd_gamma", 0.) * z[1]
+        utility = (np.array([0., p["beta_berry"], p["beta_plain"]]) + p.get("inside_constant", 0.)
+                   + alpha * data["prices"] + gamma * data["xi"] + p.get("price_control", 0.) * data["cf"])
+        utility = np.where(data["available"], utility, -np.inf)
+        if data["outside"]:
+            utility = np.column_stack([utility, np.zeros(len(utility))])
+        logprob = utility - logsumexp(utility, axis=1, keepdims=True)
+        row_ll = (data["counts"] * np.where(data["counts"] > 0, logprob, 0.)).sum(axis=1)
+        likelihoods.append(np.bincount(data["hh"], weights=row_ll, minlength=data["n_households"]))
+        residual = data["counts"][:, :3] - total[:, None] * np.exp(logprob[:, :3])
+        price_score = (residual * data["prices"]).sum(axis=1) * alpha
+        columns = {"inside_constant": residual.sum(axis=1), "beta_berry": residual[:, 1],
+                   "beta_plain": residual[:, 2], "mu_log_minus_alpha": price_score,
+                   "sd_log_minus_alpha": price_score * z[0],
+                   "price_control": (residual * data["cf"]).sum(axis=1)}
+        columns["mean_gamma"] = (residual * data["xi"]).sum(axis=1)
+        columns["sd_gamma"] = columns["mean_gamma"] * z[1]
+        scores.append(np.column_stack([np.bincount(data["hh"], weights=columns[n],
+                                                   minlength=data["n_households"]) for n in names]))
+    likelihoods = np.asarray(likelihoods)
+    normalizer = logsumexp(likelihoods, axis=0)
+    weights = np.exp(likelihoods - normalizer)
+    gradient = -np.einsum("rh,rhp->p", weights, np.asarray(scores)) / data["n_households"]
+    return -(normalizer - np.log(len(active))).mean(), gradient
 
 
 def optimize_demand(data, args, initial=None, number_starts=None, quiet=False):
@@ -436,21 +467,37 @@ def optimize_demand(data, args, initial=None, number_starts=None, quiet=False):
     results = []
 
     def objective(theta):
-        return -household_loglike(theta, data, draws, args.model).mean()
+        return demand_objective_gradient(theta, data, draws, args.model)
 
     for s in range(args.starts if number_starts is None else number_starts):
         initial = start.copy()
         if s:
             initial += rng.normal(0, 0.5, len(start))
             initial = np.clip(initial, np.array(bounds)[:, 0], np.array(bounds)[:, 1])
+        began = time.monotonic()
+        iterations = [0]
+
+        def progress(theta):
+            iterations[0] += 1
+            if not quiet and iterations[0] % 10 == 0:
+                print(f"Start {s + 1}: iteration {iterations[0]}, elapsed {time.monotonic() - began:.0f}s", flush=True)
+
         fit = minimize(
             objective,
             initial,
             method="L-BFGS-B",
+            jac=True,
+            callback=progress,
             bounds=bounds,
             options={"maxiter": args.maxiter, "ftol": 1e-10, "gtol": 1e-6},
         )
         results.append(fit)
+        if not quiet:
+            args.output.mkdir(parents=True, exist_ok=True)
+            (args.output / "starts_checkpoint.json").write_text(json.dumps([
+                dict(theta=r.x.tolist(), nll=float(r.fun * data["n_households"]),
+                     converged=bool(r.success), iterations=int(r.nit), evaluations=int(r.nfev))
+                for r in results], indent=2))
         if not quiet:
             print(
                 f"Start {s + 1}: NLL={fit.fun * data['n_households']:.4f}; "
@@ -460,6 +507,45 @@ def optimize_demand(data, args, initial=None, number_starts=None, quiet=False):
     # Keep the lowest objective, even if it has not converged yet.
     best = min(results, key=lambda r: r.fun)
     return best, results, bounds
+
+
+def plot_gamma_distribution(table, output, converged=True):
+    """Plot the fitted population distribution, not uncertainty in its mean."""
+    estimates = table.set_index("parameter")["estimate"]
+    if "mean_gamma" not in estimates:
+        return  # Naive models have no gamma parameter.
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    from scipy.stats import norm
+
+    mean = float(estimates["mean_gamma"])
+    sd = float(estimates.get("sd_gamma", 0.))
+    fig, ax = plt.subplots(figsize=(7, 5))
+    if sd > 0:
+        x = np.linspace(mean - 4 * sd, mean + 4 * sd, 801)
+        density = norm.pdf(x, loc=mean, scale=sd)
+        ax.plot(x, density, color="steelblue")
+        ax.fill_between(x, density, where=x < 0, color="steelblue", alpha=.25)
+        ax.set_ylabel("Population density")
+        negative = norm.cdf(0, loc=mean, scale=sd)
+        description = f"Mean = {mean:.4g}; SD = {sd:.4g}; P(gamma < 0) = {negative:.1%}"
+    else:
+        ax.axvline(mean, color="steelblue", linewidth=2, label="Point mass (SD = 0)")
+        ax.set_xlim(mean - 1, mean + 1)
+        ax.set_yticks([])
+        ax.set_ylabel("Point mass")
+        ax.legend()
+        description = f"All households: gamma = {mean:.4g} (SD = 0)"
+    ax.axvline(0, color="gray", linestyle="--", linewidth=1)
+    title = "Fitted population gamma distribution"
+    if not converged or table["at_bound"].any():
+        title += " (provisional fit)"
+    ax.set(xlabel="Gamma (common across flavors)", title=title)
+    fig.text(.5, .02, description, ha="center")
+    fig.tight_layout(rect=(0, .06, 1, 1))
+    fig.savefig(output / "gamma_distribution.pdf")
+    plt.close(fig)
 
 
 def fit_model(data, args, frame=None):
@@ -472,6 +558,7 @@ def fit_model(data, args, frame=None):
     ]
     args.output.mkdir(parents=True, exist_ok=True)
     table.to_csv(args.output / "point_estimates.csv", index=False)
+    plot_gamma_distribution(table, args.output, converged=best.success)
     inference = {"method": args.se_method, "status": "disabled"}
     if args.se_method == "bootstrap":
         if not best.success:

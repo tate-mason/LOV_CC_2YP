@@ -45,6 +45,12 @@ class SummaryChecks(unittest.TestCase):
             one_week = scan.filter(pl.col("purchase_date") <= pl.date(2010, 1, 3))
             self.assertEqual(summary.repeated_yogurt_households(one_week).collect().height, 0)
             shares, transitions = summary.flavor_summaries(weekly, root)
+            summary.make_hhi_figures(root)
+            metrics = pd.read_csv(root / "yogurt_household_flavors.csv").set_index("household_code")
+            self.assertAlmostEqual(metrics.loc[1, "flavor_HHI"], 17 / 49)
+            self.assertEqual(metrics.loc[2, "flavor_HHI"], 1.)
+            for kind in ["histogram", "cdf"]:
+                self.assertTrue((root / f"flavor_hhi_{kind}.pdf").exists())
             baskets = pd.read_csv(root / "yogurt_weekly_baskets.csv")
             self.assertEqual(baskets.loc[(baskets.household_code == 1) & (baskets.week == "2010-01-02"), "flavors_in_basket"].iloc[0], 2)
             self.assertTrue(transitions.isna().all().all())

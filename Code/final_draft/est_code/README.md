@@ -347,3 +347,14 @@ the specified Xi index. Common gamma or zero estimated SD appears as a point
 mass. This is the distribution across household types, not a confidence interval
 or the distribution of household posterior estimates. Nonconverged or boundary
 fits are marked provisional. Naive models have no gamma graph.
+
+
+Summary runtime: purchases are now written once to temporary household hash
+partitions, reused for demographic and flavor summaries. Each demographic
+history is deduplicated and sorted once across all demographic fields; exact
+trip/UPC counts still use all purchase lines. Partitioning requires Polars >= 2.0
+(see requirements.txt). Keep `--household-batches 16` initially; this now controls
+physical partition size rather than repeated scans of the original input.
+Temporary partitions require disk space in the output directory and are removed
+at exit. Logs report partitioning and per-batch elapsed times. Existing running
+summary jobs must restart with the new code to use this change.

@@ -83,6 +83,35 @@ class MemorySummaryChecks(unittest.TestCase):
             self.assertEqual(quantities.height, 6)
             self.assertEqual(set(quantities.columns), {"household_code", "week", "flavor", "quantity"})
 
+    def test_demographics_match_previous_fieldwise_sort(self):
+        # Unsorted histories, missing fields, conflicting same-date values and
+        # repeated purchase lines must preserve the earliest nonmissing values.
+        source = pl.DataFrame({
+            "household_code": [1, 2, 1, 1, 1, 2],
+            "panel_year": [2011, 2010, 2010, 2010, 2010, 2011],
+            "purchase_date": ["2011-01-01", "2010-01-02", "2010-01-02", "2010-01-02", "2010-01-02", "2011-01-01"],
+            "trip_code_uc": [1, 2, 3, 3, 3, 4], "upc": [1, 2, 3, 3, 3, 4],
+            "quantity": [1.] * 6,
+        }).with_columns(pl.col("purchase_date").str.to_date())
+        fields = ["race", "income", "hispanic_origin", "household_size", "head_age",
+                  "female_head_age", "male_head_age", "dma_cd"]
+        source = source.with_columns([pl.Series(c, ["9", None, None, "2", "3", "7"]) for c in fields])
+        expected = source.lazy().group_by("household_code").agg([
+            pl.col(c).sort_by(["panel_year", "purchase_date"]).drop_nulls().first().alias(c)
+            for c in fields
+        ]).collect().sort("household_code")
+        actual = summary.household_summary(source.lazy()).collect().sort("household_code")
+        self.assertEqual(actual.select(["household_code"] + fields).to_dicts(), expected.to_dicts())
+        self.assertEqual(actual["purchase_lines"].to_list(), [4, 2])
+        with tempfile.TemporaryDirectory() as directory:
+            parts = summary.partition_purchases(source.lazy(), Path(directory), "check", 16)
+            restored = pl.concat(parts).collect()
+            self.assertEqual(restored.height, source.height)
+            counts = restored.group_by("household_code").len().sort("household_code")
+            self.assertEqual(counts["len"].to_list(), [4, 2])
+            batched = pl.concat([summary.household_summary(part) for part in parts]).collect().sort("household_code")
+            self.assertEqual(batched.to_dicts(), actual.to_dicts())
+
     def test_recovery_preserves_existing_labels_and_uses_earliest_year(self):
         with tempfile.TemporaryDirectory() as directory, contextlib.redirect_stdout(io.StringIO()):
             root = Path(directory)

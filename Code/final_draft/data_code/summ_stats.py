@@ -7,6 +7,7 @@ No data are loaded when this file is imported.
 from pathlib import Path
 import argparse
 import tempfile
+import time
 
 import numpy as np
 import pandas as pd
@@ -159,16 +160,18 @@ def household_summary(scan):
         pl.len().alias("purchase_lines"),
         pl.col("quantity").sum().alias("packages"),
     ]
-    # Earliest available nonmissing value, ordered by year and purchase date.
-    for column in demographics:
-        expressions.append(
-            pl.col(column)
-            .sort_by(["panel_year", "purchase_date"])
-            .drop_nulls()
-            .first()
-            .alias(column)
-        )
-    households = scan.group_by("household_code").agg(expressions)
+    # Keep exact purchase counts separate from the much narrower demographic
+    # history. Sort that history once for all fields, preserving input order
+    # for conflicting values on the same date. Removing identical rows cannot
+    # change the first nonmissing value.
+    totals = scan.group_by("household_code").agg(expressions)
+    history = (scan.select(["household_code", "panel_year", "purchase_date"] + demographics)
+               .unique(maintain_order=True)
+               .sort(["household_code", "panel_year", "purchase_date"], maintain_order=True))
+    values = history.group_by("household_code").agg([
+        pl.col(c).drop_nulls().first().alias(c) for c in demographics
+    ])
+    households = totals.join(values, on="household_code", how="left", validate="1:1")
     return households.with_columns(
         pl.col("race").alias("race_original"),
         pl.when(pl.col("hispanic_origin") == "1").then(pl.lit("Hispanic"))
@@ -187,13 +190,31 @@ def as_lazy(frame):
     return frame.lazy()
 
 
-def household_batches(scan, work, prefix, batches):
-    # Exact distinct trip/UPC counts can have large state even in streaming
-    # mode. Each household belongs to one hash batch, preserving all its rows.
-    for batch in range(batches):
-        print(f"{prefix}: household batch {batch + 1}/{batches}", flush=True)
-        subset = scan.filter(pl.col("household_code").hash(seed=0) % batches == batch)
+def partition_purchases(scan, work, prefix, batches):
+    """Read the projected source once, writing household hash partitions."""
+    if not hasattr(pl, "PartitionBy"):
+        raise RuntimeError("Summary partitioning requires Polars >= 2.0; install est_code/requirements.txt.")
+    directory = work / f"{prefix}_purchases"
+    began = time.monotonic()
+    print(f"{prefix}: partitioning purchases once into {batches} batches", flush=True)
+    (scan.with_columns((pl.col("household_code").hash(seed=0) % batches).alias("_batch"))
+     .sink_parquet(pl.PartitionBy(directory, key="_batch", include_key=False), engine="streaming"))
+    parts = [pl.scan_parquet(sorted(directory.glob(f"_batch={batch}/*.parquet")), hive_partitioning=False)
+             for batch in range(batches) if (directory / f"_batch={batch}").exists()]
+    if not parts:
+        raise ValueError(f"Empty {prefix} sample in selected years.")
+    print(f"{prefix}: partitioning completed in {time.monotonic() - began:.1f}s", flush=True)
+    return parts
+
+
+def household_batches(scan, work, prefix, batches, partitions=None):
+    # Each physical partition is read on its own; no full-source rescan per batch.
+    partitions = partitions if partitions is not None else partition_purchases(scan, work, prefix, batches)
+    for batch, subset in enumerate(partitions):
+        began = time.monotonic()
+        print(f"{prefix}: household batch {batch + 1}/{len(partitions)}", flush=True)
         household_summary(subset).sink_parquet(work / f"{prefix}_{batch}.parquet", engine="streaming")
+        print(f"{prefix}: household batch {batch + 1} completed in {time.monotonic() - began:.1f}s", flush=True)
     return pl.scan_parquet(work / f"{prefix}_*.parquet")
 
 
@@ -509,6 +530,7 @@ def run(args, output, work):
     else:
         print(f"Flavor recovery source not found: {products_extra}; using the CSV reference.", flush=True)
     sources = {}
+    source_partitions = {}
     for prefix, filename in [("full_panel", "merged_panel.parquet"), ("matched_yogurt", "yogurt_estimation_sample.parquet")]:
         source = scan_purchases(args.data_dir / filename, args.first_year, args.last_year)
         if prefix == "matched_yogurt":
@@ -518,8 +540,11 @@ def run(args, output, work):
             save_table(audit, output, "yogurt_price_coverage", "Yogurt matched-price coverage")
             source = source.filter(covered)
             source = repeated_yogurt_households(source)
+        parts = partition_purchases(source, work, prefix, args.household_batches)
+        source_partitions[prefix] = parts
+        source = pl.concat(parts)
         sources[prefix] = source
-        households = household_batches(source, work, prefix, args.household_batches)
+        households = household_batches(source, work, prefix, args.household_batches, partitions=parts)
         if households.select(pl.len()).collect(engine="streaming").item() == 0:
             raise ValueError(f"Empty {prefix} sample in selected years.")
         demographic_tables(households, output, prefix)
@@ -545,11 +570,13 @@ def run(args, output, work):
         # Process household batches independently, keeping weekly baskets long.
         audit_total = None
         tag = "detailed" if detailed else "grouped"
-        for batch in range(args.household_batches):
-            print(f"{tag}: yogurt week batch {batch + 1}/{args.household_batches}", flush=True)
-            subset = sources["matched_yogurt"].filter(pl.col("household_code").hash(seed=0) % args.household_batches == batch)
+        parts = source_partitions["matched_yogurt"]
+        for batch, subset in enumerate(parts):
+            began = time.monotonic()
+            print(f"{tag}: yogurt week batch {batch + 1}/{len(parts)}", flush=True)
             weekly, audit = yogurt_weeks(subset, reference, flavors, output=folder)
             weekly.sink_parquet(work / f"{tag}_weeks_{batch}.parquet", engine="streaming")
+            print(f"{tag}: yogurt week batch {batch + 1} completed in {time.monotonic() - began:.1f}s", flush=True)
             audit_total = audit if audit_total is None else pl.concat([audit_total, audit]).select(pl.all().sum())
         if detailed:
             save_table(audit_total, output, "yogurt_sample_audit", "Yogurt sample audit")
@@ -596,7 +623,7 @@ def main():
     parser.add_argument("--first-year", type=int, default=2006)
     parser.add_argument("--last-year", type=int, default=2015)
     parser.add_argument("--household-batches", type=int, default=16,
-                        help="More batches reduce aggregation memory but require more scans (default 16).")
+                        help="Household disk partitions; more batches reduce aggregation memory (default 16).")
     parser.add_argument("--no-figures", action="store_true")
     args = parser.parse_args()
     if args.household_batches < 1:

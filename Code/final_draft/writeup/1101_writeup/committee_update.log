@@ -400,4 +400,141 @@ LaTeX Font Info:    ... okay on input line 22.
 \everyMPshowfont=\toks28
 \MPscratchCnt=\count330
 \MPscratchDim=\dimen258
-\MPnumerator=\count33
+\MPnumerator=\count331
+\makeMPintoPDFobject=\count332
+\everyMPtoPDFconversion=\toks29
+) (/usr/local/texlive/2026/texmf-dist/tex/latex/epstopdf-pkg/epstopdf-base.sty
+Package: epstopdf-base 2020-01-24 v2.11 Base part for package epstopdf
+Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 485.
+ (/usr/local/texlive/2026/texmf-dist/tex/latex/latexconfig/epstopdf-sys.cfg
+File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Live
+))
+Package hyperref Info: Link coloring OFF on input line 22.
+ (./committee_update.out) (./committee_update.out)
+\@outlinefile=\write3
+\openout3 = `committee_update.out'.
+
+LaTeX Info: Redefining \microtypecontext on input line 22.
+Package microtype Info: Applying patch `item' on input line 22.
+Package microtype Info: Applying patch `toc' on input line 22.
+Package microtype Info: Applying patch `eqnum' on input line 22.
+Package microtype Info: Applying patch `footnote' on input line 22.
+Package microtype Info: Applying patch `verbatim' on input line 22.
+LaTeX Info: Redefining \microtypesetup on input line 22.
+Package microtype Info: Generating PDF output.
+Package microtype Info: Character protrusion enabled (level 2).
+Package microtype Info: Using default protrusion set `alltext'.
+Package microtype Info: Automatic font expansion enabled (level 2),
+(microtype)             stretch: 20, shrink: 20, step: 1, non-selected.
+Package microtype Info: Using default expansion set `alltext-nott'.
+Package microtype Info: Patching command `\showhyphens'.
+Package microtype Info: No adjustment of tracking.
+Package microtype Info: No adjustment of interword spacing.
+Package microtype Info: No adjustment of character kerning.
+ (/usr/local/texlive/2026/texmf-dist/tex/latex/microtype/mt-cmr.cfg
+File: mt-cmr.cfg 2013/05/19 v2.2 microtype config. file: Computer Modern Roman (RS)
+) (./committee_update.toc
+LaTeX Font Info:    Trying to load font information for U+msa on input line 2.
+ (/usr/local/texlive/2026/texmf-dist/tex/latex/amsfonts/umsa.fd
+File: umsa.fd 2013/01/14 v3.01 AMS symbols A
+) (/usr/local/texlive/2026/texmf-dist/tex/latex/microtype/mt-msa.cfg
+File: mt-msa.cfg 2006/02/04 v1.1 microtype config. file: AMS symbols (a) (RS)
+)
+LaTeX Font Info:    Trying to load font information for U+msb on input line 2.
+ (/usr/local/texlive/2026/texmf-dist/tex/latex/amsfonts/umsb.fd
+File: umsb.fd 2013/01/14 v3.01 AMS symbols B
+) (/usr/local/texlive/2026/texmf-dist/tex/latex/microtype/mt-msb.cfg
+File: mt-msb.cfg 2005/06/01 v1.0 microtype config. file: AMS symbols (b) (RS)
+))
+\tf@toc=\write4
+\openout4 = `committee_update.toc'.
+
+ [1
+
+{/usr/local/texlive/2026/texmf-var/fonts/map/pdftex/updmap/pdftex.map}] [2
+
+] (./assets/first_stage.tex) [3] [4] (./assets/hhi_figure.tex
+<assets/flavor_hhi_histogram.pdf, id=185, 505.89pt x 361.35pt>
+File: assets/flavor_hhi_histogram.pdf Graphic file (type pdf)
+<use assets/flavor_hhi_histogram.pdf>
+Package pdftex.def Info: assets/flavor_hhi_histogram.pdf  used on input line 2.
+(pdftex.def)             Requested size: 389.89752pt x 278.50502pt.
+) (./assets/flavor_shares_figure.tex
+<assets/flavor_shares.pdf, id=186, 505.89pt x 361.35pt>
+File: assets/flavor_shares.pdf Graphic file (type pdf)
+<use assets/flavor_shares.pdf>
+Package pdftex.def Info: assets/flavor_shares.pdf  used on input line 2.
+(pdftex.def)             Requested size: 446.26582pt x 318.76642pt.
+) [5] [6 <./assets/flavor_hhi_histogram.pdf>] [7 <./assets/flavor_shares.pdf>] [8
+
+] (./assets/settings.tex) (./assets/estimates.tex)
+<assets/gamma_distribution.pdf, id=317, 505.89pt x 267.39899pt>
+File: assets/gamma_distribution.pdf Graphic file (type pdf)
+<use assets/gamma_distribution.pdf>
+Package pdftex.def Info: assets/gamma_distribution.pdf  used on input line 410.
+(pdftex.def)             Requested size: 389.89752pt x 206.0937pt.
+ [9
+
+] [10 <./assets/gamma_distribution.pdf>] [11
+
+] [12] [13] [14] (./assets/supply_values.tex) [15] [16]
+<assets/prices.pdf, id=440, 722.7pt x 267.39899pt>
+File: assets/prices.pdf Graphic file (type pdf)
+<use assets/prices.pdf>
+Package pdftex.def Info: assets/prices.pdf  used on input line 793.
+(pdftex.def)             Requested size: 469.75502pt x 173.81136pt.
+<assets/price_derivative.pdf, id=441, 505.89pt x 267.39899pt>
+File: assets/price_derivative.pdf Graphic file (type pdf)
+<use assets/price_derivative.pdf>
+Package pdftex.def Info: assets/price_derivative.pdf  used on input line 797.
+(pdftex.def)             Requested size: 385.20255pt x 203.60887pt.
+ [17 <./assets/prices.pdf> <./assets/price_derivative.pdf>]
+<assets/profit.pdf, id=501, 505.89pt x 267.39899pt>
+File: assets/profit.pdf Graphic file (type pdf)
+<use assets/profit.pdf>
+Package pdftex.def Info: assets/profit.pdf  used on input line 802.
+(pdftex.def)             Requested size: 385.20255pt x 203.60887pt.
+<assets/profit_derivative.pdf, id=502, 505.89pt x 267.39899pt>
+File: assets/profit_derivative.pdf Graphic file (type pdf)
+<use assets/profit_derivative.pdf>
+Package pdftex.def Info: assets/profit_derivative.pdf  used on input line 806.
+(pdftex.def)             Requested size: 385.20255pt x 203.60887pt.
+ [18 <./assets/profit.pdf> <./assets/profit_derivative.pdf>]
+<assets/matched_ratio_derivatives.pdf, id=560, 505.89pt x 267.39899pt>
+File: assets/matched_ratio_derivatives.pdf Graphic file (type pdf)
+<use assets/matched_ratio_derivatives.pdf>
+Package pdftex.def Info: assets/matched_ratio_derivatives.pdf  used on input line 811.
+(pdftex.def)             Requested size: 385.20255pt x 203.60887pt.
+<assets/path_ratio_derivative.pdf, id=561, 505.89pt x 267.39899pt>
+File: assets/path_ratio_derivative.pdf Graphic file (type pdf)
+<use assets/path_ratio_derivative.pdf>
+Package pdftex.def Info: assets/path_ratio_derivative.pdf  used on input line 815.
+(pdftex.def)             Requested size: 385.20255pt x 203.60887pt.
+ [19
+
+
+
+] [20 <./assets/matched_ratio_derivatives.pdf> <./assets/path_ratio_derivative.pdf>] (./committee_update.aux)
+ ***********
+LaTeX2e <2026-06-01>
+L3 programming layer <2026-07-20>
+ ***********
+Package rerunfilecheck Info: File `committee_update.out' has not changed.
+(rerunfilecheck)             Checksum: EFECDC721C78590B5C2FC3653B0DC4E2;4139.
+ ) 
+Here is how much of TeX's memory you used:
+ 13473 strings out of 467159
+ 211724 string characters out of 5409218
+ 695960 words of memory out of 5000000
+ 42275 multiletter control sequences out of 15000+600000
+ 644618 words of font info for 155 fonts, out of 8000000 for 9000
+ 1141 hyphenation exceptions out of 8191
+ 74i,13n,79p,1284b,581s stack positions out of 10000i,1000n,20000p,200000b,200000s
+</usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmib10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmmib8.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr17.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy6.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb>
+Output written on committee_update.pdf (20 pages, 360139 bytes).
+PDF statistics:
+ 741 PDF objects out of 1000 (max. 8388607)
+ 472 compressed objects within 5 object streams
+ 161 named destinations out of 1000 (max. 500000)
+ 35038 words of extra memory for PDF output out of 35830 (max. 10000000)
+

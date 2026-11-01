@@ -1,5 +1,5 @@
 # Fdb version 4
-["pdflatex"] 1793574145.88984 "committee_update.tex" "committee_update.pdf" "committee_update" 1793574146.85305 0
+["pdflatex"] 1793574350.65121 "committee_update.tex" "committee_update.pdf" "committee_update" 1793574351.60529 0
   "/usr/local/texlive/2026/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/usr/local/texlive/2026/texmf-dist/fonts/tfm/public/amsfonts/cmextra/cmbsy5.tfm" 1246382020 1120 1e8878807317373affa7f7bba4cf2f6a ""
   "/usr/local/texlive/2026/texmf-dist/fonts/tfm/public/amsfonts/cmextra/cmbsy6.tfm" 1246382020 1124 14ccf5552bc7f77ca02a8a402bea8bfb ""
@@ -135,10 +135,10 @@
   "assets/profit_derivative.pdf" 1793554840.63397 11007 7ab166b33fdbd5e2dec3970a0478c8c1 ""
   "assets/settings.tex" 1793554840.80481 332 f11950f3a59ea3b83de47c4fbdb55f2e ""
   "assets/supply_values.tex" 1793554840.80506 530 d37aaf318ca79096ddbad2d556b98e0f ""
-  "committee_update.aux" 1793574146.75996 6680 8a42de6f5cf792652c14992fb22f88dc "pdflatex"
-  "committee_update.out" 1793574146.76146 4139 efecdc721c78590b5c2fc3653b0dc4e2 "pdflatex"
-  "committee_update.tex" 1793574138.4763 32757 bcb3d270ddee54c241fe2862e14a1ef4 ""
-  "committee_update.toc" 1793574146.76168 2004 90f6e483477bbb2a8c33ec3ac05a1f0f "pdflatex"
+  "committee_update.aux" 1793574351.50677 6680 4363ced9c57a47a66ef4b61d500289bc "pdflatex"
+  "committee_update.out" 1793574351.50794 4139 efecdc721c78590b5c2fc3653b0dc4e2 "pdflatex"
+  "committee_update.tex" 1793574348.71599 32813 7433b2479859d235f8cb7954fa0ca919 ""
+  "committee_update.toc" 1793574351.50831 2004 32c7896a735e7356e99fe662894854ac "pdflatex"
   (generated)
   "committee_update.aux"
   "committee_update.log"

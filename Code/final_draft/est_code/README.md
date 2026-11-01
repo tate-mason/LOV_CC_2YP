@@ -61,8 +61,13 @@ is accepted if `price` is absent. Price controls use the consumer `dma_cd`
 The optional flavor CSV is only used for older input tables without saved labels.
 
 Households must have at least two distinct usable purchase weeks after menu/IV
-exclusions. Weeks need not be consecutive. The old single-person
-household and serving-code filters are not carried forward. The development
+exclusions. Weeks need not be consecutive. Demand purchases are restricted to
+`household_size == 1` before histories and weekly quantities are constructed.
+Missing or other household sizes are excluded; a missing `household_size` column
+is an error. This uses size on each purchase record, so only single-person
+periods contribute when household composition changes. All matched purchase
+records remain available for store price menus and retail instruments.
+The serving-code filter is not applied. The development
 limit takes the lowest household IDs deterministically; it is not a random sample.
 
 ## Xi: exact definition
@@ -241,7 +246,7 @@ depend on the parameters. NLL comparisons require identical data and outcomes.
 
 ## Standard errors (on by default)
 
-The default is 199 household-cluster bootstrap replications. Each replication
+With `--se-method bootstrap`, the default is 49 household-cluster bootstrap replications. Each replication
 samples households with replacement and retains each entire history. Repeated
 households receive different IDs, so their likelihoods remain separate. Existing
 Xi values remain attached to the original histories, including the contribution
@@ -318,7 +323,7 @@ loyalty by income and summaries/selection for final estimation inputs.
 
 Control-function reference: [Petrin and Train](https://emlab.berkeley.edu/~train/papers/petrintrain.pdf).
 
-The default bootstrap uses 49 replications (override with `--bootstrap-reps`).
+The optional bootstrap uses 49 replications (override with `--bootstrap-reps`).
 The main demand fit retains 128 simulation draws.
 
 
@@ -358,3 +363,38 @@ physical partition size rather than repeated scans of the original input.
 Temporary partitions require disk space in the output directory and are removed
 at exit. Logs report partitioning and per-batch elapsed times. Existing running
 summary jobs must restart with the new code to use this change.
+
+To regenerate only the HHI figures from saved household summaries, without
+re-reading purchases or rerunning demographics:
+
+```bash
+python3 ../data_code/summ_stats.py --hhi-only --output /path/to/summary_outputs
+```
+
+This needs `yogurt_household_flavors.csv` in that directory. It also regenerates
+the grouped versions if `aggregated_flavors/yogurt_household_flavors.csv` exists.
+The ordinary summary command generates these figures by default; `--no-figures`
+disables them. Each saved HHI graph is now named in the log.
+
+
+## Fast Hessian standard errors (current default)
+
+`--se-method hessian` is now the default for all model entry points. After a
+converged fit, it differentiates the analytic gradient with central differences
+(2 evaluations per parameter), inverts the observed information, and scales by
+the number of households because the objective is the mean household negative
+log likelihood. It saves `covariance.csv` and normal 95% intervals in
+`estimates.csv`; `fit.json` identifies the method and limitations.
+
+These are model-based SEs conditional on the estimated price
+controls: they omit first-stage estimation uncertainty and are not sandwich
+robust. Inference is withheld for unconverged fits, parameters near bounds, or
+nonpositive/ill-conditioned information. Bootstrap remains available unchanged:
+
+```bash
+python3 est.py --draws 32 --starts 1 --se-method hessian --output results_single_person_hessian
+python3 est.py --se-method bootstrap --bootstrap-reps 49 --output results_single_person_bootstrap
+```
+
+Both commands enforce the single-person purchase restriction. Existing saved
+all-household results must be rerun; changing the code does not update them.

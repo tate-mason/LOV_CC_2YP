@@ -469,6 +469,7 @@ def make_hhi_figures(output):
         fig.tight_layout()
         fig.savefig(output / f"flavor_hhi_{kind}.pdf")
         plt.close(fig)
+        print(f"Saved HHI figure: {output / f'flavor_hhi_{kind}.pdf'}", flush=True)
 
 
 def make_figures(shares, transitions, output):
@@ -583,8 +584,8 @@ def run(args, output, work):
         weekly = pl.scan_parquet(work / f"{tag}_weeks_*.parquet")
         shares, transitions = flavor_summaries(weekly, folder, flavors)
         if not args.no_figures:
-            make_figures(shares, transitions, folder)
             make_hhi_figures(folder)
+            make_figures(shares, transitions, folder)
     # The last pass uses the estimation's three groups. Persist its exact
     # resolved mapping so estimation can consume labels without reclassifying.
     reference.write_csv(output / "estimation_flavor_reference.csv")
@@ -625,10 +626,23 @@ def main():
     parser.add_argument("--household-batches", type=int, default=16,
                         help="Household disk partitions; more batches reduce aggregation memory (default 16).")
     parser.add_argument("--no-figures", action="store_true")
+    parser.add_argument("--hhi-only", action="store_true",
+                        help="Plot HHI from existing yogurt_household_flavors.csv in --output; skip raw data and all summaries.")
     args = parser.parse_args()
+    if args.hhi_only and args.no_figures:
+        parser.error("--hhi-only cannot be combined with --no-figures")
     if args.household_batches < 1:
         parser.error("--household-batches must be positive")
     output = args.output or args.data_dir / "summary_outputs"
+    if args.hhi_only:
+        source = output / "yogurt_household_flavors.csv"
+        if not source.exists():
+            parser.error(f"HHI-only needs the saved detailed household table: {source}")
+        make_hhi_figures(output)
+        grouped = output / "aggregated_flavors"
+        if (grouped / "yogurt_household_flavors.csv").exists():
+            make_hhi_figures(grouped)
+        return
     output.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory(prefix="summary-work-", dir=output) as tmp:
         run(args, output, Path(tmp))

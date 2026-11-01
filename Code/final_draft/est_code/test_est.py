@@ -47,7 +47,7 @@ class EstimationChecks(unittest.TestCase):
             root = Path(temp)
             rows = []
             def append(household, week, upc, store, dma, price, quantity=1):
-                rows.append(dict(household_code=household, panel_year=2010,
+                rows.append(dict(household_code=household, household_size=1 if household in [10, 40] else 2, panel_year=2010,
                                  purchase_date=str(pd.to_datetime(str(week), format="%Y%m%d").date()),
                                  trip_code_uc=len(rows) + 1, upc=str(upc), store_code_uc=store,
                                  quantity=quantity, price=float(price), dma_cd=dma,
@@ -70,6 +70,18 @@ class EstimationChecks(unittest.TestCase):
                 first_year=2010, last_year=2010, max_households=1, habit_weight=.7,
                 capacity=0, no_price_control=True, household_dma_column="dma_cd", se_method="none",
                 model="heterogeneous", draws=8, starts=1, maxiter=5, seed=306, output=root / "output")
+            # The limit is applied after restricting demand to single-person records.
+            mixed = original.with_columns(pl.when(pl.col("household_code") == 10)
+                .then(2).otherwise(pl.col("household_size")).alias("household_size"))
+            mixed.write_parquet(sample)
+            self.assertEqual(prepare_data(args).household_code.unique().tolist(), [40])
+            original.drop("household_size").write_parquet(sample)
+            with self.assertRaisesRegex(ValueError, "requires household_size"):
+                prepare_data(args)
+            original.with_columns(pl.lit(None).alias("household_size")).write_parquet(sample)
+            with self.assertRaisesRegex(ValueError, "No purchase lines"):
+                prepare_data(args)
+            original.write_parquet(sample)
             frame = prepare_data(args)
             self.assertEqual(len(frame), 2)
             self.assertEqual(frame.household_code.unique().tolist(), [10])

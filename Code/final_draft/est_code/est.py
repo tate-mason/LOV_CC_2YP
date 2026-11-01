@@ -17,6 +17,7 @@ from scipy.special import logsumexp
 
 from price_control import check_dma, add_price_controls
 from bootstrap_se import bootstrap_standard_errors
+from hessian_se import hessian_standard_errors
 
 FLAVORS = ["other", "berry", "plain"]
 DATA_DIR = Path("/scratch/dtm63837/Kilts_Panel/Data")
@@ -168,6 +169,8 @@ def prepare_data(args):
     """
     base = pl.scan_parquet(args.sample)
     names = base.collect_schema().names()
+    if "household_size" not in names:
+        raise ValueError("Estimation requires household_size to restrict purchases to single-person households.")
     base = base.filter(pl.col("panel_year").is_between(args.first_year, args.last_year))
     if "flavor" not in names:
         products_extra = getattr(args, "products_extra", None) or DATA_DIR / "RMS/combined/products_extra.parquet"
@@ -179,7 +182,7 @@ def prepare_data(args):
     if price_column is None:
         raise ValueError("Merged purchase table needs a price or price_rms column.")
     consumer_dma = getattr(args, "household_dma_column", "dma_cd")
-    columns = ["household_code", "panel_year", "purchase_date", "trip_code_uc", "upc",
+    columns = ["household_code", "household_size", "panel_year", "purchase_date", "trip_code_uc", "upc",
                "store_code_uc", "quantity", "flavor", pl.col(price_column).cast(pl.Float64).alias("price")]
     if not args.no_price_control:
         columns.append(pl.col(consumer_dma).alias("dma_cd"))
@@ -189,11 +192,12 @@ def prepare_data(args):
     base = base.with_columns((pl.col("purchase_date") + pl.duration(
         days=(6 - pl.col("purchase_date").dt.weekday()) % 7)).alias("week"))
     # Keep the full merged table for prices/IVs, even in a household-limited run.
-    selected = base
+    # Restrict demand histories before weekly aggregation; retain all quotes for menus/IVs.
+    selected = base.filter(pl.col("household_size").cast(pl.Float64, strict=False) == 1)
     if args.max_households:
-        ids = (base.select("household_code").unique().sort("household_code")
+        ids = (selected.select("household_code").unique().sort("household_code")
                .limit(args.max_households).collect(engine="streaming")["household_code"])
-        selected = base.filter(pl.col("household_code").is_in(ids.implode()))
+        selected = selected.filter(pl.col("household_code").is_in(ids.implode()))
     print(f"Loading merged purchase table: {args.sample}", flush=True)
     lines = selected.collect(engine="streaming").to_pandas()
     if lines.empty:
@@ -549,7 +553,7 @@ def plot_gamma_distribution(table, output, converged=True):
 
 
 def fit_model(data, args, frame=None):
-    """Estimate demand, run the two-stage bootstrap, and save readable outputs."""
+    """Estimate demand, compute requested inference, and save readable outputs."""
     best, results, bounds = optimize_demand(data, args)
     names = parameter_names(args.model, data["outside"], data["control"])
     table = pd.DataFrame({"parameter": names, "estimate": best.x})
@@ -581,6 +585,16 @@ def fit_model(data, args, frame=None):
                 table = table.merge(
                     standard_errors, on="parameter", validate="one_to_one"
                 )
+    elif args.se_method == "hessian":
+        if not best.success:
+            inference["status"] = "main fit not converged; Hessian inference not run"
+        else:
+            draws = make_draws(args.draws, args.seed)
+            gradient = lambda theta: demand_objective_gradient(theta, data, draws, args.model)[1]
+            standard_errors, inference = hessian_standard_errors(
+                best.x, gradient, data["n_households"], bounds, names, args.output)
+            if standard_errors is not None:
+                table = table.merge(standard_errors, on="parameter", validate="one_to_one")
     # An explicit missing column distinguishes skipped inference from zero SEs.
     for column in ["std_error", "ci_lower", "ci_upper"]:
         if column not in table:
@@ -588,6 +602,7 @@ def fit_model(data, args, frame=None):
     table.to_csv(args.output / "estimates.csv", index=False)
     summary = dict(
         model=args.model,
+        sample_restriction="household_size == 1 on each purchase record",
         households=data["n_households"],
         weeks=len(data["hh"]),
         capacity=args.capacity,
@@ -650,7 +665,7 @@ def main(default_model="heterogeneous"):
     )
     parser.add_argument("--household-dma-column", default="dma_cd")
     parser.add_argument(
-        "--se-method", choices=["bootstrap", "none"], default="bootstrap"
+        "--se-method", choices=["hessian", "bootstrap", "none"], default="hessian"
     )
     parser.add_argument("--bootstrap-reps", type=int, default=49)
     parser.add_argument("--bootstrap-starts", type=int, default=2)

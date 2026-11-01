@@ -1,0 +1,833 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,mathtools,booktabs,longtable,array,graphicx}
+\usepackage[hidelinks]{hyperref}
+\usepackage{microtype}
+\newcommand{\dd}{\mathrm{d}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Var}{\operatorname{Var}}
+\newcommand{\ind}{\mathbf{1}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\argmax}{\operatorname*{arg\,max}}
+\newcommand{\argmin}{\operatorname*{arg\,min}}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{5pt}
+\setlength{\LTpre}{5pt}
+\setlength{\LTpost}{5pt}
+% Keep each derivation together; allow page breaks between equations.
+\setlength{\jot}{5pt}
+\title{Update\\Mason 2YP}
+\author{}
+\date{November 1, 2026}
+\begin{document}
+\maketitle
+\tableofcontents
+\clearpage
+
+\section{Empirical demand}
+\subsection{Notation}
+\small
+\begin{longtable}{p{.27\linewidth}p{.67\linewidth}}
+\toprule Symbol & Definition\\\midrule\endhead
+$i\in\mathcal I$, $I=|\mathcal I|$ & Household and number of retained households.\\
+$t\in\mathcal T_i$ & Retained household purchase week, ending Saturday.\\
+$\mathcal H_i$ & Observed purchase weeks used to construct history, including weeks subsequently excluded from the likelihood.\\
+$\mathcal F$, $Q_{ift}$, $w_{if}$, $H_i$ & Unaggregated flavor labels, quantity of detailed flavor $f$, household full-sample flavor quantity share, and household flavor HHI.\\
+$j,k\in\mathcal J$ & Flavor categories; $\mathcal J=\{\mathrm{other},\mathrm{berry},\mathrm{plain}\}$.\\
+$0$ & Outside alternative, when included.\\
+$Q_{ijt}$, $Q_{it}$ & Quantity purchased of flavor $j$; total inside quantity $Q_{it}=\sum_jQ_{ijt}$.\\
+$x_{ijt}$ & Inside quantity share of flavor $j$, $Q_{ijt}/Q_{it}$.\\
+$S_{ijt}$, $N_{ijt}$ & Cumulative own-flavor share stock and immediately preceding calendar week's other-flavor share.\\
+$\lambda$, $X_{ijt}$ & Fixed history weight and combined history index; $\lambda=0.7$.\\
+$r$, $u$ & Store and UPC indices.\\
+$r_{it}$, $\mathcal U_{rjt}$ & Exposure store and observed, distinct price-covered UPCs for flavor $j$ at store $r$ in week $t$.\\
+$p_{rut}$, $p_{ijt}$ & Merged unit-price quote and exposure-store flavor price.\\
+$\mathcal A_{it}$ & Available inside flavors with finite positive exposure-store prices.\\
+$m$, $m_{it}$ & Consumer market index and household $i$'s market in week $t$.\\
+$\mathcal Q_{mt}$, $n_{mt}$, $P_{mt}$ & Distinct store--week--UPC prices within consumer DMA $m$; their number and sum. Prices pool all flavors.\\
+$z_{it}$ & Same-week mean price outside consumer DMA $m_{it}$.\\
+$\pi_j$, $\boldsymbol\eta_j$ & First-stage instrument slope and coefficients on the three history indices.\\
+$\tau_{jt}$, $\kappa_{jm}$ & Flavor-specific week and consumer-DMA fixed effects.\\
+$v_{ijt}$, $\widehat v_{ijt}$ & First-stage price effect and estimated residual.\\
+$\mathcal D_j$, $G_j$ & Flavor $j$ first-stage household--weeks and number of distinct households therein.\\
+$\beta_j$ & Flavor intercept relative to other; $\beta_{\mathrm{other}}=0$ in the reported fit.\\
+$\alpha_i$, $\mu_\alpha$, $\sigma_\alpha$ & Positive price sensitivity and mean/SD of its logarithm. Price enters utility as $-\alpha_i p$.\\
+$\gamma_i$, $\mu_\gamma$, $\sigma_\gamma$ & Household history coefficient, common across flavors, and its population mean/SD.\\
+$\rho$ & Common coefficient on the price-control residual.\\
+$\varepsilon_{ijt}$, $V_{ijt}$, $U_{ijt}$ & Unit-scale type-I extreme-value shock, deterministic utility, and total utility.\\
+$Z_{i\alpha}$, $Z_{i\gamma}$ & Independent standard normal household type components, fixed over household history.\\
+$\mathcal B_{it}(C)$ & Available alternatives, with outside added only for $C>0$.\\
+$P_{ijt}$ & Conditional choice probability for given household type.\\
+$\boldsymbol\theta$, $\Theta$ & Demand parameter vector and optimization bounds.\\
+$f$, $\phi$ & Household-type density and standard normal density.\\
+$L_i$, $L_{ir}$, $\ell_{ir}$ & Integrated household likelihood, draw-specific likelihood, and its logarithm; multinomial constants omitted.\\
+$R$, $\boldsymbol z_r$ & Number of integration draws and fixed antithetic standard normal draw. Draw index $r$ is separate from the store index.\\
+$\widehat L_i$, $\widehat\ell$, $w_{ir}$ & Simulated likelihood, total simulated log likelihood, and household posterior draw weight.\\
+$\boldsymbol g_{ir}$ & Draw-specific household likelihood score.\\
+$b=1,\ldots,B$, $I_b^\mathrm{draw}$ & Bootstrap replication and its independently sampled household indices.\\
+$\widehat{\boldsymbol\theta}^{(b)}$, $\overline{\boldsymbol\theta}$ & Bootstrap demand estimate and mean across usable bootstrap estimates.\\
+$\widehat\Sigma$, $\widehat{\mathrm{se}}$, $\widehat q_a$ & Bootstrap covariance, standard error, and empirical quantile at probability $a$.\\
+$g_i$, $F_j$, $\widehat{\Var}(\widehat\pi_j)$ & Household instrument score, first-stage one-instrument Wald statistic, and clustered variance estimate.\\
+\bottomrule
+\end{longtable}
+\normalsize
+
+\subsection{Price equation and control residuals}
+\begin{equation}
+\begin{aligned}
+n_{mt}&=|\mathcal Q_{mt}|,
+\end{aligned}
+\end{equation}
+\begin{equation}
+\begin{aligned}
+P_{mt}&=\sum_{q\in\mathcal Q_{mt}}p_q,
+\end{aligned}
+\end{equation}
+\begin{equation}
+\begin{aligned}
+z_{it}&=\frac{\sum_{m\ne m_{it}}P_{mt}}{\sum_{m\ne m_{it}}n_{mt}},\qquad \sum_{m\ne m_{it}}n_{mt}>0,
+\end{aligned}
+\end{equation}
+\begin{equation}
+\begin{aligned}
+p_{ijt}&=\pi_j z_{it}+\sum_{k\in\mathcal J}\eta_{jk}X_{ikt}
+ +\tau_{jt}+\kappa_{j,m_{it}}+v_{ijt},\qquad (i,t)\in\mathcal D_j.
+\end{aligned}
+\end{equation}
+The same $z_{it}$ enters each flavor equation. Each household--week has equal first-stage weight.
+
+\begin{table}[htbp]\centering\small
+\caption{Price first stages}
+\begin{tabular}{lrrrrrr}\toprule
+Flavor & $\widehat\pi_j$ & Cluster SE & $F_j$ & Partial $R^2$ & Observations & Households\\\midrule
+\input{assets/first_stage.tex}\end{tabular}
+\end{table}
+
+\subsection{Utility, heterogeneity, and choice probabilities}
+\begin{equation}
+\begin{aligned}
+U_{ijt}&=V_{ijt}+\varepsilon_{ijt},
+\end{aligned}
+\end{equation}
+\begin{equation}
+\begin{aligned}
+V_{ijt}&=\beta_j-\alpha_i p_{ijt}+\gamma_iX_{ijt}+\rho\widehat v_{ijt},
+\end{aligned}
+\end{equation}
+\begin{equation}
+\begin{aligned}
+\beta_{\mathrm{other}}&=0,
+\end{aligned}
+\end{equation}
+\begin{equation}
+\begin{aligned}
+\log\alpha_i&=\mu_\alpha+\sigma_\alpha Z_{i\alpha},\qquad \alpha_i>0,
+\end{aligned}
+\end{equation}
+\begin{equation}
+\begin{aligned}
+\gamma_i&=\mu_\gamma+\sigma_\gamma Z_{i\gamma},
+\end{aligned}
+\end{equation}
+\begin{equation}
+\begin{aligned}
+\begin{pmatrix}Z_{i\alpha}\\Z_{i\gamma}\end{pmatrix}&\sim N(\boldsymbol0,I_2),
+\end{aligned}
+\end{equation}
+\begin{equation}
+\begin{aligned}
+P_{ijt}(\alpha_i,\gamma_i)&=\frac{\exp(V_{ijt})}{\sum_{k\in\mathcal A_{it}}\exp(V_{ikt})},\qquad j\in\mathcal A_{it},
+\end{aligned}
+\end{equation}
+\begin{equation}
+\begin{aligned}
+\boldsymbol\theta&=(\beta_{\mathrm{berry}},\beta_{\mathrm{plain}},\mu_\alpha,
+ \mu_\gamma,\sigma_\alpha,\sigma_\gamma,\rho)^\top.
+\end{aligned}
+\end{equation}
+\begin{equation}
+\begin{aligned}
+\E[\alpha_i]&=\exp(\mu_\alpha+\sigma_\alpha^2/2),
+\end{aligned}
+\end{equation}
+\begin{equation}
+\begin{aligned}
+\Var(\alpha_i)&=[\exp(\sigma_\alpha^2)-1]\exp(2\mu_\alpha+\sigma_\alpha^2),
+\end{aligned}
+\end{equation}
+\begin{equation}
+\begin{aligned}
+\E[\gamma_i]&=\mu_\gamma,
+\end{aligned}
+\end{equation}
+\begin{equation}
+\begin{aligned}
+\Var(\gamma_i)&=\sigma_\gamma^2,
+\end{aligned}
+\end{equation}
+\begin{equation}
+\begin{aligned}
+f(\alpha,\gamma)&=\frac{1}{\alpha\sigma_\alpha}
+ \phi\!\left(\frac{\log\alpha-\mu_\alpha}{\sigma_\alpha}\right)
+ \frac{1}{\sigma_\gamma}\phi\!\left(\frac{\gamma-\mu_\gamma}{\sigma_\gamma}\right).
+\end{aligned}
+\end{equation}
+
+\subsubsection*{Capacity extension: notation}
+\begin{equation}
+\begin{aligned}
+Q_{i0t}&=\max\{C-Q_{it},0\},\qquad C>0,
+\end{aligned}
+\end{equation}
+\begin{equation}
+\begin{aligned}
+V_{i0t}&=0,\qquad
+V_{ijt}=b_0+\beta_j-\alpha_i p_{ijt}+\gamma_iX_{ijt}+\rho\widehat v_{ijt},
+\end{aligned}
+\end{equation}
+\begin{equation}
+\begin{aligned}
+\mathcal B_{it}(C)&=\begin{cases}\mathcal A_{it},&C=0,\\\mathcal A_{it}\cup\{0\},&C>0,\end{cases}
+\end{aligned}
+\end{equation}
+\begin{equation}
+\begin{aligned}
+P_{ijt}&=\frac{\exp(V_{ijt})}{\sum_{k\in\mathcal B_{it}(C)}\exp(V_{ikt})}.
+\end{aligned}
+\end{equation}
+Reported results: $C=0$, $Q_{i0t}$ and $b_0$ omitted; $\mathcal B_{it}(0)=\mathcal A_{it}$.
+Multinomial combinatorial constants are omitted. 
+\subsection{Household likelihood and simulation}
+\begin{equation}
+\begin{aligned}
+L_i(\boldsymbol\theta)&=\int_{0}^{\infty}\int_{-\infty}^{\infty}
+ \left[\prod_{t\in\mathcal T_i}\prod_{j\in\mathcal A_{it}}
+ P_{ijt}(\alpha,\gamma)^{Q_{ijt}}\right]f(\alpha,\gamma)\,\dd\gamma\,\dd\alpha,
+\end{aligned}
+\end{equation}
+\begin{equation}
+\begin{aligned}
+\boldsymbol z_r&=(z_{r\alpha},z_{r\gamma})^\top,
+\quad \boldsymbol z_{r+R/2}=-\boldsymbol z_r,
+\quad \boldsymbol z_r\overset{\mathrm{iid}}\sim N(\boldsymbol0,I_2),\quad r\le R/2,
+\end{aligned}
+\end{equation}
+\begin{equation}
+\begin{aligned}
+\alpha_r&=\exp(\mu_\alpha+\sigma_\alpha z_{r\alpha}),
+\end{aligned}
+\end{equation}
+\begin{equation}
+\begin{aligned}
+\gamma_r&=\mu_\gamma+\sigma_\gamma z_{r\gamma},
+\end{aligned}
+\end{equation}
+\begin{equation}
+\begin{aligned}
+\ell_{ir}&=\sum_{t\in\mathcal T_i}\sum_{j\in\mathcal A_{it}}Q_{ijt}\log P_{ijt}(\alpha_r,\gamma_r),
+\end{aligned}
+\end{equation}
+\begin{equation}
+\begin{aligned}
+L_{ir}&=e^{\ell_{ir}},
+\end{aligned}
+\end{equation}
+\begin{equation}
+\begin{aligned}
+\widehat L_i&=\frac1R\sum_{r=1}^R e^{\ell_{ir}},
+\end{aligned}
+\end{equation}
+\begin{equation}
+\begin{aligned}
+\log\widehat L_i&=\operatorname{LSE}_{r=1}^R(\ell_{ir})-\log R,
+\qquad \operatorname{LSE}(a_1,\ldots,a_R)=\log\sum_r e^{a_r},
+\end{aligned}
+\end{equation}
+\begin{equation}
+\begin{aligned}
+\widehat\ell(\boldsymbol\theta)&=\sum_{i=1}^I\log\widehat L_i(\boldsymbol\theta),
+\end{aligned}
+\end{equation}
+\begin{equation}
+\begin{aligned}
+\widehat{\boldsymbol\theta}&=\argmax_{\boldsymbol\theta\in\Theta}\widehat\ell(\boldsymbol\theta),
+\end{aligned}
+\end{equation}
+\begin{equation}
+\begin{aligned}
+\Theta&=[-20,20]^2\times[-6,3]\times[-20,20]\times[0,3]^2\times[-20,20].
+\end{aligned}
+\end{equation}
+The optimizer minimizes $-\widehat\ell/I$.
+
+\subsection{Household bootstrap}
+Each replication samples households with
+replacement, retaining their full histories, and reestimates both the price
+equations and the demand model. Standard errors are the sample standard
+deviations of the bootstrap parameter estimates, and the 95\% confidence
+intervals use their 2.5th and 97.5th percentiles. The current results use 49
+usable replications out of 49 requested, so the percentile intervals are
+relatively coarse. Retail instruments, history indices, and integration draws
+are held fixed.
+
+For each replication, resample whole household histories and refit the price
+equations to obtain $\widehat{\boldsymbol v}^{(b)}$.
+\begin{equation}
+\begin{aligned}
+I_b^\mathrm{draw}&=(i_1^{(b)},\ldots,i_I^{(b)}),
+\qquad i_l^{(b)}\overset{\mathrm{iid}}\sim\operatorname{Uniform}\{1,\ldots,I\},
+\end{aligned}
+\end{equation}
+\begin{equation}
+\begin{aligned}
+\widehat{\boldsymbol v}^{(b)}&=\text{refitted price-equation residuals},
+\end{aligned}
+\end{equation}
+\begin{equation}
+\begin{aligned}
+\widehat{\boldsymbol\theta}^{(b)}&=\argmax_{\boldsymbol\theta\in\Theta}\sum_{l=1}^I
+ \log\widehat L_{i_l^{(b)}}(\boldsymbol\theta;\widehat{\boldsymbol v}^{(b)}),
+\end{aligned}
+\end{equation}
+\begin{equation}
+\begin{aligned}
+\overline{\boldsymbol\theta}&=\frac1B\sum_{b=1}^B\widehat{\boldsymbol\theta}^{(b)},
+\end{aligned}
+\end{equation}
+\begin{equation}
+\begin{aligned}
+\widehat\Sigma&=\frac1{B-1}\sum_{b=1}^B
+ (\widehat{\boldsymbol\theta}^{(b)}-\overline{\boldsymbol\theta})
+ (\widehat{\boldsymbol\theta}^{(b)}-\overline{\boldsymbol\theta})^\top,
+\end{aligned}
+\end{equation}
+\begin{equation}
+\begin{aligned}
+\widehat{\mathrm{se}}(\widehat\theta_k)&=\sqrt{\widehat\Sigma_{kk}},
+\end{aligned}
+\end{equation}
+\begin{equation}
+\begin{aligned}
+\mathrm{CI}_{k,.95}&=[\widehat q_{.025}(\widehat\theta_k^{(b)}),\widehat q_{.975}(\widehat\theta_k^{(b)})].
+\end{aligned}
+\end{equation}
+Whole histories are retained; duplicated households receive distinct IDs. History indices, retail instruments, and integration draws remain fixed. Both price and demand stages are refitted. $B$ counts usable replications.
+
+\subsection{Unaggregated flavor concentration}
+\begin{equation}
+\begin{aligned}
+w_{if}&=\frac{\sum_{t\in\mathcal H_i}Q_{ift}}{\sum_{g\in\mathcal F}\sum_{t\in\mathcal H_i}Q_{igt}},
+\end{aligned}
+\end{equation}
+\begin{equation}
+\begin{aligned}
+\sum_{f\in\mathcal F}w_{if}&=1,
+\end{aligned}
+\end{equation}
+\begin{equation}
+\begin{aligned}
+H_i&=\sum_{f\in\mathcal F}w_{if}^2.
+\end{aligned}
+\end{equation}
+\input{assets/hhi_figure.tex}
+\input{assets/flavor_shares_figure.tex}
+\clearpage
+
+\subsection{Summary statistics}
+The descriptive sample covers 2006--2015. Statistics are unweighted.
+Trips, UPCs, purchase lines, and packages in the matched yogurt column refer
+to yogurt only. The descriptive matched sample precedes the additional
+estimation filters: the reported demand fit retains 70,139 households and
+1,456,854 household--weeks.
+
+\begin{table}[htbp]\centering\small
+\caption{Household purchase summaries}
+\label{tab:sample-summary}
+\begin{tabular}{lrr}\toprule
+Statistic & Full panel & Matched yogurt\\\midrule
+Households & 148,045 & 70,153\\
+Mean observed panel years & 3.99 & 3.28\\
+Mean trips per household & 576.29 & 22.87\\
+Mean trips per approximate observed week & 2.54 & 0.12\\
+Median trips per approximate observed week & 2.15 & 0.08\\
+Mean distinct UPCs per household & 1,699.74 & 16.52\\
+Mean purchase lines per household & 5,082.26 & 52.74\\
+Mean packages per household & 7,036.50 & 115.45\\
+One-person households (\%) & 20.39 & 18.40\\
+Two-person households (\%) & 37.72 & 37.68\\
+Hispanic origin (\%) & 6.33 & 6.13\\
+\bottomrule\end{tabular}
+\end{table}
+
+\begin{table}[htbp]\centering\small
+\caption{Yogurt purchase dynamics: detailed flavors and estimation categories}
+\label{tab:dynamics-summary}
+\begin{tabular}{lrr}\toprule
+Statistic & Detailed flavors & Three categories\\\midrule
+Households & 70,153 & 70,153\\
+Observed purchase household--weeks & 1,462,897 & 1,462,897\\
+Mean flavors/categories bought per household & 12.89 & 1.97\\
+Mean household flavor HHI & 0.29 & 0.78\\
+Mixed-flavor/category weeks (\%) & 40.08 & 18.07\\
+Weeks above seven packages (\%) & 25.17 & 25.17\\
+Eligible adjacent single-flavor/category week pairs & 148,604 & 255,708\\
+Switch rate among eligible pairs (\%) & 55.04 & 13.58\\
+Mean single-flavor/category spell length (weeks) & 1.08 & 1.23\\
+Median gap between purchase weeks (weeks) & 3.00 & 3.00\\
+\bottomrule\end{tabular}
+\end{table}
+An eligible transition requires purchases in consecutive calendar weeks and
+exactly one flavor (or category) in each week. Mixed baskets and gaps are
+excluded from the switch-rate denominator. Spells count consecutive calendar
+weeks with the same single flavor or category; a gap breaks the spell.
+HHI uses each household's full-history package-quantity shares.
+
+\begin{table}[htbp]\centering\small
+\caption{Package shares and transitions for the three estimation categories}
+\label{tab:category-summary}
+\begin{tabular}{lrrrr}\toprule
+ & Package share (\%) & \multicolumn{3}{c}{Next category (row probabilities, \%)}\\
+Category & & Other & Berry & Plain\\\midrule
+Other & 80.22 & 92.12 & 5.97 & 1.91\\
+Berry & 14.36 & 53.54 & 44.61 & 1.85\\
+Plain & 5.42 & 25.32 & 2.30 & 72.38\\
+\bottomrule\end{tabular}
+\end{table}
+\clearpage
+
+\subsection{Results}
+\begin{table}[htbp]\centering
+\caption{Estimation sample and settings}
+\begin{tabular}{lr}\toprule Setting & Value\\\midrule
+\input{assets/settings.tex}\end{tabular}
+\end{table}
+\begin{table}[htbp]\centering
+\caption{Demand estimates; household bootstrap}
+\begin{tabular}{lrrc}\toprule Parameter & Estimate & Standard error & 95\% percentile interval\\\midrule
+\input{assets/estimates.tex}\end{tabular}
+\end{table}
+\begin{figure}[htbp]\centering
+\includegraphics[width=.83\linewidth]{assets/gamma_distribution.pdf}
+\caption{$\gamma_i\sim N(\widehat\mu_\gamma,\widehat\sigma_\gamma^2)$, with $\widehat\mu_\gamma=0.0405473$ and $\widehat\sigma_\gamma=0.0880120$.}
+\end{figure}
+\clearpage
+
+\subsection{Discussion of Results}
+
+I now have 70,153 households in my estimation sample. 
+
+Looking at the within household flavor concentration plot shows that most consumers consumer many flavors of yogurt. We do see a large grouping at the single flavor point, but they still only account for about 3\% of households. Interestingly, there is another large cluster around the 50\% point, which is good evidence of switching being for novelty rather than experimentation/learning. Strawberry yogurt is the most purchased flavor at about 8.5\% of all sales. Notably, nine berry flavors populate the top 20 flavors, showing that it is a good grouping. I do think aggregating "other" into "other fruits", "dessert flavors", and "other" may be good once the three category specification is working as we want it to.
+
+
+
+\section{Supply: two-period pricing}
+\subsection{Notation}
+\small
+\begin{longtable}{p{.28\linewidth}p{.66\linewidth}}
+\toprule Symbol & Definition\\\midrule\endhead
+$t\in\{1,2\}$, $j$, $0$ & Period, inside product, and outside alternative.\\
+$x_0=h$, $x_1=a$ & Initial realized choice and realized first-period choice; each belongs to $\{j,0\}$.\\
+$\beta$, $\alpha>0$, $\gamma$ & Fixed, firm-observed type's inside intercept, positive price sensitivity, and symmetric switching coefficient. Type indices are suppressed.\\
+$c$, $\delta\in(0,1)$ & Marginal cost and discount factor.\\
+$p_t(h)$ & Price conditional on preceding realized choice $h$. Prices belong to $\R$.\\
+$V_{jt}^{\rm raw}$, $V_{0t}^{\rm raw}$ & Raw deterministic utilities of inside and outside alternatives.\\
+$v_t(h)$ & Inside-minus-outside deterministic utility.\\
+$q(h)$ & Signed history indicator: $q(j)=-1$, $q(0)=1$.\\
+$\varepsilon_{jt}$, $\varepsilon_{0t}$ & Independent unit-scale type-I extreme-value shocks across alternatives and periods.\\
+$s_t(h)$, $s_{0t}(h)$ & Inside and outside choice probabilities.\\
+$W_2(a)$ & Optimized terminal profit conditional on $x_1=a$.\\
+$\Delta W$ & $W_2(j)-W_2(0)$.\\
+$\Pi(p_1;h)$, $\Pi^*(h)$ & Expected discounted profit at candidate first-period price and at its optimum.\\
+$s$, $r$, $u$, $v$, $B_2$ & Algebraic abbreviations only: $s=s_1^*(h)$, $r=1-s$, $u=s_2^*(j)$, $v=s_2^*(0)$, $B_2=u+v$.\\
+$F_1$, $F_2$ & Implicit first- and second-period optimal-price equations after dividing the profit FOC by the share derivative.\\
+$b$, $k$, $H(p)$ & Generic logit intercept, effective cost, and sign-equivalent FOC function in the uniqueness calculation.\\
+$p^{\mathrm{stat}}(h)$, $s^{\mathrm{stat}}(h)$ & Separately optimized static price and its associated share ($\delta=0$).\\
+$D_h$, $E_h$ & Numerators defined below for the first-period price and profit derivatives.\\
+$R_j$, $R_0$, $R_{0\to j}$ & Two state-matched price ratios and the ratio conditional on path $0\to j$.\\
+$\partial$, $\dd/\dd\gamma$, prime, $*$ & Partial derivative, total derivative at fixed discrete histories, total gamma derivative, and optimized quantity.\\
+\bottomrule
+\end{longtable}
+\normalsize
+
+\subsection{Utilities and shares}
+\begin{equation}
+\begin{aligned}
+V_{jt}^{\mathrm{raw}}&=\beta-\alpha p_t+\gamma\ind\{x_{t-1}=0\},
+\end{aligned}
+\end{equation}
+\begin{equation}
+\begin{aligned}
+V_{0t}^{\mathrm{raw}}&=\gamma\ind\{x_{t-1}=j\},
+\end{aligned}
+\end{equation}
+\begin{equation}
+\begin{aligned}
+v_t(h)&=V_{jt}^{\mathrm{raw}}-V_{0t}^{\mathrm{raw}}\\[3pt]
+&=\beta-\alpha p_t(h)+\gamma[\ind\{h=0\}-\ind\{h=j\}]\\[3pt]
+&=\beta-\alpha p_t(h)+q(h)\gamma,
+\end{aligned}
+\end{equation}
+\begin{equation}
+\begin{aligned}
+s_t(h)&=\frac{e^{v_t(h)}}{1+e^{v_t(h)}},\qquad s_{0t}(h)=1-s_t(h).
+\end{aligned}
+\end{equation}
+\begin{equation}
+\begin{aligned}
+\frac{\partial s_t}{\partial p_t}&=-\alpha s_t(1-s_t),
+\end{aligned}
+\end{equation}
+\begin{equation}
+\begin{aligned}
+\left.\frac{\partial s_t}{\partial\gamma}\right|_{p_t,h}&=q(h)s_t(1-s_t),
+\end{aligned}
+\end{equation}
+
+\subsection{Terminal-period optimization}
+For each $a\in\{j,0\}$:
+\begin{equation}
+\begin{aligned}
+W_2(a)&=\max_{p_2(a)\in\R}s_2(a)[p_2(a)-c],
+\end{aligned}
+\end{equation}
+\begin{equation}
+\begin{aligned}
+0&=\frac{\partial}{\partial p_2}\{s_2(p_2-c)\}\\[3pt]
+&=s_2+(p_2-c)\frac{\partial s_2}{\partial p_2}\\[3pt]
+&=s_2-\alpha s_2(1-s_2)(p_2-c),
+\end{aligned}
+\end{equation}
+\begin{equation}
+\begin{aligned}
+1&=\alpha(1-s_2^*)(p_2^*-c),
+\end{aligned}
+\end{equation}
+\begin{equation}
+\begin{aligned}
+p_2^*(a)&=c+\frac1{\alpha[1-s_2^*(a)]},
+\end{aligned}
+\end{equation}
+\begin{equation}
+\begin{aligned}
+W_2(a)&=\frac{s_2^*(a)}{\alpha[1-s_2^*(a)]}.
+\end{aligned}
+\end{equation}
+
+\subsection{First-period optimization}
+\begin{equation}
+\begin{aligned}
+\Delta W&=W_2(j)-W_2(0),
+\end{aligned}
+\end{equation}
+\begin{equation}
+\begin{aligned}
+\Pi(p_1;h)&=s_1(h)(p_1-c)+\delta\{s_1(h)W_2(j)+[1-s_1(h)]W_2(0)\}\\[3pt]
+&=\delta W_2(0)+s_1(h)[p_1-c+\delta\Delta W],
+\end{aligned}
+\end{equation}
+\begin{equation}
+\begin{aligned}
+\partial_{p_1}\Pi&=s_1+\partial_{p_1}s_1[p_1-c+\delta\Delta W]\\[3pt]
+&=s_1-\alpha s_1(1-s_1)[p_1-c+\delta\Delta W],
+\end{aligned}
+\end{equation}
+\begin{equation}
+\begin{aligned}
+0&=1-\alpha(1-s_1^*)[p_1^*-c+\delta\Delta W],
+\end{aligned}
+\end{equation}
+\begin{equation}
+\begin{aligned}
+p_1^*(h)&=c+\frac1{\alpha[1-s_1^*(h)]}-\delta\Delta W,
+\end{aligned}
+\end{equation}
+\begin{equation}
+\begin{aligned}
+\Pi^*(h)&=\delta W_2(0)+\frac{s_1^*(h)}{\alpha[1-s_1^*(h)]}.
+\end{aligned}
+\end{equation}
+The two terminal value functions are constant with respect to $p_1$ conditional on the realized terminal state.
+
+\subsection{Terminal-price and terminal-value derivatives}
+For fixed $a$, write $s_2=s_2^*(a)$ and $q=q(a)$ within this subsection.
+\begin{equation}
+\begin{aligned}
+F_2(p_2,\gamma;a)&=p_2-c-\frac1{\alpha(1-s_2)},
+\end{aligned}
+\end{equation}
+\begin{equation}
+\begin{aligned}
+\partial_{p_2}F_2&=1-\frac1\alpha\frac{\partial_{p_2}s_2}{(1-s_2)^2}
+ =1+\frac{s_2}{1-s_2}=\frac1{1-s_2},
+\end{aligned}
+\end{equation}
+\begin{equation}
+\begin{aligned}
+\partial_\gamma F_2&=-\frac1\alpha\frac{q s_2(1-s_2)}{(1-s_2)^2}
+ =-\frac{q s_2}{\alpha(1-s_2)},
+\end{aligned}
+\end{equation}
+\begin{equation}
+\begin{aligned}
+\frac{\dd p_2^*(a)}{\dd\gamma}&=-\frac{\partial_\gamma F_2}{\partial_{p_2}F_2}
+ =\frac{q(a)s_2^*(a)}\alpha,
+\end{aligned}
+\end{equation}
+\begin{equation}
+\begin{aligned}
+\frac{\dd s_2^*(a)}{\dd\gamma}&=s_2(1-s_2)\left[q(a)-\alpha\frac{\dd p_2^*(a)}{\dd\gamma}\right]\\[3pt]
+&=q(a)s_2(1-s_2)^2,
+\end{aligned}
+\end{equation}
+\begin{equation}
+\begin{aligned}
+\frac{\dd W_2(a)}{\dd\gamma}&=\left.\partial_\gamma\{s_2(p_2-c)\}\right|_{p_2=p_2^*}\\[3pt]
+&=q(a)s_2(1-s_2)(p_2^*-c)
+ =\frac{q(a)s_2}\alpha.
+\end{aligned}
+\end{equation}
+Restore $u=s_2^*(j)$ and $v=s_2^*(0)$:
+\begin{equation}
+\begin{aligned}
+\frac{\dd p_2^*(j)}{\dd\gamma}&=-\frac u\alpha,
+\end{aligned}
+\end{equation}
+\begin{equation}
+\begin{aligned}
+\frac{\dd p_2^*(0)}{\dd\gamma}&=\frac v\alpha,
+\end{aligned}
+\end{equation}
+\begin{equation}
+\begin{aligned}
+W_2'(j)&=-\frac u\alpha,
+\end{aligned}
+\end{equation}
+\begin{equation}
+\begin{aligned}
+W_2'(0)&=\frac v\alpha,
+\end{aligned}
+\end{equation}
+\begin{equation}
+\begin{aligned}
+\Delta W'&=-\frac{u+v}\alpha=-\frac{B_2}\alpha,
+\end{aligned}
+\end{equation}
+\begin{equation}
+\begin{aligned}
+u'&=-u(1-u)^2,
+\end{aligned}
+\end{equation}
+\begin{equation}
+\begin{aligned}
+v'&=v(1-v)^2,
+\end{aligned}
+\end{equation}
+\begin{equation}
+\begin{aligned}
+B_2'&=-u(1-u)^2+v(1-v)^2.
+\end{aligned}
+\end{equation}
+
+\subsection{First-period price and share derivatives}
+Let $q=q(h)$, $s=s_1^*(h)$, $r=1-s$.
+\begin{equation}
+\begin{aligned}
+F_1(p_1,\gamma;h)&=p_1-c-\frac1{\alpha(1-s_1)}+\delta\Delta W,
+\end{aligned}
+\end{equation}
+\begin{equation}
+\begin{aligned}
+\partial_{p_1}F_1&=1-\frac1\alpha\frac{-\alpha s_1(1-s_1)}{(1-s_1)^2}
+ =\frac1r,
+\end{aligned}
+\end{equation}
+\begin{equation}
+\begin{aligned}
+\partial_\gamma F_1&=-\frac{qs}{\alpha r}+\delta\Delta W'
+ =-\frac{qs}{\alpha r}-\frac{\delta B_2}\alpha,
+\end{aligned}
+\end{equation}
+\begin{equation}
+\begin{aligned}
+p_1^{*\prime}(h)&=-\frac{\partial_\gamma F_1}{\partial_{p_1}F_1}
+ =\frac{qs+\delta r B_2}\alpha,
+\end{aligned}
+\end{equation}
+\begin{equation}
+\begin{aligned}
+s'&=sr(q-\alpha p_1^{*\prime})\\[3pt]
+&=sr[q-qs-\delta rB_2]
+ =sr^2(q-\delta B_2),
+\end{aligned}
+\end{equation}
+\begin{equation}
+\begin{aligned}
+r'&=-s'.
+\end{aligned}
+\end{equation}
+\begin{equation}
+\begin{aligned}
+p_1^{*\prime\prime}&=\frac{qs'+\delta r'B_2+\delta rB_2'}\alpha\\[3pt]
+&=\frac{(q-\delta B_2)s'+\delta rB_2'}\alpha\\[3pt]
+&=\frac{sr^2(q-\delta B_2)^2+\delta rB_2'}\alpha.
+\end{aligned}
+\end{equation}
+
+\subsection{Profit derivative}
+\begin{equation}
+\begin{aligned}
+\frac{\dd\Pi^*(h)}{\dd\gamma}&=\left.\partial_\gamma\Pi(p_1;h)\right|_{p_1=p_1^*}\\[3pt]
+&=qsr[p_1^*-c+\delta\Delta W]
+   +\delta\{sW_2'(j)+rW_2'(0)\}\\[3pt]
+&=qsr\frac1{\alpha r}+\delta\left(-\frac{su}\alpha+\frac{rv}\alpha\right)\\[3pt]
+&=\frac{qs-\delta su+\delta rv}\alpha.
+\end{aligned}
+\end{equation}
+
+\subsection{Conditional derivative signs}
+\begin{equation}
+\begin{aligned}
+D_h&=q(h)s+\delta r(u+v),
+\end{aligned}
+\end{equation}
+\begin{equation}
+\begin{aligned}
+p_1^{*\prime}(h)&=D_h/\alpha,
+\end{aligned}
+\end{equation}
+\begin{equation}
+\begin{aligned}
+E_h&=q(h)s-\delta su+\delta rv,
+\end{aligned}
+\end{equation}
+\begin{equation}
+\begin{aligned}
+\Pi^{*\prime}(h)&=E_h/\alpha.
+\end{aligned}
+\end{equation}
+\begin{equation}
+\begin{aligned}
+h=0:\quad D_0&=s+\delta r(u+v)>0,
+\end{aligned}
+\end{equation}
+\begin{equation}
+\begin{aligned}
+E_0&=s(1-\delta u)+\delta rv>0,
+\end{aligned}
+\end{equation}
+\begin{equation}
+\begin{aligned}
+h=j:\quad D_j&=-s+\delta r(u+v),
+\end{aligned}
+\end{equation}
+\begin{equation}
+\begin{aligned}
+E_j&=-s(1+\delta u)+\delta rv,
+\end{aligned}
+\end{equation}
+\begin{equation}
+\begin{aligned}
+p_1^{*\prime}(j)>0&\iff\delta r(u+v)>s,
+\end{aligned}
+\end{equation}
+\begin{equation}
+\begin{aligned}
+\Pi^{*\prime}(j)>0&\iff\delta rv>s(1+\delta u).
+\end{aligned}
+\end{equation}
+Equality gives a zero derivative; reversing each inequality reverses the corresponding sign.
+
+\subsection{Price ratios and their derivatives}
+\begin{equation}
+\begin{aligned}
+R_j&=\frac{p_1^*(j)}{p_2^*(j)},
+\end{aligned}
+\end{equation}
+\begin{equation}
+\begin{aligned}
+R_0&=\frac{p_1^*(0)}{p_2^*(0)},
+\end{aligned}
+\end{equation}
+\begin{equation}
+\begin{aligned}
+R_{0\to j}&=\frac{p_1^*(0)}{p_2^*(j)},
+\end{aligned}
+\end{equation}
+\begin{equation}
+\begin{aligned}
+\frac{\dd}{\dd\gamma}\left(\frac{p_1^*}{p_2^*}\right)&=\frac1{p_2^*}\frac{\dd p_1^*}{\dd\gamma}
+ -\frac{p_1^*}{(p_2^*)^2}\frac{\dd p_2^*}{\dd\gamma}\\[3pt]
+&=\frac{p_2^*p_1^{*\prime}-p_1^*p_2^{*\prime}}{(p_2^*)^2},
+\end{aligned}
+\end{equation}
+\begin{equation}
+\begin{aligned}
+R_j'&=\frac{p_2^*(j)p_1^{*\prime}(j)+p_1^*(j)u/\alpha}{[p_2^*(j)]^2},
+\end{aligned}
+\end{equation}
+\begin{equation}
+\begin{aligned}
+R_0'&=\frac{p_2^*(0)p_1^{*\prime}(0)-p_1^*(0)v/\alpha}{[p_2^*(0)]^2},
+\end{aligned}
+\end{equation}
+\begin{equation}
+\begin{aligned}
+R_{0\to j}'&=\frac{p_2^*(j)p_1^{*\prime}(0)+p_1^*(0)u/\alpha}{[p_2^*(j)]^2}.
+\end{aligned}
+\end{equation}
+Each ratio requires a nonzero denominator. Each derivative holds its stated discrete histories fixed.
+
+\subsection{Numerical specification}
+\[
+\beta=2,\qquad\alpha=1,\qquad\delta=0.92,\qquad c=0,
+\qquad\gamma\in[-3,3]\quad(601\text{ grid points per initial state}).
+\]
+\begin{table}[htbp]\centering\small
+\caption{Selected supply solutions}
+\begin{tabular}{crrrrrr}\toprule
+$h$ & $\gamma$ & $p_1^*(h)$ & $p_2^*(j)$ & $p_2^*(0)$ & $\Pi^*(h)$ & $\dd\Pi^*(h)/\dd\gamma$\\\midrule
+\input{assets/supply_values.tex}\end{tabular}
+\end{table}
+\clearpage
+\begin{figure}[p]\centering
+\includegraphics[width=\linewidth]{assets/prices.pdf}
+\caption{$p_1^*(h)$ and $p_2^*(a)$; $\beta=2$, $\alpha=1$, $\delta=0.92$, $c=0$.}
+\end{figure}
+\begin{figure}[p]\centering
+\includegraphics[width=.82\linewidth]{assets/price_derivative.pdf}
+\caption{$\dd p_1^*(h)/\dd\gamma$; $\beta=2$, $\alpha=1$, $\delta=0.92$, $c=0$.}
+\end{figure}
+\clearpage
+\begin{figure}[p]\centering
+\includegraphics[width=.82\linewidth]{assets/profit.pdf}
+\caption{$\Pi^*(h)$; $\beta=2$, $\alpha=1$, $\delta=0.92$, $c=0$.}
+\end{figure}
+\begin{figure}[p]\centering
+\includegraphics[width=.82\linewidth]{assets/profit_derivative.pdf}
+\caption{$\dd\Pi^*(h)/\dd\gamma$; $\beta=2$, $\alpha=1$, $\delta=0.92$, $c=0$.}
+\end{figure}
+\clearpage
+\begin{figure}[p]\centering
+\includegraphics[width=.82\linewidth]{assets/matched_ratio_derivatives.pdf}
+\caption{$\dd R_j/\dd\gamma$ and $\dd R_0/\dd\gamma$; $\beta=2$, $\alpha=1$, $\delta=0.92$, $c=0$.}
+\end{figure}
+\begin{figure}[p]\centering
+\includegraphics[width=.82\linewidth]{assets/path_ratio_derivative.pdf}
+\caption{$\dd R_{0\to j}/\dd\gamma$; $\beta=2$, $\alpha=1$, $\delta=0.92$, $c=0$.}
+\end{figure}
+
+\subsection{Discussion of Supply}
+
+The optimal pricing conditions show that the period price one is convex for consumers with initial state $h_0=j$, implying higher prices for individuals at the poles of the $\gamma$ distribution. For $h_0=0$, the firm will raise its price as $\gamma$ increases. This tracks with what I would expect to see. As a consumer is more likely to switch, they will be less impacted by a higher price. Period two prices move in opposite directions. Those who bought $a=j$ in period one see a lower price as the level of $\gamma$ increases, attempting to hold them, while $a=0$ last period sees higher prices as the level of $\gamma$ increases. From this we can see that switchers are charged higher prices at higher levels of switching preference in both periods. This points towards an idea of trying to charge as much as possible before the consumer switches away. Similarly, as consumer's prefer to show persistence in consumption, period two prices are very high. Optimal prices are approximately four times higher for stayers than switchers in period two. We perfectly see the induce then harvest mechanism here. At $\gamma=3$ the firm is even willing to subsidize the consumer to switch in order to charge a much higher price in the next period.
+
+From the derivative of optimal period one price w.r.t. $\gamma$, initial state $h_0=0$ we have a relatively flat effect, seeing slight concavity. However, the curve for $h_0=j$ shows that the effect of $\gamma$ is quite variable depending on consumer type.
+
+Optimal profit shows that for $h_0=j$, higher levels of $\gamma$ reduce profits until $\gamma=1$ when the curve turns back up, implying there is a level of switching preference which becomes profitable to target. For $h_0=0$, higher values of $\gamma$ are more profitable since if they can get the consumer to switch in period one, they can harvest in period two. However, this is a bit difficult for me to interpret since if they are a high type switcher, they would likely switch in the path $0\rightarrow j\rightarrow 0$, reducing firm profits. Something to continue to analyze on my part.
+
+The profit derivative w.r.t. $\gamma$ is remarkably similar to the optimal first period derivative for $h_0=j$, though for $h_0=0$ there is much more curvature, showing that stayers are less profitable since they will likely remain with the outside option. 
+
+The pricing ratio derivatives show three cases: $j\rightarrow j = R_j, \ 0\rightarrow0 = R_0, \ 0\rightarrow j = R_{0\rightarrow j}$. In the inside only case, period one prices dominate with increases in $\gamma$, seeing the value of the ratio grow with $\gamma$. For the outside only, we see the opposite. This is again due to induce and harvest. The firm will charge a lower period one price then charge a higher period two price for high switchers, leading to the downward slope. Finally, in the switching case, the curve looks remarkably similar to the inside only case, though it starts at a higher point. Induce and harvest is well demonstrated by this figure, showing higher period two prices for those likely to stay with $j$ if they switch from initial state $0\rightarrow j$ in period one. As the consumer becomes more likely to switch, the firm will attempt to charge as much as possible in period one. 
+
+These results demonstrate the firm's objective of targeting to first induce customers to their product via discounts, then ratcheting up prices in subsequent periods to reap profit from new consumers. A future task would be to put the estimated distribution from the empirical exercise into this this simulation to see how the firm would actually price and then compare to actual pricing.
+
+\end{document}

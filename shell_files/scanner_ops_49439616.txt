@@ -1,0 +1,431 @@
+From github.com:tate-mason/LOV_CC_2YP
+   56d8eee..e5520a1  main       -> origin/main
+Updating 56d8eee..e5520a1
+Fast-forward
+ .DS_Store                                          |  Bin 20484 -> 20484 bytes
+ Code/.DS_Store                                     |  Bin 14340 -> 12292 bytes
+ Code/final_draft/.DS_Store                         |  Bin 10244 -> 10244 bytes
+ .../data_code/cleaning_merging/retail_merge.py     |    6 +-
+ Code/final_draft/supply_code/.DS_Store             |  Bin 0 -> 8196 bytes
+ .../supply_code/README_comparative_statics.txt     |    3 +
+ .../figures/beta_p1_derivative_by_gamma.pdf        |  Bin 0 -> 20431 bytes
+ .../figures/beta_p1_derivative_by_gamma.png        |  Bin 0 -> 71932 bytes
+ .../supply_code/figures/price_ratio_by_gamma.pdf   |  Bin 16563 -> 16563 bytes
+ .../figures/price_ratio_derivative_cases.pdf       |  Bin 16418 -> 16418 bytes
+ .../supply_code/figures/profit_by_gamma.pdf        |  Bin 17242 -> 17242 bytes
+ Code/final_draft/supply_code/figures/solutions.csv | 1208 ++++++++++----------
+ .../supply_code/make_comparative_static_figures.py |   21 +-
+ 13 files changed, 625 insertions(+), 613 deletions(-)
+ create mode 100644 Code/final_draft/supply_code/.DS_Store
+ create mode 100644 Code/final_draft/supply_code/figures/beta_p1_derivative_by_gamma.pdf
+ create mode 100644 Code/final_draft/supply_code/figures/beta_p1_derivative_by_gamma.png
+Converted: products_extra_2006.tsv -> products_extra_2006.parquet
+Converted: rms_versions_2006.tsv -> rms_2006.parquet
+Converted: stores_2006.tsv -> stores_2006.parquet
+Converted: 3603_2006.tsv -> 3603_2006.parquet
+Converted: 3612_2006.tsv -> 3612_2006.parquet
+Converted: products_extra_2007.tsv -> products_extra_2007.parquet
+Converted: rms_versions_2007.tsv -> rms_2007.parquet
+Converted: stores_2007.tsv -> stores_2007.parquet
+Converted: 3603_2007.tsv -> 3603_2007.parquet
+Converted: 3612_2007.tsv -> 3612_2007.parquet
+Converted: products_extra_2008.tsv -> products_extra_2008.parquet
+Converted: rms_versions_2008.tsv -> rms_2008.parquet
+Converted: stores_2008.tsv -> stores_2008.parquet
+Converted: 3603_2008.tsv -> 3603_2008.parquet
+Converted: 3612_2008.tsv -> 3612_2008.parquet
+Converted: products_extra_2009.tsv -> products_extra_2009.parquet
+Converted: rms_versions_2009.tsv -> rms_2009.parquet
+Converted: stores_2009.tsv -> stores_2009.parquet
+Converted: 3603_2009.tsv -> 3603_2009.parquet
+Converted: 3612_2009.tsv -> 3612_2009.parquet
+Converted: products_extra_2010.tsv -> products_extra_2010.parquet
+Converted: rms_versions_2010.tsv -> rms_2010.parquet
+Converted: stores_2010.tsv -> stores_2010.parquet
+Converted: 3603_2010.tsv -> 3603_2010.parquet
+Converted: 3612_2010.tsv -> 3612_2010.parquet
+Converted: products_extra_2011.tsv -> products_extra_2011.parquet
+Converted: rms_versions_2011.tsv -> rms_2011.parquet
+Converted: stores_2011.tsv -> stores_2011.parquet
+Converted: 3603_2011.tsv -> 3603_2011.parquet
+Converted: 3612_2011.tsv -> 3612_2011.parquet
+Converted: products_extra_2012.tsv -> products_extra_2012.parquet
+Converted: rms_versions_2012.tsv -> rms_2012.parquet
+Converted: stores_2012.tsv -> stores_2012.parquet
+Converted: 3603_2012.tsv -> 3603_2012.parquet
+Converted: 3612_2012.tsv -> 3612_2012.parquet
+Converted: products_extra_2013.tsv -> products_extra_2013.parquet
+Converted: rms_versions_2013.tsv -> rms_2013.parquet
+Converted: stores_2013.tsv -> stores_2013.parquet
+Converted: 3603_2013.tsv -> 3603_2013.parquet
+Converted: 3612_2013.tsv -> 3612_2013.parquet
+Converted: products_extra_2014.tsv -> products_extra_2014.parquet
+Converted: rms_versions_2014.tsv -> rms_2014.parquet
+Converted: stores_2014.tsv -> stores_2014.parquet
+Converted: 3603_2014.tsv -> 3603_2014.parquet
+Converted: 3612_2014.tsv -> 3612_2014.parquet
+Converted: products_extra_2015.tsv -> products_extra_2015.parquet
+Converted: rms_versions_2015.tsv -> rms_2015.parquet
+Converted: stores_2015.tsv -> stores_2015.parquet
+Converted: 3603_2015.tsv -> 3603_2015.parquet
+Converted: 3612_2015.tsv -> 3612_2015.parquet
+Converted: brand_variations.tsv -> brand_variations.parquet
+Converted: products.tsv -> products.parquet
+
+--- 3603_2006.parquet (8 columns) ---
+['store_code_uc', 'upc', 'week_end', 'units', 'prmult', 'price', 'feature', 'display']
+
+--- 3603_2007.parquet (8 columns) ---
+['store_code_uc', 'upc', 'week_end', 'units', 'prmult', 'price', 'feature', 'display']
+
+--- 3603_2008.parquet (8 columns) ---
+['store_code_uc', 'upc', 'week_end', 'units', 'prmult', 'price', 'feature', 'display']
+
+--- 3603_2009.parquet (8 columns) ---
+['store_code_uc', 'upc', 'week_end', 'units', 'prmult', 'price', 'feature', 'display']
+
+--- 3603_2010.parquet (8 columns) ---
+['store_code_uc', 'upc', 'week_end', 'units', 'prmult', 'price', 'feature', 'display']
+
+--- 3603_2011.parquet (8 columns) ---
+['store_code_uc', 'upc', 'week_end', 'units', 'prmult', 'price', 'feature', 'display']
+
+--- 3603_2012.parquet (8 columns) ---
+['store_code_uc', 'upc', 'week_end', 'units', 'prmult', 'price', 'feature', 'display']
+
+--- 3603_2013.parquet (8 columns) ---
+['store_code_uc', 'upc', 'week_end', 'units', 'prmult', 'price', 'feature', 'display']
+
+--- 3603_2014.parquet (8 columns) ---
+['store_code_uc', 'upc', 'week_end', 'units', 'prmult', 'price', 'feature', 'display']
+
+--- 3603_2015.parquet (8 columns) ---
+['store_code_uc', 'upc', 'week_end', 'units', 'prmult', 'price', 'feature', 'display']
+
+--- 3612_2006.parquet (8 columns) ---
+['store_code_uc', 'upc', 'week_end', 'units', 'prmult', 'price', 'feature', 'display']
+
+--- 3612_2007.parquet (8 columns) ---
+['store_code_uc', 'upc', 'week_end', 'units', 'prmult', 'price', 'feature', 'display']
+
+--- 3612_2008.parquet (8 columns) ---
+['store_code_uc', 'upc', 'week_end', 'units', 'prmult', 'price', 'feature', 'display']
+
+--- 3612_2009.parquet (8 columns) ---
+['store_code_uc', 'upc', 'week_end', 'units', 'prmult', 'price', 'feature', 'display']
+
+--- 3612_2010.parquet (8 columns) ---
+['store_code_uc', 'upc', 'week_end', 'units', 'prmult', 'price', 'feature', 'display']
+
+--- 3612_2011.parquet (8 columns) ---
+['store_code_uc', 'upc', 'week_end', 'units', 'prmult', 'price', 'feature', 'display']
+
+--- 3612_2012.parquet (8 columns) ---
+['store_code_uc', 'upc', 'week_end', 'units', 'prmult', 'price', 'feature', 'display']
+
+--- 3612_2013.parquet (8 columns) ---
+['store_code_uc', 'upc', 'week_end', 'units', 'prmult', 'price', 'feature', 'display']
+
+--- 3612_2014.parquet (8 columns) ---
+['store_code_uc', 'upc', 'week_end', 'units', 'prmult', 'price', 'feature', 'display']
+
+--- 3612_2015.parquet (8 columns) ---
+['store_code_uc', 'upc', 'week_end', 'units', 'prmult', 'price', 'feature', 'display']
+
+--- brand_variations.parquet (6 columns) ---
+['brand_code_uc', 'brand_descr', 'brand_descr_alternative', 'start_date', 'end_date', 'datasets_found_uc']
+
+--- cleaned_3603_2006.parquet (4 columns) ---
+['store_code_uc', 'upc', 'week_end', 'price']
+
+--- cleaned_3603_2007.parquet (4 columns) ---
+['store_code_uc', 'upc', 'week_end', 'price']
+
+--- cleaned_3603_2008.parquet (4 columns) ---
+['store_code_uc', 'upc', 'week_end', 'price']
+
+--- cleaned_3603_2009.parquet (4 columns) ---
+['store_code_uc', 'upc', 'week_end', 'price']
+
+--- cleaned_3603_2010.parquet (4 columns) ---
+['store_code_uc', 'upc', 'week_end', 'price']
+
+--- cleaned_3603_2011.parquet (4 columns) ---
+['store_code_uc', 'upc', 'week_end', 'price']
+
+--- cleaned_3603_2012.parquet (4 columns) ---
+['store_code_uc', 'upc', 'week_end', 'price']
+
+--- cleaned_3603_2013.parquet (4 columns) ---
+['store_code_uc', 'upc', 'week_end', 'price']
+
+--- cleaned_3603_2014.parquet (4 columns) ---
+['store_code_uc', 'upc', 'week_end', 'price']
+
+--- cleaned_3603_2015.parquet (4 columns) ---
+['store_code_uc', 'upc', 'week_end', 'price']
+
+--- cleaned_3612_2006.parquet (4 columns) ---
+['store_code_uc', 'upc', 'week_end', 'price']
+
+--- cleaned_3612_2007.parquet (4 columns) ---
+['store_code_uc', 'upc', 'week_end', 'price']
+
+--- cleaned_3612_2008.parquet (4 columns) ---
+['store_code_uc', 'upc', 'week_end', 'price']
+
+--- cleaned_3612_2009.parquet (4 columns) ---
+['store_code_uc', 'upc', 'week_end', 'price']
+
+--- cleaned_3612_2010.parquet (4 columns) ---
+['store_code_uc', 'upc', 'week_end', 'price']
+
+--- cleaned_3612_2011.parquet (4 columns) ---
+['store_code_uc', 'upc', 'week_end', 'price']
+
+--- cleaned_3612_2012.parquet (4 columns) ---
+['store_code_uc', 'upc', 'week_end', 'price']
+
+--- cleaned_3612_2013.parquet (4 columns) ---
+['store_code_uc', 'upc', 'week_end', 'price']
+
+--- cleaned_3612_2014.parquet (4 columns) ---
+['store_code_uc', 'upc', 'week_end', 'price']
+
+--- cleaned_3612_2015.parquet (4 columns) ---
+['store_code_uc', 'upc', 'week_end', 'price']
+
+--- cleaned_products.parquet (8 columns) ---
+['upc', 'upc_ver_uc', 'product_module_code', 'brand_code_uc', 'brand_descr', 'size1_code_uc', 'size1_amount', 'size1_units']
+
+--- cleaned_products_extra_2006.parquet (5 columns) ---
+['upc', 'upc_ver_uc', 'panel_year', 'flavor_code', 'flavor_descr']
+
+--- cleaned_products_extra_2007.parquet (5 columns) ---
+['upc', 'upc_ver_uc', 'panel_year', 'flavor_code', 'flavor_descr']
+
+--- cleaned_products_extra_2008.parquet (5 columns) ---
+['upc', 'upc_ver_uc', 'panel_year', 'flavor_code', 'flavor_descr']
+
+--- cleaned_products_extra_2009.parquet (5 columns) ---
+['upc', 'upc_ver_uc', 'panel_year', 'flavor_code', 'flavor_descr']
+
+--- cleaned_products_extra_2010.parquet (5 columns) ---
+['upc', 'upc_ver_uc', 'panel_year', 'flavor_code', 'flavor_descr']
+
+--- cleaned_products_extra_2011.parquet (5 columns) ---
+['upc', 'upc_ver_uc', 'panel_year', 'flavor_code', 'flavor_descr']
+
+--- cleaned_products_extra_2012.parquet (5 columns) ---
+['upc', 'upc_ver_uc', 'panel_year', 'flavor_code', 'flavor_descr']
+
+--- cleaned_products_extra_2013.parquet (5 columns) ---
+['upc', 'upc_ver_uc', 'panel_year', 'flavor_code', 'flavor_descr']
+
+--- cleaned_products_extra_2014.parquet (5 columns) ---
+['upc', 'upc_ver_uc', 'panel_year', 'flavor_code', 'flavor_descr']
+
+--- cleaned_products_extra_2015.parquet (5 columns) ---
+['upc', 'upc_ver_uc', 'panel_year', 'flavor_code', 'flavor_descr']
+
+--- cleaned_stores_2006.parquet (6 columns) ---
+['store_code_uc', 'year', 'retailer_code', 'channel_code', 'dma_code', 'dma_descr']
+
+--- cleaned_stores_2007.parquet (6 columns) ---
+['store_code_uc', 'year', 'retailer_code', 'channel_code', 'dma_code', 'dma_descr']
+
+--- cleaned_stores_2008.parquet (6 columns) ---
+['store_code_uc', 'year', 'retailer_code', 'channel_code', 'dma_code', 'dma_descr']
+
+--- cleaned_stores_2009.parquet (6 columns) ---
+['store_code_uc', 'year', 'retailer_code', 'channel_code', 'dma_code', 'dma_descr']
+
+--- cleaned_stores_2010.parquet (6 columns) ---
+['store_code_uc', 'year', 'retailer_code', 'channel_code', 'dma_code', 'dma_descr']
+
+--- cleaned_stores_2011.parquet (6 columns) ---
+['store_code_uc', 'year', 'retailer_code', 'channel_code', 'dma_code', 'dma_descr']
+
+--- cleaned_stores_2012.parquet (6 columns) ---
+['store_code_uc', 'year', 'retailer_code', 'channel_code', 'dma_code', 'dma_descr']
+
+--- cleaned_stores_2013.parquet (6 columns) ---
+['store_code_uc', 'year', 'retailer_code', 'channel_code', 'dma_code', 'dma_descr']
+
+--- cleaned_stores_2014.parquet (6 columns) ---
+['store_code_uc', 'year', 'retailer_code', 'channel_code', 'dma_code', 'dma_descr']
+
+--- cleaned_stores_2015.parquet (6 columns) ---
+['store_code_uc', 'year', 'retailer_code', 'channel_code', 'dma_code', 'dma_descr']
+
+--- Could not read merged_rms.parquet (corrupted or partial file): parquet: File out of specification: The file must end with PAR1 ---
+
+--- products.parquet (17 columns) ---
+['upc', 'upc_ver_uc', 'upc_descr', 'product_module_code', 'product_module_descr', 'product_group_code', 'product_group_descr', 'department_code', 'department_descr', 'brand_code_uc', 'brand_descr', 'multi', 'size1_code_uc', 'size1_amount', 'size1_units', 'dataset_found_uc', 'size1_change_flag_uc']
+
+--- products_extra_2006.parquet (42 columns) ---
+['upc', 'upc_ver_uc', 'panel_year', 'flavor_code', 'flavor_descr', 'form_code', 'form_descr', 'formula_code', 'formula_descr', 'container_code', 'container_descr', 'salt_content_code', 'salt_content_descr', 'style_code', 'style_descr', 'type_code', 'type_descr', 'product_code', 'product_descr', 'variety_code', 'variety_descr', 'organic_claim_code', 'organic_claim_descr', 'usda_organic_seal_code', 'usda_organic_seal_descr', 'common_consumer_name_code', 'common_consumer_name_descr', 'strength_code', 'strength_descr', 'scent_code', 'scent_descr', 'dosage_code', 'dosage_descr', 'gender_code', 'gender_descr', 'target_skin_condition_code', 'target_skin_condition_descr', 'use_code', 'use_descr', 'size2_code', 'size2_amount', 'size2_units']
+
+--- products_extra_2007.parquet (42 columns) ---
+['upc', 'upc_ver_uc', 'panel_year', 'flavor_code', 'flavor_descr', 'form_code', 'form_descr', 'formula_code', 'formula_descr', 'container_code', 'container_descr', 'salt_content_code', 'salt_content_descr', 'style_code', 'style_descr', 'type_code', 'type_descr', 'product_code', 'product_descr', 'variety_code', 'variety_descr', 'organic_claim_code', 'organic_claim_descr', 'usda_organic_seal_code', 'usda_organic_seal_descr', 'common_consumer_name_code', 'common_consumer_name_descr', 'strength_code', 'strength_descr', 'scent_code', 'scent_descr', 'dosage_code', 'dosage_descr', 'gender_code', 'gender_descr', 'target_skin_condition_code', 'target_skin_condition_descr', 'use_code', 'use_descr', 'size2_code', 'size2_amount', 'size2_units']
+
+--- products_extra_2008.parquet (42 columns) ---
+['upc', 'upc_ver_uc', 'panel_year', 'flavor_code', 'flavor_descr', 'form_code', 'form_descr', 'formula_code', 'formula_descr', 'container_code', 'container_descr', 'salt_content_code', 'salt_content_descr', 'style_code', 'style_descr', 'type_code', 'type_descr', 'product_code', 'product_descr', 'variety_code', 'variety_descr', 'organic_claim_code', 'organic_claim_descr', 'usda_organic_seal_code', 'usda_organic_seal_descr', 'common_consumer_name_code', 'common_consumer_name_descr', 'strength_code', 'strength_descr', 'scent_code', 'scent_descr', 'dosage_code', 'dosage_descr', 'gender_code', 'gender_descr', 'target_skin_condition_code', 'target_skin_condition_descr', 'use_code', 'use_descr', 'size2_code', 'size2_amount', 'size2_units']
+
+--- products_extra_2009.parquet (42 columns) ---
+['upc', 'upc_ver_uc', 'panel_year', 'flavor_code', 'flavor_descr', 'form_code', 'form_descr', 'formula_code', 'formula_descr', 'container_code', 'container_descr', 'salt_content_code', 'salt_content_descr', 'style_code', 'style_descr', 'type_code', 'type_descr', 'product_code', 'product_descr', 'variety_code', 'variety_descr', 'organic_claim_code', 'organic_claim_descr', 'usda_organic_seal_code', 'usda_organic_seal_descr', 'common_consumer_name_code', 'common_consumer_name_descr', 'strength_code', 'strength_descr', 'scent_code', 'scent_descr', 'dosage_code', 'dosage_descr', 'gender_code', 'gender_descr', 'target_skin_condition_code', 'target_skin_condition_descr', 'use_code', 'use_descr', 'size2_code', 'size2_amount', 'size2_units']
+
+--- products_extra_2010.parquet (42 columns) ---
+['upc', 'upc_ver_uc', 'panel_year', 'flavor_code', 'flavor_descr', 'form_code', 'form_descr', 'formula_code', 'formula_descr', 'container_code', 'container_descr', 'salt_content_code', 'salt_content_descr', 'style_code', 'style_descr', 'type_code', 'type_descr', 'product_code', 'product_descr', 'variety_code', 'variety_descr', 'organic_claim_code', 'organic_claim_descr', 'usda_organic_seal_code', 'usda_organic_seal_descr', 'common_consumer_name_code', 'common_consumer_name_descr', 'strength_code', 'strength_descr', 'scent_code', 'scent_descr', 'dosage_code', 'dosage_descr', 'gender_code', 'gender_descr', 'target_skin_condition_code', 'target_skin_condition_descr', 'use_code', 'use_descr', 'size2_code', 'size2_amount', 'size2_units']
+
+--- products_extra_2011.parquet (42 columns) ---
+['upc', 'upc_ver_uc', 'panel_year', 'flavor_code', 'flavor_descr', 'form_code', 'form_descr', 'formula_code', 'formula_descr', 'container_code', 'container_descr', 'salt_content_code', 'salt_content_descr', 'style_code', 'style_descr', 'type_code', 'type_descr', 'product_code', 'product_descr', 'variety_code', 'variety_descr', 'organic_claim_code', 'organic_claim_descr', 'usda_organic_seal_code', 'usda_organic_seal_descr', 'common_consumer_name_code', 'common_consumer_name_descr', 'strength_code', 'strength_descr', 'scent_code', 'scent_descr', 'dosage_code', 'dosage_descr', 'gender_code', 'gender_descr', 'target_skin_condition_code', 'target_skin_condition_descr', 'use_code', 'use_descr', 'size2_code', 'size2_amount', 'size2_units']
+
+--- products_extra_2012.parquet (42 columns) ---
+['upc', 'upc_ver_uc', 'panel_year', 'flavor_code', 'flavor_descr', 'form_code', 'form_descr', 'formula_code', 'formula_descr', 'container_code', 'container_descr', 'salt_content_code', 'salt_content_descr', 'style_code', 'style_descr', 'type_code', 'type_descr', 'product_code', 'product_descr', 'variety_code', 'variety_descr', 'organic_claim_code', 'organic_claim_descr', 'usda_organic_seal_code', 'usda_organic_seal_descr', 'common_consumer_name_code', 'common_consumer_name_descr', 'strength_code', 'strength_descr', 'scent_code', 'scent_descr', 'dosage_code', 'dosage_descr', 'gender_code', 'gender_descr', 'target_skin_condition_code', 'target_skin_condition_descr', 'use_code', 'use_descr', 'size2_code', 'size2_amount', 'size2_units']
+
+--- products_extra_2013.parquet (42 columns) ---
+['upc', 'upc_ver_uc', 'panel_year', 'flavor_code', 'flavor_descr', 'form_code', 'form_descr', 'formula_code', 'formula_descr', 'container_code', 'container_descr', 'salt_content_code', 'salt_content_descr', 'style_code', 'style_descr', 'type_code', 'type_descr', 'product_code', 'product_descr', 'variety_code', 'variety_descr', 'organic_claim_code', 'organic_claim_descr', 'usda_organic_seal_code', 'usda_organic_seal_descr', 'common_consumer_name_code', 'common_consumer_name_descr', 'strength_code', 'strength_descr', 'scent_code', 'scent_descr', 'dosage_code', 'dosage_descr', 'gender_code', 'gender_descr', 'target_skin_condition_code', 'target_skin_condition_descr', 'use_code', 'use_descr', 'size2_code', 'size2_amount', 'size2_units']
+
+--- products_extra_2014.parquet (42 columns) ---
+['upc', 'upc_ver_uc', 'panel_year', 'flavor_code', 'flavor_descr', 'form_code', 'form_descr', 'formula_code', 'formula_descr', 'container_code', 'container_descr', 'salt_content_code', 'salt_content_descr', 'style_code', 'style_descr', 'type_code', 'type_descr', 'product_code', 'product_descr', 'variety_code', 'variety_descr', 'organic_claim_code', 'organic_claim_descr', 'usda_organic_seal_code', 'usda_organic_seal_descr', 'common_consumer_name_code', 'common_consumer_name_descr', 'strength_code', 'strength_descr', 'scent_code', 'scent_descr', 'dosage_code', 'dosage_descr', 'gender_code', 'gender_descr', 'target_skin_condition_code', 'target_skin_condition_descr', 'use_code', 'use_descr', 'size2_code', 'size2_amount', 'size2_units']
+
+--- products_extra_2015.parquet (42 columns) ---
+['upc', 'upc_ver_uc', 'panel_year', 'flavor_code', 'flavor_descr', 'form_code', 'form_descr', 'formula_code', 'formula_descr', 'container_code', 'container_descr', 'salt_content_code', 'salt_content_descr', 'style_code', 'style_descr', 'type_code', 'type_descr', 'product_code', 'product_descr', 'variety_code', 'variety_descr', 'organic_claim_code', 'organic_claim_descr', 'usda_organic_seal_code', 'usda_organic_seal_descr', 'common_consumer_name_code', 'common_consumer_name_descr', 'strength_code', 'strength_descr', 'scent_code', 'scent_descr', 'dosage_code', 'dosage_descr', 'gender_code', 'gender_descr', 'target_skin_condition_code', 'target_skin_condition_descr', 'use_code', 'use_descr', 'size2_code', 'size2_amount', 'size2_units']
+
+--- rms_2006.parquet (3 columns) ---
+['upc', 'upc_ver_uc', 'panel_year']
+
+--- rms_2007.parquet (3 columns) ---
+['upc', 'upc_ver_uc', 'panel_year']
+
+--- rms_2008.parquet (3 columns) ---
+['upc', 'upc_ver_uc', 'panel_year']
+
+--- rms_2009.parquet (3 columns) ---
+['upc', 'upc_ver_uc', 'panel_year']
+
+--- rms_2010.parquet (3 columns) ---
+['upc', 'upc_ver_uc', 'panel_year']
+
+--- rms_2011.parquet (3 columns) ---
+['upc', 'upc_ver_uc', 'panel_year']
+
+--- rms_2012.parquet (3 columns) ---
+['upc', 'upc_ver_uc', 'panel_year']
+
+--- rms_2013.parquet (3 columns) ---
+['upc', 'upc_ver_uc', 'panel_year']
+
+--- rms_2014.parquet (3 columns) ---
+['upc', 'upc_ver_uc', 'panel_year']
+
+--- rms_2015.parquet (3 columns) ---
+['upc', 'upc_ver_uc', 'panel_year']
+
+--- stores_2006.parquet (12 columns) ---
+['store_code_uc', 'year', 'parent_code', 'retailer_code', 'channel_code', 'store_zip3', 'fips_state_code', 'fips_state_descr', 'fips_county_code', 'fips_county_descr', 'dma_code', 'dma_descr']
+
+--- stores_2007.parquet (12 columns) ---
+['store_code_uc', 'year', 'parent_code', 'retailer_code', 'channel_code', 'store_zip3', 'fips_state_code', 'fips_state_descr', 'fips_county_code', 'fips_county_descr', 'dma_code', 'dma_descr']
+
+--- stores_2008.parquet (12 columns) ---
+['store_code_uc', 'year', 'parent_code', 'retailer_code', 'channel_code', 'store_zip3', 'fips_state_code', 'fips_state_descr', 'fips_county_code', 'fips_county_descr', 'dma_code', 'dma_descr']
+
+--- stores_2009.parquet (12 columns) ---
+['store_code_uc', 'year', 'parent_code', 'retailer_code', 'channel_code', 'store_zip3', 'fips_state_code', 'fips_state_descr', 'fips_county_code', 'fips_county_descr', 'dma_code', 'dma_descr']
+
+--- stores_2010.parquet (12 columns) ---
+['store_code_uc', 'year', 'parent_code', 'retailer_code', 'channel_code', 'store_zip3', 'fips_state_code', 'fips_state_descr', 'fips_county_code', 'fips_county_descr', 'dma_code', 'dma_descr']
+
+--- stores_2011.parquet (12 columns) ---
+['store_code_uc', 'year', 'parent_code', 'retailer_code', 'channel_code', 'store_zip3', 'fips_state_code', 'fips_state_descr', 'fips_county_code', 'fips_county_descr', 'dma_code', 'dma_descr']
+
+--- stores_2012.parquet (12 columns) ---
+['store_code_uc', 'year', 'parent_code', 'retailer_code', 'channel_code', 'store_zip3', 'fips_state_code', 'fips_state_descr', 'fips_county_code', 'fips_county_descr', 'dma_code', 'dma_descr']
+
+--- stores_2013.parquet (12 columns) ---
+['store_code_uc', 'year', 'parent_code', 'retailer_code', 'channel_code', 'store_zip3', 'fips_state_code', 'fips_state_descr', 'fips_county_code', 'fips_county_descr', 'dma_code', 'dma_descr']
+
+--- stores_2014.parquet (12 columns) ---
+['store_code_uc', 'year', 'parent_code', 'retailer_code', 'channel_code', 'store_zip3', 'fips_state_code', 'fips_state_descr', 'fips_county_code', 'fips_county_descr', 'dma_code', 'dma_descr']
+
+--- stores_2015.parquet (12 columns) ---
+['store_code_uc', 'year', 'parent_code', 'retailer_code', 'channel_code', 'store_zip3', 'fips_state_code', 'fips_state_descr', 'fips_county_code', 'fips_county_descr', 'dma_code', 'dma_descr']
+Cleaned 3612_2011.parquet (Matched: 3612) -> saved to cleaned_3612_2011.parquet
+Cleaned 3603_2006.parquet (Matched: 3603) -> saved to cleaned_3603_2006.parquet
+Cleaned 3612_2015.parquet (Matched: 3612) -> saved to cleaned_3612_2015.parquet
+Cleaned products_extra_2013.parquet (Matched: products_extra) -> saved to cleaned_products_extra_2013.parquet
+Cleaned products.parquet (Matched: products) -> saved to cleaned_products.parquet
+Cleaned stores_2009.parquet (Matched: stores) -> saved to cleaned_stores_2009.parquet
+Cleaned stores_2014.parquet (Matched: stores) -> saved to cleaned_stores_2014.parquet
+Cleaned stores_2010.parquet (Matched: stores) -> saved to cleaned_stores_2010.parquet
+Cleaned 3612_2008.parquet (Matched: 3612) -> saved to cleaned_3612_2008.parquet
+Cleaned 3603_2013.parquet (Matched: 3603) -> saved to cleaned_3603_2013.parquet
+Cleaned products_extra_2006.parquet (Matched: products_extra) -> saved to cleaned_products_extra_2006.parquet
+Cleaned stores_2015.parquet (Matched: stores) -> saved to cleaned_stores_2015.parquet
+Cleaned stores_2011.parquet (Matched: stores) -> saved to cleaned_stores_2011.parquet
+Cleaned 3603_2012.parquet (Matched: 3603) -> saved to cleaned_3603_2012.parquet
+Cleaned 3612_2009.parquet (Matched: 3612) -> saved to cleaned_3612_2009.parquet
+Cleaned products_extra_2007.parquet (Matched: products_extra) -> saved to cleaned_products_extra_2007.parquet
+Cleaned 3612_2010.parquet (Matched: 3612) -> saved to cleaned_3612_2010.parquet
+Cleaned 3603_2007.parquet (Matched: 3603) -> saved to cleaned_3603_2007.parquet
+Cleaned 3612_2014.parquet (Matched: 3612) -> saved to cleaned_3612_2014.parquet
+Cleaned products_extra_2012.parquet (Matched: products_extra) -> saved to cleaned_products_extra_2012.parquet
+Cleaned stores_2008.parquet (Matched: stores) -> saved to cleaned_stores_2008.parquet
+Cleaned stores_2013.parquet (Matched: stores) -> saved to cleaned_stores_2013.parquet
+Cleaned products_extra_2009.parquet (Matched: products_extra) -> saved to cleaned_products_extra_2009.parquet
+Cleaned 3612_2007.parquet (Matched: 3612) -> saved to cleaned_3612_2007.parquet
+Cleaned 3603_2010.parquet (Matched: 3603) -> saved to cleaned_3603_2010.parquet
+Cleaned 3603_2014.parquet (Matched: 3603) -> saved to cleaned_3603_2014.parquet
+Cleaned products_extra_2010.parquet (Matched: products_extra) -> saved to cleaned_products_extra_2010.parquet
+Cleaned products_extra_2014.parquet (Matched: products_extra) -> saved to cleaned_products_extra_2014.parquet
+Cleaned 3603_2009.parquet (Matched: 3603) -> saved to cleaned_3603_2009.parquet
+Cleaned 3612_2012.parquet (Matched: 3612) -> saved to cleaned_3612_2012.parquet
+Cleaned stores_2006.parquet (Matched: stores) -> saved to cleaned_stores_2006.parquet
+Cleaned products_extra_2011.parquet (Matched: products_extra) -> saved to cleaned_products_extra_2011.parquet
+Cleaned products_extra_2015.parquet (Matched: products_extra) -> saved to cleaned_products_extra_2015.parquet
+Cleaned 3612_2013.parquet (Matched: 3612) -> saved to cleaned_3612_2013.parquet
+Cleaned 3603_2008.parquet (Matched: 3603) -> saved to cleaned_3603_2008.parquet
+Cleaned stores_2007.parquet (Matched: stores) -> saved to cleaned_stores_2007.parquet
+Cleaned stores_2012.parquet (Matched: stores) -> saved to cleaned_stores_2012.parquet
+Cleaned products_extra_2008.parquet (Matched: products_extra) -> saved to cleaned_products_extra_2008.parquet
+Cleaned 3612_2006.parquet (Matched: 3612) -> saved to cleaned_3612_2006.parquet
+Cleaned 3603_2011.parquet (Matched: 3603) -> saved to cleaned_3603_2011.parquet
+Cleaned 3603_2015.parquet (Matched: 3603) -> saved to cleaned_3603_2015.parquet
+Combining 10 files for 'stores'...
+Saved: /scratch/dtm63837/Kilts_Panel/Data/RMS/combined/stores.parquet
+Combining 10 files for 'products_extra'...
+Saved: /scratch/dtm63837/Kilts_Panel/Data/RMS/combined/products_extra.parquet
+Combining 10 files for '3612'...
+Saved: /scratch/dtm63837/Kilts_Panel/Data/RMS/combined/3612.parquet
+Combining 10 files for '3603'...
+Saved: /scratch/dtm63837/Kilts_Panel/Data/RMS/combined/3603.parquet
+Combining 10 files for 'rms'...
+Saved: /scratch/dtm63837/Kilts_Panel/Data/RMS/combined/rms.parquet
+Loading lazy frames...
+Streaming merged RMS dataset to disk...
+Successfully saved: /scratch/dtm63837/Kilts_Panel/Data/RMS/merged_rms.parquet
+
+============================================================
+RUNNING POST-MERGE AUDIT: RMS DATASET
+============================================================
+
+[1] Row Count & Integrity Audit:
+    - Movements Anchor Rows: 1,207,518,921
+    - Merged File Rows:     1,207,518,921
+    - Row Ratio:           100.00%
+    ✓ PERFECT MATCH: Exact 1:1 row retention (0 rows added or dropped).
+
+[2] Dimension Table Match Rates:
+    - products (brand_descr)        : 1,207,518,921 matched (100.00%)
+    - stores (retailer_code)        : 1,187,881,145 matched (98.37%)
+    - products_extra (flavor_descr) : 912,828,676 matched (75.60%)
+    - brand_var                     : 1,207,518,921 matched (100.00%)
+
+[3] Output File Summary:
+    - Total Columns: 25
+    - File Size:     11.16 GB
+    - Output Path:   /scratch/dtm63837/Kilts_Panel/Data/RMS/merged_rms.parquet
+============================================================
+AUDIT COMPLETE.

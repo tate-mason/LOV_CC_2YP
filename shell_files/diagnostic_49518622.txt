@@ -1,0 +1,77 @@
+From github.com:tate-mason/LOV_CC_2YP
+   6a1997a..3af7039  main       -> origin/main
+Updating 6a1997a..3af7039
+Fast-forward
+ .../data_code/cleaning_merging/master_dat.py       | 127 +++++++++++++++-
+ Code/final_draft/data_code/summ_stats.py           | 161 +++++----------------
+ 2 files changed, 158 insertions(+), 130 deletions(-)
+[STEP 1/3] Materializing unique Yogurt RMS keys...
+--> Yogurt RMS loaded successfully: 1,205,158,443 rows.
+[STEP 2/3] Processing panel year-by-year across 10 years...
+  --> [1/10] Joining & streaming Year 2006...
+      [DONE] Saved Year 2006 chunk.
+  --> [2/10] Joining & streaming Year 2007...
+      [DONE] Saved Year 2007 chunk.
+  --> [3/10] Joining & streaming Year 2008...
+      [DONE] Saved Year 2008 chunk.
+  --> [4/10] Joining & streaming Year 2009...
+      [DONE] Saved Year 2009 chunk.
+  --> [5/10] Joining & streaming Year 2010...
+      [DONE] Saved Year 2010 chunk.
+  --> [6/10] Joining & streaming Year 2011...
+      [DONE] Saved Year 2011 chunk.
+  --> [7/10] Joining & streaming Year 2012...
+      [DONE] Saved Year 2012 chunk.
+  --> [8/10] Joining & streaming Year 2013...
+      [DONE] Saved Year 2013 chunk.
+  --> [9/10] Joining & streaming Year 2014...
+      [DONE] Saved Year 2014 chunk.
+  --> [10/10] Joining & streaming Year 2015...
+      [DONE] Saved Year 2015 chunk.
+
+[STEP 3/3] Combining yearly files into final estimation sample...
+
+[SUCCESS] Saved 10-year Yogurt estimation sample to: /scratch/dtm63837/Kilts_Panel/Data/yogurt_estimation_sample.parquet
+
+======================================================================
+RUNNING ESTIMATION SAMPLE AUDIT DIAGNOSTICS
+======================================================================
+
+[1] RECORD COUNTS & ENTITY COVERAGE:
+    - Total Estimation Rows:        3,729,056
+    - Unique Households Matched:    85,268
+    - Unique Yogurt UPCs Matched:   4,351
+    - Unique Retail Stores Matched: 13,824
+
+[2] JOIN KEY INTEGRITY (NULL CHECK):
+    - Nulls in 'panel_year': 0 (0.00%)
+    - Nulls in 'week_end': 0 (0.00%)
+    - Nulls in 'upc': 0 (0.00%)
+    - Nulls in 'store_code_uc': 0 (0.00%)
+
+[3] PANEL YEAR DISTRIBUTION:
+    - Year 2006: 199,019 observations
+    - Year 2007: 340,167 observations
+    - Year 2008: 326,759 observations
+    - Year 2009: 344,121 observations
+    - Year 2010: 394,539 observations
+    - Year 2011: 430,380 observations
+    - Year 2012: 405,019 observations
+    - Year 2013: 427,959 observations
+    - Year 2014: 434,038 observations
+    - Year 2015: 427,055 observations
+
+[4] PRICE COLUMN DIAGNOSTICS ('price'):
+    - Min Price:    $0.01
+    - Mean Price:   $1.39
+    - Median Price: $0.98
+    - Max Price:    $12.98
+    - Null Prices:  0
+    - Zero/Negative:0
+
+[5] OUTPUT FILE SUMMARY:
+    - Total Schema Columns: 30
+    - File Size on Disk:    52.78 MB
+    - Output Location:      /scratch/dtm63837/Kilts_Panel/Data/yogurt_estimation_sample.parquet
+======================================================================
+AUDIT COMPLETE — Yogurt estimation sample verified.

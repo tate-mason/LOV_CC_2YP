@@ -1,0 +1,5 @@
+Already up to date.
+  File "/scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/full_draft_1231/2026-10-16/run_slurm.sh", line 13
+    ml Python/3.12.3-GCCcore-13.3.0 # Load software module and run bowtie2 below
+       ^^^^^^
+SyntaxError: invalid syntax

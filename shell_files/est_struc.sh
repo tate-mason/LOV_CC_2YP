@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --job-name=estimation		# Job name (testBowtie2)
-#SBATCH --partition=highmem_p		# Partition name (batch, highmem_p, or gpu_p)
+#SBATCH --partition=hugemem_p		# Partition name (batch, highmem_p, or gpu_p)
 #SBATCH --nodes=1			# Number of compute nodes for resources to be spread out over (increase only if using MPI enabled software)
 #SBATCH --ntasks=1			# 1 task (process) for below commands
 #SBATCH --cpus-per-task=1	 	# CPU core count per task, by default 1 CPU core per task
@@ -18,4 +18,6 @@ set -e
 
 git pull
 
-python /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/full_draft_1231/est_step4.py
+
+#python /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/final_draft/data_code/recover_flavors.py
+python /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/final_draft/est_code/est.py --draws 32 --starts 1 --se-method none --capacity 7 --output res_cap

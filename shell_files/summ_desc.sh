@@ -11,9 +11,9 @@
 #SBATCH --mail-type=END,FAIL            # Mail events (BEGIN, END, FAIL, ALL)
 
 set -euo pipefail
-
+git pull
 ml Python/3.13.5-GCCcore-14.3.0 # Load Python
 
 pip install -qqq -r /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/shell_files/requirements.txt
 
-python /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/full_draft_1231/data.py
+python /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/final_draft/data_code/summ_stats.py --household-batches 16

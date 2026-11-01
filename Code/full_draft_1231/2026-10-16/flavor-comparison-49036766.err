@@ -1,0 +1,25 @@
+Traceback (most recent call last):
+  File "/scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/full_draft_1231/2026-10-16/estimate.py", line 9, in <module>
+    import demand_core as core
+  File "/scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/full_draft_1231/2026-10-16/demand_core.py", line 23, in <module>
+    from scipy.stats import qmc
+  File "/home/dtm63837/.local/lib/python3.9/site-packages/scipy/stats/__init__.py", line 606, in <module>
+    from ._stats_py import *
+  File "/home/dtm63837/.local/lib/python3.9/site-packages/scipy/stats/_stats_py.py", line 49, in <module>
+    from . import distributions
+  File "/home/dtm63837/.local/lib/python3.9/site-packages/scipy/stats/distributions.py", line 8, in <module>
+    from ._distn_infrastructure import (rv_discrete, rv_continuous, rv_frozen)  # noqa: F401
+  File "/home/dtm63837/.local/lib/python3.9/site-packages/scipy/stats/_distn_infrastructure.py", line 26, in <module>
+    from scipy import integrate
+  File "/home/dtm63837/.local/lib/python3.9/site-packages/scipy/__init__.py", line 134, in __getattr__
+    return _importlib.import_module(f'scipy.{name}')
+  File "/usr/lib64/python3.9/importlib/__init__.py", line 127, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+  File "/home/dtm63837/.local/lib/python3.9/site-packages/scipy/integrate/__init__.py", line 94, in <module>
+    from ._quadrature import *
+  File "/home/dtm63837/.local/lib/python3.9/site-packages/scipy/integrate/_quadrature.py", line 4, in <module>
+    import numpy.typing as npt
+  File "/usr/lib64/python3.9/site-packages/numpy/typing/__init__.py", line 158, in <module>
+    from numpy._typing import (
+ModuleNotFoundError: No module named 'numpy._typing'
+srun: error: b6-7: task 0: Exited with exit code 1

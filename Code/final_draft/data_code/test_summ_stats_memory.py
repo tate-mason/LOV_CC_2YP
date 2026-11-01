@@ -13,6 +13,19 @@ import summ_stats as summary
 
 
 class MemorySummaryChecks(unittest.TestCase):
+    def test_single_person_records_precede_repeat_week_rule(self):
+        source = pl.DataFrame({
+            "household_code": [1, 1, 2, 2, 3, 3, 4, 4],
+            "purchase_date": ["2010-01-02", "2010-01-09"] * 4,
+            "household_size": ["1", "2", "1", "1", None, "1", "bad", "2"],
+        }).lazy().with_columns(pl.col("purchase_date").str.to_date())
+        restricted = summary.single_person_purchases(source)
+        self.assertEqual(restricted.collect().height, 4)
+        repeated = summary.repeated_yogurt_households(restricted).collect()
+        self.assertEqual(repeated["household_code"].unique().to_list(), [2])
+        with self.assertRaisesRegex(ValueError, "require household_size"):
+            summary.single_person_purchases(source.drop("household_size"))
+
     def test_batches_preserve_global_statistics(self):
         with tempfile.TemporaryDirectory() as directory, contextlib.redirect_stdout(io.StringIO()):
             root = Path(directory)
@@ -23,7 +36,7 @@ class MemorySummaryChecks(unittest.TestCase):
                 "quantity": [2, 1, 1, 3, 1, 2, 1], "race": [1, 1, 1, 1, 2, 2, 3],
                 "hispanic_origin": [2, 2, 2, 2, 1, 1, 2], "household_income": [5, 5, 5, 5, 8, 8, 9],
                 "female_head_age": [3, 3, 3, 3, 0, 0, 4], "male_head_age": [4, 4, 4, 4, 2, 2, 5],
-                "household_size": [2] * 7, "store_code_uc": [100] * 7, "price": [1.] * 7,
+                "household_size": [1] * 7, "store_code_uc": [100] * 7, "price": [1.] * 7,
                 "original_metadata": ["preserved"] * 7,
             })
             for name in ["merged_panel", "yogurt_estimation_sample"]:

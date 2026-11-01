@@ -398,3 +398,11 @@ python3 est.py --se-method bootstrap --bootstrap-reps 49 --output results_single
 
 Both commands enforce the single-person purchase restriction. Existing saved
 all-household results must be rerun; changing the code does not update them.
+
+
+The summary script now restricts both full-panel and matched-yogurt descriptive
+statistics to `household_size == 1` purchase records, before checking repeated
+purchase weeks. This includes demographics, detailed/grouped flavor shares,
+HHI figures, switching, and spells. Rerun `summ_stats.py` to regenerate them.
+The saved prepared estimation parquet retains all-household records for retail
+price menus and instruments; `est.py` applies the single-person demand filter.

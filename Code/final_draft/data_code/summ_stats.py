@@ -1,4 +1,4 @@
-"""Readable, unweighted summaries for the full panel and matched yogurt sample.
+"""Unweighted single-person summaries for the full panel and matched yogurt sample.
 
 Run on the server: python3 summ_stats.py --help
 No data are loaded when this file is imported.
@@ -109,6 +109,13 @@ def scan_purchases(path, first_year, last_year):
         ]
     )
     return purchases.with_columns(pl.coalesce(age_columns).alias("head_age"))
+
+
+def single_person_purchases(scan):
+    """Match estimation: retain size-one purchase records before histories/weeks."""
+    if "household_size" not in scan.collect_schema().names():
+        raise ValueError("Single-person summaries require household_size.")
+    return scan.filter(pl.col("household_size").cast(pl.Float64, strict=False) == 1)
 
 
 def repeated_yogurt_households(scan):
@@ -531,9 +538,20 @@ def run(args, output, work):
     else:
         print(f"Flavor recovery source not found: {products_extra}; using the CSV reference.", flush=True)
     sources = {}
+    prepared_eligible = None
+    print("Summary sample: single-person purchase records (household_size == 1).", flush=True)
     source_partitions = {}
     for prefix, filename in [("full_panel", "merged_panel.parquet"), ("matched_yogurt", "yogurt_estimation_sample.parquet")]:
         source = scan_purchases(args.data_dir / filename, args.first_year, args.last_year)
+        if "household_size" not in pl.scan_parquet(args.data_dir / filename).collect_schema().names():
+            raise ValueError(f"{filename}: single-person summaries require household_size.")
+        if prefix == "matched_yogurt":
+            # Preserve all-household retail coverage in the prepared estimation
+            # input. est.py restricts demand records while retaining these quotes.
+            covered_all = source.filter(pl.col("price").is_finite() & (pl.col("price") > 0))
+            prepared_eligible = (repeated_yogurt_households(covered_all)
+                                 .select("household_code").unique().collect(engine="streaming"))
+        source = single_person_purchases(source)
         if prefix == "matched_yogurt":
             covered = (pl.col("price").is_finite() & (pl.col("price") > 0)).fill_null(False)
             audit = source.select(pl.len().alias("purchase_lines_before_price_filter"),
@@ -592,7 +610,7 @@ def run(args, output, work):
     print(f"Saved estimation flavor mapping to {output / 'estimation_flavor_reference.csv'}", flush=True)
     # Retain every original purchase column needed downstream, including store
     # and DMA fields that demographic projections do not otherwise need.
-    eligible = sources["matched_yogurt"].select("household_code").unique().collect(engine="streaming")
+    eligible = prepared_eligible
     prepared = pl.scan_parquet(args.data_dir / "yogurt_estimation_sample.parquet")
     original_names = prepared.collect_schema().names()
     price_column = next((c for c in ["price", "price_rms"] if c in original_names), None)

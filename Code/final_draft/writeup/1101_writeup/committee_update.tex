@@ -64,9 +64,10 @@ $L_i$, $L_{ir}$, $\ell_{ir}$ & Integrated household likelihood, draw-specific li
 $R$, $\boldsymbol z_r$ & Number of integration draws and fixed antithetic standard normal draw. Draw index $r$ is separate from the store index.\\
 $\widehat L_i$, $\widehat\ell$, $w_{ir}$ & Simulated likelihood, total simulated log likelihood, and household posterior draw weight.\\
 $\boldsymbol g_{ir}$ & Draw-specific household likelihood score.\\
-$b=1,\ldots,B$, $I_b^\mathrm{draw}$ & Bootstrap replication and its independently sampled household indices.\\
-$\widehat{\boldsymbol\theta}^{(b)}$, $\overline{\boldsymbol\theta}$ & Bootstrap demand estimate and mean across usable bootstrap estimates.\\
-$\widehat\Sigma$, $\widehat{\mathrm{se}}$, $\widehat q_a$ & Bootstrap covariance, standard error, and empirical quantile at probability $a$.\\
+% $b=1,\ldots,B$, $I_b^\mathrm{draw}$ & Bootstrap replication and its independently sampled household indices.\\
+% $\widehat{\boldsymbol\theta}^{(b)}$, $\overline{\boldsymbol\theta}$ & Bootstrap demand estimate and mean across usable bootstrap estimates.\\
+% $\widehat\Sigma$, $\widehat{\mathrm{se}}$, $\widehat q_a$ & Bootstrap covariance, standard error, and empirical quantile at probability $a$.\\
+$\widehat H$, $\widehat\Sigma$, $\widehat{\mathrm{se}}$ & Hessian of the mean negative log likelihood, estimated parameter covariance, and standard error.\\
 $g_i$, $F_j$, $\widehat{\Var}(\widehat\pi_j)$ & Household instrument score, first-stage one-instrument Wald statistic, and clustered variance estimate.\\
 \bottomrule
 \end{longtable}
@@ -96,12 +97,13 @@ p_{ijt}&=\pi_j z_{it}+\sum_{k\in\mathcal J}\eta_{jk}X_{ikt}
 \end{equation}
 The same $z_{it}$ enters each flavor equation. Each household--week has equal first-stage weight.
 
-\begin{table}[htbp]\centering\small
-\caption{Price first stages}
-\begin{tabular}{lrrrrrr}\toprule
-Flavor & $\widehat\pi_j$ & Cluster SE & $F_j$ & Partial $R^2$ & Observations & Households\\\midrule
-\input{assets/first_stage.tex}\end{tabular}
-\end{table}
+% Saved all-household first-stage results; replace after the new run.
+% \begin{table}[htbp]\centering\small
+% \caption{Price first stages}
+% \begin{tabular}{lrrrrrr}\toprule
+% Flavor & $\widehat\pi_j$ & Cluster SE & $F_j$ & Partial $R^2$ & Observations & Households\\\midrule
+% \input{assets/first_stage.tex}\end{tabular}
+% \end{table}
 
 \subsection{Utility, heterogeneity, and choice probabilities}
 \begin{equation}
@@ -260,58 +262,88 @@ L_{ir}&=e^{\ell_{ir}},
 \end{equation}
 The optimizer minimizes $-\widehat\ell/I$.
 
-\subsection{Household bootstrap}
-Each replication samples households with
-replacement, retaining their full histories, and reestimates both the price
-equations and the demand model. Standard errors are the sample standard
-deviations of the bootstrap parameter estimates, and the 95\% confidence
-intervals use their 2.5th and 97.5th percentiles. The current results use 49
-usable replications out of 49 requested, so the percentile intervals are
-relatively coarse. Retail instruments, history indices, and integration draws
-are held fixed.
+\subsection{Standard errors}
+The estimation sample is restricted to purchase records with household size
+one before weekly quantities and history indices are constructed. Store price
+menus and retail instruments use all matched purchase records.
 
-For each replication, resample whole household histories and refit the price
-equations to obtain $\widehat{\boldsymbol v}^{(b)}$.
+Let $m(\boldsymbol\theta)=-\widehat\ell(\boldsymbol\theta)/I$ denote the
+mean household negative simulated log likelihood. Define the observed
+information and covariance estimator as
 \begin{equation}
-\begin{aligned}
-I_b^\mathrm{draw}&=(i_1^{(b)},\ldots,i_I^{(b)}),
-\qquad i_l^{(b)}\overset{\mathrm{iid}}\sim\operatorname{Uniform}\{1,\ldots,I\},
-\end{aligned}
+\widehat H=\left.\frac{\partial^2m(\boldsymbol\theta)}
+{\partial\boldsymbol\theta\,\partial\boldsymbol\theta^\top}
+\right|_{\boldsymbol\theta=\widehat{\boldsymbol\theta}},
+\qquad
+\widehat\Sigma=\frac{1}{I}\widehat H^{-1}.
 \end{equation}
+The Hessian is computed by central differences of the analytic gradient,
+using the same fixed integration draws as estimation. Standard errors and
+normal 95\% confidence intervals are
 \begin{equation}
-\begin{aligned}
-\widehat{\boldsymbol v}^{(b)}&=\text{refitted price-equation residuals},
-\end{aligned}
+\widehat{\mathrm{se}}(\widehat\theta_k)=\sqrt{\widehat\Sigma_{kk}},
+\qquad
+\mathrm{CI}_{k,.95}=\widehat\theta_k\pm1.96\,
+\widehat{\mathrm{se}}(\widehat\theta_k).
 \end{equation}
-\begin{equation}
-\begin{aligned}
-\widehat{\boldsymbol\theta}^{(b)}&=\argmax_{\boldsymbol\theta\in\Theta}\sum_{l=1}^I
- \log\widehat L_{i_l^{(b)}}(\boldsymbol\theta;\widehat{\boldsymbol v}^{(b)}),
-\end{aligned}
-\end{equation}
-\begin{equation}
-\begin{aligned}
-\overline{\boldsymbol\theta}&=\frac1B\sum_{b=1}^B\widehat{\boldsymbol\theta}^{(b)},
-\end{aligned}
-\end{equation}
-\begin{equation}
-\begin{aligned}
-\widehat\Sigma&=\frac1{B-1}\sum_{b=1}^B
- (\widehat{\boldsymbol\theta}^{(b)}-\overline{\boldsymbol\theta})
- (\widehat{\boldsymbol\theta}^{(b)}-\overline{\boldsymbol\theta})^\top,
-\end{aligned}
-\end{equation}
-\begin{equation}
-\begin{aligned}
-\widehat{\mathrm{se}}(\widehat\theta_k)&=\sqrt{\widehat\Sigma_{kk}},
-\end{aligned}
-\end{equation}
-\begin{equation}
-\begin{aligned}
-\mathrm{CI}_{k,.95}&=[\widehat q_{.025}(\widehat\theta_k^{(b)}),\widehat q_{.975}(\widehat\theta_k^{(b)})].
-\end{aligned}
-\end{equation}
-Whole histories are retained; duplicated households receive distinct IDs. History indices, retail instruments, and integration draws remain fixed. Both price and demand stages are refitted. $B$ counts usable replications.
+These model-based standard errors condition on the estimated price-control
+residuals, retail instruments, and integration draws; they omit first-stage
+estimation uncertainty. Standard errors are withheld for a nonconverged fit,
+parameters at or near bounds, or nonpositive or ill-conditioned information.
+
+% \subsection{Household bootstrap}
+% Each replication samples households with
+% replacement, retaining their full histories, and reestimates both the price
+% equations and the demand model. Standard errors are the sample standard
+% deviations of the bootstrap parameter estimates, and the 95\% confidence
+% intervals use their 2.5th and 97.5th percentiles. The current results use 49
+% usable replications out of 49 requested, so the percentile intervals are
+% relatively coarse. Retail instruments, history indices, and integration draws
+% are held fixed.
+% 
+% For each replication, resample whole household histories and refit the price
+% equations to obtain $\widehat{\boldsymbol v}^{(b)}$.
+% \begin{equation}
+% \begin{aligned}
+% I_b^\mathrm{draw}&=(i_1^{(b)},\ldots,i_I^{(b)}),
+% \qquad i_l^{(b)}\overset{\mathrm{iid}}\sim\operatorname{Uniform}\{1,\ldots,I\},
+% \end{aligned}
+% \end{equation}
+% \begin{equation}
+% \begin{aligned}
+% \widehat{\boldsymbol v}^{(b)}&=\text{refitted price-equation residuals},
+% \end{aligned}
+% \end{equation}
+% \begin{equation}
+% \begin{aligned}
+% \widehat{\boldsymbol\theta}^{(b)}&=\argmax_{\boldsymbol\theta\in\Theta}\sum_{l=1}^I
+%  \log\widehat L_{i_l^{(b)}}(\boldsymbol\theta;\widehat{\boldsymbol v}^{(b)}),
+% \end{aligned}
+% \end{equation}
+% \begin{equation}
+% \begin{aligned}
+% \overline{\boldsymbol\theta}&=\frac1B\sum_{b=1}^B\widehat{\boldsymbol\theta}^{(b)},
+% \end{aligned}
+% \end{equation}
+% \begin{equation}
+% \begin{aligned}
+% \widehat\Sigma&=\frac1{B-1}\sum_{b=1}^B
+%  (\widehat{\boldsymbol\theta}^{(b)}-\overline{\boldsymbol\theta})
+%  (\widehat{\boldsymbol\theta}^{(b)}-\overline{\boldsymbol\theta})^\top,
+% \end{aligned}
+% \end{equation}
+% \begin{equation}
+% \begin{aligned}
+% \widehat{\mathrm{se}}(\widehat\theta_k)&=\sqrt{\widehat\Sigma_{kk}},
+% \end{aligned}
+% \end{equation}
+% \begin{equation}
+% \begin{aligned}
+% \mathrm{CI}_{k,.95}&=[\widehat q_{.025}(\widehat\theta_k^{(b)}),\widehat q_{.975}(\widehat\theta_k^{(b)})].
+% \end{aligned}
+% \end{equation}
+% Whole histories are retained; duplicated households receive distinct IDs. History indices, retail instruments, and integration draws remain fixed. Both price and demand stages are refitted. $B$ counts usable replications.
+% 
 
 \subsection{Unaggregated flavor concentration}
 \begin{equation}
@@ -336,9 +368,8 @@ H_i&=\sum_{f\in\mathcal F}w_{if}^2.
 \subsection{Summary statistics}
 The descriptive sample covers 2006--2015. Statistics are unweighted.
 Trips, UPCs, purchase lines, and packages in the matched yogurt column refer
-to yogurt only. The descriptive matched sample precedes the additional
-estimation filters: the reported demand fit retains 70,139 households and
-1,456,854 household--weeks.
+to yogurt only. The descriptive matched sample includes households of all sizes and precedes
+the single-person restriction used for demand estimation.
 
 \begin{table}[htbp]\centering\small
 \caption{Household purchase summaries}
@@ -396,20 +427,27 @@ Plain & 5.42 & 25.32 & 2.30 & 72.38\\
 \clearpage
 
 \subsection{Results}
-\begin{table}[htbp]\centering
-\caption{Estimation sample and settings}
-\begin{tabular}{lr}\toprule Setting & Value\\\midrule
-\input{assets/settings.tex}\end{tabular}
-\end{table}
-\begin{table}[htbp]\centering
-\caption{Demand estimates; household bootstrap}
-\begin{tabular}{lrrc}\toprule Parameter & Estimate & Standard error & 95\% percentile interval\\\midrule
-\input{assets/estimates.tex}\end{tabular}
-\end{table}
-\begin{figure}[htbp]\centering
-\includegraphics[width=.83\linewidth]{assets/gamma_distribution.pdf}
-\caption{$\gamma_i\sim N(\widehat\mu_\gamma,\widehat\sigma_\gamma^2)$, with $\widehat\mu_\gamma=0.0405473$ and $\widehat\sigma_\gamma=0.0880120$.}
-\end{figure}
+Single-person household estimates and Hessian standard errors will be inserted
+after the new estimation run is complete.
+
+% Saved all-household results retained for reference.
+% 
+% \begin{table}[htbp]\centering
+% \caption{Estimation sample and settings}
+% \begin{tabular}{lr}\toprule Setting & Value\\\midrule
+% \input{assets/settings.tex}\end{tabular}
+% \end{table}
+% \begin{table}[htbp]\centering
+% \caption{Demand estimates; household bootstrap}
+% \begin{tabular}{lrrc}\toprule Parameter & Estimate & Standard error & 95\% percentile interval\\\midrule
+% \input{assets/estimates.tex}\end{tabular}
+% \end{table}
+% \begin{figure}[htbp]\centering
+% \includegraphics[width=.83\linewidth]{assets/gamma_distribution.pdf}
+% \caption{$\gamma_i\sim N(\widehat\mu_\gamma,\widehat\sigma_\gamma^2)$, with $\widehat\mu_\gamma=0.0405473$ and $\widehat\sigma_\gamma=0.0880120$.}
+% \end{figure}
+% \clearpage
+% 
 \clearpage
 
 \subsection{Discussion of Results}

@@ -456,3 +456,59 @@ per unit Xi; novelty and own-stock rows multiply gamma WTP by (1-lambda)
 and -lambda respectively. Mixture fits also include conditional component
 moments and weight them for the overall population moments. Nonconverged or
 boundary fits are flagged provisional.
+
+## Separate history coefficients and control-function comparisons
+
+Existing gamma models are retained. Two additional specifications use
+`b_N * novelty + b_S * stock` directly, without the fixed lambda weights:
+
+| `--model` | History coefficients | Price sensitivity |
+|---|---|---|
+| `separate_history` | Two unrestricted common coefficients | Lognormal across households |
+| `heterogeneous_history` | Two independent normal coefficients across households | Independent lognormal |
+
+Parameter names are `mean_novelty`, `mean_own_stock`, and (for the heterogeneous
+history model) `sd_novelty`, `sd_own_stock`. Positive own-stock effects indicate
+reinforcement; negative effects indicate satiation, conditional on the model.
+The heterogeneous history model uses three independent antithetic normal draws
+per integration point (alpha, novelty, own stock). The original models retain
+their two-dimensional draws. All random coefficients persist within household.
+`--habit-weight` only affects the original combined index; it does not enter
+these separate-coefficient likelihoods. `history_distributions.pdf` replaces
+the gamma distribution figure for these models. WTP is reported separately
+per unit novelty and own stock. Hessian and bootstrap inference use the same
+parameter-generic routines as the original models. No mixture extension of
+the separate-coefficient model is currently provided.
+
+From `est_code`, examples using Hessian SEs, 64 draws and one optimization start:
+
+```bash
+python3 est.py --model heterogeneous --capacity 7 --se-method hessian --draws 64 --starts 1 --output results_gamma_cf
+python3 est.py --model heterogeneous --capacity 7 --no-price-control --se-method hessian --draws 64 --starts 1 --output results_gamma_no_cf
+python3 est.py --model separate_history --capacity 7 --se-method hessian --draws 64 --starts 1 --output results_separate_cf
+python3 est.py --model separate_history --capacity 7 --no-price-control --se-method hessian --draws 64 --starts 1 --output results_separate_no_cf
+python3 est.py --model heterogeneous_history --capacity 7 --se-method hessian --draws 64 --starts 1 --output results_het_history_cf
+python3 est.py --model heterogeneous_history --capacity 7 --no-price-control --se-method hessian --draws 64 --starts 1 --output results_het_history_no_cf
+```
+
+Wrappers: `est_separate_history.py`, `est_het_history.py`, and
+`est_no_price_control.py` select the common-history, random-history, and
+original-gamma/no-control defaults respectively. The no-control flag works
+with every model: it retains price in utility and omits the price residual
+and first stage. Existing naive models omit history, not the control function.
+Control is enabled by default except in `est_no_price_control.py`.
+
+`--starts` is the number of optimizer initializations. The first uses the
+standard starting vector; later starts perturb it (with a fixed seed) and
+respect parameter bounds. The optimizer keeps the lowest negative log
+likelihood, including an unconverged fit if it is the lowest. Inspect
+convergence and bounds before interpreting estimates. Starts are distinct
+from integration draws and bootstrap replications.
+
+Use separate output directories. The no-control pipeline can retain weeks
+that the control pipeline loses due to missing instruments; compare household
+and week counts (and saved weekly inputs) before attributing coefficient
+changes to the control function. For a strictly matched-sample comparison,
+fit both likelihoods on the controlled weekly inputs with the residual columns
+excluded from `make_arrays` for the no-control fit. A coefficient difference
+measures sensitivity, not proof of bias without the identifying assumptions.

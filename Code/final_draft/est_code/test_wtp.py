@@ -31,6 +31,15 @@ class WTPChecks(unittest.TestCase):
             .25 * result.loc['gamma_component_1', 'mean_wtp'] +
             .75 * result.loc['gamma_component_2', 'mean_wtp'])
 
+    def test_separate_history_wtp_has_no_fixed_weight(self):
+        table = self.table(mu_log_minus_alpha=np.log(2), mean_novelty=.6,
+                           mean_own_stock=-.8, sd_own_stock=.4)
+        result = implied_wtp(table, .1).set_index("term")
+        self.assertAlmostEqual(result.loc["novelty", "mean_wtp"], .3)
+        self.assertAlmostEqual(result.loc["own_stock", "mean_wtp"], -.4)
+        self.assertAlmostEqual(result.loc["own_stock", "population_sd"], .2)
+        pd.testing.assert_frame_equal(implied_wtp(table, .1), implied_wtp(table, .9))
+
     def test_beta_averages_ratios(self):
         result = implied_wtp(self.table(mu_log_minus_alpha=.2, sd_log_minus_alpha=.5,
                                        beta_plain=2.)).iloc[0]

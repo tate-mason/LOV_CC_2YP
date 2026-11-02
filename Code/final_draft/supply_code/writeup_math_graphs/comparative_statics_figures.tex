@@ -259,4 +259,56 @@ $0$ & 3 & 4.801 & 1.120 & 3.926 & 3.912 & 0.804\\
 \includegraphics[width=\linewidth]{figures/gamma_p1_by_gamma.pdf}
 \caption{Analytical total derivatives, with both continuation branches reoptimized. Initial-state signs are interpreted using the proved conditional statements. Benchmark: $\beta=2$, $\alpha=-1$, $\delta=0.92$, $c=0$; $\gamma\in[-3,3]$.}
 \end{figure}
+
+\clearpage
+\section*{Price ratios for all four histories}
+For $(h,a)=(x_0,x_1)\in\{(0,0),(0,j),(j,j),(j,0)\}$, define
+\[
+R_{h,a}=\frac{p_1^*(h)}{p_2^*(a)}.
+\]
+\begin{figure}[htbp]\centering
+\includegraphics[width=.95\linewidth]{figures/all_state_price_ratios.pdf}
+\caption{All four conditional price ratios under the same benchmark calibration.}
+\end{figure}
+\clearpage
+\section*{Price-ratio derivatives for all four histories}
+\begin{figure}[htbp]\centering
+\includegraphics[width=.95\linewidth]{figures/all_state_price_ratio_derivatives.pdf}
+\caption{Analytical quotient-rule derivatives for each fixed history $(x_0,x_1)$.}
+\end{figure}
+\clearpage
+\section*{Profit conditional on each realized history}
+Conditional on $x_1=a$, first-period profit is realized and terminal profit
+remains expected:
+\[
+\Pi^*(h,a)=\mathbf{1}\{a=j\}\bigl(p_1^*(h)-c\bigr)+\delta V_a.
+\]
+Fully realized two-period profit would additionally condition on $x_2$.
+The two outside-choice curves coincide because no first-period margin is earned
+and both lead to the same continuation state. Weighting these conditional
+profits by $s_1^*(h)$ and $1-s_1^*(h)$ recovers $\Pi^*(h)$.
+\begin{figure}[htbp]\centering
+\includegraphics[width=.95\linewidth]{figures/all_state_realized_profit.pdf}
+\caption{Profit for all four histories; terminal demand is integrated out.
+Benchmark: $\beta=2$, $\alpha=-1$, $\delta=0.92$, $c=0$.}
+\end{figure}
+
+
+\clearpage
+\section*{Shares in both periods for all four histories}
+For each history $(h,a)=(x_0,x_1)$, the inside purchase shares are
+\[
+s_1^*(h)=\Pr(x_1=j\mid x_0=h),\qquad
+s_2^*(a)=\Pr(x_2=j\mid x_1=a).
+\]
+Outside shares are their complements. Period-1 shares are the purchase
+probabilities before $x_1$ is realized, rather than the realized purchase
+indicator. Thus $(0,0)$ and $(0,j)$ coincide in period 1, as do $(j,j)$ and
+$(j,0)$. In period 2, $(0,0)$ and $(j,0)$ coincide, as do $(0,j)$ and $(j,j)$.
+\begin{figure}[htbp]\centering
+\includegraphics[width=\linewidth]{figures/all_state_shares.pdf}
+\caption{Inside and outside shares in each period for all four histories.
+Benchmark: $\beta=2$, $\alpha=-1$, $\delta=0.92$, $c=0$.}
+\end{figure}
+
 \end{document}

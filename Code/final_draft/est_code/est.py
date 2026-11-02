@@ -334,6 +334,11 @@ def make_arrays(frame, capacity):
     counts = frame[FLAVORS + (["outside"] if capacity else [])].to_numpy(float)
     prices = frame[["price_" + f for f in FLAVORS]].to_numpy(float)
     xi = frame[["xi_" + f for f in FLAVORS]].to_numpy(float)
+    history = {key: frame[[prefix + f for f in FLAVORS]].to_numpy(float)
+               for key, prefix in [("novelty", "novelty_"), ("stock", "stock_")]
+               if all(prefix + f in frame for f in FLAVORS)}
+    if any(not np.isfinite(value).all() for value in history.values()):
+        raise ValueError("Nonfinite separate history inputs.")
     available = np.isfinite(prices) & (prices > 0)
     if not all(np.isfinite(x).all() for x in [counts, xi]):
         raise ValueError("Nonfinite estimation inputs.")
@@ -351,6 +356,7 @@ def make_arrays(frame, capacity):
         prices=prices,
         available=available,
         xi=xi,
+        **history,
         cf=cf,
         control=control,
         hh=hh,
@@ -360,11 +366,11 @@ def make_arrays(frame, capacity):
     )
 
 
-def make_draws(number, seed):
+def make_draws(number, seed, model=None):
     """Fixed antithetic normal draws, reused throughout optimization."""
     if number < 2 or number % 2:
         raise ValueError("Use an even number of draws, at least two.")
-    z = np.random.default_rng(seed).standard_normal((number // 2, 2))
+    z = np.random.default_rng(seed).standard_normal((number // 2, 3 if model == "heterogeneous_history" else 2))
     return np.vstack([z, -z])
 
 
@@ -380,6 +386,10 @@ def parameter_names(model, outside, control=False):
     if model == "mixture":
         names += ["mean_gamma", "sd_log_minus_alpha", "sd_gamma",
                   "gamma_mean_gap", "sd_gamma_2", "mixture_weight"]
+    if model in ("separate_history", "heterogeneous_history"):
+        names += ["mean_novelty", "mean_own_stock", "sd_log_minus_alpha"]
+    if model == "heterogeneous_history":
+        names += ["sd_novelty", "sd_own_stock"]
     if control:
         names += ["price_control"]
     return names
@@ -423,6 +433,19 @@ def mixture_loglike_score(theta, data, draws, score=False):
     return -ll.mean(), -gradient.mean(axis=0)
 
 
+def history_utility(p, data, z, model):
+    if model in ("separate_history", "heterogeneous_history"):
+        novelty = p["mean_novelty"] + p.get("sd_novelty", 0.) * z[1]
+        own_stock = p["mean_own_stock"]
+        if model == "heterogeneous_history":
+            if len(z) < 3:
+                raise ValueError("heterogeneous_history requires three-dimensional draws.")
+            own_stock += p["sd_own_stock"] * z[2]
+        return novelty * data["novelty"] + own_stock * data["stock"]
+    gamma = p.get("mean_gamma", 0.) + p.get("sd_gamma", 0.) * z[1]
+    return gamma * data["xi"]
+
+
 def household_loglike(theta, data, draws, model):
     """L_i = mean_r exp(sum_t sum_j count_itj * log P_itj,r).
 
@@ -437,7 +460,7 @@ def household_loglike(theta, data, draws, model):
     beta += p.get("inside_constant", 0.0)
     loglikes = []
     active_draws = (
-        draws if model in ("mixed_naive", "heterogeneous") else np.zeros((1, 2))
+        draws if model in ("mixed_naive", "heterogeneous", "separate_history", "heterogeneous_history") else np.zeros((1, 2))
     )
     for z in active_draws:
         alpha = -np.exp(
@@ -447,7 +470,7 @@ def household_loglike(theta, data, draws, model):
         utility = (
             beta
             + alpha * data["prices"]
-            + gamma * data["xi"]
+            + history_utility(p, data, z, model)
             + p.get("price_control", 0.0) * data["cf"]
         )
         utility = np.where(data["available"], utility, -np.inf)
@@ -467,14 +490,14 @@ def demand_objective_gradient(theta, data, draws, model, household=False):
         return mixture_loglike_score(theta, data, draws, score=True)
     names = parameter_names(model, data["outside"], data["control"])
     p = dict(zip(names, theta))
-    active = draws if model in ("mixed_naive", "heterogeneous") else np.zeros((1, 2))
+    active = draws if model in ("mixed_naive", "heterogeneous", "separate_history", "heterogeneous_history") else np.zeros((1, 2))
     likelihoods, scores = [], []
     total = data["counts"].sum(axis=1)
     for z in active:
         alpha = -np.exp(p["mu_log_minus_alpha"] + p.get("sd_log_minus_alpha", 0.) * z[0])
         gamma = p.get("mean_gamma", 0.) + p.get("sd_gamma", 0.) * z[1]
         utility = (np.array([0., p["beta_berry"], p["beta_plain"]]) + p.get("inside_constant", 0.)
-                   + alpha * data["prices"] + gamma * data["xi"] + p.get("price_control", 0.) * data["cf"])
+                   + alpha * data["prices"] + history_utility(p, data, z, model) + p.get("price_control", 0.) * data["cf"])
         utility = np.where(data["available"], utility, -np.inf)
         if data["outside"]:
             utility = np.column_stack([utility, np.zeros(len(utility))])
@@ -489,6 +512,12 @@ def demand_objective_gradient(theta, data, draws, model, household=False):
                    "price_control": (residual * data["cf"]).sum(axis=1)}
         columns["mean_gamma"] = (residual * data["xi"]).sum(axis=1)
         columns["sd_gamma"] = columns["mean_gamma"] * z[1]
+        if model in ("separate_history", "heterogeneous_history"):
+            columns["mean_novelty"] = (residual * data["novelty"]).sum(axis=1)
+            columns["mean_own_stock"] = (residual * data["stock"]).sum(axis=1)
+            columns["sd_novelty"] = columns["mean_novelty"] * z[1]
+            if model == "heterogeneous_history":
+                columns["sd_own_stock"] = columns["mean_own_stock"] * z[2]
         scores.append(np.column_stack([np.bincount(data["hh"], weights=columns[n],
                                                    minlength=data["n_households"]) for n in names]))
     likelihoods = np.asarray(likelihoods)
@@ -502,7 +531,7 @@ def demand_objective_gradient(theta, data, draws, model, household=False):
 
 
 def optimize_demand(data, args, initial=None, number_starts=None, quiet=False):
-    draws = make_draws(args.draws, args.seed)
+    draws = make_draws(args.draws, args.seed, args.model)
     names = parameter_names(args.model, data["outside"], data["control"])
     start = np.zeros(len(names))
     bounds = []
@@ -630,6 +659,38 @@ def plot_gamma_distribution(table, output, converged=True):
     plt.close(fig)
 
 
+def plot_history_distributions(table, output, converged=True):
+    """Separate marginal population distributions, not confidence intervals."""
+    estimates = table.set_index("parameter")["estimate"]
+    if "mean_novelty" not in estimates:
+        return
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    from scipy.stats import norm
+    fig, axes = plt.subplots(1, 2, figsize=(10, 4))
+    for ax, term, label in zip(axes, ["novelty", "own_stock"],
+                               ["Recent other-flavor purchases", "Accumulated own-flavor purchases"]):
+        mean, sd = estimates["mean_" + term], estimates.get("sd_" + term, 0.)
+        if sd > 0:
+            x = np.linspace(mean - 4*sd, mean + 4*sd, 801)
+            ax.plot(x, norm.pdf(x, mean, sd))
+            ax.set_ylabel("Population density")
+        else:
+            ax.axvline(mean, label="Point mass")
+            ax.set_xlim(mean - 1, mean + 1)
+            ax.set_yticks([])
+        ax.axvline(0, color="gray", ls="--")
+        ax.set(xlabel="Coefficient", title=f"{label}\nMean={mean:.4g}; SD={sd:.4g}")
+    title = "Separate history coefficients"
+    if not converged or table["at_bound"].any():
+        title += " (provisional fit)"
+    fig.suptitle(title)
+    fig.tight_layout()
+    fig.savefig(output / "history_distributions.pdf")
+    plt.close(fig)
+
+
 def fit_model(data, args, frame=None):
     """Estimate demand, compute requested inference, and save readable outputs."""
     best, results, bounds = optimize_demand(data, args)
@@ -641,6 +702,7 @@ def fit_model(data, args, frame=None):
     args.output.mkdir(parents=True, exist_ok=True)
     table.to_csv(args.output / "point_estimates.csv", index=False)
     plot_gamma_distribution(table, args.output, converged=best.success)
+    plot_history_distributions(table, args.output, converged=best.success)
     wtp = implied_wtp(table, getattr(args, "habit_weight", .7))
     wtp["provisional_fit"] = not best.success or bool(table["at_bound"].any())
     wtp.to_csv(args.output / "implied_wtp.csv", index=False)
@@ -670,7 +732,7 @@ def fit_model(data, args, frame=None):
         if not best.success:
             inference["status"] = "main fit not converged; Hessian inference not run"
         else:
-            draws = make_draws(args.draws, args.seed)
+            draws = make_draws(args.draws, args.seed, args.model)
             gradient = lambda theta: demand_objective_gradient(theta, data, draws, args.model)[1]
             standard_errors, inference = hessian_standard_errors(
                 best.x, gradient, data["n_households"], bounds, names, args.output)
@@ -683,6 +745,8 @@ def fit_model(data, args, frame=None):
     table.to_csv(args.output / "estimates.csv", index=False)
     summary = dict(
         model=args.model,
+        price_control=data["control"],
+        history_specification="separate" if args.model in ("separate_history", "heterogeneous_history") else "combined_or_none",
         sample_restriction="household_size == 1 on each purchase record",
         households=data["n_households"],
         weeks=len(data["hh"]),
@@ -714,7 +778,7 @@ def fit_model(data, args, frame=None):
     return best
 
 
-def main(default_model="heterogeneous"):
+def main(default_model="heterogeneous", default_no_price_control=False):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
         "--sample",
@@ -730,7 +794,7 @@ def main(default_model="heterogeneous"):
     parser.add_argument("--output", type=Path, default=Path("estimation_output"))
     parser.add_argument(
         "--model",
-        choices=["naive", "homogeneous", "mixed_naive", "heterogeneous", "mixture"],
+        choices=["naive", "homogeneous", "mixed_naive", "heterogeneous", "mixture", "separate_history", "heterogeneous_history"],
         default=default_model,
     )
     parser.add_argument("--first-year", type=int, default=2006)
@@ -745,6 +809,7 @@ def main(default_model="heterogeneous"):
     parser.add_argument(
         "--no-price-control",
         action="store_true",
+        default=default_no_price_control,
         help="Disable the price control using the overall other-DMA mean-price IV",
     )
     parser.add_argument("--household-dma-column", default="dma_cd")

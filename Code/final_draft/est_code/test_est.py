@@ -149,15 +149,44 @@ class EstimationChecks(unittest.TestCase):
             by_draw.append(np.sum(data["counts"]*logp))
         self.assertAlmostEqual(actual, logsumexp(by_draw)-np.log(8))
 
+    def test_separate_history_nests_combined_index(self):
+        data = make_arrays(add_stocks(self.frame(), .7), 7)
+        for control in [False, True]:
+            data["control"] = control
+            data["cf"] = np.full_like(data["prices"], .1)
+            old_names = parameter_names("heterogeneous", True, control)
+            values = dict.fromkeys(old_names, .2)
+            values["sd_gamma"] = 0.
+            values["mean_gamma"] = -.4
+            separate = dict(values, mean_novelty=.3*values["mean_gamma"],
+                            mean_own_stock=-.7*values["mean_gamma"])
+            draws = make_draws(8, 306)
+            old = household_loglike([values[n] for n in old_names], data, draws, "heterogeneous")
+            new = household_loglike([separate[n] for n in parameter_names("separate_history", True, control)],
+                                   data, draws, "separate_history")
+            np.testing.assert_allclose(old, new, atol=1e-12)
+
+    def test_no_control_ignores_residuals_but_keeps_price(self):
+        data = make_arrays(add_stocks(self.frame()), 7)
+        for model in ["heterogeneous", "separate_history", "heterogeneous_history"]:
+            names = parameter_names(model, True, False)
+            self.assertNotIn("price_control", names)
+            self.assertIn("mu_log_minus_alpha", names)
+            theta = np.full(len(names), .2)
+            draws = make_draws(8, 306, model)
+            before = household_loglike(theta, data, draws, model)
+            np.testing.assert_allclose(before, household_loglike(theta, dict(data, cf=data["cf"]+100), draws, model))
+            self.assertFalse(np.allclose(before, household_loglike(theta, dict(data, prices=data["prices"]+1), draws, model)))
+
     def test_analytic_gradient(self):
         from scipy.optimize._numdiff import approx_derivative
         for capacity in [0, 7]:
             frame = add_stocks(self.frame())
             frame["cf_other"], frame["cf_berry"], frame["cf_plain"] = .1, -.2, .3
             data = make_arrays(frame, capacity)
-            for model in ["naive", "homogeneous", "mixed_naive", "heterogeneous", "mixture"]:
+            for model in ["naive", "homogeneous", "mixed_naive", "heterogeneous", "mixture", "separate_history", "heterogeneous_history"]:
                 theta = np.full(len(parameter_names(model, bool(capacity), True)), .2)
-                draws = make_draws(8, 306)
+                draws = make_draws(8, 306, model)
                 value, gradient = demand_objective_gradient(theta, data, draws, model)
                 objective = lambda t: -household_loglike(t, data, draws, model).mean()
                 self.assertAlmostEqual(value, objective(theta))

@@ -11,10 +11,8 @@
 \contentsline {subsection}{\numberline {2.2}Utilities and shares}{10}{subsection.2.2}%
 \contentsline {subsection}{\numberline {2.3}Terminal-period optimization}{10}{subsection.2.3}%
 \contentsline {subsection}{\numberline {2.4}First-period optimization}{11}{subsection.2.4}%
-\contentsline {subsection}{\numberline {2.5}Terminal-price and terminal-value derivatives}{11}{subsection.2.5}%
-\contentsline {subsection}{\numberline {2.6}First-period price and share derivatives}{11}{subsection.2.6}%
-\contentsline {subsection}{\numberline {2.7}Profit derivative}{12}{subsection.2.7}%
-\contentsline {subsection}{\numberline {2.8}Conditional derivative signs}{12}{subsection.2.8}%
-\contentsline {subsection}{\numberline {2.9}Price ratios and their derivatives}{12}{subsection.2.9}%
-\contentsline {subsection}{\numberline {2.10}Numerical specification}{13}{subsection.2.10}%
-\contentsline {subsection}{\numberline {2.11}Discussion of Supply}{17}{subsection.2.11}%
+\contentsline {subsection}{\numberline {2.5}Profit derivative}{11}{subsection.2.5}%
+\contentsline {subsection}{\numberline {2.6}Conditional derivative signs}{11}{subsection.2.6}%
+\contentsline {subsection}{\numberline {2.7}Price ratios and conditional profit for all histories}{11}{subsection.2.7}%
+\contentsline {subsection}{\numberline {2.8}Numerical specification}{12}{subsection.2.8}%
+\contentsline {subsection}{\numberline {2.9}Discussion of Supply}{16}{subsection.2.9}%

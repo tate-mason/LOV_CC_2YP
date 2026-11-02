@@ -161,10 +161,8 @@ def main():
     shutil.copy2(source / "solutions.csv", assets / "supply_solutions.csv")
     groups = {state: solutions.loc[solutions.initial_state == state] for state in ["j", "0"]}
     specs = [
-        ("matched_ratio_derivatives", "d_matched_ratio", r"$\mathrm{d}R_h/\mathrm{d}\gamma$"),
         ("profit", "profit", r"$\Pi^*(h)$"),
         ("profit_derivative", "dprofit", r"$\mathrm{d}\Pi^*(h)/\mathrm{d}\gamma$"),
-        ("price_derivative", "dp1", r"$\mathrm{d}p_1^*(h)/\mathrm{d}\gamma$"),
     ]
     for filename, column, label in specs:
         fig, ax = plt.subplots(figsize=(7, 3.7))
@@ -177,14 +175,9 @@ def main():
         fig.tight_layout()
         fig.savefig(assets / f"{filename}.pdf")
         plt.close(fig)
-    fig, ax = plt.subplots(figsize=(7, 3.7))
-    frame = groups["0"]
-    ax.plot(frame.gamma, frame.d_induce_ratio, color="black", lw=1.6)
-    ax.axhline(0, color="gray", lw=.6)
-    ax.set(xlabel=r"$\gamma$", ylabel=r"$\mathrm{d}R_{0\to j}/\mathrm{d}\gamma$")
-    fig.tight_layout()
-    fig.savefig(assets / "path_ratio_derivative.pdf")
-    plt.close(fig)
+    for name in ["all_state_price_ratios.pdf", "all_state_realized_profit.pdf",
+                 "all_state_outcomes.csv"]:
+        shutil.copy2(source / name, assets / name)
     fig, axes = plt.subplots(1, 2, figsize=(10, 3.7))
     for state, ls in [("j", "-"), ("0", "--")]:
         axes[0].plot(groups[state].gamma, groups[state].p1, ls, label=f"$h={state}$", lw=1.6)
@@ -204,7 +197,7 @@ def main():
     for name in ["settings", "estimates", "first_stage", "supply_values"]:
         table = assets / f"{name}.tex"
         table.write_text(table.read_text() + "\\bottomrule\n")
-    print("Refreshed tables, verified Hessian SEs/intervals, and generated seven figures.")
+    print("Refreshed tables, verified Hessian SEs/intervals, and refreshed the committee figures.")
 
 
 if __name__ == "__main__":

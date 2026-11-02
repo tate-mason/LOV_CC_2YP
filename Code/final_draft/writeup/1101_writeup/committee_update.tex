@@ -410,58 +410,6 @@ p_1^*(h)&=c+\frac1{\alpha[1-s_1^*(h)]}-\delta[W_2(j)-W_2(0)],
 \end{aligned}
 \end{equation}
 
-\subsection{Terminal-price and terminal-value derivatives}
-\begin{equation}
-\begin{aligned}
-\frac{\dd p_2^*(a)}{\dd\gamma}
-&=\frac{q(a)s_2^*(a)}{\alpha},
-\end{aligned}
-\end{equation}
-\begin{equation}
-\begin{aligned}
-\frac{\dd s_2^*(a)}{\dd\gamma}
-&=s_2^*(a)[1-s_2^*(a)]\left[q(a)-\alpha\frac{\dd p_2^*(a)}{\dd\gamma}\right]\\[3pt]
-&=q(a)s_2^*(a)[1-s_2^*(a)]^2,
-\end{aligned}
-\end{equation}
-\begin{equation}
-\begin{aligned}
-\frac{\dd W_2(a)}{\dd\gamma}
-&=q(a)s_2^*(a)[1-s_2^*(a)][p_2^*(a)-c]\\[3pt]
-&=\frac{q(a)s_2^*(a)}{\alpha}.
-\end{aligned}
-\end{equation}
-\begin{equation}
-\begin{aligned}
-\frac{\dd[W_2(j)-W_2(0)]}{\dd\gamma}
-&=-\frac{s_2^*(j)+s_2^*(0)}{\alpha}.
-\end{aligned}
-\end{equation}
-
-\subsection{First-period price and share derivatives}
-\begin{equation}
-\begin{aligned}
-\frac{\dd p_1^*(h)}{\dd\gamma}
-&=\frac{q(h)s_1^*(h)+\delta[1-s_1^*(h)][s_2^*(j)+s_2^*(0)]}{\alpha},
-\end{aligned}
-\end{equation}
-\begin{equation}
-\begin{aligned}
-\frac{\dd s_1^*(h)}{\dd\gamma}
-&=s_1^*(h)[1-s_1^*(h)]\left[q(h)-\alpha\frac{\dd p_1^*(h)}{\dd\gamma}\right]\\[3pt]
-&=s_1^*(h)[1-s_1^*(h)]^2\left[q(h)-\delta[s_2^*(j)+s_2^*(0)]\right],
-\end{aligned}
-\end{equation}
-\begin{equation}
-\begin{aligned}
-\frac{\dd^2p_1^*(h)}{\dd\gamma^2}
-&=\frac{s_1^*(h)[1-s_1^*(h)]^2}{\alpha}
- \left[q(h)-\delta[s_2^*(j)+s_2^*(0)]\right]^2\\[3pt]
-&\quad+\frac{\delta[1-s_1^*(h)]}{\alpha}
- \left\{-s_2^*(j)[1-s_2^*(j)]^2+s_2^*(0)[1-s_2^*(0)]^2\right\}.
-\end{aligned}
-\end{equation}
-
 \subsection{Profit derivative}
 \begin{equation}
 \begin{aligned}
@@ -475,20 +423,8 @@ p_1^*(h)&=c+\frac1{\alpha[1-s_1^*(h)]}-\delta[W_2(j)-W_2(0)],
 \subsection{Conditional derivative signs}
 \begin{equation}
 \begin{aligned}
-\frac{\dd p_1^*(0)}{\dd\gamma}
-&=\frac{s_1^*(0)+\delta[1-s_1^*(0)][s_2^*(j)+s_2^*(0)]}{\alpha}>0,
-\end{aligned}
-\end{equation}
-\begin{equation}
-\begin{aligned}
 \frac{\dd\Pi^*(0)}{\dd\gamma}
 &=\frac{s_1^*(0)[1-\delta s_2^*(j)]+\delta[1-s_1^*(0)]s_2^*(0)}{\alpha}>0,
-\end{aligned}
-\end{equation}
-\begin{equation}
-\begin{aligned}
-\frac{\dd p_1^*(j)}{\dd\gamma}>0
-&\iff\delta[1-s_1^*(j)][s_2^*(j)+s_2^*(0)]>s_1^*(j),
 \end{aligned}
 \end{equation}
 \begin{equation}
@@ -498,48 +434,25 @@ p_1^*(h)&=c+\frac1{\alpha[1-s_1^*(h)]}-\delta[W_2(j)-W_2(0)],
 \end{aligned}
 \end{equation}
 
-\subsection{Price ratios and their derivatives}
-$R_j$ and $R_0$ compare prices at the same state in both periods;
-$R_{0\to j}$ compares the prices along the path from initial state $0$ to
-first-period choice $j$:
+\subsection{Price ratios and conditional profit for all histories}
+For each history $(h,a)=(x_0,x_1)\in\{(0,0),(0,j),(j,j),(j,0)\}$,
 \begin{equation}
-\begin{aligned}
-R_j&=\frac{p_1^*(j)}{p_2^*(j)},
-\end{aligned}
+R_{h,a}=\frac{p_1^*(h)}{p_2^*(a)}.
 \end{equation}
+Each ratio requires a nonzero denominator. A ratio below one means the
+second-period price exceeds the first-period price; a ratio above one means
+the first-period price exceeds the second-period price.
+
+Conditional on the realized first-period choice $a$, profit is
 \begin{equation}
-\begin{aligned}
-R_0&=\frac{p_1^*(0)}{p_2^*(0)},
-\end{aligned}
+\Pi^*(h,a)=\ind\{a=j\}[p_1^*(h)-c]+\delta W_2(a).
 \end{equation}
+The first-period margin is realized, while terminal profit remains expected.
+Fully realized two-period profit would also condition on $x_2$. Averaging over
+first-period choices recovers optimal expected profit:
 \begin{equation}
-\begin{aligned}
-R_{0\to j}&=\frac{p_1^*(0)}{p_2^*(j)},
-\end{aligned}
+\Pi^*(h)=s_1^*(h)\Pi^*(h,j)+[1-s_1^*(h)]\Pi^*(h,0).
 \end{equation}
-\begin{equation}
-\begin{aligned}
-\frac{\dd}{\dd\gamma}\left(\frac{p_1^*}{p_2^*}\right)&=\frac1{p_2^*}\frac{\dd p_1^*}{\dd\gamma}
- -\frac{p_1^*}{(p_2^*)^2}\frac{\dd p_2^*}{\dd\gamma}\\[3pt]
-&=\frac{p_2^*p_1^{*\prime}-p_1^*p_2^{*\prime}}{(p_2^*)^2},
-\end{aligned}
-\end{equation}
-\begin{equation}
-\begin{aligned}
-R_j'&=\frac{p_2^*(j)p_1^{*\prime}(j)+p_1^*(j)s_2^*(j)/\alpha}{[p_2^*(j)]^2},
-\end{aligned}
-\end{equation}
-\begin{equation}
-\begin{aligned}
-R_0'&=\frac{p_2^*(0)p_1^{*\prime}(0)-p_1^*(0)s_2^*(0)/\alpha}{[p_2^*(0)]^2},
-\end{aligned}
-\end{equation}
-\begin{equation}
-\begin{aligned}
-R_{0\to j}'&=\frac{p_2^*(j)p_1^{*\prime}(0)+p_1^*(0)s_2^*(j)/\alpha}{[p_2^*(j)]^2}.
-\end{aligned}
-\end{equation}
-Each ratio requires a nonzero denominator. Each derivative holds its stated discrete histories fixed.
 
 \subsection{Numerical specification}
 \[
@@ -557,10 +470,6 @@ $h$ & $\gamma$ & $p_1^*(h)$ & $p_2^*(j)$ & $p_2^*(0)$ & $\Pi^*(h)$ & $\dd\Pi^*(h
 \includegraphics[width=\linewidth]{assets/prices.pdf}
 \caption{$p_1^*(h)$ and $p_2^*(a)$; $\beta=2$, $\alpha=1$, $\delta=0.92$, $c=0$.}
 \end{figure}
-\begin{figure}[p]\centering
-\includegraphics[width=.82\linewidth]{assets/price_derivative.pdf}
-\caption{$\dd p_1^*(h)/\dd\gamma$; $\beta=2$, $\alpha=1$, $\delta=0.92$, $c=0$.}
-\end{figure}
 \clearpage
 \begin{figure}[p]\centering
 \includegraphics[width=.82\linewidth]{assets/profit.pdf}
@@ -572,27 +481,53 @@ $h$ & $\gamma$ & $p_1^*(h)$ & $p_2^*(j)$ & $p_2^*(0)$ & $\Pi^*(h)$ & $\dd\Pi^*(h
 \end{figure}
 \clearpage
 \begin{figure}[p]\centering
-\includegraphics[width=.82\linewidth]{assets/matched_ratio_derivatives.pdf}
-\caption{$\dd R_j/\dd\gamma$ and $\dd R_0/\dd\gamma$; $\beta=2$, $\alpha=1$, $\delta=0.92$, $c=0$.}
+\includegraphics[width=.95\linewidth]{assets/all_state_price_ratios.pdf}
+\caption{Price ratios $R_{h,a}=p_1^*(h)/p_2^*(a)$ for all four histories $(h,a)=(x_0,x_1)$; $\beta=2$, $\alpha=1$, $\delta=0.92$, $c=0$.}
 \end{figure}
 \begin{figure}[p]\centering
-\includegraphics[width=.82\linewidth]{assets/path_ratio_derivative.pdf}
-\caption{$\dd R_{0\to j}/\dd\gamma$; $\beta=2$, $\alpha=1$, $\delta=0.92$, $c=0$.}
+\includegraphics[width=.95\linewidth]{assets/all_state_realized_profit.pdf}
+\caption{Conditional profit $\Pi^*(h,a)$ for all four histories. First-period profit is realized and terminal profit is expected. The $(0,0)$ and $(j,0)$ curves coincide; $\beta=2$, $\alpha=1$, $\delta=0.92$, $c=0$.}
 \end{figure}
-
 \clearpage
 \subsection{Discussion of Supply}
 
-The optimal pricing conditions show that the period one price is U-shaped for consumers with initial state $h=j$, implying higher prices for individuals at the poles of the $\gamma$ distribution. For $h=0$, the firm will raise its price as $\gamma$ increases. This tracks with what I would expect to see. As a consumer is more likely to switch, their utility from switching will offset price effects. Period two prices move in opposite directions. Those who bought $a=j$ in period one see a lower price as the level of $\gamma$ increases, attempting to hold them, while $a=0$ last period sees higher prices as the level of $\gamma$ increases. From this we can see that switchers are charged higher prices at higher levels of switching preference in both periods. This points towards an idea of trying to charge as much as possible before the consumer switches away. Similarly, as consumers prefer to show persistence in consumption, period two prices are very high. Optimal prices are approximately four times higher for stayers than switchers in period two. We perfectly see the induce then harvest mechanism here. At $\gamma=-3$ the firm is even willing to subsidize the consumer to switch in order to charge a much higher price in the next period.
+Optimal first-period prices are U-shaped for consumers initially inside
+($h=j$), while prices for consumers initially outside ($h=0$) increase with
+$\gamma$. Terminal prices depend on the most recent choice: positive $\gamma$
+raises willingness to buy after $a=0$ and lowers willingness to buy after
+$a=j$.
 
-From the derivative of optimal period one price w.r.t. $\gamma$, initial state $h=0$ we have a relatively flat effect, seeing slight concavity. However, the curve for $h=j$ shows that the effect of $\gamma$ is quite variable depending on consumer type.
+For negative $\gamma$, persistence supports an induce-then-harvest strategy:
+the firm can offer an initially outside consumer a low or even negative
+first-period price, then charge a higher terminal price after purchase.
+The price ratio $R_{0,j}$ captures this pattern.
 
-Optimal profit shows that for $h=j$, higher levels of $\gamma$ reduce profits until $\gamma=1$ when the curve turns back up, implying there is a level of switching preference which becomes profitable to target. For $h=0$, higher values of $\gamma$ are more profitable since if they can get the consumer to switch in period one, they can harvest in period two. However, this is a bit difficult for me to interpret since if they are a high type switcher, they would likely switch in the path $0\rightarrow j\rightarrow 0$, reducing firm profits. Something to continue to analyze on my part.
+For high positive $\gamma$, the timing reverses. Initially outside consumers
+want to switch into $j$, allowing the firm to charge a high first-period
+price. After purchase, these same consumers want to switch away, so the firm
+lowers the terminal price to offset some of the loss of demand. This retention
+discount maximizes terminal profit but does not prevent purchase shares from
+falling as switching preferences strengthen.
 
-The profit derivative w.r.t. $\gamma$ is remarkably similar to the optimal first period derivative for $h=j$, though for $h=0$ there is much more curvature, showing that stayers are less profitable since they will likely remain with the outside option. 
+For initially inside consumers, allowing a first-period departure also has
+value: choosing $0$ makes the consumer more willing to return in period 2.
+When $W_2(0)>W_2(j)$, the first-period pricing condition includes a positive
+opportunity cost $\delta[W_2(0)-W_2(j)]$. The firm requires a larger current
+margin to compensate for placing a buyer in the less profitable continuation
+state. At sufficiently high $\gamma$, first-period prices rise even while the
+first-period purchase probability falls.
 
-The pricing ratio derivatives show three cases: $j\rightarrow j = R_j, \ 0\rightarrow0 = R_0, \ 0\rightarrow j = R_{0\rightarrow j}$. In the inside only case, period one prices dominate with increases in $\gamma$, seeing the value of the ratio grow with $\gamma$. For the outside only, we see the opposite. This is again due to induce and harvest. The firm will charge a lower period one price then charge a higher period two price for high switchers, leading to the downward slope. Finally, in the switching case, the curve looks remarkably similar to the inside only case, though it starts at a higher point. Induce and harvest is well demonstrated by this figure, showing higher period two prices for those likely to stay with $j$ if they switch from initial state $0\rightarrow j$ in period one. As the consumer becomes more likely to switch, the firm will attempt to charge as much as possible in period one. 
+The conditional-profit curves distinguish margins from the probabilities of
+earning them. Both $(0,j)$ and $(j,j)$ receive the same terminal retention
+price and continuation value; their profit difference comes entirely from
+first-period margins. The rising $(j,j)$ conditional-profit curve at high
+$\gamma$ describes a large margin on an increasingly rare first-period
+purchase. For $(0,0)$ and $(j,0)$, no first-period margin is earned, so both
+conditional profits equal $\delta W_2(0)$. Optimal expected profit weights
+each conditional profit by its first-period choice probability.
 
-These results demonstrate the firm's objective of targeting to first induce customers to their product via discounts, then ratcheting up prices in subsequent periods to reap profit from new consumers. A future task would be to put the estimated distribution from the empirical exercise into this simulation to see how the firm would actually price and then compare to actual pricing.
+These simulations use an illustrative calibration. A future step is to
+integrate the estimated preference distribution into the pricing exercise
+and compare the resulting prices with observed prices.
 
 \end{document}

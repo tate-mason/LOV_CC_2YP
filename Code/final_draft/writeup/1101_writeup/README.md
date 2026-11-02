@@ -42,3 +42,10 @@ matched-yogurt household summaries, detailed/grouped purchase dynamics, and
 grouped package shares and transition counts. The descriptive matched sample
 includes all household sizes and precedes the demand estimation filters. These tables are in the TeX source
 and are retained when `build_assets.py` refreshes estimation assets.
+
+Supply figures retain optimal prices in both periods, optimal expected profit,
+and its derivative. Price and price-ratio derivatives are omitted. Price ratios
+and conditional profit cover all four histories (0,0), (0,j), (j,j), (j,0);
+the asset builder copies these figures and their outcome CSV from the supply
+figure directory. Conditional profit realizes the first-period margin and
+integrates out terminal demand.

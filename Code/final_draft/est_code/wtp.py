@@ -37,4 +37,9 @@ def implied_wtp(estimates, habit_weight=.7):
             'Per unit novelty N, holding own-flavor stock fixed')
         add('gamma_own_stock', -habit_weight * mean, habit_weight**2 * second,
             'Per unit own-flavor stock S, holding novelty fixed')
+    for term in ["novelty", "own_stock"]:
+        if "mean_" + term in p:
+            mean, sd = p["mean_" + term], p.get("sd_" + term, 0.)
+            add(term, mean, mean**2 + sd**2,
+                "Per unit " + term + ", holding the other history measure fixed")
     return pd.DataFrame(rows)

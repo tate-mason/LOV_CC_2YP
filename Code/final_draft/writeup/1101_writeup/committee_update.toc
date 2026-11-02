@@ -7,16 +7,16 @@
 \contentsline {subsection}{\numberline {1.6}Unaggregated flavor concentration}{5}{subsection.1.6}%
 \contentsline {subsection}{\numberline {1.7}Summary statistics}{8}{subsection.1.7}%
 \contentsline {subsection}{\numberline {1.8}Results}{9}{subsection.1.8}%
-\contentsline {subsection}{\numberline {1.9}Discussion of Results}{10}{subsection.1.9}%
-\contentsline {section}{\numberline {2}Supply: two-period pricing}{10}{section.2}%
-\contentsline {subsection}{\numberline {2.1}Notation}{10}{subsection.2.1}%
-\contentsline {subsection}{\numberline {2.2}Utilities and shares}{11}{subsection.2.2}%
-\contentsline {subsection}{\numberline {2.3}Terminal-period optimization}{11}{subsection.2.3}%
-\contentsline {subsection}{\numberline {2.4}First-period optimization}{11}{subsection.2.4}%
-\contentsline {subsection}{\numberline {2.5}Terminal-price and terminal-value derivatives}{12}{subsection.2.5}%
-\contentsline {subsection}{\numberline {2.6}First-period price and share derivatives}{13}{subsection.2.6}%
-\contentsline {subsection}{\numberline {2.7}Profit derivative}{13}{subsection.2.7}%
-\contentsline {subsection}{\numberline {2.8}Conditional derivative signs}{13}{subsection.2.8}%
-\contentsline {subsection}{\numberline {2.9}Price ratios and their derivatives}{14}{subsection.2.9}%
-\contentsline {subsection}{\numberline {2.10}Numerical specification}{14}{subsection.2.10}%
-\contentsline {subsection}{\numberline {2.11}Discussion of Supply}{18}{subsection.2.11}%
+\contentsline {subsection}{\numberline {1.9}Discussion of Results}{11}{subsection.1.9}%
+\contentsline {section}{\numberline {2}Supply: two-period pricing}{11}{section.2}%
+\contentsline {subsection}{\numberline {2.1}Notation}{11}{subsection.2.1}%
+\contentsline {subsection}{\numberline {2.2}Utilities and shares}{12}{subsection.2.2}%
+\contentsline {subsection}{\numberline {2.3}Terminal-period optimization}{12}{subsection.2.3}%
+\contentsline {subsection}{\numberline {2.4}First-period optimization}{12}{subsection.2.4}%
+\contentsline {subsection}{\numberline {2.5}Terminal-price and terminal-value derivatives}{13}{subsection.2.5}%
+\contentsline {subsection}{\numberline {2.6}First-period price and share derivatives}{14}{subsection.2.6}%
+\contentsline {subsection}{\numberline {2.7}Profit derivative}{14}{subsection.2.7}%
+\contentsline {subsection}{\numberline {2.8}Conditional derivative signs}{14}{subsection.2.8}%
+\contentsline {subsection}{\numberline {2.9}Price ratios and their derivatives}{15}{subsection.2.9}%
+\contentsline {subsection}{\numberline {2.10}Numerical specification}{15}{subsection.2.10}%
+\contentsline {subsection}{\numberline {2.11}Discussion of Supply}{20}{subsection.2.11}%

@@ -2,6 +2,7 @@
 shell_files/estimation_output/weekly_inputs.csv
 shell_files/results_se/weekly_inputs.csv
 shell_files/res_cap/weekly_inputs.csv
+shell_files/res_hess/weekly_inputs.csv
 
 # Large diagnostic output
 shell_files/summCols_*.txt

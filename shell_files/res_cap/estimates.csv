@@ -1,0 +1,9 @@
+parameter,estimate,at_bound,std_error,ci_lower,ci_upper
+inside_constant,1.650864965457128,False,,,
+beta_berry,-0.7061201757313953,False,,,
+beta_plain,-0.26759772458855163,False,,,
+mu_log_minus_alpha,-0.2382466566413791,False,,,
+mean_gamma,-0.04150696195831783,False,,,
+sd_log_minus_alpha,0.612012983118041,False,,,
+sd_gamma,0.04710389258534491,False,,,
+price_control,0.1807594041007293,False,,,

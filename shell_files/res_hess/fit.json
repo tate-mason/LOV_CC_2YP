@@ -1,0 +1,54 @@
+{
+  "model": "heterogeneous",
+  "sample_restriction": "household_size == 1 on each purchase record",
+  "households": 15105,
+  "weeks": 281695,
+  "capacity": 7,
+  "inference": {
+    "method": "observed-information Hessian",
+    "conditional_on": "estimated price controls, retail instruments, and fixed integration draws",
+    "first_stage_uncertainty": "not included",
+    "robust": false,
+    "status": "computed; normal 95% intervals; first-stage uncertainty omitted"
+  },
+  "converged": true,
+  "message": "CONVERGENCE: RELATIVE REDUCTION OF F <= FACTR*EPSMCH",
+  "nll": 1642195.0310424697,
+  "settings": {
+    "sample": "/scratch/dtm63837/Kilts_Panel/Data/summary_outputs/yogurt_estimation_sample.parquet",
+    "flavors": "/scratch/dtm63837/Kilts_Panel/Data/summary_outputs/estimation_flavor_reference.csv",
+    "products_extra": null,
+    "output": "res_hess",
+    "model": "heterogeneous",
+    "first_year": 2006,
+    "last_year": 2015,
+    "max_households": null,
+    "capacity": 7,
+    "no_price_control": false,
+    "household_dma_column": "dma_cd",
+    "se_method": "hessian",
+    "bootstrap_reps": 49,
+    "bootstrap_starts": 2,
+    "habit_weight": 0.7,
+    "draws": 32,
+    "starts": 1,
+    "maxiter": 600,
+    "seed": 306
+  },
+  "starts": [
+    {
+      "nll": 1642195.0310424697,
+      "converged": true,
+      "theta": [
+        1.348592895975589,
+        -0.6503582685006509,
+        -0.10397997580665409,
+        -0.36203707742585817,
+        -0.05880340158270518,
+        0.6654470054031849,
+        0.06342734096544592,
+        0.16748277131702144
+      ]
+    }
+  ]
+}

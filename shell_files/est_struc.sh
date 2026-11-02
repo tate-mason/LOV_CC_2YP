@@ -20,4 +20,4 @@ git pull
 
 
 #python /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/final_draft/data_code/recover_flavors.py
-python /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/final_draft/est_code/est.py --draws 32 --starts 1 --se-method none --capacity 7 --output res_cap
+python /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/final_draft/est_code/est.py --draws 32 --starts 1 --se-method hessian --capacity 7 --output res_hess

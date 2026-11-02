@@ -196,6 +196,9 @@ INPUT /usr/local/texlive/2026/texmf-dist/fonts/tfm/public/amsfonts/cmextra/cmmib
 INPUT /usr/local/texlive/2026/texmf-dist/fonts/tfm/public/cm/cmbsy10.tfm
 INPUT /usr/local/texlive/2026/texmf-dist/fonts/tfm/public/amsfonts/cmextra/cmbsy7.tfm
 INPUT /usr/local/texlive/2026/texmf-dist/fonts/tfm/public/amsfonts/cmextra/cmbsy5.tfm
+INPUT ./assets/first_stage.tex
+INPUT ./assets/first_stage.tex
+INPUT assets/first_stage.tex
 INPUT /usr/local/texlive/2026/texmf-dist/fonts/tfm/public/cm/cmbx8.tfm
 INPUT /usr/local/texlive/2026/texmf-dist/fonts/tfm/public/cm/cmbx6.tfm
 INPUT /usr/local/texlive/2026/texmf-dist/fonts/tfm/public/cm/cmmib10.tfm
@@ -220,6 +223,17 @@ INPUT ./assets/flavor_shares.pdf
 INPUT ./assets/flavor_shares.pdf
 INPUT ./assets/flavor_shares.pdf
 INPUT ./assets/flavor_shares.pdf
+INPUT ./assets/settings.tex
+INPUT ./assets/settings.tex
+INPUT assets/settings.tex
+INPUT ./assets/estimates.tex
+INPUT ./assets/estimates.tex
+INPUT assets/estimates.tex
+INPUT ./assets/gamma_distribution.pdf
+INPUT ./assets/gamma_distribution.pdf
+INPUT ./assets/gamma_distribution.pdf
+INPUT ./assets/gamma_distribution.pdf
+INPUT ./assets/gamma_distribution.pdf
 INPUT ./assets/supply_values.tex
 INPUT ./assets/supply_values.tex
 INPUT assets/supply_values.tex

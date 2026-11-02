@@ -17,7 +17,7 @@ CODE = HERE.parents[2]
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--results", type=Path, default=CODE.parent / "shell_files/results_se")
+    parser.add_argument("--results", type=Path, default=CODE.parent / "shell_files/res_hess")
     parser.add_argument("--hhi", type=Path, help="Detailed-flavor HHI PDF or saved household CSV.")
     args = parser.parse_args()
     assets = HERE / "assets"
@@ -25,12 +25,14 @@ def main():
     fit = json.loads((args.results / "fit.json").read_text())
     estimates = pd.read_csv(args.results / "estimates.csv")
     first = pd.read_csv(args.results / "first_stage.csv")
-    boot = pd.read_csv(args.results / "bootstrap_draws.csv")
-    assert fit["capacity"] == 0, "Update the demand equations before using an outside-option fit."
+    assert fit["settings"]["se_method"] == "hessian"
+    assert fit["capacity"] == 7
+    assert fit["sample_restriction"] == "household_size == 1 on each purchase record"
     assert fit["model"] == "heterogeneous"
     values = estimates.set_index("parameter")["estimate"]
-    assert len(estimates) == 7
+    assert len(estimates) == 8
     names = {
+        "inside_constant": r"$b_0$",
         "beta_berry": r"$\beta_{\mathrm{berry}}$",
         "beta_plain": r"$\beta_{\mathrm{plain}}$",
         "mu_log_minus_alpha": r"$\mu_\alpha$",
@@ -58,19 +60,22 @@ def main():
         ("Capacity setting", str(fit["capacity"])),
         (r"$\lambda$", str(settings["habit_weight"])),
         ("Integration draws", str(settings["draws"])),
-        ("Main / bootstrap starts", f"{settings['starts']} / {settings['bootstrap_starts']}"),
-        ("Bootstrap fits: usable / requested", f"{fit['inference']['usable']} / {fit['inference']['requested']}"),
+        ("Optimization starts", str(settings["starts"])),
+        ("Household size", "1"),
         ("Converged", "Yes" if fit["converged"] else "No"),
         ("Parameters at bounds", str(int(estimates["at_bound"].sum()))),
         ("Negative log likelihood", f"{fit['nll']:,.4f}"),
     ]
     (assets / "settings.tex").write_text("\n".join(f"{k} & {v} " + r"\\" for k, v in settings_rows) + "\n")
-    # Verify the source SEs and percentile intervals before displaying them.
-    usable = boot.loc[boot["converged"]]
-    for row in estimates.itertuples():
-        np.testing.assert_allclose(usable[row.parameter].std(ddof=1), row.std_error)
-        np.testing.assert_allclose(usable[row.parameter].quantile([.025, .975]), [row.ci_lower, row.ci_upper])
-    for name in ["fit.json", "estimates.csv", "first_stage.csv", "bootstrap_draws.csv", "covariance.csv"]:
+    # Check saved Hessian standard errors and normal intervals against covariance.
+    covariance = pd.read_csv(args.results / "covariance.csv", index_col=0)
+    covariance = covariance.loc[estimates.parameter, estimates.parameter].to_numpy()
+    np.testing.assert_allclose(covariance, covariance.T, atol=1e-10)
+    assert np.linalg.eigvalsh(covariance).min() > 0
+    np.testing.assert_allclose(np.sqrt(np.diag(covariance)), estimates.std_error)
+    np.testing.assert_allclose(estimates.estimate - norm.ppf(.975) * estimates.std_error, estimates.ci_lower)
+    np.testing.assert_allclose(estimates.estimate + norm.ppf(.975) * estimates.std_error, estimates.ci_upper)
+    for name in ["fit.json", "estimates.csv", "first_stage.csv", "covariance.csv"]:
         shutil.copy2(args.results / name, assets / name)
 
     mean, sd = values["mean_gamma"], values["sd_gamma"]
@@ -104,7 +109,7 @@ def main():
         (assets / "hhi_figure.tex").write_text(
             r"\begin{figure}[htbp]\centering" + "\n" +
             r"\includegraphics[width=.83\linewidth]{assets/flavor_hhi_histogram.pdf}" + "\n" +
-            r"\caption{Household flavor HHI; unaggregated flavor labels, package-quantity shares.}" + "\n" +
+            r"\caption{Household flavor HHI; unaggregated flavor labels, shares of quantity purchased.}" + "\n" +
             r"\end{figure}" + "\n")
         print(f"Included detailed-flavor HHI from {hhi}")
     else:
@@ -116,7 +121,7 @@ def main():
         (assets / "flavor_shares_figure.tex").write_text(
             r"\begin{figure}[htbp]\centering" + "\n" +
             r"\includegraphics[width=.95\linewidth]{assets/flavor_shares.pdf}" + "\n" +
-            r"\caption{Package-quantity shares; 20 most purchased unaggregated flavor labels.}" + "\n" +
+            r"\caption{Shares of quantity purchased; 20 most purchased unaggregated flavor labels.}" + "\n" +
             r"\end{figure}" + "\n")
 
     source = CODE / "final_draft/supply_code/writeup_math_graphs/figures"
@@ -178,7 +183,7 @@ def main():
     for name in ["settings", "estimates", "first_stage", "supply_values"]:
         table = assets / f"{name}.tex"
         table.write_text(table.read_text() + "\\bottomrule\n")
-    print("Refreshed tables, verified bootstrap SEs/intervals, and generated seven figures.")
+    print("Refreshed tables, verified Hessian SEs/intervals, and generated seven figures.")
 
 
 if __name__ == "__main__":

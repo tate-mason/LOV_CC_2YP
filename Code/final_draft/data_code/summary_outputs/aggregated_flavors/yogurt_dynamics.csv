@@ -1,0 +1,11 @@
+metric,value
+Matched households,15106.0
+Observed yogurt purchase weeks,282648.0
+Mean flavors bought per household,1.9257248775321065
+Mean household flavor HHI (0 to 1),0.7772191489444173
+Mixed-flavor weeks (%),17.447496532789902
+Weeks above seven packages (%),21.7234864566528
+Eligible adjacent single-flavor week pairs,48166.0
+Switch rate in eligible pairs (%),12.851388946559814
+Mean single-flavor spell length (consecutive calendar weeks),1.2193596262483213
+Median gap between purchase weeks,3.0

@@ -155,13 +155,46 @@ class EstimationChecks(unittest.TestCase):
             frame = add_stocks(self.frame())
             frame["cf_other"], frame["cf_berry"], frame["cf_plain"] = .1, -.2, .3
             data = make_arrays(frame, capacity)
-            for model in ["naive", "homogeneous", "mixed_naive", "heterogeneous"]:
+            for model in ["naive", "homogeneous", "mixed_naive", "heterogeneous", "mixture"]:
                 theta = np.full(len(parameter_names(model, bool(capacity), True)), .2)
                 draws = make_draws(8, 306)
                 value, gradient = demand_objective_gradient(theta, data, draws, model)
                 objective = lambda t: -household_loglike(t, data, draws, model).mean()
                 self.assertAlmostEqual(value, objective(theta))
                 np.testing.assert_allclose(gradient, approx_derivative(objective, theta).ravel(), rtol=1e-5, atol=1e-7)
+
+    def test_mixture_combines_household_likelihoods_and_nests_normal(self):
+        from est import mixture_components
+        frame = add_stocks(self.frame())
+        other = frame.copy()
+        other["household_code"] = 20
+        other["xi_other"] += .5
+        data = make_arrays(pd.concat([frame, other], ignore_index=True), 7)
+        draws = make_draws(16, 306)
+        names = parameter_names("mixture", True)
+        theta = np.full(len(names), .2)
+        theta[names.index("mixture_weight")] = .35
+        _, _, first, second, weight = mixture_components(theta, data)
+        l1 = household_loglike(first, data, draws, "heterogeneous")
+        l2 = household_loglike(second, data, draws, "heterogeneous")
+        expected = np.logaddexp(np.log(weight) + l1, np.log1p(-weight) + l2)
+        np.testing.assert_allclose(household_loglike(theta, data, draws, "mixture"), expected)
+        theta[names.index("gamma_mean_gap")] = 0.
+        np.testing.assert_allclose(household_loglike(theta, data, draws, "mixture"), l1)
+
+    def test_mixture_fit_outputs(self):
+        import json
+        data = make_arrays(add_stocks(self.frame()), 7)
+        with tempfile.TemporaryDirectory() as directory:
+            args = SimpleNamespace(model="mixture", draws=8, seed=306, starts=2,
+                                   maxiter=3, output=Path(directory), se_method="none", capacity=7)
+            fit_model(data, args)
+            estimates = pd.read_csv(args.output / "estimates.csv")
+            self.assertIn("mixture_weight", estimates.parameter.tolist())
+            self.assertTrue((args.output / "gamma_distribution.pdf").exists())
+            report = json.loads((args.output / "fit.json").read_text())
+            self.assertEqual(report["parameters"], len(estimates))
+            self.assertAlmostEqual(report["aic"], 2 * report["nll"] + 2 * len(estimates))
 
     def test_four_model_specifications(self):
         for model, gamma, alpha_sd, gamma_sd in [

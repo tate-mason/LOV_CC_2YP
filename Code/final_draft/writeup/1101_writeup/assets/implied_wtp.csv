@@ -1,0 +1,7 @@
+term,mean_wtp,population_sd,interpretation
+inside_constant,2.416955488468747,1.8039809796881967,"Other flavor vs outside, at zero history and control residual"
+beta_berry,-1.1655756093736178,0.8699689504959103,Flavor premium relative to other
+beta_plain,-0.18635347551266426,0.13909156661243308,Flavor premium relative to other
+gamma,-0.10538777463538078,0.1621976201151081,Per unit increase in history index Xi
+gamma_novelty,-0.03161633239061423,0.04865928603453244,"Per unit novelty N, holding own-flavor stock fixed"
+gamma_own_stock,0.07377144224476655,0.11353833408057566,"Per unit own-flavor stock S, holding novelty fixed"

@@ -18,6 +18,7 @@ from scipy.special import logsumexp
 from price_control import check_dma, add_price_controls
 from bootstrap_se import bootstrap_standard_errors
 from hessian_se import hessian_standard_errors
+from wtp import implied_wtp
 
 FLAVORS = ["other", "berry", "plain"]
 DATA_DIR = Path("/scratch/dtm63837/Kilts_Panel/Data")
@@ -376,9 +377,50 @@ def parameter_names(model, outside, control=False):
         names += ["sd_log_minus_alpha"]
     if model == "heterogeneous":
         names += ["sd_gamma"]
+    if model == "mixture":
+        names += ["mean_gamma", "sd_log_minus_alpha", "sd_gamma",
+                  "gamma_mean_gap", "sd_gamma_2", "mixture_weight"]
     if control:
         names += ["price_control"]
     return names
+
+
+def mixture_components(theta, data):
+    """Ordered component means prevent label switching; alpha is shared."""
+    names = parameter_names("mixture", data["outside"], data["control"])
+    p = dict(zip(names, theta))
+    normal_names = parameter_names("heterogeneous", data["outside"], data["control"])
+    first = np.array([p[n] for n in normal_names])
+    second = first.copy()
+    second[normal_names.index("mean_gamma")] += p["gamma_mean_gap"]
+    second[normal_names.index("sd_gamma")] = p["sd_gamma_2"]
+    return names, normal_names, first, second, p["mixture_weight"]
+
+
+def mixture_loglike_score(theta, data, draws, score=False):
+    """Mix whole household histories, never individual weeks."""
+    names, normal_names, first, second, weight = mixture_components(theta, data)
+    if score:
+        ll1, g1 = demand_objective_gradient(first, data, draws, "heterogeneous", household=True)
+        ll2, g2 = demand_objective_gradient(second, data, draws, "heterogeneous", household=True)
+    else:
+        ll1 = household_loglike(first, data, draws, "heterogeneous")
+        ll2 = household_loglike(second, data, draws, "heterogeneous")
+    terms = np.array([np.log(weight) + ll1, np.log1p(-weight) + ll2])
+    ll = logsumexp(terms, axis=0)
+    if not score:
+        return ll
+    responsibility = np.exp(terms - ll)
+    gradient = np.zeros((data["n_households"], len(names)))
+    for k, name in enumerate(normal_names):
+        if name == "sd_gamma":
+            gradient[:, names.index(name)] = responsibility[0] * g1[:, k]
+            gradient[:, names.index("sd_gamma_2")] = responsibility[1] * g2[:, k]
+        else:
+            gradient[:, names.index(name)] = responsibility[0] * g1[:, k] + responsibility[1] * g2[:, k]
+    gradient[:, names.index("gamma_mean_gap")] = responsibility[1] * g2[:, normal_names.index("mean_gamma")]
+    gradient[:, names.index("mixture_weight")] = responsibility[0] / weight - responsibility[1] / (1 - weight)
+    return -ll.mean(), -gradient.mean(axis=0)
 
 
 def household_loglike(theta, data, draws, model):
@@ -388,6 +430,8 @@ def household_loglike(theta, data, draws, model):
     Process one draw at a time to avoid a weeks x draws x products array.
     The multinomial combinatorial constant is omitted (independent of theta).
     """
+    if model == "mixture":
+        return mixture_loglike_score(theta, data, draws)
     p = dict(zip(parameter_names(model, data["outside"], data["control"]), theta))
     beta = np.array([0.0, p["beta_berry"], p["beta_plain"]])
     beta += p.get("inside_constant", 0.0)
@@ -417,8 +461,10 @@ def household_loglike(theta, data, draws, model):
     return logsumexp(loglikes, axis=0) - np.log(len(active_draws))
 
 
-def demand_objective_gradient(theta, data, draws, model):
+def demand_objective_gradient(theta, data, draws, model, household=False):
     """Exact simulated likelihood score, weighted by household type posteriors."""
+    if model == "mixture":
+        return mixture_loglike_score(theta, data, draws, score=True)
     names = parameter_names(model, data["outside"], data["control"])
     p = dict(zip(names, theta))
     active = draws if model in ("mixed_naive", "heterogeneous") else np.zeros((1, 2))
@@ -448,7 +494,10 @@ def demand_objective_gradient(theta, data, draws, model):
     likelihoods = np.asarray(likelihoods)
     normalizer = logsumexp(likelihoods, axis=0)
     weights = np.exp(likelihoods - normalizer)
-    gradient = -np.einsum("rh,rhp->p", weights, np.asarray(scores)) / data["n_households"]
+    household_scores = np.einsum("rh,rhp->hp", weights, np.asarray(scores))
+    if household:
+        return normalizer - np.log(len(active)), household_scores
+    gradient = -household_scores.mean(axis=0)
     return -(normalizer - np.log(len(active))).mean(), gradient
 
 
@@ -461,10 +510,18 @@ def optimize_demand(data, args, initial=None, number_starts=None, quiet=False):
         if name.startswith("sd_"):
             start[k] = 0.3  # Zero SD is a stationary point: start away from zero.
             bounds.append((0.0, 3.0))
+        elif name == "gamma_mean_gap":
+            start[k] = 0.4
+            bounds.append((0.0, 40.0))
+        elif name == "mixture_weight":
+            start[k] = 0.5
+            bounds.append((0.001, 0.999))
         elif name == "mu_log_minus_alpha":
             bounds.append((-6.0, 3.0))
         else:
             bounds.append((-20.0, 20.0))
+    if args.model == "mixture":
+        start[names.index("mean_gamma")] = -0.2
     if initial is not None:
         start = np.asarray(initial).copy()
     rng = np.random.default_rng(args.seed + 1)
@@ -526,7 +583,28 @@ def plot_gamma_distribution(table, output, converged=True):
     mean = float(estimates["mean_gamma"])
     sd = float(estimates.get("sd_gamma", 0.))
     fig, ax = plt.subplots(figsize=(7, 5))
-    if sd > 0:
+    if "mixture_weight" in estimates:
+        weight = float(estimates["mixture_weight"])
+        mean2 = mean + float(estimates["gamma_mean_gap"])
+        sd2 = float(estimates["sd_gamma_2"])
+        x = np.linspace(min(mean - 4 * sd, mean2 - 4 * sd2) - .01,
+                        max(mean + 4 * sd, mean2 + 4 * sd2) + .01, 1001)
+        density = np.zeros_like(x)
+        negative = 0.
+        for mu, sigma, share in [(mean, sd, weight), (mean2, sd2, 1 - weight)]:
+            if sigma > 0:
+                component = share * norm.pdf(x, loc=mu, scale=sigma)
+                density += component
+                ax.plot(x, component, linestyle=":", label=f"Component (weight {share:.1%})")
+                negative += share * norm.cdf(0, loc=mu, scale=sigma)
+            else:
+                ax.axvline(mu, linestyle=":", label=f"Point mass (weight {share:.1%})")
+                negative += share * (mu < 0)
+        ax.plot(x, density, color="steelblue", label="Mixture continuous density")
+        ax.set_ylabel("Population density")
+        ax.legend()
+        description = f"Component means = {mean:.4g}, {mean2:.4g}; P(gamma < 0) = {negative:.1%}"
+    elif sd > 0:
         x = np.linspace(mean - 4 * sd, mean + 4 * sd, 801)
         density = norm.pdf(x, loc=mean, scale=sd)
         ax.plot(x, density, color="steelblue")
@@ -563,6 +641,9 @@ def fit_model(data, args, frame=None):
     args.output.mkdir(parents=True, exist_ok=True)
     table.to_csv(args.output / "point_estimates.csv", index=False)
     plot_gamma_distribution(table, args.output, converged=best.success)
+    wtp = implied_wtp(table, getattr(args, "habit_weight", .7))
+    wtp["provisional_fit"] = not best.success or bool(table["at_bound"].any())
+    wtp.to_csv(args.output / "implied_wtp.csv", index=False)
     inference = {"method": args.se_method, "status": "disabled"}
     if args.se_method == "bootstrap":
         if not best.success:
@@ -610,6 +691,9 @@ def fit_model(data, args, frame=None):
         converged=bool(best.success),
         message=str(best.message),
         nll=float(best.fun * data["n_households"]),
+        parameters=len(names),
+        aic=float(2 * best.fun * data["n_households"] + 2 * len(names)),
+        bic=float(2 * best.fun * data["n_households"] + np.log(data["n_households"]) * len(names)),
         settings={
             k: str(v) if isinstance(v, Path) else v for k, v in vars(args).items()
         },
@@ -646,7 +730,7 @@ def main(default_model="heterogeneous"):
     parser.add_argument("--output", type=Path, default=Path("estimation_output"))
     parser.add_argument(
         "--model",
-        choices=["naive", "homogeneous", "mixed_naive", "heterogeneous"],
+        choices=["naive", "homogeneous", "mixed_naive", "heterogeneous", "mixture"],
         default=default_model,
     )
     parser.add_argument("--first-year", type=int, default=2006)

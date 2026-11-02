@@ -3,6 +3,7 @@ from pathlib import Path
 import argparse
 import json
 import shutil
+import sys
 
 import numpy as np
 import pandas as pd
@@ -13,6 +14,25 @@ from scipy.stats import norm
 
 HERE = Path(__file__).resolve().parent
 CODE = HERE.parents[2]
+sys.path.insert(0, str(CODE / "final_draft/est_code"))
+from wtp import implied_wtp
+
+
+def write_wtp_assets(estimates, habit_weight, assets):
+    """Refresh WTP from the same estimates used in the demand table."""
+    wtp = implied_wtp(estimates, habit_weight)
+    wtp.to_csv(assets / "implied_wtp.csv", index=False)
+    labels = {
+        "inside_constant": r"Inside constant $b_0$",
+        "beta_berry": r"Berry vs. other: $\beta_{\mathrm{berry}}$",
+        "beta_plain": r"Plain vs. other: $\beta_{\mathrm{plain}}$",
+        "gamma": r"History index: $\gamma_i$",
+        "gamma_novelty": r"Novelty: $(1-\lambda)\gamma_i$",
+        "gamma_own_stock": r"Own-flavor stock: $-\lambda\gamma_i$",
+    }
+    rows = [f"{labels.get(r.term, r.term)} & {r.mean_wtp:.4f} & {r.population_sd:.4f} "
+            + r"\\" for r in wtp.itertuples()]
+    (assets / "implied_wtp.tex").write_text("\n".join(rows) + "\n\\bottomrule\n")
 
 
 def main():
@@ -53,6 +73,7 @@ def main():
                     f"{row.observations:,} & {row.households:,} " + r"\\")
     (assets / "first_stage.tex").write_text("\n".join(rows) + "\n")
     settings = fit["settings"]
+    write_wtp_assets(estimates, settings["habit_weight"], assets)
     settings_rows = [
         ("Years", f"{settings['first_year']}--{settings['last_year']}"),
         ("Households", f"{fit['households']:,}"),

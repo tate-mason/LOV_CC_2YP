@@ -406,3 +406,53 @@ purchase weeks. This includes demographics, detailed/grouped flavor shares,
 HHI figures, switching, and spells. Rerun `summ_stats.py` to regenerate them.
 The saved prepared estimation parquet retains all-household records for retail
 price menus and instruments; `est.py` applies the single-person demand filter.
+
+
+### Comparing single-normal and mixture gamma
+
+The existing `heterogeneous` model and `est_het_gamma.py` are unchanged.
+Use `--model mixture` (or `est_mixture_gamma.py`) for a two-normal gamma
+mixture with the same shared lognormal price sensitivity, independent of gamma
+and component membership. Membership is fixed over each household history.
+The mixture adds three parameters relative to the single normal:
+`mean_gamma` is component 1's mean, component 2's mean is
+`mean_gamma + gamma_mean_gap`, `sd_gamma` and `sd_gamma_2` are component SDs,
+and `mixture_weight` is component 1's population share. Means are ordered to
+prevent label switching. The mean gap is bounded to [0, 40], SDs to [0, 3],
+and the share to [0.001, 0.999]. Equal means and SDs recover the single normal.
+
+Run both with identical sample, capacity, price controls, history settings,
+draw count and seed, saving to separate output directories. For example:
+
+```sh
+python3 est.py --model heterogeneous --starts 10 --output normal_output
+python3 est.py --model mixture --starts 10 --output mixture_output
+```
+
+`--draws` is the number of integration draws **per component**; the mixture
+therefore costs about twice as much per likelihood evaluation. Use multiple
+starts and check convergence, bounds, and stability with more draws before
+interpreting differences. `gamma_distribution.pdf` shows the mixture and its
+weighted components; zero-SD components are displayed as point masses.
+All fits now include `parameters`, `aic`, and `bic` in `fit.json`; BIC uses the
+number of independent households. Compare these only on identical observations.
+Lower AIC/BIC favors a model, but this is a sensitivity comparison, not a formal
+normality test. The usual chi-squared likelihood-ratio reference is invalid for
+this mixture comparison. No formal normality-test p-value is produced.
+Hessian inference uses the existing conditioning and singularity checks;
+near-coincident components can make component-level inference unreliable.
+
+
+Every fit saves `implied_wtp.csv`, with mean WTP and population SD in the
+same currency/unit as the input price. For any utility coefficient c,
+WTP = c/(-alpha). Under the model's independence assumption,
+E[WTP] = E[c] exp(-mu_log_minus_alpha + sd_log_minus_alpha^2/2).
+This averages household ratios, rather than dividing by mean price sensitivity.
+The population SD describes preference heterogeneity, not sampling uncertainty;
+no WTP standard errors or confidence intervals are reported.
+Beta rows are premiums relative to the omitted other flavor; the inside
+constant is other versus outside at zero history/control residual. Gamma is
+per unit Xi; novelty and own-stock rows multiply gamma WTP by (1-lambda)
+and -lambda respectively. Mixture fits also include conditional component
+moments and weight them for the overall population moments. Nonconverged or
+boundary fits are flagged provisional.

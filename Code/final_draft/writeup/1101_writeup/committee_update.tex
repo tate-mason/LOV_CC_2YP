@@ -29,52 +29,32 @@
 \small
 \begin{longtable}{p{.27\linewidth}p{.67\linewidth}}
 \toprule Symbol & Definition\\\midrule\endhead
-$i\in\mathcal I$, $I=|\mathcal I|$ & Household and number of retained households.\\
+$i$ & Household.\\
 $t\in\mathcal T_i$ & Retained household purchase week, ending Saturday.\\
 $\mathcal H_i$ & Observed purchase weeks used to construct history, including weeks subsequently excluded from the likelihood.\\
-$\mathcal F$, $Q_{ift}$, $w_{if}$, $H_i$ & Unaggregated flavor labels, quantity of detailed flavor $f$, household full-sample flavor quantity share, and household flavor HHI.\\
 $j,k\in\mathcal J$ & Flavor categories; $\mathcal J=\{\mathrm{other},\mathrm{berry},\mathrm{plain}\}$.\\
 $0$ & Outside alternative, included in the reported fit.\\
 $Q_{ijt}$, $Q_{it}$ & Quantity purchased of flavor $j$; total inside quantity $Q_{it}=\sum_jQ_{ijt}$.\\
 $x_{ijt}$ & Inside quantity share of flavor $j$, $Q_{ijt}/Q_{it}$.\\
 $S_{ijt}$, $N_{ijt}$ & Cumulative own-flavor share stock and immediately preceding calendar week's other-flavor share.\\
-$\lambda$, $X_{ijt}$ & Fixed history weight and combined history index; $\lambda=0.7$.\\
-$r$, $u$ & Store and UPC indices.\\
-$r_{it}$, $\mathcal U_{rjt}$ & Exposure store and observed, distinct price-covered UPCs for flavor $j$ at store $r$ in week $t$.\\
-$p_{rut}$, $p_{ijt}$ & Merged unit-price quote and exposure-store flavor price.\\
-$\mathcal A_{it}$ & Available inside flavors with finite positive exposure-store prices.\\
-$m$, $m_{it}$ & Consumer market index and household $i$'s market in week $t$.\\
-$\mathcal Q_{mt}$, $n_{mt}$, $P_{mt}$ & Distinct store--week--UPC prices within consumer DMA $m$; their number and sum. Prices pool all flavors.\\
-$z_{it}$ & Same-week mean price outside consumer DMA $m_{it}$.\\
-$\pi_j$, $\boldsymbol\eta_j$ & First-stage instrument slope and coefficients on the three history indices.\\
-$\tau_{jt}$, $\kappa_{jm}$ & Flavor-specific week and consumer-DMA fixed effects.\\
-$v_{ijt}$, $\widehat v_{ijt}$ & First-stage price effect and estimated residual.\\
-$\mathcal D_j$, $G_j$ & Flavor $j$ first-stage household--weeks and number of distinct households therein.\\
+$\lambda$, $\Xi_{ijt}$ & Fixed history weight and combined history index; $\lambda=0.7$.\\
+$p_{ijt}$ & Exposure-store flavor price.\\
+$v_{ijt}$, $\widehat v_{ijt}$ & First-stage price disturbance and estimated residual.\\
 $b_0$ & Common inside intercept relative to the outside alternative.\\
 $\beta_j$ & Flavor intercept relative to other; $\beta_{\mathrm{other}}=0$ in the reported fit.\\
 $\alpha_i$, $\mu_\alpha$, $\sigma_\alpha$ & Positive price sensitivity and mean/SD of its logarithm. Price enters utility as $-\alpha_i p$.\\
 $\gamma_i$, $\mu_\gamma$, $\sigma_\gamma$ & Household history coefficient, common across flavors, and its population mean/SD.\\
 $\rho$ & Common coefficient on the price-control residual.\\
 $\varepsilon_{ijt}$, $V_{ijt}$, $U_{ijt}$ & Unit-scale type-I extreme-value shock, deterministic utility, and total utility.\\
-$Z_{i\alpha}$, $Z_{i\gamma}$ & Independent standard normal household type components, fixed over household history.\\
-$\mathcal B_{it}(C)$ & Available alternatives, with outside added only for $C>0$.\\
 $P_{ijt}$ & Conditional choice probability for given household type.\\
-$\boldsymbol\theta$, $\Theta$ & Demand parameter vector and optimization bounds.\\
-$f$, $\phi$ & Household-type density and standard normal density.\\
-$L_i$, $L_{ir}$, $\ell_{ir}$ & Integrated household likelihood, draw-specific likelihood, and its logarithm; multinomial constants omitted.\\
-$R$, $\boldsymbol z_r$ & Number of integration draws and fixed antithetic standard normal draw. Draw index $r$ is separate from the store index.\\
-$\widehat L_i$, $\widehat\ell$, $w_{ir}$ & Simulated likelihood, total simulated log likelihood, and household posterior draw weight.\\
-$\boldsymbol g_{ir}$ & Draw-specific household likelihood score.\\
-% $b=1,\ldots,B$, $I_b^\mathrm{draw}$ & Bootstrap replication and its independently sampled household indices.\\
-% $\widehat{\boldsymbol\theta}^{(b)}$, $\overline{\boldsymbol\theta}$ & Bootstrap demand estimate and mean across usable bootstrap estimates.\\
-% $\widehat\Sigma$, $\widehat{\mathrm{se}}$, $\widehat q_a$ & Bootstrap covariance, standard error, and empirical quantile at probability $a$.\\
-$\widehat H$, $\widehat\Sigma$, $\widehat{\mathrm{se}}$ & Hessian of the mean negative log likelihood, estimated parameter covariance, and standard error.\\
-$g_i$, $F_j$, $\widehat{\Var}(\widehat\pi_j)$ & Household instrument score, first-stage one-instrument Wald statistic, and clustered variance estimate.\\
 \bottomrule
 \end{longtable}
 \normalsize
 
 \subsection{Price equation and control residuals}
+Let $m$ index consumer DMAs and $m_{it}$ be household $i$'s DMA in week $t$.
+$\mathcal Q_{mt}$ contains the distinct store--week--UPC price quotes in DMA
+$m$, pooling all flavors. Their count and price sum are
 \begin{equation}
 \begin{aligned}
 n_{mt}&=|\mathcal Q_{mt}|,
@@ -85,6 +65,7 @@ n_{mt}&=|\mathcal Q_{mt}|,
 P_{mt}&=\sum_{q\in\mathcal Q_{mt}}p_q,
 \end{aligned}
 \end{equation}
+The instrument $z_{it}$ is the same-week mean price outside the household's DMA:
 \begin{equation}
 \begin{aligned}
 z_{it}&=\frac{\sum_{m\ne m_{it}}P_{mt}}{\sum_{m\ne m_{it}}n_{mt}},\qquad \sum_{m\ne m_{it}}n_{mt}>0,
@@ -92,11 +73,15 @@ z_{it}&=\frac{\sum_{m\ne m_{it}}P_{mt}}{\sum_{m\ne m_{it}}n_{mt}},\qquad \sum_{m
 \end{equation}
 \begin{equation}
 \begin{aligned}
-p_{ijt}&=\pi_j z_{it}+\sum_{k\in\mathcal J}\eta_{jk}X_{ikt}
+p_{ijt}&=\pi_j z_{it}
  +\tau_{jt}+\kappa_{j,m_{it}}+v_{ijt},\qquad (i,t)\in\mathcal D_j.
 \end{aligned}
 \end{equation}
+Here $\pi_j$ is the instrument slope
+and $\tau_{jt}$ and $\kappa_{jm}$ are flavor-specific week and DMA fixed effects.
+$\mathcal D_j$ contains the usable household--weeks for flavor $j$.
 The same $z_{it}$ enters each flavor equation. Each household--week has equal first-stage weight.
+The table reports the one-instrument Wald statistic $F_j$.
 
 % First-stage results from res_hess.
 \begin{table}[htbp]\centering\small
@@ -107,6 +92,29 @@ Flavor & $\widehat\pi_j$ & Cluster SE & $F_j$ & Partial $R^2$ & Observations & H
 \end{table}
 
 \subsection{Utility, heterogeneity, and choice probabilities}
+\emph{Fatigue} is a decline in utility from a flavor as the household accumulates
+past purchases of that flavor. \emph{Novelty} is a utility gain from choosing a
+flavor different from those purchased in the immediately preceding calendar
+week. Define the corresponding history measures by
+\begin{equation}
+\begin{aligned}
+S_{ijt}&=\sum_{\substack{s\in\mathcal H_i\\s<t}}x_{ijs},
+&N_{ijt}&=\begin{cases}
+\sum_{k\ne j}x_{ik,t-1},&t-1\in\mathcal H_i,\\
+0,&t-1\notin\mathcal H_i,
+\end{cases}\\
+\Xi_{ijt}&=(1-\lambda)N_{ijt}-\lambda S_{ijt},
+&\lambda&=0.7.
+\end{aligned}
+\end{equation}
+Thus $\gamma_i\Xi_{ijt}=0.3\gamma_iN_{ijt}-0.7\gamma_iS_{ijt}$:
+positive $\gamma_i$ implies both fatigue and a preference for novelty, while
+negative $\gamma_i$ implies reinforcement from accumulated own-flavor purchases
+and a preference for repeating recent flavors. Fatigue accumulates without
+depreciation; novelty depends only on the preceding calendar week and is zero
+after a purchase gap. The fixed weight $\lambda$ ties the two effects together,
+so they are not separately estimated.
+
 \begin{equation}
 \begin{aligned}
 U_{ijt}&=V_{ijt}+\varepsilon_{ijt},
@@ -114,7 +122,7 @@ U_{ijt}&=V_{ijt}+\varepsilon_{ijt},
 \end{equation}
 \begin{equation}
 \begin{aligned}
-V_{ijt}&=b_0+\beta_j-\alpha_i p_{ijt}+\gamma_iX_{ijt}+\rho\widehat v_{ijt},
+V_{ijt}&=b_0+\beta_j-\alpha_i p_{ijt}+\gamma_i\Xi_{ijt}+\rho\widehat v_{ijt},
 \end{aligned}
 \end{equation}
 \begin{equation}
@@ -122,6 +130,8 @@ V_{ijt}&=b_0+\beta_j-\alpha_i p_{ijt}+\gamma_iX_{ijt}+\rho\widehat v_{ijt},
 \beta_{\mathrm{other}}&=0,
 \end{aligned}
 \end{equation}
+The household type components $Z_{i\alpha}$ and $Z_{i\gamma}$ are independent
+standard normals, fixed over each household's history:
 \begin{equation}
 \begin{aligned}
 \log\alpha_i&=\mu_\alpha+\sigma_\alpha Z_{i\alpha},\qquad \alpha_i>0,
@@ -137,218 +147,18 @@ V_{ijt}&=b_0+\beta_j-\alpha_i p_{ijt}+\gamma_iX_{ijt}+\rho\widehat v_{ijt},
 \begin{pmatrix}Z_{i\alpha}\\Z_{i\gamma}\end{pmatrix}&\sim N(\boldsymbol0,I_2),
 \end{aligned}
 \end{equation}
+Let $\mathcal A_{it}$ contain the inside flavors with finite positive prices
+at the household's exposure store. Conditional on household type,
 \begin{equation}
 \begin{aligned}
 P_{ijt}(\alpha_i,\gamma_i)&=\frac{\exp(V_{ijt})}{1+\sum_{k\in\mathcal A_{it}}\exp(V_{ikt})},\qquad j\in\mathcal A_{it},
 \end{aligned}
 \end{equation}
-\begin{equation}
-\begin{aligned}
-\boldsymbol\theta&=(b_0,\beta_{\mathrm{berry}},\beta_{\mathrm{plain}},\mu_\alpha,
- \mu_\gamma,\sigma_\alpha,\sigma_\gamma,\rho)^\top.
-\end{aligned}
-\end{equation}
-\begin{equation}
-\begin{aligned}
-\E[\alpha_i]&=\exp(\mu_\alpha+\sigma_\alpha^2/2),
-\end{aligned}
-\end{equation}
-\begin{equation}
-\begin{aligned}
-\Var(\alpha_i)&=[\exp(\sigma_\alpha^2)-1]\exp(2\mu_\alpha+\sigma_\alpha^2),
-\end{aligned}
-\end{equation}
-\begin{equation}
-\begin{aligned}
-\E[\gamma_i]&=\mu_\gamma,
-\end{aligned}
-\end{equation}
-\begin{equation}
-\begin{aligned}
-\Var(\gamma_i)&=\sigma_\gamma^2,
-\end{aligned}
-\end{equation}
-\begin{equation}
-\begin{aligned}
-f(\alpha,\gamma)&=\frac{1}{\alpha\sigma_\alpha}
- \phi\!\left(\frac{\log\alpha-\mu_\alpha}{\sigma_\alpha}\right)
- \frac{1}{\sigma_\gamma}\phi\!\left(\frac{\gamma-\mu_\gamma}{\sigma_\gamma}\right).
-\end{aligned}
-\end{equation}
-
-\subsubsection*{Capacity and outside alternative}
-\begin{equation}
-\begin{aligned}
-Q_{i0t}&=\max\{C-Q_{it},0\},\qquad C>0,
-\end{aligned}
-\end{equation}
-\begin{equation}
-\begin{aligned}
-V_{i0t}&=0,\qquad
-V_{ijt}=b_0+\beta_j-\alpha_i p_{ijt}+\gamma_iX_{ijt}+\rho\widehat v_{ijt},
-\end{aligned}
-\end{equation}
-\begin{equation}
-\begin{aligned}
-\mathcal B_{it}(C)&=\begin{cases}\mathcal A_{it},&C=0,\\\mathcal A_{it}\cup\{0\},&C>0,\end{cases}
-\end{aligned}
-\end{equation}
-\begin{equation}
-\begin{aligned}
-P_{ijt}&=\frac{\exp(V_{ijt})}{\sum_{k\in\mathcal B_{it}(C)}\exp(V_{ikt})}.
-\end{aligned}
-\end{equation}
-Reported results: $C=7$, $Q_{i0t}=\max\{7-Q_{it},0\}$, and $b_0$ is estimated;
-$\mathcal B_{it}(7)=\mathcal A_{it}\cup\{0\}$. Capacity imputes outside quantity
-on observed purchase weeks; it is not an upper bound on inside purchases.
-Multinomial combinatorial constants are omitted. 
-% \subsection{Household likelihood and simulation}
-% \begin{equation}
-% \begin{aligned}
-% L_i(\boldsymbol\theta)&=\int_{0}^{\infty}\int_{-\infty}^{\infty}
-%  \left[\prod_{t\in\mathcal T_i}\prod_{j\in\mathcal B_{it}(7)}
-%  P_{ijt}(\alpha,\gamma)^{Q_{ijt}}\right]f(\alpha,\gamma)\,\dd\gamma\,\dd\alpha,
-% \end{aligned}
-% \end{equation}
-% \begin{equation}
-% \begin{aligned}
-% \boldsymbol z_r&=(z_{r\alpha},z_{r\gamma})^\top,
-% \quad \boldsymbol z_{r+R/2}=-\boldsymbol z_r,
-% \quad \boldsymbol z_r\overset{\mathrm{iid}}\sim N(\boldsymbol0,I_2),\quad r\le R/2,
-% \end{aligned}
-% \end{equation}
-% \begin{equation}
-% \begin{aligned}
-% \alpha_r&=\exp(\mu_\alpha+\sigma_\alpha z_{r\alpha}),
-% \end{aligned}
-% \end{equation}
-% \begin{equation}
-% \begin{aligned}
-% \gamma_r&=\mu_\gamma+\sigma_\gamma z_{r\gamma},
-% \end{aligned}
-% \end{equation}
-% \begin{equation}
-% \begin{aligned}
-% \ell_{ir}&=\sum_{t\in\mathcal T_i}\sum_{j\in\mathcal B_{it}(7)}Q_{ijt}\log P_{ijt}(\alpha_r,\gamma_r),
-% \end{aligned}
-% \end{equation}
-% \begin{equation}
-% \begin{aligned}
-% L_{ir}&=e^{\ell_{ir}},
-% \end{aligned}
-% \end{equation}
-% \begin{equation}
-% \begin{aligned}
-% \widehat L_i&=\frac1R\sum_{r=1}^R e^{\ell_{ir}},
-% \end{aligned}
-% \end{equation}
-% \begin{equation}
-% \begin{aligned}
-% \log\widehat L_i&=\operatorname{LSE}_{r=1}^R(\ell_{ir})-\log R,
-% \qquad \operatorname{LSE}(a_1,\ldots,a_R)=\log\sum_r e^{a_r},
-% \end{aligned}
-% \end{equation}
-% \begin{equation}
-% \begin{aligned}
-% \widehat\ell(\boldsymbol\theta)&=\sum_{i=1}^I\log\widehat L_i(\boldsymbol\theta),
-% \end{aligned}
-% \end{equation}
-% \begin{equation}
-% \begin{aligned}
-% \widehat{\boldsymbol\theta}&=\argmax_{\boldsymbol\theta\in\Theta}\widehat\ell(\boldsymbol\theta),
-% \end{aligned}
-% \end{equation}
-% \begin{equation}
-% \begin{aligned}
-% \Theta&=[-20,20]^3\times[-6,3]\times[-20,20]\times[0,3]^2\times[-20,20].
-% \end{aligned}
-% \end{equation}
-% The optimizer minimizes $-\widehat\ell/I$.
-
-% \subsection{Standard errors}
-% The estimation sample is restricted to purchase records with household size
-% one before weekly quantities and history indices are constructed. Store price
-% menus and retail instruments use all matched purchase records.
-
-% Let $m(\boldsymbol\theta)=-\widehat\ell(\boldsymbol\theta)/I$ denote the
-% mean household negative simulated log likelihood. Define the observed
-% information and covariance estimator as
-% \begin{equation}
-% \widehat H=\left.\frac{\partial^2m(\boldsymbol\theta)}
-% {\partial\boldsymbol\theta\,\partial\boldsymbol\theta^\top}
-% \right|_{\boldsymbol\theta=\widehat{\boldsymbol\theta}},
-% \qquad
-% \widehat\Sigma=\frac{1}{I}\widehat H^{-1}.
-% \end{equation}
-% The Hessian is computed by central differences of the analytic gradient,
-% using the same fixed integration draws as estimation. Standard errors and
-% normal 95\% confidence intervals are
-% \begin{equation}
-% \widehat{\mathrm{se}}(\widehat\theta_k)=\sqrt{\widehat\Sigma_{kk}},
-% \qquad
-% \mathrm{CI}_{k,.95}=\widehat\theta_k\pm1.96\,
-% \widehat{\mathrm{se}}(\widehat\theta_k).
-% \end{equation}
-% These model-based standard errors condition on the estimated price-control
-% residuals, retail instruments, and integration draws; they omit first-stage
-% estimation uncertainty. Standard errors are withheld for a nonconverged fit,
-% parameters at or near bounds, or nonpositive or ill-conditioned information.
-
-% \subsection{Household bootstrap}
-% Each replication samples households with
-% replacement, retaining their full histories, and reestimates both the price
-% equations and the demand model. Standard errors are the sample standard
-% deviations of the bootstrap parameter estimates, and the 95\% confidence
-% intervals use their 2.5th and 97.5th percentiles. The current results use 49
-% usable replications out of 49 requested, so the percentile intervals are
-% relatively coarse. Retail instruments, history indices, and integration draws
-% are held fixed.
-% 
-% For each replication, resample whole household histories and refit the price
-% equations to obtain $\widehat{\boldsymbol v}^{(b)}$.
-% \begin{equation}
-% \begin{aligned}
-% I_b^\mathrm{draw}&=(i_1^{(b)},\ldots,i_I^{(b)}),
-% \qquad i_l^{(b)}\overset{\mathrm{iid}}\sim\operatorname{Uniform}\{1,\ldots,I\},
-% \end{aligned}
-% \end{equation}
-% \begin{equation}
-% \begin{aligned}
-% \widehat{\boldsymbol v}^{(b)}&=\text{refitted price-equation residuals},
-% \end{aligned}
-% \end{equation}
-% \begin{equation}
-% \begin{aligned}
-% \widehat{\boldsymbol\theta}^{(b)}&=\argmax_{\boldsymbol\theta\in\Theta}\sum_{l=1}^I
-%  \log\widehat L_{i_l^{(b)}}(\boldsymbol\theta;\widehat{\boldsymbol v}^{(b)}),
-% \end{aligned}
-% \end{equation}
-% \begin{equation}
-% \begin{aligned}
-% \overline{\boldsymbol\theta}&=\frac1B\sum_{b=1}^B\widehat{\boldsymbol\theta}^{(b)},
-% \end{aligned}
-% \end{equation}
-% \begin{equation}
-% \begin{aligned}
-% \widehat\Sigma&=\frac1{B-1}\sum_{b=1}^B
-%  (\widehat{\boldsymbol\theta}^{(b)}-\overline{\boldsymbol\theta})
-%  (\widehat{\boldsymbol\theta}^{(b)}-\overline{\boldsymbol\theta})^\top,
-% \end{aligned}
-% \end{equation}
-% \begin{equation}
-% \begin{aligned}
-% \widehat{\mathrm{se}}(\widehat\theta_k)&=\sqrt{\widehat\Sigma_{kk}},
-% \end{aligned}
-% \end{equation}
-% \begin{equation}
-% \begin{aligned}
-% \mathrm{CI}_{k,.95}&=[\widehat q_{.025}(\widehat\theta_k^{(b)}),\widehat q_{.975}(\widehat\theta_k^{(b)})].
-% \end{aligned}
-% \end{equation}
-% Whole histories are retained; duplicated households receive distinct IDs. History indices, retail instruments, and integration draws remain fixed. Both price and demand stages are refitted. $B$ counts usable replications.
-% 
 
 \subsection{Unaggregated flavor concentration}
+Let $\mathcal F$ be the detailed flavor labels and $Q_{ift}$ the quantity of
+flavor $f$ bought by household $i$ in week $t$. Household full-history quantity
+shares $w_{if}$ and flavor HHI $H_i$ are
 \begin{equation}
 \begin{aligned}
 w_{if}&=\frac{\sum_{t\in\mathcal H_i}Q_{ift}}{\sum_{g\in\mathcal F}\sum_{t\in\mathcal H_i}Q_{igt}},
@@ -369,10 +179,8 @@ H_i&=\sum_{f\in\mathcal F}w_{if}^2.
 \clearpage
 
 \subsection{Summary statistics}
-The descriptive sample covers 2006--2015. Statistics are unweighted.
-Trips, UPCs, purchase lines, and quantity purchased in the matched yogurt column refer
-to yogurt only. The descriptive matched sample is restricted to single-person households and precedes
-demand estimation.
+The descriptive sample covers 2006--2015. Trips, UPCs, and quantity purchased in the matched yogurt column refer
+to yogurt only.
 
 \begin{table}[htbp]\centering\small
 \caption{Household purchase summaries}
@@ -385,7 +193,6 @@ Mean trips per household & 493.13 & 20.26\\
 Mean trips per approximate observed week & 2.27 & 0.11\\
 Median trips per approximate observed week & 1.93 & 0.07\\
 Mean distinct UPCs per household & 1178.31 & 13.89\\
-Mean purchase lines per household & 3397.64 & 45.15\\
 Mean quantity purchased per household & 4669.07 & 93.77\\
 One-person households (\%) & 100.00 & 100.00\\
 Two-person households (\%) & 0.00 & 0.00\\
@@ -412,7 +219,7 @@ Median gap between purchase weeks (weeks) & 3.00 & 3.00\\
 \end{table}
 An eligible transition requires purchases in consecutive calendar weeks and
 exactly one flavor (or category) in each week. Mixed baskets and gaps are
-excluded from the switch-rate denominator. Spells count consecutive calendar
+excluded from the switch-rate denominator, thus it is illustrative only. Spells count consecutive calendar
 weeks with the same single flavor or category; a gap breaks the spell.
 HHI uses each household's full-history shares of quantity purchased.
 
@@ -439,6 +246,20 @@ Plain & 7.03 & 18.09 & 1.85 & 80.06\\
 \caption{Demand estimates}
 \begin{tabular}{lrrc}\toprule Parameter & Estimate & Standard error & 95\% normal interval\\\midrule
 \input{assets/estimates.tex}\end{tabular}
+\end{table}
+\begin{table}[htbp]\centering\small
+\caption{Implied willingness to pay}
+\label{tab:implied-wtp}
+\begin{tabular}{lrr}\toprule
+Utility coefficient & Mean WTP & Population SD\\\midrule
+\input{assets/implied_wtp.tex}\end{tabular}
+
+\begin{minipage}{.95\linewidth}\footnotesize
+WTP is in the same monetary units as price, per unit of the indicated regressor.
+Flavor coefficients are relative to other; $b_0$ is other versus the outside
+option at zero history and control residual. The last two rows hold the other
+history regressor fixed, with $\lambda=0.7$.
+\end{minipage}
 \end{table}
 \begin{figure}[htbp]\centering
 \includegraphics[width=.83\linewidth]{assets/gamma_distribution.pdf}
@@ -469,11 +290,11 @@ $\gamma_i\sim N(-0.0588034,\,0.0634273^2)$.}
 
 \subsection{Discussion of Results}
 
-I now have 15,105 single-person households in my estimation sample. 
+I have 15,105 single-person households in my estimation sample, a 30x increase over the past runs. The descriptive yogurt sample has 15,106 households, compared with 15,105 retained for estimation after the usable-week restrictions. In the descriptive yogurt sample, households are observed for an average of about three years and make 20 yogurt-only trips, on average. The full panel covers 37,827 households and averages 493 trips across all products, so that is a different household set. In an approximate observed week, there are only about 0.1 yogurt trips. Households in the descriptive yogurt sample buy about 14 distinct yogurt UPCs as well as about 94 total units of yogurt. Switching stats show that there are nearly 11 flavors bought in the disaggregated sample and about two in the three-flavor category aggregation. Mean within-household flavor HHI in the disaggregated is 0.32 versus 0.78 in the aggregated, expected given how large the categories can be. Similarly, we have more than a third of weeks with a mixed basket in the disaggregated sample versus about 17\% in the three category specification. Switching rate is higher with more flavors to switch between, again to be expected. I think using the disaggregated sample for illustration then three category to ease estimation makes sense. Appreciate thoughts here.
 
-Looking at the within household flavor concentration plot shows that most consumers consumer many flavors of yogurt. We do see a large grouping at the single flavor point, but they still only account for about 3\% of households. Interestingly, there is another large cluster around the 50\% point, which is good evidence of switching being for novelty rather than experimentation/learning. Strawberry yogurt is the most purchased flavor at about 8.5\% of all sales. Notably, nine berry flavors populate the top 20 flavors, showing that it is a good grouping. I do think aggregating "other" into "other fruits", "dessert flavors", and "other" may be good once the three category specification is working as we want it to.
+Looking at the within household flavor concentration plot shows that most consumers consume many flavors of yogurt. We do see a large grouping at the single flavor point, but they still only account for about 3\% of households. Interestingly, there is another large cluster around the 50\% point, which is good evidence of switching behavior varying across households. Strawberry yogurt is the most purchased flavor at about 8.5\% of all sales. Notably, nine berry flavors populate the top 20 flavors, showing that it is a good grouping. I do think aggregating "other" into "other fruits", "dessert flavors", and "other" may be good once the three category specification is working as we want it to.
 
-
+Estimation has taken a massive improvement with the changes to the novelty versus fatigue mechanism in $\Xi$ alongside Josh's proposed changes to changing $\beta_{ij}\rightarrow\beta_j$ and $\gamma_{ij}\rightarrow\gamma_i$. $\gamma$ is now identified with precision, though the effect and spread are quite small. Price sensitivity has a large spread and large negative effect. Looking at the distribution, assumed to be normal, we do see some agents prefer novelty and show fatigue, while most show reinforcement from same-flavor accumulation and prefer repetition in consumption of their preferred products. From the implied willingness to pay, relative to other flavors, berry and plain yogurt would require subsidization for consumers to value the flavors equivalently. For history, we can disaggregate $\gamma$ into the novelty and fatigue terms. Novelty leads to a loss of value of \$-0.03 on average, implying an additional unit (addition to flavor share) reduces the value of a unit. For persistence, about \$0.07 in WTP is added per-unit on average for same flavor accumulation. Both effects hold the other fixed. Overall, this has been a large improvement. I think a lot is due to the sample size growth and then the estimation procedure changes proposed by Josh.
 
 \section{Supply: two-period pricing}
 \subsection{Notation}
@@ -485,20 +306,17 @@ $x_0=h$, $x_1=a$ & Initial realized choice and realized first-period choice; eac
 $\beta$, $\alpha>0$, $\gamma$ & Fixed, firm-observed type's inside intercept, positive price sensitivity, and symmetric switching coefficient. Type indices are suppressed.\\
 $c$, $\delta\in(0,1)$ & Marginal cost and discount factor.\\
 $p_t(h)$ & Price conditional on preceding realized choice $h$. Prices belong to $\R$.\\
-$V_{jt}^{\rm raw}$, $V_{0t}^{\rm raw}$ & Raw deterministic utilities of inside and outside alternatives.\\
-$v_t(h)$ & Inside-minus-outside deterministic utility.\\
 $q(h)$ & Signed history indicator: $q(j)=-1$, $q(0)=1$.\\
-$\varepsilon_{jt}$, $\varepsilon_{0t}$ & Independent unit-scale type-I extreme-value shocks across alternatives and periods.\\
 $s_t(h)$, $s_{0t}(h)$ & Inside and outside choice probabilities.\\
 $W_2(a)$ & Optimized terminal profit conditional on $x_1=a$.\\
 $\Pi(p_1;h)$, $\Pi^*(h)$ & Expected discounted profit at candidate first-period price and at its optimum.\\
-$R_j$, $R_0$, $R_{0\to j}$ & Two state-matched price ratios and the ratio conditional on path $0\to j$.\\
-$\partial$, $\dd/\dd\gamma$, prime, $*$ & Partial derivative, total derivative at fixed discrete histories, total gamma derivative, and optimized quantity.\\
 \bottomrule
 \end{longtable}
 \normalsize
 
 \subsection{Utilities and shares}
+$V_{jt}^{\mathrm{raw}}$ and $V_{0t}^{\mathrm{raw}}$ are deterministic utilities
+before subtracting the outside utility. Their difference is $v_t(h)$:
 \begin{equation}
 \begin{aligned}
 V_{jt}^{\mathrm{raw}}&=\beta-\alpha p_t+\gamma\ind\{x_{t-1}=0\},
@@ -533,6 +351,7 @@ s_t(h)&=\frac{e^{v_t(h)}}{1+e^{v_t(h)}},\qquad s_{0t}(h)=1-s_t(h).
 \end{equation}
 
 \subsection{Terminal-period optimization}
+A star marks an optimized price or its associated choice probability.
 For each $a\in\{j,0\}$:
 \begin{equation}
 \begin{aligned}
@@ -590,10 +409,8 @@ p_1^*(h)&=c+\frac1{\alpha[1-s_1^*(h)]}-\delta[W_2(j)-W_2(0)],
 \Pi^*(h)&=\delta W_2(0)+\frac{s_1^*(h)}{\alpha[1-s_1^*(h)]}.
 \end{aligned}
 \end{equation}
-The two terminal value functions are constant with respect to $p_1$ conditional on the realized terminal state.
 
 \subsection{Terminal-price and terminal-value derivatives}
-For each $a\in\{j,0\}$, implicit differentiation of the terminal-price condition gives
 \begin{equation}
 \begin{aligned}
 \frac{\dd p_2^*(a)}{\dd\gamma}
@@ -680,9 +497,11 @@ For each $a\in\{j,0\}$, implicit differentiation of the terminal-price condition
 &\iff\delta[1-s_1^*(j)]s_2^*(0)>s_1^*(j)[1+\delta s_2^*(j)].
 \end{aligned}
 \end{equation}
-Equality gives a zero derivative; reversing each inequality reverses the corresponding sign.
 
 \subsection{Price ratios and their derivatives}
+$R_j$ and $R_0$ compare prices at the same state in both periods;
+$R_{0\to j}$ compares the prices along the path from initial state $0$ to
+first-period choice $j$:
 \begin{equation}
 \begin{aligned}
 R_j&=\frac{p_1^*(j)}{p_2^*(j)},
@@ -764,16 +583,16 @@ $h$ & $\gamma$ & $p_1^*(h)$ & $p_2^*(j)$ & $p_2^*(0)$ & $\Pi^*(h)$ & $\dd\Pi^*(h
 \clearpage
 \subsection{Discussion of Supply}
 
-The optimal pricing conditions show that the period price one is convex for consumers with initial state $h_0=j$, implying higher prices for individuals at the poles of the $\gamma$ distribution. For $h_0=0$, the firm will raise its price as $\gamma$ increases. This tracks with what I would expect to see. As a consumer is more likely to switch, they will be less impacted by a higher price. Period two prices move in opposite directions. Those who bought $a=j$ in period one see a lower price as the level of $\gamma$ increases, attempting to hold them, while $a=0$ last period sees higher prices as the level of $\gamma$ increases. From this we can see that switchers are charged higher prices at higher levels of switching preference in both periods. This points towards an idea of trying to charge as much as possible before the consumer switches away. Similarly, as consumer's prefer to show persistence in consumption, period two prices are very high. Optimal prices are approximately four times higher for stayers than switchers in period two. We perfectly see the induce then harvest mechanism here. At $\gamma=3$ the firm is even willing to subsidize the consumer to switch in order to charge a much higher price in the next period.
+The optimal pricing conditions show that the period one price is U-shaped for consumers with initial state $h=j$, implying higher prices for individuals at the poles of the $\gamma$ distribution. For $h=0$, the firm will raise its price as $\gamma$ increases. This tracks with what I would expect to see. As a consumer is more likely to switch, their utility from switching will offset price effects. Period two prices move in opposite directions. Those who bought $a=j$ in period one see a lower price as the level of $\gamma$ increases, attempting to hold them, while $a=0$ last period sees higher prices as the level of $\gamma$ increases. From this we can see that switchers are charged higher prices at higher levels of switching preference in both periods. This points towards an idea of trying to charge as much as possible before the consumer switches away. Similarly, as consumers prefer to show persistence in consumption, period two prices are very high. Optimal prices are approximately four times higher for stayers than switchers in period two. We perfectly see the induce then harvest mechanism here. At $\gamma=-3$ the firm is even willing to subsidize the consumer to switch in order to charge a much higher price in the next period.
 
-From the derivative of optimal period one price w.r.t. $\gamma$, initial state $h_0=0$ we have a relatively flat effect, seeing slight concavity. However, the curve for $h_0=j$ shows that the effect of $\gamma$ is quite variable depending on consumer type.
+From the derivative of optimal period one price w.r.t. $\gamma$, initial state $h=0$ we have a relatively flat effect, seeing slight concavity. However, the curve for $h=j$ shows that the effect of $\gamma$ is quite variable depending on consumer type.
 
-Optimal profit shows that for $h_0=j$, higher levels of $\gamma$ reduce profits until $\gamma=1$ when the curve turns back up, implying there is a level of switching preference which becomes profitable to target. For $h_0=0$, higher values of $\gamma$ are more profitable since if they can get the consumer to switch in period one, they can harvest in period two. However, this is a bit difficult for me to interpret since if they are a high type switcher, they would likely switch in the path $0\rightarrow j\rightarrow 0$, reducing firm profits. Something to continue to analyze on my part.
+Optimal profit shows that for $h=j$, higher levels of $\gamma$ reduce profits until $\gamma=1$ when the curve turns back up, implying there is a level of switching preference which becomes profitable to target. For $h=0$, higher values of $\gamma$ are more profitable since if they can get the consumer to switch in period one, they can harvest in period two. However, this is a bit difficult for me to interpret since if they are a high type switcher, they would likely switch in the path $0\rightarrow j\rightarrow 0$, reducing firm profits. Something to continue to analyze on my part.
 
-The profit derivative w.r.t. $\gamma$ is remarkably similar to the optimal first period derivative for $h_0=j$, though for $h_0=0$ there is much more curvature, showing that stayers are less profitable since they will likely remain with the outside option. 
+The profit derivative w.r.t. $\gamma$ is remarkably similar to the optimal first period derivative for $h=j$, though for $h=0$ there is much more curvature, showing that stayers are less profitable since they will likely remain with the outside option. 
 
 The pricing ratio derivatives show three cases: $j\rightarrow j = R_j, \ 0\rightarrow0 = R_0, \ 0\rightarrow j = R_{0\rightarrow j}$. In the inside only case, period one prices dominate with increases in $\gamma$, seeing the value of the ratio grow with $\gamma$. For the outside only, we see the opposite. This is again due to induce and harvest. The firm will charge a lower period one price then charge a higher period two price for high switchers, leading to the downward slope. Finally, in the switching case, the curve looks remarkably similar to the inside only case, though it starts at a higher point. Induce and harvest is well demonstrated by this figure, showing higher period two prices for those likely to stay with $j$ if they switch from initial state $0\rightarrow j$ in period one. As the consumer becomes more likely to switch, the firm will attempt to charge as much as possible in period one. 
 
-These results demonstrate the firm's objective of targeting to first induce customers to their product via discounts, then ratcheting up prices in subsequent periods to reap profit from new consumers. A future task would be to put the estimated distribution from the empirical exercise into this this simulation to see how the firm would actually price and then compare to actual pricing.
+These results demonstrate the firm's objective of targeting to first induce customers to their product via discounts, then ratcheting up prices in subsequent periods to reap profit from new consumers. A future task would be to put the estimated distribution from the empirical exercise into this simulation to see how the firm would actually price and then compare to actual pricing.
 
 \end{document}

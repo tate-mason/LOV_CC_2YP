@@ -202,97 +202,97 @@ Reported results: $C=7$, $Q_{i0t}=\max\{7-Q_{it},0\}$, and $b_0$ is estimated;
 $\mathcal B_{it}(7)=\mathcal A_{it}\cup\{0\}$. Capacity imputes outside quantity
 on observed purchase weeks; it is not an upper bound on inside purchases.
 Multinomial combinatorial constants are omitted. 
-\subsection{Household likelihood and simulation}
-\begin{equation}
-\begin{aligned}
-L_i(\boldsymbol\theta)&=\int_{0}^{\infty}\int_{-\infty}^{\infty}
- \left[\prod_{t\in\mathcal T_i}\prod_{j\in\mathcal B_{it}(7)}
- P_{ijt}(\alpha,\gamma)^{Q_{ijt}}\right]f(\alpha,\gamma)\,\dd\gamma\,\dd\alpha,
-\end{aligned}
-\end{equation}
-\begin{equation}
-\begin{aligned}
-\boldsymbol z_r&=(z_{r\alpha},z_{r\gamma})^\top,
-\quad \boldsymbol z_{r+R/2}=-\boldsymbol z_r,
-\quad \boldsymbol z_r\overset{\mathrm{iid}}\sim N(\boldsymbol0,I_2),\quad r\le R/2,
-\end{aligned}
-\end{equation}
-\begin{equation}
-\begin{aligned}
-\alpha_r&=\exp(\mu_\alpha+\sigma_\alpha z_{r\alpha}),
-\end{aligned}
-\end{equation}
-\begin{equation}
-\begin{aligned}
-\gamma_r&=\mu_\gamma+\sigma_\gamma z_{r\gamma},
-\end{aligned}
-\end{equation}
-\begin{equation}
-\begin{aligned}
-\ell_{ir}&=\sum_{t\in\mathcal T_i}\sum_{j\in\mathcal B_{it}(7)}Q_{ijt}\log P_{ijt}(\alpha_r,\gamma_r),
-\end{aligned}
-\end{equation}
-\begin{equation}
-\begin{aligned}
-L_{ir}&=e^{\ell_{ir}},
-\end{aligned}
-\end{equation}
-\begin{equation}
-\begin{aligned}
-\widehat L_i&=\frac1R\sum_{r=1}^R e^{\ell_{ir}},
-\end{aligned}
-\end{equation}
-\begin{equation}
-\begin{aligned}
-\log\widehat L_i&=\operatorname{LSE}_{r=1}^R(\ell_{ir})-\log R,
-\qquad \operatorname{LSE}(a_1,\ldots,a_R)=\log\sum_r e^{a_r},
-\end{aligned}
-\end{equation}
-\begin{equation}
-\begin{aligned}
-\widehat\ell(\boldsymbol\theta)&=\sum_{i=1}^I\log\widehat L_i(\boldsymbol\theta),
-\end{aligned}
-\end{equation}
-\begin{equation}
-\begin{aligned}
-\widehat{\boldsymbol\theta}&=\argmax_{\boldsymbol\theta\in\Theta}\widehat\ell(\boldsymbol\theta),
-\end{aligned}
-\end{equation}
-\begin{equation}
-\begin{aligned}
-\Theta&=[-20,20]^3\times[-6,3]\times[-20,20]\times[0,3]^2\times[-20,20].
-\end{aligned}
-\end{equation}
-The optimizer minimizes $-\widehat\ell/I$.
+% \subsection{Household likelihood and simulation}
+% \begin{equation}
+% \begin{aligned}
+% L_i(\boldsymbol\theta)&=\int_{0}^{\infty}\int_{-\infty}^{\infty}
+%  \left[\prod_{t\in\mathcal T_i}\prod_{j\in\mathcal B_{it}(7)}
+%  P_{ijt}(\alpha,\gamma)^{Q_{ijt}}\right]f(\alpha,\gamma)\,\dd\gamma\,\dd\alpha,
+% \end{aligned}
+% \end{equation}
+% \begin{equation}
+% \begin{aligned}
+% \boldsymbol z_r&=(z_{r\alpha},z_{r\gamma})^\top,
+% \quad \boldsymbol z_{r+R/2}=-\boldsymbol z_r,
+% \quad \boldsymbol z_r\overset{\mathrm{iid}}\sim N(\boldsymbol0,I_2),\quad r\le R/2,
+% \end{aligned}
+% \end{equation}
+% \begin{equation}
+% \begin{aligned}
+% \alpha_r&=\exp(\mu_\alpha+\sigma_\alpha z_{r\alpha}),
+% \end{aligned}
+% \end{equation}
+% \begin{equation}
+% \begin{aligned}
+% \gamma_r&=\mu_\gamma+\sigma_\gamma z_{r\gamma},
+% \end{aligned}
+% \end{equation}
+% \begin{equation}
+% \begin{aligned}
+% \ell_{ir}&=\sum_{t\in\mathcal T_i}\sum_{j\in\mathcal B_{it}(7)}Q_{ijt}\log P_{ijt}(\alpha_r,\gamma_r),
+% \end{aligned}
+% \end{equation}
+% \begin{equation}
+% \begin{aligned}
+% L_{ir}&=e^{\ell_{ir}},
+% \end{aligned}
+% \end{equation}
+% \begin{equation}
+% \begin{aligned}
+% \widehat L_i&=\frac1R\sum_{r=1}^R e^{\ell_{ir}},
+% \end{aligned}
+% \end{equation}
+% \begin{equation}
+% \begin{aligned}
+% \log\widehat L_i&=\operatorname{LSE}_{r=1}^R(\ell_{ir})-\log R,
+% \qquad \operatorname{LSE}(a_1,\ldots,a_R)=\log\sum_r e^{a_r},
+% \end{aligned}
+% \end{equation}
+% \begin{equation}
+% \begin{aligned}
+% \widehat\ell(\boldsymbol\theta)&=\sum_{i=1}^I\log\widehat L_i(\boldsymbol\theta),
+% \end{aligned}
+% \end{equation}
+% \begin{equation}
+% \begin{aligned}
+% \widehat{\boldsymbol\theta}&=\argmax_{\boldsymbol\theta\in\Theta}\widehat\ell(\boldsymbol\theta),
+% \end{aligned}
+% \end{equation}
+% \begin{equation}
+% \begin{aligned}
+% \Theta&=[-20,20]^3\times[-6,3]\times[-20,20]\times[0,3]^2\times[-20,20].
+% \end{aligned}
+% \end{equation}
+% The optimizer minimizes $-\widehat\ell/I$.
 
-\subsection{Standard errors}
-The estimation sample is restricted to purchase records with household size
-one before weekly quantities and history indices are constructed. Store price
-menus and retail instruments use all matched purchase records.
+% \subsection{Standard errors}
+% The estimation sample is restricted to purchase records with household size
+% one before weekly quantities and history indices are constructed. Store price
+% menus and retail instruments use all matched purchase records.
 
-Let $m(\boldsymbol\theta)=-\widehat\ell(\boldsymbol\theta)/I$ denote the
-mean household negative simulated log likelihood. Define the observed
-information and covariance estimator as
-\begin{equation}
-\widehat H=\left.\frac{\partial^2m(\boldsymbol\theta)}
-{\partial\boldsymbol\theta\,\partial\boldsymbol\theta^\top}
-\right|_{\boldsymbol\theta=\widehat{\boldsymbol\theta}},
-\qquad
-\widehat\Sigma=\frac{1}{I}\widehat H^{-1}.
-\end{equation}
-The Hessian is computed by central differences of the analytic gradient,
-using the same fixed integration draws as estimation. Standard errors and
-normal 95\% confidence intervals are
-\begin{equation}
-\widehat{\mathrm{se}}(\widehat\theta_k)=\sqrt{\widehat\Sigma_{kk}},
-\qquad
-\mathrm{CI}_{k,.95}=\widehat\theta_k\pm1.96\,
-\widehat{\mathrm{se}}(\widehat\theta_k).
-\end{equation}
-These model-based standard errors condition on the estimated price-control
-residuals, retail instruments, and integration draws; they omit first-stage
-estimation uncertainty. Standard errors are withheld for a nonconverged fit,
-parameters at or near bounds, or nonpositive or ill-conditioned information.
+% Let $m(\boldsymbol\theta)=-\widehat\ell(\boldsymbol\theta)/I$ denote the
+% mean household negative simulated log likelihood. Define the observed
+% information and covariance estimator as
+% \begin{equation}
+% \widehat H=\left.\frac{\partial^2m(\boldsymbol\theta)}
+% {\partial\boldsymbol\theta\,\partial\boldsymbol\theta^\top}
+% \right|_{\boldsymbol\theta=\widehat{\boldsymbol\theta}},
+% \qquad
+% \widehat\Sigma=\frac{1}{I}\widehat H^{-1}.
+% \end{equation}
+% The Hessian is computed by central differences of the analytic gradient,
+% using the same fixed integration draws as estimation. Standard errors and
+% normal 95\% confidence intervals are
+% \begin{equation}
+% \widehat{\mathrm{se}}(\widehat\theta_k)=\sqrt{\widehat\Sigma_{kk}},
+% \qquad
+% \mathrm{CI}_{k,.95}=\widehat\theta_k\pm1.96\,
+% \widehat{\mathrm{se}}(\widehat\theta_k).
+% \end{equation}
+% These model-based standard errors condition on the estimated price-control
+% residuals, retail instruments, and integration draws; they omit first-stage
+% estimation uncertainty. Standard errors are withheld for a nonconverged fit,
+% parameters at or near bounds, or nonpositive or ill-conditioned information.
 
 % \subsection{Household bootstrap}
 % Each replication samples households with
@@ -371,25 +371,25 @@ H_i&=\sum_{f\in\mathcal F}w_{if}^2.
 \subsection{Summary statistics}
 The descriptive sample covers 2006--2015. Statistics are unweighted.
 Trips, UPCs, purchase lines, and quantity purchased in the matched yogurt column refer
-to yogurt only. The descriptive matched sample includes households of all sizes and precedes
-the single-person restriction used for demand estimation.
+to yogurt only. The descriptive matched sample is restricted to single-person households and precedes
+demand estimation.
 
 \begin{table}[htbp]\centering\small
 \caption{Household purchase summaries}
 \label{tab:sample-summary}
 \begin{tabular}{lrr}\toprule
 Statistic & Full panel & Matched yogurt\\\midrule
-Households & 148,045 & 70,153\\
-Mean observed panel years & 3.99 & 3.28\\
-Mean trips per household & 576.29 & 22.87\\
-Mean trips per approximate observed week & 2.54 & 0.12\\
-Median trips per approximate observed week & 2.15 & 0.08\\
-Mean distinct UPCs per household & 1,699.74 & 16.52\\
-Mean purchase lines per household & 5,082.26 & 52.74\\
-Mean quantity purchased per household & 7,036.50 & 115.45\\
-One-person households (\%) & 20.39 & 18.40\\
-Two-person households (\%) & 37.72 & 37.68\\
-Hispanic origin (\%) & 6.33 & 6.13\\
+Households & 37,827 & 15,106\\
+Mean observed panel years & 3.96 & 3.16\\
+Mean trips per household & 493.13 & 20.26\\
+Mean trips per approximate observed week & 2.27 & 0.11\\
+Median trips per approximate observed week & 1.93 & 0.07\\
+Mean distinct UPCs per household & 1178.31 & 13.89\\
+Mean purchase lines per household & 3397.64 & 45.15\\
+Mean quantity purchased per household & 4669.07 & 93.77\\
+One-person households (\%) & 100.00 & 100.00\\
+Two-person households (\%) & 0.00 & 0.00\\
+Hispanic origin (\%) & 3.10 & 2.59\\
 \bottomrule\end{tabular}
 \end{table}
 
@@ -398,15 +398,15 @@ Hispanic origin (\%) & 6.33 & 6.13\\
 \label{tab:dynamics-summary}
 \begin{tabular}{lrr}\toprule
 Statistic & Detailed flavors & Three categories\\\midrule
-Households & 70,153 & 70,153\\
-Observed purchase household--weeks & 1,462,897 & 1,462,897\\
-Mean flavors/categories bought per household & 12.89 & 1.97\\
-Mean household flavor HHI & 0.29 & 0.78\\
-Mixed-flavor/category weeks (\%) & 40.08 & 18.07\\
-Weeks with quantity purchased above seven (\%) & 25.17 & 25.17\\
-Eligible adjacent single-flavor/category week pairs & 148,604 & 255,708\\
-Switch rate among eligible pairs (\%) & 55.04 & 13.58\\
-Mean single-flavor/category spell length (weeks) & 1.08 & 1.23\\
+Households & 15,106 & 15,106\\
+Observed purchase household--weeks & 282,648 & 282,648\\
+Mean flavors/categories bought per household & 10.76 & 1.93\\
+Mean household flavor HHI & 0.32 & 0.78\\
+Mixed-flavor/category weeks (\%) & 37.88 & 17.45\\
+Weeks with quantity purchased above seven (\%) & 21.72 & 21.72\\
+Eligible adjacent single-flavor/category week pairs & 30,392 & 48,166\\
+Switch rate among eligible pairs (\%) & 46.75 & 12.85\\
+Mean single-flavor/category spell length (weeks) & 1.10 & 1.22\\
 Median gap between purchase weeks (weeks) & 3.00 & 3.00\\
 \bottomrule\end{tabular}
 \end{table}
@@ -422,9 +422,9 @@ HHI uses each household's full-history shares of quantity purchased.
 \begin{tabular}{lrrrr}\toprule
  & Quantity share (\%) & \multicolumn{3}{c}{Next category (row probabilities, \%)}\\
 Category & & Other & Berry & Plain\\\midrule
-Other & 80.22 & 92.12 & 5.97 & 1.91\\
-Berry & 14.36 & 53.54 & 44.61 & 1.85\\
-Plain & 5.42 & 25.32 & 2.30 & 72.38\\
+Other & 78.37 & 92.25 & 5.79 & 1.96\\
+Berry & 14.60 & 45.27 & 52.93 & 1.79\\
+Plain & 7.03 & 18.09 & 1.85 & 80.06\\
 \bottomrule\end{tabular}
 \end{table}
 \clearpage
@@ -491,13 +491,7 @@ $q(h)$ & Signed history indicator: $q(j)=-1$, $q(0)=1$.\\
 $\varepsilon_{jt}$, $\varepsilon_{0t}$ & Independent unit-scale type-I extreme-value shocks across alternatives and periods.\\
 $s_t(h)$, $s_{0t}(h)$ & Inside and outside choice probabilities.\\
 $W_2(a)$ & Optimized terminal profit conditional on $x_1=a$.\\
-$\Delta W$ & $W_2(j)-W_2(0)$.\\
 $\Pi(p_1;h)$, $\Pi^*(h)$ & Expected discounted profit at candidate first-period price and at its optimum.\\
-$s$, $r$, $u$, $v$, $B_2$ & Algebraic abbreviations only: $s=s_1^*(h)$, $r=1-s$, $u=s_2^*(j)$, $v=s_2^*(0)$, $B_2=u+v$.\\
-$F_1$, $F_2$ & Implicit first- and second-period optimal-price equations after dividing the profit FOC by the share derivative.\\
-$b$, $k$, $H(p)$ & Generic logit intercept, effective cost, and sign-equivalent FOC function in the uniqueness calculation.\\
-$p^{\mathrm{stat}}(h)$, $s^{\mathrm{stat}}(h)$ & Separately optimized static price and its associated share ($\delta=0$).\\
-$D_h$, $E_h$ & Numerators defined below for the first-period price and profit derivatives.\\
 $R_j$, $R_0$, $R_{0\to j}$ & Two state-matched price ratios and the ratio conditional on path $0\to j$.\\
 $\partial$, $\dd/\dd\gamma$, prime, $*$ & Partial derivative, total derivative at fixed discrete histories, total gamma derivative, and optimized quantity.\\
 \bottomrule
@@ -571,29 +565,24 @@ W_2(a)&=\frac{s_2^*(a)}{\alpha[1-s_2^*(a)]}.
 \subsection{First-period optimization}
 \begin{equation}
 \begin{aligned}
-\Delta W&=W_2(j)-W_2(0),
-\end{aligned}
-\end{equation}
-\begin{equation}
-\begin{aligned}
 \Pi(p_1;h)&=s_1(h)(p_1-c)+\delta\{s_1(h)W_2(j)+[1-s_1(h)]W_2(0)\}\\[3pt]
-&=\delta W_2(0)+s_1(h)[p_1-c+\delta\Delta W],
+&=\delta W_2(0)+s_1(h)[p_1-c+\delta[W_2(j)-W_2(0)]],
 \end{aligned}
 \end{equation}
 \begin{equation}
 \begin{aligned}
-\partial_{p_1}\Pi&=s_1+\partial_{p_1}s_1[p_1-c+\delta\Delta W]\\[3pt]
-&=s_1-\alpha s_1(1-s_1)[p_1-c+\delta\Delta W],
+\partial_{p_1}\Pi&=s_1+\partial_{p_1}s_1[p_1-c+\delta[W_2(j)-W_2(0)]]\\[3pt]
+&=s_1-\alpha s_1(1-s_1)[p_1-c+\delta[W_2(j)-W_2(0)]],
 \end{aligned}
 \end{equation}
 \begin{equation}
 \begin{aligned}
-0&=1-\alpha(1-s_1^*)[p_1^*-c+\delta\Delta W],
+0&=1-\alpha(1-s_1^*)[p_1^*-c+\delta[W_2(j)-W_2(0)]],
 \end{aligned}
 \end{equation}
 \begin{equation}
 \begin{aligned}
-p_1^*(h)&=c+\frac1{\alpha[1-s_1^*(h)]}-\delta\Delta W,
+p_1^*(h)&=c+\frac1{\alpha[1-s_1^*(h)]}-\delta[W_2(j)-W_2(0)],
 \end{aligned}
 \end{equation}
 \begin{equation}
@@ -604,190 +593,91 @@ p_1^*(h)&=c+\frac1{\alpha[1-s_1^*(h)]}-\delta\Delta W,
 The two terminal value functions are constant with respect to $p_1$ conditional on the realized terminal state.
 
 \subsection{Terminal-price and terminal-value derivatives}
-For fixed $a$, write $s_2=s_2^*(a)$ and $q=q(a)$ within this subsection.
+For each $a\in\{j,0\}$, implicit differentiation of the terminal-price condition gives
 \begin{equation}
 \begin{aligned}
-F_2(p_2,\gamma;a)&=p_2-c-\frac1{\alpha(1-s_2)},
+\frac{\dd p_2^*(a)}{\dd\gamma}
+&=\frac{q(a)s_2^*(a)}{\alpha},
 \end{aligned}
 \end{equation}
 \begin{equation}
 \begin{aligned}
-\partial_{p_2}F_2&=1-\frac1\alpha\frac{\partial_{p_2}s_2}{(1-s_2)^2}
- =1+\frac{s_2}{1-s_2}=\frac1{1-s_2},
+\frac{\dd s_2^*(a)}{\dd\gamma}
+&=s_2^*(a)[1-s_2^*(a)]\left[q(a)-\alpha\frac{\dd p_2^*(a)}{\dd\gamma}\right]\\[3pt]
+&=q(a)s_2^*(a)[1-s_2^*(a)]^2,
 \end{aligned}
 \end{equation}
 \begin{equation}
 \begin{aligned}
-\partial_\gamma F_2&=-\frac1\alpha\frac{q s_2(1-s_2)}{(1-s_2)^2}
- =-\frac{q s_2}{\alpha(1-s_2)},
+\frac{\dd W_2(a)}{\dd\gamma}
+&=q(a)s_2^*(a)[1-s_2^*(a)][p_2^*(a)-c]\\[3pt]
+&=\frac{q(a)s_2^*(a)}{\alpha}.
 \end{aligned}
 \end{equation}
 \begin{equation}
 \begin{aligned}
-\frac{\dd p_2^*(a)}{\dd\gamma}&=-\frac{\partial_\gamma F_2}{\partial_{p_2}F_2}
- =\frac{q(a)s_2^*(a)}\alpha,
-\end{aligned}
-\end{equation}
-\begin{equation}
-\begin{aligned}
-\frac{\dd s_2^*(a)}{\dd\gamma}&=s_2(1-s_2)\left[q(a)-\alpha\frac{\dd p_2^*(a)}{\dd\gamma}\right]\\[3pt]
-&=q(a)s_2(1-s_2)^2,
-\end{aligned}
-\end{equation}
-\begin{equation}
-\begin{aligned}
-\frac{\dd W_2(a)}{\dd\gamma}&=\left.\partial_\gamma\{s_2(p_2-c)\}\right|_{p_2=p_2^*}\\[3pt]
-&=q(a)s_2(1-s_2)(p_2^*-c)
- =\frac{q(a)s_2}\alpha.
-\end{aligned}
-\end{equation}
-Restore $u=s_2^*(j)$ and $v=s_2^*(0)$:
-\begin{equation}
-\begin{aligned}
-\frac{\dd p_2^*(j)}{\dd\gamma}&=-\frac u\alpha,
-\end{aligned}
-\end{equation}
-\begin{equation}
-\begin{aligned}
-\frac{\dd p_2^*(0)}{\dd\gamma}&=\frac v\alpha,
-\end{aligned}
-\end{equation}
-\begin{equation}
-\begin{aligned}
-W_2'(j)&=-\frac u\alpha,
-\end{aligned}
-\end{equation}
-\begin{equation}
-\begin{aligned}
-W_2'(0)&=\frac v\alpha,
-\end{aligned}
-\end{equation}
-\begin{equation}
-\begin{aligned}
-\Delta W'&=-\frac{u+v}\alpha=-\frac{B_2}\alpha,
-\end{aligned}
-\end{equation}
-\begin{equation}
-\begin{aligned}
-u'&=-u(1-u)^2,
-\end{aligned}
-\end{equation}
-\begin{equation}
-\begin{aligned}
-v'&=v(1-v)^2,
-\end{aligned}
-\end{equation}
-\begin{equation}
-\begin{aligned}
-B_2'&=-u(1-u)^2+v(1-v)^2.
+\frac{\dd[W_2(j)-W_2(0)]}{\dd\gamma}
+&=-\frac{s_2^*(j)+s_2^*(0)}{\alpha}.
 \end{aligned}
 \end{equation}
 
 \subsection{First-period price and share derivatives}
-Let $q=q(h)$, $s=s_1^*(h)$, $r=1-s$.
 \begin{equation}
 \begin{aligned}
-F_1(p_1,\gamma;h)&=p_1-c-\frac1{\alpha(1-s_1)}+\delta\Delta W,
+\frac{\dd p_1^*(h)}{\dd\gamma}
+&=\frac{q(h)s_1^*(h)+\delta[1-s_1^*(h)][s_2^*(j)+s_2^*(0)]}{\alpha},
 \end{aligned}
 \end{equation}
 \begin{equation}
 \begin{aligned}
-\partial_{p_1}F_1&=1-\frac1\alpha\frac{-\alpha s_1(1-s_1)}{(1-s_1)^2}
- =\frac1r,
+\frac{\dd s_1^*(h)}{\dd\gamma}
+&=s_1^*(h)[1-s_1^*(h)]\left[q(h)-\alpha\frac{\dd p_1^*(h)}{\dd\gamma}\right]\\[3pt]
+&=s_1^*(h)[1-s_1^*(h)]^2\left[q(h)-\delta[s_2^*(j)+s_2^*(0)]\right],
 \end{aligned}
 \end{equation}
 \begin{equation}
 \begin{aligned}
-\partial_\gamma F_1&=-\frac{qs}{\alpha r}+\delta\Delta W'
- =-\frac{qs}{\alpha r}-\frac{\delta B_2}\alpha,
-\end{aligned}
-\end{equation}
-\begin{equation}
-\begin{aligned}
-p_1^{*\prime}(h)&=-\frac{\partial_\gamma F_1}{\partial_{p_1}F_1}
- =\frac{qs+\delta r B_2}\alpha,
-\end{aligned}
-\end{equation}
-\begin{equation}
-\begin{aligned}
-s'&=sr(q-\alpha p_1^{*\prime})\\[3pt]
-&=sr[q-qs-\delta rB_2]
- =sr^2(q-\delta B_2),
-\end{aligned}
-\end{equation}
-\begin{equation}
-\begin{aligned}
-r'&=-s'.
-\end{aligned}
-\end{equation}
-\begin{equation}
-\begin{aligned}
-p_1^{*\prime\prime}&=\frac{qs'+\delta r'B_2+\delta rB_2'}\alpha\\[3pt]
-&=\frac{(q-\delta B_2)s'+\delta rB_2'}\alpha\\[3pt]
-&=\frac{sr^2(q-\delta B_2)^2+\delta rB_2'}\alpha.
+\frac{\dd^2p_1^*(h)}{\dd\gamma^2}
+&=\frac{s_1^*(h)[1-s_1^*(h)]^2}{\alpha}
+ \left[q(h)-\delta[s_2^*(j)+s_2^*(0)]\right]^2\\[3pt]
+&\quad+\frac{\delta[1-s_1^*(h)]}{\alpha}
+ \left\{-s_2^*(j)[1-s_2^*(j)]^2+s_2^*(0)[1-s_2^*(0)]^2\right\}.
 \end{aligned}
 \end{equation}
 
 \subsection{Profit derivative}
 \begin{equation}
 \begin{aligned}
-\frac{\dd\Pi^*(h)}{\dd\gamma}&=\left.\partial_\gamma\Pi(p_1;h)\right|_{p_1=p_1^*}\\[3pt]
-&=qsr[p_1^*-c+\delta\Delta W]
-   +\delta\{sW_2'(j)+rW_2'(0)\}\\[3pt]
-&=qsr\frac1{\alpha r}+\delta\left(-\frac{su}\alpha+\frac{rv}\alpha\right)\\[3pt]
-&=\frac{qs-\delta su+\delta rv}\alpha.
+\frac{\dd\Pi^*(h)}{\dd\gamma}
+&=\left.\partial_\gamma\Pi(p_1;h)\right|_{p_1=p_1^*(h)}\\[3pt]
+&=\frac{q(h)s_1^*(h)-\delta s_1^*(h)s_2^*(j)
+ +\delta[1-s_1^*(h)]s_2^*(0)}{\alpha}.
 \end{aligned}
 \end{equation}
 
 \subsection{Conditional derivative signs}
 \begin{equation}
 \begin{aligned}
-D_h&=q(h)s+\delta r(u+v),
+\frac{\dd p_1^*(0)}{\dd\gamma}
+&=\frac{s_1^*(0)+\delta[1-s_1^*(0)][s_2^*(j)+s_2^*(0)]}{\alpha}>0,
 \end{aligned}
 \end{equation}
 \begin{equation}
 \begin{aligned}
-p_1^{*\prime}(h)&=D_h/\alpha,
+\frac{\dd\Pi^*(0)}{\dd\gamma}
+&=\frac{s_1^*(0)[1-\delta s_2^*(j)]+\delta[1-s_1^*(0)]s_2^*(0)}{\alpha}>0,
 \end{aligned}
 \end{equation}
 \begin{equation}
 \begin{aligned}
-E_h&=q(h)s-\delta su+\delta rv,
+\frac{\dd p_1^*(j)}{\dd\gamma}>0
+&\iff\delta[1-s_1^*(j)][s_2^*(j)+s_2^*(0)]>s_1^*(j),
 \end{aligned}
 \end{equation}
 \begin{equation}
 \begin{aligned}
-\Pi^{*\prime}(h)&=E_h/\alpha.
-\end{aligned}
-\end{equation}
-\begin{equation}
-\begin{aligned}
-h=0:\quad D_0&=s+\delta r(u+v)>0,
-\end{aligned}
-\end{equation}
-\begin{equation}
-\begin{aligned}
-E_0&=s(1-\delta u)+\delta rv>0,
-\end{aligned}
-\end{equation}
-\begin{equation}
-\begin{aligned}
-h=j:\quad D_j&=-s+\delta r(u+v),
-\end{aligned}
-\end{equation}
-\begin{equation}
-\begin{aligned}
-E_j&=-s(1+\delta u)+\delta rv,
-\end{aligned}
-\end{equation}
-\begin{equation}
-\begin{aligned}
-p_1^{*\prime}(j)>0&\iff\delta r(u+v)>s,
-\end{aligned}
-\end{equation}
-\begin{equation}
-\begin{aligned}
-\Pi^{*\prime}(j)>0&\iff\delta rv>s(1+\delta u).
+\frac{\dd\Pi^*(j)}{\dd\gamma}>0
+&\iff\delta[1-s_1^*(j)]s_2^*(0)>s_1^*(j)[1+\delta s_2^*(j)].
 \end{aligned}
 \end{equation}
 Equality gives a zero derivative; reversing each inequality reverses the corresponding sign.
@@ -817,17 +707,17 @@ R_{0\to j}&=\frac{p_1^*(0)}{p_2^*(j)},
 \end{equation}
 \begin{equation}
 \begin{aligned}
-R_j'&=\frac{p_2^*(j)p_1^{*\prime}(j)+p_1^*(j)u/\alpha}{[p_2^*(j)]^2},
+R_j'&=\frac{p_2^*(j)p_1^{*\prime}(j)+p_1^*(j)s_2^*(j)/\alpha}{[p_2^*(j)]^2},
 \end{aligned}
 \end{equation}
 \begin{equation}
 \begin{aligned}
-R_0'&=\frac{p_2^*(0)p_1^{*\prime}(0)-p_1^*(0)v/\alpha}{[p_2^*(0)]^2},
+R_0'&=\frac{p_2^*(0)p_1^{*\prime}(0)-p_1^*(0)s_2^*(0)/\alpha}{[p_2^*(0)]^2},
 \end{aligned}
 \end{equation}
 \begin{equation}
 \begin{aligned}
-R_{0\to j}'&=\frac{p_2^*(j)p_1^{*\prime}(0)+p_1^*(0)u/\alpha}{[p_2^*(j)]^2}.
+R_{0\to j}'&=\frac{p_2^*(j)p_1^{*\prime}(0)+p_1^*(0)s_2^*(j)/\alpha}{[p_2^*(j)]^2}.
 \end{aligned}
 \end{equation}
 Each ratio requires a nonzero denominator. Each derivative holds its stated discrete histories fixed.

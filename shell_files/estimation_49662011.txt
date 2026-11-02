@@ -63,3 +63,17 @@ Bootstrap 42/49: 42 usable fits
 Bootstrap 43/49: 43 usable fits
 Bootstrap 44/49: 44 usable fits
 Bootstrap 45/49: 45 usable fits
+Bootstrap 46/49: 46 usable fits
+Bootstrap 47/49: 47 usable fits
+Bootstrap 48/49: 48 usable fits
+Bootstrap 49/49: 49 usable fits
+Inference: computed; percentile 95% intervals
+         parameter  estimate  at_bound  std_error  ci_lower  ci_upper
+   inside_constant  1.650758     False   0.024085  1.600112  1.686833
+        beta_berry -0.706145     False   0.008547 -0.719396 -0.688413
+        beta_plain -0.267588     False   0.021313 -0.312531 -0.241778
+mu_log_minus_alpha -0.238371     False   0.022981 -0.290202 -0.206416
+        mean_gamma -0.041506     False   0.001945 -0.045671 -0.037919
+sd_log_minus_alpha  0.612106     False   0.013048  0.590897  0.637518
+          sd_gamma  0.047103     False   0.001836  0.042928  0.051454
+     price_control  0.180707     False   0.015187  0.148146  0.203120

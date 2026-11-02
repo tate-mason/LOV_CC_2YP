@@ -2,7 +2,7 @@
   "model": "heterogeneous",
   "households": 70139,
   "weeks": 1456854,
-  "capacity": 0,
+  "capacity": 7,
   "inference": {
     "method": "household bootstrap, refitting both stages",
     "requested": 49,
@@ -12,7 +12,7 @@
   },
   "converged": true,
   "message": "CONVERGENCE: RELATIVE REDUCTION OF F <= FACTR*EPSMCH",
-  "nll": 2024453.9611278104,
+  "nll": 8688334.408760699,
   "settings": {
     "sample": "/scratch/dtm63837/Kilts_Panel/Data/summary_outputs/yogurt_estimation_sample.parquet",
     "flavors": "/scratch/dtm63837/Kilts_Panel/Data/summary_outputs/estimation_flavor_reference.csv",
@@ -22,7 +22,7 @@
     "first_year": 2006,
     "last_year": 2015,
     "max_households": null,
-    "capacity": 0,
+    "capacity": 7,
     "no_price_control": false,
     "household_dma_column": "dma_cd",
     "se_method": "bootstrap",
@@ -36,16 +36,17 @@
   },
   "starts": [
     {
-      "nll": 2024453.9611278104,
+      "nll": 8688334.408760699,
       "converged": true,
       "theta": [
-        -0.8408423416616149,
-        -0.24538492682961674,
-        -0.65853933531353,
-        0.040547291549021335,
-        0.8475520957721023,
-        0.0880119892915667,
-        0.2578115489129923
+        1.6507580171498284,
+        -0.7061447743054721,
+        -0.26758804060987407,
+        -0.238370924504316,
+        -0.04150615420346136,
+        0.6121058547548474,
+        0.04710323322613817,
+        0.18070655807257235
       ]
     }
   ]

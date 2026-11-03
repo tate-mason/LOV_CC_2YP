@@ -1,0 +1,34 @@
+{
+  "settings": {
+    "exercise": "supply",
+    "output": "pricing_exercises/short_supply",
+    "household_input": null,
+    "fit_dir": null,
+    "self_test": false,
+    "gamma_min": -3.0,
+    "gamma_max": 3.0,
+    "gamma_points": 7,
+    "priors": [
+      0.5
+    ],
+    "beta": 2.0,
+    "alpha": -1.0,
+    "delta": 0.92,
+    "demand_delta": 1.0,
+    "discounts": [
+      0.0,
+      0.1,
+      0.2,
+      0.3,
+      0.4,
+      0.5
+    ],
+    "batch_size": 24
+  },
+  "supply": {
+    "rows": 7,
+    "maximum_hidden_foc": 1.5050461654730896e-08,
+    "minimum_information_value": 0.0,
+    "minimum_flexibility_value": 0.0
+  }
+}

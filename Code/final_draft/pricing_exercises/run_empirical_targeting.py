@@ -320,17 +320,7 @@ def run_households(args):
                                     mean_posterior_sd=("gamma_sd", "mean"),
                                     mean_alpha=("alpha_mean", "mean"),
                                     median_posterior_ess=("posterior_ess", "median")).to_csv(args.output / "household_group_summary.csv")
-    plt = plotting()
-    fig, axes = plt.subplots(1, 2, figsize=(12, 4))
-    for g in ["low", "middle", "high"]:
-        axes[0].hist(households.loc[households.group == g, "gamma_mean"], bins=30, alpha=.5, label=g)
-    aggregate.revenue_change_pct.plot.bar(ax=axes[1])
-    axes[0].set(xlabel="Household posterior mean gamma", ylabel="Households")
-    axes[0].legend()
-    axes[1].set(ylabel="Net revenue change (%)", xlabel="")
-    fig.tight_layout()
-    fig.savefig(args.output / "household_coupon_results.png", dpi=180)
-    plt.close(fig)
+    make_targeting_figures(households, table, aggregate, args.output)
     return dict(households=len(households), eligible_by_group=dict(zip(["low", "middle", "high"], counts)),
                 reconstructed_nll=nll, basket_mass_error=mass_error,
                 input_sha256=digest(args.household_input), fit_sha256=digest(args.fit_dir / "fit.json"),
@@ -341,6 +331,80 @@ def run_households(args):
                 discount_grid=args.discounts.tolist(), demand_delta=args.demand_delta,
                 type_treatment=args.type_treatment,
                 aggregate=aggregate.reset_index().to_dict("records"))
+
+
+def make_targeting_figures(households, table, aggregate, output):
+    """Plot household types and individually optimized berry discounts."""
+    plt = plotting()
+    groups = ["low", "middle", "high"]
+    labels = ["Low gamma\n(bottom 25%)", "Middle gamma\n(middle 50%)", "High gamma\n(top 25%)"]
+    colors = ["#3575AD", "#999999", "#D17925"]
+    policies = [("personalized_myopic", "Myopic pricing"),
+                ("personalized_dynamic", "Dynamic pricing")]
+    fig, axes = plt.subplots(1, 2, figsize=(13, 5))
+    bins = np.histogram_bin_edges(households.gamma_mean, bins=30)
+    for g, label, color in zip(groups, labels, colors):
+        axes[0].hist(households.loc[households.group == g, "gamma_mean"],
+                     bins=bins, alpha=.65, label=label.replace("\n", " "), color=color)
+    axes[0].set(title="Estimated consumer types", xlabel=r"Estimated household type (posterior mean $\gamma$)",
+                ylabel="Number of households")
+    axes[0].legend(fontsize=9)
+    order = ["no_coupon", *[p for p, _ in policies]]
+    axes[1].bar(range(3), aggregate.reindex(order).revenue_change_pct, color=[colors[1], colors[0], colors[2]])
+    axes[1].set_xticks(range(3), ["No coupons", "Myopic pricing", "Dynamic pricing"])
+    axes[1].set(title="Revenue gain from personalized berry offers",
+                ylabel="Net revenue change relative to no coupons (%)")
+    axes[1].axhline(0, color="gray", linewidth=.6)
+    fig.tight_layout()
+    for extension in ["png", "pdf"]:
+        fig.savefig(output / f"household_coupon_results.{extension}", dpi=180)
+    plt.close(fig)
+
+    fig, axes = plt.subplots(1, 2, figsize=(13, 5), sharey=True)
+    x = np.arange(3)
+    for ax, (policy, title) in zip(axes, policies):
+        means = table.loc[table.policy == policy].groupby("group")[["discount1", "expected_discount2"]].mean().reindex(groups)
+        ax.bar(x-.18, 100*means.discount1, width=.36, label="Period 1", color=colors[0])
+        ax.bar(x+.18, 100*means.expected_discount2, width=.36,
+               label="Period 2 (expected over consumption histories)", color=colors[2])
+        ax.set_xticks(x, labels)
+        ax.set(title=title, xlabel="Consumer type group", ylim=(0, 105))
+        ax.grid(axis="y", alpha=.2)
+        ax.set_axisbelow(True)
+        ax.legend(fontsize=8, loc="upper left")
+    axes[0].set_ylabel("Mean optimal berry discount (% of posted price)")
+    fig.suptitle("Optimal discounts by consumer type")
+    fig.text(.5, .015, "Household-weighted means among berry-eligible households. Middle group receives no coupons by policy design.",
+             ha="center", fontsize=9)
+    fig.tight_layout(rect=(0, .05, 1, .94))
+    for extension in ["png", "pdf"]:
+        fig.savefig(output / f"discounts_by_consumer_type.{extension}", dpi=180)
+    plt.close(fig)
+
+    dynamic = table.loc[table.policy == "personalized_dynamic"].merge(
+        households[["household_code", "gamma_mean", "alpha_mean"]], on="household_code", validate="one_to_one")
+    fig, axes = plt.subplots(2, 2, figsize=(13, 9), sharey=True)
+    for column, (variable, xlabel) in enumerate([
+            ("gamma_mean", r"Estimated household type (posterior mean $\gamma$)"),
+            ("alpha_mean", r"Estimated price sensitivity (posterior mean $a$)")]):
+        for row, (discount, title) in enumerate([
+                ("discount1", "Period 1 optimal discount"),
+                ("expected_discount2", "Period 2 expected optimal discount")]):
+            ax = axes[row, column]
+            for g, label, color in zip(groups, labels, colors):
+                subset = dynamic.loc[dynamic.group == g]
+                ax.scatter(subset[variable], 100*subset[discount], s=12, alpha=.5,
+                           color=color, label=label.replace("\n", " "))
+            ax.set(xlabel=xlabel, ylabel="Berry discount (% of posted price)", title=title, ylim=(-2, 102))
+            ax.grid(alpha=.2)
+    axes[0, 0].legend(fontsize=8)
+    fig.suptitle("Dynamic pricing: household discounts and estimated consumer characteristics")
+    fig.text(.5, .015, "Each point is one berry-eligible household. Period 2 averages over that household's future consumption histories.",
+             ha="center", fontsize=9)
+    fig.tight_layout(rect=(0, .04, 1, .95))
+    for extension in ["png", "pdf"]:
+        fig.savefig(output / f"discounts_by_household_type.{extension}", dpi=180)
+    plt.close(fig)
 
 
 def self_test():
@@ -457,7 +521,8 @@ def main():
     parser.add_argument("--household-input", type=Path, help="Explicit household input selected by you; no default.")
     parser.add_argument("--fit-dir", type=Path, help="Explicit existing fitted-results directory; no default.")
     parser.add_argument("--output", type=Path, default=Path(__file__).resolve().parent / "empirical_outputs")
-    parser.add_argument("--discounts", type=float, nargs="+", default=[0., .1, .2, .3, .4, .5])
+    parser.add_argument("--discounts", type=float, nargs="+", default=np.linspace(0., 1., 101),
+                        help="Candidate discounts; default is every 1%% from 0%% through 100%%.")
     parser.add_argument("--demand-delta", type=float, default=1.)
     parser.add_argument("--batch-size", type=int, default=24)
     parser.add_argument("--type-treatment", choices=["posterior-mean", "posterior-integrated"], default="posterior-mean",

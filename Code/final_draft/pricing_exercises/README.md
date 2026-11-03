@@ -45,7 +45,8 @@ chosen `res_hess` directory). No demand re-estimation is performed. Input paths
 have no defaults, and no empirical file discovery is performed.
 
 The default treats posterior mean household types as known and optimizes
-household-specific coupons by backward induction. Terminal coupons depend on
+household-specific coupons by backward induction over every 1% discount from
+0% through 100%. Terminal coupons depend on
 realized consumption histories. Low/high gamma households receive personalized
 offers; the middle group remains at posted prices. The comparison policies are
 no coupons and household-specific myopic pricing. Revenue is net of coupons.

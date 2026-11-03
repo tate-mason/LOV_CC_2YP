@@ -29,8 +29,20 @@ input path is defaulted or discovered automatically.
 
 Optional additions:
 
+By default, the firm optimizes over every 1% discount from 0% through 100%
+(101 candidate offers). Omit `--discounts` to use this grid; supplying it replaces
+the candidate grid.
+
+Plots are saved as both PNG and PDF:
+`household_coupon_results` shows estimated consumer types and revenue gains;
+`discounts_by_consumer_type` compares mean optimal discount percentages by
+low/middle/high gamma group for myopic and dynamic pricing;
+`discounts_by_household_type` shows dynamic household discounts against estimated
+gamma and price sensitivity. Period 2 discounts are expectations over future
+consumption histories. Group means weight berry-eligible households equally;
+the middle group receives zero discounts by policy design.
+
 ```text
---discounts 0 .05 .10 .15 .20 .25 .30 .35 .40 .45 .50
 --demand-delta 1
 --batch-size 24
 --save-state-policies

@@ -330,7 +330,7 @@ def run_households(args):
                                     mean_posterior_sd=("gamma_sd", "mean"),
                                     mean_alpha=("alpha_mean", "mean"),
                                     median_posterior_ess=("posterior_ess", "median")).to_csv(args.output / "household_group_summary.csv")
-    make_targeting_figures(households, table, aggregate, args.output)
+    make_targeting_figures(households, table, aggregate, args.output, delta=args.demand_delta)
     return dict(households=len(households), eligible_by_group=dict(zip(["low", "middle", "high"], counts)),
                 reconstructed_nll=nll, basket_mass_error=mass_error,
                 input_sha256=digest(args.household_input), fit_sha256=digest(args.fit_dir / "fit.json"),
@@ -344,7 +344,7 @@ def run_households(args):
                 aggregate=aggregate.reset_index().to_dict("records"))
 
 
-def make_targeting_figures(households, table, aggregate, output):
+def make_targeting_figures(households, table, aggregate, output, delta=.95):
     """Plot household types and individually optimized berry discounts."""
     plt = plotting()
     groups = ["low", "middle", "high"]
@@ -360,22 +360,19 @@ def make_targeting_figures(households, table, aggregate, output):
     axes[0].legend(fontsize=9)
     revenue = table.loc[table.policy == "personalized_dynamic"].groupby("group")[["revenue1", "revenue2"]].sum().reindex(groups)
     x = np.arange(len(groups))
-    axes[1].bar(x-.18, revenue.revenue1, width=.36, color=colors,
-                label="Period 1")
-    axes[1].bar(x+.18, revenue.revenue2, width=.36, color=colors,
-                hatch="///", edgecolor="white", label="Terminal Period")
+    # Average over state-contingent terminal prices first, discount, then total.
+    total_expected_revenue = revenue.revenue1 + delta * revenue.revenue2
+    axes[1].bar(x, total_expected_revenue, width=.5, color=colors)
     axes[1].set_xticks(x, labels)
     axes[1].set(title="Total Expected Revenue",
                 xlabel="Consumer type group", ylabel="Total Expected Revenue")
     axes[1].set_ylim(bottom=0)
-    from matplotlib.patches import Patch
-    axes[1].legend(handles=[Patch(facecolor="white", edgecolor="black", label="Period 1"),
-                            Patch(facecolor="white", edgecolor="black", hatch="///", label="Terminal Period")],
-                   fontsize=8)
     axes[1].grid(axis="y", alpha=.2)
     axes[1].set_axisbelow(True)
     axes[1].axhline(0, color="gray", linewidth=.6)
-    fig.text(.5, .015, "Totals by type; terminal prices depend on realized history. Revenue averages over all histories; no time discounting.",
+    fig.text(.5, .015,
+             f"First-period revenue + {delta:g} × expected terminal revenue. "
+             "Low/high types receive personalized berry offers; middle types receive no coupons.",
              ha="center", fontsize=9)
     fig.tight_layout(rect=(0, .05, 1, 1))
     for extension in ["png", "pdf"]:
@@ -544,7 +541,7 @@ def main():
     parser.add_argument("--output", type=Path, default=Path(__file__).resolve().parent / "empirical_outputs")
     parser.add_argument("--discounts", type=float, nargs="+", default=np.linspace(0., 1., 101),
                         help="Candidate discounts; default is every 1%% from 0%% through 100%%.")
-    parser.add_argument("--demand-delta", type=float, default=1.)
+    parser.add_argument("--demand-delta", type=float, default=.95)
     parser.add_argument("--batch-size", type=int, default=24)
     parser.add_argument("--type-treatment", choices=["posterior-mean", "posterior-integrated"], default="posterior-mean",
                         help="Default treats estimated household types as known, matching base supply; optional posterior uncertainty sensitivity.")

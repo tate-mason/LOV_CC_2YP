@@ -34,13 +34,13 @@ By default, the firm optimizes over every 1% discount from 0% through 100%
 the candidate grid.
 
 Plots are saved as both PNG and PDF:
-`household_coupon_results` shows estimated consumer types and dynamic berry
-total expected revenue by type, with grouped bars for the first and terminal
-pricing periods. Type colors match the distribution panel: blue for low gamma,
-gray for middle gamma, and orange for high gamma. Terminal bars are hatched.
-Revenue is summed across eligible households within each type group;
-terminal revenue averages `p2(h1)*q2` over histories, and neither period is
-time discounted in this graph. These are revenue levels, not percentage gains;
+`household_coupon_results` shows estimated consumer types and one bar per type
+for total expected revenue: first-period revenue plus `demand_delta` times
+expected terminal revenue (default 0.95). Type colors match the distribution
+panel: blue for low gamma, gray for middle gamma, and orange for high gamma.
+Low/high households receive personalized berry offers; middle households remain
+at posted prices. Terminal prices are chosen conditional on each history before
+revenue is averaged across histories. These are revenue levels, not percentage gains;
 `discounts_by_consumer_type` shows mean optimal dynamic discount percentages by
 low/middle/high gamma group at `p1(h0)` and terminal `p2(h1)`;
 `discounts_by_household_type` shows dynamic household discounts against estimated
@@ -49,7 +49,7 @@ consumption histories. Group means weight berry-eligible households equally;
 the middle group receives zero discounts by policy design.
 
 ```text
---demand-delta 1
+--demand-delta 0.95
 --batch-size 24
 --save-state-policies
 ```
@@ -201,6 +201,9 @@ For a reporting type group G, the revenue graph plots
      \mathbb E[q_{i2}\mid h_1,p_{i2}(h_1),\widehat a_i,\widehat\gamma_i].
 \]
 
+The graph plots one total for each group, `R_G1 + delta_D * R_G2`, with
+`delta_D=0.95` by default, rather than separate period bars.
+
 The terminal price is optimized conditional on each realized history and known
 estimated type before revenue is averaged over histories. The graph does not
 multiply an average terminal price by an average quantity. Initial observed
@@ -228,7 +231,7 @@ relative to the no-coupon benchmark.
 
 Consumers use the fitted current-period demand rule; they do not strategically
 delay purchases in anticipation of future discounts. `--demand-delta` controls
-revenue discounting (default 1), independently of the stock history specification
+revenue discounting (default 0.95), independently of the stock history specification
 and theoretical supply calibration.
 
 ## 4. Inputs and guards
@@ -255,7 +258,7 @@ to repair a mismatch.
 | `targeted_revenue_by_gamma_group.csv` | Revenues and units summed by policy and gamma group; mean prices/discounts/ratios |
 | `targeted_revenue_aggregate.csv` | Total revenue, units, coupon expenditure and gains across eligible households |
 | `targeted_state_policies.csv.gz` | Optional terminal coupon, prices, ratios and probabilities for every targeted household/first-basket state under the optimized policies |
-| `household_coupon_results.png` | Posterior mean gamma distribution and dynamic berry revenue (`p*q`) by consumer type and pricing period |
+| `household_coupon_results.png` | Posterior mean gamma distribution and total expected discounted berry revenue by consumer type |
 | `run_manifest.json` | Settings, input/fit/parameter/script hashes, type treatment, likelihood and probability diagnostics |
 
 The main economic comparison is revenue gain for low versus high gamma under

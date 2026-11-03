@@ -34,7 +34,11 @@ By default, the firm optimizes over every 1% discount from 0% through 100%
 the candidate grid.
 
 Plots are saved as both PNG and PDF:
-`household_coupon_results` shows estimated consumer types and revenue gains;
+`household_coupon_results` shows estimated consumer types and dynamic berry
+total expected revenue (`p*q`) by type, with one thin line per type connecting dots for the
+first and terminal pricing periods. Revenue is summed across eligible households within each type group;
+terminal revenue averages `p2(h1)*q2` over histories, and neither period is
+time discounted in this graph. These are revenue levels, not percentage gains;
 `discounts_by_consumer_type` shows mean optimal dynamic discount percentages by
 low/middle/high gamma group at `p1(h0)` and terminal `p2(h1)`;
 `discounts_by_household_type` shows dynamic household discounts against estimated
@@ -182,6 +186,29 @@ the same quartile. The gamma label never enters the pricing objective except
 to designate which households are eligible for targeting; swapping low and high
 labels leaves every household's action unchanged.
 
+For a reporting type group G, the revenue graph plots
+
+\[
+ R_{G1}=\sum_{i\in G}p_{i1}(h_{i0})\,
+     \mathbb E[q_{i1}\mid h_{i0},p_{i1},\widehat a_i,\widehat\gamma_i],
+\]
+\[
+ R_{G2}=\sum_{i\in G}\sum_{h_1}
+     \Pr(h_1\mid h_{i0},p_{i1},\widehat a_i,\widehat\gamma_i)\,
+     p_{i2}(h_1)\,
+     \mathbb E[q_{i2}\mid h_1,p_{i2}(h_1),\widehat a_i,\widehat\gamma_i].
+\]
+
+The terminal price is optimized conditional on each realized history and known
+estimated type before revenue is averaged over histories. The graph does not
+multiply an average terminal price by an average quantity. Initial observed
+choices can be berry, plain, other, or a mixed basket; every subsequent basket,
+including all-outside, contributes with its probability under the chosen first
+price. For capacity one these are individual choice transitions such as
+berry-to-berry and berry-to-plain; for capacity seven the solver integrates all
+120 possible first-period baskets and the terminal demand probabilities. Only
+berry sales generate seller revenue.
+
 Dynamic pricing is the only optimized specification. The script retains a
 no-coupon benchmark for measuring revenue gains:
 
@@ -194,8 +221,8 @@ Only low/high gamma households receive personalized offers. The middle group
 remains at posted prices under every policy, providing an untreated bookkeeping
 group. There is no common/group coupon policy and no empirical commitment
 exercise. Dynamic revenue must weakly exceed no-coupon revenue for each
-household. Graphs show only dynamic results, with revenue gains measured relative
-to the no-coupon benchmark.
+household. Graphs show only dynamic results. Exported revenue gains are measured
+relative to the no-coupon benchmark.
 
 Consumers use the fitted current-period demand rule; they do not strategically
 delay purchases in anticipation of future discounts. `--demand-delta` controls
@@ -226,7 +253,7 @@ to repair a mismatch.
 | `targeted_revenue_by_gamma_group.csv` | Revenues and units summed by policy and gamma group; mean prices/discounts/ratios |
 | `targeted_revenue_aggregate.csv` | Total revenue, units, coupon expenditure and gains across eligible households |
 | `targeted_state_policies.csv.gz` | Optional terminal coupon, prices, ratios and probabilities for every targeted household/first-basket state under the optimized policies |
-| `household_coupon_results.png` | Posterior mean gamma distribution and revenue gains by policy |
+| `household_coupon_results.png` | Posterior mean gamma distribution and dynamic berry revenue (`p*q`) by consumer type and pricing period |
 | `run_manifest.json` | Settings, input/fit/parameter/script hashes, type treatment, likelihood and probability diagnostics |
 
 The main economic comparison is revenue gain for low versus high gamma under

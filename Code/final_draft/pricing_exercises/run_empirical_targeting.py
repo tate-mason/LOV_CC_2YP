@@ -199,6 +199,8 @@ def targeted_coupons(context, households, weights, alpha, gamma, beta, discounts
                                 for candidate in terminal], axis=2)  # household,state,action,metric
             best = metrics[..., 0].argmax(axis=2)
             selected = np.take_along_axis(metrics, best[:, :, None, None], axis=2)[:, :, 0, :]
+            # E_h1[p2(h1)*E(q2|h1,p2,type)] under this candidate p1(h0).
+            # Optimize p2 separately in each state BEFORE summing its revenue.
             second[:, i] = selected.sum(axis=1)
             if i == 0:
                 stage0_second = metrics[:, :, 0, :].sum(axis=1)
@@ -356,12 +358,23 @@ def make_targeting_figures(households, table, aggregate, output):
     axes[0].set(title="Estimated consumer types", xlabel=r"Estimated household type (posterior mean $\gamma$)",
                 ylabel="Number of households")
     axes[0].legend(fontsize=9)
-    axes[1].bar([0], [aggregate.loc["personalized_dynamic", "revenue_change_pct"]], color=colors[0], width=.5)
-    axes[1].set_xticks([0], ["Personalized dynamic pricing"])
-    axes[1].set(title="Dynamic pricing: revenue gain from berry offers",
-                ylabel="Net revenue change relative to no coupons (%)")
+    revenue = table.loc[table.policy == "personalized_dynamic"].groupby("group")[["revenue1", "revenue2"]].sum().reindex(groups)
+    for group, label, color in zip(groups, labels, colors):
+        axes[1].plot([0, 1], revenue.loc[group, ["revenue1", "revenue2"]],
+                     marker="o", markersize=6, linewidth=1.5, color=color,
+                     label=label.replace("\n", " "))
+    axes[1].set_xticks([0, 1], [r"Period 1: $\mathrm{E}[p_1(h_0)q_1]$",
+                               r"Terminal: $\mathrm{E}[p_2(h_1)q_2]$"])
+    axes[1].set(title="Dynamic pricing: total expected berry revenue",
+                xlim=(-.15, 1.15), ylabel=r"Total expected revenue ($p\times q$)")
+    axes[1].set_ylim(bottom=0)
+    axes[1].legend(fontsize=8)
+    axes[1].grid(axis="y", alpha=.2)
+    axes[1].set_axisbelow(True)
     axes[1].axhline(0, color="gray", linewidth=.6)
-    fig.tight_layout()
+    fig.text(.5, .015, "Totals by type; terminal prices depend on realized history. Revenue averages over all histories; no time discounting.",
+             ha="center", fontsize=9)
+    fig.tight_layout(rect=(0, .05, 1, 1))
     for extension in ["png", "pdf"]:
         fig.savefig(output / f"household_coupon_results.{extension}", dpi=180)
     plt.close(fig)

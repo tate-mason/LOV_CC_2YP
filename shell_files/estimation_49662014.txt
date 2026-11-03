@@ -1,3 +1,0 @@
-Already up to date.
-Loading merged purchase table: /scratch/dtm63837/Kilts_Panel/Data/summary_outputs/yogurt_estimation_sample.parquet
-Using merged prices directly; no separate RMS data are loaded.

@@ -1,0 +1,145 @@
+Already up to date.
+Loading merged purchase table: /scratch/dtm63837/Kilts_Panel/Data/summary_outputs/yogurt_estimation_sample.parquet
+Using merged prices directly; no separate RMS data are loaded.
+IV: overall same-week mean price outside consumer dma_cd, pooled across flavors.
+Weeks excluded for purchased flavors without a covered price: 952
+Additional weeks excluded for missing other-DMA IVs: 0
+Households excluded for fewer than two usable weeks: 703
+flavor  iv_coefficient  iv_cluster_se  iv_cluster_F     iv_pvalue  partial_R2  residual_sd  observations  households
+ other      -34.679549       0.966209   1288.263629 1.032586e-270    0.021258     1.052710        252033       14965
+ berry      -33.104861       1.376745    578.198010 1.117957e-124    0.019246     1.079922         94753       11434
+ plain      -28.584978       3.084656     85.874127  2.460584e-20    0.007576     1.470277         41835        7510
+Start 1: iteration 10, elapsed 33s
+Start 1: iteration 20, elapsed 61s
+Start 1: iteration 30, elapsed 89s
+Start 1: iteration 40, elapsed 139s
+Start 1: iteration 50, elapsed 163s
+Start 1: iteration 60, elapsed 190s
+Start 1: iteration 70, elapsed 219s
+Start 1: iteration 80, elapsed 251s
+Start 1: iteration 90, elapsed 278s
+Start 1: iteration 100, elapsed 299s
+Start 1: iteration 110, elapsed 322s
+Start 1: iteration 120, elapsed 354s
+Start 1: iteration 130, elapsed 381s
+Start 1: iteration 140, elapsed 406s
+Start 1: iteration 150, elapsed 435s
+Start 1: iteration 160, elapsed 456s
+Start 1: iteration 170, elapsed 485s
+Start 1: iteration 180, elapsed 513s
+Start 1: iteration 190, elapsed 540s
+Start 1: iteration 200, elapsed 568s
+Start 1: NLL=1631135.5921; converged=True
+Start 2: iteration 10, elapsed 32s
+Start 2: iteration 20, elapsed 52s
+Start 2: iteration 30, elapsed 73s
+Start 2: iteration 40, elapsed 93s
+Start 2: iteration 50, elapsed 118s
+Start 2: iteration 60, elapsed 141s
+Start 2: iteration 70, elapsed 162s
+Start 2: iteration 80, elapsed 187s
+Start 2: iteration 90, elapsed 212s
+Start 2: iteration 100, elapsed 233s
+Start 2: iteration 110, elapsed 255s
+Start 2: iteration 120, elapsed 282s
+Start 2: iteration 130, elapsed 307s
+Start 2: NLL=1670014.4172; converged=True
+Start 3: iteration 10, elapsed 31s
+Start 3: iteration 20, elapsed 54s
+Start 3: iteration 30, elapsed 77s
+Start 3: iteration 40, elapsed 104s
+Start 3: iteration 50, elapsed 124s
+Start 3: iteration 60, elapsed 147s
+Start 3: iteration 70, elapsed 172s
+Start 3: iteration 80, elapsed 195s
+Start 3: iteration 90, elapsed 218s
+Start 3: iteration 100, elapsed 243s
+Start 3: iteration 110, elapsed 268s
+Start 3: iteration 120, elapsed 299s
+Start 3: iteration 130, elapsed 324s
+Start 3: iteration 140, elapsed 345s
+Start 3: iteration 150, elapsed 366s
+Start 3: iteration 160, elapsed 389s
+Start 3: iteration 170, elapsed 411s
+Start 3: iteration 180, elapsed 434s
+Start 3: iteration 190, elapsed 457s
+Start 3: iteration 200, elapsed 478s
+Start 3: iteration 210, elapsed 505s
+Start 3: iteration 220, elapsed 532s
+Start 3: iteration 230, elapsed 553s
+Start 3: iteration 240, elapsed 573s
+Start 3: NLL=1670014.3756; converged=True
+Inference: computed; normal 95% intervals; first-stage uncertainty omitted
+         parameter  estimate  at_bound  std_error  ci_lower  ci_upper
+   inside_constant  1.433268     False   0.007487  1.418594  1.447942
+        beta_berry -0.655835     False   0.003532 -0.662759 -0.648912
+        beta_plain -0.124958     False   0.006605 -0.137903 -0.112012
+mu_log_minus_alpha -0.355332     False   0.008287 -0.371574 -0.339089
+      mean_novelty -0.464563     False   0.008453 -0.481132 -0.447995
+    mean_own_stock -0.017034     False   0.000139 -0.017307 -0.016762
+sd_log_minus_alpha  0.760082     False   0.005050  0.750185  0.769980
+        sd_novelty  0.846573     False   0.009622  0.827714  0.865432
+      sd_own_stock  0.091173     False   0.000602  0.089993  0.092353
+     price_control  0.159769     False   0.004864  0.150236  0.169301
+Loading merged purchase table: /scratch/dtm63837/Kilts_Panel/Data/summary_outputs/yogurt_estimation_sample.parquet
+Using merged prices directly; no separate RMS data are loaded.
+Weeks excluded for purchased flavors without a covered price: 952
+Households excluded for fewer than two usable weeks: 703
+Start 1: iteration 10, elapsed 34s
+Start 1: iteration 20, elapsed 62s
+Start 1: iteration 30, elapsed 94s
+Start 1: iteration 40, elapsed 130s
+Start 1: iteration 50, elapsed 153s
+Start 1: iteration 60, elapsed 177s
+Start 1: iteration 70, elapsed 209s
+Start 1: iteration 80, elapsed 235s
+Start 1: iteration 90, elapsed 260s
+Start 1: iteration 100, elapsed 284s
+Start 1: iteration 110, elapsed 315s
+Start 1: iteration 120, elapsed 344s
+Start 1: iteration 130, elapsed 369s
+Start 1: iteration 140, elapsed 392s
+Start 1: iteration 150, elapsed 416s
+Start 1: iteration 160, elapsed 439s
+Start 1: iteration 170, elapsed 463s
+Start 1: iteration 180, elapsed 487s
+Start 1: iteration 190, elapsed 512s
+Start 1: iteration 200, elapsed 538s
+Start 1: iteration 210, elapsed 560s
+Start 1: NLL=1631759.1399; converged=True
+Start 2: iteration 10, elapsed 31s
+Start 2: iteration 20, elapsed 51s
+Start 2: iteration 30, elapsed 74s
+Start 2: iteration 40, elapsed 96s
+Start 2: iteration 50, elapsed 117s
+Start 2: iteration 60, elapsed 145s
+Start 2: iteration 70, elapsed 165s
+Start 2: iteration 80, elapsed 190s
+Start 2: iteration 90, elapsed 210s
+Start 2: iteration 100, elapsed 234s
+Start 2: iteration 110, elapsed 257s
+Start 2: iteration 120, elapsed 279s
+Start 2: iteration 130, elapsed 303s
+Start 2: iteration 140, elapsed 326s
+Start 2: iteration 150, elapsed 348s
+Start 2: NLL=1672432.2233; converged=True
+Start 3: iteration 10, elapsed 47s
+Start 3: iteration 20, elapsed 66s
+Start 3: iteration 30, elapsed 103s
+Start 3: iteration 40, elapsed 129s
+Start 3: iteration 50, elapsed 159s
+Start 3: iteration 60, elapsed 194s
+Start 3: iteration 70, elapsed 216s
+Start 3: iteration 80, elapsed 240s
+Start 3: NLL=1663118.3683; converged=True
+Inference: computed; normal 95% intervals; first-stage uncertainty omitted
+         parameter  estimate  at_bound  std_error  ci_lower  ci_upper
+   inside_constant  1.213488     False   0.003482  1.206663  1.220314
+        beta_berry -0.620461     False   0.003427 -0.627178 -0.613744
+        beta_plain -0.248633     False   0.005439 -0.259294 -0.237973
+mu_log_minus_alpha -0.596946     False   0.004346 -0.605464 -0.588428
+      mean_novelty -0.417267     False   0.008731 -0.434380 -0.400154
+    mean_own_stock -0.023064     False   0.000198 -0.023452 -0.022675
+sd_log_minus_alpha  0.864897     False   0.004205  0.856655  0.873139
+        sd_novelty  0.747472     False   0.009746  0.728369  0.766574
+      sd_own_stock  0.107915     False   0.000818  0.106311  0.109518

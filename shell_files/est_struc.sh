@@ -20,4 +20,5 @@ git pull
 
 
 #python /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/final_draft/data_code/recover_flavors.py
-python /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/final_draft/est_code/est.py --draws 32 --starts 1 --se-method hessian --capacity 7 --output res_hess
+python /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/final_draft/est_code/est.py --model heterogeneous_history --draws 64 --starts 3 --se-method hessian --capacity 7 --output res_het_hist
+python /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/Code/final_draft/est_code/est.py --model heterogeneous_history --draws 64 --starts 3 --se-method hessian --capacity 7 --no-price-control --output res_het_nocf

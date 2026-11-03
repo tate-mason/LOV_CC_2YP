@@ -1,5 +1,7 @@
 {
   "model": "heterogeneous",
+  "price_control": true,
+  "history_specification": "combined_or_none",
   "sample_restriction": "household_size == 1 on each purchase record",
   "households": 15105,
   "weeks": 281695,
@@ -13,7 +15,10 @@
   },
   "converged": true,
   "message": "CONVERGENCE: RELATIVE REDUCTION OF F <= FACTR*EPSMCH",
-  "nll": 1642195.0310424697,
+  "nll": 1642195.0302662083,
+  "parameters": 8,
+  "aic": 3284406.0605324167,
+  "bic": 3284467.042781167,
   "settings": {
     "sample": "/scratch/dtm63837/Kilts_Panel/Data/summary_outputs/yogurt_estimation_sample.parquet",
     "flavors": "/scratch/dtm63837/Kilts_Panel/Data/summary_outputs/estimation_flavor_reference.csv",
@@ -31,23 +36,51 @@
     "bootstrap_starts": 2,
     "habit_weight": 0.7,
     "draws": 32,
-    "starts": 1,
+    "starts": 3,
     "maxiter": 600,
     "seed": 306
   },
   "starts": [
     {
-      "nll": 1642195.0310424697,
+      "nll": 1642682.05073473,
       "converged": true,
       "theta": [
-        1.348592895975589,
-        -0.6503582685006509,
-        -0.10397997580665409,
-        -0.36203707742585817,
-        -0.05880340158270518,
-        0.6654470054031849,
-        0.06342734096544592,
-        0.16748277131702144
+        1.4171768020433657,
+        -0.6785982558019708,
+        -0.1144572491565797,
+        -0.2933085492039824,
+        -0.0332708013531005,
+        0.5995939816778955,
+        0.05194242893007992,
+        0.18797585842953277
+      ]
+    },
+    {
+      "nll": 1642673.8799589574,
+      "converged": true,
+      "theta": [
+        1.412612511578672,
+        -0.6774185576603737,
+        -0.11596158209224704,
+        -0.29108660223646615,
+        -0.03436690142471611,
+        0.5966152602651648,
+        0.05339242703106799,
+        0.18709542494193032
+      ]
+    },
+    {
+      "nll": 1642195.0302662083,
+      "converged": true,
+      "theta": [
+        1.3485720686037328,
+        -0.650426968032565,
+        -0.10384788442234306,
+        -0.362032319822943,
+        -0.05879891510387035,
+        0.6654270816470323,
+        0.06342269332995655,
+        0.1674694504870825
       ]
     }
   ]

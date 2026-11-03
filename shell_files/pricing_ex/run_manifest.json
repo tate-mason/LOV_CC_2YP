@@ -251,18 +251,6 @@
         "revenue_change_pct": 0.0
       },
       {
-        "policy": "personalized_myopic",
-        "revenue1": 8294.909395969886,
-        "revenue2": 8345.495522892246,
-        "discounted_revenue": 16640.404918862132,
-        "baseline_revenue": 15927.294369791478,
-        "revenue_change": 713.1105490706526,
-        "berry_units1": 9204.902783039313,
-        "berry_units2": 9253.365056849214,
-        "coupon_expenditure": 2076.425130834572,
-        "revenue_change_pct": 4.477286176258377
-      },
-      {
         "policy": "personalized_dynamic",
         "revenue1": 8294.650780612397,
         "revenue2": 8346.00473254269,
@@ -276,7 +264,7 @@
       }
     ]
   },
-  "script_sha256": "cfbf3056b194bcd68b145458130dd08ef75cd7f8ae359eb0e28c37fc69abad6a",
+  "script_sha256": "691f0b1ccede631b9c38901f0238c5bf8e994c6a3d74daf89e240eb0c2ffc705",
   "versions": {
     "python": "3.12.3 (main, Apr 11 2025, 11:51:19) [GCC 13.3.0]",
     "numpy": "2.4.6",

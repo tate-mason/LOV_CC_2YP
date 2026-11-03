@@ -1,0 +1,93 @@
+{
+  "settings": {
+    "household_input": "/scratch/dtm63837/Kilts_Panel/res_hess/weekly_inputs.csv",
+    "fit_dir": "/scratch/dtm63837/Kilts_Panel/res_hess",
+    "output": "pricing_ex",
+    "discounts": [
+      0.0,
+      0.1,
+      0.2,
+      0.3,
+      0.4,
+      0.5
+    ],
+    "demand_delta": 1.0,
+    "batch_size": 24,
+    "type_treatment": "posterior-mean",
+    "save_state_policies": false,
+    "self_test": false
+  },
+  "results": {
+    "households": 15105,
+    "eligible_by_group": {
+      "low": 1262,
+      "middle": 2053,
+      "high": 1074
+    },
+    "reconstructed_nll": 1642195.0302662086,
+    "basket_mass_error": 6.439293542825908e-15,
+    "input_sha256": "3b997df26adca6f69423b33952d497cdcb1cd33f8dcccbe833dbc9772645d555",
+    "fit_sha256": "2188249cbd16d55812db74818f694d3eed882e7720171dad07c245c3f1de72bc",
+    "parameter_sha256": "be1e29e41e27ae030c467f5d05c351eae6eb6aafb56dd6f98f15642e18036d62",
+    "posterior_draws": 32,
+    "posterior_seed": 306,
+    "capacity": 7,
+    "habit_weight": 0.7,
+    "price_control": true,
+    "baskets": 120,
+    "discount_grid": [
+      0.0,
+      0.1,
+      0.2,
+      0.3,
+      0.4,
+      0.5
+    ],
+    "demand_delta": 1.0,
+    "type_treatment": "posterior-mean",
+    "aggregate": [
+      {
+        "policy": "no_coupon",
+        "revenue1": 7848.830041265911,
+        "revenue2": 7864.4368940467575,
+        "discounted_revenue": 15713.26693531267,
+        "baseline_revenue": 15713.26693531267,
+        "revenue_change": 0.0,
+        "berry_units1": 7440.236859119537,
+        "berry_units2": 7452.055709206321,
+        "coupon_expenditure": 0.0,
+        "revenue_change_pct": 0.0
+      },
+      {
+        "policy": "personalized_myopic",
+        "revenue1": 8315.874184303122,
+        "revenue2": 8333.101260515507,
+        "discounted_revenue": 16648.97544481863,
+        "baseline_revenue": 15713.26693531267,
+        "revenue_change": 935.7085095059606,
+        "berry_units1": 7930.102659036652,
+        "berry_units2": 7942.7981254411225,
+        "coupon_expenditure": 2107.444928747209,
+        "revenue_change_pct": 5.954894760955968
+      },
+      {
+        "policy": "personalized_dynamic",
+        "revenue1": 8315.610025500055,
+        "revenue2": 8333.601485248919,
+        "discounted_revenue": 16649.211510748974,
+        "baseline_revenue": 15713.26693531267,
+        "revenue_change": 935.944575436305,
+        "berry_units1": 7935.568540224535,
+        "berry_units2": 7942.939172940057,
+        "coupon_expenditure": 2121.657227488701,
+        "revenue_change_pct": 5.956397096092997
+      }
+    ]
+  },
+  "script_sha256": "447fdb42a6b2a4d3b6fef1b1443e5fdfdac4418bd2804770a38355bfe888be26",
+  "versions": {
+    "python": "3.12.3 (main, Apr 11 2025, 11:51:19) [GCC 13.3.0]",
+    "numpy": "2.4.6",
+    "pandas": "3.0.3"
+  }
+}

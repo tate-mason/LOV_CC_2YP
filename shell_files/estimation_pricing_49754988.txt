@@ -1,0 +1,9 @@
+Already up to date.
+usage: run_empirical_targeting.py [-h] [--household-input HOUSEHOLD_INPUT]
+                                  [--fit-dir FIT_DIR] [--output OUTPUT]
+                                  [--discounts DISCOUNTS [DISCOUNTS ...]]
+                                  [--demand-delta DEMAND_DELTA]
+                                  [--batch-size BATCH_SIZE]
+                                  [--type-treatment {posterior-mean,posterior-integrated}]
+                                  [--save-state-policies] [--self-test]
+run_empirical_targeting.py: error: unrecognized arguments: --household-input/scratch/dtm63837/Kilts_Panel/res_hess/weekly_inputs.csv

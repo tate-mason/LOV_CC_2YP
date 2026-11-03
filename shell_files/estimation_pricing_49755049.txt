@@ -1,0 +1,8 @@
+Already up to date.
+Targeted pricing: integrated 24/4389 eligible households
+Targeted pricing: integrated 984/4389 eligible households
+Targeted pricing: integrated 1944/4389 eligible households
+Targeted pricing: integrated 2904/4389 eligible households
+Targeted pricing: integrated 3864/4389 eligible households
+Targeted pricing: integrated 4389/4389 eligible households
+Standalone empirical targeting completed: pricing_ex

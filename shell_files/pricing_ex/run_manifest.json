@@ -115,12 +115,12 @@
   "results": {
     "households": 15105,
     "eligible_by_group": {
-      "low": 1262,
-      "middle": 2053,
-      "high": 1074
+      "low": 1259,
+      "middle": 2185,
+      "high": 1093
     },
     "reconstructed_nll": 1642195.0302662086,
-    "basket_mass_error": 7.327471962526033e-15,
+    "basket_mass_error": 4.440892098500626e-15,
     "input_sha256": "3b997df26adca6f69423b33952d497cdcb1cd33f8dcccbe833dbc9772645d555",
     "fit_sha256": "2188249cbd16d55812db74818f694d3eed882e7720171dad07c245c3f1de72bc",
     "parameter_sha256": "be1e29e41e27ae030c467f5d05c351eae6eb6aafb56dd6f98f15642e18036d62",
@@ -129,6 +129,8 @@
     "capacity": 7,
     "habit_weight": 0.7,
     "price_control": true,
+    "initial_history": "first_observed_basket",
+    "pricing_periods": 2,
     "baskets": 120,
     "discount_grid": [
       0.0,
@@ -238,43 +240,43 @@
     "aggregate": [
       {
         "policy": "no_coupon",
-        "revenue1": 7848.830041265911,
-        "revenue2": 7864.4368940467575,
-        "discounted_revenue": 15713.26693531267,
-        "baseline_revenue": 15713.26693531267,
+        "revenue1": 7941.2331205741975,
+        "revenue2": 7986.06124921728,
+        "discounted_revenue": 15927.294369791478,
+        "baseline_revenue": 15927.294369791478,
         "revenue_change": 0.0,
-        "berry_units1": 7440.236859119537,
-        "berry_units2": 7452.055709206321,
+        "berry_units1": 8750.75044869071,
+        "berry_units2": 8797.132003003338,
         "coupon_expenditure": 0.0,
         "revenue_change_pct": 0.0
       },
       {
         "policy": "personalized_myopic",
-        "revenue1": 8371.69604163914,
-        "revenue2": 8388.993167172048,
-        "discounted_revenue": 16760.689208811185,
-        "baseline_revenue": 15713.26693531267,
-        "revenue_change": 1047.4222734985178,
-        "berry_units1": 8043.409025475277,
-        "berry_units2": 8054.850120223029,
-        "coupon_expenditure": 2999.746556092017,
-        "revenue_change_pct": 6.665846623814614
+        "revenue1": 8294.909395969886,
+        "revenue2": 8345.495522892246,
+        "discounted_revenue": 16640.404918862132,
+        "baseline_revenue": 15927.294369791478,
+        "revenue_change": 713.1105490706526,
+        "berry_units1": 9204.902783039313,
+        "berry_units2": 9253.365056849214,
+        "coupon_expenditure": 2076.425130834572,
+        "revenue_change_pct": 4.477286176258377
       },
       {
         "policy": "personalized_dynamic",
-        "revenue1": 8371.456713709842,
-        "revenue2": 8389.470529444974,
-        "discounted_revenue": 16760.927243154816,
-        "baseline_revenue": 15713.26693531267,
-        "revenue_change": 1047.6603078421479,
-        "berry_units1": 8046.87902593975,
-        "berry_units2": 8055.089865855999,
-        "coupon_expenditure": 3011.5037224233197,
-        "revenue_change_pct": 6.667361486030155
+        "revenue1": 8294.650780612397,
+        "revenue2": 8346.00473254269,
+        "discounted_revenue": 16640.65551315509,
+        "baseline_revenue": 15927.294369791478,
+        "revenue_change": 713.361143363609,
+        "berry_units1": 9210.423866980533,
+        "berry_units2": 9253.619323121167,
+        "coupon_expenditure": 2092.1327414645903,
+        "revenue_change_pct": 4.4788595401150255
       }
     ]
   },
-  "script_sha256": "bce008fd4c709449a6e70d5e463fbac4df699556394d885ec61397fe810820ef",
+  "script_sha256": "cfbf3056b194bcd68b145458130dd08ef75cd7f8ae359eb0e28c37fc69abad6a",
   "versions": {
     "python": "3.12.3 (main, Apr 11 2025, 11:51:19) [GCC 13.3.0]",
     "numpy": "2.4.6",

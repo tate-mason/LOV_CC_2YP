@@ -359,16 +359,19 @@ def make_targeting_figures(households, table, aggregate, output):
                 ylabel="Number of households")
     axes[0].legend(fontsize=9)
     revenue = table.loc[table.policy == "personalized_dynamic"].groupby("group")[["revenue1", "revenue2"]].sum().reindex(groups)
-    for group, label, color in zip(groups, labels, colors):
-        axes[1].plot([0, 1], revenue.loc[group, ["revenue1", "revenue2"]],
-                     marker="o", markersize=6, linewidth=1.5, color=color,
-                     label=label.replace("\n", " "))
-    axes[1].set_xticks([0, 1], [r"Period 1: $\mathrm{E}[p_1(h_0)q_1]$",
-                               r"Terminal: $\mathrm{E}[p_2(h_1)q_2]$"])
-    axes[1].set(title="Dynamic pricing: total expected berry revenue",
-                xlim=(-.15, 1.15), ylabel=r"Total expected revenue ($p\times q$)")
+    x = np.arange(len(groups))
+    axes[1].bar(x-.18, revenue.revenue1, width=.36, color=colors,
+                label="Period 1")
+    axes[1].bar(x+.18, revenue.revenue2, width=.36, color=colors,
+                hatch="///", edgecolor="white", label="Terminal Period")
+    axes[1].set_xticks(x, labels)
+    axes[1].set(title="Total Expected Revenue",
+                xlabel="Consumer type group", ylabel="Total Expected Revenue")
     axes[1].set_ylim(bottom=0)
-    axes[1].legend(fontsize=8)
+    from matplotlib.patches import Patch
+    axes[1].legend(handles=[Patch(facecolor="white", edgecolor="black", label="Period 1"),
+                            Patch(facecolor="white", edgecolor="black", hatch="///", label="Terminal Period")],
+                   fontsize=8)
     axes[1].grid(axis="y", alpha=.2)
     axes[1].set_axisbelow(True)
     axes[1].axhline(0, color="gray", linewidth=.6)

@@ -35,8 +35,10 @@ the candidate grid.
 
 Plots are saved as both PNG and PDF:
 `household_coupon_results` shows estimated consumer types and dynamic berry
-total expected revenue (`p*q`) by type, with one thin line per type connecting dots for the
-first and terminal pricing periods. Revenue is summed across eligible households within each type group;
+total expected revenue by type, with grouped bars for the first and terminal
+pricing periods. Type colors match the distribution panel: blue for low gamma,
+gray for middle gamma, and orange for high gamma. Terminal bars are hatched.
+Revenue is summed across eligible households within each type group;
 terminal revenue averages `p2(h1)*q2` over histories, and neither period is
 time discounted in this graph. These are revenue levels, not percentage gains;
 `discounts_by_consumer_type` shows mean optimal dynamic discount percentages by

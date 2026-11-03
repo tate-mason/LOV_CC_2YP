@@ -73,7 +73,7 @@ class EmpiricalTimingTests(unittest.TestCase):
                 probability = np.exp(utilities-pricing.logsumexp(utilities))
                 values.append(capacity*prices[1]*probability[1])
             terminal_values.append(max(values))
-        first_values, total_values = [], []
+        total_values = []
         for discount in discounts:
             prices = context["prices"][0].copy()
             prices[1] *= 1-discount
@@ -84,15 +84,12 @@ class EmpiricalTimingTests(unittest.TestCase):
             mass = np.array([
                 math.factorial(capacity)/math.prod(math.factorial(int(n)) for n in basket)
                 *np.prod(probability**basket) for basket in baskets])
-            first_values.append(first)
             total_values.append(first+delta*(mass @ terminal_values))
         policies = table.set_index("policy")
+        self.assertEqual(set(policies.index), {"no_coupon", "personalized_dynamic"})
         dynamic = policies.loc["personalized_dynamic"]
-        myopic = policies.loc["personalized_myopic"]
         self.assertEqual(dynamic.discount1, discounts[np.argmax(total_values)])
         self.assertAlmostEqual(dynamic.discounted_revenue, max(total_values), places=12)
-        self.assertEqual(myopic.discount1, discounts[np.argmax(first_values)])
-        self.assertGreater(dynamic.discount1, myopic.discount1)
 
 
 if __name__ == "__main__":

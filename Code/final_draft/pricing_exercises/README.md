@@ -52,8 +52,9 @@ dates with two pricing decisions. The first observed menu, prices and controls
 are carried forward; estimated types still use the complete sample.
 Terminal coupons depend on
 realized consumption histories. Low/high gamma households receive personalized
-offers; the middle group remains at posted prices. The comparison policies are
-no coupons and household-specific myopic pricing. Revenue is net of coupons.
+offers; the middle group remains at posted prices. Dynamic pricing is the only
+optimized specification; no coupons supplies the revenue-gain benchmark.
+Revenue is net of coupons.
 
 See [EMPIRICAL_TARGETING.md](EMPIRICAL_TARGETING.md) for the complete timing,
 posterior construction, policy assumptions, output definitions, optional posterior

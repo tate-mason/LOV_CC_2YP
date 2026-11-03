@@ -133,8 +133,7 @@ def targeted_coupons(context, households, weights, alpha, gamma, beta, discounts
     The observed initialization and two priced choices form three choice dates.
     Individual backward induction; gamma quartiles are reporting groups only.
 
-    Baseline: posted prices in both weeks. Myopic: individually maximize current
-    revenue in each week. Dynamic: choose first coupon accounting for optimized
+    Baseline: posted prices in both weeks. Dynamic: choose first coupon accounting for optimized
     state-contingent terminal revenue. The seller observes the full basket.
     """
     baskets = compositions(capacity)
@@ -206,11 +205,9 @@ def targeted_coupons(context, households, weights, alpha, gamma, beta, discounts
             # Storing these compact arrays allows exporting only chosen first actions.
             paths.append((best, selected, state_probability))
         zero_choice = np.zeros(h, dtype=int)
-        myopic_choice = first[..., 0].argmax(axis=1)
         dynamic_choice = (first[..., 0]+delta*second[..., 0]).argmax(axis=1)
-        myopic_choice = np.where(targeted[ids], myopic_choice, 0)
         dynamic_choice = np.where(targeted[ids], dynamic_choice, 0)
-        for name, choice in [("no_coupon", zero_choice), ("personalized_myopic", myopic_choice), ("personalized_dynamic", dynamic_choice)]:
+        for name, choice in [("no_coupon", zero_choice), ("personalized_dynamic", dynamic_choice)]:
             for local, hh in enumerate(ids):
                 action = int(choice[local])
                 initial = first[local, action]
@@ -258,8 +255,8 @@ def targeted_coupons(context, households, weights, alpha, gamma, beta, discounts
     table["revenue_change"] = table.discounted_revenue-table.baseline_revenue
     table["revenue_change_pct"] = 100*table.revenue_change/table.baseline_revenue
     wide = table.pivot(index="household_code", columns="policy", values="discounted_revenue")
-    if (wide.personalized_dynamic+1e-8 < wide[["no_coupon", "personalized_myopic"]].max(axis=1)).any():
-        raise AssertionError("Household dynamic policy does not dominate feasible baseline/myopic policies.")
+    if (wide.personalized_dynamic+1e-8 < wide.no_coupon).any():
+        raise AssertionError("Household dynamic policy does not dominate the feasible no-coupon baseline.")
     return table, maximum_mass_error
 
 def run_households(args):
@@ -351,8 +348,6 @@ def make_targeting_figures(households, table, aggregate, output):
     groups = ["low", "middle", "high"]
     labels = ["Low gamma\n(bottom 25%)", "Middle gamma\n(middle 50%)", "High gamma\n(top 25%)"]
     colors = ["#3575AD", "#999999", "#D17925"]
-    policies = [("personalized_myopic", "Myopic pricing"),
-                ("personalized_dynamic", "Dynamic pricing")]
     fig, axes = plt.subplots(1, 2, figsize=(13, 5))
     bins = np.histogram_bin_edges(households.gamma_mean, bins=30)
     for g, label, color in zip(groups, labels, colors):
@@ -361,10 +356,9 @@ def make_targeting_figures(households, table, aggregate, output):
     axes[0].set(title="Estimated consumer types", xlabel=r"Estimated household type (posterior mean $\gamma$)",
                 ylabel="Number of households")
     axes[0].legend(fontsize=9)
-    order = ["no_coupon", *[p for p, _ in policies]]
-    axes[1].bar(range(3), aggregate.reindex(order).revenue_change_pct, color=[colors[1], colors[0], colors[2]])
-    axes[1].set_xticks(range(3), ["No coupons", "Myopic pricing", "Dynamic pricing"])
-    axes[1].set(title="Revenue gain from personalized berry offers",
+    axes[1].bar([0], [aggregate.loc["personalized_dynamic", "revenue_change_pct"]], color=colors[0], width=.5)
+    axes[1].set_xticks([0], ["Personalized dynamic pricing"])
+    axes[1].set(title="Dynamic pricing: revenue gain from berry offers",
                 ylabel="Net revenue change relative to no coupons (%)")
     axes[1].axhline(0, color="gray", linewidth=.6)
     fig.tight_layout()
@@ -372,20 +366,19 @@ def make_targeting_figures(households, table, aggregate, output):
         fig.savefig(output / f"household_coupon_results.{extension}", dpi=180)
     plt.close(fig)
 
-    fig, axes = plt.subplots(1, 2, figsize=(13, 5), sharey=True)
+    fig, ax = plt.subplots(figsize=(9, 5))
     x = np.arange(3)
-    for ax, (policy, title) in zip(axes, policies):
-        means = table.loc[table.policy == policy].groupby("group")[["discount1", "expected_discount2"]].mean().reindex(groups)
-        ax.bar(x-.18, 100*means.discount1, width=.36, label=r"$p_1(h_0)$ offer", color=colors[0])
-        ax.bar(x+.18, 100*means.expected_discount2, width=.36,
-               label=r"Terminal $p_2(h_1)$ offer (expected over histories)", color=colors[2])
-        ax.set_xticks(x, labels)
-        ax.set(title=title, xlabel="Consumer type group", ylim=(0, 105))
-        ax.grid(axis="y", alpha=.2)
-        ax.set_axisbelow(True)
-        ax.legend(fontsize=8, loc="upper left")
-    axes[0].set_ylabel("Mean optimal berry discount (% of posted price)")
-    fig.suptitle("Optimal discounts by consumer type")
+    means = table.loc[table.policy == "personalized_dynamic"].groupby("group")[["discount1", "expected_discount2"]].mean().reindex(groups)
+    ax.bar(x-.18, 100*means.discount1, width=.36, label=r"$p_1(h_0)$ offer", color=colors[0])
+    ax.bar(x+.18, 100*means.expected_discount2, width=.36,
+           label=r"Terminal $p_2(h_1)$ offer (expected over histories)", color=colors[2])
+    ax.set_xticks(x, labels)
+    ax.set(xlabel="Consumer type group", ylim=(0, 105),
+           ylabel="Mean optimal berry discount (% of posted price)")
+    ax.grid(axis="y", alpha=.2)
+    ax.set_axisbelow(True)
+    ax.legend(fontsize=8, loc="upper left")
+    fig.suptitle("Dynamic pricing: optimal discounts by consumer type")
     fig.text(.5, .015, "Household-weighted means among berry-eligible households. Middle group receives no coupons by policy design.",
              ha="center", fontsize=9)
     fig.tight_layout(rect=(0, .05, 1, .94))
@@ -457,15 +450,15 @@ def self_test():
     for treatment in ["posterior-mean", "posterior-integrated"]:
         table, error = targeted_coupons(context, households, weights, alpha, gamma, beta, discounts,
                                         capacity=2, batch_size=4, type_treatment=treatment)
-        assert error < 1e-12 and len(table) == 36
+        assert error < 1e-12 and len(table) == 24
         # Accounting and treating the middle segment as a holdout.
         assert np.allclose(table.discounted_revenue+table.coupon_expenditure,
                            1.1*(table.berry_units1+table.berry_units2))
         assert np.allclose(table.loc[table.group == "middle", "revenue_change"], 0.)
     no_history, _ = targeted_coupons(context, households, weights, np.ones_like(alpha),
                                      np.zeros_like(gamma), beta, discounts, capacity=2)
-    wide = no_history.pivot(index="household_code", columns="policy", values="discounted_revenue")
-    assert np.allclose(wide.personalized_dynamic, wide.personalized_myopic)
+    assert np.allclose(no_history.revenue1, no_history.revenue2)
+    assert np.allclose(no_history.discount1, no_history.expected_discount2)
     # Individual actions must be invariant to renaming the low/high reporting groups.
     swapped = households.copy()
     swapped["group"] = swapped.group.replace({"low": "high", "high": "low"})

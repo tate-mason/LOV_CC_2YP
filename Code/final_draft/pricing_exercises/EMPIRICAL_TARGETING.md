@@ -35,8 +35,8 @@ the candidate grid.
 
 Plots are saved as both PNG and PDF:
 `household_coupon_results` shows estimated consumer types and revenue gains;
-`discounts_by_consumer_type` compares mean optimal discount percentages by
-low/middle/high gamma group for myopic and dynamic pricing;
+`discounts_by_consumer_type` shows mean optimal dynamic discount percentages by
+low/middle/high gamma group at `p1(h0)` and terminal `p2(h1)`;
 `discounts_by_household_type` shows dynamic household discounts against estimated
 gamma and price sensitivity. Period 2 discounts are expectations over future
 consumption histories. Group means weight berry-eligible households equally;
@@ -182,20 +182,20 @@ the same quartile. The gamma label never enters the pricing objective except
 to designate which households are eligible for targeting; swapping low and high
 labels leaves every household's action unchanged.
 
-The script compares:
+Dynamic pricing is the only optimized specification. The script retains a
+no-coupon benchmark for measuring revenue gains:
 
 | Policy | Interpretation |
 |---|---|
 | `no_coupon` | Observed posted berry prices in both future periods |
-| `personalized_myopic` | Each targeted household's first offer maximizes first-period revenue; its terminal offer maximizes revenue conditional on its realized basket |
 | `personalized_dynamic` | Each targeted household's first offer accounts for optimized terminal continuation revenue; its terminal offer is state contingent |
 
 Only low/high gamma households receive personalized offers. The middle group
 remains at posted prices under every policy, providing an untreated bookkeeping
 group. There is no common/group coupon policy and no empirical commitment
-exercise. Dynamic revenue must weakly exceed both no-coupon and myopic revenue
-for each household. Myopic two-period revenue need not exceed no coupons,
-because it ignores the first offer's effect on future state and revenue.
+exercise. Dynamic revenue must weakly exceed no-coupon revenue for each
+household. Graphs show only dynamic results, with revenue gains measured relative
+to the no-coupon benchmark.
 
 Consumers use the fitted current-period demand rule; they do not strategically
 delay purchases in anticipation of future discounts. `--demand-delta` controls
@@ -230,8 +230,7 @@ to repair a mismatch.
 | `run_manifest.json` | Settings, input/fit/parameter/script hashes, type treatment, likelihood and probability diagnostics |
 
 The main economic comparison is revenue gain for low versus high gamma under
-household-specific dynamic targeting; the myopic comparison isolates the value
-of anticipating future state changes. This does not isolate gamma causally from
+household-specific dynamic targeting. This does not isolate gamma causally from
 alpha, menu and initial-history differences across actual households. Those
 other characteristics also influence optimal offers.
 

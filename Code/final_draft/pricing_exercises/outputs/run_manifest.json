@@ -1,0 +1,38 @@
+{
+  "settings": {
+    "exercise": "supply",
+    "output": "/Users/tate/LOV_CC_2YP/Code/final_draft/pricing_exercises/outputs",
+    "household_input": null,
+    "fit_dir": null,
+    "self_test": false,
+    "gamma_min": -3.0,
+    "gamma_max": 3.0,
+    "gamma_points": 61,
+    "priors": [
+      0.25,
+      0.5,
+      0.75
+    ],
+    "beta": 2.0,
+    "alpha": -1.0,
+    "delta": 0.92,
+    "demand_delta": 1.0,
+    "discounts": [
+      0.0,
+      0.1,
+      0.2,
+      0.3,
+      0.4,
+      0.5
+    ],
+    "batch_size": 24
+  },
+  "supply": {
+    "rows": 183,
+    "maximum_hidden_foc": 3.165571704766279e-08,
+    "maximum_committed_foc1": 2.6302674704936635e-08,
+    "maximum_committed_foc2": 3.30559418951909e-08,
+    "minimum_information_value": 0.0,
+    "minimum_flexibility_value": 0.0
+  }
+}

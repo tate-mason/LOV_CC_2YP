@@ -1,0 +1,26 @@
+{
+  "settings": {
+    "output": "/Users/tate/LOV_CC_2YP/Code/final_draft/pricing_exercises/supply_outputs",
+    "gamma_min": -3.0,
+    "gamma_max": 3.0,
+    "gamma_points": 61,
+    "priors": [
+      0.25,
+      0.5,
+      0.75
+    ],
+    "beta": 2.0,
+    "alpha": -1.0,
+    "delta": 0.92,
+    "cost": 0.0,
+    "self_test": false
+  },
+  "maximum_foc_residual": 3.30559418951909e-08,
+  "calibrations": 183,
+  "cases": [
+    "known_state",
+    "hidden_initial_state",
+    "ex_ante_commitment"
+  ],
+  "script_sha256": "cd688c8468cbbef631ad30c5054bf2ddd2d4d98c7ed8d0b9eeb959a7ee6e8ad2"
+}

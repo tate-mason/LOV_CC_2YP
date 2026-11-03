@@ -89,21 +89,29 @@ def compositions(capacity):
                      for b in range(capacity-a+1) for c in range(capacity-a-b+1)], dtype=int)
 
 def forecast_context(frame, households):
-    """Next consecutive week; carry last observed menus, prices and controls forward."""
-    last = frame.sort_values(["household_code", "week"]).groupby("household_code", sort=True).tail(1)
-    last = last.set_index("household_code").loc[households.household_code]
-    counts = last[FLAVORS].to_numpy(float)
+    """First observed choice establishes h0; price the next two consecutive weeks.
+
+    Carry the initial observation's menu, posted prices and controls forward.
+    Type estimation still uses the complete observed sample.
+    """
+    first = frame.sort_values(["household_code", "week"]).groupby("household_code", sort=True).head(1)
+    first = first.set_index("household_code").loc[households.household_code]
+    counts = first[FLAVORS].to_numpy(float)
     totals = counts.sum(axis=1, keepdims=True)
     shares = np.divide(counts, totals, out=np.zeros_like(counts), where=totals > 0)
-    stocks = last[["stock_"+f for f in FLAVORS]].to_numpy(float)+shares
+    # Saved stocks precede the observed choice; add its basket exactly once.
+    stocks = first[["stock_"+f for f in FLAVORS]].to_numpy(float)+shares
     novelty = shares.sum(axis=1, keepdims=True)-shares
-    prices = last[["price_"+f for f in FLAVORS]].to_numpy(float)
+    prices = first[["price_"+f for f in FLAVORS]].to_numpy(float)
     available = np.isfinite(prices) & (prices > 0)
     eligible = available[:, 1]
     households["berry_eligible"] = eligible
-    households["last_observed_week"] = last.week.to_numpy()
+    initial_weeks = first.week.to_numpy(dtype="datetime64[ns]")
+    households["initial_observed_week"] = initial_weeks
+    households["pricing_week1"] = initial_weeks+np.timedelta64(7, "D")
+    households["pricing_week2"] = initial_weeks+np.timedelta64(14, "D")
     cf_cols = ["cf_"+f for f in FLAVORS]
-    cf = last[cf_cols].to_numpy(float) if all(c in last for c in cf_cols) else np.zeros_like(prices)
+    cf = first[cf_cols].to_numpy(float) if all(c in first for c in cf_cols) else np.zeros_like(prices)
     if not np.isfinite(stocks).all() or not np.isfinite(novelty).all():
         raise ValueError("Nonfinite forecast history.")
     return dict(stocks=stocks, novelty=novelty, prices=np.where(available, prices, 0.),
@@ -120,7 +128,10 @@ def digest(path):
 def targeted_coupons(context, households, weights, alpha, gamma, beta, discounts,
                      delta=1., capacity=7, habit_weight=.7, control_coefficient=0.,
                      batch_size=24, type_treatment="posterior-mean", state_output=None):
-    """Individual backward induction; gamma quartiles are reporting groups only.
+    """Observed h0, then p1(h0), realized h1, and terminal p2(h1).
+
+    The observed initialization and two priced choices form three choice dates.
+    Individual backward induction; gamma quartiles are reporting groups only.
 
     Baseline: posted prices in both weeks. Myopic: individually maximize current
     revenue in each week. Dynamic: choose first coupon accounting for optimized
@@ -327,6 +338,7 @@ def run_households(args):
                 parameter_sha256=digest(args.fit_dir / "point_estimates.csv"),
                 posterior_draws=len(draws), posterior_seed=settings["seed"],
                 capacity=capacity, habit_weight=weight, price_control=control,
+                initial_history="first_observed_basket", pricing_periods=2,
                 baskets=len(compositions(capacity)),
                 discount_grid=args.discounts.tolist(), demand_delta=args.demand_delta,
                 type_treatment=args.type_treatment,
@@ -364,9 +376,9 @@ def make_targeting_figures(households, table, aggregate, output):
     x = np.arange(3)
     for ax, (policy, title) in zip(axes, policies):
         means = table.loc[table.policy == policy].groupby("group")[["discount1", "expected_discount2"]].mean().reindex(groups)
-        ax.bar(x-.18, 100*means.discount1, width=.36, label="Period 1", color=colors[0])
+        ax.bar(x-.18, 100*means.discount1, width=.36, label=r"$p_1(h_0)$ offer", color=colors[0])
         ax.bar(x+.18, 100*means.expected_discount2, width=.36,
-               label="Period 2 (expected over consumption histories)", color=colors[2])
+               label=r"Terminal $p_2(h_1)$ offer (expected over histories)", color=colors[2])
         ax.set_xticks(x, labels)
         ax.set(title=title, xlabel="Consumer type group", ylim=(0, 105))
         ax.grid(axis="y", alpha=.2)
@@ -388,8 +400,8 @@ def make_targeting_figures(households, table, aggregate, output):
             ("gamma_mean", r"Estimated household type (posterior mean $\gamma$)"),
             ("alpha_mean", r"Estimated price sensitivity (posterior mean $a$)")]):
         for row, (discount, title) in enumerate([
-                ("discount1", "Period 1 optimal discount"),
-                ("expected_discount2", "Period 2 expected optimal discount")]):
+                ("discount1", r"Optimal discount at $p_1(h_0)$"),
+                ("expected_discount2", r"Expected terminal discount at $p_2(h_1)$")]):
             ax = axes[row, column]
             for g, label, color in zip(groups, labels, colors):
                 subset = dynamic.loc[dynamic.group == g]
@@ -399,7 +411,7 @@ def make_targeting_figures(households, table, aggregate, output):
             ax.grid(alpha=.2)
     axes[0, 0].legend(fontsize=8)
     fig.suptitle("Dynamic pricing: household discounts and estimated consumer characteristics")
-    fig.text(.5, .015, "Each point is one berry-eligible household. Period 2 averages over that household's future consumption histories.",
+    fig.text(.5, .015, "Each point is one berry-eligible household. Terminal offers average over the household's realized h1 histories.",
              ha="center", fontsize=9)
     fig.tight_layout(rect=(0, .04, 1, .95))
     for extension in ["png", "pdf"]:

@@ -103,16 +103,29 @@ separately from the default base-model exercise.
 
 ## 2. Forecast timing and demand history
 
-All observed data are training history. The counterfactual begins in the
-calendar week after each household's last observed week. Initial stock equals
-the last pre-purchase stock plus the last week's inside flavor shares. Initial
-novelty uses those preceding-week shares. Households' forecast dates differ;
-these are household scenarios, not one simultaneous retail-market equilibrium.
+There are three choice dates: an observed initial choice establishes `h0`,
+the seller offers `p1(h0)` and the resulting basket establishes `h1`, then
+the seller offers terminal `p2(h1)`. Only the latter two dates are priced
+counterfactuals and enter the revenue objective. Thus references to two pricing
+periods count the decisions after initialization, not the initial observed
+choice. This is the timing of the known-state supply theory.
 
-Carry the final observed posted prices, available flavor menu and price-control
+The first chronologically observed basket for each household is relabeled
+from observed `t=1` to model `t=0` and establishes `h0`.
+The counterfactual begins in the following calendar week, with `p1(h0)`;
+`p2(h1)` is terminal in the next consecutive week. Initial stock equals the
+first observation's pre-purchase stock (zero at sample entry under the estimator)
+plus that basket's inside flavor shares. Initial novelty uses the same basket.
+Later observed baskets do not enter this initial demand state. Household type
+estimates still use the complete estimation sample: this is a retrospective
+known-estimated-type counterfactual, not an out-of-sample forecast. Households'
+initial dates differ; these are household scenarios, not one simultaneous
+retail-market equilibrium.
+
+Carry the first observed posted prices, available flavor menu and price-control
 residuals forward for both weeks. Competitor prices do not respond. Missing
 prices are not imputed. A household is eligible only if berry is covered in its
-last menu. Quartiles are not recomputed on that eligible subset, and group
+first menu. Quartiles are not recomputed on that eligible subset, and group
 eligibility is reported. Aggregate revenue refers to eligible households only.
 
 For `K=capacity`, forecast weekly baskets are multinomial across other, berry,
@@ -137,7 +150,7 @@ that is a different information restriction.
 
 An action is a per-unit berry coupon fraction d from the supplied grid. Its net
 price is `p_i(d)=(1-d)*posted_berry_price_i`. Default fractions are
-0,.1,.2,.3,.4,.5. Coupons apply to all berry units bought in the week and are
+0,.01,.02,...,1. Coupons apply to all berry units bought in the week and are
 automatically redeemed; there is no fixed coupon delivery cost, transfer or
 redemption friction. Net revenue already subtracts the discount.
 
@@ -207,7 +220,7 @@ to repair a mismatch.
 
 | File | Contents |
 |---|---|
-| `household_posterior_summary.csv` | Household type estimates, posterior uncertainty, quartile and eligibility |
+| `household_posterior_summary.csv` | Household type estimates, posterior uncertainty, quartile, first-menu eligibility, initial observed week and two pricing weeks |
 | `household_group_summary.csv` | Counts, eligible counts, gamma ranges, alpha and posterior uncertainty by reporting group |
 | `targeted_household_results.csv` | Each eligible household's prices, first coupon, expected second coupon, price ratios, period revenue/units and revenue gains for each policy |
 | `targeted_revenue_by_gamma_group.csv` | Revenues and units summed by policy and gamma group; mean prices/discounts/ratios |
@@ -247,6 +260,13 @@ Run synthetic checks without supplying any empirical paths:
 
 ```bash
 python3 pricing_exercises/run_empirical_targeting.py --self-test
+```
+
+To check the first-observation initialization and an independent scalar
+backward-induction benchmark without reading or writing any CSV files:
+
+```bash
+python3 -m unittest pricing_exercises.test_empirical_timing -v
 ```
 
 Checks cover posterior weights against a scalar likelihood, basket probability

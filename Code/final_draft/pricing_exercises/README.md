@@ -46,7 +46,11 @@ have no defaults, and no empirical file discovery is performed.
 
 The default treats posterior mean household types as known and optimizes
 household-specific coupons by backward induction over every 1% discount from
-0% through 100%. Terminal coupons depend on
+0% through 100%. Timing is each household's first observed choice establishing `h0`, then
+`p1(h0)`, a basket establishing `h1`, and terminal `p2(h1)`: three choice
+dates with two pricing decisions. The first observed menu, prices and controls
+are carried forward; estimated types still use the complete sample.
+Terminal coupons depend on
 realized consumption histories. Low/high gamma households receive personalized
 offers; the middle group remains at posted prices. The comparison policies are
 no coupons and household-specific myopic pricing. Revenue is net of coupons.

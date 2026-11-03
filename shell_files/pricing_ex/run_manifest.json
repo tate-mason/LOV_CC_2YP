@@ -106,7 +106,7 @@
       0.99,
       1.0
     ],
-    "demand_delta": 1.0,
+    "demand_delta": 0.95,
     "batch_size": 24,
     "type_treatment": "posterior-mean",
     "save_state_policies": false,
@@ -235,15 +235,15 @@
       0.99,
       1.0
     ],
-    "demand_delta": 1.0,
+    "demand_delta": 0.95,
     "type_treatment": "posterior-mean",
     "aggregate": [
       {
         "policy": "no_coupon",
         "revenue1": 7941.2331205741975,
         "revenue2": 7986.06124921728,
-        "discounted_revenue": 15927.294369791478,
-        "baseline_revenue": 15927.294369791478,
+        "discounted_revenue": 15527.991307330614,
+        "baseline_revenue": 15527.991307330614,
         "revenue_change": 0.0,
         "berry_units1": 8750.75044869071,
         "berry_units2": 8797.132003003338,
@@ -252,19 +252,19 @@
       },
       {
         "policy": "personalized_dynamic",
-        "revenue1": 8294.650780612397,
-        "revenue2": 8346.00473254269,
-        "discounted_revenue": 16640.65551315509,
-        "baseline_revenue": 15927.294369791478,
-        "revenue_change": 713.361143363609,
-        "berry_units1": 9210.423866980533,
-        "berry_units2": 9253.619323121167,
-        "coupon_expenditure": 2092.1327414645903,
-        "revenue_change_pct": 4.4788595401150255
+        "revenue1": 8294.672881245337,
+        "revenue2": 8345.981885517429,
+        "discounted_revenue": 16223.355672486894,
+        "baseline_revenue": 15527.991307330614,
+        "revenue_change": 695.3643651562805,
+        "berry_units1": 9210.339600378546,
+        "berry_units2": 9253.606313576121,
+        "coupon_expenditure": 2040.0045395081381,
+        "revenue_change_pct": 4.478134688470657
       }
     ]
   },
-  "script_sha256": "2c25daaf3d9d8d90a69968b13cdb8d60c04ff7948234eb3c3f95ddf289016960",
+  "script_sha256": "c6b3650db49a8017dd4bc2f3d129cbb8a00a49e7eaefa331c40ddce65ff7b7b1",
   "versions": {
     "python": "3.12.3 (main, Apr 11 2025, 11:51:19) [GCC 13.3.0]",
     "numpy": "2.4.6",

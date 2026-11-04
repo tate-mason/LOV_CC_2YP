@@ -220,3 +220,12 @@ CSVs, so it was not used during this no-CSV development work.
 
 This refactor does not re-estimate the empirical model or claim new empirical
 results. See `checks/VALIDATION.md` for the checks actually completed.
+
+
+## Gamma uncertainty with observed initial state
+
+Run `python3 supply/unknown_type.py`. The firm knows h0 and chooses one policy
+against a distribution over unobserved gamma in {-1.25,0,+1.25}. Each of the
+four priors has a figure showing the uncertainty, optimal prices for both
+known initial states, and expected profit. Edit Parameters near the top.
+See [the pricing guide](supply/PRICING_EXERCISES.md).

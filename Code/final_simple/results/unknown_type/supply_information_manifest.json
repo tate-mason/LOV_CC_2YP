@@ -1,0 +1,14 @@
+{
+  "settings": {
+    "output": "/Users/tate/LOV_CC_2YP/Code/final_simple/results/unknown_type",
+    "probability_points": 41,
+    "beta": 2.0,
+    "alpha": -1.0,
+    "delta": 0.92,
+    "cost": 0.0
+  },
+  "information": "h0 known in every case; gamma uncertain except in revealed-type benchmark",
+  "varying": "Probability of one gamma; other two types split remaining probability equally",
+  "script_sha256": "7d5faf2c565665d8c2ef1093e5ec599e1f49724c139c6b777f1863f25a808a2c",
+  "solver_sha256": "70dbde8a1ceb67a29bd246bbcbe74e35a469ea885ae0d56771173602da458231"
+}

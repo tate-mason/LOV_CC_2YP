@@ -1,5 +1,15 @@
 # Two separate pricing exercises
 
+## Gamma uncertainty with observed initial state
+
+[The unknown-gamma exercise](unknown_type/README.md) solves one optimal policy
+for each known h0 and prior over gamma in {−1.25, 0, +1.25}. The four priors
+are the three permutations of (.5,.25,.25) and exact equal thirds.
+Figures show the gamma distribution, the common optimal price policy and
+maximized expected profit. Gamma is unobserved; the firm cannot price by true type.
+
+The pre-existing supply and empirical scripts below remain available.
+
 The theoretical supply extensions and empirical targeting exercise have separate,
 standalone scripts. Neither script imports or changes the estimation script.
 Dependencies are NumPy, pandas and matplotlib; SciPy is not required.

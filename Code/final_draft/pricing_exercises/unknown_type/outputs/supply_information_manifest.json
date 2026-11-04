@@ -1,0 +1,14 @@
+{
+  "settings": {
+    "output": "/Users/tate/LOV_CC_2YP/Code/final_draft/pricing_exercises/unknown_type/outputs",
+    "probability_points": 41,
+    "beta": 2.0,
+    "alpha": -1.0,
+    "delta": 0.92,
+    "cost": 0.0
+  },
+  "information": "h0 known in every case; gamma uncertain except in revealed-type benchmark",
+  "varying": "Probability of one gamma; other two types split remaining probability equally",
+  "script_sha256": "c4cb2c496d41f924624858523b204abc58c535b4ffba6a5ecdd44a2945262eda",
+  "solver_sha256": "525cf3cc82f3cff819d24ee9f717861485fa451a5ca19a276525338ddc05ba6d"
+}

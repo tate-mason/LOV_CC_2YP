@@ -1,0 +1,9 @@
+Known h0, unobserved gamma. One price policy per prior and observed history.
+settings: {'output': '/Users/tate/LOV_CC_2YP/Code/final_simple/results/unknown_type', 'beta': 2.0, 'alpha': -1.0, 'delta': 0.92, 'cost': 0.0, 'self_test': False}
+information: h0 observed, gamma unobserved and fixed; h1 observed before p2
+gamma_values: [-1.25, 0.0, 1.25]
+priors: {'favor_negative': [0.5, 0.25, 0.25], 'favor_zero': [0.25, 0.5, 0.25], 'favor_positive': [0.25, 0.25, 0.5], 'equal': [0.3333333333333333, 0.3333333333333333, 0.3333333333333333]}
+maximum_foc_residual: 1.6783730389866025e-08
+denser_search_verified: True
+script_sha256: 70dbde8a1ceb67a29bd246bbcbe74e35a469ea885ae0d56771173602da458231
+solver_sha256: 2cef15c7091e8ffca2151bcde872fd551672f13c36fe36f2e4730a066cd94bf2

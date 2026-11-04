@@ -101,3 +101,28 @@ Data implementation changes are documented in `data/README.md`: the retail
 merge/master-match path is made consistent, temporary year files are private to
 the run, and summary calculations use Parquet checkpoints alongside the retained
 CSV/LaTeX outputs. No empirical dataset was rebuilt or model re-estimated.
+
+
+## Unknown gamma, observed h0 (November 4, 2026)
+
+The corrected exercise has one unknown-gamma policy per prior and known h0.
+There are no known-type or commitment output cases and no extra initial-state
+runner. Tests enforce that prices cannot vary with unobserved true gamma.
+Bayesian posteriors, probability mass, profit reconstruction, FOCs and
+known-type limiting cases are checked. A denser price search verifies values.
+
+`checks/compare_pricing_exercises.py` compares all original empirical pricing
+output columns on synthetic households (both type treatments; capacities
+1/2/7; discount factors 0/.95), baseline supply calculations at 25 calibrations,
+and every corrected unknown-gamma solution and posterior. Empirical CSV reads
+are blocked. The simplified runner and final_draft also produce matching
+numerical CSVs and PNG graphs. No empirical estimation was performed.
+
+
+Additional supply_information figures retain the original horizontal three-panel
+layout, varying the probability of each gamma in turn with h0 known. All 252
+sweep calibrations satisfy FOCs and the information ordering. Denser scans
+verify endpoint, .5 and equal-thirds values. The earlier four discrete-prior
+policies are recovered at the corresponding sweep points (prices within 1e-6,
+profits within 1e-10). All plotted rows match final_draft at 1e-12 tolerance,
+and all six PNG files match exactly. The existing policy plots are retained.

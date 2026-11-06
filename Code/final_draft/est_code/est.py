@@ -4,6 +4,13 @@ Read README.md first. Run `python3 est.py --help` for server paths and options.
 The raw data are not required for importing or testing the likelihood.
 """
 
+# Empirical I/O is permitted only on the research server, never on this computer.
+from pathlib import Path as _PolicyPath
+import sys as _policy_sys
+_policy_root = next(p for p in _PolicyPath(__file__).resolve().parents if (p / "Code/privacy/server_data_policy.py").is_file())
+_policy_sys.path.insert(0, str(_policy_root / "Code/privacy"))
+from server_data_policy import server_only, require_server
+
 from pathlib import Path
 import argparse
 import json
@@ -46,6 +53,7 @@ def normalized_upc_expr():
     )
 
 
+@server_only
 def read_flavors(path, products_extra=None):
     """Use the same plain-first classification as data_code/summ_stats.py."""
     frame = pd.read_csv(path, dtype={"upc": str})
@@ -162,6 +170,7 @@ def week_dates(values):
     )
 
 
+@server_only
 def prepare_data(args):
     """Use only the merged purchase table, including its existing prices.
 
@@ -665,6 +674,7 @@ def plot_history_distributions(table, output, converged=True):
     export_history_distributions(table, output, converged)
 
 
+@server_only
 def fit_model(data, args, frame=None):
     """Estimate demand, compute requested inference, and save readable outputs."""
     best, results, bounds = optimize_demand(data, args)
@@ -752,6 +762,7 @@ def fit_model(data, args, frame=None):
     return best
 
 
+@server_only
 def main(default_model="heterogeneous", default_no_price_control=False):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
@@ -765,7 +776,7 @@ def main(default_model="heterogeneous", default_no_price_control=False):
         type=Path,
         help="Annual flavor metadata; defaults to RMS/combined/products_extra.parquet beside the RMS data directory.",
     )
-    parser.add_argument("--output", type=Path, default=Path("estimation_output"))
+    parser.add_argument("--output", type=Path, default=Path("/scratch/dtm63837/Kilts_Panel/results/estimation_split"))
     parser.add_argument(
         "--model",
         choices=["naive", "homogeneous", "mixed_naive", "heterogeneous", "mixture", "separate_history", "heterogeneous_history"],

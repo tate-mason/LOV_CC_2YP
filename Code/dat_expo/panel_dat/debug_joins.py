@@ -1,3 +1,11 @@
+
+# Empirical I/O is permitted only on the research server, never on this computer.
+from pathlib import Path as _PolicyPath
+import sys as _policy_sys
+_policy_root = next(p for p in _PolicyPath(__file__).resolve().parents if (p / "Code/privacy/server_data_policy.py").is_file())
+_policy_sys.path.insert(0, str(_policy_root / "Code/privacy"))
+from server_data_policy import server_only, require_server, require_legacy_server
+require_legacy_server()
 import os
 import polars as pl
 
@@ -49,7 +57,7 @@ if tp_df.height == 0:
     print("   - Sample Trips HHs:   ", t_df["household_code"].head(5).to_list())
     print("   - Sample Panelist Years:", p_df["panel_year"].unique().to_list())
     print("   - Sample Trips Years:   ", t_df["panel_year"].unique().to_list())
-    
+
     # Cross-check if HH overlap exists ignoring year
     hh_overlap = set(p_df["household_code"]).intersection(set(t_df["household_code"]))
     print(f"   - HH code overlap (ignoring panel_year): {len(hh_overlap)} matching IDs")
@@ -76,7 +84,7 @@ if tpp_df.height == 0:
     print("\n   Sample Values:")
     print("   - Sample Trips trip_code_uc:    ", tp_df["trip_code_uc"].head(5).to_list())
     print("   - Sample Purchases trip_code_uc:", pur_df["trip_code_uc"].head(5).to_list())
-    
+
     code_overlap = set(tp_df["trip_code_uc"]).intersection(set(pur_df["trip_code_uc"]))
     print(f"   - trip_code_uc overlap (ignoring panel_year): {len(code_overlap)} matching IDs")
     exit(1)

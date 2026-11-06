@@ -1,3 +1,17 @@
+* Empirical records must remain on the research server.
+if "`c(os)'" != "Unix" {
+    display as error "Server-only empirical workflow: do not run on this computer."
+    exit 603
+}
+capture confirm file "/scratch/dtm63837/Kilts_Panel"
+* Require the server filesystem via a directory change, then restore the working directory.
+local policy_cwd "`c(pwd)'"
+capture cd "/scratch/dtm63837/Kilts_Panel"
+if _rc {
+    display as error "Research server filesystem is required."
+    exit 603
+}
+cd "`policy_cwd'"
 /**********************************************************
  *
  * FORECAST_IRI.DO
@@ -29,7 +43,7 @@ foreach CAT in `CATS' {
 	preserve
 	keep if category=="`CAT'"
 	save `catdata', replace
-		
+
 	*** FIRST STAGE (1): REGRESSION ANALYSIS USING ONLY MONTHLY VARIATION (COLLAPSE GEOGRAPHY) ***
 	collapse (sum) volume* revenue* (mean) feature* display* upc* avail*, by(period brand1 brand2)
 	** MAKE VARIABLES
@@ -56,14 +70,14 @@ foreach CAT in `CATS' {
 	gen relupc = upcs1/upcs2
 	gen relavail = avail1/avail2
 	xi i.market
-	
+
 	statsby _b _se e(r2) e(N), saving(`relpriceout_panel', replace): areg share1 relprice _I*, absorb(week)
 	statsby _b _se e(r2) e(N), saving(`relfeatout_panel', replace):  areg share1 relfeat _I*, absorb(week)
 	statsby _b _se e(r2) e(N), saving(`reldispout_panel', replace):  areg share1 reldisp _I*, absorb(week)
 	statsby _b _se e(r2) e(N), saving(`relupcout_panel', replace):	 areg share1 relupc _I*, absorb(week)
 	statsby _b _se e(r2) e(N), saving(`relavailout_panel', replace): areg share1 relavail _I*, absorb(week)
 
-	
+
 	*** SECOND STAGE: FORECASTING EXERCISE USING ONLY GEOGRAPHIC VARIATION ***
 	use `catdata', clear
 
@@ -87,7 +101,7 @@ foreach CAT in `CATS' {
 	gen rhoupc = r(rho)
 	corr share1 relavail
 	gen rhoavail = r(rho)
-	
+
 	** MERGE REGRESSION COEFFICIENTS BACK WITH MASTER DATA
 	** FIRST USE TIME-SERIES ONLY
 	local VARS "relprice relfeat reldisp relupc relavail"
@@ -106,7 +120,7 @@ foreach CAT in `CATS' {
 			corr share1 shhat_`VAR'
 			gen corr`VAR' = r(rho)
 		}
-	}	
+	}
 
 	** SECOND USE PANEL VARIATION
 	local VARS "relprice relfeat reldisp relupc relavail"
@@ -125,9 +139,9 @@ foreach CAT in `CATS' {
 			corr share1 shhat_`VAR'_panel
 			gen corr`VAR'_panel = r(rho)
 		}
-	}	
+	}
 
-	
+
 	keep category brand1 brand2 corr* rmse* rho*
 	keep if _n==1
 	*** APPEND ***

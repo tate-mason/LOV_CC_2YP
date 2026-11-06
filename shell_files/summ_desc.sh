@@ -10,6 +10,12 @@
 #SBATCH --mail-user=dtm63837@uga.edu    # Where to send mail
 #SBATCH --mail-type=END,FAIL            # Mail events (BEGIN, END, FAIL, ALL)
 
+# Refuse empirical execution on this computer, even with local path overrides.
+if [[ "$(uname -s)" != "Linux" || ! -d /scratch/dtm63837/Kilts_Panel ]]; then
+    echo "Server-only empirical workflow. Copy back results only, never research records." >&2
+    exit 1
+fi
+
 set -euo pipefail
 git pull
 ml Python/3.13.5-GCCcore-14.3.0 # Load Python

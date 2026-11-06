@@ -13,19 +13,24 @@
 % INPUTS:
 %	p   string      name of parameter to load
 %   f   string      name/path of file to load from
-%	
+%
 % OUTPUTS:
 %	v   scalar      value of parameter
-%	
+%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 function v = loadparam(p,f)
 
-if nargin~=2 
+% Empirical records remain on the research server.
+if ~isunix || ismac || ~isfolder('/scratch/dtm63837/Kilts_Panel')
+    error('ServerOnly:ResearchData', 'Run empirical code on the research server only.');
+end
+
+if nargin~=2
     error('Function loadparam must be called with exactly two inputs')
 end
-if ~ischar(p) || ~ischar(f) 
+if ~ischar(p) || ~ischar(f)
     error('Inputs p and f must be strings')
 end
 

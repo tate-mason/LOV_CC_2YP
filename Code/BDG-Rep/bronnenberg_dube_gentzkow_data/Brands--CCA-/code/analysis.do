@@ -1,3 +1,17 @@
+* Empirical records must remain on the research server.
+if "`c(os)'" != "Unix" {
+    display as error "Server-only empirical workflow: do not run on this computer."
+    exit 603
+}
+capture confirm file "/scratch/dtm63837/Kilts_Panel"
+* Require the server filesystem via a directory change, then restore the working directory.
+local policy_cwd "`c(pwd)'"
+capture cd "/scratch/dtm63837/Kilts_Panel"
+if _rc {
+    display as error "Research server filesystem is required."
+    exit 603
+}
+cd "`policy_cwd'"
 /**********************************************************
  *
  * ANALYSIS.DO
@@ -30,7 +44,7 @@ tempfile temp
 **********************************************************
 * DESCRIBE MATCHES
 **********************************************************
-u `cca_hs_brand', clear	
+u `cca_hs_brand', clear
 keep brand module
 duplicates drop
 mmerge brand using `by_brand', type(n:1) unm(master) ukeep(rank)
@@ -124,7 +138,7 @@ graph export "..\output\figures\scatter.eps", replace
 
 * Graphs of share_cca vs share_hs
 replace module_name = subinstr(module_name,"/","-",.)
-levelsof module_name if numstates>5, local(mod) 
+levelsof module_name if numstates>5, local(mod)
 foreach m in `mod' {
 	levelsof brand_name1 if module_name=="`m'", local(br1) clean
 	levelsof brand_name2 if module_name=="`m'", local(br2) clean
@@ -132,7 +146,7 @@ foreach m in `mod' {
 		mlabel(state) title("`m'") subtitle(`"Brands: `br1' & `br2'"')  xtitle(Purchase Share 2006-2008 (Homescan)) ytitle(Purchase Share 1948-1968 (CCA))  ///
 		xlabel(0(.1)1) ylabel(0(.1)1) scale(.8) yscale(range(0 1)) xscale(range(0 1))
 	graph export "..\output\figures\predict_shares_`m'.eps", replace
-} 
+}
 
 *****************************************************************
 * OUTPUT STATE-MODULE PAIRS

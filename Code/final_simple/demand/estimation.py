@@ -4,6 +4,13 @@ Read from top to bottom: inputs -> weekly data -> histories -> probabilities ->
 likelihood -> optimization -> standard errors -> saved results.
 No calculations are imported from final_draft. All seven model choices remain.
 """
+
+# Empirical I/O is permitted only on the research server, never on this computer.
+from pathlib import Path as _PolicyPath
+import sys as _policy_sys
+_policy_root = next(p for p in _PolicyPath(__file__).resolve().parents if (p / "Code/privacy/server_data_policy.py").is_file())
+_policy_sys.path.insert(0, str(_policy_root / "Code/privacy"))
+from server_data_policy import server_only, require_server
 from pathlib import Path
 from statistics import NormalDist
 from types import SimpleNamespace
@@ -36,7 +43,7 @@ DATA_DIR = Path("/scratch/dtm63837/Kilts_Panel/Data")
 sample = DATA_DIR / "summary_outputs/yogurt_estimation_sample.parquet"
 flavors = DATA_DIR / "summary_outputs/estimation_flavor_reference.csv"
 products_extra = None                 # Optional flavor metadata for older inputs.
-output = Path(__file__).resolve().parents[1] / "results" / "estimation_split"
+output = Path("/scratch/dtm63837/Kilts_Panel/results") / "estimation_split"
 
 # Main model: common beta, household-specific alpha, novelty, and own-stock habit.
 # Other choices: naive, homogeneous, mixed_naive, mixture,
@@ -207,6 +214,7 @@ def normalized_upc_expr():
         .alias("upc")
     )
 
+@server_only
 def read_flavors(path, products_extra=None):
     """Use the same plain-first classification as data_code/summ_stats.py."""
     frame = pd.read_csv(path, dtype={"upc": str})
@@ -323,6 +331,7 @@ def week_dates(values):
 
 # Build one row per household-week. Counts come from all stores; prices use the exposure
 # store. History is built before unusable weeks are removed.
+@server_only
 def prepare_data(settings):
     """Use only the merged purchase table, including its existing prices.
 
@@ -809,6 +818,7 @@ def resample_households(frame, rng):
 
 # Resample households, refit price controls, and refit demand. The spread across
 # successful fits gives the standard errors.
+@server_only
 def bootstrap_standard_errors(frame, settings, estimate, initial, names):
     """Refit price controls AND demand in every household-cluster replication.
 
@@ -1071,6 +1081,7 @@ def write_run_notes(output, information):
 
 # Save point estimates first, then run the requested inference and write final tables,
 # plots, and run notes.
+@server_only
 def fit_model(data, settings, frame=None):
     """Estimate demand, compute requested inference, and save readable outputs."""
     best, results, bounds = optimize_demand(data, settings)
@@ -1178,7 +1189,7 @@ def read_command_line(settings):
         type=Path,
         help="Annual flavor metadata; defaults to RMS/combined/products_extra.parquet beside the RMS data directory.",
     )
-    parser.add_argument("--output", type=Path, default=Path("estimation_output"))
+    parser.add_argument("--output", type=Path, default=Path("/scratch/dtm63837/Kilts_Panel/results/estimation_split"))
     parser.add_argument(
         "--model",
         choices=["naive", "homogeneous", "mixed_naive", "heterogeneous", "mixture", "separate_history", "heterogeneous_history"],
@@ -1220,6 +1231,7 @@ def read_command_line(settings):
 
 
 
+@server_only
 def run_estimation(settings):
     """The actual research steps, in the order they run."""
     if not 0 <= settings.habit_weight <= 1 or settings.capacity < 0 or settings.starts < 1:

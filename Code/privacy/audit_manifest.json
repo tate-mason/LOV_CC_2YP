@@ -1,0 +1,447 @@
+[
+  {
+    "file": "Code/dat_expo/code_check.py",
+    "preexisting_syntax_error": true
+  },
+  {
+    "file": "Code/dat_expo/master_dat.py",
+    "functions": [],
+    "top_level_blocked": true
+  },
+  {
+    "file": "Code/dat_expo/panel_dat/debug_joins.py",
+    "functions": [],
+    "top_level_blocked": true
+  },
+  {
+    "file": "Code/dat_expo/panel_dat/panel_concat.py",
+    "functions": [],
+    "top_level_blocked": true
+  },
+  {
+    "file": "Code/dat_expo/panel_dat/panel_convert.py",
+    "functions": [],
+    "top_level_blocked": true
+  },
+  {
+    "file": "Code/dat_expo/panel_dat/panel_merge.py",
+    "functions": [],
+    "top_level_blocked": true
+  },
+  {
+    "file": "Code/dat_expo/retail_dat/debug_joins.py",
+    "functions": [],
+    "top_level_blocked": true
+  },
+  {
+    "file": "Code/dat_expo/retail_dat/retail_concat.py",
+    "functions": [],
+    "top_level_blocked": true
+  },
+  {
+    "file": "Code/dat_expo/retail_dat/retail_convert.py",
+    "functions": [],
+    "top_level_blocked": true
+  },
+  {
+    "file": "Code/dat_expo/retail_dat/retail_merge.py",
+    "functions": [],
+    "top_level_blocked": true
+  },
+  {
+    "file": "Code/est_new/random_coefficients_logit.py",
+    "functions": [
+      "main"
+    ],
+    "top_level_blocked": false
+  },
+  {
+    "file": "Code/est_yogurt/dat_check.py",
+    "functions": [],
+    "top_level_blocked": true
+  },
+  {
+    "file": "Code/est_yogurt/est_struc_framework.py",
+    "functions": [
+      "build_merged_panel"
+    ],
+    "top_level_blocked": true
+  },
+  {
+    "file": "Code/est_yogurt/est_struc_refactor.py",
+    "functions": [
+      "build_merged_panel"
+    ],
+    "top_level_blocked": true
+  },
+  {
+    "file": "Code/est_yogurt/est_yogurt.py",
+    "functions": [],
+    "top_level_blocked": true
+  },
+  {
+    "file": "Code/final_draft/data_code/cleaning_merging/master_dat.py",
+    "functions": [],
+    "top_level_blocked": true
+  },
+  {
+    "file": "Code/final_draft/data_code/cleaning_merging/panel_concat.py",
+    "functions": [],
+    "top_level_blocked": true
+  },
+  {
+    "file": "Code/final_draft/data_code/cleaning_merging/panel_convert.py",
+    "functions": [],
+    "top_level_blocked": true
+  },
+  {
+    "file": "Code/final_draft/data_code/cleaning_merging/panel_merge.py",
+    "functions": [],
+    "top_level_blocked": true
+  },
+  {
+    "file": "Code/final_draft/data_code/cleaning_merging/panel_week.py",
+    "functions": [],
+    "top_level_blocked": true
+  },
+  {
+    "file": "Code/final_draft/data_code/cleaning_merging/retail_concat.py",
+    "functions": [],
+    "top_level_blocked": true
+  },
+  {
+    "file": "Code/final_draft/data_code/cleaning_merging/retail_convert.py",
+    "functions": [],
+    "top_level_blocked": true
+  },
+  {
+    "file": "Code/final_draft/data_code/cleaning_merging/retail_merge.py",
+    "functions": [],
+    "top_level_blocked": true
+  },
+  {
+    "file": "Code/final_draft/data_code/recover_flavors.py",
+    "functions": [
+      "main"
+    ],
+    "top_level_blocked": false
+  },
+  {
+    "file": "Code/final_draft/data_code/summ_stats.py",
+    "functions": [
+      "scan_purchases",
+      "partition_purchases",
+      "household_batches",
+      "save_table",
+      "scan_reference",
+      "recover_flavor_reference",
+      "flavor_summaries",
+      "make_hhi_figures",
+      "run",
+      "main"
+    ],
+    "top_level_blocked": false
+  },
+  {
+    "file": "Code/final_draft/est_code/bootstrap_se.py",
+    "functions": [
+      "bootstrap_standard_errors"
+    ],
+    "top_level_blocked": false
+  },
+  {
+    "file": "Code/final_draft/est_code/est.py",
+    "functions": [
+      "read_flavors",
+      "prepare_data",
+      "fit_model",
+      "main"
+    ],
+    "top_level_blocked": false
+  },
+  {
+    "file": "Code/final_draft/est_code/regenerate_weekly_inputs.py",
+    "functions": [
+      "regenerate",
+      "main"
+    ],
+    "top_level_blocked": false
+  },
+  {
+    "file": "Code/final_draft/pricing_exercises/run_empirical_targeting.py",
+    "functions": [
+      "targeted_coupons",
+      "run_households",
+      "main"
+    ],
+    "top_level_blocked": false
+  },
+  {
+    "file": "Code/final_draft/pricing_exercises/run_pricing_exercises.py",
+    "functions": [
+      "main"
+    ],
+    "top_level_blocked": false
+  },
+  {
+    "file": "Code/final_draft/pricing_exercises/run_split_targeting.py",
+    "functions": [
+      "targeted_coupons",
+      "run_households",
+      "main"
+    ],
+    "top_level_blocked": false
+  },
+  {
+    "file": "Code/final_simple/data/build_data.py",
+    "functions": [
+      "convert_one_file",
+      "clean_parquet_files",
+      "combine_panel_files",
+      "combine_retail_files",
+      "merge_panel_files",
+      "attach_panel_weeks",
+      "merge_retail_files",
+      "match_yogurt_files",
+      "audit_file",
+      "run_build"
+    ],
+    "top_level_blocked": false
+  },
+  {
+    "file": "Code/final_simple/data/summaries.py",
+    "functions": [
+      "scan_purchases",
+      "partition_purchases",
+      "summarize_household_batches",
+      "save_table",
+      "scan_reference",
+      "recover_flavor_reference",
+      "flavor_summaries",
+      "make_hhi_figures",
+      "prepare_summary_samples",
+      "summarize_flavor_groups",
+      "save_estimation_sample",
+      "run",
+      "run_summaries"
+    ],
+    "top_level_blocked": false
+  },
+  {
+    "file": "Code/final_simple/demand/estimation.py",
+    "functions": [
+      "read_flavors",
+      "prepare_data",
+      "bootstrap_standard_errors",
+      "fit_model",
+      "run_estimation"
+    ],
+    "top_level_blocked": false
+  },
+  {
+    "file": "Code/final_simple/demand/plain_berry_pricing.py",
+    "functions": [
+      "run_comparison"
+    ],
+    "top_level_blocked": false
+  },
+  {
+    "file": "Code/final_simple/demand/pricing.py",
+    "functions": [
+      "targeted_coupons",
+      "run_households",
+      "run_pricing"
+    ],
+    "top_level_blocked": false
+  },
+  {
+    "file": "Code/final_simple/demand/regenerate_weekly_inputs.py",
+    "functions": [
+      "regenerate",
+      "main"
+    ],
+    "top_level_blocked": false
+  },
+  {
+    "file": "Code/final_simple/demand/split_pricing.py",
+    "functions": [
+      "targeted_coupons",
+      "run_households",
+      "run_pricing"
+    ],
+    "top_level_blocked": false
+  },
+  {
+    "file": "Code/full_draft_0901/data.py",
+    "functions": [],
+    "top_level_blocked": true
+  },
+  {
+    "file": "Code/full_draft_0901/estimation.py",
+    "functions": [],
+    "top_level_blocked": true
+  },
+  {
+    "file": "Code/full_draft_1231/data.py",
+    "functions": [],
+    "top_level_blocked": true
+  },
+  {
+    "file": "Code/full_draft_1231/data_merge.py",
+    "functions": [
+      "build_panel",
+      "build_retail",
+      "audit_merge",
+      "main"
+    ],
+    "top_level_blocked": false
+  },
+  {
+    "file": "Code/full_draft_1231/diagnose_merge.py",
+    "functions": [
+      "main"
+    ],
+    "top_level_blocked": false
+  },
+  {
+    "file": "Code/full_draft_1231/est_hh_demo.py",
+    "functions": [
+      "load_and_preprocess_pairwise",
+      "main"
+    ],
+    "top_level_blocked": false
+  },
+  {
+    "file": "Code/full_draft_1231/est_ind_flav.py",
+    "functions": [
+      "load_and_preprocess_binary",
+      "main"
+    ],
+    "top_level_blocked": false
+  },
+  {
+    "file": "Code/full_draft_1231/est_step2.py",
+    "functions": [
+      "load_and_preprocess",
+      "main"
+    ],
+    "top_level_blocked": false
+  },
+  {
+    "file": "Code/full_draft_1231/est_step3.py",
+    "functions": [
+      "load_and_preprocess_unbinned",
+      "main"
+    ],
+    "top_level_blocked": false
+  },
+  {
+    "file": "Code/full_draft_1231/est_step4.py",
+    "functions": [
+      "load_and_preprocess",
+      "diagnose_within",
+      "estimate_within_fixed_effects",
+      "display_results",
+      "profile_parameters",
+      "run_recovery",
+      "main"
+    ],
+    "top_level_blocked": false
+  },
+  {
+    "file": "Code/full_draft_1231/estimation_step1.py",
+    "functions": [
+      "load_and_preprocess",
+      "main"
+    ],
+    "top_level_blocked": false
+  },
+  {
+    "file": "Code/full_draft_1231/inter_intra_est.py",
+    "functions": [
+      "load_and_preprocess",
+      "main"
+    ],
+    "top_level_blocked": false
+  },
+  {
+    "file": "Code/BDG-Rep/bronnenberg_dube_gentzkow_data/Brands--First-Stage-/code/define_sample.do",
+    "stata_server_guard": true
+  },
+  {
+    "file": "Code/BDG-Rep/bronnenberg_dube_gentzkow_data/Brands--First-Stage-/code/format_data.do",
+    "stata_server_guard": true
+  },
+  {
+    "file": "Code/BDG-Rep/bronnenberg_dube_gentzkow_data/Brands--First-Stage-/code/format_data_bp.do",
+    "stata_server_guard": true
+  },
+  {
+    "file": "Code/BDG-Rep/bronnenberg_dube_gentzkow_data/Brands--IRI-Elasticities-/code/cross_market.do",
+    "stata_server_guard": true
+  },
+  {
+    "file": "Code/BDG-Rep/bronnenberg_dube_gentzkow_data/Brands--IRI-Elasticities-/code/text.do",
+    "stata_server_guard": true
+  },
+  {
+    "file": "Code/BDG-Rep/bronnenberg_dube_gentzkow_data/Brands--IRI-Elasticities-/code/tables.do",
+    "stata_server_guard": true
+  },
+  {
+    "file": "Code/BDG-Rep/bronnenberg_dube_gentzkow_data/Brands--IRI-Elasticities-/code/binaryLogit_IRI.do",
+    "stata_server_guard": true
+  },
+  {
+    "file": "Code/BDG-Rep/bronnenberg_dube_gentzkow_data/Brands--IRI-Elasticities-/code/forecast_IRI.do",
+    "stata_server_guard": true
+  },
+  {
+    "file": "Code/BDG-Rep/bronnenberg_dube_gentzkow_data/Brands--IRI-Elasticities-/code/preclean.do",
+    "stata_server_guard": true
+  },
+  {
+    "file": "Code/BDG-Rep/bronnenberg_dube_gentzkow_data/Brands--Descriptive-/code/text.do",
+    "stata_server_guard": true
+  },
+  {
+    "file": "Code/BDG-Rep/bronnenberg_dube_gentzkow_data/Brands--Descriptive-/code/figures.do",
+    "stata_server_guard": true
+  },
+  {
+    "file": "Code/BDG-Rep/bronnenberg_dube_gentzkow_data/Brands--Descriptive-/code/tables.do",
+    "stata_server_guard": true
+  },
+  {
+    "file": "Code/BDG-Rep/bronnenberg_dube_gentzkow_data/Brands--Descriptive-/code/preclean_mod_char.do",
+    "stata_server_guard": true
+  },
+  {
+    "file": "Code/BDG-Rep/bronnenberg_dube_gentzkow_data/Brands--Descriptive-/code/preclean.do",
+    "stata_server_guard": true
+  },
+  {
+    "file": "Code/BDG-Rep/bronnenberg_dube_gentzkow_data/Brands--Descriptive-/code/online_appendix.do",
+    "stata_server_guard": true
+  },
+  {
+    "file": "Code/BDG-Rep/bronnenberg_dube_gentzkow_data/Brands--CCA-/code/analysis.do",
+    "stata_server_guard": true
+  },
+  {
+    "file": "Code/BDG-Rep/bronnenberg_dube_gentzkow_data/Brands--CCA-/code/preclean.do",
+    "stata_server_guard": true
+  },
+  {
+    "file": "Code/BDG-Rep/bronnenberg_dube_gentzkow_data/Brands--Structural-/code/Text.do",
+    "stata_server_guard": true
+  },
+  {
+    "file": "Code/BDG-Rep/bronnenberg_dube_gentzkow_data/Brands--Structural-/code/ShareChange.do",
+    "stata_server_guard": true
+  },
+  {
+    "file": "Code/BDG-Rep/bronnenberg_dube_gentzkow_data/Brands--Structural-/code/ToMatlab.do",
+    "stata_server_guard": true
+  }
+]

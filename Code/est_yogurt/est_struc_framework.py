@@ -1,3 +1,11 @@
+
+# Empirical I/O is permitted only on the research server, never on this computer.
+from pathlib import Path as _PolicyPath
+import sys as _policy_sys
+_policy_root = next(p for p in _PolicyPath(__file__).resolve().parents if (p / "Code/privacy/server_data_policy.py").is_file())
+_policy_sys.path.insert(0, str(_policy_root / "Code/privacy"))
+from server_data_policy import server_only, require_server, require_legacy_server
+require_legacy_server()
 # data loading
 import polars as pl
 import pandas as pd
@@ -24,6 +32,7 @@ rms_path          = '/scratch/dtm63837/Kilts_Panel/RMS/master_retail.parquet'
 out_path          = '/scratch/dtm63837/Kilts_Panel/nielsen_extracts/master.parquet'
 
 # Building the merged dataset from HMS and RMS
+@server_only
 def build_merged_panel(hms_path, rms_path, out_path, force):
     import os
     if os.path.exists(out_path) and not force:
@@ -33,12 +42,12 @@ def build_merged_panel(hms_path, rms_path, out_path, force):
                 pl.read_parquet(hms_path)
                 .rename({'DMA_Cd':'dma_code'})
                 .filter(pl.col('dma_code').is_in([524, 602, 751, 825]))
-                .to_pandas() # load in parquet and convert to pandas 
+                .to_pandas() # load in parquet and convert to pandas
         )
         product_panel = (
                 pl.read_parquet(rms_path)
                 .filter((pl.col('product_module_code') == 3612) | (pl.col('product_module_code') == 3603))
-                .to_pandas()                                                                                                          
+                .to_pandas()
         )
 
         agent_panel['purchase_date']   = agent_panel['purchase_date'].str.replace('-','',regex=False)
@@ -59,7 +68,7 @@ def build_merged_panel(hms_path, rms_path, out_path, force):
 
 master_df = build_merged_panel(hms_path, rms_path, out_path, force=False) # call function
 master_df = master_df.rename({'product_module_code_x':'product_module_code',
-                              'product_group_code_x':'product_group_code', 
+                              'product_group_code_x':'product_group_code',
                               'size1_code_uc_x':'size1_code_uc',
                               'size1_units_x':'size1_units',
                               'dma_code_x':'dma_code'
@@ -84,7 +93,7 @@ master_df = master_df.assign(
             master_df['flavor_code'].isin([5537, 5539, 66938, 5658, 72317]), # vanilla
             master_df['flavor_code'].isin([66438, 66684, 71101, 72483,19061, 16102,  61082, 61487, 57428, 67420, 78857, 1154, 26050, 1216]), # mixed flavors
             master_df['flavor_code'].isin([57129, 76690, 16200, 62349, 16199, 16182, 72290, 32300, 72289, 16102, 72292, 3465, 68109, 52953, 72288]), # mixed berry
-            master_df['flavor_code'].isin([4167]) #plain 
+            master_df['flavor_code'].isin([4167]) #plain
         ],
         [1,2,3,4,5,6,7,8,9,10,11,12,13],
         default=np.nan

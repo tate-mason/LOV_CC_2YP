@@ -4,6 +4,13 @@ Run on the server: python3 summ_stats.py --help
 No data are loaded when this file is imported.
 """
 
+# Empirical I/O is permitted only on the research server, never on this computer.
+from pathlib import Path as _PolicyPath
+import sys as _policy_sys
+_policy_root = next(p for p in _PolicyPath(__file__).resolve().parents if (p / "Code/privacy/server_data_policy.py").is_file())
+_policy_sys.path.insert(0, str(_policy_root / "Code/privacy"))
+from server_data_policy import server_only, require_server
+
 from pathlib import Path
 import argparse
 import tempfile
@@ -52,6 +59,7 @@ def valid_flavor_labels(frame):
     return ~labels.isin(["", "na", "n/a", "nan", "null", "none"])
 
 
+@server_only
 def scan_purchases(path, first_year, last_year):
     """Project needed columns before loading; accept the names in current code."""
     scan = pl.scan_parquet(path)
@@ -197,6 +205,7 @@ def as_lazy(frame):
     return frame.lazy()
 
 
+@server_only
 def partition_purchases(scan, work, prefix, batches):
     """Read the projected source once, writing household hash partitions."""
     if not hasattr(pl, "PartitionBy"):
@@ -214,6 +223,7 @@ def partition_purchases(scan, work, prefix, batches):
     return parts
 
 
+@server_only
 def household_batches(scan, work, prefix, batches, partitions=None):
     # Each physical partition is read on its own; no full-source rescan per batch.
     partitions = partitions if partitions is not None else partition_purchases(scan, work, prefix, batches)
@@ -225,6 +235,7 @@ def household_batches(scan, work, prefix, batches, partitions=None):
     return pl.scan_parquet(work / f"{prefix}_*.parquet")
 
 
+@server_only
 def save_table(frame, output, name, caption):
     """Keep machine-readable CSV beside the paper-ready LaTeX table."""
     if isinstance(frame, (pl.LazyFrame, pl.DataFrame)):
@@ -276,11 +287,13 @@ def demographic_tables(households, output, prefix):
                f"{prefix.replace('_', ' ').title()}: Household purchase summary (unweighted)")
 
 
+@server_only
 def scan_reference(path):
     return pl.scan_csv(path, infer_schema=False,
                        null_values=["NA", "N/A", "NaN", "nan", "NULL", "null", "None", "<NA>"])
 
 
+@server_only
 def recover_flavor_reference(reference_path, products_path, output):
     reference = scan_reference(reference_path).with_columns(normalized_upc_expr())
     if not {"upc", "flavor_descr"}.issubset(reference.collect_schema().names()):
@@ -374,6 +387,7 @@ def yogurt_weeks(scan, reference, flavors=FLAVORS, output=None):
     return grouped, audit
 
 
+@server_only
 def flavor_summaries(weekly, output, flavors=FLAVORS):
     weekly = as_lazy(weekly)
     totals = weekly.group_by("flavor").agg(pl.col("quantity").sum().alias("packages")).collect(engine="streaming")
@@ -455,6 +469,7 @@ def flavor_summaries(weekly, output, flavors=FLAVORS):
     return shares.to_pandas(), probabilities
 
 
+@server_only
 def make_hhi_figures(output):
     """Equal-household distributions using all flavor labels, without top-20 truncation."""
     import matplotlib
@@ -526,7 +541,13 @@ def make_figures(shares, transitions, output):
     plt.close(fig)
 
 
+@server_only
 def run(args, output, work):
+    # Keep purchase-level estimation samples out of this code checkout.
+    sample_destination = (Path(output) / "yogurt_estimation_sample.parquet").resolve()
+    if sample_destination.is_relative_to(Path(__file__).resolve().parents[3]):
+        raise ValueError("Estimation samples must stay outside the code checkout; use the server data directory.")
+
     products_extra = args.products_extra or args.data_dir / "RMS/combined/products_extra.parquet"
     flavor_path = args.flavors
     if products_extra.exists():
@@ -633,6 +654,7 @@ def run(args, output, work):
     print(f"Saved summaries to {output}", flush=True)
 
 
+@server_only
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--data-dir", type=Path, default=DATA_DIR)

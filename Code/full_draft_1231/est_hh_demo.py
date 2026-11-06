@@ -1,3 +1,10 @@
+
+# Empirical I/O is permitted only on the research server, never on this computer.
+from pathlib import Path as _PolicyPath
+import sys as _policy_sys
+_policy_root = next(p for p in _PolicyPath(__file__).resolve().parents if (p / "Code/privacy/server_data_policy.py").is_file())
+_policy_sys.path.insert(0, str(_policy_root / "Code/privacy"))
+from server_data_policy import server_only, require_server
 import os
 import matplotlib.pyplot as plt
 import numpy as np
@@ -79,6 +86,7 @@ def compute_satiation_state_pairwise(
     return pd.DataFrame(inventory_records)
 
 
+@server_only
 def load_and_preprocess_pairwise(focal_flavor="berry", weekly_capacity=14):
     """
     Loads raw Nielsen panel data and constructs pairwise choice matrices:
@@ -463,6 +471,7 @@ def display_pairwise_results(results, focal_flavor="berry"):
     console.print(f"[bold]Final LL Objective:[/bold] {results['fun']:.4f}\n")
 
 
+@server_only
 def main():
     # =========================================================
     # MODEL 1: PLAIN VS BERRY

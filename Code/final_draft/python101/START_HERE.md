@@ -1,3 +1,12 @@
+# Server-only empirical execution
+
+The code now enforces a server boundary before empirical data I/O. Earlier
+local data-pipeline exercises in this book are superseded: do not run them on
+this computer. Only pure numerical/theoretical exercises and results-only work
+are local. See `Code/privacy/README.md` for enforcement and the non-data check.
+Source listings must be rebuilt after these policy edits; the previous PDF
+snapshot does not yet include the new guards.
+
 # Python 101: learning to read this research code
 
 This is a separate companion to the economic and pipeline guides. Those guides

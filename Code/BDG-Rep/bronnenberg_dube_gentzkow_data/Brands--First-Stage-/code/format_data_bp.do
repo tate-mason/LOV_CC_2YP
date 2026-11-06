@@ -1,3 +1,17 @@
+* Empirical records must remain on the research server.
+if "`c(os)'" != "Unix" {
+    display as error "Server-only empirical workflow: do not run on this computer."
+    exit 603
+}
+capture confirm file "/scratch/dtm63837/Kilts_Panel"
+* Require the server filesystem via a directory change, then restore the working directory.
+local policy_cwd "`c(pwd)'"
+capture cd "/scratch/dtm63837/Kilts_Panel"
+if _rc {
+    display as error "Research server filesystem is required."
+    exit 603
+}
+cd "`policy_cwd'"
 /**********************************************************
  *
  * STATA_TO_MATLAB.DO: Output delimited data file that
@@ -53,7 +67,7 @@ mmerge hhld_id using `temp_hh_mig', type(n:1) unmatched(master) _merge(_mig)
 drop if _nonmig==1 & _mig==1
 gen nonmig = _nonmig==3
 bysort pairid: egen nobs = total(nonmig)
-drop if nobs<500 
+drop if nobs<500
 drop nobs
 
 sort hhld_id module pairid

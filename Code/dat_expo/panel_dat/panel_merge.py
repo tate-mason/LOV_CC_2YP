@@ -1,3 +1,11 @@
+
+# Empirical I/O is permitted only on the research server, never on this computer.
+from pathlib import Path as _PolicyPath
+import sys as _policy_sys
+_policy_root = next(p for p in _PolicyPath(__file__).resolve().parents if (p / "Code/privacy/server_data_policy.py").is_file())
+_policy_sys.path.insert(0, str(_policy_root / "Code/privacy"))
+from server_data_policy import server_only, require_server, require_legacy_server
+require_legacy_server()
 import os
 import polars as pl
 
@@ -67,14 +75,14 @@ for d in general_dats:
     for y in years:
         file_path = f"{hms_dir}/{d}_{y}.parquet"
         lazy_df = pl.scan_parquet(file_path).rename(str.lower)
-        
+
         # Explicitly cast common join keys to Int64 if they exist
         cols = lazy_df.collect_schema().names()
         casts = []
         for k in ['household_code', 'panel_year', 'year', 'trip_code_uc', 'upc', 'retailer_code']:
             if k in cols:
                 casts.append(pl.col(k).cast(pl.Int64))
-        
+
         if casts:
             lazy_df = lazy_df.with_columns(casts)
 

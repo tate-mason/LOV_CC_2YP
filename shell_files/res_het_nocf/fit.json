@@ -1,0 +1,90 @@
+{
+  "model": "heterogeneous_history",
+  "price_control": false,
+  "history_specification": "separate",
+  "sample_restriction": "household_size == 1 on each purchase record",
+  "households": 15105,
+  "weeks": 281695,
+  "capacity": 7,
+  "inference": {
+    "method": "observed-information Hessian",
+    "conditional_on": "estimated price controls, retail instruments, and fixed integration draws",
+    "first_stage_uncertainty": "not included",
+    "robust": false,
+    "status": "computed; normal 95% intervals; first-stage uncertainty omitted"
+  },
+  "converged": true,
+  "message": "CONVERGENCE: RELATIVE REDUCTION OF F <= FACTR*EPSMCH",
+  "nll": 1631759.1399144072,
+  "parameters": 9,
+  "aic": 3263536.2798288143,
+  "bic": 3263604.8848586585,
+  "settings": {
+    "sample": "/scratch/dtm63837/Kilts_Panel/Data/summary_outputs/yogurt_estimation_sample.parquet",
+    "flavors": "/scratch/dtm63837/Kilts_Panel/Data/summary_outputs/estimation_flavor_reference.csv",
+    "products_extra": null,
+    "output": "res_het_nocf",
+    "model": "heterogeneous_history",
+    "first_year": 2006,
+    "last_year": 2015,
+    "max_households": null,
+    "capacity": 7,
+    "no_price_control": true,
+    "household_dma_column": "dma_cd",
+    "se_method": "hessian",
+    "bootstrap_reps": 49,
+    "bootstrap_starts": 2,
+    "habit_weight": 0.7,
+    "draws": 64,
+    "starts": 3,
+    "maxiter": 600,
+    "seed": 306
+  },
+  "starts": [
+    {
+      "nll": 1631759.1399144072,
+      "converged": true,
+      "theta": [
+        1.2134883283774807,
+        -0.6204609623715546,
+        -0.24863335791946267,
+        -0.5969461256763344,
+        -0.4172669327361196,
+        -0.023063695843194062,
+        0.8648974343683162,
+        0.7474715068312521,
+        0.10791458225950465
+      ]
+    },
+    {
+      "nll": 1672432.223313107,
+      "converged": true,
+      "theta": [
+        1.4000235888901806,
+        -0.7054176390302852,
+        -0.24300956210622526,
+        -0.32278306615127106,
+        -0.8319943802382106,
+        0.005041930235939314,
+        1.135065329054117,
+        1.13979659252576,
+        0.0
+      ]
+    },
+    {
+      "nll": 1663118.3682708642,
+      "converged": true,
+      "theta": [
+        1.0174473359292457,
+        -0.5770551006986566,
+        -0.2191223280403924,
+        -0.5868179793499114,
+        -0.3943398349747906,
+        -0.06441994189329112,
+        0.0,
+        1.1252733024687076,
+        0.14308136964264018
+      ]
+    }
+  ]
+}

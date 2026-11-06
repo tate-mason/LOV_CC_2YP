@@ -1,3 +1,17 @@
+* Empirical records must remain on the research server.
+if "`c(os)'" != "Unix" {
+    display as error "Server-only empirical workflow: do not run on this computer."
+    exit 603
+}
+capture confirm file "/scratch/dtm63837/Kilts_Panel"
+* Require the server filesystem via a directory change, then restore the working directory.
+local policy_cwd "`c(pwd)'"
+capture cd "/scratch/dtm63837/Kilts_Panel"
+if _rc {
+    display as error "Research server filesystem is required."
+    exit 603
+}
+cd "`policy_cwd'"
 /**********************************************************
  *
  * DEFINE_SAMPLE.DO
@@ -64,7 +78,7 @@ drop if gap==.
 drop if age>$maxage | age<$minage
 
 * drop the one household in the data whose current state is reported as Hawaii or Alaska
-drop if state_curr=="HI" | state_curr=="AK" 
+drop if state_curr=="HI" | state_curr=="AK"
 
 * drop households born in Hawaii or Alaska
 drop if state_born=="HI" | state_born=="AK"
@@ -76,8 +90,8 @@ drop if _merge==1
 sort hhld_id
 outsheet hhld_id gap using ../output/sample_hh_mig_all.csv if state_born~=state_curr, comma replace names
 
-* drop cases where gap out of range 
-* gap is defined to be  0 for life time residents in ..\derived\Homescan (Survey)\build.do 
+* drop cases where gap out of range
+* gap is defined to be  0 for life time residents in ..\derived\Homescan (Survey)\build.do
 
 drop if gap>$maxgap
 

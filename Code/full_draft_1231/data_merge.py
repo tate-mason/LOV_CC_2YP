@@ -6,6 +6,13 @@ This avoids wide unique(), which triggered a Polars first/last reducer panic.
 The audit checks every RMS value column using two row fingerprints.
 """
 
+# Empirical I/O is permitted only on the research server, never on this computer.
+from pathlib import Path as _PolicyPath
+import sys as _policy_sys
+_policy_root = next(p for p in _PolicyPath(__file__).resolve().parents if (p / "Code/privacy/server_data_policy.py").is_file())
+_policy_sys.path.insert(0, str(_policy_root / "Code/privacy"))
+from server_data_policy import server_only, require_server
+
 import os
 import time
 import traceback
@@ -53,6 +60,7 @@ def parse_date(column):
     )
 
 
+@server_only
 def build_panel():
     panel = (
         pl.scan_parquet(HMS_PATH)
@@ -125,6 +133,7 @@ def build_panel():
     return panel
 
 
+@server_only
 def build_retail():
     return (
         pl.scan_parquet(RMS_PATH)
@@ -141,6 +150,7 @@ def build_retail():
     )
 
 
+@server_only
 def audit_merge(year, panel_rows, output_path, ids_path, retail_year, value_columns):
     """Check actual output match coverage and conflicting RMS values."""
     written = pl.scan_parquet(output_path)
@@ -211,6 +221,7 @@ def audit_merge(year, panel_rows, output_path, ids_path, retail_year, value_colu
         )
 
 
+@server_only
 def main():
     log(f"Polars version: {pl.__version__}; index type: {pl.get_index_type()}")
     log(f"SLURM_JOB_ID: {os.environ.get('SLURM_JOB_ID', 'none')}")

@@ -1,3 +1,8 @@
+
+% Empirical records remain on the research server.
+if ~isunix || ismac || ~isfolder('/scratch/dtm63837/Kilts_Panel')
+    error('ServerOnly:ResearchData', 'Run empirical code on the research server only.');
+end
 %=========================================================================
 %
 %                   ENDOGENOUS PREFERENCES -- Get_Contstants
@@ -5,7 +10,7 @@
 %=========================================================================
 % FUNCTION:         Loads selected constants
 %
-% DATA:             
+% DATA:
 %
 %---------+---------+---------+---------+---------+---------+---------+---
 % BUG REPORTS TO:   bart.bronnenberg@uvt.nl
@@ -14,18 +19,18 @@
 %---------+---------+---------+---------+---------+---------+---------+---
 
 
-s = RandStream.create('mt19937ar','Seed',25041963) ; 
+s = RandStream.create('mt19937ar','Seed',25041963) ;
 % to replicate bootstrap samples
 
 R = 26 ;  % # bootstrap samples + 1
-          
+
 keepscale = 10E05 ; % order of magnitude of the goal function
-          
+
 npar = 4 ; % number of parameters
-          
+
 nm = 238 ; % number of modules
 
-options=optimset(...    
+options=optimset(...
     'TolFun',1e-6,...
     'MaxFunEvals',20000,...
     'Diagnostics', 'on',...
@@ -33,10 +38,10 @@ options=optimset(...
     'Display','iter') ; %optimization tolerances and settings
 
 for rep = 1:R %draw indeces for bootstrap samples
-    if rep>1 , 
+    if rep>1 ,
         index = randi(s,nm,nm,1) ; %generate bootstrap index
-        keepmodind(:,rep) = index ; 
+        keepmodind(:,rep) = index ;
     else   %rep=1
         keepmodind(:,rep) = [1:nm]' ; % result is nm by R
-    end ; 
-end ; 
+    end ;
+end ;

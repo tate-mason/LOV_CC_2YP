@@ -1,3 +1,17 @@
+* Empirical records must remain on the research server.
+if "`c(os)'" != "Unix" {
+    display as error "Server-only empirical workflow: do not run on this computer."
+    exit 603
+}
+capture confirm file "/scratch/dtm63837/Kilts_Panel"
+* Require the server filesystem via a directory change, then restore the working directory.
+local policy_cwd "`c(pwd)'"
+capture cd "/scratch/dtm63837/Kilts_Panel"
+if _rc {
+    display as error "Research server filesystem is required."
+    exit 603
+}
+cd "`policy_cwd'"
 /**********************************************************
  *
  * TEXT.DO: Produces supporting facts for Brands paper.
@@ -184,7 +198,7 @@ matrix drop TABLE
 reg betahatnd age_move if years==1 & late [aw=w1nd], cluster(module)
 
 *****************************************************************
-* Section 5 in the paper - secondary assumption test 
+* Section 5 in the paper - secondary assumption test
 *****************************************************************
 
 cap program drop addtotable_bp
@@ -200,19 +214,19 @@ u ..\temp\purch_mig_bp, clear
 mmerge hhld_id using ..\temp\hh_mig, type(n:1) unm(master) ukeep(years)
 
 *generate bunch of variables plus weights
-gen yearumbrella = min(umbrella_year1, umbrella_year2) 
-gen yearlaunch = min(launch_year1, launch_year2) 
+gen yearumbrella = min(umbrella_year1, umbrella_year2)
+gen yearlaunch = min(launch_year1, launch_year2)
 gen ysl = 2007-yearlaunch
 gen years_b = ysl - years
 gen treat_in_b = years_b>0
 gen not_treat_in_b = 1-treat_in_b
-gen years_untreated = not_treat_in_b*years 
-gen years_treated = treat_in_b*years 
+gen years_untreated = not_treat_in_b*years
+gen years_treated = treat_in_b*years
 gen w1 = totpurch*sqdif/(pairshare*(1-pairshare))
 gen w1nd = totpurch*sqdifnd/(pairshare*(1-pairshare))
 
 * data screen drop if betahat == .
-drop if betahat == . 
+drop if betahat == .
 
 * all pairs (yearlaunch>=1955)
 reg betahatnd treat_in_b years_treated not_treat_in_b years_untreated [aw=sqdifnd] , cluster(pairid) nocons

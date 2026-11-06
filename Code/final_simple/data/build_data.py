@@ -4,6 +4,13 @@ Edit Parameters, select the steps you want, then run python3 data/build_data.py.
 Functions below follow the same order as the research workflow. Importing this
 file does not read data, create output folders, or start any conversion.
 """
+
+# Empirical I/O is permitted only on the research server, never on this computer.
+from pathlib import Path as _PolicyPath
+import sys as _policy_sys
+_policy_root = next(p for p in _PolicyPath(__file__).resolve().parents if (p / "Code/privacy/server_data_policy.py").is_file())
+_policy_sys.path.insert(0, str(_policy_root / "Code/privacy"))
+from server_data_policy import server_only, require_server
 from pathlib import Path
 from types import SimpleNamespace
 import argparse
@@ -69,6 +76,7 @@ AVAILABLE_STEPS = [
 # === 1. Convert raw text files and keep the required columns === #
 
 
+@server_only
 def convert_one_file(input_path, output_path, lossy_text=False):
     """Read a tab-separated raw file, lowercase its column names, write Parquet.
 
@@ -115,6 +123,7 @@ def convert_retail_files(raw_dir, output_dir, years, annual=True, master=True):
             convert_one_file(input_path, output_dir / f'{table}.parquet', lossy_text=True)
 
 
+@server_only
 def clean_parquet_files(directory, columns_by_table):
     """Write cleaned_ copies. Do not change or delete the original conversions."""
     # Test longer names first: products_extra must not be mistaken for products.
@@ -134,6 +143,7 @@ def clean_parquet_files(directory, columns_by_table):
 # === 2. Combine annual files === #
 
 
+@server_only
 def combine_panel_files(directory):
     combined = directory / 'combined'
     combined.mkdir(parents=True, exist_ok=True)
@@ -156,6 +166,7 @@ def align_retail_types(frame):
     return frame.with_columns(casts)
 
 
+@server_only
 def combine_retail_files(directory):
     combined = directory / 'combined'
     combined.mkdir(parents=True, exist_ok=True)
@@ -195,6 +206,7 @@ def join_panel_tables(purchases, trips, panelists, products):
     return merged
 
 
+@server_only
 def merge_panel_files(directory):
     combined = directory / 'combined'
     purchases = pl.scan_parquet(combined / 'purchases.parquet')
@@ -214,6 +226,7 @@ def add_saturday_week(frame):
     return frame.with_columns(saturday.dt.strftime('%Y%m%d').cast(pl.Int64).alias('week_end'))
 
 
+@server_only
 def attach_panel_weeks(directory):
     # A temporary replacement avoids reading/writing the same Parquet simultaneously.
     panel_path = directory / 'merged_panel.parquet'
@@ -253,6 +266,7 @@ def join_retail_tables(movements, rms, products, stores, products_extra, brand_v
     return merged
 
 
+@server_only
 def merge_retail_files(directory):
     combined = directory / 'combined'
     movements = pl.concat([pl.scan_parquet(combined / '3612.parquet'),
@@ -286,7 +300,13 @@ def match_one_year(panel, retail_quotes, year):
     return panel_year.join(retail_year, on=MATCH_KEYS, how='inner', suffix='_rms')
 
 
+@server_only
 def match_yogurt_files(directory, retail_path, years, module_codes):
+    # Keep purchase-level estimation samples out of this code checkout.
+    sample_destination = (Path(directory) / "yogurt_estimation_sample.parquet").resolve()
+    if sample_destination.is_relative_to(Path(__file__).resolve().parents[3]):
+        raise ValueError("Estimation samples must stay outside the code checkout; use the server data directory.")
+
     # Retain the old memory strategy: materialize projected yogurt quotes once,
     # then stream purchases one year at a time. Temporary files are isolated so
     # leftover chunks from an earlier interrupted run cannot enter this output.
@@ -308,6 +328,7 @@ def match_yogurt_files(directory, retail_path, years, module_codes):
 # === 6. Report counts, missing keys, metadata coverage, prices, and file size === #
 
 
+@server_only
 def audit_file(path, anchor=None, keys=(), metadata=(), show_years=False):
     """Report what the file contains; a row-count ratio alone is not a join proof."""
     frame = pl.scan_parquet(path)
@@ -366,6 +387,7 @@ def read_command_line(settings):
 # === 8. Run the selected build steps, in their dependency order === #
 
 
+@server_only
 def run_build(settings):
     if not settings.run_steps:
         print('Choose run_steps in the Parameters section. Available steps:')

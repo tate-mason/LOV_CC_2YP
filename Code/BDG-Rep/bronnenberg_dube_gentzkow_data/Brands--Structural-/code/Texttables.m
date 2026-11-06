@@ -1,3 +1,8 @@
+
+% Empirical records remain on the research server.
+if ~isunix || ismac || ~isfolder('/scratch/dtm63837/Kilts_Panel')
+    error('ServerOnly:ResearchData', 'Run empirical code on the research server only.');
+end
 %=========================================================================
 %=========================================================================
 %
@@ -6,15 +11,15 @@
 %=========================================================================
 %=========================================================================
 % FUNCTION:         File Undocumented Claims
-% EXTERNAL CALLS:   
-% NOTE:              
+% EXTERNAL CALLS:
+% NOTE:
 %---------+---------+---------+---------+---------+---------+---------+---
 % BUG REPORTS TO:   bart.bronnenberg@uvt.nl
 %                   jdube@chicagobooth.edu
 %                   gentzkow@chicagobooth.edu
 %---------+---------+---------+---------+---------+---------+---------+---
 
-clear all 
+clear all
 
 %---------+---------+---------+---------+---------+---------+---------+---
 %         read results from estimation
@@ -62,15 +67,15 @@ dlmwrite('..\output\texttables.txt',tabletext,'-append','delimiter','\t')
 %         standard errors for counterfactuals
 %---------+---------+---------+---------+---------+---------+---------+---
 load ..\temp\results ;
-load ..\temp\agedist 
-load ..\temp\alphadelta  
+load ..\temp\agedist
+load ..\temp\alphadelta
 
 mpar6 = par_table6(1:2,1) ;
 dpar6 = par_table6(1:2,2:end) ;
 spar6 = std(dpar6,0,2) ;
 
-% results with alternative dependent variables and weights 
-mpar1 = squeeze(par_appendix1(1:2,1,1:4)); 
+% results with alternative dependent variables and weights
+mpar1 = squeeze(par_appendix1(1:2,1,1:4));
 dpar1 = par_appendix1(1:2,2:end,1:4) ;
 spar1 = squeeze(std(dpar1,0,2)) ;
 
@@ -86,27 +91,27 @@ std_err = [   spar6(1,1) spar6(2,1) ; ....
               spar1(1,4) spar1(2,4) ; ....
               spar1(1,1) spar1(2,1) ] ;
 
-          
-%add results from alternative splits of the data 
-mpar2 = squeeze(par_robust2(:,1,:)); 
+
+%add results from alternative splits of the data
+mpar2 = squeeze(par_robust2(:,1,:));
 dpar2 = par_robust2(:,2:end,:) ;
 spar2 = squeeze(std(dpar2,0,2)) ;
 
-for il = 1:size(mpar2,2) ,            
-    for ie = 1:2 ,     
+for il = 1:size(mpar2,2) ,
+    for ie = 1:2 ,
         estimates = [estimates ; ...
                      [mpar2((ie-1)*2+1,il) mpar2((ie-1)*2+2,il)] ] ;
-        std_err    = [std_err ; ... 
+        std_err    = [std_err ; ...
                      [spar2((ie-1)*2+1,il) spar2((ie-1)*2+2,il)] ] ;
     end
-end          
+end
 
 tabletext = [std_err] ;
-select = [1 2 3 4 5 7 16 ] ; 
+select = [1 2 3 4 5 7 16 ] ;
 fid = fopen('..\output\texttables.txt','a');
 fprintf(fid, '<Tab:Robustness_stderr>\n');
 fclose(fid) ;
 dlmwrite('..\output\texttables.txt',tabletext(select,:), ...
          '-append','delimiter','\t')
-		 
-		 
+
+

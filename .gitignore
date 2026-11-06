@@ -10,3 +10,28 @@ shell_files/summCols_*.txt
 # Python cache
 __pycache__/
 *.pyc
+
+# Purchase-level research samples and interrupted summary staging files
+**/yogurt_estimation_sample.parquet
+**/summary-work-*/
+
+# Never commit research records or data staging artifacts
+*.parquet
+*.arrow
+*.feather
+*.pkl
+*.pickle
+**/weekly_inputs.csv
+**/.weekly_inputs_*.csv
+**/summary-work-*/
+**/yogurt-years-*/
+
+# Household/purchase records are server-only; keep result CSVs eligible for recovery
+**/full_panel_households.*
+**/matched_yogurt_households.*
+**/yogurt_weekly_baskets.*
+**/yogurt_weekly_flavor_quantities.*
+**/yogurt_single_flavor_spells.*
+**/yogurt_household_flavors.*
+**/merged_panel.*
+**/merged_rms.*

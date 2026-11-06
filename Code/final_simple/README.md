@@ -1,3 +1,12 @@
+# Research data stay on the server
+
+Empirical reads/writes are now server-only, even with local path overrides.
+Only vetted estimates, predictions without household IDs, and aggregates may
+be recovered locally. See [the enforced policy](../privacy/README.md).
+The old full local data-processing check instructions below are superseded:
+use `python3 Code/privacy/check_policy.py` from the repository root for a local
+boundary check; run empirical I/O checks only on the server.
+
 # Start here
 
 This is a self-contained, simpler version of the data, demand, and supply code in

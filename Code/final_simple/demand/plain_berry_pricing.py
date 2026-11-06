@@ -4,6 +4,13 @@ Edit Parameters below or supply server flags. Uses the same household solver as
 split_pricing.py. Other remains a demand alternative and history state, while
 only plain and berry are considered as focal sellers in separate counterfactuals.
 """
+
+# Empirical I/O is permitted only on the research server, never on this computer.
+from pathlib import Path as _PolicyPath
+import sys as _policy_sys
+_policy_root = next(p for p in _PolicyPath(__file__).resolve().parents if (p / "Code/privacy/server_data_policy.py").is_file())
+_policy_sys.path.insert(0, str(_policy_root / "Code/privacy"))
+from server_data_policy import server_only, require_server
 from pathlib import Path
 from types import SimpleNamespace
 from pprint import pformat
@@ -23,7 +30,7 @@ else:
 # === Parameters: edit these values on the server === #
 household_input = None   # Path to regenerated weekly_inputs.csv.
 fit_dir = None           # Matching heterogeneous_history fitted-results folder.
-output = Path(__file__).resolve().parents[1] / "results" / "plain_berry_pricing"
+output = Path("/scratch/dtm63837/Kilts_Panel/results") / "plain_berry_pricing"
 discounts = np.linspace(0., 1., 101)
 demand_delta = .92
 type_treatment = "posterior-mean"   # Or posterior-integrated.
@@ -50,6 +57,7 @@ def read_command_line(settings):
 
 
 # === 2. Solve plain and berry separately and write their comparison === #
+@server_only
 def run_comparison(settings):
     if settings.household_input is None or settings.fit_dir is None:
         raise ValueError('Set household_input and fit_dir, or supply their server flags.')
@@ -74,6 +82,7 @@ def run_comparison(settings):
     pd.DataFrame(comparison).to_csv(settings.output / 'focal_flavor_comparison.csv', index=False)
     manifest = dict(
         focal_flavors=list(FOCAL_FLAVORS), demand_categories=list(pricing.FLAVORS),
+        household_identifiers_exported=False,
         settings={key: str(value) if isinstance(value, Path) else value.tolist()
                   if isinstance(value, np.ndarray) else value for key, value in vars(settings).items()},
         results=reports, script_sha256=pricing.digest(Path(__file__).resolve()),

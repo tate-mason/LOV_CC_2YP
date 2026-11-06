@@ -10,6 +10,12 @@
 #SBATCH --mail-user=dtm63837@uga.edu    # Where to send mail
 #SBATCH --mail-type=END,FAIL          	# Mail events (BEGIN, END, FAIL, ALL)
 
+# Refuse empirical execution on this computer, even with local path overrides.
+if [[ "$(uname -s)" != "Linux" || ! -d /scratch/dtm63837/Kilts_Panel ]]; then
+    echo "Server-only empirical workflow. Copy back results only, never research records." >&2
+    exit 1
+fi
+
 set -euo pipefail
 
 # === Parameters: edit these paths on the server === #
@@ -18,9 +24,15 @@ project_dir="/scratch/dtm63837/Kilts_Panel/LOV_CC_2YP"
 controlled_fit="$project_dir/shell_files/res_het_hist"
 uncontrolled_fit="$project_dir/shell_files/res_het_nocf"
 
+# Job-private research records live outside the code checkout and are deleted on exit.
+mkdir -p /scratch/dtm63837/Kilts_Panel/Data/temporary
+weekly_work=$(mktemp -d /scratch/dtm63837/Kilts_Panel/Data/temporary/pricing.XXXXXX)
+weekly_input="$weekly_work/weekly_inputs.csv"
+
 # Weekly household inputs are temporary: remove them on success or failure.
 cleanup_weekly_inputs() {
-    rm -f -- "$controlled_fit/weekly_inputs.csv" "$controlled_fit"/.weekly_inputs_*.csv
+    rm -f -- "$weekly_input" "$weekly_work"/.weekly_inputs_*.csv
+    rmdir -- "$weekly_work"
 }
 trap cleanup_weekly_inputs EXIT
 trap 'exit 130' INT
@@ -39,7 +51,7 @@ for fit_directory in "$controlled_fit" "$uncontrolled_fit"; do
 done
 
 # 1. Reconstruct the deleted export using saved settings; verify its likelihood.
-python3 Code/final_simple/demand/regenerate_weekly_inputs.py --fit-dir "$controlled_fit"
+python3 Code/final_simple/demand/regenerate_weekly_inputs.py --fit-dir "$controlled_fit" --weekly-output "$weekly_input"
 
 # 2. Export both fitted population coefficient distributions.
 python3 Code/final_simple/demand/history_distributions.py --fit-dir "$controlled_fit"
@@ -47,6 +59,6 @@ python3 Code/final_simple/demand/history_distributions.py --fit-dir "$uncontroll
 
 # 3. Compare plain and berry as focal sellers; retain all three demand categories.
 python3 Code/final_simple/demand/plain_berry_pricing.py \
-    --household-input "$controlled_fit/weekly_inputs.csv" \
+    --household-input "$weekly_input" \
     --fit-dir "$controlled_fit" --demand-delta 0.92 \
     --output "$pricing_output"

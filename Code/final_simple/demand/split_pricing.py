@@ -5,6 +5,13 @@ User-supplied paths only. No estimation is performed. --self-test uses only
 generated synthetic inputs. See README.md for definitions.
 """
 from __future__ import annotations
+
+# Empirical I/O is permitted only on the research server, never on this computer.
+from pathlib import Path as _PolicyPath
+import sys as _policy_sys
+_policy_root = next(p for p in _PolicyPath(__file__).resolve().parents if (p / "Code/privacy/server_data_policy.py").is_file())
+_policy_sys.path.insert(0, str(_policy_root / "Code/privacy"))
+from server_data_policy import server_only, require_server
 import argparse
 import hashlib
 import json
@@ -23,7 +30,7 @@ import pandas as pd
 # Set paths only on the server. None prevents an accidental empirical run.
 household_input = None
 fit_dir = None
-output = Path(__file__).resolve().parents[1] / "results" / "split_pricing"
+output = Path("/scratch/dtm63837/Kilts_Panel/results") / "split_pricing"
 focal_flavor = "all"                  # all, other, berry, or plain
 discounts = np.linspace(0., 1., 101)  # Candidate focal-product coupons.
 demand_delta = .92                    # Same default as theoretical supply.
@@ -151,6 +158,7 @@ def digest(path):
 
 # === 3. Backward induction, one household at a time === #
 
+@server_only
 def targeted_coupons(context, households, weights, alpha, switching, beta, discounts,
                      delta=1., capacity=7, control_coefficient=0.,
                      batch_size=24, type_treatment="posterior-mean", state_output=None):
@@ -322,7 +330,7 @@ def targeted_coupons(context, households, weights, alpha, switching, beta, disco
                     rival2_units=baskets[:, 2], outside=baskets[:, 3], probability=state_probability,
                     discount1=discounts[action], discount2=terminal_coupon, p1=p1, p2=p2,
                     price_ratio=ratio))
-                detail.to_csv(state_output, mode="a" if wrote_states else "w",
+                detail.drop(columns=["household_code"]).to_csv(state_output, mode="a" if wrote_states else "w",
                               header=not wrote_states, index=False, compression="gzip")
                 wrote_states = True
 
@@ -346,6 +354,7 @@ def targeted_coupons(context, households, weights, alpha, switching, beta, disco
 
 # === 4. Validate a saved split fit and solve one focal case === #
 
+@server_only
 def run_households(args):
     # This branch is entered only when the person running the script supplies
     # BOTH paths. Validation supplies generated temporary fixtures only.
@@ -401,8 +410,8 @@ def run_households(args):
     households.rename(columns={"berry_eligible": "focal_eligible"}, inplace=True)
     table.rename(columns={c: c.replace("berry", "focal") for c in table if "berry" in c}, inplace=True)
     table["focal_flavor"] = focal
-    households.to_csv(args.output / "household_posterior_summary.csv", index=False)
-    table.to_csv(args.output / "targeted_household_results.csv", index=False)
+    households.drop(columns=["household_code"]).to_csv(args.output / "household_posterior_summary.csv", index=False)
+    table.drop(columns=["household_code"]).to_csv(args.output / "targeted_household_results.csv", index=False)
     totals = ["revenue1", "revenue2", "discounted_revenue", "baseline_revenue", "revenue_change",
               "focal_units1", "focal_units2", "coupon_expenditure"]
     aggregate = table.groupby("policy", sort=False)[totals].sum()
@@ -539,7 +548,7 @@ def read_command_line(settings):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--household-input", type=Path, help="Explicit household input selected by you; no default.")
     parser.add_argument("--fit-dir", type=Path, help="Explicit existing fitted-results directory; no default.")
-    parser.add_argument("--output", type=Path, default=Path(__file__).resolve().parent / "split_empirical_outputs")
+    parser.add_argument("--output", type=Path, default=Path("/scratch/dtm63837/Kilts_Panel/results") / "split_empirical_outputs")
     parser.add_argument("--discounts", type=float, nargs="+", default=np.linspace(0., 1., 101),
                         help="Candidate discounts; default is every 1%% from 0%% through 100%%.")
     parser.add_argument("--demand-delta", type=float, default=.92)
@@ -555,6 +564,7 @@ def read_command_line(settings):
 
 # === 7. Run the three focal-product exercises, step by step === #
 
+@server_only
 def run_pricing(args):
     if args.self_test:
         self_test()

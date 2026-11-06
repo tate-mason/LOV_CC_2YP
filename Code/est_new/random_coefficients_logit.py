@@ -4,6 +4,13 @@ Run: python3 random_coefficients_logit.py
 Read GUIDE.md for a line-by-line explanation and the mathematics.
 """
 
+# Empirical I/O is permitted only on the research server, never on this computer.
+from pathlib import Path as _PolicyPath
+import sys as _policy_sys
+_policy_root = next(p for p in _PolicyPath(__file__).resolve().parents if (p / "Code/privacy/server_data_policy.py").is_file())
+_policy_sys.path.insert(0, str(_policy_root / "Code/privacy"))
+from server_data_policy import server_only, require_server
+
 import numpy as np
 from scipy.optimize import minimize
 from scipy.special import logsumexp
@@ -53,6 +60,7 @@ def negative_log_likelihood(theta, price, quality, choices, draws):
     return -np.sum(log_average_p)
 
 
+@server_only
 def main():
     price, quality, choices = simulate_data()
     n_people = price.shape[0]

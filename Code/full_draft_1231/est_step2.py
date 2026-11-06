@@ -1,3 +1,10 @@
+
+# Empirical I/O is permitted only on the research server, never on this computer.
+from pathlib import Path as _PolicyPath
+import sys as _policy_sys
+_policy_root = next(p for p in _PolicyPath(__file__).resolve().parents if (p / "Code/privacy/server_data_policy.py").is_file())
+_policy_sys.path.insert(0, str(_policy_root / "Code/privacy"))
+from server_data_policy import server_only, require_server
 import os
 import matplotlib.pyplot as plt
 import numpy as np
@@ -80,6 +87,7 @@ def compute_satiation_state(
     return pd.DataFrame(inventory_records)
 
 
+@server_only
 def load_and_preprocess(weekly_capacity=14):
     schema_names = pl.scan_parquet(MERGED_PATH).collect_schema().names()
 
@@ -1007,6 +1015,7 @@ def generate_type_plots(res_rc_flavor_gamma, n_draws=5000):
     )
 
 
+@server_only
 def main():
     hh_packed_data, vec_data = load_and_preprocess()
 

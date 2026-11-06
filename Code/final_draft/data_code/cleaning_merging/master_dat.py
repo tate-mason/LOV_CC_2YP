@@ -1,9 +1,20 @@
+
+# Empirical I/O is permitted only on the research server, never on this computer.
+from pathlib import Path as _PolicyPath
+import sys as _policy_sys
+_policy_root = next(p for p in _PolicyPath(__file__).resolve().parents if (p / "Code/privacy/server_data_policy.py").is_file())
+_policy_sys.path.insert(0, str(_policy_root / "Code/privacy"))
+from server_data_policy import server_only, require_server, require_legacy_server
+require_legacy_server()
+from pathlib import Path
 import glob
 import os
 import polars as pl
 
 input_dir = "/scratch/dtm63837/Kilts_Panel/Data"
 final_out = os.path.join(input_dir, "yogurt_estimation_sample.parquet")
+if Path(final_out).resolve().is_relative_to(Path(__file__).resolve().parents[4]):
+    raise ValueError("Estimation samples must stay outside the code checkout; use the server data directory.")
 temp_dir = os.path.join(input_dir, "temp_years")
 os.makedirs(temp_dir, exist_ok=True)
 

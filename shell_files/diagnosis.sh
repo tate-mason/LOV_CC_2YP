@@ -10,6 +10,12 @@
 #SBATCH --mail-user=dtm63837@uga.edu    # Where to send mail
 #SBATCH --mail-type=END,FAIL          	# Mail events (BEGIN, END, FAIL, ALL)
 
+# Refuse empirical execution on this computer, even with local path overrides.
+if [[ "$(uname -s)" != "Linux" || ! -d /scratch/dtm63837/Kilts_Panel ]]; then
+    echo "Server-only empirical workflow. Copy back results only, never research records." >&2
+    exit 1
+fi
+
 ml Python/3.12.3-GCCcore-13.3.0 # Load software module and run bowtie2 below
 pip install -qqq -r /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/shell_files/requirements.txt
 

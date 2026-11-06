@@ -4,6 +4,13 @@ Edit Parameters, then run python3 data/summaries.py. No data are read on import.
 The original detailed/three-flavor, demographic, HHI, and dynamics outputs remain.
 The work is split into named research steps below rather than separate launchers.
 """
+
+# Empirical I/O is permitted only on the research server, never on this computer.
+from pathlib import Path as _PolicyPath
+import sys as _policy_sys
+_policy_root = next(p for p in _PolicyPath(__file__).resolve().parents if (p / "Code/privacy/server_data_policy.py").is_file())
+_policy_sys.path.insert(0, str(_policy_root / "Code/privacy"))
+from server_data_policy import server_only, require_server
 from pathlib import Path
 from types import SimpleNamespace
 import argparse
@@ -71,6 +78,7 @@ def valid_flavor_labels(frame):
 
 # Project only summary columns. A Polars LazyFrame is a plan, not a copy of the entire
 # file in memory.
+@server_only
 def scan_purchases(path, first_year, last_year):
     """Project needed columns before loading; accept the names in current code."""
     scan = pl.scan_parquet(path)
@@ -222,6 +230,7 @@ def as_lazy(frame):
 
 # Write each household into exactly one physical work partition. Later summaries read
 # those smaller files instead of rescanning the entire source.
+@server_only
 def partition_purchases(scan, work, prefix, batches):
     """Read the projected source once, writing household hash partitions."""
     if not hasattr(pl, "PartitionBy"):
@@ -238,6 +247,7 @@ def partition_purchases(scan, work, prefix, batches):
     print(f"{prefix}: partitioning completed in {time.monotonic() - began:.1f}s", flush=True)
     return parts
 
+@server_only
 def summarize_household_batches(scan, work, prefix, batches, partitions=None):
     # Each physical partition is read on its own; no full-source rescan per batch.
     partitions = partitions if partitions is not None else partition_purchases(scan, work, prefix, batches)
@@ -248,6 +258,7 @@ def summarize_household_batches(scan, work, prefix, batches, partitions=None):
         print(f"{prefix}: household batch {batch + 1} completed in {time.monotonic() - began:.1f}s", flush=True)
     return pl.scan_parquet(work / f"{prefix}_*.parquet")
 
+@server_only
 def save_table(frame, output, name, caption):
     """Keep machine-readable CSV beside the paper-ready LaTeX table."""
     if isinstance(frame, (pl.LazyFrame, pl.DataFrame)):
@@ -305,6 +316,7 @@ def demographic_tables(households, output, prefix):
 
 
 
+@server_only
 def scan_reference(path):
     # Parquet references allow a complete synthetic check without any CSV reads.
     if Path(path).suffix.lower() == '.parquet':
@@ -314,6 +326,7 @@ def scan_reference(path):
 
 # Supplement only absent UPCs from annual metadata. Existing reference entries are
 # retained, including blank entries.
+@server_only
 def recover_flavor_reference(reference_path, products_path, output):
     reference = scan_reference(reference_path).with_columns(normalized_upc_expr())
     if not {"upc", "flavor_descr"}.issubset(reference.collect_schema().names()):
@@ -424,6 +437,7 @@ def yogurt_weeks(scan, reference, flavors=FLAVORS, output=None):
 
 # Compute package shares, household concentration, adjacent-week transitions, and
 # consecutive single-flavor spells.
+@server_only
 def flavor_summaries(weekly, output, flavors=FLAVORS):
     weekly = as_lazy(weekly)
     totals = weekly.group_by("flavor").agg(pl.col("quantity").sum().alias("packages")).collect(engine="streaming")
@@ -515,6 +529,7 @@ def flavor_summaries(weekly, output, flavors=FLAVORS):
 
 
 
+@server_only
 def make_hhi_figures(output):
     """Equal-household distributions using all flavor labels, without top-20 truncation."""
     import matplotlib
@@ -597,6 +612,7 @@ def make_figures(shares, transitions, output):
 
 # The full panel and matched yogurt samples have different coverage. Only matched yogurt
 # summaries require two usable purchase weeks.
+@server_only
 def prepare_summary_samples(settings, output, work):
     prepared_eligible = None
     print("Summary sample: single-person purchase records (household_size == 1).", flush=True)
@@ -647,6 +663,7 @@ def prepare_summary_samples(settings, output, work):
 
 
 
+@server_only
 def summarize_flavor_groups(settings, output, work, flavor_path, source_partitions):
     for detailed in [True, False]:
         folder = output if detailed else output / "aggregated_flavors"
@@ -684,7 +701,13 @@ def summarize_flavor_groups(settings, output, work, flavor_path, source_partitio
 
 # Retain all-household retail quote coverage in the prepared demand input. The estimator
 # applies its own single-person demand restriction.
+@server_only
 def save_estimation_sample(settings, output, prepared_households, reference):
+    # Keep purchase-level estimation samples out of this code checkout.
+    sample_destination = (Path(output) / "yogurt_estimation_sample.parquet").resolve()
+    if sample_destination.is_relative_to(Path(__file__).resolve().parents[3]):
+        raise ValueError("Estimation samples must stay outside the code checkout; use the server data directory.")
+
     # The last pass uses the estimation's three groups. Persist its exact
     # resolved mapping so estimation can consume labels without reclassifying.
     reference.write_csv(output / "estimation_flavor_reference.csv")
@@ -719,8 +742,14 @@ def save_estimation_sample(settings, output, prepared_households, reference):
 
 
 
+@server_only
 def run(settings, output, work):
     """The three main research steps; no files are imported from final_draft."""
+    # Keep purchase-level estimation samples out of this code checkout.
+    sample_destination = (Path(output) / "yogurt_estimation_sample.parquet").resolve()
+    if sample_destination.is_relative_to(Path(__file__).resolve().parents[3]):
+        raise ValueError("Estimation samples must stay outside the code checkout; use the server data directory.")
+
     products_extra = settings.products_extra or settings.data_dir / "RMS/combined/products_extra.parquet"
     flavor_path = settings.flavors
     if products_extra.exists():
@@ -770,6 +799,7 @@ def read_command_line(settings):
 
 
 
+@server_only
 def run_summaries(settings):
     if settings.recover_only:
         output = settings.output or settings.data_dir / "summary_outputs"

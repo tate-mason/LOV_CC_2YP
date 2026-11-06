@@ -106,9 +106,24 @@ cases. Every outcome is from the same split fitted demand model; no-coupon
 revenues supply the benchmark. No sampling confidence intervals are computed.
 
 The current local saved fit directories do not include `weekly_inputs.csv`;
-full empirical pricing must run where those estimation outputs reside. The new
-`shell_files/est_split_pricing.sh` exports both distributions and runs all three
-focal cases using the server's controlled split fit. It does not refit demand.
+the deleted export must be regenerated on the server. The new
+`shell_files/est_split_pricing.sh` first rebuilds `weekly_inputs.csv` using the
+controlled split fit's saved settings, reconstructs its price controls, and
+checks household/week totals and the saved likelihood before writing the CSV.
+It then exports both distributions and runs all three focal cases. It does not
+refit demand or replace the saved estimates or standard errors. Regeneration
+and full empirical pricing are server operations; local checks use synthetic
+fixtures only.
+
+To regenerate the export separately on the server:
+
+```bash
+python3 Code/final_draft/est_code/regenerate_weekly_inputs.py --fit-dir /path/to/res_het_hist
+```
+
+If the prepared sample or flavor reference moved, use `--sample` or `--flavors`
+to override its saved path. A likelihood mismatch stops the job without writing
+a replacement CSV.
 To refit, run `est_het_history.py --capacity 7 --draws 64 --starts 3` with the
 appropriate sample/output paths first. Estimation retains the same likelihood;
 only its distribution exports have changed.

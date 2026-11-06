@@ -18,6 +18,11 @@ set -e
 
 git pull
 
+# Rebuild the deleted household export on the server, using the saved fit settings.
+# Demand parameters and standard errors are retained; likelihood must match.
+python3 ../Code/final_draft/est_code/regenerate_weekly_inputs.py \
+        --fit-dir "/scratch/dtm63837/Kilts_Panel/res_het_hist/"
+
 python3 ../Code/final_draft/est_code/history_distributions.py \
         --fit-dir "/scratch/dtm63837/Kilts_Panel/res_het_hist/"
 python3 ../Code/final_draft/est_code/history_distributions.py \

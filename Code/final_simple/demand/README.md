@@ -189,3 +189,12 @@ all three focal cases under both type treatments, with CSV reads blocked. Run `p
 for all synthetic checks and `python3 checks/compare_original.py ../final_draft`
 for direct numerical comparisons. None of the research scripts imports
 `final_draft`.
+
+
+The server jobs default to saved fit directories
+`$project_dir/shell_files/res_het_hist` and
+`$project_dir/shell_files/res_het_nocf`. The estimation job's `--output` paths are
+relative to its submission working directory; change the two fit-directory
+variables if you submitted estimation elsewhere. A fit directory must contain
+`fit.json` and `point_estimates.csv`; it is not a single file. Both jobs check
+those artifacts before regenerating household inputs on the server.

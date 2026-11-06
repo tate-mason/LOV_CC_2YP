@@ -18,17 +18,29 @@ set -e
 
 git pull
 
+project_dir="/scratch/dtm63837/Kilts_Panel/LOV_CC_2YP"
+# These are result directories under the repository, not under Kilts_Panel itself.
+controlled_fit="$project_dir/shell_files/res_het_hist"
+uncontrolled_fit="$project_dir/shell_files/res_het_nocf"
+
+for fit_directory in "$controlled_fit" "$uncontrolled_fit"; do
+    if [[ ! -f "$fit_directory/fit.json" || ! -f "$fit_directory/point_estimates.csv" ]]; then
+        echo "Missing saved fit in $fit_directory. Set controlled_fit/uncontrolled_fit to the estimation output directories." >&2
+        exit 1
+    fi
+done
+
 # Rebuild the deleted household export on the server, using the saved fit settings.
 # Demand parameters and standard errors are retained; likelihood must match.
-python3 ../Code/final_draft/est_code/regenerate_weekly_inputs.py \
-        --fit-dir "/scratch/dtm63837/Kilts_Panel/res_het_hist/"
+python3 "$project_dir/Code/final_draft/est_code/regenerate_weekly_inputs.py" \
+        --fit-dir "$controlled_fit"
 
-python3 ../Code/final_draft/est_code/history_distributions.py \
-        --fit-dir "/scratch/dtm63837/Kilts_Panel/res_het_hist/"
-python3 ../Code/final_draft/est_code/history_distributions.py \
-        --fit-dir "/scratch/dtm63837/Kilts_Panel/res_het_nocf/"
-python3 ../Code/final_simple/demand/plain_berry_pricing.py \
-        --household-input "/scratch/dtm63837/Kilts_Panel/res_het_hist/weekly_inputs.csv" \
-        --fit-dir "/scratch/dtm63837/Kilts_Panel/res_het_hist/" \
+python3 "$project_dir/Code/final_draft/est_code/history_distributions.py" \
+        --fit-dir "$controlled_fit"
+python3 "$project_dir/Code/final_draft/est_code/history_distributions.py" \
+        --fit-dir "$uncontrolled_fit"
+python3 "$project_dir/Code/final_simple/demand/plain_berry_pricing.py" \
+        --household-input "$controlled_fit/weekly_inputs.csv" \
+        --fit-dir "$controlled_fit" \
         --demand-delta 0.92 \
         --output "plain_berry_pricing_ex"

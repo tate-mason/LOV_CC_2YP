@@ -14,12 +14,21 @@ set -euo pipefail
 
 # === Parameters: edit these paths on the server === #
 project_dir="/scratch/dtm63837/Kilts_Panel/LOV_CC_2YP"
-controlled_fit="/scratch/dtm63837/Kilts_Panel/res_het_hist"
-uncontrolled_fit="/scratch/dtm63837/Kilts_Panel/res_het_nocf"
+# est_struc.sh uses relative --output paths; these defaults match runs from shell_files.
+controlled_fit="$project_dir/shell_files/res_het_hist"
+uncontrolled_fit="$project_dir/shell_files/res_het_nocf"
 pricing_output="/scratch/dtm63837/Kilts_Panel/plain_berry_pricing_ex"
 
 ml Python/3.12.3-GCCcore-13.3.0
 cd "$project_dir"
+
+# Check saved fit artifacts before rebuilding household inputs on the server.
+for fit_directory in "$controlled_fit" "$uncontrolled_fit"; do
+    if [[ ! -f "$fit_directory/fit.json" || ! -f "$fit_directory/point_estimates.csv" ]]; then
+        echo "Missing saved fit in $fit_directory. Set controlled_fit/uncontrolled_fit to the estimation output directories." >&2
+        exit 1
+    fi
+done
 
 # 1. Reconstruct the deleted export using saved settings; verify its likelihood.
 python3 Code/final_simple/demand/regenerate_weekly_inputs.py --fit-dir "$controlled_fit"

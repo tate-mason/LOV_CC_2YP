@@ -204,9 +204,15 @@ def generate():
     file_notes = load_notes(ROOT / "python101/FILE_NOTES.md")
     files = []
     # Put production workflow first and tests in an appendix.
-    for folder in ("data_code", "est_code", "supply_code"):
+    for folder in ("data_code", "est_code", "supply_code", "pricing_exercises"):
         paths = sorted((ROOT / folder).rglob("*.py"))
         files.extend(p for p in paths if "__pycache__" not in p.parts)
+    # Include the readable current demand workflow alongside its original sources.
+    simple = ROOT.parent / "final_simple"
+    files.extend(simple / "demand" / name for name in
+                 ("estimation.py", "split_pricing.py", "regenerate_weekly_inputs.py", "history_distributions.py"))
+    files.extend(simple / "checks" / name for name in
+                 ("test_split_pricing.py", "test_regenerate_weekly_inputs.py"))
     is_test = lambda p: p.name.startswith("test_") or "checks" in p.parts
     ordered = [p for p in files if not is_test(p)] + [p for p in files if is_test(p)]
     chunks = [(ROOT / "python101/START_HERE.md").read_text(),
@@ -215,11 +221,11 @@ def generate():
     missing = []
     last_group = None
     for path in ordered:
-        rel = path.relative_to(ROOT).as_posix()
+        rel = path.relative_to(ROOT).as_posix() if path.is_relative_to(ROOT) else "../" + path.relative_to(ROOT.parent).as_posix()
         source = path.read_text()
         lines = source.splitlines()
         tree = ast.parse(source, filename=rel)
-        group = "Tests and verification: worked calling examples" if is_test(path) else rel.split("/")[0] + ": source walkthrough"
+        group = "Tests and verification: worked calling examples" if is_test(path) else ("Current readable demand workflow (final_simple)" if rel.startswith("../final_simple/") else rel.split("/")[0] + ": source walkthrough")
         if group != last_group:
             chunks.append("\n\\clearpage\n\n# " + group + "\n")
             last_group = group
@@ -337,7 +343,7 @@ def main():
                    "-V", "documentclass=report", "-V", "colorlinks=true",
                    "-M", "title=Python 101: A Function-by-Function Code Walkthrough",
                    "-M", "subtitle=Data preparation, demand estimation, and dynamic pricing",
-                   "-M", "date=November 1, 2026", "-o", str(out)]
+                   "-M", "date=November 6, 2026", "-o", str(out)]
         result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
         log = ROOT / "python101/pdf_build.log"
         log.write_text(result.stdout)

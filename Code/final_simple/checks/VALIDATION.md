@@ -101,3 +101,33 @@ Data implementation changes are documented in `data/README.md`: the retail
 merge/master-match path is made consistent, temporary year files are private to
 the run, and summary calculations use Parquet checkpoints alongside the retained
 CSV/LaTeX outputs. No empirical dataset was rebuilt or model re-estimated.
+
+## Split history, three focal flavors, and server regeneration
+
+The current empirical workflow is `demand/split_pricing.py`. Its readable
+one-household solver retains both novelty and habit, ranks by novelty, and
+handles all three focal flavors. The estimator now exports both population
+marginals as parameters/quantiles, density/CDF grids, and PDF/PNG figures.
+The default estimation model is `heterogeneous_history` with capacity 7,
+matching this pricing specification; all earlier models remain selectable.
+
+`demand/regenerate_weekly_inputs.py` rebuilds the deleted export from saved
+settings on the server. It reconstructs price controls and checks the saved
+likelihood/sample counts before publishing the CSV. Saved demand estimates and
+inference remain unchanged. `server/run_split_pricing.sh` runs regeneration,
+distribution export, and all three focal cases in that order.
+
+55 synthetic checks passed with pandas/Polars CSV reads blocked. The added
+checks cover split posterior likelihood against both scalar and estimator
+calculations, independent-coefficient backward induction, exact binary
+aggregation, all focal cases under both type treatments, and regeneration's
+success/mismatch behavior while preserving estimates. Direct comparison with
+`final_draft` matches split posterior quantities and every pricing output column
+for all three focal flavors, both type treatments, and capacities 1/2/7,
+including unavailable rivals and ineligible households. Earlier demand/supply
+comparisons also pass. No empirical household inputs were accessed and no
+server job or full empirical re-estimation was run locally.
+
+The old `demand/pricing.py` and its .95 default remain for the combined-gamma
+comparison; the new split exercise defaults to .92, matching theoretical supply.
+See `demand/README.md` for the theory mapping and maintained differences.

@@ -259,3 +259,63 @@ ratio is created once with generic terminal symbols, then `.subs({...})`
 specializes it to matched-inside, matched-outside, and acquisition histories.
 This keeps three ratio definitions tied to one algebraic rule instead of three
 independent hand-written implementations.
+
+
+## est_code/history_distributions.py
+
+Saved-fit distribution exporter. Read this when you want the two estimated population marginals without rerunning optimization. It reads fit metadata and coefficients, not household histories. The zero-SD case is a point mass. The reusable function is called automatically after a split fit.
+
+
+## est_code/regenerate_weekly_inputs.py
+
+Server-only workflow for the deleted household export. Saved settings reconstruct the original sample/history/menu table and optional first stages. Exact household/week totals and likelihood agreement are required before writing weekly_inputs.csv. Demand estimates and inference are preserved.
+
+
+## pricing_exercises/run_split_targeting.py
+
+Current original split-model empirical pricing implementation. It recovers alpha, novelty and own-stock types; ranks by novelty; retains both effects in demand; and runs all three focal flavors with fixed rivals. This file uses household batches; the readable final_simple version loops one household at a time with equivalent results.
+
+
+## pricing_exercises/run_empirical_targeting.py
+
+Earlier combined-gamma berry-only pricing comparison. It does not accept the split fit. Use run_split_targeting.py or final_simple/demand/split_pricing.py for the current model. Its .95 revenue discount default differs from the new split exercise's .92.
+
+
+## pricing_exercises/run_supply_exercises.py
+
+All three theoretical information cases: known initial history, hidden initial history, and advance commitment to two prices. The binary symmetric switching model is a mechanism benchmark; it is not the cumulative-stock split demand likelihood. Both continuation branches and unrestricted theoretical prices are retained.
+
+
+## pricing_exercises/run_pricing_exercises.py
+
+Compatibility launcher forwarding to the earlier supply or combined-gamma exercise. The current split workflow has a separate explicit entry point and is not selected by the old households branch.
+
+
+## ../final_simple/demand/estimation.py
+
+Readable demand estimator: editable settings, numbered sections, and visible run_estimation steps. Current defaults are heterogeneous_history and capacity 7. Section 3 contains split utility and persistent-type likelihood; section 6 exports population novelty/habit marginals. All supported earlier models remain available. No research functions are imported from final_draft.
+
+
+## ../final_simple/demand/split_pricing.py
+
+Recommended current pricing reading path. The parameter section selects all three focal flavors; sections 1–2 recover persistent types and initial history; section 3 visibly solves one household at a time; section 4 permutes/validates each focal case; run_pricing writes separate folders and a combined comparison. It retains habit even though reporting groups rank novelty alone.
+
+
+## ../final_simple/demand/regenerate_weekly_inputs.py
+
+Readable server reconstruction entry point. It imports preparation/likelihood functions from the local estimation module, avoiding a second demand implementation. Edit paths only on the server. Consistency failures stop before replacing the export; successful regeneration leaves fitted demand coefficients unchanged.
+
+
+## ../final_simple/demand/history_distributions.py
+
+Small saved-fit distribution entry point using the export calculation in the readable estimator. Edit fit_dir or use --fit-dir. It exports population density/CDF grids, quantiles/sign shares and plots without reading a weekly household table.
+
+
+## ../final_simple/checks/test_split_pricing.py
+
+Generated-array checks of split posterior likelihood, exact binary aggregation, timing, independent-coefficient backward induction, and all focal cases under both type treatments. The final_simple check runner blocks CSV readers.
+
+
+## ../final_simple/checks/test_regenerate_weekly_inputs.py
+
+Mocked regeneration checks. Synthetic records supply saved settings and parameters; mocked preparation/CSV loading allows the checks to run while CSV readers are blocked. Success preserves fitted artifacts and a likelihood mismatch preserves any old export.

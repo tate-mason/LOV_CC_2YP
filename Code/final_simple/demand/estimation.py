@@ -5,6 +5,7 @@ likelihood -> optimization -> standard errors -> saved results.
 No calculations are imported from final_draft. All seven model choices remain.
 """
 from pathlib import Path
+from statistics import NormalDist
 from types import SimpleNamespace
 import argparse
 import json
@@ -35,16 +36,16 @@ DATA_DIR = Path("/scratch/dtm63837/Kilts_Panel/Data")
 sample = DATA_DIR / "summary_outputs/yogurt_estimation_sample.parquet"
 flavors = DATA_DIR / "summary_outputs/estimation_flavor_reference.csv"
 products_extra = None                 # Optional flavor metadata for older inputs.
-output = Path(__file__).resolve().parents[1] / "results" / "estimation"
+output = Path(__file__).resolve().parents[1] / "results" / "estimation_split"
 
-# Main model: common beta, household-specific alpha and gamma.
+# Main model: common beta, household-specific alpha, novelty, and own-stock habit.
 # Other choices: naive, homogeneous, mixed_naive, mixture,
 #               separate_history, heterogeneous_history.
-model = "heterogeneous"
+model = "heterogeneous_history"
 first_year = 2006
 last_year = 2015
 max_households = None                # Use 100 for a development sample.
-capacity = 0                         # 0: flavor choice only; 7: constructed outside counts.
+capacity = 7                         # Pricing setup; use 0 for conditional flavor choice.
 no_price_control = False             # False means include the IV residual control.
 household_dma_column = "dma_cd"
 habit_weight = 0.7                   # Xi = (1-lambda)*novelty - lambda*own stock.
@@ -1007,37 +1008,51 @@ def plot_gamma_distribution(table, output, converged=True):
     fig.savefig(output / "gamma_distribution.pdf")
     plt.close(fig)
 
-def plot_history_distributions(table, output, converged=True):
-    """Separate marginal population distributions, not confidence intervals."""
-    estimates = table.set_index("parameter")["estimate"]
-    if "mean_novelty" not in estimates:
+def export_history_distributions(table, output, converged=True):
+    p = table.set_index('parameter').estimate
+    if 'mean_novelty' not in p:
         return
+    output = Path(output)
+    output.mkdir(parents=True, exist_ok=True)
+    provisional = not converged or table.get('at_bound', pd.Series(False)).astype(str).str.lower().eq('true').any()
+    summaries, curves = [], []
+    os.environ.setdefault("MPLCONFIGDIR", str(Path(tempfile.gettempdir()) / "pricing_exercises_mpl"))
     import matplotlib
-    matplotlib.use("Agg")
+    matplotlib.use('Agg')
     import matplotlib.pyplot as plt
-    from scipy.stats import norm
     fig, axes = plt.subplots(1, 2, figsize=(10, 4))
-    for ax, term, label in zip(axes, ["novelty", "own_stock"],
-                               ["Recent other-flavor purchases", "Accumulated own-flavor purchases"]):
-        mean, sd = estimates["mean_" + term], estimates.get("sd_" + term, 0.)
-        if sd > 0:
-            x = np.linspace(mean - 4*sd, mean + 4*sd, 801)
-            ax.plot(x, norm.pdf(x, mean, sd))
-            ax.set_ylabel("Population density")
+    for ax, term, label in zip(axes, ['novelty', 'own_stock'], ['Switching / novelty', 'Own-stock habit']):
+        mean, sd = float(p['mean_'+term]), float(p.get('sd_'+term, 0.))
+        if not np.isfinite([mean, sd]).all() or sd < 0:
+            raise ValueError('Invalid distribution parameters')
+        normal = NormalDist(mean, sd) if sd > 0 else None
+        row = dict(coefficient=term, mean=mean, sd=sd, point_mass=sd == 0,
+                   share_below_zero=normal.cdf(0) if normal else float(mean < 0), provisional=bool(provisional))
+        for q in [.01, .05, .25, .5, .75, .95, .99]:
+            row[f'q{int(100*q):02d}'] = normal.inv_cdf(q) if normal else mean
+        summaries.append(row)
+        if normal:
+            x = np.linspace(mean-4*sd, mean+4*sd, 801)
+            density = np.exp(-.5*((x-mean)/sd)**2)/(sd*np.sqrt(2*np.pi))
+            ax.plot(x, density)
+            curves.extend(dict(coefficient=term, value=float(v), density=float(d), cdf=normal.cdf(float(v)), point_mass=False)
+                          for v, d in zip(x, density))
         else:
-            ax.axvline(mean, label="Point mass")
-            ax.set_xlim(mean - 1, mean + 1)
-            ax.set_yticks([])
-        ax.axvline(0, color="gray", ls="--")
-        ax.set(xlabel="Coefficient", title=f"{label}\nMean={mean:.4g}; SD={sd:.4g}")
-    title = "Separate history coefficients"
-    if not converged or table["at_bound"].any():
-        title += " (provisional fit)"
-    fig.suptitle(title)
+            ax.axvline(mean, label='Point mass')
+            curves.append(dict(coefficient=term, value=mean, density=np.nan, cdf=1., point_mass=True))
+        ax.axvline(0, color='gray', ls='--')
+        ax.set(title=f'{label}\nMean={mean:.4g}; SD={sd:.4g}', xlabel='Utility coefficient', ylabel='Population density')
+    pd.DataFrame(summaries).to_csv(output/'history_distribution_summary.csv', index=False)
+    pd.DataFrame(curves).to_csv(output/'history_distribution_grid.csv', index=False)
+    fig.suptitle('Fitted population history distributions'+(' (provisional)' if provisional else ''))
     fig.tight_layout()
-    fig.savefig(output / "history_distributions.pdf")
+    for extension in ['pdf', 'png']:
+        fig.savefig(output/f'history_distributions.{extension}')
     plt.close(fig)
 
+
+def plot_history_distributions(table, output, converged=True):
+    export_history_distributions(table, output, converged)
 
 
 # === 7. Save estimates, uncertainty, and a plain-text run record === #

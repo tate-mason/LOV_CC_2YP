@@ -1,0 +1,10 @@
+{
+  "households": 15105,
+  "weeks": 281695,
+  "reconstructed_nll": 1631135.5921457917,
+  "saved_nll": 1631135.5921457917,
+  "model": "heterogeneous_history",
+  "sample": "/scratch/dtm63837/Kilts_Panel/Data/summary_outputs/yogurt_estimation_sample.parquet",
+  "demand_refitted": false,
+  "price_control_refitted": true
+}

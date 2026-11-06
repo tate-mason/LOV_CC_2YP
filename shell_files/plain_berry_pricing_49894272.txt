@@ -1,0 +1,16 @@
+Already up to date.
+Loading merged purchase table: /scratch/dtm63837/Kilts_Panel/Data/summary_outputs/yogurt_estimation_sample.parquet
+Using merged prices directly; no separate RMS data are loaded.
+IV: overall same-week mean price outside consumer dma_cd, pooled across flavors.
+Weeks excluded for purchased flavors without a covered price: 952
+Additional weeks excluded for missing other-DMA IVs: 0
+Households excluded for fewer than two usable weeks: 703
+Regenerated /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP/shell_files/res_het_hist/weekly_inputs.csv; household/week totals and saved likelihood verified.
+Targeted pricing: integrated 960/1839 eligible households
+Targeted pricing: integrated 1839/1839 eligible households
+Targeted pricing: integrated 960/4537 eligible households
+Targeted pricing: integrated 1920/4537 eligible households
+Targeted pricing: integrated 2880/4537 eligible households
+Targeted pricing: integrated 3840/4537 eligible households
+Targeted pricing: integrated 4537/4537 eligible households
+Plain and berry comparison completed: plain_berry_pricing_ex

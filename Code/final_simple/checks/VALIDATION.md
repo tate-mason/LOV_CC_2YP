@@ -131,3 +131,9 @@ server job or full empirical re-estimation was run locally.
 The old `demand/pricing.py` and its .95 default remain for the combined-gamma
 comparison; the new split exercise defaults to .92, matching theoretical supply.
 See `demand/README.md` for the theory mapping and maintained differences.
+
+
+The plain/berry-only entry point adds one orchestration check: exactly those
+two focal solver calls retain the full three-category demand inputs and produce
+a two-flavor comparison without mutating caller settings. The complete no-CSV
+runner now contains 56 checks.

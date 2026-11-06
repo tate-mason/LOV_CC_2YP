@@ -913,6 +913,31 @@ selected run's product. The manifest maps rival state coordinates back to flavor
 names. Keep fit records beside outputs so these consistency checks remain possible.
 
 
+## Lesson 17: restricting focal sellers does not restrict demand alternatives
+
+For the main comparison, use `final_simple/demand/plain_berry_pricing.py`.
+Its selection is:
+
+```python
+FOCAL_FLAVORS = ("plain", "berry")
+```
+
+This tuple controls the seller problems that are solved, not which products are
+in the estimated choice set. The shared solver still uses all three demand
+categories and both estimated history coefficients. For focal plain, berry and
+other form the composite outside alternative; for focal berry, plain and other
+do so. Constructed nonpurchase remains outside too. There is no refit and no
+new flavor-specific switching distribution: household coefficients remain shared
+across flavors as estimated.
+
+Plain and berry are easier to interpret as focal products than the broad other
+aggregate. The three-focal script remains a sensitivity exercise. The two-focal
+entry point creates only plain/ and berry/ result folders and a combined
+comparison table. It changes neither competitor prices jointly nor the
+underlying demand sample. Run it on the server after weekly-input regeneration,
+using the same fit directory and weekly table as the three-focal exercise.
+
+
 
 \clearpage
 
@@ -34311,6 +34336,435 @@ print(f"Standalone empirical targeting completed: {args.output}")
 
 
 
+## ../final\_simple/demand/plain\_berry\_pricing.py
+
+
+The main plain-versus-berry comparison entry point. The broad other category remains in the fitted demand model and full basket histories, but is not treated as a focal seller here. Read the editable settings, the two-element FOCAL_FLAVORS tuple, and run_comparison. Pricing calculations are reused from the readable split_pricing module; the original three-focal exercise remains available as a sensitivity.
+
+
+
+### Module setup and direct-execution blocks
+
+
+Source lines 1–11:
+
+```{.python .numberLines startFrom="1"}
+"""Compare split-model pricing for plain and berry, retaining all demand categories.
+
+Edit Parameters below or supply server flags. Uses the same household solver as
+split_pricing.py. Other remains a demand alternative and history state, while
+only plain and berry are considered as focal sellers in separate counterfactuals.
+"""
+from pathlib import Path
+from types import SimpleNamespace
+from pprint import pformat
+import argparse
+import json
+```
+
+**Read this block:**
+
+- Line 1: this string is documentation when placed first in the body. It describes behavior but does not itself perform the stated calculation.
+- Line 7: from `pathlib`, import `Path` into this module's namespace. Importing can execute the imported module's top-level setup.
+- Line 8: from `types`, import `SimpleNamespace` into this module's namespace. Importing can execute the imported module's top-level setup.
+- Line 9: from `pprint`, import `pformat` into this module's namespace. Importing can execute the imported module's top-level setup.
+- Line 10: import `argparse`. An as-name is a convenient local alias, not another library.
+- Line 11: import `json`. An as-name is a convenient local alias, not another library.
+
+
+
+Source lines 12–15:
+
+```{.python .numberLines startFrom="12"}
+import sys
+
+import numpy as np
+import pandas as pd
+```
+
+**Read this block:**
+
+- Line 12: import `sys`. An as-name is a convenient local alias, not another library.
+- Line 14: import `numpy as np`. An as-name is a convenient local alias, not another library.
+- Line 15: import `pandas as pd`. An as-name is a convenient local alias, not another library.
+
+
+
+Source lines 17–20:
+
+```{.python .numberLines startFrom="17"}
+if __package__:
+    from . import split_pricing as pricing
+else:
+    import split_pricing as pricing
+```
+
+**Read this block:**
+
+- Line 17: test `__package__`. Execute the indented branch only when it is true; an else/elif branch handles its alternative.
+- Line 18: from ``, import `split_pricing as pricing` into this module's namespace. Importing can execute the imported module's top-level setup.
+- Line 20: import `split_pricing as pricing`. An as-name is a convenient local alias, not another library.
+
+
+
+Source lines 24–29:
+
+```{.python .numberLines startFrom="24"}
+household_input = None   # Path to regenerated weekly_inputs.csv.
+fit_dir = None           # Matching heterogeneous_history fitted-results folder.
+output = Path(__file__).resolve().parents[1] / "results" / "plain_berry_pricing"
+discounts = np.linspace(0., 1., 101)
+demand_delta = .92
+type_treatment = "posterior-mean"   # Or posterior-integrated.
+```
+
+**Read this block:**
+
+- Line 24, `household_input`: Set this name to the literal value `None`.
+- Line 25, `fit_dir`: Set this name to the literal value `None`.
+- Line 26, `output`: Set this name to division of the displayed operands; parentheses control which subexpressions are evaluated together.
+- Line 27, `discounts`: Set this name to the result of calling `np.linspace(...)`; the arguments and preceding method chain are shown above.
+- Line 28, `demand_delta`: Set this name to the literal value `0.92`.
+- Line 29, `type_treatment`: Set this name to the literal text `'posterior-mean'`.
+
+**Syntax and calls used here:**
+
+- `.resolve`: Normalize a path to an absolute resolved location before locating siblings or comparing paths.
+- `Path`: Construct a pathlib filesystem-path object, enabling / joining and path methods.
+- `.linspace`: Create the requested number of evenly spaced points, normally including both endpoints.
+
+
+
+Source lines 30–34:
+
+```{.python .numberLines startFrom="30"}
+batch_size = 24
+save_state_policies = False
+
+# This selects focal sellers, not the categories retained in demand estimation.
+FOCAL_FLAVORS = ("plain", "berry")
+```
+
+**Read this block:**
+
+- Line 30, `batch_size`: Set this name to the literal value `24`.
+- Line 31, `save_state_policies`: Set this name to the literal value `False`.
+- Line 34, `FOCAL_FLAVORS`: Set this name to the tuple `('plain', 'berry')`.
+
+
+
+Source lines 89–96:
+
+```{.python .numberLines startFrom="89"}
+if __name__ == '__main__':
+    settings = SimpleNamespace(household_input=household_input, fit_dir=fit_dir,
+        output=output, discounts=discounts, demand_delta=demand_delta,
+        type_treatment=type_treatment, batch_size=batch_size,
+        save_state_policies=save_state_policies)
+    if len(sys.argv) > 1:
+        settings = read_command_line(settings)
+    run_comparison(settings)
+```
+
+**Read this block:**
+
+- Line 89: test `__name__ == '__main__'`. Execute the indented branch only when it is true; an else/elif branch handles its alternative.
+- Line 90, `settings`: Set this name to the result of calling `SimpleNamespace(...)`; the arguments and preceding method chain are shown above.
+- Line 94: test `len(sys.argv) > 1`. Execute the indented branch only when it is true; an else/elif branch handles its alternative.
+- Line 95, `settings`: Set this name to the result of calling `read_command_line(...)`; the arguments and preceding method chain are shown above.
+- Line 96: call `run_comparison` with the displayed arguments. No assignment stores its return here; its documented side effect or assertion is what matters.
+
+**Syntax and calls used here:**
+
+- `SimpleNamespace`: Construct a lightweight object with named attributes, useful for args-like synthetic test settings.
+- `run_comparison`: Call this project helper/callable with the displayed arguments; its own walkthrough gives the input/output contract.
+- `len`: Count elements/rows rather than summing their numerical values.
+- `read_command_line`: Call this project helper/callable with the displayed arguments; its own walkthrough gives the input/output contract.
+
+
+
+
+### read command line
+
+
+Original function: `read_command_line`. Source begins at line 38.
+
+
+
+Parses optional server flags and uses the editable top-of-file settings as defaults. There is no focal-selection flag: this entry point always compares plain and berry. The explicit fit and weekly-input paths still identify the full three-category demand fit, not a two-category re-estimation.
+
+
+
+**Definition and stated intent:**
+
+Source lines 38–38:
+
+```{.python .numberLines startFrom="38"}
+def read_command_line(settings):
+```
+
+
+`def` creates this callable; the parentheses name its inputs (`settings`). A displayed `=value` supplies a default, and the colon begins its indented body.
+
+
+
+Source lines 39–44:
+
+```{.python .numberLines startFrom="39"}
+parser = argparse.ArgumentParser(description=__doc__)
+parser.add_argument('--household-input', type=Path)
+parser.add_argument('--fit-dir', type=Path)
+parser.add_argument('--output', type=Path)
+parser.add_argument('--discounts', type=float, nargs='+')
+parser.add_argument('--demand-delta', type=float)
+```
+
+**Read this block:**
+
+- Line 39, `parser`: Set this name to the result of calling `argparse.ArgumentParser(...)`; the arguments and preceding method chain are shown above.
+- Line 40: call `parser.add_argument` with the displayed arguments. No assignment stores its return here; its documented side effect or assertion is what matters.
+- Line 41: call `parser.add_argument` with the displayed arguments. No assignment stores its return here; its documented side effect or assertion is what matters.
+- Line 42: call `parser.add_argument` with the displayed arguments. No assignment stores its return here; its documented side effect or assertion is what matters.
+- Line 43: call `parser.add_argument` with the displayed arguments. No assignment stores its return here; its documented side effect or assertion is what matters.
+- Line 44: call `parser.add_argument` with the displayed arguments. No assignment stores its return here; its documented side effect or assertion is what matters.
+
+**Syntax and calls used here:**
+
+- `.ArgumentParser`: Create the command-line parser object that will register and validate options.
+- `.add_argument`: Register a command-line option and its type/default/choices/flag behavior before parsing.
+
+
+
+Source lines 45–48:
+
+```{.python .numberLines startFrom="45"}
+parser.add_argument('--type-treatment', choices=['posterior-mean', 'posterior-integrated'])
+parser.add_argument('--batch-size', type=int)
+parser.add_argument('--save-state-policies', action='store_true')
+parser.set_defaults(**vars(settings))
+```
+
+**Read this block:**
+
+- Line 45: call `parser.add_argument` with the displayed arguments. No assignment stores its return here; its documented side effect or assertion is what matters.
+- Line 46: call `parser.add_argument` with the displayed arguments. No assignment stores its return here; its documented side effect or assertion is what matters.
+- Line 47: call `parser.add_argument` with the displayed arguments. No assignment stores its return here; its documented side effect or assertion is what matters.
+- Line 48: call `parser.set_defaults` with the displayed arguments. No assignment stores its return here; its documented side effect or assertion is what matters.
+
+**Syntax and calls used here:**
+
+- `vars`: Expose an object's attribute dictionary, here the parsed settings saved with the result.
+
+
+
+Source lines 49–49:
+
+```{.python .numberLines startFrom="49"}
+return parser.parse_args()
+```
+
+**Read this block:**
+
+- Line 49: return the result of calling `parser.parse_args(...)`; the arguments and preceding method chain are shown above. This ends the call.
+
+**Syntax and calls used here:**
+
+- `.parse_args`: Read command-line arguments into a Namespace of named attributes.
+
+
+
+
+### run comparison
+
+
+Original function: `run_comparison`. Source begins at line 53.
+
+
+
+Runs the shared split-pricing solver twice, once for plain and once for berry. FOCAL_FLAVORS controls which product earns seller revenue in each counterfactual; pricing.FLAVORS retains other, berry and plain in demand and history updates. Each case receives a copy of the settings record so its focal label and output path do not change the caller's record. It saves separate focal folders and stacks aggregate policy rows into focal_flavor_comparison.csv. The manifest records both the focal sellers and full demand categories, plus hashes of this entry point and its shared solver. These are separate fixed-rival counterfactuals, not a simultaneous equilibrium.
+
+
+
+**Definition and stated intent:**
+
+Source lines 53–53:
+
+```{.python .numberLines startFrom="53"}
+def run_comparison(settings):
+```
+
+
+`def` creates this callable; the parentheses name its inputs (`settings`). A displayed `=value` supplies a default, and the colon begins its indented body.
+
+
+
+Source lines 54–55:
+
+```{.python .numberLines startFrom="54"}
+if settings.household_input is None or settings.fit_dir is None:
+    raise ValueError('Set household_input and fit_dir, or supply their server flags.')
+```
+
+**Read this block:**
+
+- Line 54: test `settings.household_input is None or settings.fit_dir is None`. Execute the indented branch only when it is true; an else/elif branch handles its alternative.
+- Line 55: raise the displayed exception, stopping normal flow because continuing would produce misleading or unusable results. A surrounding matching except may handle it.
+
+**Syntax and calls used here:**
+
+- `ValueError`: Construct an exception describing why this operation cannot proceed normally.
+
+
+
+Source lines 56–56:
+
+```{.python .numberLines startFrom="56"}
+grid = np.unique(np.asarray(settings.discounts, dtype=float))
+```
+
+**Read this block:**
+
+- Line 56, `grid`: Set this name to the result of calling `np.unique(...)`; the arguments and preceding method chain are shown above.
+
+**Syntax and calls used here:**
+
+- `.unique`: Retain distinct rows/values; subset and keep determine the keys and duplicate-resolution rule.
+- `.asarray`: View/convert data as an array without demanding a copy when the representation already fits.
+
+
+
+Source lines 57–59:
+
+```{.python .numberLines startFrom="57"}
+if (grid.size == 0 or not np.isfinite(grid).all() or grid[0] != 0. or grid[-1] > 1.
+        or not 0 <= settings.demand_delta <= 1 or settings.batch_size < 1):
+    raise ValueError('Discounts must include zero and lie in [0,1]; delta in [0,1], batch size >=1.')
+```
+
+**Read this block:**
+
+- Line 57: test `grid.size == 0 or not np.isfinite(grid).all() or grid[0] != 0.0 or (grid[-1] ...`. Execute the indented branch only when it is true; an else/elif branch handles its alternative.
+- Line 59: raise the displayed exception, stopping normal flow because continuing would produce misleading or unusable results. A surrounding matching except may handle it.
+
+**Syntax and calls used here:**
+
+- `.all`: Reduce Boolean values to whether every value is true; with axis=1 the result has one entry per row.
+- `.isfinite`: Test for finite numbers, rejecting both NaN and positive/negative infinity.
+
+
+
+Source lines 60–61:
+
+```{.python .numberLines startFrom="60"}
+settings.output.mkdir(parents=True, exist_ok=True)
+reports, comparison = {}, []
+```
+
+**Read this block:**
+
+- Line 60: call `settings.output.mkdir` with the displayed arguments. No assignment stores its return here; its documented side effect or assertion is what matters.
+- Line 61, `(reports, comparison)`: Unpack a tuple containing 2 displayed entries into these targets in order.
+
+**Syntax and calls used here:**
+
+- `.mkdir`: Create a directory; parents=True creates ancestors and exist_ok=True accepts an existing directory.
+
+
+
+Source lines 62–72:
+
+```{.python .numberLines startFrom="62"}
+for focal in FOCAL_FLAVORS:
+    # Each case uses the same fit and full three-category household table.
+    # The shared solver moves this focal flavor into its priced coordinate.
+    case = SimpleNamespace(**vars(settings))
+    case.focal_flavor = focal
+    case.discounts = grid
+    case.output = settings.output / focal
+    case.output.mkdir(parents=True, exist_ok=True)
+    reports[focal] = pricing.run_households(case)
+    for row in reports[focal]['aggregate']:
+        comparison.append(dict(focal_flavor=focal, **row))
+```
+
+**Read this block:**
+
+- Line 62: for each entry yielded by `FOCAL_FLAVORS`, bind/unpack it into `focal` and run the indented body. Changes inside an iteration can feed subsequent iterations.
+- Line 65, `case`: Set this name to the result of calling `SimpleNamespace(...)`; the arguments and preceding method chain are shown above.
+- Line 66, `case.focal_flavor`: Set this name to the object currently named `focal`; plain assignment does not copy it.
+- Line 67, `case.discounts`: Set this name to the object currently named `grid`; plain assignment does not copy it.
+- Line 68, `case.output`: Set this name to division of the displayed operands; parentheses control which subexpressions are evaluated together.
+- Line 69: call `case.output.mkdir` with the displayed arguments. No assignment stores its return here; its documented side effect or assertion is what matters.
+- Line 70, `reports[focal]`: Store the result of calling `pricing.run_households(...)`; the arguments and preceding method chain are shown above in the selected entry/column.
+- Line 71: for each entry yielded by `reports[focal]['aggregate']`, bind/unpack it into `row` and run the indented body. Changes inside an iteration can feed subsequent iterations.
+- Line 72: call `comparison.append` with the displayed arguments. No assignment stores its return here; its documented side effect or assertion is what matters.
+
+**Syntax and calls used here:**
+
+- `SimpleNamespace`: Construct a lightweight object with named attributes, useful for args-like synthetic test settings.
+- `.append`: Add one item to the end of a Python list; it mutates the list and normally returns None.
+- `vars`: Expose an object's attribute dictionary, here the parsed settings saved with the result.
+- `dict`: Build a key/value mapping, often by pairing parameter names with numeric coefficients.
+
+
+
+Source lines 74–84:
+
+```{.python .numberLines startFrom="74"}
+pd.DataFrame(comparison).to_csv(settings.output / 'focal_flavor_comparison.csv', index=False)
+manifest = dict(
+    focal_flavors=list(FOCAL_FLAVORS), demand_categories=list(pricing.FLAVORS),
+    settings={key: str(value) if isinstance(value, Path) else value.tolist()
+              if isinstance(value, np.ndarray) else value for key, value in vars(settings).items()},
+    results=reports, script_sha256=pricing.digest(Path(__file__).resolve()),
+    solver_sha256=pricing.digest(Path(pricing.__file__).resolve()),
+    versions=dict(python=sys.version, numpy=np.__version__, pandas=pd.__version__))
+(settings.output / 'run_manifest.json').write_text(json.dumps(manifest, indent=2)+'\n')
+(settings.output / 'run_notes.txt').write_text(pformat(manifest, sort_dicts=False, width=90)+'\n')
+print(f'Plain and berry comparison completed: {settings.output}')
+```
+
+**Read this block:**
+
+- Line 74: call `pd.DataFrame(comparison).to_csv` with the displayed arguments. No assignment stores its return here; its documented side effect or assertion is what matters.
+- Line 75, `manifest`: Set this name to the result of calling `dict(...)`; the arguments and preceding method chain are shown above.
+- Line 82: call `(settings.output / 'run_manifest.json').write_text` with the displayed arguments. No assignment stores its return here; its documented side effect or assertion is what matters.
+- Line 83: call `(settings.output / 'run_notes.txt').write_text` with the displayed arguments. No assignment stores its return here; its documented side effect or assertion is what matters.
+- Line 84: call `print` with the displayed arguments. No assignment stores its return here; its documented side effect or assertion is what matters.
+
+**Syntax and calls used here:**
+
+- `.to_csv`: Serialize a pandas table as CSV; index=False avoids writing row labels as an extra column.
+- `list`: Materialize iterable entries as an ordered Python list.
+- `.resolve`: Normalize a path to an absolute resolved location before locating siblings or comparing paths.
+- `isinstance`: Check a runtime type to select the appropriate conversion path.
+- `str`: Convert to text for paths, messages, or serialization.
+- `.items`: Iterate through dictionary key/value pairs together, allowing two-name unpacking in a loop.
+- `.tolist`: Convert a NumPy/pandas sequence to ordinary Python list values, useful for JSON output or comparisons.
+- `Path`: Construct a pathlib filesystem-path object, enabling / joining and path methods.
+- The brace-enclosed key:value for-expression builds a dictionary, rather than an ordinary list.
+- The expression a if condition else b chooses one value; unlike a full if statement it fits inside another expression.
+- `.write_text`: Write a string into a text file, replacing an existing file at that path.
+- `.dumps`: Serialize Python dictionaries/lists/scalars into a JSON string, with optional readable indentation.
+- `pformat`: Call this project helper/callable with the displayed arguments; its own walkthrough gives the input/output contract.
+- `print`: Display/log a value; this differs from returning it to another calculation. flush=True sends progress promptly.
+- The f-prefixed string inserts expressions in braces; format suffixes control display without changing stored coefficients.
+
+
+
+Source lines 85–85:
+
+```{.python .numberLines startFrom="85"}
+return manifest
+```
+
+**Read this block:**
+
+- Line 85: return the object currently named `manifest`; plain assignment does not copy it. This ends the call.
+
+
+
+
 ## ../final\_simple/demand/regenerate\_weekly\_inputs.py
 
 
@@ -41797,17 +42251,29 @@ class SplitPosteriorTests(unittest.TestCase):
 
 
 
-Source lines 178–179:
+Source lines 178–178:
 
 ```{.python .numberLines startFrom="178"}
+class PlainBerryComparisonTests(unittest.TestCase):
+```
+
+**Read this block:**
+
+- Line 178: define class `PlainBerryComparisonTests` and its methods. TestCase inheritance provides the self.assert... checking methods.
+
+
+
+Source lines 208–209:
+
+```{.python .numberLines startFrom="208"}
 if __name__ == "__main__":
     unittest.main()
 ```
 
 **Read this block:**
 
-- Line 178: test `__name__ == '__main__'`. Execute the indented branch only when it is true; an else/elif branch handles its alternative.
-- Line 179: call `unittest.main` with the displayed arguments. No assignment stores its return here; its documented side effect or assertion is what matters.
+- Line 208: test `__name__ == '__main__'`. Execute the indented branch only when it is true; an else/elif branch handles its alternative.
+- Line 209: call `unittest.main` with the displayed arguments. No assignment stores its return here; its documented side effect or assertion is what matters.
 
 
 
@@ -42609,6 +43075,218 @@ for focal in pricing.FLAVORS:
 
 
 
+### PlainBerryComparisonTests.test only focal sellers change and full demand is retained
+
+
+Original function: `PlainBerryComparisonTests.test_only_focal_sellers_change_and_full_demand_is_retained`. Source begins at line 179.
+
+
+
+Mocks the household solver and captures the comparison table in memory. It checks there are exactly two calls, plain and berry, with the original fitted-results and household-input paths, no other focal folder, all three demand categories in the run record, and an unchanged caller output path. No empirical inputs or CSV files are read.
+
+
+
+**Definition and stated intent:**
+
+Source lines 179–179:
+
+```{.python .numberLines startFrom="179"}
+def test_only_focal_sellers_change_and_full_demand_is_retained(self):
+```
+
+
+`def` creates this callable; the parentheses name its inputs (`self`). A displayed `=value` supplies a default, and the colon begins its indented body.
+
+
+
+Source lines 180–184:
+
+```{.python .numberLines startFrom="180"}
+from demand import plain_berry_pricing as comparison
+from types import SimpleNamespace
+from pathlib import Path
+from unittest.mock import patch
+import tempfile
+```
+
+**Read this block:**
+
+- Line 180: from `demand`, import `plain_berry_pricing as comparison` into this module's namespace. Importing can execute the imported module's top-level setup.
+- Line 181: from `types`, import `SimpleNamespace` into this module's namespace. Importing can execute the imported module's top-level setup.
+- Line 182: from `pathlib`, import `Path` into this module's namespace. Importing can execute the imported module's top-level setup.
+- Line 183: from `unittest.mock`, import `patch` into this module's namespace. Importing can execute the imported module's top-level setup.
+- Line 184: import `tempfile`. An as-name is a convenient local alias, not another library.
+
+
+
+Source lines 185–205:
+
+```{.python .numberLines startFrom="185"}
+with tempfile.TemporaryDirectory() as directory:
+    settings = SimpleNamespace(household_input=Path('/server/weekly_inputs.csv'),
+        fit_dir=Path('/server/split_fit'), output=Path(directory),
+        discounts=np.array([0., .5, 1.]), demand_delta=.92,
+        type_treatment='posterior-mean', batch_size=24, save_state_policies=False)
+    def solve(case):
+        self.assertEqual(case.household_input, settings.household_input)
+        self.assertEqual(case.fit_dir, settings.fit_dir)
+        return dict(aggregate=[dict(policy='personalized_dynamic', discounted_revenue=1.)])
+    captured = []
+    def capture(frame, path, **kwargs):
+        captured.append(frame.copy())
+    with patch.object(comparison.pricing, 'run_households', side_effect=solve) as solver, \
+            patch.object(pd.DataFrame, 'to_csv', capture):
+        manifest = comparison.run_comparison(settings)
+    self.assertEqual([call.args[0].focal_flavor for call in solver.call_args_list], ['plain', 'berry'])
+    self.assertEqual(set(captured[0].focal_flavor), {'plain', 'berry'})
+    self.assertEqual(manifest['demand_categories'], ['other', 'berry', 'plain'])
+    self.assertEqual(set(manifest['results']), {'plain', 'berry'})
+    self.assertFalse((settings.output/'other').exists())
+    self.assertEqual(settings.output, Path(directory))
+```
+
+**Read this block:**
+
+- Line 185: enter the displayed context manager(s). An as-name receives the temporary resource; leaving the block restores/closes/cleans it according to that manager, including ordinary exception exits.
+- Line 186, `settings`: Set this name to the result of calling `SimpleNamespace(...)`; the arguments and preceding method chain are shown above.
+- Line 190: define nested callable `solve`. Its body runs when it is called, and it can read enclosing local names. It has its own dedicated walkthrough below.
+- Line 194, `captured`: Set this name to the list `[]`.
+- Line 195: define nested callable `capture`. Its body runs when it is called, and it can read enclosing local names. It has its own dedicated walkthrough below.
+- Line 197: enter the displayed context manager(s). An as-name receives the temporary resource; leaving the block restores/closes/cleans it according to that manager, including ordinary exception exits.
+- Line 199, `manifest`: Set this name to the result of calling `comparison.run_comparison(...)`; the arguments and preceding method chain are shown above.
+- Line 200: call `self.assertEqual` with the displayed arguments. No assignment stores its return here; its documented side effect or assertion is what matters.
+- Line 201: call `self.assertEqual` with the displayed arguments. No assignment stores its return here; its documented side effect or assertion is what matters.
+- Line 202: call `self.assertEqual` with the displayed arguments. No assignment stores its return here; its documented side effect or assertion is what matters.
+- Line 203: call `self.assertEqual` with the displayed arguments. No assignment stores its return here; its documented side effect or assertion is what matters.
+- Line 204: call `self.assertFalse` with the displayed arguments. No assignment stores its return here; its documented side effect or assertion is what matters.
+- Line 205: call `self.assertEqual` with the displayed arguments. No assignment stores its return here; its documented side effect or assertion is what matters.
+
+**Syntax and calls used here:**
+
+- `.TemporaryDirectory`: Create temporary working storage whose context manager cleans it up when the block exits.
+- `SimpleNamespace`: Construct a lightweight object with named attributes, useful for args-like synthetic test settings.
+- `.assertEqual`: Fail this unittest method unless actual and expected objects are equal.
+- `.assertFalse`: Fail unless the supplied condition is false, checking an expected absence/invalidity.
+- `dict`: Build a key/value mapping, often by pairing parameter names with numeric coefficients.
+- `.append`: Add one item to the end of a Python list; it mutates the list and normally returns None.
+- `set`: Build a collection of distinct values, used for column membership and missing-field checks.
+- `.exists`: Test whether a filesystem path exists; this is not a schema/content validity check.
+- `Path`: Construct a pathlib filesystem-path object, enabling / joining and path methods.
+- `.array`: Create a NumPy array; nested equal-length lists form rows and columns.
+- `.copy`: Make an independent container before changing it; plain assignment would give the original object another name.
+- The bracketed for-expression is a list comprehension: one computed entry per loop item, optionally filtered by its final if.
+
+
+
+
+### PlainBerryComparisonTests.test only focal sellers change and full demand is retained.solve
+
+
+Original function: `PlainBerryComparisonTests.test_only_focal_sellers_change_and_full_demand_is_retained.solve`. Source begins at line 190.
+
+
+
+This nested mock supplies a tiny aggregate result instead of reading household data. Its assertions ensure both focal cases receive the same full fitted-results and weekly-input paths. The surrounding test checks which focal products were requested.
+
+
+
+**Definition and stated intent:**
+
+Source lines 190–190:
+
+```{.python .numberLines startFrom="190"}
+def solve(case):
+```
+
+
+`def` creates this callable; the parentheses name its inputs (`case`). A displayed `=value` supplies a default, and the colon begins its indented body.
+
+
+
+Source lines 191–192:
+
+```{.python .numberLines startFrom="191"}
+self.assertEqual(case.household_input, settings.household_input)
+self.assertEqual(case.fit_dir, settings.fit_dir)
+```
+
+**Read this block:**
+
+- Line 191: call `self.assertEqual` with the displayed arguments. No assignment stores its return here; its documented side effect or assertion is what matters.
+- Line 192: call `self.assertEqual` with the displayed arguments. No assignment stores its return here; its documented side effect or assertion is what matters.
+
+**Syntax and calls used here:**
+
+- `.assertEqual`: Fail this unittest method unless actual and expected objects are equal.
+
+
+
+Source lines 193–193:
+
+```{.python .numberLines startFrom="193"}
+return dict(aggregate=[dict(policy='personalized_dynamic', discounted_revenue=1.)])
+```
+
+**Read this block:**
+
+- Line 193: return the result of calling `dict(...)`; the arguments and preceding method chain are shown above. This ends the call.
+
+**Syntax and calls used here:**
+
+- `dict`: Build a key/value mapping, often by pairing parameter names with numeric coefficients.
+
+
+
+
+### PlainBerryComparisonTests.test only focal sellers change and full demand is retained.capture
+
+
+Original function: `PlainBerryComparisonTests.test_only_focal_sellers_change_and_full_demand_is_retained.capture`. Source begins at line 195.
+
+
+
+Captures the DataFrame passed to to_csv in a Python list rather than creating or reopening a CSV. This makes it possible to verify the two comparison labels while the test runner blocks CSV readers. The helper is a test substitute, not a production export routine.
+
+
+
+**Definition and stated intent:**
+
+Source lines 195–195:
+
+```{.python .numberLines startFrom="195"}
+def capture(frame, path, **kwargs):
+```
+
+
+`def` creates this callable; the parentheses name its inputs (`frame`, `path`). A displayed `=value` supplies a default, and the colon begins its indented body.
+
+
+
+`**kwargs` collects additional keyword arguments in a dictionary.
+
+
+
+Source lines 196–196:
+
+```{.python .numberLines startFrom="196"}
+captured.append(frame.copy())
+```
+
+**Read this block:**
+
+- Line 196: call `captured.append` with the displayed arguments. No assignment stores its return here; its documented side effect or assertion is what matters.
+
+**Syntax and calls used here:**
+
+- `.append`: Add one item to the end of a Python list; it mutates the list and normally returns None.
+- `.copy`: Make an independent container before changing it; plain assignment would give the original object another name.
+
+
+
+**Output reminder:** reaching the end returns `None`. The useful result here is assertions, printing, plotting, writing, or another documented side effect.
+
+
+
 ## ../final\_simple/checks/test\_regenerate\_weekly\_inputs.py
 
 
@@ -42880,7 +43558,7 @@ self.check_recovery(True)
 # Coverage, rebuilding, and next steps
 
 
-This edition includes 94 Python files, 243 named functions/methods (including nested helpers), and 8,519 source lines. Every AST statement start is accounted for in the annotated listings. Empty files and top-level scripts are included. Lambda expressions are explained at their use sites rather than counted as named functions. Large raw LaTeX strings are reproduced as data; their mathematical content is discussed in the separate economic guide.
+This edition includes 95 Python files, 248 named functions/methods (including nested helpers), and 8,645 source lines. Every AST statement start is accounted for in the annotated listings. Empty files and top-level scripts are included. Lambda expressions are explained at their use sites rather than counted as named functions. Large raw LaTeX strings are reproduced as data; their mathematical content is discussed in the separate economic guide.
 
 
 

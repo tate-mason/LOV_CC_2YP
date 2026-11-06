@@ -1963,3 +1963,24 @@ Exercises successful weekly-export regeneration with mocks and confirms fit/para
 ## ../final_simple/checks/test_regenerate_weekly_inputs.py::RecoveryTests.test_mismatch_preserves_existing_export
 
 Forces a reconstructed-likelihood mismatch and checks no replacement weekly export or success record is published. The assertions fail automatically when the stated property does not hold; passing synthetic checks does not establish empirical fit quality.
+
+
+## ../final_simple/demand/plain_berry_pricing.py::read_command_line
+
+Parses optional server flags and uses the editable top-of-file settings as defaults. There is no focal-selection flag: this entry point always compares plain and berry. The explicit fit and weekly-input paths still identify the full three-category demand fit, not a two-category re-estimation.
+
+## ../final_simple/demand/plain_berry_pricing.py::run_comparison
+
+Runs the shared split-pricing solver twice, once for plain and once for berry. FOCAL_FLAVORS controls which product earns seller revenue in each counterfactual; pricing.FLAVORS retains other, berry and plain in demand and history updates. Each case receives a copy of the settings record so its focal label and output path do not change the caller's record. It saves separate focal folders and stacks aggregate policy rows into focal_flavor_comparison.csv. The manifest records both the focal sellers and full demand categories, plus hashes of this entry point and its shared solver. These are separate fixed-rival counterfactuals, not a simultaneous equilibrium.
+
+## ../final_simple/checks/test_split_pricing.py::PlainBerryComparisonTests.test_only_focal_sellers_change_and_full_demand_is_retained
+
+Mocks the household solver and captures the comparison table in memory. It checks there are exactly two calls, plain and berry, with the original fitted-results and household-input paths, no other focal folder, all three demand categories in the run record, and an unchanged caller output path. No empirical inputs or CSV files are read.
+
+## ../final_simple/checks/test_split_pricing.py::PlainBerryComparisonTests.test_only_focal_sellers_change_and_full_demand_is_retained.solve
+
+This nested mock supplies a tiny aggregate result instead of reading household data. Its assertions ensure both focal cases receive the same full fitted-results and weekly-input paths. The surrounding test checks which focal products were requested.
+
+## ../final_simple/checks/test_split_pricing.py::PlainBerryComparisonTests.test_only_focal_sellers_change_and_full_demand_is_retained.capture
+
+Captures the DataFrame passed to to_csv in a Python list rather than creating or reopening a CSV. This makes it possible to verify the two comparison labels while the test runner blocks CSV readers. The helper is a test substitute, not a production export routine.

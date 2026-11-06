@@ -534,3 +534,28 @@ Begin reading pricing outputs at the root `focal_flavor_comparison.csv` and
 policies, group/aggregate tables and figures. `focal_units` always means the
 selected run's product. The manifest maps rival state coordinates back to flavor
 names. Keep fit records beside outputs so these consistency checks remain possible.
+
+
+## Lesson 17: restricting focal sellers does not restrict demand alternatives
+
+For the main comparison, use `final_simple/demand/plain_berry_pricing.py`.
+Its selection is:
+
+```python
+FOCAL_FLAVORS = ("plain", "berry")
+```
+
+This tuple controls the seller problems that are solved, not which products are
+in the estimated choice set. The shared solver still uses all three demand
+categories and both estimated history coefficients. For focal plain, berry and
+other form the composite outside alternative; for focal berry, plain and other
+do so. Constructed nonpurchase remains outside too. There is no refit and no
+new flavor-specific switching distribution: household coefficients remain shared
+across flavors as estimated.
+
+Plain and berry are easier to interpret as focal products than the broad other
+aggregate. The three-focal script remains a sensitivity exercise. The two-focal
+entry point creates only plain/ and berry/ result folders and a combined
+comparison table. It changes neither competitor prices jointly nor the
+underlying demand sample. Run it on the server after weekly-input regeneration,
+using the same fit directory and weekly table as the three-focal exercise.

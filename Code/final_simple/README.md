@@ -20,7 +20,8 @@ final_simple/
         summaries.py           # demographics, flavors, HHI, and demand input
     demand/
         estimation.py          # demand estimation and inference
-        split_pricing.py       # current split model; all three focal flavors
+        plain_berry_pricing.py # main comparison: plain and berry focal sellers
+        split_pricing.py       # split model; all three focal flavors
         regenerate_weekly_inputs.py # server: rebuild the deleted weekly export
         history_distributions.py    # export distributions from saved split fits
         pricing.py             # earlier combined-gamma berry comparison

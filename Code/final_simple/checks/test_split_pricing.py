@@ -175,5 +175,35 @@ class SplitPosteriorTests(unittest.TestCase):
                 self.assertTrue((table.revenue_change >= -1e-10).all())
 
 
+class PlainBerryComparisonTests(unittest.TestCase):
+    def test_only_focal_sellers_change_and_full_demand_is_retained(self):
+        from demand import plain_berry_pricing as comparison
+        from types import SimpleNamespace
+        from pathlib import Path
+        from unittest.mock import patch
+        import tempfile
+        with tempfile.TemporaryDirectory() as directory:
+            settings = SimpleNamespace(household_input=Path('/server/weekly_inputs.csv'),
+                fit_dir=Path('/server/split_fit'), output=Path(directory),
+                discounts=np.array([0., .5, 1.]), demand_delta=.92,
+                type_treatment='posterior-mean', batch_size=24, save_state_policies=False)
+            def solve(case):
+                self.assertEqual(case.household_input, settings.household_input)
+                self.assertEqual(case.fit_dir, settings.fit_dir)
+                return dict(aggregate=[dict(policy='personalized_dynamic', discounted_revenue=1.)])
+            captured = []
+            def capture(frame, path, **kwargs):
+                captured.append(frame.copy())
+            with patch.object(comparison.pricing, 'run_households', side_effect=solve) as solver, \
+                    patch.object(pd.DataFrame, 'to_csv', capture):
+                manifest = comparison.run_comparison(settings)
+            self.assertEqual([call.args[0].focal_flavor for call in solver.call_args_list], ['plain', 'berry'])
+            self.assertEqual(set(captured[0].focal_flavor), {'plain', 'berry'})
+            self.assertEqual(manifest['demand_categories'], ['other', 'berry', 'plain'])
+            self.assertEqual(set(manifest['results']), {'plain', 'berry'})
+            self.assertFalse((settings.output/'other').exists())
+            self.assertEqual(settings.output, Path(directory))
+
+
 if __name__ == "__main__":
     unittest.main()

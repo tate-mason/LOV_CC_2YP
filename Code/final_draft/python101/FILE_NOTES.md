@@ -319,3 +319,8 @@ Generated-array checks of split posterior likelihood, exact binary aggregation, 
 ## ../final_simple/checks/test_regenerate_weekly_inputs.py
 
 Mocked regeneration checks. Synthetic records supply saved settings and parameters; mocked preparation/CSV loading allows the checks to run while CSV readers are blocked. Success preserves fitted artifacts and a likelihood mismatch preserves any old export.
+
+
+## ../final_simple/demand/plain_berry_pricing.py
+
+The main plain-versus-berry comparison entry point. The broad other category remains in the fitted demand model and full basket histories, but is not treated as a focal seller here. Read the editable settings, the two-element FOCAL_FLAVORS tuple, and run_comparison. Pricing calculations are reused from the readable split_pricing module; the original three-focal exercise remains available as a sensitivity.

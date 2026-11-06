@@ -9,6 +9,25 @@ The full [Python 101 textbook](../../final_draft/code_guides_pdf/python101_walkt
 now includes this workflow. Start with worked lessons 11–16, then use its
 function-by-function chapters for the four readable demand scripts.
 
+## Plain and berry comparison
+
+Use `plain_berry_pricing.py` for the main two-focal comparison. It reuses the
+split solver and retains other, berry and plain in demand, posterior recovery
+and history updates. Only plain and berry receive focal-seller counterfactuals;
+other is always part of the composite outside option. Outputs are separate
+`plain/` and `berry/` folders plus `focal_flavor_comparison.csv` and run records.
+No re-estimation is needed. Run on the server after regenerating the weekly file:
+
+```bash
+python3 Code/final_simple/demand/regenerate_weekly_inputs.py \
+  --fit-dir /path/to/res_het_hist
+python3 Code/final_simple/demand/plain_berry_pricing.py \
+  --household-input /path/to/res_het_hist/weekly_inputs.csv \
+  --fit-dir /path/to/res_het_hist --output /path/to/plain_berry_pricing
+```
+
+The all-three `split_pricing.py` exercise remains available as a sensitivity.
+
 Read in this order:
 
 1. `estimation.py`, Parameters and sections 3 and 6: split-coefficient likelihood

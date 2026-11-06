@@ -210,7 +210,7 @@ def generate():
     # Include the readable current demand workflow alongside its original sources.
     simple = ROOT.parent / "final_simple"
     files.extend(simple / "demand" / name for name in
-                 ("estimation.py", "split_pricing.py", "regenerate_weekly_inputs.py", "history_distributions.py"))
+                 ("estimation.py", "split_pricing.py", "plain_berry_pricing.py", "regenerate_weekly_inputs.py", "history_distributions.py"))
     files.extend(simple / "checks" / name for name in
                  ("test_split_pricing.py", "test_regenerate_weekly_inputs.py"))
     is_test = lambda p: p.name.startswith("test_") or "checks" in p.parts

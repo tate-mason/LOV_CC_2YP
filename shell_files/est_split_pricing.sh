@@ -23,6 +23,14 @@ project_dir="/scratch/dtm63837/Kilts_Panel/LOV_CC_2YP"
 controlled_fit="$project_dir/shell_files/res_het_hist"
 uncontrolled_fit="$project_dir/shell_files/res_het_nocf"
 
+# Weekly household inputs are temporary: remove them on success or failure.
+cleanup_weekly_inputs() {
+    rm -f -- "$controlled_fit/weekly_inputs.csv" "$controlled_fit"/.weekly_inputs_*.csv
+}
+trap cleanup_weekly_inputs EXIT
+trap 'exit 130' INT
+trap 'exit 143' TERM
+
 for fit_directory in "$controlled_fit" "$uncontrolled_fit"; do
     if [[ ! -f "$fit_directory/fit.json" || ! -f "$fit_directory/point_estimates.csv" ]]; then
         echo "Missing saved fit in $fit_directory. Set controlled_fit/uncontrolled_fit to the estimation output directories." >&2

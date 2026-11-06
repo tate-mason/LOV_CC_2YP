@@ -17,6 +17,14 @@ project_dir="/scratch/dtm63837/Kilts_Panel/LOV_CC_2YP"
 # est_struc.sh uses relative --output paths; these defaults match runs from shell_files.
 controlled_fit="$project_dir/shell_files/res_het_hist"
 uncontrolled_fit="$project_dir/shell_files/res_het_nocf"
+
+# Weekly household inputs are temporary: remove them on success or failure.
+cleanup_weekly_inputs() {
+    rm -f -- "$controlled_fit/weekly_inputs.csv" "$controlled_fit"/.weekly_inputs_*.csv
+}
+trap cleanup_weekly_inputs EXIT
+trap 'exit 130' INT
+trap 'exit 143' TERM
 pricing_output="/scratch/dtm63837/Kilts_Panel/plain_berry_pricing_ex"
 
 ml Python/3.12.3-GCCcore-13.3.0

@@ -198,3 +198,11 @@ relative to its submission working directory; change the two fit-directory
 variables if you submitted estimation elsewhere. A fit directory must contain
 `fit.json` and `point_estimates.csv`; it is not a single file. Both jobs check
 those artifacts before regenerating household inputs on the server.
+
+
+Both pricing shell jobs treat the regenerated weekly table as temporary. An EXIT
+trap deletes `weekly_inputs.csv` and `.weekly_inputs_*.csv` staging files from
+the controlled fit directory after success or failure; INT/TERM handlers also
+trigger cleanup. The file exists on the server only while the job needs it.
+Cleanup leaves fitted estimates and pricing results in place. These handlers
+cannot run after an uncatchable SIGKILL or a machine failure.

@@ -517,7 +517,12 @@ The server job is `Code/final_simple/server/run_split_pricing.sh`. Its numbered
 steps regenerate the controlled fit's table, export both marginal distributions
 from controlled and uncontrolled fits, then run the plain/berry comparison using the
 controlled fit. Sync code and install the listed requirements in the server
-environment before submitting:
+environment before submitting. Both pricing shell jobs install an EXIT cleanup
+trap that removes the regenerated weekly CSV and its staging files after success
+or failure. INT/TERM handlers exit through that cleanup as well. The weekly table
+is temporary server-side input; fitted estimates and pricing outputs remain.
+An uncatchable SIGKILL or machine failure cannot execute a shell cleanup handler.
+Submit with:
 
 ```bash
 sbatch Code/final_simple/server/run_split_pricing.sh

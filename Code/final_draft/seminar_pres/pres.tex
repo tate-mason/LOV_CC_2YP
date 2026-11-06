@@ -1,0 +1,294 @@
+% ============================================================
+% UGA-Themed Beamer Template (Clean MWE)
+% ============================================================
+
+\documentclass[aspectratio=169,professionalfonts]{beamer}
+
+% ---------- COLORS (swap with official UGA hex if you like) ----------
+\usepackage{xcolor}
+\definecolor{UGARed}{HTML}{BA0C2F}   % Verify with brand guide
+\definecolor{UGABlack}{HTML}{000000}
+\definecolor{UGAGray}{HTML}{8A8D8F}
+
+% ---------- THEME & PROGRESS DOTS ----------
+\usetheme{default}
+\useinnertheme{circles}
+\useoutertheme[subsection=false]{miniframes}
+\usefonttheme{professionalfonts}
+\setbeamertemplate{navigation symbols}{}
+% Head/foot colors
+\setbeamercolor{subsection in head/foot}{fg=white,bg=UGARed}
+\setbeamercolor{headline}{fg=white, bg=UGARed}
+
+\setbeamercolor{section in head/foot}{fg=white,bg=UGARed}
+\setbeamercolor{section in head/foot shaded}{fg=white,bg=UGARed}
+\setbeamercolor{footline}{bg=UGABlack,fg=white}
+\setbeamercolor{frametitle}{fg=UGABlack}
+\setbeamercolor{title}{fg=UGABlack}
+\setbeamercolor{normal text}{fg=UGABlack}
+\setbeamercolor{structure}{fg=UGARed}
+
+% --- HEADLINE: slide dots grouped by section ---
+\setbeamersize{mini frame size=0.25cm,mini frame offset=0pt}
+% Show section labels above the clickable slide dots.
+\setbeamertemplate{section in head/foot}[default]
+\setbeamertemplate{section in head/foot shaded}[default][75]
+\setbeamertemplate{mini frame}{%
+  \tikz[baseline=-0.5ex] \filldraw[draw=white,fill=white,line width=0.6pt] (0,0) circle (2pt);%
+}
+\setbeamertemplate{mini frame in current subsection}{%
+  \tikz[baseline=-0.5ex] \filldraw[draw=white,fill=UGARed,line width=0.6pt] (0,0) circle (2pt);%
+}
+\setbeamertemplate{mini frame in other subsection}{%
+  \usebeamertemplate{mini frame in current subsection}%
+}
+\setbeamertemplate{mini frame in other section}{%
+  \usebeamertemplate{mini frame in current subsection}%
+}
+\setbeamertemplate{headline}{%
+  \begin{beamercolorbox}[wd=\paperwidth]{headline}
+    \vskip1ex
+    \insertnavigation{\paperwidth}
+    \vskip3ex
+  \end{beamercolorbox}
+}
+
+% Simple footline with slide numbers
+\setbeamertemplate{footline}{
+  \leavevmode%
+  \hbox{%
+    \begin{beamercolorbox}[wd=\paperwidth,ht=2.5ex,dp=1ex,leftskip=1em,rightskip=1em]{footline}%
+      \insertshortauthor{} \hfill \insertframenumber/\inserttotalframenumber
+    \end{beamercolorbox}}%
+}
+
+% ---------- PACKAGES ----------
+\usepackage{amsmath,amssymb,mathtools}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{bbm}
+\usepackage{array}
+\usepackage{adjustbox}
+\usepackage{hyperref}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta, positioning}
+\usepackage{tcolorbox}
+\usepackage{eurosym}
+\usepackage{threeparttable}
+% ---------- METADATA (fill these later) ----------
+\title{Optimal Dynamic Pricing With Preferences for Novelty}
+\subtitle{}
+\author{Tate Mason}
+\institute{The University of Georgia}
+\date{\today}
+
+% ---------- MACROS ----------
+% Numbered equation with label
+\newcommand{\beq}[1]{\begin{equation}\label{#1}}
+\newcommand{\eeq}{\end{equation}}
+% Accent color highlight
+\newcommand{\hl}[1]{\textbf{\textcolor{UGARed}{#1}}}
+% Simple figure placeholder macro
+\newcommand{\figph}[2][0.9\linewidth]{%
+  \begin{figure}
+    \centering
+    \fbox{\rule{0pt}{0.55#1}\rule{#1}{0pt}}%
+    \caption{#2}
+  \end{figure}
+}
+
+% ============================================================
+
+% Keep navigation links in the theme's white foreground on the red header.
+\hypersetup{colorlinks=true, linkcolor=., urlcolor=UGARed}
+
+% ---------- EXERCISE AND ESTIMATION FILE PATHS ----------
+\newcommand{\supplyexercisepath}{../pricing_exercises/run_supply_exercises.py}
+\newcommand{\pricingexercisepath}{../pricing_exercises/run_empirical_targeting.py}
+\newcommand{\supplyresultspath}{../pricing_exercises/supply_outputs/}
+\newcommand{\pricingresultspath}{../../../shell_files/pricing_ex/}
+\newcommand{\estimationnocfpath}{../../../shell_files/res_het_nocf/}
+% No res_het directory is present; the available heterogeneous fit is res_het_hist.
+\newcommand{\estimationhetpath}{../../../shell_files/res_het_hist/}
+\newcommand{\gammadistributionnocfpath}{../../../shell_files/res_het_nocf/history_distributions.pdf}
+\newcommand{\gammadistributionhetpath}{../../../shell_files/res_het_hist/history_distributions.pdf}
+
+\begin{document}
+
+\begin{frame}[plain,noframenumbering]
+  \titlepage
+\end{frame}
+
+\section{Introduction}
+% Each frame title is independent of the section name in the navigation bar.
+\begin{frame}{Motivation}
+  la
+\end{frame}
+\begin{frame}{Research Question}
+  la
+\end{frame}
+
+\section{Motivation from Data}
+
+\section{Supply Theory}
+\begin{frame}{Supply Setting}
+  \begin{itemize}
+    \item Monopolistic firm producing a single product $j$
+    \item Firm is profit maximizing, setting prices according to that objective
+    \item A consumer is born into the world with a type $r\in\{H,L\}$, determining how much utility they derive from switching and an initial state $h_0\in\{0,j\}$
+    \item Consumers live for two periods, purchasing the inside good or opting for the outside good in each period
+    \item The firm knows initial states and types, setting prices to individual consumers by type and history
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Consumer's Problem}
+  \begin{tcolorbox}[
+    boxsep=0pt,
+    left=2pt, right=2pt,
+    top=1pt, bottom=1pt,
+    before skip=2pt, after skip=2pt
+    ]
+    \setlength{\abovedisplayskip}{2pt}
+    \setlength{\belowdisplayskip}{2pt}
+    \begin{gather*}
+      V^{inside}_{jt} = \underbrace{\beta}_{\text{Constant}} + \overbrace{\gamma_r\mathbbm{1}\{h=0\}}^{\text{Utilty from Switching}} - \underbrace{\alpha p_t(h)}_{\text{Price Disutility}}, \ V^{Outside}_{0t} = \underbrace{\gamma_r\mathbbm{1}\{h=j\}}_{\text{Utility from Switching}} \\
+      v_t(x) = V_{jt}^{inside} - V_{0t}^{outside} = \beta + \underbrace{\gamma[\mathbbm{1}\{h=0\} - \mathbbm{1}\{h=j\}]}_{q(h)} - \alpha p_t(h)
+    \end{gather*}
+  \end{tcolorbox}
+  \begin{itemize}\setlength{\itemsep}{2pt}
+    \item Prices, set by the firm, and switching utility depend on history $h=x_{t-1}$
+    \item Utility for the outside good is normalized to zero
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Firm's Problem}
+  \begin{tcolorbox}
+    [
+    boxsep=0pt,
+    left=2pt, right=2pt,
+    top=1pt, bottom=1pt,
+    before skip=2pt, after skip=2pt
+    ]
+    \setlength{\abovedisplayskip}{2pt}
+    \setlength{\belowdisplayskip}{2pt}
+    \begin{gather*}
+      \pi_t(h) = \max_{p_t(h)} s_t(h)[p_t(h) - c] \\ 
+      \Pi(h) = \underbrace{s_1(h)(p_1(h) - c)}_{\text{Margin in Period 1}} + \underbrace{\delta\{s_1(h)\pi_2(j) + (1-s_1(h))\pi_2(0)\}}_\text{{Continuation Value}} 
+    \end{gather*}
+  \end{tcolorbox}
+  \begin{itemize}
+    \item Firm profits are comprised of period one margins, given history of consumption, and the value of that consumer in the different states in period two
+    \item The firm will set prices according to consumer type and history to maximize expected profit
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Optimal Terminal Price and Profit}
+  \begin{tcolorbox}
+    [
+    boxsep=0pt,
+    left=2pt, right=2pt,
+    top=1pt, bottom=1pt,
+    before skip=2pt, after skip=2pt
+    ]
+    \setlength{\abovedisplayskip}{2pt}
+    \setlength{\belowdisplayskip}{2pt}
+    \begin{align*}
+      \frac{\partial\pi_2(h_1)}{\partial p_2(h_1)} &= s_2(h_1) + (p_2 - c)\frac{\partial s_2(h_1)}{\partial p_2(h_1)} \\
+      p_2^*(h_1)&= c + \frac{1}{\alpha(1-s_2^*(h_1))} \\
+      \pi^*_2(p_2^*(h_1); h_1) &= \frac{s_2^*(h_1)}{\alpha(1-s_2^*(h_1))}
+    \end{align*}
+  \end{tcolorbox}
+  \begin{itemize}
+    \item Optimal period two price is cost minus a demand markup term
+    \item Period two profit at optimal prices is the odds of purchase, scaled by the inverse price sensitivity
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{First Period Optimization}
+  \begin{tcolorbox}
+    [
+    boxsep=0pt,
+    left=2pt, right=2pt,
+    top=1pt, bottom=1pt,
+    before skip=2pt, after skip=2pt
+    ]
+    \setlength{\abovedisplayskip}{2pt}
+    \setlength{\belowdisplayskip}{2pt}
+    \begin{align*}
+      \frac{d\Pi}{d p_1(h_0)} &= s_1 + \frac{\partial}{\partial p_1(h)}s_1(h_0)[p_1(h_0) - c + \delta(\pi_2(j) - \pi_2(0))] \\
+      p_1^*(h_0) &= c + \frac{1}{\alpha(1-s_1^*(h_0))} - \delta(\pi_2(j) - \pi_2(0)) \\
+      \Pi^*(h) &= \delta\pi_2(0) + \frac{s_1^*(h_0)}{\alpha(1-s_1^*(h_0))}
+    \end{align*}
+  \end{tcolorbox}
+\end{frame}
+
+\begin{frame}{Optimal Profit Given Switching Type}
+  \begin{tcolorbox}
+    [
+    boxsep=0pt,
+    left=2pt, right=2pt,
+    top=1pt, bottom=1pt,
+    before skip=2pt, after skip=2pt
+    ]
+    \setlength{\abovedisplayskip}{2pt}
+    \setlength{\belowdisplayskip}{2pt}
+    \begin{align*}
+      \frac{d\Pi}{d\gamma} &= \frac{q(h)s_1^*(h) - \delta s_1^*(h)s_2^*(j) + \delta(1-s_1^*(h))s_2^*(0)}{\alpha}
+    \end{align*}
+  \end{tcolorbox}
+  \begin{itemize}
+    \item There are two interpretations:
+    \begin{enumerate}
+      \item If $h_0=j$, $q(h)<0$, leading us to ambiguous signage as we raise profits from initially outside consumers but see opposing forces for the initially inside: leave in period one, return in period two 
+      \item If $h_0=0$, $q(h)>0\Rightarrow \frac{d\Pi}{d\gamma} < 0$, meaning that profits decrease as $\gamma$ increases
+    \end{enumerate}
+    \item Points to firms potentially reaping great benefit from knowing consumer types and histories
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Pricing Simulations Specification}
+  \centering
+  \small
+  \begin{tabular}{lll}
+    \toprule
+    Parameter & Description & Value \\
+    \midrule
+    $\beta$ & Inside-good intercept & $2$ \\
+    $\alpha$ & Price sensitivity & $1$ \\
+    $\delta$ & Discount factor & $0.92$ \\
+    $c$ & Marginal cost & $0$ \\
+    $\gamma$ & Switching preference & $[-3,3]$ \\
+    \midrule
+    \multicolumn{2}{l}{Initial Consumption State}
+      & $h_0\in\{0,j\}$ \\
+    \multicolumn{2}{l}{Feasible Prices}
+      & $p_t(h)\in\mathbb{R}$ \\
+    \bottomrule
+  \end{tabular}
+  \begin{itemize}
+    \item Allow for negative pricing
+    \item Firm has knowledge of both type and history, allowing for targeted pricing
+    \item Four consumption histories possible $(h_0, h_1) \in \{(0,0), (0,j), (j,j), (j,0)\}$
+  \end{itemize}
+\end{frame}
+
+\section{Appendix}
+  \begin{frame}{Shares and Elasticities}
+  \begin{tcolorbox}
+    [
+    boxsep=0pt,
+    left=2pt, right=2pt,
+    top=1pt, bottom=1pt,
+    before skip=2pt, after skip=2pt
+    ]
+    \setlength{\abovedisplayskip}{2pt}
+    \setlength{\belowdisplayskip}{2pt}
+    \begin{gather*}
+      s_t(h) = \frac{e^{v_t(h)}}{1+e^{v_t(h)}}, \ s_{0t}(h) = 1-s_t(h) \\
+      \frac{\partial s_t(h)}{\partial p_t(h)} = -\alpha s_t(h)(1-s_t(h)) \\
+      \frac{\partial s_t(h)}{\partial\gamma} = q(h)s_t(h)(1-s_t(h))
+    \end{gather*}
+  \end{tcolorbox}
+  \end{frame}
+
+\end{document}

@@ -512,3 +512,19 @@ changes to the control function. For a strictly matched-sample comparison,
 fit both likelihoods on the controlled weekly inputs with the residual columns
 excluded from `make_arrays` for the no-control fit. A coefficient difference
 measures sensitivity, not proof of bias without the identifying assumptions.
+
+
+### Export split coefficient distributions
+
+Every split fit now saves population parameters, sign shares and quantiles in
+`history_distribution_summary.csv`, densities/CDFs in
+`history_distribution_grid.csv`, and `history_distributions.pdf/png`.
+To recover these from an existing fit without re-estimating:
+
+```bash
+python3 history_distributions.py --fit-dir /path/to/res_het_hist
+```
+
+The revised pricing exercise is `../pricing_exercises/run_split_targeting.py`;
+it uses the heterogeneous split model and runs each of the three flavors as the
+focal product. See `../pricing_exercises/SPLIT_TARGETING.md`.

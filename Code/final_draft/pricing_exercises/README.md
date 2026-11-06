@@ -1,3 +1,12 @@
+# Split-history exercise (current empirical specification)
+
+Use [run_split_targeting.py](run_split_targeting.py) for the split novelty/habit
+fit and all three focal flavors. It ranks types by novelty, retains both history
+coefficients in demand, and exports separate results for other, berry, and plain.
+See [SPLIT_TARGETING.md](SPLIT_TARGETING.md) for commands, distribution exports,
+and the review of correspondence with the supply theory. The earlier combined
+gamma exercise below is retained for comparison.
+
 # Two separate pricing exercises
 
 The theoretical supply extensions and empirical targeting exercise have separate,

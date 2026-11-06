@@ -660,35 +660,9 @@ def plot_gamma_distribution(table, output, converged=True):
 
 
 def plot_history_distributions(table, output, converged=True):
-    """Separate marginal population distributions, not confidence intervals."""
-    estimates = table.set_index("parameter")["estimate"]
-    if "mean_novelty" not in estimates:
-        return
-    import matplotlib
-    matplotlib.use("Agg")
-    import matplotlib.pyplot as plt
-    from scipy.stats import norm
-    fig, axes = plt.subplots(1, 2, figsize=(10, 4))
-    for ax, term, label in zip(axes, ["novelty", "own_stock"],
-                               ["Recent other-flavor purchases", "Accumulated own-flavor purchases"]):
-        mean, sd = estimates["mean_" + term], estimates.get("sd_" + term, 0.)
-        if sd > 0:
-            x = np.linspace(mean - 4*sd, mean + 4*sd, 801)
-            ax.plot(x, norm.pdf(x, mean, sd))
-            ax.set_ylabel("Population density")
-        else:
-            ax.axvline(mean, label="Point mass")
-            ax.set_xlim(mean - 1, mean + 1)
-            ax.set_yticks([])
-        ax.axvline(0, color="gray", ls="--")
-        ax.set(xlabel="Coefficient", title=f"{label}\nMean={mean:.4g}; SD={sd:.4g}")
-    title = "Separate history coefficients"
-    if not converged or table["at_bound"].any():
-        title += " (provisional fit)"
-    fig.suptitle(title)
-    fig.tight_layout()
-    fig.savefig(output / "history_distributions.pdf")
-    plt.close(fig)
+    """Export fitted marginal population distributions after every split fit."""
+    from history_distributions import export_history_distributions
+    export_history_distributions(table, output, converged)
 
 
 def fit_model(data, args, frame=None):

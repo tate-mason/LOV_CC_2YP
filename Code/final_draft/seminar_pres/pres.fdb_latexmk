@@ -1,5 +1,5 @@
 # Fdb version 4
-["pdflatex"] 1793924822.76988 "pres.tex" "pres.pdf" "pres" 1793924824.83312 0
+["pdflatex"] 1793924863.22971 "pres.tex" "pres.pdf" "pres" 1793924865.11589 0
   "/Users/tate/Library/texlive/2026/texmf-var/fonts/pk/ljfour/public/bbm/bbm10.657pk" 1774818590.69324 7808 a6475be33ac8ee860261e92e73092a69 ""
   "/usr/local/texlive/2026/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/usr/local/texlive/2026/texmf-dist/fonts/tfm/public/amsfonts/cmextra/cmex7.tfm" 1246382020 1004 54797486969f23fa377b128694d548df ""
@@ -241,10 +241,10 @@
   "/usr/local/texlive/2026/texmf-var/fonts/map/pdftex/updmap/pdftex.map" 1787008065 5573194 3473593ed16e9f152d99f1a1aaa20677 ""
   "/usr/local/texlive/2026/texmf-var/web2c/pdftex/pdflatex.fmt" 1787008814 3656725 4e447c05aa121cdaa2af3e1480626bfc ""
   "/usr/local/texlive/2026/texmf.cnf" 1774209515 577 648cd9f92f9c0eac486f4c71c85cfbbe ""
-  "pres.aux" 1793924824.73906 3011 b8b20b6365bd42048061a21bb7f66f2e "pdflatex"
-  "pres.nav" 1793924824.73991 1839 feacde4e40607a29ab2688353d3be3c6 "pdflatex"
-  "pres.out" 1793924824.73972 446 58c77f1d9e5df95eaa9f8e9b482701bd "pdflatex"
-  "pres.tex" 1793924821.33201 10803 b2455cb407ae8e386aab9b8f4561812c ""
+  "pres.aux" 1793924865.02243 3011 b8b20b6365bd42048061a21bb7f66f2e "pdflatex"
+  "pres.nav" 1793924865.02604 1839 feacde4e40607a29ab2688353d3be3c6 "pdflatex"
+  "pres.out" 1793924865.02305 446 58c77f1d9e5df95eaa9f8e9b482701bd "pdflatex"
+  "pres.tex" 1793924862.72283 10799 b1b55a25e64c8a200e2bd22e7870780b ""
   (generated)
   "pres.aux"
   "pres.log"

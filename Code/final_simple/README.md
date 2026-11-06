@@ -28,7 +28,7 @@ final_simple/
     supply/
         supply_sympy.py        # equations and exact derivatives
         supply_simulation.py   # numerical solutions and figures
-    server/run_split_pricing.sh # regenerate, export distributions, price all flavors
+    server/run_split_pricing.sh # regenerate, export distributions, compare plain/berry
     checks/
     README.md
     requirements.txt

@@ -110,7 +110,7 @@ the deleted export must be regenerated on the server. The new
 `shell_files/est_split_pricing.sh` first rebuilds `weekly_inputs.csv` using the
 controlled split fit's saved settings, reconstructs its price controls, and
 checks household/week totals and the saved likelihood before writing the CSV.
-It then exports both distributions and runs all three focal cases. It does not
+It then exports both distributions and runs the plain/berry comparison. It does not
 refit demand or replace the saved estimates or standard errors. Regeneration
 and full empirical pricing are server operations; local checks use synthetic
 fixtures only.

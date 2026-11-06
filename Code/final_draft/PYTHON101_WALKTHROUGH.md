@@ -892,7 +892,7 @@ than silently pairing old coefficients with a different weekly sample.
 
 The server job is `Code/final_simple/server/run_split_pricing.sh`. Its numbered
 steps regenerate the controlled fit's table, export both marginal distributions
-from controlled and uncontrolled fits, then run all three focal cases using the
+from controlled and uncontrolled fits, then run the plain/berry comparison using the
 controlled fit. Sync code and install the listed requirements in the server
 environment before submitting:
 

@@ -39,7 +39,7 @@ Read in this order:
 4. `split_pricing.py`, Parameters, sections 1–4 and the final run function:
    posterior types, initial history, backward induction, three focal cases.
 5. `../server/run_split_pricing.sh`: execute regeneration, distribution exports,
-   and all focal cases on the server. Submit from the repository root with
+   and the plain/berry comparison on the server. Submit from the repository root with
    `sbatch Code/final_simple/server/run_split_pricing.sh` after syncing code and
    installing `Code/final_simple/requirements.txt` in your server environment.
 
@@ -158,7 +158,7 @@ the deleted export must be regenerated on the server. The new
 `server/run_split_pricing.sh` first rebuilds `weekly_inputs.csv` using the
 controlled split fit's saved settings, reconstructs its price controls, and
 checks household/week totals and the saved likelihood before writing the CSV.
-It then exports both distributions and runs all three focal cases. It does not
+It then exports both distributions and runs the plain/berry comparison. It does not
 refit demand or replace the saved estimates or standard errors. Regeneration
 and full empirical pricing are server operations; local checks use synthetic
 fixtures only.

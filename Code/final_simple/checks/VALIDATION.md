@@ -115,7 +115,7 @@ matching this pricing specification; all earlier models remain selectable.
 settings on the server. It reconstructs price controls and checks the saved
 likelihood/sample counts before publishing the CSV. Saved demand estimates and
 inference remain unchanged. `server/run_split_pricing.sh` runs regeneration,
-distribution export, and all three focal cases in that order.
+distribution export, and the plain/berry comparison in that order.
 
 55 synthetic checks passed with pandas/Polars CSV reads blocked. The added
 checks cover split posterior likelihood against both scalar and estimator

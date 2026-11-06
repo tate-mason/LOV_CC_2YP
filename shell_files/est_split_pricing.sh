@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=split_pricing		# Job name (testBowtie2)
+#SBATCH --job-name=plain_berry_pricing		# Job name (testBowtie2)
 #SBATCH --partition=hugemem_p		# Partition name (batch, highmem_p, or gpu_p)
 #SBATCH --nodes=1			# Number of compute nodes for resources to be spread out over (increase only if using MPI enabled software)
 #SBATCH --ntasks=1			# 1 task (process) for below commands
@@ -27,8 +27,8 @@ python3 ../Code/final_draft/est_code/history_distributions.py \
         --fit-dir "/scratch/dtm63837/Kilts_Panel/res_het_hist/"
 python3 ../Code/final_draft/est_code/history_distributions.py \
         --fit-dir "/scratch/dtm63837/Kilts_Panel/res_het_nocf/"
-python3 ../Code/final_draft/pricing_exercises/run_split_targeting.py \
+python3 ../Code/final_simple/demand/plain_berry_pricing.py \
         --household-input "/scratch/dtm63837/Kilts_Panel/res_het_hist/weekly_inputs.csv" \
         --fit-dir "/scratch/dtm63837/Kilts_Panel/res_het_hist/" \
-        --focal-flavor all --demand-delta 0.92 \
-        --output "split_pricing_ex"
+        --demand-delta 0.92 \
+        --output "plain_berry_pricing_ex"

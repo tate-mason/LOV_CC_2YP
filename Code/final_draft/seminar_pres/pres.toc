@@ -1,4 +1,8 @@
 \beamer@sectionintoc {1}{Introduction}{2}{0}{1}
-\beamer@sectionintoc {2}{Motivation from Data}{4}{0}{2}
-\beamer@sectionintoc {3}{Supply Theory}{4}{0}{3}
-\beamer@sectionintoc {4}{Appendix}{11}{0}{4}
+\beamer@sectionintoc {2}{Motivation from Data}{5}{0}{2}
+\beamer@sectionintoc {3}{Supply Theory}{7}{0}{3}
+\beamer@sectionintoc {4}{Data}{19}{0}{4}
+\beamer@sectionintoc {5}{Demand Estimation}{22}{0}{5}
+\beamer@sectionintoc {6}{Pricing Exercise}{29}{0}{6}
+\beamer@sectionintoc {7}{Conclusion}{33}{0}{7}
+\beamer@sectionintoc {8}{Appendix}{35}{0}{8}

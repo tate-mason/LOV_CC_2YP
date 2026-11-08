@@ -206,3 +206,40 @@ the controlled fit directory after success or failure; INT/TERM handlers also
 trigger cleanup. The file exists on the server only while the job needs it.
 Cleanup leaves fitted estimates and pricing results in place. These handlers
 cannot run after an uncatchable SIGKILL or a machine failure.
+
+## Pricing benchmarks for the seminar
+
+Each focal case now exports `pricing_policy_benchmarks.csv` and matching PDF/PNG
+figures. The common benchmark jointly chooses one coupon percentage for each
+period across the same low/high eligible households; the middle group remains
+at posted prices in all policies. Terminal common offers do not depend on
+realized history. Posted prices can vary across households, so common coupon
+percentages do not imply a common dollar price. The solver integrates every
+first-period basket under each candidate initial coupon before optimizing the
+two common coupons. It checks that aggregate revenue lies between no coupons
+and personalized dynamic pricing.
+
+The improvement beyond common coupons combines personalization and history
+contingency; it does not isolate the value of switching information alone.
+That requires a separate information-restricted targeting policy.
+
+Run the existing plain/berry workflow on the research server. Recover only
+`pricing_policy_benchmarks.csv`, its figures, and other allowed aggregates.
+The presentation automatically includes the benchmark PDFs once placed in the
+corresponding `RESULTS_ONLY/pricing/{plain,berry}` folders. Existing
+`discounts_by_consumer_type.pdf` figures are included immediately.
+
+The server run also exports `terminal_offers_by_purchase.csv` and PDF/PNG figures,
+comparing optimal terminal offers conditional on a focal purchase versus no focal
+purchase. Branch probabilities weight the conditional means.
+`terminal_offer_within_household_gap.csv` averages each household's conditional
+price difference (purchase minus no purchase) within switching groups, avoiding
+between-household composition differences. Positive gaps indicate higher terminal
+prices after purchase, consistent with harvesting; they are model policy summaries,
+not causal estimates from observed price variation. Both branches still integrate
+over different baskets, including rival purchases.
+
+All policy figures, including `pricing_mechanism.pdf/png`, are generated on the
+research server by `run_split_pricing.sh`. The seminar figure script is guarded
+by the same server policy and accepts only server output directories. Copy the
+finished permitted figures and aggregates manually; no transfer is automated.

@@ -102,17 +102,6 @@
 % Keep navigation links in the theme's white foreground on the red header.
 \hypersetup{colorlinks=true, linkcolor=., urlcolor=UGARed}
 
-% ---------- EXERCISE AND ESTIMATION FILE PATHS ----------
-\newcommand{\supplyexercisepath}{../pricing_exercises/run_supply_exercises.py}
-\newcommand{\pricingexercisepath}{../pricing_exercises/run_empirical_targeting.py}
-\newcommand{\supplyresultspath}{../pricing_exercises/supply_outputs/}
-\newcommand{\pricingresultspath}{../../../shell_files/pricing_ex/}
-\newcommand{\estimationnocfpath}{../../../shell_files/res_het_nocf/}
-% No res_het directory is present; the available heterogeneous fit is res_het_hist.
-\newcommand{\estimationhetpath}{../../../shell_files/res_het_hist/}
-\newcommand{\gammadistributionnocfpath}{../../../shell_files/res_het_nocf/history_distributions.pdf}
-\newcommand{\gammadistributionhetpath}{../../../shell_files/res_het_hist/history_distributions.pdf}
-
 \begin{document}
 
 \begin{frame}[plain,noframenumbering]
@@ -158,13 +147,13 @@
 \begin{frame}{HHI}
   \centering
   \resizebox{0.7\textwidth}{!}{%
-    \includegraphics{~/LOV_CC_2YP/Code/final_draft/data_code/summary_outputs/flavor_hhi_histogram.pdf}
+    \includegraphics{~/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/summary_statistics/flavor_hhi_histogram.pdf}
   }
 \end{frame}
 \begin{frame}{Flavor Popularity}
   \centering
   \resizebox{0.7\textwidth}{!}{%
-    \includegraphics{~/LOV_CC_2YP/Code/final_draft/data_code/summary_outputs/flavor_shares.pdf}
+    \includegraphics{~/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/summary_statistics/flavor_shares.pdf}
   }
 \end{frame}
 
@@ -237,7 +226,7 @@
     \end{align*}
   \end{tcolorbox}
   \begin{itemize}
-    \item Optimal period two price is cost minus a demand markup term
+    \item Optimal period two price is cost plus a demand markup term
     \item Period two profit at optimal prices is the odds of purchase, scaled by the inverse price sensitivity
   \end{itemize}
 \end{frame}
@@ -278,7 +267,7 @@
     \item There are two interpretations:
     \begin{enumerate}
       \item If $h_0=j$, $q(h)<0$, leading us to ambiguous signage as we raise profits from initially outside consumers but see opposing forces for the initially inside: leave in period one, return in period two 
-      \item If $h_0=0$, $q(h)>0\Rightarrow \frac{d\Pi}{d\gamma} < 0$, meaning that profits decrease as $\gamma$ increases
+      \item If $h_0=0$, $q(h)>0\Rightarrow \frac{d\Pi}{d\gamma} > 0$, meaning that profits increase as $\gamma$ increases
     \end{enumerate}
     \item Points to firms potentially reaping great benefit from knowing consumer types and histories
   \end{itemize}
@@ -347,46 +336,90 @@
 
 \section{Data}
 \begin{frame}{Data Sources}
-  Nielsen HomeScan
+  \textbf{Nielsen HomeScan}
   \begin{itemize}
     \item Provides household level purchase data
     \item Covers years 2006-2015
     \item Products chosen, quantity chosen, timing of trips
   \end{itemize}
-  Nielsen RetailScan
+  \textbf{Nielsen RetailScan}
   \begin{itemize}
     \item Provides store level product data
     \item For specified product category: prices, markets, product attributes
   \end{itemize}
+  \textbf{Sample Description}
+  \begin{itemize}
+    \item Must be single-person household 
+    \item Must be seen at least 2 times
+    \item Purchases must be made at Nielsen store (prices available)
+    \item Flavor attribute must be present
+  \end{itemize}
 \end{frame}
-\begin{frame}{Sample Criteria}
-  \begin{columns}[T]
-    \begin{column}{0.48\textwidth}
-      \textbf{Sample Description}
-      \begin{itemize}
-        \item Must be single-person household 
-        \item Must be seen at least 2 times
-        \item Purchases must be made at Nielsen store (prices available)
-        \item Flavor attribute must be present
-      \end{itemize}
-    \end{column}
-    \begin{column}{0.48\textwidth}
-      INSERT SAMPLE COMPARE TABLE
-    \end{column}
-  \end{columns}
+% Presentation tables use the aggregate values in
+% RESULTS_ONLY/summary_statistics/full_panel_vs_yogurt.tex.
+\begin{frame}{Sample Statistics: Purchase Activity}
+  \centering
+  \small
+  \renewcommand{\arraystretch}{1.15}
+  \begin{tabular}{lrr}
+    \toprule
+     & Full sample & Yogurt sample \\
+    \midrule
+    Households & 37,827 & 15,106 \\
+    Observed panel years & 3.96 & 3.16 \\
+    Trips per household & 493.13 & 20.26 \\
+    Trips per observed week (approx.) & 2.27 & 0.11 \\
+    Distinct UPCs per household & 1,178.31 & 13.89 \\
+    Purchase lines per household & 3,397.64 & 45.15 \\
+    Packages per household & 4,669.07 & 93.77 \\
+    \bottomrule
+  \end{tabular}
+
+  \medskip
+  {\footnotesize All statistics except household counts are means.}
+\end{frame}
+\begin{frame}{Sample Statistics: Demographics}
+  \centering
+  \small
+  \renewcommand{\arraystretch}{1.15}
+  \begin{tabular}{lrr}
+    \toprule
+     & Full sample & Yogurt sample \\
+    \midrule
+    Head age (category code) & 6.96 & 7.01 \\
+    Household income (category code) & 16.18 & 17.06 \\
+    White (\%) & 80.33 & 81.58 \\
+    Black (\%) & 12.81 & 12.15 \\
+    Asian (\%) & 1.57 & 1.57 \\
+    Other race (\%) & 2.19 & 2.11 \\
+    Hispanic (\%) & 3.10 & 2.59 \\
+    \bottomrule
+  \end{tabular}
+
+  \medskip
+  {\footnotesize Age and income are mean category codes.}
 \end{frame}
 \begin{frame}{Switching Stats}
     \centering
     \resizebox{\textwidth}{!}{%
-      \input{~/LOV_CC_2YP/Code/final_draft/data_code/summary_outputs/aggregated_flavors/yogurt_dynamics.tex}
+    \begin{minipage}{\textwidth}
+      \input{~/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/summary_statistics/yogurt_dynamics.tex}
+    \end{minipage}%
     }
+\end{frame}
+
+\begin{frame}{Persistence Across Aggregated Flavor Groups}
+  \centering
+  \includegraphics[height=0.69\textheight]{../RESULTS_ONLY/summary_statistics/aggregated_flavors/flavor_transitions.pdf}
+  \par\small Plain repeats in approximately 80\% of eligible transitions, versus 53\% for berry.
 \end{frame}
 
 \section{Demand Estimation}
 \begin{frame}{Demand Setting and Objective}
   \begin{itemize}
     \item Consumers can either purchase the inside good, a flavor of yogurt, or the outside good, not yogurt 
-    \item Define outside good as $\max(0, 7-\sum_j x_{jt})$, following Nevo (2001)
+    \item Following Nevo (2001), a week contains seven choice opportunities with observed flavor purchases treated as fulfilling an opportunity 
+    \item Define outside good as $\max(0, 7-\sum_j x_{jt})$, or the difference in purchases and a full week
     \item Consumers differ in preferences for novelty and price sensitivity, but derive the same base utility from the three flavor categories
     \item Goal: \textcolor{red}{Recover distribution of novelty preferences}
   \end{itemize}
@@ -402,14 +435,14 @@
     \setlength{\abovedisplayskip}{2pt}
     \setlength{\belowdisplayskip}{2pt}
   \begin{align*}
-    U_{ijt} &= \overbrace{\beta_0}^{Constant} + \underbrace{\beta_jX_{jt}}_{\text{Flavor specific constant}} + \overbrace{\gamma_i(N_{ijt} - H_{ijt})}^{\text{Preferences for variety/habit}} + \underbrace{\alpha_ip_{jt}}_{\text{Price disutility}} + \overbrace{\varepsilon_{ijt}}^{\text{T1EV}} \\
+    U_{ijt} &= \overbrace{\beta_0}^{Constant} + \underbrace{\beta_jX_{jt}}_{\text{Flavor specific constant}} + \overbrace{\gamma_iN_{ijt} + \phi_iH_{ijt}}^{\text{Preferences for novelty/habit}} + \underbrace{\alpha_ip_{jt}}_{\text{Price disutility}} + \overbrace{\varepsilon_{ijt}}^{\text{T1EV}} \\
     &\text{s.t.} \ N_{ijt} = \mathbbm{1}\{x_{t-1}\ne j\}, \ H_{ijt} = \frac{\sum_{t=1}^{t-1}\mathbbm{1}\{x_{it-1}= j\}}{\sum_{t=1}^{t-1}\mathbbm{1}\{x_{it-1}\ne 0\}} 
   \end{align*}
   \end{tcolorbox}
   \begin{itemize}
     \item $N_{ijt}$ represents a novel choice in the prior period, buying a flavor other than $j$
     \item $H_{ijt}$ represents repeated purchase, the share of total purchases which flavor $j$ comprises
-    \item Normalize outside option to zero s.t. $U_i0t = \varepsilon_{i0t}$
+    \item Normalize outside option to zero s.t. $U_{i0t} = \varepsilon_{i0t}$
   \end{itemize}
 \end{frame}
 \begin{frame}{Probability and Shares}
@@ -446,42 +479,117 @@
     \item Minimize negative log-likelihood
   \end{itemize}
 \end{frame}
-\begin{frame}{Estimates & WTP}
-  INSERT TABLE HERE
+\begin{frame}{Estimates}
+  \centering
+  \input{~/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/no_control_fit/estimates.tex}
+\end{frame}
+\begin{frame}{Implied Willingness to Pay}
+  \centering
+  \input{~/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/no_control_fit/implied_wtp.tex}
+  \begin{itemize}
+    \item Would need to be subsidized to switch, though lots of variation
+    \item Willing to pay to continue consuming their same product
+  \end{itemize}
 \end{frame}
 \begin{frame}{Distributions}
-  \includegraphics[width=0.99\textwidth]{\gammadistributionnocfpath}
+  \includegraphics[width=0.99\textwidth]{~/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/no_control_fit/history_distributions.pdf}
 \end{frame}
 \begin{frame}{Discussion}
   \begin{itemize}
-    \item small impact of variety on purchase probability
-    \item how can firm use the utility from novelty to target pricing
+    \item Mean novelty effect is equivalent to $\approx\$2$ increase 
+    \item Habit provides some utility
+    \item Both plain and berry are less preferred than other flavors
   \end{itemize}
+  \begin{tcolorbox}
+    How can the firm use the distribution of switching types to price discriminate?
+  \end{tcolorbox}
 \end{frame}
 
 \section{Pricing Exercise}
+\begin{frame}{Connecting Supply and Demand}
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \textbf{Supply Theory}
+      \begin{itemize}
+        \item Today's pricing offer changes tomorrow's demand
+        \item Single product firm pricing to attract customers against outside option
+        \item Maintain two-period timing with initial state
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \textbf{Empirical Demand}
+      \begin{itemize}
+        \item Employ estimated preference for novelty
+        \item Access observed purchase histories
+        \item Novelty and habit both enter demand
+      \end{itemize}
+    \end{column}
+  \end{columns}
+  \begin{tcolorbox}
+    How well does the theory map to what is observed in the data?
+  \end{tcolorbox}
+\end{frame}
 \begin{frame}{Procedure}
   \begin{itemize}
+    \item Recover household type from observed purchase history and treat estimated type as known to firm
     \item Use initial purchase $y_{i1}$ to determine "initial state", $h_0$
     \item Separate high and low types as the 75th and 25th percentiles, respectively
     \item Use observed prices and simulate discounts based on them, specific to the different types and their consumption path
     \item Focus on berry and plain to maintain parity with the theoretical model and avoid aggregate weighting
-    \item Use coefficient on $N_{ijt}$ to discriminate
+    \item Use estimated type $\gamma_i$ to discriminate, choosing an initial price offer, observing the period one choice, and choosing the terminal price
   \end{itemize}
 \end{frame}
 \begin{frame}{Results: Berry Inside}
-  INSERT FIGURE
+  \centering
+  \includegraphics[width=\textwidth]{~/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/pricing/berry/household_coupon_results.pdf}
 \end{frame}
 \begin{frame}{Results: Plain Inside}
-  INSERT FIGURE
+  \centering
+  \includegraphics[width=\textwidth]{~/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/pricing/plain/household_coupon_results.pdf}
 \end{frame}
+\begin{frame}{Berry: Optimal Offers by Consumer Type}
+  \centering
+  \includegraphics[width=0.85\textwidth]{~/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/pricing/berry/discounts_by_consumer_type.pdf}
+\end{frame}
+\begin{frame}{Plain: Optimal Offers by Consumer Type}
+  \centering
+  \includegraphics[width=0.85\textwidth]{~/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/pricing/plain/discounts_by_consumer_type.pdf}
+\end{frame}
+% Generated by the server pricing run; include after aggregate figures are recovered.
+\IfFileExists{../RESULTS_ONLY/pricing/plain/pricing_policy_benchmarks.pdf}{
+\begin{frame}{Pricing Benchmarks: Plain}
+  \centering
+  \includegraphics[width=0.85\textwidth]{../RESULTS_ONLY/pricing/plain/pricing_policy_benchmarks.pdf}
+\end{frame}
+}{}
+\IfFileExists{../RESULTS_ONLY/pricing/berry/pricing_policy_benchmarks.pdf}{
+\begin{frame}{Pricing Benchmarks: Berry}
+  \centering
+  \includegraphics[width=0.85\textwidth]{../RESULTS_ONLY/pricing/berry/pricing_policy_benchmarks.pdf}
+\end{frame}
+}{}
+\begin{frame}{Plain: Initial Offers and Subsequent Pricing}
+  \centering
+  \includegraphics[width=0.95\textwidth]{../RESULTS_ONLY/pricing/plain/pricing_mechanism.pdf}
+\end{frame}
+\IfFileExists{../RESULTS_ONLY/pricing/plain/terminal_offers_by_purchase.pdf}{
+\begin{frame}{Plain: Terminal Offers After Purchase}
+  \centering
+  \includegraphics[width=0.95\textwidth]{../RESULTS_ONLY/pricing/plain/terminal_offers_by_purchase.pdf}
+\end{frame}
+}{}
 \begin{frame}{Comparison}
-  DISCUSS
+  \centering
+  \input{~/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/pricing/focal_flavor_comparison.tex}
 \end{frame}
 
 \section{Conclusion}
 \begin{frame}{Conclusion}
-  INSERT RECAP AND CONCLUDE
+  \begin{itemize}
+    \item Firm can gain up to $~12\%$ simulated revenue by targeting based on switching type relative to no coupons
+    \item Consumers experience disutility from switching, needing to be subsidized $\approx\$2$ to switch products 
+    \item Consumers enjoy habit and would be willing to pay $\$0.12$ to contribute another unit to the product's share of purchase history
+  \end{itemize}
 \end{frame}
 \begin{frame}{Next Steps}
   \begin{itemize}

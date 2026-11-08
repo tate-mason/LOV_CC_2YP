@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.8.17)  6 NOV 2026 18:03
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.8.17)  8 NOV 2026 13:34
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -742,24 +742,24 @@ File: l3backend-pdftex.def 2026-07-20 L3 backend support: PDF output (pdfTeX)
 ) (./pres.aux)
 \openout1 = `pres.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 116.
-LaTeX Font Info:    ... okay on input line 116.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 116.
-LaTeX Font Info:    ... okay on input line 116.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 116.
-LaTeX Font Info:    ... okay on input line 116.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 116.
-LaTeX Font Info:    ... okay on input line 116.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 116.
-LaTeX Font Info:    ... okay on input line 116.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 116.
-LaTeX Font Info:    ... okay on input line 116.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 116.
-LaTeX Font Info:    ... okay on input line 116.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 116.
-LaTeX Font Info:    ... okay on input line 116.
-LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 116.
-LaTeX Font Info:    ... okay on input line 116.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 105.
+LaTeX Font Info:    ... okay on input line 105.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 105.
+LaTeX Font Info:    ... okay on input line 105.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 105.
+LaTeX Font Info:    ... okay on input line 105.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 105.
+LaTeX Font Info:    ... okay on input line 105.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 105.
+LaTeX Font Info:    ... okay on input line 105.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 105.
+LaTeX Font Info:    ... okay on input line 105.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 105.
+LaTeX Font Info:    ... okay on input line 105.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 105.
+LaTeX Font Info:    ... okay on input line 105.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 105.
+LaTeX Font Info:    ... okay on input line 105.
 
 *geometry* driver: auto-detecting
 *geometry* detected driver: pdftex
@@ -814,7 +814,7 @@ Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 48
  (/usr/local/texlive/2026/texmf-dist/tex/latex/latexconfig/epstopdf-sys.cfg
 File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Live
 ))
-Package hyperref Info: Link coloring ON on input line 116.
+Package hyperref Info: Link coloring ON on input line 105.
  (./pres.out) (./pres.out)
 \@outlinefile=\write5
 \openout5 = `pres.out'.
@@ -834,11 +834,11 @@ Dictionary: translator-theorem-dictionary, Language: English
 ) (./pres.nav) [1
 
 {/usr/local/texlive/2026/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
-LaTeX Font Info:    Trying to load font information for U+msa on input line 133.
+LaTeX Font Info:    Trying to load font information for U+msa on input line 122.
  (/usr/local/texlive/2026/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Trying to load font information for U+msb on input line 133.
+LaTeX Font Info:    Trying to load font information for U+msb on input line 122.
  (/usr/local/texlive/2026/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 ) [2
@@ -848,33 +848,33 @@ File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 ] [4
 
 ]
-<~/LOV_CC_2YP/Code/final_draft/data_code/summary_outputs/flavor_hhi_histogram.pdf, id=481, 505.89pt x 361.35pt>
-File: ~/LOV_CC_2YP/Code/final_draft/data_code/summary_outputs/flavor_hhi_histogram.pdf Graphic file (type pdf)
-<use ~/LOV_CC_2YP/Code/final_draft/data_code/summary_outputs/flavor_hhi_histogram.pdf>
-Package pdftex.def Info: ~/LOV_CC_2YP/Code/final_draft/data_code/summary_outputs/flavor_hhi_histogram.pdf  used on input line 163.
+<~/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/summary_statistics/flavor_hhi_histogram.pdf, id=551, 505.89pt x 361.35pt>
+File: ~/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/summary_statistics/flavor_hhi_histogram.pdf Graphic file (type pdf)
+<use ~/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/summary_statistics/flavor_hhi_histogram.pdf>
+Package pdftex.def Info: ~/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/summary_statistics/flavor_hhi_histogram.pdf  used on input line 152.
 (pdftex.def)             Requested size: 505.88875pt x 361.34912pt.
 
-Overfull \vbox (6.0408pt too high) detected at line 163
+Overfull \vbox (6.0408pt too high) detected at line 152
  []
 
 [5
 
- </Users/tate/LOV_CC_2YP/Code/final_draft/data_code/summary_outputs/flavor_hhi_histogram.pdf>]
-<~/LOV_CC_2YP/Code/final_draft/data_code/summary_outputs/flavor_shares.pdf, id=617, 505.89pt x 361.35pt>
-File: ~/LOV_CC_2YP/Code/final_draft/data_code/summary_outputs/flavor_shares.pdf Graphic file (type pdf)
-<use ~/LOV_CC_2YP/Code/final_draft/data_code/summary_outputs/flavor_shares.pdf>
-Package pdftex.def Info: ~/LOV_CC_2YP/Code/final_draft/data_code/summary_outputs/flavor_shares.pdf  used on input line 169.
+ </Users/tate/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/summary_statistics/flavor_hhi_histogram.pdf>]
+<~/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/summary_statistics/flavor_shares.pdf, id=695, 505.89pt x 361.35pt>
+File: ~/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/summary_statistics/flavor_shares.pdf Graphic file (type pdf)
+<use ~/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/summary_statistics/flavor_shares.pdf>
+Package pdftex.def Info: ~/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/summary_statistics/flavor_shares.pdf  used on input line 158.
 (pdftex.def)             Requested size: 505.88875pt x 361.34912pt.
 
-Overfull \vbox (6.0408pt too high) detected at line 169
+Overfull \vbox (6.0408pt too high) detected at line 158
  []
 
 [6
 
- </Users/tate/LOV_CC_2YP/Code/final_draft/data_code/summary_outputs/flavor_shares.pdf>] [7
+ </Users/tate/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/summary_statistics/flavor_shares.pdf>] [7
 
 ]
-LaTeX Font Info:    Trying to load font information for U+bbm on input line 200.
+LaTeX Font Info:    Trying to load font information for U+bbm on input line 189.
  (/usr/local/texlive/2026/texmf-dist/tex/latex/bbm-macros/ubbm.fd
 File: ubbm.fd 1999/03/15 V 1.2 Font definition for bbm font - TH
 ) [8
@@ -892,26 +892,26 @@ File: ubbm.fd 1999/03/15 V 1.2 Font definition for bbm font - TH
 ] [14
 
 ]
-<~/LOV_CC_2YP/Code/final_draft/supply_code/writeup_math_graphs/figures/optimal_prices_by_gamma.pdf, id=1479, 722.7pt x 303.534pt>
+<~/LOV_CC_2YP/Code/final_draft/supply_code/writeup_math_graphs/figures/optimal_prices_by_gamma.pdf, id=1677, 722.7pt x 303.534pt>
 File: ~/LOV_CC_2YP/Code/final_draft/supply_code/writeup_math_graphs/figures/optimal_prices_by_gamma.pdf Graphic file (type pdf)
 <use ~/LOV_CC_2YP/Code/final_draft/supply_code/writeup_math_graphs/figures/optimal_prices_by_gamma.pdf>
-Package pdftex.def Info: ~/LOV_CC_2YP/Code/final_draft/supply_code/writeup_math_graphs/figures/optimal_prices_by_gamma.pdf  used on input line 330.
+Package pdftex.def Info: ~/LOV_CC_2YP/Code/final_draft/supply_code/writeup_math_graphs/figures/optimal_prices_by_gamma.pdf  used on input line 319.
 (pdftex.def)             Requested size: 338.59023pt x 142.20709pt.
  [15
 
  </Users/tate/LOV_CC_2YP/Code/final_draft/supply_code/writeup_math_graphs/figures/optimal_prices_by_gamma.pdf>]
-<~/LOV_CC_2YP/Code/final_draft/supply_code/writeup_math_graphs/figures/all_state_realized_profit.pdf, id=1614, 578.16pt x 361.35pt>
+<~/LOV_CC_2YP/Code/final_draft/supply_code/writeup_math_graphs/figures/all_state_realized_profit.pdf, id=1826, 578.16pt x 361.35pt>
 File: ~/LOV_CC_2YP/Code/final_draft/supply_code/writeup_math_graphs/figures/all_state_realized_profit.pdf Graphic file (type pdf)
 <use ~/LOV_CC_2YP/Code/final_draft/supply_code/writeup_math_graphs/figures/all_state_realized_profit.pdf>
-Package pdftex.def Info: ~/LOV_CC_2YP/Code/final_draft/supply_code/writeup_math_graphs/figures/all_state_realized_profit.pdf  used on input line 334.
+Package pdftex.def Info: ~/LOV_CC_2YP/Code/final_draft/supply_code/writeup_math_graphs/figures/all_state_realized_profit.pdf  used on input line 323.
 (pdftex.def)             Requested size: 298.75394pt x 186.71762pt.
  [16
 
  </Users/tate/LOV_CC_2YP/Code/final_draft/supply_code/writeup_math_graphs/figures/all_state_realized_profit.pdf>]
-<~/LOV_CC_2YP/Code/final_draft/supply_code/writeup_math_graphs/figures/all_state_price_ratios.pdf, id=1754, 578.16pt x 361.35pt>
+<~/LOV_CC_2YP/Code/final_draft/supply_code/writeup_math_graphs/figures/all_state_price_ratios.pdf, id=1980, 578.16pt x 361.35pt>
 File: ~/LOV_CC_2YP/Code/final_draft/supply_code/writeup_math_graphs/figures/all_state_price_ratios.pdf Graphic file (type pdf)
 <use ~/LOV_CC_2YP/Code/final_draft/supply_code/writeup_math_graphs/figures/all_state_price_ratios.pdf>
-Package pdftex.def Info: ~/LOV_CC_2YP/Code/final_draft/supply_code/writeup_math_graphs/figures/all_state_price_ratios.pdf  used on input line 338.
+Package pdftex.def Info: ~/LOV_CC_2YP/Code/final_draft/supply_code/writeup_math_graphs/figures/all_state_price_ratios.pdf  used on input line 327.
 (pdftex.def)             Requested size: 298.75394pt x 186.71762pt.
  [17
 
@@ -921,277 +921,95 @@ Package pdftex.def Info: ~/LOV_CC_2YP/Code/final_draft/supply_code/writeup_math_
 
 ] [20
 
-] (/Users/tate/LOV_CC_2YP/Code/final_draft/data_code/summary_outputs/aggregated_flavors/yogurt_dynamics.tex
+] [21
 
-/Users/tate/LOV_CC_2YP/Code/final_draft/data_code/summary_outputs/aggregated_flavors/yogurt_dynamics.tex:2: LaTeX Error: Not allowed in LR mode.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.2 \caption
-            {Matched yogurt sample: purchase dynamics}
-You've lost some text.  Try typing  <return>  to proceed.
-If that doesn't work, type  X <return>  to quit.
-
-
-/Users/tate/LOV_CC_2YP/Code/final_draft/data_code/summary_outputs/aggregated_flavors/yogurt_dynamics.tex:2: LaTeX Error: Not allowed in LR mode.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.2 \caption
-            {Matched yogurt sample: purchase dynamics}
-You've lost some text.  Try typing  <return>  to proceed.
-If that doesn't work, type  X <return>  to quit.
-
-/Users/tate/LOV_CC_2YP/Code/final_draft/data_code/summary_outputs/aggregated_flavors/yogurt_dynamics.tex:2: Missing \endgroup inserted.
-<inserted text> 
-                \endgroup 
-l.2 \caption
-            {Matched yogurt sample: purchase dynamics}
-I've inserted something that you may have forgotten.
-(See the <inserted text> above.)
-With luck, this will get me unwedged. But if you
-really didn't forget anything, try typing `2' now; then
-my insertion and my current dilemma will both disappear.
-
-/Users/tate/LOV_CC_2YP/Code/final_draft/data_code/summary_outputs/aggregated_flavors/yogurt_dynamics.tex:2: Missing \endgroup inserted.
-<inserted text> 
-                \endgroup 
-l.2 \caption
-            {Matched yogurt sample: purchase dynamics}
-I've inserted something that you may have forgotten.
-(See the <inserted text> above.)
-With luck, this will get me unwedged. But if you
-really didn't forget anything, try typing `2' now; then
-my insertion and my current dilemma will both disappear.
-
-/Users/tate/LOV_CC_2YP/Code/final_draft/data_code/summary_outputs/aggregated_flavors/yogurt_dynamics.tex:2: Missing \endgroup inserted.
-<inserted text> 
-                \endgroup 
-l.2 \caption
-            {Matched yogurt sample: purchase dynamics}
-I've inserted something that you may have forgotten.
-(See the <inserted text> above.)
-With luck, this will get me unwedged. But if you
-really didn't forget anything, try typing `2' now; then
-my insertion and my current dilemma will both disappear.
-
-/Users/tate/LOV_CC_2YP/Code/final_draft/data_code/summary_outputs/aggregated_flavors/yogurt_dynamics.tex:2: Missing } inserted.
-<inserted text> 
-                }
-l.2 \caption
-            {Matched yogurt sample: purchase dynamics}
-I've inserted something that you may have forgotten.
-(See the <inserted text> above.)
-With luck, this will get me unwedged. But if you
-really didn't forget anything, try typing `2' now; then
-my insertion and my current dilemma will both disappear.
-
-
-/Users/tate/LOV_CC_2YP/Code/final_draft/data_code/summary_outputs/aggregated_flavors/yogurt_dynamics.tex:2: LaTeX Error: Lonely \item--perhaps a missing list environment.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.2 \caption
-            {Matched yogurt sample: purchase dynamics}
-Try typing  <return>  to proceed.
-If that doesn't work, type  X <return>  to quit.
-
-
-Underfull \hbox (badness 10000) detected at line 2
-[][]
+] (/Users/tate/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/summary_statistics/yogurt_dynamics.tex)
+Overfull \vbox (3.32123pt too high) detected at line 409
  []
 
+[22
 
-/Users/tate/LOV_CC_2YP/Code/final_draft/data_code/summary_outputs/aggregated_flavors/yogurt_dynamics.tex:2: LaTeX Error: \caption outside figure or table.
+]
+<../RESULTS_ONLY/summary_statistics/aggregated_flavors/flavor_transitions.pdf, id=2639, 433.62pt x 433.62pt>
+File: ../RESULTS_ONLY/summary_statistics/aggregated_flavors/flavor_transitions.pdf Graphic file (type pdf)
+<use ../RESULTS_ONLY/summary_statistics/aggregated_flavors/flavor_transitions.pdf>
+Package pdftex.def Info: ../RESULTS_ONLY/summary_statistics/aggregated_flavors/flavor_transitions.pdf  used on input line 415.
+(pdftex.def)             Requested size: 148.74553pt x 148.7454pt.
+ [23
 
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.2 \caption
-            {Matched yogurt sample: purchase dynamics}
-You're in trouble here.  Try typing  <return>  to proceed.
-If that doesn't work, type  X <return>  to quit.
-
-
-/Users/tate/LOV_CC_2YP/Code/final_draft/data_code/summary_outputs/aggregated_flavors/yogurt_dynamics.tex:19: LaTeX Error: \begin{beamer@framepauses} on input line 383 ended by \end{center}.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.19 \end{table}
-                
-Your command was ignored.
-Type  I <command> <return>  to replace it with another command,
-or  <return>  to continue without it.
-
-
-/Users/tate/LOV_CC_2YP/Code/final_draft/data_code/summary_outputs/aggregated_flavors/yogurt_dynamics.tex:19: LaTeX Error: \begin{beamer@framepauses} on input line 383 ended by \end{table}.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.19 \end{table}
-                
-Your command was ignored.
-Type  I <command> <return>  to replace it with another command,
-or  <return>  to continue without it.
-
-)
-./pres.tex:383: Missing } inserted.
-<inserted text> 
-                }
-l.383 \end{frame}
-                 
-I've inserted something that you may have forgotten.
-(See the <inserted text> above.)
-With luck, this will get me unwedged. But if you
-really didn't forget anything, try typing `2' now; then
-my insertion and my current dilemma will both disappear.
-
-./pres.tex:383: Too many }'s.
-\@begin@tempboxa ...begingroup #2\color@endgroup }
-                                                  \def \width {\wd \@tempbox...
-l.383 \end{frame}
-                 
-You've closed more groups than you opened.
-Such booboos are generally harmless, so keep going.
-
-
-./pres.tex:383: Package graphics Error: Division by 0.
-
-See the graphics package documentation for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.383 \end{frame}
-                 
-Your command was ignored.
-Type  I <command> <return>  to replace it with another command,
-or  <return>  to continue without it.
-
-./pres.tex:383: Extra \endgroup.
-\Gscale@box@dd ...\box \@tempboxa }\@end@tempboxa 
-                                                  
-l.383 \end{frame}
-                 
-Things are pretty mixed up, but I think the worst is over.
-
-
-./pres.tex:383: LaTeX Error: \begin{document} ended by \end{beamer@framepauses}.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.383 \end{frame}
-                 
-Your command was ignored.
-Type  I <command> <return>  to replace it with another command,
-or  <return>  to continue without it.
-
-./pres.tex:383: Extra \endgroup.
-\end  ...end#1\endcsname \@checkend {#1}\endgroup 
-                                                  \UseHook {env/#1/after}\if...
-l.383 \end{frame}
-                 
-Things are pretty mixed up, but I think the worst is over.
-
-./pres.tex:383: Too many }'s.
-\endbeamer@frameslide ...amer@framepauses}\egroup 
-                                                  \ifx \beamer@frametitle \@...
-l.383 \end{frame}
-                 
-You've closed more groups than you opened.
-Such booboos are generally harmless, so keep going.
-
-./pres.tex:383: Undefined control sequence.
-\endbeamer@frameslide ...box \else \beamer@zoomer 
-                                                  \fi \beamer@undolabels \be...
-l.383 \end{frame}
-                 
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-
-./pres.tex:383: LaTeX Error: \begin{document} ended by \end{beamer@frameslide}.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.383 \end{frame}
-                 
-Your command was ignored.
-Type  I <command> <return>  to replace it with another command,
-or  <return>  to continue without it.
-
-./pres.tex:383: Extra \endgroup.
-\end  ...end#1\endcsname \@checkend {#1}\endgroup 
-                                                  \UseHook {env/#1/after}\if...
-l.383 \end{frame}
-                 
-Things are pretty mixed up, but I think the worst is over.
-
-[21
-
-] [22
-
-] [23
-
-] [24
+ <../RESULTS_ONLY/summary_statistics/aggregated_flavors/flavor_transitions.pdf>] [24
 
 ] [25
 
-]
-./pres.tex:451: Misplaced alignment tab character &.
-\insertframetitle ->{Estimates &
-                                 WTP\ifnum \beamer@autobreakcount >0 \relax ...
-l.451 \end{frame}
-                 
-I can't figure out why you would want to use a tab mark
-here. If you just want an ampersand, the remedy is
-simple: Just type `I\&' now. But if some right brace
-up above has ended a previous alignment prematurely,
-you're probably due for more error messages, and you
-might try typing `S' now just to see what is salvageable.
+] [26
 
-[26
+] [27
+
+] (/Users/tate/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/no_control_fit/estimates.tex) [28
+
+] (/Users/tate/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/no_control_fit/implied_wtp.tex) [29
 
 ]
-<../../../shell_files/res_het_nocf/history_distributions.pdf, id=2683, 722.7pt x 289.08pt>
-File: ../../../shell_files/res_het_nocf/history_distributions.pdf Graphic file (type pdf)
-<use ../../../shell_files/res_het_nocf/history_distributions.pdf>
-Package pdftex.def Info: ../../../shell_files/res_het_nocf/history_distributions.pdf  used on input line 454.
+<~/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/no_control_fit/history_distributions.pdf, id=3407, 722.7pt x 289.08pt>
+File: ~/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/no_control_fit/history_distributions.pdf Graphic file (type pdf)
+<use ~/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/no_control_fit/history_distributions.pdf>
+Package pdftex.def Info: ~/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/no_control_fit/history_distributions.pdf  used on input line 496.
 (pdftex.def)             Requested size: 394.35739pt x 157.74176pt.
- [27
+ [30
 
- <../../../shell_files/res_het_nocf/history_distributions.pdf>] [28
-
-] [29
-
-] [30
-
-] [31
+ </Users/tate/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/no_control_fit/history_distributions.pdf>] [31
 
 ] [32
 
 ] [33
 
-] [34
+]
+<~/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/pricing/berry/household_coupon_results.pdf, id=3869, 939.51pt x 361.35pt>
+File: ~/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/pricing/berry/household_coupon_results.pdf Graphic file (type pdf)
+<use ~/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/pricing/berry/household_coupon_results.pdf>
+Package pdftex.def Info: ~/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/pricing/berry/household_coupon_results.pdf  used on input line 545.
+(pdftex.def)             Requested size: 398.3386pt x 153.20505pt.
+ [34
 
-] [35
+ </Users/tate/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/pricing/berry/household_coupon_results.pdf>]
+<~/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/pricing/plain/household_coupon_results.pdf, id=4035, 939.51pt x 361.35pt>
+File: ~/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/pricing/plain/household_coupon_results.pdf Graphic file (type pdf)
+<use ~/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/pricing/plain/household_coupon_results.pdf>
+Package pdftex.def Info: ~/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/pricing/plain/household_coupon_results.pdf  used on input line 549.
+(pdftex.def)             Requested size: 398.3386pt x 153.20505pt.
+ [35
+
+ </Users/tate/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/pricing/plain/household_coupon_results.pdf>]
+<~/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/pricing/berry/discounts_by_consumer_type.pdf, id=4199, 650.43pt x 361.35pt>
+File: ~/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/pricing/berry/discounts_by_consumer_type.pdf Graphic file (type pdf)
+<use ~/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/pricing/berry/discounts_by_consumer_type.pdf>
+Package pdftex.def Info: ~/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/pricing/berry/discounts_by_consumer_type.pdf  used on input line 553.
+(pdftex.def)             Requested size: 338.59023pt x 188.10709pt.
+ [36
+
+ </Users/tate/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/pricing/berry/discounts_by_consumer_type.pdf>]
+<~/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/pricing/plain/discounts_by_consumer_type.pdf, id=4356, 650.43pt x 361.35pt>
+File: ~/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/pricing/plain/discounts_by_consumer_type.pdf Graphic file (type pdf)
+<use ~/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/pricing/plain/discounts_by_consumer_type.pdf>
+Package pdftex.def Info: ~/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/pricing/plain/discounts_by_consumer_type.pdf  used on input line 557.
+(pdftex.def)             Requested size: 338.59023pt x 188.10709pt.
+ [37
+
+ </Users/tate/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/pricing/plain/discounts_by_consumer_type.pdf>]
+<../RESULTS_ONLY/pricing/plain/pricing_mechanism.pdf, id=4514, 722.7pt x 289.08pt>
+File: ../RESULTS_ONLY/pricing/plain/pricing_mechanism.pdf Graphic file (type pdf)
+<use ../RESULTS_ONLY/pricing/plain/pricing_mechanism.pdf>
+Package pdftex.def Info: ../RESULTS_ONLY/pricing/plain/pricing_mechanism.pdf  used on input line 574.
+(pdftex.def)             Requested size: 378.42044pt x 151.36786pt.
+ [38
+
+ <../RESULTS_ONLY/pricing/plain/pricing_mechanism.pdf>] (/Users/tate/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/pricing/focal_flavor_comparison.tex) [39
+
+] [40
+
+] [41
+
+] [42
 
 ]
 \tf@nav=\write6
@@ -1212,18 +1030,18 @@ Package rerunfilecheck Info: File `pres.out' has not changed.
 (rerunfilecheck)             Checksum: 71FB9276E90955D996C842365402F7B4;859.
  ) 
 Here is how much of TeX's memory you used:
- 29654 strings out of 467159
- 605866 string characters out of 5409218
- 1014985 words of memory out of 5000000
- 58282 multiletter control sequences out of 15000+600000
- 636970 words of font info for 79 fonts, out of 8000000 for 9000
+ 29775 strings out of 467159
+ 612448 string characters out of 5409218
+ 1024973 words of memory out of 5000000
+ 58372 multiletter control sequences out of 15000+600000
+ 637276 words of font info for 80 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  128i,19n,123p,380b,1012s stack positions out of 10000i,1000n,20000p,200000b,200000s
- </Users/tate/Library/texlive/2026/texmf-var/fonts/pk/ljfour/public/bbm/bbm10.657pk></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmss10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmss12.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmss8.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmssbx10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb>
-Output written on pres.pdf (35 pages, 346527 bytes).
+ </Users/tate/Library/texlive/2026/texmf-var/fonts/pk/ljfour/public/bbm/bbm10.657pk></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmss10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmss12.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmss8.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmss9.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmssbx10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb>
+Output written on pres.pdf (42 pages, 486808 bytes).
 PDF statistics:
- 3580 PDF objects out of 3580 (max. 8388607)
- 1735 compressed objects within 18 object streams
- 79 named destinations out of 1000 (max. 500000)
- 137 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 5132 PDF objects out of 5155 (max. 8388607)
+ 2395 compressed objects within 24 object streams
+ 96 named destinations out of 1000 (max. 500000)
+ 167 words of extra memory for PDF output out of 10000 (max. 10000000)
 

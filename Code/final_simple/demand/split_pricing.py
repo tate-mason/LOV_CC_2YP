@@ -161,7 +161,7 @@ def digest(path):
 @server_only
 def targeted_coupons(context, households, weights, alpha, switching, beta, discounts,
                      delta=1., capacity=7, control_coefficient=0.,
-                     batch_size=24, type_treatment="posterior-mean", state_output=None):
+                     batch_size=24, type_treatment="posterior-mean", state_output=None, benchmark_output=None):
     """Choose household-specific p1(h0) and terminal p2(h1) by backward induction.
 
     Work through ONE household at a time. This makes type-specific pricing
@@ -190,6 +190,7 @@ def targeted_coupons(context, households, weights, alpha, switching, beta, disco
     rows = []
     maximum_mass_error = 0.
     wrote_states = False
+    common_values = np.zeros((number_coupons, number_coupons))
 
     for number_done, household in enumerate(eligible_households, start=1):
         prices = context["prices"][household]
@@ -269,6 +270,10 @@ def targeted_coupons(context, households, weights, alpha, switching, beta, disco
             # choosing a terminal coupon: the firm cannot observe the true draw.
             # Result dimensions: terminal coupon x basket h1 x metric.
             weighted_terminal = (terminal * joint[None, :, :, None]).sum(axis=1)
+            if targeted[household]:
+                common_values[action] += first[action, 0] + delta * weighted_terminal[:, :, 0].sum(axis=1)
+            elif action == 0:
+                common_values += first[0, 0] + delta * weighted_terminal[0, :, 0].sum()
             best_terminal_action = weighted_terminal[:, :, 0].argmax(axis=0)
             selected = weighted_terminal[best_terminal_action, state_numbers]
             second[action] = selected.sum(axis=0)
@@ -347,6 +352,19 @@ def targeted_coupons(context, households, weights, alpha, switching, beta, disco
     comparison = table.pivot(index="household_code", columns="policy", values="discounted_revenue")
     if (comparison.personalized_dynamic + 1e-8 < comparison.no_coupon).any():
         raise AssertionError("Dynamic pricing does not dominate the feasible no-coupon benchmark.")
+    if benchmark_output is not None:
+        a1, a2 = np.unravel_index(common_values.argmax(), common_values.shape)
+        totals = table.groupby("policy").discounted_revenue.sum()
+        common = float(common_values[a1, a2])
+        if common + 1e-8 < totals["no_coupon"] or common > totals["personalized_dynamic"] + 1e-8:
+            raise AssertionError("Expected no coupon <= common coupons <= personalized dynamic.")
+        for policy, value, d1, d2 in [
+                ("no_coupon", totals["no_coupon"], 0., 0.),
+                ("optimized_common_coupons", common, discounts[a1], discounts[a2]),
+                ("personalized_dynamic", totals["personalized_dynamic"], np.nan, np.nan)]:
+            benchmark_output.append(dict(policy=policy, discounted_revenue=value,
+                discount1=d1, discount2=d2,
+                revenue_change_pct=100*(value/totals["no_coupon"]-1)))
     return table, maximum_mass_error
 
 
@@ -401,12 +419,29 @@ def run_households(args):
     counts = [int(((households.group == g) & households.berry_eligible).sum()) for g in ["low", "middle", "high"]]
     if any(n == 0 for n in counts):
         raise ValueError("Each switching segment must have focal-eligible forecast households.")
+    benchmarks = []
     table, mass_error = targeted_coupons(
         context, households, weights, alpha, switching, beta, args.discounts,
         args.demand_delta, capacity,
         parameters.get("price_control", 0.) if control else 0., args.batch_size,
         args.type_treatment,
-        args.output / "targeted_state_policies.csv.gz" if args.save_state_policies else None)
+        args.output / "targeted_state_policies.csv.gz" if args.save_state_policies else None,
+        benchmark_output=benchmarks)
+    benchmark_table = pd.DataFrame(benchmarks)
+    benchmark_table.to_csv(args.output / "pricing_policy_benchmarks.csv", index=False)
+    plt = plotting()
+    fig, ax = plt.subplots(figsize=(9, 5))
+    ax.bar(["No coupons", "Optimized common\ncoupons", "Personalized\ndynamic coupons"],
+           benchmark_table.revenue_change_pct, color=["#999999", "#3575AD", "#D17925"])
+    ax.set(ylabel="Revenue gain relative to no coupons (%)", title=f"{focal.title()}: pricing policy benchmarks")
+    ax.grid(axis="y", alpha=.2)
+    ax.set_axisbelow(True)
+    fig.text(.5, .015, "Same eligible households; middle group receives no coupons. Common offers vary by period, not household or history.",
+             ha="center", fontsize=8)
+    fig.tight_layout(rect=(0, .05, 1, 1))
+    for extension in ["pdf", "png"]:
+        fig.savefig(args.output / f"pricing_policy_benchmarks.{extension}", dpi=180)
+    plt.close(fig)
     households.rename(columns={"berry_eligible": "focal_eligible"}, inplace=True)
     table.rename(columns={c: c.replace("berry", "focal") for c in table if "berry" in c}, inplace=True)
     table["focal_flavor"] = focal
@@ -424,6 +459,41 @@ def run_households(args):
     group = group.join(means)
     group["eligible_households"] = table.groupby(["policy", "group"]).size()
     group.to_csv(args.output / "targeted_revenue_by_switching_group.csv")
+    # Aggregate terminal offers conditional on first-period focal purchase.
+    # Weight by branch probability, rather than averaging household conditional means.
+    branch_rows = []
+    dynamic = table.loc[table.policy == "personalized_dynamic"]
+    for group_name, segment in dynamic.groupby("group"):
+        for branch in ["focal", "no_focal"]:
+            mass = segment["probability_" + branch]
+            branch_price = segment["mean_p2_given_" + branch]
+            probability_sum = mass.sum()
+            branch_rows.append(dict(group=group_name, branch=branch,
+                probability=probability_sum/len(segment),
+                mean_terminal_price=(mass*branch_price).sum()/probability_sum if probability_sum else np.nan))
+    branches = pd.DataFrame(branch_rows)
+    paired = dynamic.assign(terminal_price_gap=(dynamic.mean_p2_given_focal - dynamic.mean_p2_given_no_focal))
+    paired.groupby("group").agg(
+        mean_within_household_price_gap=("terminal_price_gap", "mean"),
+        households_with_both_branches=("terminal_price_gap", "count")
+    ).to_csv(args.output / "terminal_offer_within_household_gap.csv")
+    branches.to_csv(args.output / "terminal_offers_by_purchase.csv", index=False)
+    plt = plotting()
+    fig, ax = plt.subplots(figsize=(9, 4))
+    x = np.arange(3)
+    for branch, offset, label in [("no_focal", -.18, "After no focal purchase"),
+                                  ("focal", .18, "After focal purchase")]:
+        values = branches.loc[branches.branch == branch].set_index("group").reindex(["low", "middle", "high"])
+        ax.bar(x+offset, values.mean_terminal_price, width=.36, label=label)
+    ax.set(xticks=x, xticklabels=["Low switching", "Middle switching", "High switching"],
+           ylabel="Mean terminal price ($)", title=f"{focal.title()}: terminal offers conditional on purchase")
+    ax.legend()
+    fig.text(.5, .015, "Branch-probability-weighted means under personalized dynamic pricing; middle receives no coupons.\nConditional comparisons can reflect household composition as well as history effects.", ha="center", fontsize=8)
+    fig.tight_layout(rect=(0, .10, 1, 1))
+    for extension in ["pdf", "png"]:
+        fig.savefig(args.output / f"terminal_offers_by_purchase.{extension}", dpi=180)
+    plt.close(fig)
+
     households.groupby("group").agg(households=("household_code", "size"),
                                     focal_eligible=("focal_eligible", "sum"),
                                     switching_mean=("switching_mean", "mean"),

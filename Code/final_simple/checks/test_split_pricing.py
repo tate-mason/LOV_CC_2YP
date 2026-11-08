@@ -57,9 +57,10 @@ class EmpiricalTimingTests(unittest.TestCase):
         a, g, capacity, delta = 1., -.8, 2, .92
         b_n, b_s = -.6, .35
         beta = np.ones(3)*.5
+        benchmarks = []
         table, error = pricing.targeted_coupons(
             context, households, np.ones((1, 1)), np.array([a]), np.array([[b_n, b_s]]),
-            beta, discounts, capacity=capacity, delta=delta)
+            beta, discounts, capacity=capacity, delta=delta, benchmark_output=benchmarks)
         self.assertLess(error, 1e-12)
         baskets = pricing.compositions(capacity)
         terminal_values = []
@@ -75,6 +76,7 @@ class EmpiricalTimingTests(unittest.TestCase):
                 values.append(capacity*prices[1]*probability[1])
             terminal_values.append(max(values))
         total_values = []
+        common_values = []
         for discount in discounts:
             prices = context["prices"][0].copy()
             prices[1] *= 1-discount
@@ -86,6 +88,22 @@ class EmpiricalTimingTests(unittest.TestCase):
                 math.factorial(capacity)/math.prod(math.factorial(int(n)) for n in basket)
                 *np.prod(probability**basket) for basket in baskets])
             total_values.append(first+delta*(mass @ terminal_values))
+            fixed_terminal = []
+            for terminal_discount in discounts:
+                state_revenues = []
+                for basket in baskets:
+                    x = basket[:3]/max(basket[:3].sum(), 1)
+                    history2 = b_n*(x.sum()-x)+b_s*(context["stocks"][0]+x)
+                    prices2 = context["prices"][0].copy()
+                    prices2[1] *= 1-terminal_discount
+                    utilities2 = np.r_[beta-a*prices2+history2, 0.]
+                    probability2 = np.exp(utilities2-pricing.logsumexp(utilities2))
+                    state_revenues.append(capacity*prices2[1]*probability2[1])
+                fixed_terminal.append(first+delta*(mass @ state_revenues))
+            common_values.append(fixed_terminal)
+        benchmark = pd.DataFrame(benchmarks).set_index("policy")
+        self.assertAlmostEqual(benchmark.loc["optimized_common_coupons", "discounted_revenue"],
+                               np.max(common_values), places=12)
         policies = table.set_index("policy")
         self.assertEqual(set(policies.index), {"no_coupon", "personalized_dynamic"})
         dynamic = policies.loc["personalized_dynamic"]

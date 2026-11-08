@@ -24,15 +24,17 @@ project_dir="/scratch/dtm63837/Kilts_Panel/LOV_CC_2YP"
 controlled_fit="$project_dir/shell_files/res_het_hist"
 uncontrolled_fit="$project_dir/shell_files/res_het_nocf"
 
-# Job-private research records live outside the code checkout and are deleted on exit.
-mkdir -p /scratch/dtm63837/Kilts_Panel/Data/temporary
-weekly_work=$(mktemp -d /scratch/dtm63837/Kilts_Panel/Data/temporary/pricing.XXXXXX)
-weekly_input="$weekly_work/weekly_inputs.csv"
-
-# Weekly household inputs are temporary: remove them on success or failure.
+# Set RUN_PRICING=0 for figures only. Reuse an existing server weekly file
+# with WEEKLY_INPUT=/scratch/.../weekly_inputs.csv; it will never be deleted.
+run_pricing="${RUN_PRICING:-1}"
+run_distributions="${RUN_DISTRIBUTIONS:-1}"
+weekly_input="${WEEKLY_INPUT:-}"
+weekly_work=""
 cleanup_weekly_inputs() {
-    rm -f -- "$weekly_input" "$weekly_work"/.weekly_inputs_*.csv
-    rmdir -- "$weekly_work"
+    if [[ -n "$weekly_work" ]]; then
+        rm -f -- "$weekly_work/weekly_inputs.csv" "$weekly_work"/.weekly_inputs_*.csv
+        rmdir -- "$weekly_work"
+    fi
 }
 trap cleanup_weekly_inputs EXIT
 trap 'exit 130' INT
@@ -42,23 +44,32 @@ pricing_output="/scratch/dtm63837/Kilts_Panel/plain_berry_pricing_ex"
 ml Python/3.12.3-GCCcore-13.3.0
 cd "$project_dir"
 
-# Check saved fit artifacts before rebuilding household inputs on the server.
-for fit_directory in "$controlled_fit" "$uncontrolled_fit"; do
-    if [[ ! -f "$fit_directory/fit.json" || ! -f "$fit_directory/point_estimates.csv" ]]; then
-        echo "Missing saved fit in $fit_directory. Set controlled_fit/uncontrolled_fit to the estimation output directories." >&2
-        exit 1
+if [[ "$run_distributions" == "1" ]]; then
+    python3 Code/final_simple/demand/history_distributions.py --fit-dir "$controlled_fit"
+    python3 Code/final_simple/demand/history_distributions.py --fit-dir "$uncontrolled_fit"
+fi
+
+if [[ "$run_pricing" == "1" ]]; then
+    if [[ -n "$weekly_input" ]]; then
+        # Validate the server path before allowing the pricing reader to open it.
+        # run_households also validates this path through server_data_policy.py.
+        if [[ ! -f "$weekly_input" ]]; then
+            echo "WEEKLY_INPUT does not exist; supply an existing server weekly file." >&2
+            exit 1
+        fi
+        echo "Reusing existing server weekly input; skipping regeneration."
+    else
+        mkdir -p /scratch/dtm63837/Kilts_Panel/Data/temporary
+        weekly_work=$(mktemp -d /scratch/dtm63837/Kilts_Panel/Data/temporary/pricing.XXXXXX)
+        weekly_input="$weekly_work/weekly_inputs.csv"
+        python3 Code/final_simple/demand/regenerate_weekly_inputs.py \
+            --fit-dir "$controlled_fit" --weekly-output "$weekly_input"
     fi
-done
+    python3 Code/final_simple/demand/plain_berry_pricing.py \
+        --household-input "$weekly_input" \
+        --fit-dir "$controlled_fit" --demand-delta 0.92 \
+        --output "$pricing_output"
+fi
 
-# 1. Reconstruct the deleted export using saved settings; verify its likelihood.
-python3 Code/final_simple/demand/regenerate_weekly_inputs.py --fit-dir "$controlled_fit" --weekly-output "$weekly_input"
-
-# 2. Export both fitted population coefficient distributions.
-python3 Code/final_simple/demand/history_distributions.py --fit-dir "$controlled_fit"
-python3 Code/final_simple/demand/history_distributions.py --fit-dir "$uncontrolled_fit"
-
-# 3. Compare plain and berry as focal sellers; retain all three demand categories.
-python3 Code/final_simple/demand/plain_berry_pricing.py \
-    --household-input "$weekly_input" \
-    --fit-dir "$controlled_fit" --demand-delta 0.92 \
-    --output "$pricing_output"
+# 4. Generate seminar mechanism figures on the server from aggregate results.
+python3 Code/final_draft/seminar_pres/make_policy_figures.py --output "$pricing_output"

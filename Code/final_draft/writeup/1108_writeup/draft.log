@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.8.17)  8 NOV 2026 17:41
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.8.17)  8 NOV 2026 18:52
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -652,8 +652,7 @@ File: mt-cmr.cfg 2013/05/19 v2.2 microtype config. file: Computer Modern Roman
 (RS)
 ) [1
 
-{/usr/local/texlive/2026/texmf-var/fonts/map/pdftex/updmap/pdftex.map}] [2{/usr
-/local/texlive/2026/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc}]
+{/usr/local/texlive/2026/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
 LaTeX Font Info:    Trying to load font information for U+msa on input line 131
 .
 
@@ -671,9 +670,10 @@ File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 )
 (/usr/local/texlive/2026/texmf-dist/tex/latex/microtype/mt-msb.cfg
 File: mt-msb.cfg 2005/06/01 v1.0 microtype config. file: AMS symbols (b) (RS)
-) [3]
+) [2{/usr/local/texlive/2026/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.e
+nc}] [3]
 [4] [5] [6] [7]
-<assets/results/supply/optimal_prices_by_gamma.pdf, id=380, 722.7pt x 303.534pt
+<assets/results/supply/optimal_prices_by_gamma.pdf, id=392, 722.7pt x 303.534pt
 >
 File: assets/results/supply/optimal_prices_by_gamma.pdf Graphic file (type pdf)
 
@@ -681,7 +681,7 @@ File: assets/results/supply/optimal_prices_by_gamma.pdf Graphic file (type pdf)
 Package pdftex.def Info: assets/results/supply/optimal_prices_by_gamma.pdf  use
 d on input line 345.
 (pdftex.def)             Requested size: 469.76045pt x 197.29938pt.
-<assets/results/supply/all_state_realized_profit.pdf, id=381, 578.16pt x 361.35
+<assets/results/supply/all_state_realized_profit.pdf, id=393, 578.16pt x 361.35
 pt>
 File: assets/results/supply/all_state_realized_profit.pdf Graphic file (type pd
 f)
@@ -690,7 +690,7 @@ Package pdftex.def Info: assets/results/supply/all_state_realized_profit.pdf  u
 sed on input line 352.
 (pdftex.def)             Requested size: 469.75385pt x 293.59616pt.
  [8 <./assets/results/supply/optimal_prices_by_gamma.pdf>]
-<assets/results/supply/all_state_price_ratios.pdf, id=435, 578.16pt x 361.35pt>
+<assets/results/supply/all_state_price_ratios.pdf, id=447, 578.16pt x 361.35pt>
 
 File: assets/results/supply/all_state_price_ratios.pdf Graphic file (type pdf)
 <use assets/results/supply/all_state_price_ratios.pdf>
@@ -703,13 +703,13 @@ pply/all_state_price_ratios.pdf>]
 (./assets/results/gamma_uncertainty/results.tex) [10
 
 ]
-<assets/results/gamma_uncertainty/profits.pdf, id=544, 722.7pt x 260.17201pt>
+<assets/results/gamma_uncertainty/profits.pdf, id=556, 722.7pt x 260.17201pt>
 File: assets/results/gamma_uncertainty/profits.pdf Graphic file (type pdf)
 <use assets/results/gamma_uncertainty/profits.pdf>
 Package pdftex.def Info: assets/results/gamma_uncertainty/profits.pdf  used on 
 input line 405.
 (pdftex.def)             Requested size: 469.76045pt x 169.11375pt.
-<assets/results/gamma_uncertainty/information_value.pdf, id=545, 722.7pt x 260.
+<assets/results/gamma_uncertainty/information_value.pdf, id=557, 722.7pt x 260.
 17201pt>
 File: assets/results/gamma_uncertainty/information_value.pdf Graphic file (type
  pdf)
@@ -721,7 +721,7 @@ Package pdftex.def Info: assets/results/gamma_uncertainty/information_value.pdf
 (./assets/results/summary_statistics/full_panel_vs_yogurt.tex) [12 <./assets/re
 sults/gamma_uncertainty/information_value.pdf>]
 (./assets/results/summary_statistics/yogurt_dynamics.tex)
-<assets/results/summary_statistics/flavor_hhi_histogram.pdf, id=635, 505.89pt x
+<assets/results/summary_statistics/flavor_hhi_histogram.pdf, id=648, 505.89pt x
  361.35pt>
 File: assets/results/summary_statistics/flavor_hhi_histogram.pdf Graphic file (
 type pdf)
@@ -730,7 +730,7 @@ Package pdftex.def Info: assets/results/summary_statistics/flavor_hhi_histogram
 .pdf  used on input line 444.
 (pdftex.def)             Requested size: 469.76265pt x 335.54477pt.
  [13] [14 <./assets/results/summary_statistics/flavor_hhi_histogram.pdf>]
-<assets/results/summary_statistics/flavor_shares.pdf, id=690, 505.89pt x 361.35
+<assets/results/summary_statistics/flavor_shares.pdf, id=702, 505.89pt x 361.35
 pt>
 File: assets/results/summary_statistics/flavor_shares.pdf Graphic file (type pd
 f)
@@ -739,7 +739,7 @@ Package pdftex.def Info: assets/results/summary_statistics/flavor_shares.pdf  u
 sed on input line 451.
 (pdftex.def)             Requested size: 469.76265pt x 335.54477pt.
 <assets/results/summary_statistics/aggregated_flavors/flavor_transitions.pdf, i
-d=691, 433.62pt x 433.62pt>
+d=703, 433.62pt x 433.62pt>
 File: assets/results/summary_statistics/aggregated_flavors/flavor_transitions.p
 df Graphic file (type pdf)
 <use assets/results/summary_statistics/aggregated_flavors/flavor_transitions.pd
@@ -750,129 +750,260 @@ lavor_transitions.pdf  used on input line 458.
  [15 <./assets/results/summary_statistics/flavor_shares.pdf>] [16 <./assets/res
 ults/summary_statistics/aggregated_flavors/flavor_transitions.pdf>] [17] [18]
 (./assets/results/demand/estimates.tex [19])
-<assets/results/demand/history_distributions.pdf, id=829, 722.7pt x 289.08pt>
+(./assets/results/demand/comparison.tex)
+<assets/results/demand/history_distributions.pdf, id=841, 722.7pt x 289.08pt>
 File: assets/results/demand/history_distributions.pdf Graphic file (type pdf)
 <use assets/results/demand/history_distributions.pdf>
 Package pdftex.def Info: assets/results/demand/history_distributions.pdf  used 
-on input line 628.
+on input line 630.
 (pdftex.def)             Requested size: 469.76045pt x 187.90417pt.
-
-(./assets/results/demand/implied_wtp.tex [20 <./assets/results/demand/history_d
-istributions.pdf>])
-<assets/results/pricing/berry/household_coupon_results.pdf, id=886, 939.51pt x 
+ [20]
+(./assets/results/demand/implied_wtp.tex)
+<assets/results/pricing/berry/household_coupon_results.pdf, id=848, 939.51pt x 
 361.35pt>
 File: assets/results/pricing/berry/household_coupon_results.pdf Graphic file (t
 ype pdf)
 <use assets/results/pricing/berry/household_coupon_results.pdf>
 Package pdftex.def Info: assets/results/pricing/berry/household_coupon_results.
-pdf  used on input line 677.
+pdf  used on input line 682.
 (pdftex.def)             Requested size: 469.75385pt x 180.67456pt.
-<assets/results/pricing/berry/discounts_by_consumer_type.pdf, id=887, 650.43pt 
+ [21 <./assets/results/demand/history_distributions.pdf>]
+<assets/results/pricing/berry/discounts_by_consumer_type.pdf, id=906, 650.43pt 
 x 361.35pt>
 File: assets/results/pricing/berry/discounts_by_consumer_type.pdf Graphic file 
 (type pdf)
 <use assets/results/pricing/berry/discounts_by_consumer_type.pdf>
 Package pdftex.def Info: assets/results/pricing/berry/discounts_by_consumer_typ
-e.pdf  used on input line 684.
+e.pdf  used on input line 689.
 (pdftex.def)             Requested size: 469.76817pt x 260.98232pt.
- [21 <./assets/results/pricing/berry/household_coupon_results.pdf>]
-<assets/results/pricing/plain/household_coupon_results.pdf, id=957, 939.51pt x 
+ [22 <./assets/results/pricing/berry/household_coupon_results.pdf>]
+<assets/results/pricing/plain/household_coupon_results.pdf, id=974, 939.51pt x 
 361.35pt>
 File: assets/results/pricing/plain/household_coupon_results.pdf Graphic file (t
 ype pdf)
 <use assets/results/pricing/plain/household_coupon_results.pdf>
 Package pdftex.def Info: assets/results/pricing/plain/household_coupon_results.
-pdf  used on input line 692.
+pdf  used on input line 697.
 (pdftex.def)             Requested size: 469.75385pt x 180.67456pt.
- [22 <./assets/results/pricing/berry/discounts_by_consumer_type.pdf>]
-<assets/results/pricing/plain/discounts_by_consumer_type.pdf, id=1016, 650.43pt
+ [23 <./assets/results/pricing/berry/discounts_by_consumer_type.pdf>]
+<assets/results/pricing/plain/discounts_by_consumer_type.pdf, id=1033, 650.43pt
  x 361.35pt>
 File: assets/results/pricing/plain/discounts_by_consumer_type.pdf Graphic file 
 (type pdf)
 <use assets/results/pricing/plain/discounts_by_consumer_type.pdf>
 Package pdftex.def Info: assets/results/pricing/plain/discounts_by_consumer_typ
-e.pdf  used on input line 699.
+e.pdf  used on input line 704.
 (pdftex.def)             Requested size: 469.76817pt x 260.98232pt.
 
-[23 <./assets/results/pricing/plain/household_coupon_results.pdf> <./assets/res
+[24 <./assets/results/pricing/plain/household_coupon_results.pdf> <./assets/res
 ults/pricing/plain/discounts_by_consumer_type.pdf>]
-<assets/results/pricing/berry/pricing_mechanism.pdf, id=1137, 722.7pt x 289.08p
+<assets/results/pricing/berry/pricing_mechanism.pdf, id=1154, 722.7pt x 289.08p
 t>
 File: assets/results/pricing/berry/pricing_mechanism.pdf Graphic file (type pdf
 )
 <use assets/results/pricing/berry/pricing_mechanism.pdf>
 Package pdftex.def Info: assets/results/pricing/berry/pricing_mechanism.pdf  us
-ed on input line 709.
+ed on input line 714.
 (pdftex.def)             Requested size: 469.76045pt x 187.90417pt.
-<assets/results/pricing/plain/pricing_mechanism.pdf, id=1138, 722.7pt x 289.08p
+<assets/results/pricing/plain/pricing_mechanism.pdf, id=1155, 722.7pt x 289.08p
 t>
 File: assets/results/pricing/plain/pricing_mechanism.pdf Graphic file (type pdf
 )
 <use assets/results/pricing/plain/pricing_mechanism.pdf>
 Package pdftex.def Info: assets/results/pricing/plain/pricing_mechanism.pdf  us
-ed on input line 716.
+ed on input line 721.
 (pdftex.def)             Requested size: 469.76045pt x 187.90417pt.
 
-(./assets/results/pricing/focal_flavor_comparison.tex) [24
+(./assets/results/pricing/benchmarks.tex) [25
 
  <./assets/results/pricing/berry/pricing_mechanism.pdf> <./assets/results/prici
 ng/plain/pricing_mechanism.pdf>]
+<assets/results/pricing/plain/pricing_policy_benchmarks.pdf, id=1270, 650.43pt 
+x 361.35pt>
+File: assets/results/pricing/plain/pricing_policy_benchmarks.pdf Graphic file (
+type pdf)
+<use assets/results/pricing/plain/pricing_policy_benchmarks.pdf>
+Package pdftex.def Info: assets/results/pricing/plain/pricing_policy_benchmarks
+.pdf  used on input line 731.
+(pdftex.def)             Requested size: 469.76817pt x 260.98232pt.
+<assets/results/pricing/plain/terminal_offers_by_purchase.pdf, id=1271, 650.43p
+t x 289.08pt>
+File: assets/results/pricing/plain/terminal_offers_by_purchase.pdf Graphic file
+ (type pdf)
+<use assets/results/pricing/plain/terminal_offers_by_purchase.pdf>
+Package pdftex.def Info: assets/results/pricing/plain/terminal_offers_by_purcha
+se.pdf  used on input line 738.
+(pdftex.def)             Requested size: 469.76817pt x 208.78584pt.
+
+[26 <./assets/results/pricing/plain/pricing_policy_benchmarks.pdf>]
+<assets/results/pricing/berry/pricing_policy_benchmarks.pdf, id=1325, 650.43pt 
+x 361.35pt>
+File: assets/results/pricing/berry/pricing_policy_benchmarks.pdf Graphic file (
+type pdf)
+<use assets/results/pricing/berry/pricing_policy_benchmarks.pdf>
+Package pdftex.def Info: assets/results/pricing/berry/pricing_policy_benchmarks
+.pdf  used on input line 745.
+(pdftex.def)             Requested size: 469.76817pt x 260.98232pt.
+ [27 <./assets/results/pricing/plain/terminal_offers_by_purchase.pdf> <./assets
+/results/pricing/berry/pricing_policy_benchmarks.pdf>]
+<assets/results/pricing/berry/terminal_offers_by_purchase.pdf, id=1429, 650.43p
+t x 289.08pt>
+File: assets/results/pricing/berry/terminal_offers_by_purchase.pdf Graphic file
+ (type pdf)
+<use assets/results/pricing/berry/terminal_offers_by_purchase.pdf>
+Package pdftex.def Info: assets/results/pricing/berry/terminal_offers_by_purcha
+se.pdf  used on input line 752.
+(pdftex.def)             Requested size: 469.76817pt x 208.78584pt.
+
+(./assets/results/pricing/focal_flavor_comparison.tex) [28
+
+ <./assets/results/pricing/berry/terminal_offers_by_purchase.pdf>]
+<assets/results/empirical_information/plain/revenues.pdf, id=1483, 722.7pt x 26
+0.17201pt>
+File: assets/results/empirical_information/plain/revenues.pdf Graphic file (typ
+e pdf)
+<use assets/results/empirical_information/plain/revenues.pdf>
+Package pdftex.def Info: assets/results/empirical_information/plain/revenues.pd
+f  used on input line 789.
+(pdftex.def)             Requested size: 469.76045pt x 169.11375pt.
+<assets/results/empirical_information/plain/information_value.pdf, id=1484, 722
+.7pt x 260.17201pt>
+File: assets/results/empirical_information/plain/information_value.pdf Graphic 
+file (type pdf)
+<use assets/results/empirical_information/plain/information_value.pdf>
+Package pdftex.def Info: assets/results/empirical_information/plain/information
+_value.pdf  used on input line 796.
+(pdftex.def)             Requested size: 469.76045pt x 169.11375pt.
+<assets/results/empirical_information/berry/revenues.pdf, id=1485, 722.7pt x 26
+0.17201pt>
+File: assets/results/empirical_information/berry/revenues.pdf Graphic file (typ
+e pdf)
+<use assets/results/empirical_information/berry/revenues.pdf>
+Package pdftex.def Info: assets/results/empirical_information/berry/revenues.pd
+f  used on input line 803.
+(pdftex.def)             Requested size: 469.76045pt x 169.11375pt.
+ [29 <./assets/results/empirical_information/plain/revenues.pdf> <./assets/resu
+lts/empirical_information/plain/information_value.pdf>]
+<assets/results/empirical_information/berry/information_value.pdf, id=1574, 722
+.7pt x 260.17201pt>
+File: assets/results/empirical_information/berry/information_value.pdf Graphic 
+file (type pdf)
+<use assets/results/empirical_information/berry/information_value.pdf>
+Package pdftex.def Info: assets/results/empirical_information/berry/information
+_value.pdf  used on input line 810.
+(pdftex.def)             Requested size: 469.76045pt x 169.11375pt.
+
 No file draft.bbl.
-[25] [26] [27] [28] [29]
-<assets/results/gamma_uncertainty/first_prices.pdf, id=1331, 722.7pt x 260.1720
+[30 <./assets/results/empirical_information/berry/revenues.pdf> <./assets/resul
+ts/empirical_information/berry/information_value.pdf>] [31] [32] [33] [34]
+[35]
+<assets/results/gamma_uncertainty/first_prices.pdf, id=1740, 722.7pt x 260.1720
 1pt>
 File: assets/results/gamma_uncertainty/first_prices.pdf Graphic file (type pdf)
 
 <use assets/results/gamma_uncertainty/first_prices.pdf>
 Package pdftex.def Info: assets/results/gamma_uncertainty/first_prices.pdf  use
-d on input line 1002.
+d on input line 1069.
 (pdftex.def)             Requested size: 469.76045pt x 169.11375pt.
- [30]
-<assets/results/gamma_uncertainty/terminal_prices.pdf, id=1343, 722.7pt x 260.1
+ [36]
+<assets/results/gamma_uncertainty/terminal_prices.pdf, id=1752, 722.7pt x 260.1
 7201pt>
 File: assets/results/gamma_uncertainty/terminal_prices.pdf Graphic file (type p
 df)
 <use assets/results/gamma_uncertainty/terminal_prices.pdf>
 Package pdftex.def Info: assets/results/gamma_uncertainty/terminal_prices.pdf  
-used on input line 1009.
+used on input line 1076.
 (pdftex.def)             Requested size: 469.76045pt x 169.11375pt.
- [31 <./assets/results/gamma_uncertainty/first_prices.pdf> <./assets/results/ga
-mma_uncertainty/terminal_prices.pdf>] [32]
-[33]
-<assets/results/pricing/berry/discounts_by_household_type.pdf, id=1460, 939.51p
+ [37 <./assets/results/gamma_uncertainty/first_prices.pdf> <./assets/results/ga
+mma_uncertainty/terminal_prices.pdf>] [38] [39] [40]
+(./assets/results/demand_controlled/first_stage.tex)
+(./assets/results/demand_controlled/estimates.tex)
+(./assets/results/demand_controlled/implied_wtp.tex)
+<assets/results/demand_controlled/history_distributions.pdf, id=1883, 722.7pt x
+ 289.08pt>
+File: assets/results/demand_controlled/history_distributions.pdf Graphic file (
+type pdf)
+<use assets/results/demand_controlled/history_distributions.pdf>
+Package pdftex.def Info: assets/results/demand_controlled/history_distributions
+.pdf  used on input line 1239.
+(pdftex.def)             Requested size: 469.76045pt x 187.90417pt.
+ [41]
+(./assets/results/empirical_information/plain/results.tex)
+<assets/results/empirical_information/plain/first_prices.pdf, id=1893, 794.97pt
+ x 289.08pt>
+File: assets/results/empirical_information/plain/first_prices.pdf Graphic file 
+(type pdf)
+<use assets/results/empirical_information/plain/first_prices.pdf>
+Package pdftex.def Info: assets/results/empirical_information/plain/first_price
+s.pdf  used on input line 1249.
+(pdftex.def)             Requested size: 469.76819pt x 170.82478pt.
+ [42 <./assets/results/demand_controlled/history_distributions.pdf>]
+<assets/results/empirical_information/plain/terminal_prices.pdf, id=1950, 794.9
+7pt x 289.08pt>
+File: assets/results/empirical_information/plain/terminal_prices.pdf Graphic fi
+le (type pdf)
+<use assets/results/empirical_information/plain/terminal_prices.pdf>
+Package pdftex.def Info: assets/results/empirical_information/plain/terminal_pr
+ices.pdf  used on input line 1256.
+(pdftex.def)             Requested size: 469.76819pt x 170.82478pt.
+
+(./assets/results/empirical_information/berry/results.tex) [43 <./assets/result
+s/empirical_information/plain/first_prices.pdf> <./assets/results/empirical_inf
+ormation/plain/terminal_prices.pdf>]
+<assets/results/empirical_information/berry/first_prices.pdf, id=2048, 794.97pt
+ x 289.08pt>
+File: assets/results/empirical_information/berry/first_prices.pdf Graphic file 
+(type pdf)
+<use assets/results/empirical_information/berry/first_prices.pdf>
+Package pdftex.def Info: assets/results/empirical_information/berry/first_price
+s.pdf  used on input line 1265.
+(pdftex.def)             Requested size: 469.76819pt x 170.82478pt.
+<assets/results/empirical_information/berry/terminal_prices.pdf, id=2049, 794.9
+7pt x 289.08pt>
+File: assets/results/empirical_information/berry/terminal_prices.pdf Graphic fi
+le (type pdf)
+<use assets/results/empirical_information/berry/terminal_prices.pdf>
+Package pdftex.def Info: assets/results/empirical_information/berry/terminal_pr
+ices.pdf  used on input line 1272.
+(pdftex.def)             Requested size: 469.76819pt x 170.82478pt.
+ [44 <./assets/results/empirical_information/berry/first_prices.pdf>]
+<assets/results/pricing/berry/discounts_by_household_type.pdf, id=2100, 939.51p
 t x 650.43pt>
 File: assets/results/pricing/berry/discounts_by_household_type.pdf Graphic file
  (type pdf)
 <use assets/results/pricing/berry/discounts_by_household_type.pdf>
 Package pdftex.def Info: assets/results/pricing/berry/discounts_by_household_ty
-pe.pdf  used on input line 1156.
+pe.pdf  used on input line 1281.
 (pdftex.def)             Requested size: 469.75385pt x 325.2142pt.
- [34] [35 <./assets/results/pricing/berry/discounts_by_household_type.pdf>]
-<assets/results/pricing/plain/discounts_by_household_type.pdf, id=1555, 939.51p
+ [45 <./assets/results/empirical_information/berry/terminal_prices.pdf> <./asse
+ts/results/pricing/berry/discounts_by_household_type.pdf>]
+<assets/results/pricing/plain/discounts_by_household_type.pdf, id=2225, 939.51p
 t x 650.43pt>
 File: assets/results/pricing/plain/discounts_by_household_type.pdf Graphic file
  (type pdf)
 <use assets/results/pricing/plain/discounts_by_household_type.pdf>
 Package pdftex.def Info: assets/results/pricing/plain/discounts_by_household_ty
-pe.pdf  used on input line 1163.
+pe.pdf  used on input line 1288.
 (pdftex.def)             Requested size: 469.75385pt x 325.2142pt.
-[36 <./assets/results/pricing/plain/discounts_by_household_type.pdf>]
+ [46
+
+ <./assets/results/pricing/plain/discounts_by_household_type.pdf>]
 (./draft.aux)
  ***********
 LaTeX2e <2026-06-01>
 L3 programming layer <2026-07-20>
  ***********
 Package rerunfilecheck Info: File `draft.out' has not changed.
-(rerunfilecheck)             Checksum: 9C717307C915AD1147F1D34ADAFDCA0D;12578.
+(rerunfilecheck)             Checksum: 9527E0ED852E5E0231B8C431388590BB;13305.
  ) 
 Here is how much of TeX's memory you used:
- 17744 strings out of 467159
- 291342 string characters out of 5409218
- 751675 words of memory out of 5000000
- 46362 multiletter control sequences out of 15000+600000
- 642609 words of font info for 135 fonts, out of 8000000 for 9000
+ 17947 strings out of 467159
+ 300934 string characters out of 5409218
+ 753744 words of memory out of 5000000
+ 46498 multiletter control sequences out of 15000+600000
+ 642898 words of font info for 141 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 83i,15n,131p,1002b,488s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 83i,15n,131p,1002b,492s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb
 ></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb>
 </usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb><
@@ -890,10 +1021,10 @@ ive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/local/texlive
 26/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/local/texlive/202
 6/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb></usr/local/texlive
 /2026/texmf-dist/fonts/type1/public/cm-super/sfrm1200.pfb>
-Output written on draft.pdf (36 pages, 825890 bytes).
+Output written on draft.pdf (46 pages, 1000301 bytes).
 PDF statistics:
- 1772 PDF objects out of 2073 (max. 8388607)
- 844 compressed objects within 9 object streams
- 293 named destinations out of 1000 (max. 500000)
- 31392 words of extra memory for PDF output out of 35830 (max. 10000000)
+ 2451 PDF objects out of 2487 (max. 8388607)
+ 984 compressed objects within 10 object streams
+ 328 named destinations out of 1000 (max. 500000)
+ 31481 words of extra memory for PDF output out of 35830 (max. 10000000)
 

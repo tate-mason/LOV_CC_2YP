@@ -95,11 +95,11 @@
 
 As shopping becomes an increasingly online endeavor, firms are privy to ever-increasing information on their consumers. Algorithmic recommendations, personalized feeds, and personalized discounts are all common practice by firms to entice consumers to purchase their product. One type of data the firm could employ to target consumers is how their consumption varies with time. An example of this behavior is personalized coupons from a grocery store. Using these coupons, the firm could feasibly steer consumers towards certain products through bundling or discounting. This paper seeks to understand how valuable consumers' purchase histories are for personalized pricing when consumers differ in their preferences for novelty and habit?
 
-I examine the value of information on consumer types by solving a two-period theoretical model for optimal pricing and profit. Then, using Nielsen HomeScan and MarketScan data, I estimate the distribution of preferences for novelty, habit, and price sensitivity for consumers. I then map my empirical results to the theoretical to examine the efficacy of targeted couponing for the firm. The firm can observe consumption histories and preferences for novelty to target. I then compare revenues in the full infomation case to one in which the firm has obscured information on consumer types.
+I examine the value of information on consumer types by solving a two-period theoretical model for optimal pricing and profit. Then, using Nielsen HomeScan and MarketScan data, I estimate the distribution of preferences for novelty, habit, and price sensitivity for consumers. I then map my empirical results to the theoretical to examine the efficacy of targeted couponing for the firm. The firm can observe consumption histories and preferences for novelty to target. I then compare revenues in the full information case to one in which the firm has obscured information on consumer types.
 
 In the theoretical exercise, I see distinct pricing patterns depending on consumer type and histories. For high switching types, the firm must calculate the continuation-value tradeoff, deciding if reduced early profit is worth later profit. In the case of high switchers, the firm will charge high prices in period one, knowing the likelihood of switching away is high. For consumers who habitually consume the same good, the firm will go so far as to subsidize the outside good consumer to induce switching while charging a higher price to those who start inside, knowing they will likely stay on their product. 
 
-Empirically, I find that consumers do not like novelty, incurring disutility equivalent to \$2.07. Consumers gain slight utility from habitual consuption, preferring to have a high percentage of total consumption be their preferred good. However, there is substantial heterogeneity in these tastes. When applying the estimated distribution of novelty to the supply exercise, I find the firm yields simulated gains in revenue when doing targeted disconuting. This can be up to 12\% versus the no-coupon case.
+Empirically, I find that consumers do not like novelty, incurring disutility equivalent to \$1.75. Consumers gain slight utility from accumulated own-flavor purchase shares. However, there is substantial heterogeneity in these tastes. When applying the estimated distribution of novelty to the supply exercise, I find the firm yields simulated gains in revenue when doing targeted discounting. This can be up to 13.35\% versus the no-coupon case.
 
 
 % ============================================================
@@ -587,15 +587,15 @@ Integrating over types gives
 \begin{equation}
  L_i(\theta)=\int L_i(\nu;\theta)\varphi_3(\nu)\,d\nu.
 \end{equation}
-Use $R=64$ standard normal draws per consumer, held fixed across weeks and
+Use $R=128$ standard normal draws per consumer, held fixed across weeks and
 objective evaluations:
 \begin{align}
- \widehat L_i(\theta)&=\frac{1}{64}\sum_{r=1}^{64}
+ \widehat L_i(\theta)&=\frac{1}{128}\sum_{r=1}^{128}
  \prod_{t\in\mathcal T_i}\prod_{j\in\mathcal A_{it}^0}
  P_{ijt}(\nu_{ir};\theta)^{y_{ijt}},\\
- Q_{64}(\theta)&=-\sum_{i=1}^N\log\widehat L_i(\theta),
+ Q_{128}(\theta)&=-\sum_{i=1}^N\log\widehat L_i(\theta),
  \label{eq:estimation-objective}\\
- \widehat\theta&=\argmin_\theta Q_{64}(\theta).
+ \widehat\theta&=\argmin_\theta Q_{128}(\theta).
 \end{align}
 Multinomial count constants do not depend on $\theta$ and are omitted.
 Run three optimization starts and retain the solution with the lowest objective.
@@ -615,6 +615,8 @@ and numerical evaluation.
 \subsection{Demand Estimates}
 
 \input{assets/results/demand/estimates.tex}
+\FloatBarrier
+\input{assets/results/demand/comparison.tex}
 \FloatBarrier
 
 \subsection{Price Elasticities}
@@ -670,6 +672,9 @@ and numerical evaluation.
 \label{sec:supply-demand}
 
 \subsection{Estimated Demand and Optimal Prices}
+The pricing exercises use the controlled split novelty/habit fit. The main demand
+table reports the no-control fit; the comparison table and appendix report the
+controlled specification.
 
 \subsubsection{Berry}
 \begin{figure}[htbp]
@@ -719,22 +724,36 @@ and numerical evaluation.
 \end{figure}
 \FloatBarrier
 
-% Pending plots from the seminar presentation; enable once generated.
-% \begin{figure}[htbp]
-% \centering
-% \includegraphics[width=\linewidth]{../../RESULTS_ONLY/pricing/plain/pricing_policy_benchmarks.pdf}
-% \caption{Plain: pricing policy benchmarks}
-% \end{figure}
-% \begin{figure}[htbp]
-% \centering
-% \includegraphics[width=\linewidth]{../../RESULTS_ONLY/pricing/berry/pricing_policy_benchmarks.pdf}
-% \caption{Berry: pricing policy benchmarks}
-% \end{figure}
-% \begin{figure}[htbp]
-% \centering
-% \includegraphics[width=\linewidth]{../../RESULTS_ONLY/pricing/plain/terminal_offers_by_purchase.pdf}
-% \caption{Plain: terminal offers after purchase}
-% \end{figure}
+\input{assets/results/pricing/benchmarks.tex}
+\FloatBarrier
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\linewidth,height=.65\textheight,keepaspectratio]{assets/results/pricing/plain/pricing_policy_benchmarks.pdf}
+\caption{Plain: no-coupon, common-coupon, and personalized pricing benchmarks.}
+\label{fig:benchmarks-plain}
+\end{figure}
+\FloatBarrier
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\linewidth,height=.65\textheight,keepaspectratio]{assets/results/pricing/plain/terminal_offers_by_purchase.pdf}
+\caption{Plain: terminal offers conditional on focal purchase or no focal purchase.}
+\label{fig:terminal-conditional-plain}
+\end{figure}
+\FloatBarrier
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\linewidth,height=.65\textheight,keepaspectratio]{assets/results/pricing/berry/pricing_policy_benchmarks.pdf}
+\caption{Berry: no-coupon, common-coupon, and personalized pricing benchmarks.}
+\label{fig:benchmarks-berry}
+\end{figure}
+\FloatBarrier
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\linewidth,height=.65\textheight,keepaspectratio]{assets/results/pricing/berry/terminal_offers_by_purchase.pdf}
+\caption{Berry: terminal offers conditional on focal purchase or no focal purchase.}
+\label{fig:terminal-conditional-berry}
+\end{figure}
+\FloatBarrier
 
 \subsection{Counterfactual Outcomes}
 
@@ -745,6 +764,54 @@ and numerical evaluation.
 % ============================================================
 % COUNTERFACTUALS AND WELFARE
 % ============================================================
+
+\subsection{Empirical Information Friction}
+\label{subsec:empirical-information}
+The initial purchase history is observed. The firm assigns fixed probabilities
+to low, middle, and high novelty types: $(1/3,1/3,1/3)$ or one of the three
+permutations of $(0.50,0.25,0.25)$. Type values are the fitted mean novelty
+coefficients within these groups; the theoretical values $(-1.25,0,1.25)$ are
+not imposed on empirical demand. Price sensitivity and habit remain at household
+posterior means. Beliefs remain fixed after every first-period basket.
+
+The fixed-belief objective used to select offers and the revenue used to evaluate
+those offers are distinct. For the revenue comparison, each simulated consumer
+retains the same type in both periods. Both policies are evaluated under this
+same persistent-type distribution:
+\begin{equation}
+ \Delta R=R^{\mathrm{known}}_{\mathrm{persistent}}
+ -R^{\mathrm{fixed\ policy}}_{\mathrm{persistent}}.
+\end{equation}
+The exported difference between the known-type objective and the fixed-belief
+objective is not used as the revenue value of information.
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\linewidth,height=.65\textheight,keepaspectratio]{assets/results/empirical_information/plain/revenues.pdf}
+\caption{Plain: known-type and fixed-belief policies evaluated under persistent consumer types.}
+\label{fig:empirical-information-revenues-plain}
+\end{figure}
+\FloatBarrier
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\linewidth,height=.65\textheight,keepaspectratio]{assets/results/empirical_information/plain/information_value.pdf}
+\caption{Plain: revenue gain from observing novelty type under a common persistent-type evaluation.}
+\label{fig:empirical-information-value-plain}
+\end{figure}
+\FloatBarrier
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\linewidth,height=.65\textheight,keepaspectratio]{assets/results/empirical_information/berry/revenues.pdf}
+\caption{Berry: known-type and fixed-belief policies evaluated under persistent consumer types.}
+\label{fig:empirical-information-revenues-berry}
+\end{figure}
+\FloatBarrier
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\linewidth,height=.65\textheight,keepaspectratio]{assets/results/empirical_information/berry/information_value.pdf}
+\caption{Berry: revenue gain from observing novelty type under a common persistent-type evaluation.}
+\label{fig:empirical-information-value-berry}
+\end{figure}
+\FloatBarrier
 
 \section{Counterfactuals and Welfare}
 \label{sec:counterfactuals}
@@ -1099,7 +1166,7 @@ the product over periods:
 \begin{align}
  L_i(\theta)&=\int\exp\{\ell_i(\nu;\theta)\}\varphi_3(\nu)\,d\nu,\\
  \widehat L_i(\theta)&=\frac{1}{R}\sum_{r=1}^R
- \exp\{\ell_i(\nu_{ir};\theta)\},\qquad R=64.
+ \exp\{\ell_i(\nu_{ir};\theta)\},\qquad R=128.
 \end{align}
 
 \subsection{Stable Objective Evaluation}
@@ -1150,6 +1217,64 @@ Under the specified independent distributions,
 
 \section{Additional Results}
 \label{app:results}
+
+\subsection{Controlled Demand Estimates}
+The controlled specification augments deterministic utility with the fitted
+price residual:
+\begin{equation}
+ V_{ijt}^{\mathrm{CF}}=V_{ijt}+\rho\widehat v_{ijt}.
+\end{equation}
+Here $\widehat v_{ijt}$ is the residual from the flavor-specific price equation
+using the same-week mean price outside the household's DMA as instrument and
+week and DMA fixed effects. The no-control specification sets $\rho=0$.
+\input{assets/results/demand_controlled/first_stage.tex}
+\FloatBarrier
+
+\input{assets/results/demand_controlled/estimates.tex}
+\FloatBarrier
+\input{assets/results/demand_controlled/implied_wtp.tex}
+\FloatBarrier
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\linewidth,height=.65\textheight,keepaspectratio]{assets/results/demand_controlled/history_distributions.pdf}
+\caption{Novelty and habit distributions with price controls.}
+\label{fig:controlled-distributions}
+\end{figure}
+\FloatBarrier
+\subsection{Empirical Information Friction: Detailed Results}
+\input{assets/results/empirical_information/plain/results.tex}
+\FloatBarrier
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\linewidth,height=.65\textheight,keepaspectratio]{assets/results/empirical_information/plain/first_prices.pdf}
+\caption{Plain: first prices under fixed beliefs and known novelty type.}
+\label{fig:empirical-plain-first_prices}
+\end{figure}
+\FloatBarrier
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\linewidth,height=.65\textheight,keepaspectratio]{assets/results/empirical_information/plain/terminal_prices.pdf}
+\caption{Plain: terminal prices under fixed beliefs and known novelty type.}
+\label{fig:empirical-plain-terminal_prices}
+\end{figure}
+\FloatBarrier
+\input{assets/results/empirical_information/berry/results.tex}
+\FloatBarrier
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\linewidth,height=.65\textheight,keepaspectratio]{assets/results/empirical_information/berry/first_prices.pdf}
+\caption{Berry: first prices under fixed beliefs and known novelty type.}
+\label{fig:empirical-berry-first_prices}
+\end{figure}
+\FloatBarrier
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\linewidth,height=.65\textheight,keepaspectratio]{assets/results/empirical_information/berry/terminal_prices.pdf}
+\caption{Berry: terminal prices under fixed beliefs and known novelty type.}
+\label{fig:empirical-berry-terminal_prices}
+\end{figure}
+\FloatBarrier
+
 
 \begin{figure}[htbp]
 \centering

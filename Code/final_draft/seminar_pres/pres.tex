@@ -29,7 +29,7 @@
 \setbeamercolor{structure}{fg=UGARed}
 
 % --- HEADLINE: slide dots grouped by section ---
-\setbeamersize{mini frame size=0.25cm,mini frame offset=0pt}
+\setbeamersize{mini frame size=0.16cm,mini frame offset=0pt}
 % Show section labels above the clickable slide dots.
 \setbeamertemplate{section in head/foot}[default]
 \setbeamertemplate{section in head/foot shaded}[default][75]
@@ -146,15 +146,11 @@
 \section{Motivation from Data}
 \begin{frame}{HHI}
   \centering
-  \resizebox{0.7\textwidth}{!}{%
-    \includegraphics{~/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/summary_statistics/flavor_hhi_histogram.pdf}
-  }
+    \includegraphics[width=.95\textwidth,height=.74\textheight,keepaspectratio]{../writeup/1108_writeup/assets/results/summary_statistics/flavor_hhi_histogram.pdf}
 \end{frame}
 \begin{frame}{Flavor Popularity}
   \centering
-  \resizebox{0.7\textwidth}{!}{%
-    \includegraphics{~/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/summary_statistics/flavor_shares.pdf}
-  }
+    \includegraphics[width=.95\textwidth,height=.74\textheight,keepaspectratio]{../writeup/1108_writeup/assets/results/summary_statistics/flavor_shares.pdf}
 \end{frame}
 
 \section{Supply Theory}
@@ -426,14 +422,14 @@
     \centering
     \resizebox{\textwidth}{!}{%
     \begin{minipage}{\textwidth}
-      \input{~/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/summary_statistics/yogurt_dynamics.tex}
+      \input{../writeup/1108_writeup/assets/results/summary_statistics/yogurt_dynamics.tex}
     \end{minipage}%
     }
 \end{frame}
 
 \begin{frame}{Persistence Across Aggregated Flavor Groups}
   \centering
-  \includegraphics[height=0.69\textheight]{../RESULTS_ONLY/summary_statistics/aggregated_flavors/flavor_transitions.pdf}
+  \includegraphics[height=0.69\textheight]{../writeup/1108_writeup/assets/results/summary_statistics/aggregated_flavors/flavor_transitions.pdf}
   \par\small Plain repeats in approximately 80\% of eligible transitions, versus 53\% for berry.
 \end{frame}
 
@@ -459,12 +455,14 @@
     \setlength{\belowdisplayskip}{2pt}
   \begin{align*}
     U_{ijt} &= \overbrace{\beta_0}^{Constant} + \underbrace{\beta_jX_{jt}}_{\text{Flavor specific constant}} + \overbrace{\gamma_iN_{ijt} + \phi_iH_{ijt}}^{\text{Preferences for novelty/habit}} + \underbrace{\alpha_ip_{jt}}_{\text{Price disutility}} + \overbrace{\varepsilon_{ijt}}^{\text{T1EV}} \\
-    &\text{s.t.} \ N_{ijt} = \mathbbm{1}\{x_{t-1}\ne j\}, \ H_{ijt} = \frac{\sum_{t=1}^{t-1}\mathbbm{1}\{x_{it-1}= j\}}{\sum_{t=1}^{t-1}\mathbbm{1}\{x_{it-1}\ne 0\}} 
+    &\text{s.t.}\quad w_{ijt}=y_{ijt}/\!\sum_k y_{ikt},\qquad
+    H_{ijt}=\sum_{s<t}w_{ijs},\\
+    &N_{ijt}=\begin{cases}1-w_{ij,t-1},&\text{prior calendar week observed},\\0,&\text{otherwise}.\end{cases}
   \end{align*}
   \end{tcolorbox}
   \begin{itemize}
-    \item $N_{ijt}$ represents a novel choice in the prior period, buying a flavor other than $j$
-    \item $H_{ijt}$ represents repeated purchase, the share of total purchases which flavor $j$ comprises
+    \item $N_{ijt}$ is the prior week's purchase share in flavors other than $j$
+    \item $H_{ijt}$ accumulates prior weekly own-flavor purchase shares
     \item Normalize outside option to zero s.t. $U_{i0t} = \varepsilon_{i0t}$
   \end{itemize}
 \end{frame}
@@ -491,35 +489,35 @@
     \setlength{\belowdisplayskip}{2pt}
     \begin{align*}
       P_i(\theta) &= \int P(y_i\mid\nu,\theta)\ \phi(\nu)\,d\nu \\
-      \widehat P_i(\theta) &= \frac{1}{64}\sum_{r=1}^{64}\prod_{t=1}^{T_i}P_(y_i\mid\nu_{ir}, \theta)\qquad\nu_{ir}\sim\mathcal N(0, I) \\
-      Q_{64}(\theta) &= -\sum_{i=1}^N\log\widehat P_i(\theta)
+      \widehat P_i(\theta) &= \frac{1}{128}\sum_{r=1}^{128}\prod_{t=1}^{T_i}P_(y_i\mid\nu_{ir}, \theta)\qquad\nu_{ir}\sim\mathcal N(0, I) \\
+      Q_{128}(\theta) &= -\sum_{i=1}^N\log\widehat P_i(\theta)
     \end{align*}
   \end{tcolorbox}
   \begin{itemize}
     \item $\nu_i$ captures unobserved heterogreneity, $y_{it}$ represents observed choice, $\theta = \{\beta, \gamma, \alpha\}$ is the vector of heterogeneous demand parameters
-    \item 64 draws per household from a normal distribution
+    \item 128 draws per household from a normal distribution
     \item 3 starts at different starting values, keep lowest objective 
     \item Minimize negative log-likelihood
   \end{itemize}
 \end{frame}
 \begin{frame}{Estimates}
   \centering
-  \input{~/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/no_control_fit/estimates.tex}
+  \input{../writeup/1108_writeup/assets/results/demand/estimates.tex}
 \end{frame}
 \begin{frame}{Implied Willingness to Pay}
   \centering
-  \input{~/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/no_control_fit/implied_wtp.tex}
+  \input{../writeup/1108_writeup/assets/results/demand/implied_wtp.tex}
   \begin{itemize}
     \item Would need to be subsidized to switch, though lots of variation
     \item Willing to pay to continue consuming their same product
   \end{itemize}
 \end{frame}
 \begin{frame}{Distributions}
-  \includegraphics[width=0.99\textwidth]{~/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/no_control_fit/history_distributions.pdf}
+  \includegraphics[width=0.99\textwidth]{../writeup/1108_writeup/assets/results/demand/history_distributions.pdf}
 \end{frame}
 \begin{frame}{Discussion}
   \begin{itemize}
-    \item Mean novelty effect is equivalent to $\approx\$2$ increase 
+    \item Mean novelty effect is equivalent to $\approx\$1.75$ increase 
     \item Habit provides some utility
     \item Both plain and berry are less preferred than other flavors
   \end{itemize}
@@ -559,59 +557,85 @@
     \item Separate high and low types as the 75th and 25th percentiles, respectively
     \item Use observed prices and simulate discounts based on them, specific to the different types and their consumption path
     \item Focus on berry and plain to maintain parity with the theoretical model and avoid aggregate weighting
-    \item Use estimated type $\gamma_i$ to discriminate, choosing an initial price offer, observing the period one choice, and choosing the terminal price
+    \item Use the controlled split fit and estimated type $\gamma_i$ to discriminate, choosing an initial price offer, observing the period one choice, and choosing the terminal price
   \end{itemize}
 \end{frame}
 \begin{frame}{Results: Berry Inside}
   \centering
-  \includegraphics[width=\textwidth]{~/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/pricing/berry/household_coupon_results.pdf}
+  \includegraphics[width=\textwidth]{../writeup/1108_writeup/assets/results/pricing/berry/household_coupon_results.pdf}
 \end{frame}
 \begin{frame}{Results: Plain Inside}
   \centering
-  \includegraphics[width=\textwidth]{~/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/pricing/plain/household_coupon_results.pdf}
+  \includegraphics[width=\textwidth]{../writeup/1108_writeup/assets/results/pricing/plain/household_coupon_results.pdf}
 \end{frame}
 \begin{frame}{Berry: Optimal Offers by Consumer Type}
   \centering
-  \includegraphics[width=0.85\textwidth]{~/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/pricing/berry/discounts_by_consumer_type.pdf}
+  \includegraphics[width=0.85\textwidth]{../writeup/1108_writeup/assets/results/pricing/berry/discounts_by_consumer_type.pdf}
 \end{frame}
 \begin{frame}{Plain: Optimal Offers by Consumer Type}
   \centering
-  \includegraphics[width=0.85\textwidth]{~/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/pricing/plain/discounts_by_consumer_type.pdf}
+  \includegraphics[width=0.85\textwidth]{../writeup/1108_writeup/assets/results/pricing/plain/discounts_by_consumer_type.pdf}
 \end{frame}
 % Generated by the server pricing run; include after aggregate figures are recovered.
-\IfFileExists{../RESULTS_ONLY/pricing/plain/pricing_policy_benchmarks.pdf}{
+\IfFileExists{../writeup/1108_writeup/assets/results/pricing/plain/pricing_policy_benchmarks.pdf}{
 \begin{frame}{Pricing Benchmarks: Plain}
   \centering
-  \includegraphics[width=0.85\textwidth]{../RESULTS_ONLY/pricing/plain/pricing_policy_benchmarks.pdf}
+  \includegraphics[width=0.85\textwidth]{../writeup/1108_writeup/assets/results/pricing/plain/pricing_policy_benchmarks.pdf}
 \end{frame}
 }{}
-\IfFileExists{../RESULTS_ONLY/pricing/berry/pricing_policy_benchmarks.pdf}{
+\IfFileExists{../writeup/1108_writeup/assets/results/pricing/berry/pricing_policy_benchmarks.pdf}{
 \begin{frame}{Pricing Benchmarks: Berry}
   \centering
-  \includegraphics[width=0.85\textwidth]{../RESULTS_ONLY/pricing/berry/pricing_policy_benchmarks.pdf}
+  \includegraphics[width=0.85\textwidth]{../writeup/1108_writeup/assets/results/pricing/berry/pricing_policy_benchmarks.pdf}
 \end{frame}
 }{}
 \begin{frame}{Plain: Initial Offers and Subsequent Pricing}
   \centering
-  \includegraphics[width=0.95\textwidth]{../RESULTS_ONLY/pricing/plain/pricing_mechanism.pdf}
+  \includegraphics[width=0.95\textwidth]{../writeup/1108_writeup/assets/results/pricing/plain/pricing_mechanism.pdf}
 \end{frame}
-\IfFileExists{../RESULTS_ONLY/pricing/plain/terminal_offers_by_purchase.pdf}{
+\IfFileExists{../writeup/1108_writeup/assets/results/pricing/plain/terminal_offers_by_purchase.pdf}{
 \begin{frame}{Plain: Terminal Offers After Purchase}
   \centering
-  \includegraphics[width=0.95\textwidth]{../RESULTS_ONLY/pricing/plain/terminal_offers_by_purchase.pdf}
+  \includegraphics[width=0.95\textwidth]{../writeup/1108_writeup/assets/results/pricing/plain/terminal_offers_by_purchase.pdf}
 \end{frame}
 }{}
 \begin{frame}{Comparison}
   \centering
-  \input{~/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/pricing/focal_flavor_comparison.tex}
+  \input{../writeup/1108_writeup/assets/results/pricing/focal_flavor_comparison.tex}
+\end{frame}
+
+\begin{frame}{Empirical Type Information: Fixed Beliefs}
+\begin{itemize}
+\item Low, middle, and high types use fitted group mean novelty coefficients.
+\item Equal probabilities or each permutation of $(0.50,0.25,0.25)$.
+\item Initial history is observed; type probabilities stay fixed after purchase.
+\item Evaluate both offer policies under the same persistent consumer types.
+\item Revenue gains use persistent-type revenue, not the fixed-belief objective.
+\end{itemize}
+\end{frame}
+\begin{frame}{Plain: Revenue under Type Uncertainty}
+\centering
+\includegraphics[width=.98\textwidth,height=.78\textheight,keepaspectratio]{../writeup/1108_writeup/assets/results/empirical_information/plain/revenues.pdf}
+\end{frame}
+\begin{frame}{Plain: Revenue Value of Novelty-Type Information}
+\centering
+\includegraphics[width=.98\textwidth,height=.78\textheight,keepaspectratio]{../writeup/1108_writeup/assets/results/empirical_information/plain/information_value.pdf}
+\end{frame}
+\begin{frame}{Berry: Revenue under Type Uncertainty}
+\centering
+\includegraphics[width=.98\textwidth,height=.78\textheight,keepaspectratio]{../writeup/1108_writeup/assets/results/empirical_information/berry/revenues.pdf}
+\end{frame}
+\begin{frame}{Berry: Revenue Value of Novelty-Type Information}
+\centering
+\includegraphics[width=.98\textwidth,height=.78\textheight,keepaspectratio]{../writeup/1108_writeup/assets/results/empirical_information/berry/information_value.pdf}
 \end{frame}
 
 \section{Conclusion}
 \begin{frame}{Conclusion}
   \begin{itemize}
-    \item Firm can gain up to $~12\%$ simulated revenue by targeting based on switching type relative to no coupons
-    \item Consumers experience disutility from switching, needing to be subsidized $\approx\$2$ to switch products 
-    \item Consumers enjoy habit and would be willing to pay $\$0.12$ to contribute another unit to the product's share of purchase history
+    \item Firm can gain up to $~13.35\%$ simulated revenue by targeting based on switching type relative to no coupons
+    \item Consumers experience disutility from switching, needing to be subsidized $\approx\$1.75$ to switch products 
+    \item Consumers enjoy habit and would be willing to pay $\$0.083$ to contribute another unit to the product's share of purchase history
   \end{itemize}
 \end{frame}
 \begin{frame}{Next Steps}
@@ -654,4 +678,33 @@
 \includegraphics[width=.98\textwidth,height=.78\textheight,keepaspectratio]{../writeup/1108_writeup/assets/results/gamma_uncertainty/terminal_prices.pdf}
 \end{frame}
 
+\begin{frame}{Demand: Price-Control Comparison}
+\input{../writeup/1108_writeup/assets/results/demand/comparison.tex}
+\end{frame}
+\begin{frame}{Controlled Demand Estimates}
+\input{../writeup/1108_writeup/assets/results/demand_controlled/estimates.tex}
+\end{frame}
+\begin{frame}{Plain: Type Information and First Prices}
+\centering
+\includegraphics[width=.98\textwidth,height=.78\textheight,keepaspectratio]{../writeup/1108_writeup/assets/results/empirical_information/plain/first_prices.pdf}
+\end{frame}
+\begin{frame}{Plain: Type Information and Terminal Prices}
+\centering
+\includegraphics[width=.98\textwidth,height=.78\textheight,keepaspectratio]{../writeup/1108_writeup/assets/results/empirical_information/plain/terminal_prices.pdf}
+\end{frame}
+\begin{frame}{Berry: Type Information and First Prices}
+\centering
+\includegraphics[width=.98\textwidth,height=.78\textheight,keepaspectratio]{../writeup/1108_writeup/assets/results/empirical_information/berry/first_prices.pdf}
+\end{frame}
+\begin{frame}{Berry: Type Information and Terminal Prices}
+\centering
+\includegraphics[width=.98\textwidth,height=.78\textheight,keepaspectratio]{../writeup/1108_writeup/assets/results/empirical_information/berry/terminal_prices.pdf}
+\end{frame}
+
+\begin{frame}{Controlled Fit: Price First Stages}
+\input{../writeup/1108_writeup/assets/results/demand_controlled/first_stage.tex}
+\end{frame}
+\begin{frame}{Controlled Fit: Willingness to Pay}
+\input{../writeup/1108_writeup/assets/results/demand_controlled/implied_wtp.tex}
+\end{frame}
 \end{document}

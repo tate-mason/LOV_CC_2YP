@@ -1,0 +1,55 @@
+{
+  "types": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "gamma": [
+    -1.131862689021455,
+    -0.7743638263135894,
+    -0.23308930245280837
+  ],
+  "priors": [
+    [
+      "Equal types",
+      [
+        0.3333333333333333,
+        0.3333333333333333,
+        0.3333333333333333
+      ]
+    ],
+    [
+      "Low type more likely",
+      [
+        0.5,
+        0.25,
+        0.25
+      ]
+    ],
+    [
+      "Medium type more likely",
+      [
+        0.25,
+        0.5,
+        0.25
+      ]
+    ],
+    [
+      "High type more likely",
+      [
+        0.25,
+        0.25,
+        0.5
+      ]
+    ]
+  ],
+  "delta": 0.92,
+  "cost": 0.0,
+  "beliefs": "fixed in every realized basket; no Bayesian updating",
+  "initial_history": "observed",
+  "theory_reference": "final_draft/writeup/1108_writeup/theory/gamma_uncertainty.py",
+  "gamma_interpretation": "mean fitted novelty coefficient within each predicted type group",
+  "alpha_habit": "household posterior means",
+  "profit": "fixed-belief objective for unknown case",
+  "persistent_type_revenue": "evaluated under the same persistent type across both periods"
+}

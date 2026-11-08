@@ -25,7 +25,6 @@ PRICING_RESULTS = {
     'targeted_revenue_by_switching_group.csv', 'household_group_summary.csv',
     'household_coupon_results.pdf', 'household_coupon_results.png',
     'discounts_by_consumer_type.pdf', 'discounts_by_consumer_type.png',
-    'discounts_by_household_type.pdf', 'discounts_by_household_type.png',
 }
 
 

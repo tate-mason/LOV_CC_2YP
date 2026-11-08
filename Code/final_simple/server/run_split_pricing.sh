@@ -35,6 +35,7 @@ pricing_output="$job_dir/pricing/plain_berry"
 export_dir="$job_dir/RESULTS_ONLY"
 
 ml Python/3.12.3-GCCcore-13.3.0
+python3 -c 'import numpy, pandas, scipy, matplotlib'
 
 # Check every configured research path before reading input or creating outputs.
 python3 - "$project_dir" "$run_dir" "$weekly_input" "$job_dir" <<'PY'
@@ -81,7 +82,8 @@ if [[ ! -f "$weekly_input" ]]; then
         --fit-dir "$controlled_fit" --weekly-output "$weekly_input"
 fi
 
-# Original pricing plus low/medium/high type probabilities with fixed beliefs.
+# Original pricing plus supply theory calibrated to actual observed prices,
+# with estimated low/medium/high gamma and fixed type probabilities.
 python3 "$project_dir/Code/final_simple/demand/plain_berry_pricing.py" \
     --household-input "$weekly_input" --fit-dir "$controlled_fit" \
     --demand-delta 0.92 --output "$pricing_output"

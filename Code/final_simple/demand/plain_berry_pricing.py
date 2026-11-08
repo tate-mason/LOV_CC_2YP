@@ -8,8 +8,9 @@ only plain and berry are considered as focal sellers in separate counterfactuals
 # Empirical I/O is permitted only on the research server, never on this computer.
 from pathlib import Path as _PolicyPath
 import sys as _policy_sys
-_policy_root = next(p for p in _PolicyPath(__file__).resolve().parents if (p / "Code/privacy/server_data_policy.py").is_file())
-_policy_sys.path.insert(0, str(_policy_root / "Code/privacy"))
+_policy_root = next((p for p in _PolicyPath(__file__).resolve().parents if (p / "Code/privacy/server_data_policy.py").is_file()), None)
+if _policy_root is not None:
+    _policy_sys.path.insert(0, str(_policy_root / "Code/privacy"))
 from server_data_policy import server_only, require_server
 from pathlib import Path
 from types import SimpleNamespace

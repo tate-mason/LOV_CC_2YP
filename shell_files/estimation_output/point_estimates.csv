@@ -1,8 +1,0 @@
-parameter,estimate,at_bound
-beta_berry,-0.8366623418988012,False
-beta_plain,-0.2562412306316357,False
-mu_log_minus_alpha,-0.7717385461891365,False
-mean_gamma,0.038144444372373416,False
-sd_log_minus_alpha,0.8662471435779535,False
-sd_gamma,0.09104651968201255,False
-price_control,0.24527230850735307,False

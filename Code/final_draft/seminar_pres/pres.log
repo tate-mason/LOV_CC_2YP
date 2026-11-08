@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.8.17)  8 NOV 2026 13:34
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.8.17)  8 NOV 2026 17:42
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -848,7 +848,7 @@ File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 ] [4
 
 ]
-<~/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/summary_statistics/flavor_hhi_histogram.pdf, id=551, 505.89pt x 361.35pt>
+<~/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/summary_statistics/flavor_hhi_histogram.pdf, id=601, 505.89pt x 361.35pt>
 File: ~/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/summary_statistics/flavor_hhi_histogram.pdf Graphic file (type pdf)
 <use ~/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/summary_statistics/flavor_hhi_histogram.pdf>
 Package pdftex.def Info: ~/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/summary_statistics/flavor_hhi_histogram.pdf  used on input line 152.
@@ -860,7 +860,7 @@ Overfull \vbox (6.0408pt too high) detected at line 152
 [5
 
  </Users/tate/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/summary_statistics/flavor_hhi_histogram.pdf>]
-<~/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/summary_statistics/flavor_shares.pdf, id=695, 505.89pt x 361.35pt>
+<~/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/summary_statistics/flavor_shares.pdf, id=755, 505.89pt x 361.35pt>
 File: ~/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/summary_statistics/flavor_shares.pdf Graphic file (type pdf)
 <use ~/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/summary_statistics/flavor_shares.pdf>
 Package pdftex.def Info: ~/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/summary_statistics/flavor_shares.pdf  used on input line 158.
@@ -892,7 +892,7 @@ File: ubbm.fd 1999/03/15 V 1.2 Font definition for bbm font - TH
 ] [14
 
 ]
-<~/LOV_CC_2YP/Code/final_draft/supply_code/writeup_math_graphs/figures/optimal_prices_by_gamma.pdf, id=1677, 722.7pt x 303.534pt>
+<~/LOV_CC_2YP/Code/final_draft/supply_code/writeup_math_graphs/figures/optimal_prices_by_gamma.pdf, id=1827, 722.7pt x 303.534pt>
 File: ~/LOV_CC_2YP/Code/final_draft/supply_code/writeup_math_graphs/figures/optimal_prices_by_gamma.pdf Graphic file (type pdf)
 <use ~/LOV_CC_2YP/Code/final_draft/supply_code/writeup_math_graphs/figures/optimal_prices_by_gamma.pdf>
 Package pdftex.def Info: ~/LOV_CC_2YP/Code/final_draft/supply_code/writeup_math_graphs/figures/optimal_prices_by_gamma.pdf  used on input line 319.
@@ -900,7 +900,7 @@ Package pdftex.def Info: ~/LOV_CC_2YP/Code/final_draft/supply_code/writeup_math_
  [15
 
  </Users/tate/LOV_CC_2YP/Code/final_draft/supply_code/writeup_math_graphs/figures/optimal_prices_by_gamma.pdf>]
-<~/LOV_CC_2YP/Code/final_draft/supply_code/writeup_math_graphs/figures/all_state_realized_profit.pdf, id=1826, 578.16pt x 361.35pt>
+<~/LOV_CC_2YP/Code/final_draft/supply_code/writeup_math_graphs/figures/all_state_realized_profit.pdf, id=1987, 578.16pt x 361.35pt>
 File: ~/LOV_CC_2YP/Code/final_draft/supply_code/writeup_math_graphs/figures/all_state_realized_profit.pdf Graphic file (type pdf)
 <use ~/LOV_CC_2YP/Code/final_draft/supply_code/writeup_math_graphs/figures/all_state_realized_profit.pdf>
 Package pdftex.def Info: ~/LOV_CC_2YP/Code/final_draft/supply_code/writeup_math_graphs/figures/all_state_realized_profit.pdf  used on input line 323.
@@ -908,7 +908,7 @@ Package pdftex.def Info: ~/LOV_CC_2YP/Code/final_draft/supply_code/writeup_math_
  [16
 
  </Users/tate/LOV_CC_2YP/Code/final_draft/supply_code/writeup_math_graphs/figures/all_state_realized_profit.pdf>]
-<~/LOV_CC_2YP/Code/final_draft/supply_code/writeup_math_graphs/figures/all_state_price_ratios.pdf, id=1980, 578.16pt x 361.35pt>
+<~/LOV_CC_2YP/Code/final_draft/supply_code/writeup_math_graphs/figures/all_state_price_ratios.pdf, id=2151, 578.16pt x 361.35pt>
 File: ~/LOV_CC_2YP/Code/final_draft/supply_code/writeup_math_graphs/figures/all_state_price_ratios.pdf Graphic file (type pdf)
 <use ~/LOV_CC_2YP/Code/final_draft/supply_code/writeup_math_graphs/figures/all_state_price_ratios.pdf>
 Package pdftex.def Info: ~/LOV_CC_2YP/Code/final_draft/supply_code/writeup_math_graphs/figures/all_state_price_ratios.pdf  used on input line 327.
@@ -919,99 +919,133 @@ Package pdftex.def Info: ~/LOV_CC_2YP/Code/final_draft/supply_code/writeup_math_
 
 ] [19
 
-] [20
+]
+<../writeup/1108_writeup/assets/results/gamma_uncertainty/profits.pdf, id=2532, 722.7pt x 260.17201pt>
+File: ../writeup/1108_writeup/assets/results/gamma_uncertainty/profits.pdf Graphic file (type pdf)
+<use ../writeup/1108_writeup/assets/results/gamma_uncertainty/profits.pdf>
+Package pdftex.def Info: ../writeup/1108_writeup/assets/results/gamma_uncertainty/profits.pdf  used on input line 354.
+(pdftex.def)             Requested size: 390.37349pt x 140.53445pt.
+ [20
 
-] [21
+ <../writeup/1108_writeup/assets/results/gamma_uncertainty/profits.pdf>]
+<../writeup/1108_writeup/assets/results/gamma_uncertainty/information_value.pdf, id=2685, 722.7pt x 260.17201pt>
+File: ../writeup/1108_writeup/assets/results/gamma_uncertainty/information_value.pdf Graphic file (type pdf)
+<use ../writeup/1108_writeup/assets/results/gamma_uncertainty/information_value.pdf>
+Package pdftex.def Info: ../writeup/1108_writeup/assets/results/gamma_uncertainty/information_value.pdf  used on input line 358.
+(pdftex.def)             Requested size: 390.37349pt x 140.53445pt.
+ [21
+
+ <../writeup/1108_writeup/assets/results/gamma_uncertainty/information_value.pdf>] [22
+
+] [23
+
+] [24
 
 ] (/Users/tate/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/summary_statistics/yogurt_dynamics.tex)
-Overfull \vbox (3.32123pt too high) detected at line 409
+Overfull \vbox (3.32123pt too high) detected at line 432
  []
 
-[22
+[25
 
 ]
-<../RESULTS_ONLY/summary_statistics/aggregated_flavors/flavor_transitions.pdf, id=2639, 433.62pt x 433.62pt>
+<../RESULTS_ONLY/summary_statistics/aggregated_flavors/flavor_transitions.pdf, id=3289, 433.62pt x 433.62pt>
 File: ../RESULTS_ONLY/summary_statistics/aggregated_flavors/flavor_transitions.pdf Graphic file (type pdf)
 <use ../RESULTS_ONLY/summary_statistics/aggregated_flavors/flavor_transitions.pdf>
-Package pdftex.def Info: ../RESULTS_ONLY/summary_statistics/aggregated_flavors/flavor_transitions.pdf  used on input line 415.
+Package pdftex.def Info: ../RESULTS_ONLY/summary_statistics/aggregated_flavors/flavor_transitions.pdf  used on input line 438.
 (pdftex.def)             Requested size: 148.74553pt x 148.7454pt.
- [23
+ [26
 
- <../RESULTS_ONLY/summary_statistics/aggregated_flavors/flavor_transitions.pdf>] [24
+ <../RESULTS_ONLY/summary_statistics/aggregated_flavors/flavor_transitions.pdf>] [27
 
-] [25
+] [28
 
-] [26
+] [29
 
-] [27
+] [30
 
-] (/Users/tate/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/no_control_fit/estimates.tex) [28
+] (/Users/tate/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/no_control_fit/estimates.tex) [31
 
-] (/Users/tate/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/no_control_fit/implied_wtp.tex) [29
+] (/Users/tate/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/no_control_fit/implied_wtp.tex) [32
 
 ]
-<~/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/no_control_fit/history_distributions.pdf, id=3407, 722.7pt x 289.08pt>
+<~/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/no_control_fit/history_distributions.pdf, id=4127, 722.7pt x 289.08pt>
 File: ~/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/no_control_fit/history_distributions.pdf Graphic file (type pdf)
 <use ~/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/no_control_fit/history_distributions.pdf>
-Package pdftex.def Info: ~/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/no_control_fit/history_distributions.pdf  used on input line 496.
+Package pdftex.def Info: ~/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/no_control_fit/history_distributions.pdf  used on input line 519.
 (pdftex.def)             Requested size: 394.35739pt x 157.74176pt.
- [30
+ [33
 
- </Users/tate/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/no_control_fit/history_distributions.pdf>] [31
+ </Users/tate/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/no_control_fit/history_distributions.pdf>] [34
 
-] [32
+] [35
 
-] [33
+] [36
 
 ]
-<~/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/pricing/berry/household_coupon_results.pdf, id=3869, 939.51pt x 361.35pt>
+<~/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/pricing/berry/household_coupon_results.pdf, id=4629, 939.51pt x 361.35pt>
 File: ~/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/pricing/berry/household_coupon_results.pdf Graphic file (type pdf)
 <use ~/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/pricing/berry/household_coupon_results.pdf>
-Package pdftex.def Info: ~/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/pricing/berry/household_coupon_results.pdf  used on input line 545.
+Package pdftex.def Info: ~/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/pricing/berry/household_coupon_results.pdf  used on input line 568.
 (pdftex.def)             Requested size: 398.3386pt x 153.20505pt.
- [34
-
- </Users/tate/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/pricing/berry/household_coupon_results.pdf>]
-<~/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/pricing/plain/household_coupon_results.pdf, id=4035, 939.51pt x 361.35pt>
-File: ~/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/pricing/plain/household_coupon_results.pdf Graphic file (type pdf)
-<use ~/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/pricing/plain/household_coupon_results.pdf>
-Package pdftex.def Info: ~/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/pricing/plain/household_coupon_results.pdf  used on input line 549.
-(pdftex.def)             Requested size: 398.3386pt x 153.20505pt.
- [35
-
- </Users/tate/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/pricing/plain/household_coupon_results.pdf>]
-<~/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/pricing/berry/discounts_by_consumer_type.pdf, id=4199, 650.43pt x 361.35pt>
-File: ~/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/pricing/berry/discounts_by_consumer_type.pdf Graphic file (type pdf)
-<use ~/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/pricing/berry/discounts_by_consumer_type.pdf>
-Package pdftex.def Info: ~/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/pricing/berry/discounts_by_consumer_type.pdf  used on input line 553.
-(pdftex.def)             Requested size: 338.59023pt x 188.10709pt.
- [36
-
- </Users/tate/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/pricing/berry/discounts_by_consumer_type.pdf>]
-<~/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/pricing/plain/discounts_by_consumer_type.pdf, id=4356, 650.43pt x 361.35pt>
-File: ~/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/pricing/plain/discounts_by_consumer_type.pdf Graphic file (type pdf)
-<use ~/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/pricing/plain/discounts_by_consumer_type.pdf>
-Package pdftex.def Info: ~/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/pricing/plain/discounts_by_consumer_type.pdf  used on input line 557.
-(pdftex.def)             Requested size: 338.59023pt x 188.10709pt.
  [37
 
- </Users/tate/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/pricing/plain/discounts_by_consumer_type.pdf>]
-<../RESULTS_ONLY/pricing/plain/pricing_mechanism.pdf, id=4514, 722.7pt x 289.08pt>
-File: ../RESULTS_ONLY/pricing/plain/pricing_mechanism.pdf Graphic file (type pdf)
-<use ../RESULTS_ONLY/pricing/plain/pricing_mechanism.pdf>
-Package pdftex.def Info: ../RESULTS_ONLY/pricing/plain/pricing_mechanism.pdf  used on input line 574.
-(pdftex.def)             Requested size: 378.42044pt x 151.36786pt.
+ </Users/tate/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/pricing/berry/household_coupon_results.pdf>]
+<~/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/pricing/plain/household_coupon_results.pdf, id=4805, 939.51pt x 361.35pt>
+File: ~/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/pricing/plain/household_coupon_results.pdf Graphic file (type pdf)
+<use ~/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/pricing/plain/household_coupon_results.pdf>
+Package pdftex.def Info: ~/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/pricing/plain/household_coupon_results.pdf  used on input line 572.
+(pdftex.def)             Requested size: 398.3386pt x 153.20505pt.
  [38
 
- <../RESULTS_ONLY/pricing/plain/pricing_mechanism.pdf>] (/Users/tate/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/pricing/focal_flavor_comparison.tex) [39
+ </Users/tate/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/pricing/plain/household_coupon_results.pdf>]
+<~/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/pricing/berry/discounts_by_consumer_type.pdf, id=4980, 650.43pt x 361.35pt>
+File: ~/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/pricing/berry/discounts_by_consumer_type.pdf Graphic file (type pdf)
+<use ~/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/pricing/berry/discounts_by_consumer_type.pdf>
+Package pdftex.def Info: ~/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/pricing/berry/discounts_by_consumer_type.pdf  used on input line 576.
+(pdftex.def)             Requested size: 338.59023pt x 188.10709pt.
+ [39
 
-] [40
+ </Users/tate/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/pricing/berry/discounts_by_consumer_type.pdf>]
+<~/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/pricing/plain/discounts_by_consumer_type.pdf, id=5147, 650.43pt x 361.35pt>
+File: ~/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/pricing/plain/discounts_by_consumer_type.pdf Graphic file (type pdf)
+<use ~/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/pricing/plain/discounts_by_consumer_type.pdf>
+Package pdftex.def Info: ~/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/pricing/plain/discounts_by_consumer_type.pdf  used on input line 580.
+(pdftex.def)             Requested size: 338.59023pt x 188.10709pt.
+ [40
 
-] [41
+ </Users/tate/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/pricing/plain/discounts_by_consumer_type.pdf>]
+<../RESULTS_ONLY/pricing/plain/pricing_mechanism.pdf, id=5313, 722.7pt x 289.08pt>
+File: ../RESULTS_ONLY/pricing/plain/pricing_mechanism.pdf Graphic file (type pdf)
+<use ../RESULTS_ONLY/pricing/plain/pricing_mechanism.pdf>
+Package pdftex.def Info: ../RESULTS_ONLY/pricing/plain/pricing_mechanism.pdf  used on input line 597.
+(pdftex.def)             Requested size: 378.42044pt x 151.36786pt.
+ [41
 
-] [42
+ <../RESULTS_ONLY/pricing/plain/pricing_mechanism.pdf>] (/Users/tate/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/pricing/focal_flavor_comparison.tex) [42
+
+] [43
+
+] [44
+
+] [45
 
 ]
+<../writeup/1108_writeup/assets/results/gamma_uncertainty/first_prices.pdf, id=5932, 722.7pt x 260.17201pt>
+File: ../writeup/1108_writeup/assets/results/gamma_uncertainty/first_prices.pdf Graphic file (type pdf)
+<use ../writeup/1108_writeup/assets/results/gamma_uncertainty/first_prices.pdf>
+Package pdftex.def Info: ../writeup/1108_writeup/assets/results/gamma_uncertainty/first_prices.pdf  used on input line 651.
+(pdftex.def)             Requested size: 390.37349pt x 140.53445pt.
+ [46
+
+ <../writeup/1108_writeup/assets/results/gamma_uncertainty/first_prices.pdf>]
+<../writeup/1108_writeup/assets/results/gamma_uncertainty/terminal_prices.pdf, id=6086, 722.7pt x 260.17201pt>
+File: ../writeup/1108_writeup/assets/results/gamma_uncertainty/terminal_prices.pdf Graphic file (type pdf)
+<use ../writeup/1108_writeup/assets/results/gamma_uncertainty/terminal_prices.pdf>
+Package pdftex.def Info: ../writeup/1108_writeup/assets/results/gamma_uncertainty/terminal_prices.pdf  used on input line 655.
+(pdftex.def)             Requested size: 390.37349pt x 140.53445pt.
+ [47
+
+ <../writeup/1108_writeup/assets/results/gamma_uncertainty/terminal_prices.pdf>]
 \tf@nav=\write6
 \openout6 = `pres.nav'.
 
@@ -1030,18 +1064,18 @@ Package rerunfilecheck Info: File `pres.out' has not changed.
 (rerunfilecheck)             Checksum: 71FB9276E90955D996C842365402F7B4;859.
  ) 
 Here is how much of TeX's memory you used:
- 29775 strings out of 467159
- 612448 string characters out of 5409218
- 1024973 words of memory out of 5000000
- 58372 multiletter control sequences out of 15000+600000
+ 29825 strings out of 467159
+ 615048 string characters out of 5409218
+ 1033133 words of memory out of 5000000
+ 58412 multiletter control sequences out of 15000+600000
  637276 words of font info for 80 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  128i,19n,123p,380b,1012s stack positions out of 10000i,1000n,20000p,200000b,200000s
  </Users/tate/Library/texlive/2026/texmf-var/fonts/pk/ljfour/public/bbm/bbm10.657pk></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmss10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmss12.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmss8.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmss9.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmssbx10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb>
-Output written on pres.pdf (42 pages, 486808 bytes).
+Output written on pres.pdf (47 pages, 554181 bytes).
 PDF statistics:
- 5132 PDF objects out of 5155 (max. 8388607)
- 2395 compressed objects within 24 object streams
- 96 named destinations out of 1000 (max. 500000)
- 167 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 6289 PDF objects out of 7423 (max. 8388607)
+ 2913 compressed objects within 30 object streams
+ 106 named destinations out of 1000 (max. 500000)
+ 187 words of extra memory for PDF output out of 10000 (max. 10000000)
 

@@ -10,6 +10,13 @@ FIT_RESULTS = {
     'history_distributions.pdf', 'history_distributions.png',
 }
 PRICING_RESULTS = {
+    'information_friction_aggregate.csv', 'information_friction_by_group.csv',
+    'information_friction_states.csv',
+    'information_friction_settings.json', 'information_friction_results.tex',
+    'information_friction_profits.pdf', 'information_friction_profits.png',
+    'information_friction_first_prices.pdf', 'information_friction_first_prices.png',
+    'information_friction_terminal_prices.pdf', 'information_friction_terminal_prices.png',
+    'information_friction_information_value.pdf', 'information_friction_information_value.png',
     'focal_flavor_comparison.csv', 'targeted_revenue_aggregate.csv',
     'pricing_policy_benchmarks.csv', 'pricing_policy_benchmarks.pdf', 'pricing_policy_benchmarks.png',
     'terminal_offers_by_purchase.csv', 'terminal_offers_by_purchase.pdf', 'terminal_offers_by_purchase.png',

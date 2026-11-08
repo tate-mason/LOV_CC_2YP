@@ -1,7 +1,11 @@
 # Fdb version 4
-["pdflatex"] 1794162872.7805 "pres.tex" "pres.pdf" "pres" 1794162880.93963 0
+["pdflatex"] 1794177765.44622 "pres.tex" "pres.pdf" "pres" 1794177775.09267 0
   "../RESULTS_ONLY/pricing/plain/pricing_mechanism.pdf" 1794162868.96743 18992 1411e41359c7d99c5c26b713a9681b26 ""
   "../RESULTS_ONLY/summary_statistics/aggregated_flavors/flavor_transitions.pdf" 1794078570.60174 17363 e315e29e0e90c1aa1227e1c229a83354 ""
+  "../writeup/1108_writeup/assets/results/gamma_uncertainty/first_prices.pdf" 1794177655.71311 13688 84ce5977b6580364544e77e8eefe649d ""
+  "../writeup/1108_writeup/assets/results/gamma_uncertainty/information_value.pdf" 1794177655.95869 13051 51ca26b27a03c259bf2bdb55062e35b7 ""
+  "../writeup/1108_writeup/assets/results/gamma_uncertainty/profits.pdf" 1794177655.57841 13679 09e0e9980d854b5f3f12e54571e14387 ""
+  "../writeup/1108_writeup/assets/results/gamma_uncertainty/terminal_prices.pdf" 1794177655.83852 13992 fb0986e00f3dc8d21d01575ab421ff28 ""
   "/Users/tate/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/no_control_fit/estimates.tex" 1794161247.57881 842 e16faaf56940eddf1da0decc4aa85816 ""
   "/Users/tate/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/no_control_fit/history_distributions.pdf" 1794078570.59459 18634 74dec90cd0ad702532e9f2b1dd6babfa ""
   "/Users/tate/LOV_CC_2YP/Code/final_draft/RESULTS_ONLY/no_control_fit/implied_wtp.tex" 1794079787.37619 493 c3f2a0d3cb329a491e8a5ccd4bb2f268 ""
@@ -262,10 +266,10 @@
   "/usr/local/texlive/2026/texmf-var/fonts/map/pdftex/updmap/pdftex.map" 1787008065 5573194 3473593ed16e9f152d99f1a1aaa20677 ""
   "/usr/local/texlive/2026/texmf-var/web2c/pdftex/pdflatex.fmt" 1787008814 3656725 4e447c05aa121cdaa2af3e1480626bfc ""
   "/usr/local/texlive/2026/texmf.cnf" 1774209515 577 648cd9f92f9c0eac486f4c71c85cfbbe ""
-  "pres.aux" 1794162880.83768 8541 969f04608cfd59282fc7e7a7058f3b4b "pdflatex"
-  "pres.nav" 1794162880.83929 5336 5ea575e41c129f13af62cedc539d092f "pdflatex"
-  "pres.out" 1794162880.8391 859 71fb9276e90955d996c842365402f7b4 "pdflatex"
-  "pres.tex" 1794162863.42098 24328 041ecc8bee625c9af9571bd355fec3ed ""
+  "pres.aux" 1794177774.97779 9184 3369fde89d496e96d4ac72018f2ec7f1 "pdflatex"
+  "pres.nav" 1794177774.98215 5799 9ff12036a21866ead6b01625a4456406 "pdflatex"
+  "pres.out" 1794177774.98189 859 71fb9276e90955d996c842365402f7b4 "pdflatex"
+  "pres.tex" 1794177764.24799 25760 4224cf3c4d7461f32ce6544472438098 ""
   (generated)
   "pres.aux"
   "pres.log"

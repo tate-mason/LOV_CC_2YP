@@ -1,67 +1,96 @@
 #!/bin/bash
-#SBATCH --job-name=plain_berry_pricing		# Job name (testBowtie2)
-#SBATCH --partition=hugemem_p		# Partition name (batch, highmem_p, or gpu_p)
-#SBATCH --nodes=1			# Number of compute nodes for resources to be spread out over (increase only if using MPI enabled software)
-#SBATCH --ntasks=1			# 1 task (process) for below commands
-#SBATCH --cpus-per-task=1	 	# CPU core count per task, by default 1 CPU core per task
-#SBATCH --mem=300G			# Memory per node (4GB); by default using M as unit
-#SBATCH --time=36:00:00              	# Time limit hrs:min:sec or days-hours:minutes:seconds
-#SBATCH --output=%x_%j.txt              # Standard output log, e.g., testBowtie2_12345.out
-#SBATCH --mail-user=dtm63837@uga.edu    # Where to send mail
-#SBATCH --mail-type=END,FAIL          	# Mail events (BEGIN, END, FAIL, ALL)
+#SBATCH --job-name=gamma_pricing
+#SBATCH --partition=hugemem_p
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=1
+#SBATCH --mem=300G
+#SBATCH --time=36:00:00
+#SBATCH --output=/scratch/dtm63837/Kilts_Panel/pricing_%j.log
+#SBATCH --mail-user=dtm63837@uga.edu
+#SBATCH --mail-type=END,FAIL
 
-# Refuse empirical execution on this computer, even with local path overrides.
-if [[ "$(uname -s)" != "Linux" || ! -d /scratch/dtm63837/Kilts_Panel ]]; then
-    echo "Server-only empirical workflow. Copy back results only, never research records." >&2
+# Reuse a completed full_rebuild run; no raw-data build or demand estimation.
+# sbatch Code/final_simple/server/run_split_pricing.sh \
+#   /scratch/dtm63837/Kilts_Panel/rebuilds/run_JOB_ID [existing_weekly_inputs.csv]
+set -euo pipefail
+umask 077
+server_root="/scratch/dtm63837/Kilts_Panel"
+project_dir="$server_root/LOV_CC_2YP"
+if [[ "$(uname -s)" != Linux || ! -d "$server_root" || -z "${SLURM_JOB_ID:-}" ]]; then
+    echo "Submit this pricing-only job with sbatch on the research server." >&2
     exit 1
 fi
+if [[ $# -lt 1 || $# -gt 2 ]]; then
+    echo "Usage: sbatch $0 EXISTING_REBUILD_RUN_DIR [EXISTING_WEEKLY_INPUT]" >&2
+    exit 1
+fi
+run_dir="$1"
+controlled_fit="$run_dir/fits/controlled"
+uncontrolled_fit="$run_dir/fits/no_control"
+summary_dir="$run_dir/data/summary_outputs"
+weekly_input="${2:-$controlled_fit/weekly_inputs.csv}"
+job_dir="$run_dir/pricing_only_${SLURM_JOB_ID}"
+pricing_output="$job_dir/pricing/plain_berry"
+export_dir="$job_dir/RESULTS_ONLY"
 
-set -euo pipefail
+ml Python/3.12.3-GCCcore-13.3.0
 
-# === Parameters: edit these paths on the server === #
-project_dir="/scratch/dtm63837/Kilts_Panel/LOV_CC_2YP"
-# est_struc.sh uses relative --output paths; these defaults match runs from shell_files.
-controlled_fit="$project_dir/shell_files/res_het_hist"
-uncontrolled_fit="$project_dir/shell_files/res_het_nocf"
+# Check every configured research path before reading input or creating outputs.
+python3 - "$project_dir" "$run_dir" "$weekly_input" "$job_dir" <<'PY'
+from pathlib import Path
+import sys
+sys.path.insert(0, str(Path(sys.argv[1])/'Code/privacy'))
+from server_data_policy import require_server, require_data_path
+require_server()
+for value in sys.argv[2:]:
+    require_data_path(value)
+run = Path(sys.argv[2])
+for relative in ['fits/controlled/fit.json', 'fits/controlled/point_estimates.csv']:
+    if not (run/relative).is_file():
+        raise SystemExit('Missing existing fit: '+str(run/relative))
+if Path(sys.argv[4]).exists():
+    raise SystemExit('Refusing to overwrite a previous pricing job: '+sys.argv[4])
+PY
+mkdir -p "$job_dir"
+export MPLCONFIGDIR="$job_dir/matplotlib_cache"
+export PYTHONPYCACHEPREFIX="$job_dir/python_cache"
+cd "$job_dir"
 
-# Job-private research records live outside the code checkout and are deleted on exit.
-mkdir -p /scratch/dtm63837/Kilts_Panel/Data/temporary
-weekly_work=$(mktemp -d /scratch/dtm63837/Kilts_Panel/Data/temporary/pricing.XXXXXX)
-weekly_input="$weekly_work/weekly_inputs.csv"
-
-# Weekly household inputs are temporary: remove them on success or failure.
+# full_rebuild removes its weekly export. If absent, reconstruct only that
+# temporary export from the existing prepared sample and saved demand fit.
+# Raw data construction, matching, summaries and demand estimation are skipped.
+weekly_work=""
 cleanup_weekly_inputs() {
-    rm -f -- "$weekly_input" "$weekly_work"/.weekly_inputs_*.csv
-    rmdir -- "$weekly_work"
+    if [[ -n "$weekly_work" ]]; then
+        rm -f -- "$weekly_work/weekly_inputs.csv" "$weekly_work"/.weekly_inputs_*.csv
+        rmdir -- "$weekly_work"
+    fi
 }
 trap cleanup_weekly_inputs EXIT
 trap 'exit 130' INT
 trap 'exit 143' TERM
-pricing_output="/scratch/dtm63837/Kilts_Panel/plain_berry_pricing_ex"
-
-ml Python/3.12.3-GCCcore-13.3.0
-cd "$project_dir"
-
-# Check saved fit artifacts before rebuilding household inputs on the server.
-for fit_directory in "$controlled_fit" "$uncontrolled_fit"; do
-    if [[ ! -f "$fit_directory/fit.json" || ! -f "$fit_directory/point_estimates.csv" ]]; then
-        echo "Missing saved fit in $fit_directory. Set controlled_fit/uncontrolled_fit to the estimation output directories." >&2
+if [[ ! -f "$weekly_input" ]]; then
+    if [[ $# -eq 2 ]]; then
+        echo "Explicit weekly input does not exist: $weekly_input" >&2
         exit 1
     fi
-done
+    weekly_work=$(mktemp -d "$job_dir/weekly.XXXXXX")
+    weekly_input="$weekly_work/weekly_inputs.csv"
+    python3 "$project_dir/Code/final_simple/demand/regenerate_weekly_inputs.py" \
+        --fit-dir "$controlled_fit" --weekly-output "$weekly_input"
+fi
 
-# 1. Reconstruct the deleted export using saved settings; verify its likelihood.
-python3 Code/final_simple/demand/regenerate_weekly_inputs.py --fit-dir "$controlled_fit" --weekly-output "$weekly_input"
-
-# 2. Export both fitted population coefficient distributions.
-python3 Code/final_simple/demand/history_distributions.py --fit-dir "$controlled_fit"
-python3 Code/final_simple/demand/history_distributions.py --fit-dir "$uncontrolled_fit"
-
-# 3. Compare plain and berry as focal sellers; retain all three demand categories.
-python3 Code/final_simple/demand/plain_berry_pricing.py \
-    --household-input "$weekly_input" \
-    --fit-dir "$controlled_fit" --demand-delta 0.92 \
+# Original pricing plus low/medium/high type probabilities with fixed beliefs.
+python3 "$project_dir/Code/final_simple/demand/plain_berry_pricing.py" \
+    --household-input "$weekly_input" --fit-dir "$controlled_fit" \
+    --demand-delta 0.92 --output "$pricing_output"
+python3 "$project_dir/Code/final_draft/seminar_pres/make_policy_figures.py" \
     --output "$pricing_output"
 
-# 4. Generate seminar mechanism figures on the server from aggregate results.
-python3 Code/final_draft/seminar_pres/make_policy_figures.py --output "$pricing_output"
+# Reuse the rebuild's estimates and summaries, staging only allowed results.
+python3 "$project_dir/Code/privacy/export_rebuild_results.py" \
+    --summary-dir "$summary_dir" --controlled-fit "$controlled_fit" \
+    --uncontrolled-fit "$uncontrolled_fit" --pricing-dir "$pricing_output" \
+    --output "$export_dir"
+printf '\nPricing complete. Recover ONLY: %s\n' "$export_dir"

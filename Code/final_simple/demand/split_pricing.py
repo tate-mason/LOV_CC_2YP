@@ -9,9 +9,10 @@ from __future__ import annotations
 # Empirical I/O is permitted only on the research server, never on this computer.
 from pathlib import Path as _PolicyPath
 import sys as _policy_sys
-_policy_root = next(p for p in _PolicyPath(__file__).resolve().parents if (p / "Code/privacy/server_data_policy.py").is_file())
-_policy_sys.path.insert(0, str(_policy_root / "Code/privacy"))
-from server_data_policy import server_only, require_server
+_policy_root = next((p for p in _PolicyPath(__file__).resolve().parents if (p / "Code/privacy/server_data_policy.py").is_file()), None)
+if _policy_root is not None:
+    _policy_sys.path.insert(0, str(_policy_root / "Code/privacy"))
+from server_data_policy import server_only, require_server, require_data_path
 import argparse
 import hashlib
 import json
@@ -372,8 +373,201 @@ def targeted_coupons(context, households, weights, alpha, switching, beta, disco
 
 # === 4. Validate a saved split fit and solve one focal case === #
 
+# Same fixed-belief comparison as the theory, using fitted low/medium/high types.
+TYPE_GROUPS = ["low", "middle", "high"]
+
+
+def gamma_type_values(households):
+    """Estimated novelty means for the existing low/medium/high prediction groups."""
+    values = households.groupby("group").switching_mean.mean().reindex(TYPE_GROUPS).to_numpy(float)
+    if not np.isfinite(values).all():
+        raise ValueError("Need fitted low, medium and high types to price type uncertainty")
+    return values
+
+GAMMA_PRIORS = [
+    ("Equal types", [1/3, 1/3, 1/3]),
+    ("Low type more likely", [.5, .25, .25]),
+    ("Medium type more likely", [.25, .5, .25]),
+    ("High type more likely", [.25, .25, .5]),
+]
+
+
+def fixed_gamma_policy(mass, first, terminal, discounts, prior, delta):
+    """Finite-grid counterpart of theory.evaluate: fixed prior in EVERY h1.
+
+    mass: first action,type,basket; first: first action,type;
+    terminal: type,basket,terminal action. No likelihood enters terminal weights.
+    """
+    prior = np.asarray(prior, float)
+    if not np.isclose(prior.sum(), 1.) or (prior < 0).any():
+        raise ValueError("Invalid gamma prior")
+    if not np.allclose(mass.sum(axis=-1), 1., atol=1e-9):
+        raise AssertionError("Basket mass failed")
+    # Unknown type: terminal policy depends on h1 but keeps the original prior.
+    mixture_terminal = np.einsum("t,tsa->sa", prior, terminal)
+    second_action = mixture_terminal.argmax(axis=-1)
+    terminal_value = mixture_terminal.max(axis=-1)
+    mixture_mass = np.einsum("t,ats->as", prior, mass)
+    first_value = first @ prior
+    objectives = first_value + delta * (mixture_mass @ terminal_value)
+    action = int(objectives.argmax())
+    unknown_value = float(objectives[action])
+    # Known type: optimize both offers separately for each persistent gamma.
+    known_second = terminal.argmax(axis=-1)
+    known_terminal = terminal.max(axis=-1)
+    known_values = first + delta*np.einsum("ats,ts->at", mass, known_terminal)
+    known_first = known_values.argmax(axis=0)
+    types = np.arange(len(prior))
+    known_by_type = known_values[known_first, types]
+    known_value = float(prior @ known_by_type)
+    known_mass = mass[known_first, types]
+    known_d1 = float(prior @ discounts[known_first])
+    known_d2_by_type = (known_mass * discounts[known_second]).sum(axis=-1)
+    unknown_d2 = float(mixture_mass[action] @ discounts[second_action])
+    # Audit economic performance separately under a truly persistent gamma.
+    # Fixed-belief objectives mix types independently at each state; they need
+    # not equal realized ex ante revenue under persistent heterogeneity.
+    selected_true = np.take_along_axis(terminal, second_action[None, :, None], axis=-1)[..., 0]
+    persistent_value = float(first_value[action] + delta * np.sum(
+        prior[:, None]*mass[action]*selected_true))
+    if known_value + 1e-8 < persistent_value:
+        raise AssertionError("Full-information bound on persistent-type revenue failed")
+    return dict(known_value=known_value, unknown_value=unknown_value,
+                persistent_value=persistent_value, known_by_type=known_by_type,
+                known_first=known_first, known_d2_by_type=known_d2_by_type,
+                known_d1=known_d1, known_d2=float(prior @ known_d2_by_type),
+                unknown_d1=float(discounts[action]), unknown_d2=unknown_d2,
+                second_action=second_action)
+
+
+@server_only
+def information_frictions(context, households, weights, alpha, switching, beta,
+                          discounts, delta, capacity, control_coefficient, output):
+    """Known versus fixed-belief gamma, with observed empirical initial history."""
+    gamma_values = gamma_type_values(households)
+    baskets = compositions(capacity)
+    inside = baskets[:, :3]
+    totals = inside.sum(axis=1, keepdims=True)
+    shares = np.divide(inside, totals, out=np.zeros_like(inside, dtype=float), where=totals > 0)
+    novelty2 = shares.sum(axis=1, keepdims=True)-shares
+    coeff = math.lgamma(capacity+1)-np.vectorize(math.lgamma)(baskets+1).sum(axis=1)
+    rows, state_rows = [], []
+    eligible = np.flatnonzero(context["eligible"])
+    for number, hh in enumerate(eligible, 1):
+        a = float(weights[hh] @ alpha)
+        _, habit = weights[hh] @ switching
+        prices, available = context["prices"][hh], context["available"][hh]
+        stock, novelty = context["stocks"][hh], context["novelty"][hh]
+        initial_share = novelty.sum()/2-novelty[1]
+        h0 = "j" if initial_share > 1e-12 else "0"
+        fixed = beta-a*prices+control_coefficient*context["cf"][hh]
+        u1 = fixed+gamma_values[:, None]*novelty+habit*stock
+        u2 = (fixed[None, None, :]+gamma_values[:, None, None]*novelty2[None, :, :]
+              +habit*(stock[None, None, :]+shares[None, :, :]))
+        u1, u2 = np.where(available, u1, -np.inf), np.where(available, u2, -np.inf)
+        def probabilities(u, discount):
+            u = u.copy()
+            u[..., 1] += a*prices[1]*discount
+            full = np.concatenate([u, np.zeros((*u.shape[:-1], 1))], axis=-1)
+            return full-logsumexp(full, axis=-1, keepdims=True)
+        terminal = np.stack([capacity*np.exp(probabilities(u2, d)[..., 1])*prices[1]*(1-d)
+                             for d in discounts], axis=-1)
+        masses, first = [], []
+        for discount in discounts:
+            logp = probabilities(u1, discount)
+            terms = np.zeros((3, len(baskets), 4))
+            np.multiply(baskets[None, :, :], logp[:, None, :], out=terms,
+                        where=baskets[None, :, :] > 0)
+            masses.append(np.exp(coeff[None, :]+terms.sum(axis=-1)))
+            first.append(capacity*np.exp(logp[:, 1])*prices[1]*(1-discount))
+        mass, first = np.asarray(masses), np.asarray(first)
+        for scenario, prior in GAMMA_PRIORS:
+            result = fixed_gamma_policy(mass, first, terminal, discounts, prior, delta)
+            for case, value, d1, d2, realized in [
+                ("known", result["known_value"], result["known_d1"], result["known_d2"], result["known_value"]),
+                ("unknown", result["unknown_value"], result["unknown_d1"], result["unknown_d2"], result["persistent_value"])]:
+                rows.append(dict(scenario=scenario, h0=h0, case=case, group=households.iloc[hh].group,
+                    profit=value, persistent_type_revenue=realized,
+                    expected_discount1=d1, expected_discount2=d2,
+                    expected_p1=prices[1]*(1-d1), expected_p2=prices[1]*(1-d2),
+                    value_of_information=result["known_value"]-result["unknown_value"]))
+            for k, gamma in enumerate(gamma_values):
+                state_rows.append(dict(scenario=scenario, h0=h0, type=["low", "medium", "high"][k], gamma=gamma, probability=prior[k],
+                    belief_after_focal=prior[k], belief_after_no_focal=prior[k],
+                    known_profit=result["known_by_type"][k],
+                    known_p1=prices[1]*(1-discounts[result["known_first"][k]]),
+                    known_expected_p2=prices[1]*(1-result["known_d2_by_type"][k])))
+        if number % 100 == 0 or number == len(eligible):
+            print(f"Fixed-belief gamma pricing: {number}/{len(eligible)} eligible households", flush=True)
+    table = pd.DataFrame(rows)
+    def aggregate(keys):
+        result = table.groupby(keys)[["profit", "persistent_type_revenue", "value_of_information"]].sum()
+        result = result.join(table.groupby(keys)[["expected_p1", "expected_p2", "expected_discount1", "expected_discount2"]].mean())
+        result["households"] = table.groupby(keys).size()
+        return result
+    summary = aggregate(["scenario", "h0", "case"])
+    summary.to_csv(output / "information_friction_aggregate.csv")
+    lines = [r"\begin{tabular}{llrrr}\hline",
+             r"Initial state & Prior & Known profit & Fixed-belief profit & Difference\\\hline"]
+    for scenario, _ in GAMMA_PRIORS:
+        for h0 in ["j", "0"]:
+            if (scenario, h0, "known") not in summary.index:
+                continue
+            known_row = summary.loc[(scenario, h0, "known")]
+            unknown_row = summary.loc[(scenario, h0, "unknown")]
+            lines.append(f"{h0} & {scenario} & {known_row.profit:.4f} & "
+                         f"{unknown_row.profit:.4f} & {known_row.value_of_information:.4f} " + r"\\")
+    lines.append(r"\hline\end{tabular}")
+    (output / "information_friction_results.tex").write_text("\n".join(lines)+"\n")
+    aggregate(["scenario", "h0", "case", "group"]).to_csv(output / "information_friction_by_group.csv")
+    pd.DataFrame(state_rows).groupby(["scenario", "h0", "type", "gamma"]).agg(
+        probability=("probability", "first"), belief_after_focal=("belief_after_focal", "first"),
+        belief_after_no_focal=("belief_after_no_focal", "first"),
+        mean_known_profit=("known_profit", "mean"), mean_known_p1=("known_p1", "mean"),
+        mean_known_expected_p2=("known_expected_p2", "mean")
+    ).to_csv(output / "information_friction_states.csv")
+    settings = dict(types=["low", "medium", "high"], gamma=gamma_values.tolist(), priors=GAMMA_PRIORS, delta=delta, cost=0.,
+        beliefs="fixed in every realized basket; no Bayesian updating", initial_history="observed",
+        theory_reference="final_draft/writeup/1108_writeup/theory/gamma_uncertainty.py",
+        gamma_interpretation="mean fitted novelty coefficient within each predicted type group",
+        alpha_habit="household posterior means", profit="fixed-belief objective for unknown case",
+        persistent_type_revenue="evaluated under the same persistent type across both periods")
+    (output / "information_friction_settings.json").write_text(json.dumps(settings, indent=2)+"\n")
+    plt = plotting()
+    scenarios = [name for name, _ in GAMMA_PRIORS]
+    labels = ["Equal", "Low-heavy", "Medium-heavy", "High-heavy"]
+    for metric, stem, ylabel in [("profit", "profits", "Expected discounted profit"),
+                                 ("expected_p1", "first_prices", "Mean first-period offered price"),
+                                 ("expected_p2", "terminal_prices", "Mean terminal offered price"),
+                                 ("value_of_information", "information_value", "Known minus fixed-belief profit")]:
+        fig, axes = plt.subplots(1, 2, figsize=(11, 4), sharey=True)
+        x = np.arange(4)
+        for ax, h0 in zip(axes, ["j", "0"]):
+            for case, offset, label in [("known", -.18, "Known type"), ("unknown", .18, "Uncertain type; fixed beliefs")]:
+                if metric == "value_of_information" and case == "unknown":
+                    continue
+                try:
+                    values = summary.xs((h0, case), level=("h0", "case")).reindex(scenarios)[metric]
+                except KeyError:
+                    values = np.full(4, np.nan)
+                ax.bar(x+(0 if metric == "value_of_information" else offset), values,
+                       width=.6 if metric == "value_of_information" else .36, label=label)
+            ax.set_xticks(x, labels, rotation=20)
+            ax.set_title("Initially "+("inside" if h0 == "j" else "outside"))
+            ax.grid(axis="y", alpha=.2)
+            ax.set_axisbelow(True)
+        axes[0].set_ylabel(ylabel)
+        if metric != "value_of_information":
+            axes[0].legend(fontsize=8)
+        fig.tight_layout()
+        for extension in ["pdf", "png"]:
+            fig.savefig(output / f"information_friction_{stem}.{extension}", dpi=180)
+        plt.close(fig)
+
+
 @server_only
 def run_households(args):
+    require_data_path(args.fit_dir)
     # This branch is entered only when the person running the script supplies
     # BOTH paths. Validation supplies generated temporary fixtures only.
     fit = json.loads((args.fit_dir / "fit.json").read_text())
@@ -442,6 +636,9 @@ def run_households(args):
     for extension in ["pdf", "png"]:
         fig.savefig(args.output / f"pricing_policy_benchmarks.{extension}", dpi=180)
     plt.close(fig)
+    information_frictions(context, households, weights, alpha, switching, beta,
+                          args.discounts, args.demand_delta, capacity,
+                          parameters.get("price_control", 0.) if control else 0., args.output)
     households.rename(columns={"berry_eligible": "focal_eligible"}, inplace=True)
     table.rename(columns={c: c.replace("berry", "focal") for c in table if "berry" in c}, inplace=True)
     table["focal_flavor"] = focal
@@ -518,6 +715,9 @@ def run_households(args):
                 baskets=len(compositions(capacity)),
                 discount_grid=args.discounts.tolist(), demand_delta=args.demand_delta,
                 type_treatment=args.type_treatment,
+                gamma_information=dict(gamma_values=gamma_type_values(households).tolist(), priors=GAMMA_PRIORS,
+                    beliefs="fixed; no Bayesian updating", alpha_habit="known posterior means",
+                    initial_history="observed"),
                 aggregate=aggregate.reset_index().to_dict("records"))
 
 
@@ -604,12 +804,60 @@ def make_targeting_figures(households, table, aggregate, output, delta=.95, foca
     plt.close(fig)
 
 
+@server_only
 def self_test():
-    import unittest
-    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-    suite = unittest.defaultTestLoader.loadTestsFromName("checks.test_split_pricing")
-    if not unittest.TextTestRunner(verbosity=2).run(suite).wasSuccessful():
-        raise RuntimeError("Split pricing checks failed")
+    """Server-only independent scalar enumeration and limiting-case checks."""
+    rng = np.random.default_rng(42)
+    discounts = np.array([0., .25, .5])
+    mass = rng.dirichlet(np.ones(4), size=(3, 3))
+    first = rng.uniform(.1, 2., size=(3, 3))
+    terminal = rng.uniform(.1, 2., size=(3, 4, 3))
+    priors = [prior for _, prior in GAMMA_PRIORS]+list(np.eye(3))
+    for prior in priors:
+        prior = np.asarray(prior)
+        r = fixed_gamma_policy(mass, first, terminal, discounts, prior, .92)
+        # Independent scalar loops: each terminal state retains the same prior.
+        v = [max(sum(prior[t]*terminal[t, s, a] for t in range(3))
+                 for a in range(3)) for s in range(4)]
+        unknown = max(sum(prior[t]*first[a, t] for t in range(3))+.92*sum(
+            sum(prior[t]*mass[a, t, s] for t in range(3))*v[s] for s in range(4))
+                      for a in range(3))
+        known = sum(prior[t]*max(first[a, t]+.92*sum(
+            mass[a, t, s]*max(terminal[t, s, b] for b in range(3)) for s in range(4))
+                                for a in range(3)) for t in range(3))
+        assert np.isclose(r["unknown_value"], unknown)
+        assert np.isclose(r["known_value"], known)
+        if np.count_nonzero(prior) == 1:
+            assert np.isclose(known, unknown)
+            assert np.isclose(unknown, r["persistent_value"])
+        changed = fixed_gamma_policy(mass[::-1], first[::-1], terminal, discounts, prior, .92)
+        assert np.array_equal(r["second_action"], changed["second_action"])
+    equal_mass = np.repeat(mass[:, :1], 3, axis=1)
+    equal_first = np.repeat(first[:, :1], 3, axis=1)
+    equal_terminal = np.repeat(terminal[:1], 3, axis=0)
+    r = fixed_gamma_policy(equal_mass, equal_first, equal_terminal, discounts, [.5, .25, .25], .92)
+    assert np.isclose(r["known_value"], r["unknown_value"])
+    # End-to-end small synthetic export, including both observed h0 categories.
+    households = pd.DataFrame(dict(group=["low", "middle", "high"], switching_mean=[-.7, .2, 1.1]))
+    context = dict(eligible=np.ones(3, bool), prices=np.tile([2., 2.5, 3.], (3, 1)),
+                   available=np.ones((3, 3), bool), stocks=np.array([[0., 1., 0.], [1., 0., 0.], [0., 1., 0.]]),
+                   novelty=np.array([[1., 0., 1.], [0., 1., 1.], [1., 0., 1.]]), cf=np.zeros((3, 3)))
+    with tempfile.TemporaryDirectory(dir="/scratch/dtm63837/Kilts_Panel") as directory:
+        output = Path(directory)
+        information_frictions(context, households, np.ones((3, 1)), np.array([1.]),
+                              np.array([[0., .4]]), np.array([1., 1.2, .8]),
+                              discounts, .92, 1, 0., output)
+        summary = pd.read_csv(output / "information_friction_aggregate.csv")
+        assert len(summary) == 16
+        assert set(summary.case) == {"known", "unknown"}
+        states = pd.read_csv(output / "information_friction_states.csv")
+        assert len(states) == 24
+        assert np.allclose(states.probability, states.belief_after_focal)
+        assert np.allclose(states.probability, states.belief_after_no_focal)
+        for stem in ["profits", "first_prices", "terminal_prices", "information_value"]:
+            for extension in ["pdf", "png"]:
+                assert (output / f"information_friction_{stem}.{extension}").is_file()
+    print("Server checks passed: scalar enumeration, all four priors, degenerate priors, identical types, fixed terminal beliefs, persistent-type revenue bound, both initial histories and aggregate exports.")
 
 
 # === 6. Optional command-line overrides === #

@@ -11,6 +11,10 @@ FIT_RESULTS = {
 }
 PRICING_RESULTS = {
     'focal_flavor_comparison.csv', 'targeted_revenue_aggregate.csv',
+    'pricing_policy_benchmarks.csv', 'pricing_policy_benchmarks.pdf', 'pricing_policy_benchmarks.png',
+    'terminal_offers_by_purchase.csv', 'terminal_offers_by_purchase.pdf', 'terminal_offers_by_purchase.png',
+    'terminal_offer_within_household_gap.csv',
+    'pricing_mechanism.pdf', 'pricing_mechanism.png',
     'targeted_revenue_by_switching_group.csv', 'household_group_summary.csv',
     'household_coupon_results.pdf', 'household_coupon_results.png',
     'discounts_by_consumer_type.pdf', 'discounts_by_consumer_type.png',

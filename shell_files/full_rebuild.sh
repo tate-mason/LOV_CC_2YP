@@ -126,6 +126,10 @@ python3 "$project_dir/Code/final_simple/demand/plain_berry_pricing.py" \
     --household-input "$controlled_fit/weekly_inputs.csv" --fit-dir "$controlled_fit" \
     --demand-delta 0.92 --output "$pricing_output"
 
+# Generate aggregate mechanism figures before staging the results-only export.
+python3 "$project_dir/Code/final_draft/seminar_pres/make_policy_figures.py" \
+    --output "$pricing_output"
+
 printf '\n[5/5] Stage an explicit allowlist of results for local recovery\n'
 python3 "$project_dir/Code/privacy/export_rebuild_results.py" \
     --summary-dir "$summary_dir" --controlled-fit "$controlled_fit" \

@@ -1,3 +1,16 @@
+The production plain/berry pricing exercise now includes uncertainty over gamma.
+See [INFORMATION_FRICTIONS.md](INFORMATION_FRICTIONS.md) for the standalone
+pricing-only shell command, type probabilities, output tables and figures.
+
+# Split-history exercise (current empirical specification)
+
+Use [run_split_targeting.py](run_split_targeting.py) for the split novelty/habit
+fit and all three focal flavors. It ranks types by novelty, retains both history
+coefficients in demand, and exports separate results for other, berry, and plain.
+See [SPLIT_TARGETING.md](SPLIT_TARGETING.md) for commands, distribution exports,
+and the review of correspondence with the supply theory. The earlier combined
+gamma exercise below is retained for comparison.
+
 # Two separate pricing exercises
 
 ## Gamma uncertainty with observed initial state

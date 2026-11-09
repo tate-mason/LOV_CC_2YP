@@ -1,5 +1,10 @@
 function [mub,muc] = computemu(index,b_demo,b_st,X_demo,X_stb,X_stc)
 
+% Empirical records remain on the research server.
+if ~isunix || ismac || ~isfolder('/scratch/dtm63837/Kilts_Panel')
+    error('ServerOnly:ResearchData', 'Run empirical code on the research server only.');
+end
+
 %=========================================================================
 %
 %    computemu.m -- Compute mu from input matrices

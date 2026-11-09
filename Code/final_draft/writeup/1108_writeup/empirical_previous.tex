@@ -1,0 +1,60 @@
+% Superseded empirical model and estimation; reference only.
+\section{Demand Model}
+\label{sec:demand-model}
+
+  In each period $t$, the consumer $i$ chooses a product $j$ from the menu of available products $J_t$. The available products are $J_t = \{0,1,2,3\}$ where $j=0$ is the outside option, $j=1$ is purchasing berry yogurt, $j=2$ is purchasing plain yogurt, and $j=3$ is purchasing other flavors. Consumers are assumed to be state-dependent, carrying previous choices forward when love of variety is present. Otherwise, they only internalize characteristic utility and price utility. Each product $j\in J_t$ is a bundle of $k\in K$ characteristics such that $X_{jt}^k \in \mathcal{X}_{jt}$. The consumer's utility from choosing product $j$ at time $t$ is given by:
+\begin{equation}
+\label{eq:utility}
+  U_{ijt} = \beta_0 + \beta_jX_{tj} + \gamma_i\Xi_{itj} + \alpha_ip_{jt} +
+  \varepsilon_{ijt}
+\end{equation}
+
+\begin{alignat*}{1}
+  \text{such that} \\
+    \Xi_{ijt} &= \lambda\sum_{s=1}^{8}\delta^{t-s}\Xi_{ijs} + (1-\lambda)\sum_{j\ne k}\rho x_{k,t-1} \\
+    \varepsilon_{ijt} &\sim \text{T1EV}(0,1) \\
+    \text{$U_{i0t}$}&=\varepsilon_0 
+\end{alignat*}
+
+    In the utility function, there are the following components: $\beta_0$ is a constant, $\beta_j$ is a consumer's utility for characteristic $X_{jt}$ associated with product $j$ in time $t$. Following \citet{lattin_model_1987}, love of variety preference is captured by $\gamma_i$. A consumer's history is given by $\Xi_{ijt}$ where $\lambda$ is a weight on past consumption of good $j$ $\Xi_{ijs}$, discounted with time $\delta^{t-s}$. $\rho$ is an indicator for if a consumer bought a product $x_{k,t-1}$ where $k\ne j$. $\alpha_i$ is the a consumer's price sensitivity. Prices for good $j$ in time $t$ are $p_{jt}$ and $\varepsilon_{ijt}$ is the Gumbel shock.
+
+\subsection{Choice Probabilities}
+
+\begin{equation}
+\label{eq:choice-probability}
+  P_{ijt} = \frac{\exp\{U_{ijt}\}}{1+\sum_{k\in J}\exp\{U_{ikt}\}}
+\end{equation}
+
+We normalize the outside option, not purchasing yogurt, to be zero by construction such that 
+\begin{equation}
+  P_{i0t} = \frac{1}{1 + \sum_{k\in J}\exp\{U_{ikt}\}}
+\end{equation}
+
+\subsection{State Dependence and Consumer Heterogeneity}
+
+\subsection{Market Shares}
+
+
+% ============================================================
+% ESTIMATION
+% ============================================================
+
+\section{Estimation}
+\label{sec:estimation}
+
+\subsection{Identification}
+\label{subsec:identification}
+
+\subsection{Estimation Procedure}
+\label{subsec:estimation-procedure}
+
+\subsection{Likelihood or Moment Conditions}
+
+%\begin{equation}
+%\label{eq:estimation-objective}
+%
+%\end{equation}
+
+\subsection{Standard Errors and Inference}
+
+

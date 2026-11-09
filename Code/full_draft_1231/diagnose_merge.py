@@ -5,6 +5,13 @@ Run after data_merge.py has written merge_filtered_hms.parquet:
 No individual keys or source values are printed.
 """
 
+# Empirical I/O is permitted only on the research server, never on this computer.
+from pathlib import Path as _PolicyPath
+import sys as _policy_sys
+_policy_root = next(p for p in _PolicyPath(__file__).resolve().parents if (p / "Code/privacy/server_data_policy.py").is_file())
+_policy_sys.path.insert(0, str(_policy_root / "Code/privacy"))
+from server_data_policy import server_only, require_server
+
 import argparse
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -35,6 +42,7 @@ def conflict_counts(retail, columns, batch_size=8):
     return sorted(results, key=lambda item: (-item[1], item[0]))
 
 
+@server_only
 def main(year):
     cache = Path(merge.OUTPUT_DIR) / "merge_filtered_hms.parquet"
     if not cache.exists():

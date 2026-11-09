@@ -15,7 +15,7 @@ sys.path.insert(0, str(ROOT))
 import pandas as pd
 import polars as pl
 
-modules = ["checks.test_est", "checks.test_price_control", "checks.test_hessian_se",
+modules = ["checks.test_split_pricing", "checks.test_regenerate_weekly_inputs", "checks.test_est", "checks.test_price_control", "checks.test_hessian_se",
            "checks.test_wtp", "checks.test_empirical_timing", "checks.test_output_records", "checks.test_supply_derivatives", "checks.test_data_build", "checks.test_data_summaries"]
 excluded = {"test_mixture_fit_outputs", "test_bootstrap_refits_first_stage_and_reports_empirical_sd"}
 

@@ -1,3 +1,10 @@
+# Server-only execution
+
+This entire empirical pipeline is now server-only. The shared guard in
+`Code/privacy/server_data_policy.py` runs before empirical reads or writes.
+Local `--data-dir` and `--output` overrides cannot authorize processing here.
+Only estimates, ID-free predictions and aggregates may be recovered locally.
+
 # The data workflow
 
 There are two scripts. Both contain their actual calculations; neither launches
@@ -156,3 +163,10 @@ Parquet/in-memory tables, and mock raw readers without opening TSV/CSV sources.
 original casts/joins and all exported summary tables with the new calculations.
 Legacy CSV intermediates in that comparison are supplied from generated memory
 captures; no CSV file is read.
+
+
+Purchase-level estimation samples belong in the server data directory, outside
+the code checkout. Both raw matching and prepared-sample summary producers now
+reject an estimation-sample destination inside the checkout before opening
+purchase inputs. The sample filename and summary staging folders are also
+ignored by Git. This does not erase copies in earlier Git commits.

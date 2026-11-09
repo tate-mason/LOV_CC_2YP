@@ -1,3 +1,17 @@
+* Empirical records must remain on the research server.
+if "`c(os)'" != "Unix" {
+    display as error "Server-only empirical workflow: do not run on this computer."
+    exit 603
+}
+capture confirm file "/scratch/dtm63837/Kilts_Panel"
+* Require the server filesystem via a directory change, then restore the working directory.
+local policy_cwd "`c(pwd)'"
+capture cd "/scratch/dtm63837/Kilts_Panel"
+if _rc {
+    display as error "Research server filesystem is required."
+    exit 603
+}
+cd "`policy_cwd'"
 /**********************************************************
  *
  * CROSS_MARKET.DO
@@ -88,7 +102,7 @@ foreach CAT in `catlist' {
     scalar bpfd_dlprice = _b[dlprice]
     scalar bpfd_dfeat = _b[dfeat]
     scalar bpfd_ddisp = _b[ddisp]
-    	
+
 	collapse (mean) y dlprice dfeat ddisp dupc davail, by(market)
 
 	sum y
@@ -105,7 +119,7 @@ foreach CAT in `catlist' {
         gen pred_`V' = `V'*b`V'
 		sum pred_`V'
 		scalar R2_cns = r(Var)/yvar
-		
+
 		post res ("`CAT'") ("`V'") (corr) (R2) (R2_cns)
 	}
 
@@ -115,14 +129,14 @@ foreach CAT in `catlist' {
     sum pred_pfd
 	scalar R2_cns = r(Var)/yvar
 	post res ("`CAT'") ("pfd") (.) (.) (R2_cns)
-    
+
 	display("Variable: All")
 
 	reg y dlprice dfeat ddisp dupc davail
 	scalar corr = sqrt(e(r2))
 	scalar R2 = e(r2)
 	post res ("`CAT'") ("all") (corr) (R2) (.)
-    
+
 	restore
 }
 postclose res
@@ -132,7 +146,7 @@ use `results', clear
 outsheet using ../output/forecast_by_category.csv, replace comma noquote
 
 collapse (mean) corr R2 R2_cns (sd) sdcorr=corr sdR2=R2 sdR2_cns=R2_cns, by(variable)
-mkmat corr R2 R2_cns sdcorr sdR2 sdR2_cns, rownames(variable) matrix(OUT) 
+mkmat corr R2 R2_cns sdcorr sdR2 sdR2_cns, rownames(variable) matrix(OUT)
 matrix_to_txt, matrix(OUT) saving(../output/forecast_sum.txt) replace user usec
 
 save ../temp/cross_market.dta, replace

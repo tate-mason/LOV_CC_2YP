@@ -301,3 +301,266 @@ Read the legacy scripts as text before executing them: several contain top-level
 filesystem writes and replacements. The following chapters reproduce that source
 without executing it. The numbered listings are fragments for reading; a
 fragment beginning inside a function is not necessarily runnable on its own.
+
+# Current empirical workflow: separate switching and habit
+
+These lessons update the earlier combined-gamma examples. Begin with the readable
+files under `Code/final_simple/demand/`; the source chapters later in this book
+include both these files and their original `final_draft` counterparts. The old
+model remains a comparison, rather than the current empirical specification.
+
+## Lesson 11: two coefficients mean two independently estimated effects
+
+The original combined index was
+
+\[
+ \Xi_{ijt}=(1-\lambda)N_{ijt}-\lambda S_{ijt},\qquad
+ V_{ijt}=\beta_j-a_i p_{ijt}+\gamma_i\Xi_{ijt}+\rho cf_{ijt}.
+\]
+
+It forced novelty and own-stock coefficients to move together. The split model
+instead estimates
+
+\[
+ V_{ijt}=b_0+\beta_j-a_i p_{ijt}+b_{Ni}N_{ijt}+b_{Si}S_{ijt}+\rho cf_{ijt}.
+\]
+
+`N` is recent other-flavor purchase shares, `S` is accumulated own-flavor shares,
+and `a` is positive price sensitivity. A positive novelty coefficient rewards
+switching away from recently purchased rivals. Positive own-stock effects mean
+reinforcement; negative ones mean satiation. The name habit does not constrain
+its estimated sign. These are purchase histories, not observed consumption.
+
+For example, let berry's N be .75 and S be 2, with b_N=.4 and b_S=-.1. The history
+part of berry utility is .4*.75-.1*2=.1. You do not multiply these coefficients by
+.3 and -.7 again. Those weights belong to the older combined-index model.
+
+In `final_simple/demand/estimation.py`, choose:
+
+```python
+model = "heterogeneous_history"
+capacity = 7
+```
+
+The estimator already supports this model. Updating distribution exports does
+not require changing its likelihood or re-estimating a saved fit. Capacity 7
+adds constructed nonpurchase counts; it is a maintained participation convention,
+not observed purchase-free weeks. Capacity 0 remains available for conditional
+flavor demand, but the present pricing solver requires positive integer capacity.
+
+## Lesson 12: a population distribution is not an estimation confidence interval
+
+The split population model uses independent normal novelty/stock effects and
+independent lognormal price sensitivity:
+
+```python
+b_n = mean_novelty + sd_novelty * draws[:, 1]
+b_s = mean_own_stock + sd_own_stock * draws[:, 2]
+a = np.exp(mu_log_minus_alpha + sd_log_minus_alpha * draws[:, 0])
+```
+
+Every row of `draws` defines one persistent type across all weeks. The normal
+SDs describe variation across consumers, not uncertainty about the estimated
+population means. Hessian or bootstrap SEs answer the latter question.
+
+For the previously saved controlled split fit, the exported novelty mean/SD are
+about -.4646/.8466 and own-stock mean/SD about -.01703/.09117. These are existing
+fit values, not results of a new optimization or new pricing run. Their fitted
+normal sign shares are about 70.84% and 57.41% below zero respectively. A negative
+novelty coefficient reverses the recent-other-flavor incentive; it need not imply
+positive cumulative reinforcement when the two effects are estimated separately.
+
+`export_history_distributions` evaluates each normal's PDF and CDF, stores
+quantiles, and draws both marginal densities. With SD zero, it records a point
+mass instead of evaluating a normal density with zero denominator. It writes:
+
+- `history_distribution_summary.csv`: parameters, sign shares and quantiles.
+- `history_distribution_grid.csv`: density/CDF values for plotting.
+- `history_distributions.pdf` and `.png`: the two population marginals.
+
+The readable saved-fit entry point is `demand/history_distributions.py`. Existing
+plots are copied under `final_simple/demand/fitted_distributions/`. Their source
+fits and interpretation are recorded there. No household table is needed merely
+to export these marginal distributions from saved coefficients.
+
+## Lesson 13: recover both household effects, but rank only by switching
+
+A household's posterior type probabilities use its complete history:
+
+\[
+ \ell_{id}=\sum_{t,k}n_{ikt}\log P_{ikt}(a_d,b_{Nd},b_{Sd}),\qquad
+ w_{id}=\frac{\exp\ell_{id}}{\sum_m\exp\ell_{im}}.
+\]
+
+The numerical implementation subtracts log-sum-exp rather than exponentiating
+large log likelihoods directly. Add weeks before integrating draws; averaging
+weekly probabilities would redraw the person's type every week.
+
+The split pricing script returns a D-by-2 array `history`. Column zero is b_N;
+column one is b_S. For one household:
+
+```python
+weights = np.array([.75, .25])
+history = np.array([[.4, -.1], [-.2, .3]])
+mean_type = weights @ history        # [.25, 0.]
+```
+
+The posterior mean switching coefficient is .25 and mean stock effect is zero.
+The code ranks households by the first mean only, assigns bottom/top quarters,
+and keeps both means in utility. It does not set stock effects to zero just
+because stock is absent from the ranking variable. Posterior coefficient
+uncertainty can be correlated even when population integration draws are independent.
+
+The default firm treats posterior means as known fixed types. The optional
+posterior-integrated exercise retains the joint draw weights and updates them
+after the first counterfactual basket. A terminal coupon must optimize revenue
+averaged over remaining unobserved types; optimizing separately for each true
+draw would give the firm information it does not have.
+
+Type estimates use the full observed sample, but the first observed basket alone
+initializes counterfactual history. This is a retrospective exercise with known
+estimated types, not a prospective holdout forecast. Comparing novelty quartiles
+does not isolate novelty causally: their habits, prices and initial states differ.
+
+## Lesson 14: three focal flavors, one inside-versus-outside calculation each
+
+For focal berry, combine other and plain as the outside alternative. Include
+constructed nonpurchase when present. If utilities are V_o,V_b,V_p,0, then
+
+\[
+ I_{-b}=\log\{e^{V_o}+e^{V_p}+1\},\qquad
+ P_b=\operatorname{logistic}(V_b-I_{-b}).
+\]
+
+This equals berry's original multinomial-logit probability exactly. The outside
+utility is a log-sum-exp, not the arithmetic mean of rival utilities. With all
+four utilities zero, each original alternative has probability 1/4; the composite
+outside has utility log(3), so the binary formula also gives 1/4, not 1/2.
+
+`focal_flavor = "all"` repeats the seller exercise for other, berry and plain.
+Only that run's focal product earns revenue and changes price. These are three
+separate counterfactuals with fixed competitors, not three firms solving a joint
+equilibrium. The solver internally uses coordinate one for the priced product.
+`run_households` swaps the focal product's counts, prices, histories, controls and
+intercept into that coordinate together. Household posterior types are recovered
+before that swap under the original fitted labels.
+
+Combining rivals in a current choice probability does not erase their histories.
+Other and plain baskets can produce different future stocks and inclusive values.
+Keep their identities in basket integration. The seller observes the full basket
+before the terminal coupon; observing only focal sales would require additional
+beliefs about which rival flavors were bought.
+
+## Lesson 15: read backward induction in the order it is solved
+
+There are three choice dates but two pricing decisions:
+
+1. The first observed basket establishes initial h0 at model t=0.
+2. The firm chooses p1(h0); a basket is realized and establishes h1.
+3. It observes h1 and chooses terminal p2(h1).
+
+For each basket n and each known estimated type, the terminal value is
+
+\[
+ W_2(n)=\max_{d_2}\ p(d_2)K P_{f,2}(n,d_2),
+ \qquad p(d)=(1-d)p_{\mathrm{posted}}.
+\]
+
+The initial action solves
+
+\[
+ \max_{d_1}\ p(d_1)K P_{f,1}(d_1)
+ +\delta\sum_n M(n\mid d_1)W_2(n).
+\]
+
+Read `targeted_coupons` in `final_simple/demand/split_pricing.py`: the outer loop
+visits one household. STEP A calculates terminal outcomes for all coupons and
+baskets. STEP B calculates first-action basket probabilities and chooses each
+basket's best terminal coupon. STEP C picks the best first coupon. The terminal
+maximization happens before averaging over baskets. Both focal-purchase and
+no-focal-purchase continuation branches count, including all-nonpurchase baskets.
+
+For basket shares x, update S2=S1+x and N2=sum(x)-x. All-nonpurchase means x=0,
+leaving stock unchanged and setting next novelty to zero. Capacity 7 yields 120
+possible baskets. Updating only at expected shares would generally yield a
+different value function because logit demand and optimized prices are nonlinear.
+
+The known-type, observed-state timing matches the supply baseline. Empirical
+binary aggregation is exact at a given full state, but it does not reduce the
+whole split-stock model to the theory's symmetric +gamma/-gamma one-lag model.
+The empirical solver also restricts prices to coupons from 0% through 100%, while
+theory allows unrestricted prices and introductory subsidies. Both new split
+pricing and theoretical supply default to delta=.92. With zero cost, net revenue
+is profit. Consumers follow current-period demand without strategically waiting.
+
+## Lesson 16: reconstruct deleted inputs without estimating demand again
+
+The weekly export was deleted; regenerate it on the server where its underlying
+sample lives. `demand/regenerate_weekly_inputs.py` has three conceptual stages:
+
+```python
+frame = prepare_data(saved_settings)
+frame, first_stage = add_price_controls(frame)  # for a controlled fit
+# Compare regenerated counts and the fixed-parameter likelihood with fit.json.
+# Write weekly_inputs.csv only after both checks pass.
+```
+
+This schematic omits the implementation's guards and temporary-file publication.
+It does not call `optimize_demand`. Reconstructing price controls is necessary to
+recover the same regressors; it does not replace the saved demand estimates or
+standard errors. The procedure restores original years, sample selection, history
+weight, capacity, draw seed/count and model from the saved fit. Moved sample or
+flavor-reference paths can be overridden explicitly. A mismatch stops rather
+than silently pairing old coefficients with a different weekly sample.
+
+The server job is `Code/final_simple/server/run_split_pricing.sh`. Its numbered
+steps regenerate the controlled fit's table, export both marginal distributions
+from controlled and uncontrolled fits, then run the plain/berry comparison using the
+controlled fit. Sync code and install the listed requirements in the server
+environment before submitting. Both pricing shell jobs install an EXIT cleanup
+trap that removes the regenerated weekly CSV and its staging files after success
+or failure. INT/TERM handlers exit through that cleanup as well. The weekly table
+is temporary server-side input; fitted estimates and pricing outputs remain.
+An uncatchable SIGKILL or machine failure cannot execute a shell cleanup handler.
+Submit with:
+
+```bash
+sbatch Code/final_simple/server/run_split_pricing.sh
+```
+
+This command is an instruction for the server, not something the book builder
+executes. Reading or rebuilding this book parses source text only. Local
+validation used generated inputs with CSV reads blocked; full empirical pricing
+has not been run locally. The saved marginal distribution plots are not new
+pricing results.
+
+Begin reading pricing outputs at the root `focal_flavor_comparison.csv` and
+`run_notes.txt`, then open each focal subfolder's posterior summaries, household
+policies, group/aggregate tables and figures. `focal_units` always means the
+selected run's product. The manifest maps rival state coordinates back to flavor
+names. Keep fit records beside outputs so these consistency checks remain possible.
+
+
+## Lesson 17: restricting focal sellers does not restrict demand alternatives
+
+For the main comparison, use `final_simple/demand/plain_berry_pricing.py`.
+Its selection is:
+
+```python
+FOCAL_FLAVORS = ("plain", "berry")
+```
+
+This tuple controls the seller problems that are solved, not which products are
+in the estimated choice set. The shared solver still uses all three demand
+categories and both estimated history coefficients. For focal plain, berry and
+other form the composite outside alternative; for focal berry, plain and other
+do so. Constructed nonpurchase remains outside too. There is no refit and no
+new flavor-specific switching distribution: household coefficients remain shared
+across flavors as estimated.
+
+Plain and berry are easier to interpret as focal products than the broad other
+aggregate. The three-focal script remains a sensitivity exercise. The two-focal
+entry point creates only plain/ and berry/ result folders and a combined
+comparison table. It changes neither competitor prices jointly nor the
+underlying demand sample. Run it on the server after weekly-input regeneration,
+using the same fit directory and weekly table as the three-focal exercise.

@@ -1,0 +1,710 @@
+% ============================================================
+% UGA-Themed Beamer Template (Clean MWE)
+% ============================================================
+
+\documentclass[aspectratio=169,professionalfonts]{beamer}
+
+% ---------- COLORS (swap with official UGA hex if you like) ----------
+\usepackage{xcolor}
+\definecolor{UGARed}{HTML}{BA0C2F}   % Verify with brand guide
+\definecolor{UGABlack}{HTML}{000000}
+\definecolor{UGAGray}{HTML}{8A8D8F}
+
+% ---------- THEME & PROGRESS DOTS ----------
+\usetheme{default}
+\useinnertheme{circles}
+\useoutertheme[subsection=false]{miniframes}
+\usefonttheme{professionalfonts}
+\setbeamertemplate{navigation symbols}{}
+% Head/foot colors
+\setbeamercolor{subsection in head/foot}{fg=white,bg=UGARed}
+\setbeamercolor{headline}{fg=white, bg=UGARed}
+
+\setbeamercolor{section in head/foot}{fg=white,bg=UGARed}
+\setbeamercolor{section in head/foot shaded}{fg=white,bg=UGARed}
+\setbeamercolor{footline}{bg=UGABlack,fg=white}
+\setbeamercolor{frametitle}{fg=UGABlack}
+\setbeamercolor{title}{fg=UGABlack}
+\setbeamercolor{normal text}{fg=UGABlack}
+\setbeamercolor{structure}{fg=UGARed}
+
+% --- HEADLINE: slide dots grouped by section ---
+\setbeamersize{mini frame size=0.16cm,mini frame offset=0pt}
+% Show section labels above the clickable slide dots.
+\setbeamertemplate{section in head/foot}[default]
+\setbeamertemplate{section in head/foot shaded}[default][75]
+\setbeamertemplate{mini frame}{%
+  \tikz[baseline=-0.5ex] \filldraw[draw=white,fill=white,line width=0.6pt] (0,0) circle (2pt);%
+}
+\setbeamertemplate{mini frame in current subsection}{%
+  \tikz[baseline=-0.5ex] \filldraw[draw=white,fill=UGARed,line width=0.6pt] (0,0) circle (2pt);%
+}
+\setbeamertemplate{mini frame in other subsection}{%
+  \usebeamertemplate{mini frame in current subsection}%
+}
+\setbeamertemplate{mini frame in other section}{%
+  \usebeamertemplate{mini frame in current subsection}%
+}
+\setbeamertemplate{headline}{%
+  \begin{beamercolorbox}[wd=\paperwidth]{headline}
+    \vskip1ex
+    \insertnavigation{\paperwidth}
+    \vskip3ex
+  \end{beamercolorbox}
+}
+
+% Simple footline with slide numbers
+\setbeamertemplate{footline}{
+  \leavevmode%
+  \hbox{%
+    \begin{beamercolorbox}[wd=\paperwidth,ht=2.5ex,dp=1ex,leftskip=1em,rightskip=1em]{footline}%
+      \insertshortauthor{} \hfill \insertframenumber/\inserttotalframenumber
+    \end{beamercolorbox}}%
+}
+
+% ---------- PACKAGES ----------
+\usepackage{amsmath,amssymb,mathtools}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{bbm}
+\usepackage{array}
+\usepackage{adjustbox}
+\usepackage{hyperref}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta, positioning}
+\usepackage{tcolorbox}
+\usepackage{eurosym}
+\usepackage{threeparttable}
+% ---------- METADATA (fill these later) ----------
+\title{Optimal Dynamic Pricing With Preferences for Novelty}
+\subtitle{}
+\author{Tate Mason}
+\institute{The University of Georgia}
+\date{\today}
+
+% ---------- MACROS ----------
+% Numbered equation with label
+\newcommand{\beq}[1]{\begin{equation}\label{#1}}
+\newcommand{\eeq}{\end{equation}}
+% Accent color highlight
+\newcommand{\hl}[1]{\textbf{\textcolor{UGARed}{#1}}}
+% Simple figure placeholder macro
+\newcommand{\figph}[2][0.9\linewidth]{%
+  \begin{figure}
+    \centering
+    \fbox{\rule{0pt}{0.55#1}\rule{#1}{0pt}}%
+    \caption{#2}
+  \end{figure}
+}
+
+% ============================================================
+
+% Keep navigation links in the theme's white foreground on the red header.
+\hypersetup{colorlinks=true, linkcolor=., urlcolor=UGARed}
+
+\begin{document}
+
+\begin{frame}[plain,noframenumbering]
+  \titlepage
+\end{frame}
+
+\section{Introduction}
+% Each frame title is independent of the section name in the navigation bar.
+\begin{frame}{Motivation}
+  \begin{itemize}
+    \item Firms have more access than ever to consumer information 
+    \item Allows for targeted discounting based on preferences derived from repeat interactions
+    \item Despite legislation in the EU, data collected through a purchase is able to collected and stored by the firm (EU, 2026)
+  \end{itemize}
+  \begin{tcolorbox}
+    How valuable are repeated interactions to the firm?
+  \end{tcolorbox}
+\end{frame}
+\begin{frame}{Research Question}
+  \begin{tcolorbox}
+    How can firms price discriminate via consumer preferences for novelty and habit?
+  \end{tcolorbox}
+  How do I answer?
+  \begin{itemize}
+    \item Solve a theoretical model to understand firm's behavior
+    \item Estimate consumer's preferences with Nielsen data, recovering the distribution of novelty/habit preferences
+    \item Fit that distribution to the supply theory to understand how firm's revenues are impacted by this sort of targeting
+  \end{itemize}
+\end{frame}
+\begin{frame}{Literature}
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \textbf{Targeting:}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \textbf{Estimating preferences for novelty:}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+
+\section{Motivation from Data}
+\begin{frame}{HHI}
+  \centering
+    \includegraphics[width=.95\textwidth,height=.74\textheight,keepaspectratio]{../writeup/1108_writeup/assets/results/summary_statistics/flavor_hhi_histogram.pdf}
+\end{frame}
+\begin{frame}{Flavor Popularity}
+  \centering
+    \includegraphics[width=.95\textwidth,height=.74\textheight,keepaspectratio]{../writeup/1108_writeup/assets/results/summary_statistics/flavor_shares.pdf}
+\end{frame}
+
+\section{Supply Theory}
+\begin{frame}{Supply Setting}
+  \begin{itemize}
+    \item Monopolistic firm producing a single product $j$
+    \item Firm is profit maximizing, setting prices according to that objective
+    \item A consumer is born into the world with a type $r\in\{H,L\}$, determining how much utility they derive from switching and an initial state $h_0\in\{0,j\}$
+    \item Consumers live for two periods, purchasing the inside good or opting for the outside good in each period
+    \item The firm knows initial states and types, setting prices to individual consumers by type and history
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Consumer's Problem}
+  \begin{tcolorbox}[
+    boxsep=0pt,
+    left=2pt, right=2pt,
+    top=1pt, bottom=1pt,
+    before skip=2pt, after skip=2pt
+    ]
+    \setlength{\abovedisplayskip}{2pt}
+    \setlength{\belowdisplayskip}{2pt}
+    \begin{gather*}
+      V^{inside}_{jt} = \underbrace{\beta}_{\text{Constant}} + \overbrace{\gamma_r\mathbbm{1}\{h=0\}}^{\text{Utilty from Switching}} - \underbrace{\alpha p_t(h)}_{\text{Price Disutility}}, \ V^{Outside}_{0t} = \underbrace{\gamma_r\mathbbm{1}\{h=j\}}_{\text{Utility from Switching}} \\
+      v_t(x) = V_{jt}^{inside} - V_{0t}^{outside} = \beta + \underbrace{\gamma[\mathbbm{1}\{h=0\} - \mathbbm{1}\{h=j\}]}_{q(h)} - \alpha p_t(h)
+    \end{gather*}
+  \end{tcolorbox}
+  \begin{itemize}\setlength{\itemsep}{2pt}
+    \item Prices, set by the firm, and switching utility depend on history $h=x_{t-1}$
+    \item Utility for the outside good is normalized to zero
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Firm's Problem}
+  \begin{tcolorbox}
+    [
+    boxsep=0pt,
+    left=2pt, right=2pt,
+    top=1pt, bottom=1pt,
+    before skip=2pt, after skip=2pt
+    ]
+    \setlength{\abovedisplayskip}{2pt}
+    \setlength{\belowdisplayskip}{2pt}
+    \begin{gather*}
+      \pi_t(h) = \max_{p_t(h)} s_t(h)[p_t(h) - c] \\ 
+      \Pi(h) = \underbrace{s_1(h)(p_1(h) - c)}_{\text{Margin in Period 1}} + \underbrace{\delta\{s_1(h)\pi_2(j) + (1-s_1(h))\pi_2(0)\}}_\text{{Continuation Value}} 
+    \end{gather*}
+  \end{tcolorbox}
+  \begin{itemize}
+    \item Firm profits are comprised of period one margins, given history of consumption, and the value of that consumer in the different states in period two
+    \item The firm will set prices according to consumer type and history to maximize expected profit
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Optimal Terminal Price and Profit}
+  \begin{tcolorbox}
+    [
+    boxsep=0pt,
+    left=2pt, right=2pt,
+    top=1pt, bottom=1pt,
+    before skip=2pt, after skip=2pt
+    ]
+    \setlength{\abovedisplayskip}{2pt}
+    \setlength{\belowdisplayskip}{2pt}
+    \begin{align*}
+      \frac{\partial\pi_2(h_1)}{\partial p_2(h_1)} &= s_2(h_1) + (p_2 - c)\frac{\partial s_2(h_1)}{\partial p_2(h_1)} \\
+      p_2^*(h_1)&= c + \frac{1}{\alpha(1-s_2^*(h_1))} \\
+      \pi^*_2(p_2^*(h_1); h_1) &= \frac{s_2^*(h_1)}{\alpha(1-s_2^*(h_1))}
+    \end{align*}
+  \end{tcolorbox}
+  \begin{itemize}
+    \item Optimal period two price is cost plus a demand markup term
+    \item Period two profit at optimal prices is the odds of purchase, scaled by the inverse price sensitivity
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{First Period Optimization}
+  \begin{tcolorbox}
+    [
+    boxsep=0pt,
+    left=2pt, right=2pt,
+    top=1pt, bottom=1pt,
+    before skip=2pt, after skip=2pt
+    ]
+    \setlength{\abovedisplayskip}{2pt}
+    \setlength{\belowdisplayskip}{2pt}
+    \begin{align*}
+      \frac{d\Pi}{d p_1(h_0)} &= s_1 + \frac{\partial}{\partial p_1(h)}s_1(h_0)[p_1(h_0) - c + \delta(\pi_2(j) - \pi_2(0))] \\
+      p_1^*(h_0) &= c + \frac{1}{\alpha(1-s_1^*(h_0))} - \delta(\pi_2(j) - \pi_2(0)) \\
+      \Pi^*(h) &= \delta\pi_2(0) + \frac{s_1^*(h_0)}{\alpha(1-s_1^*(h_0))}
+    \end{align*}
+  \end{tcolorbox}
+\end{frame}
+
+\begin{frame}{Optimal Profit Given Switching Type}
+  \begin{tcolorbox}
+    [
+    boxsep=0pt,
+    left=2pt, right=2pt,
+    top=1pt, bottom=1pt,
+    before skip=2pt, after skip=2pt
+    ]
+    \setlength{\abovedisplayskip}{2pt}
+    \setlength{\belowdisplayskip}{2pt}
+    \begin{align*}
+      \frac{d\Pi}{d\gamma} &= \frac{q(h)s_1^*(h) - \delta s_1^*(h)s_2^*(j) + \delta(1-s_1^*(h))s_2^*(0)}{\alpha}
+    \end{align*}
+  \end{tcolorbox}
+  \begin{itemize}
+    \item There are two interpretations:
+    \begin{enumerate}
+      \item If $h_0=j$, $q(h)<0$, leading us to ambiguous signage as we raise profits from initially outside consumers but see opposing forces for the initially inside: leave in period one, return in period two 
+      \item If $h_0=0$, $q(h)>0\Rightarrow \frac{d\Pi}{d\gamma} > 0$, meaning that profits increase as $\gamma$ increases
+    \end{enumerate}
+    \item Points to firms potentially reaping great benefit from knowing consumer types and histories
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Pricing Simulations Specification}
+  \centering
+  \small
+  \begin{tabular}{lll}
+    \toprule
+    Parameter & Description & Value \\
+    \midrule
+    $\beta$ & Inside-good intercept & $2$ \\
+    $\alpha$ & Price sensitivity & $1$ \\
+    $\delta$ & Discount factor & $0.92$ \\
+    $c$ & Marginal cost & $0$ \\
+    $\gamma$ & Switching preference & $[-3,3]$ \\
+    \midrule
+    \multicolumn{2}{l}{Initial Consumption State}
+      & $h_0\in\{0,j\}$ \\
+    \multicolumn{2}{l}{Feasible Prices}
+      & $p_t(h)\in\mathbb{R}$ \\
+    \bottomrule
+  \end{tabular}
+  \begin{itemize}
+    \item Allow for negative pricing
+    \item Firm has knowledge of both type and history, allowing for targeted pricing
+    \item Four consumption histories possible $(h_0, h_1) \in \{(0,0), (0,j), (j,j), (j,0)\}$
+  \end{itemize}
+\end{frame}
+\begin{frame}{Results}
+  \begin{center}\small\begin{tabular}{crrrrrr}\toprule
+  $x_0$ & $\gamma$ & $p_1^*$ & $p_2^*(j)$ & $p_2^*(0)$ & $\Pi^*$ & $\Pi^{*\prime}$\\\midrule
+  $j$ & -3 & 3.395 & 3.926 & 1.120 & 5.087 & -1.387\\
+  $j$ & -1 & 2.236 & 2.557 & 1.567 & 2.669 & -0.959\\
+  $j$ & 0 & 2.000 & 2.000 & 2.000 & 1.920 & -0.500\\
+  $j$ & 1 & 2.209 & 1.567 & 2.557 & 1.731 & 0.125\\
+  $j$ & 3 & 3.592 & 1.120 & 3.926 & 2.702 & 0.668\\
+  $0$ & -3 & -0.780 & 3.926 & 1.120 & 0.913 & 0.195\\
+  $0$ & -1 & 1.045 & 2.557 & 1.567 & 1.478 & 0.385\\
+  $0$ & 0 & 2.000 & 2.000 & 2.000 & 1.920 & 0.500\\
+  $0$ & 1 & 2.956 & 1.567 & 2.557 & 2.478 & 0.615\\
+  $0$ & 3 & 4.801 & 1.120 & 3.926 & 3.912 & 0.804\\
+  \bottomrule\end{tabular}\end{center}
+\end{frame}
+\begin{frame}{Optimal Prices}
+  \centering
+  \includegraphics[width=0.85\textwidth]{~/LOV_CC_2YP/Code/final_draft/supply_code/writeup_math_graphs/figures/optimal_prices_by_gamma.pdf}
+\end{frame}
+\begin{frame}{Optimal Profit}
+  \centering
+  \includegraphics[width=0.75\textwidth]{~/LOV_CC_2YP/Code/final_draft/supply_code/writeup_math_graphs/figures/all_state_realized_profit.pdf}
+\end{frame}
+\begin{frame}{Optimal Price Ratio}
+  \centering
+  \includegraphics[width=0.75\textwidth]{~/LOV_CC_2YP/Code/final_draft/supply_code/writeup_math_graphs/figures/all_state_price_ratios.pdf}
+\end{frame}
+\begin{frame}{Discussion}
+  \begin{itemize}
+    \item Two mechanisms: Induce and harvest, Retain and gain
+    \item Most profit from those who are habitual inside purchasers 
+    \item Least profit from those who purchase outside in period 1 across all levels of gamma
+    \item Interesting when $(j,j)$ and $(0,0)$ cross
+  \end{itemize}
+\end{frame}
+
+
+\begin{frame}{Information Friction: Fixed Beliefs about Switching Type}
+ \begin{itemize}
+ \item Initial purchase history is observed.
+ \item $\gamma\in\{-1.25,0,1.25\}$.
+ \item Beliefs: $(1/3,1/3,1/3)$ and each permutation of $(0.50,0.25,0.25)$.
+ \item Type probabilities stay fixed in both periods, after either purchase outcome.
+ \item Offers depend on observed history; there is no learning about type.
+ \end{itemize}
+ \[
+ A(p,h;\lambda)=\sum_r\lambda_rs_r(p,h),\qquad
+ W(a;\lambda)=\max_x A(x,a;\lambda)(x-c).
+ \]
+\end{frame}
+\begin{frame}{Known versus Uncertain Switching Type}
+\centering
+\includegraphics[width=.98\textwidth,height=.78\textheight,keepaspectratio]{../writeup/1108_writeup/assets/results/gamma_uncertainty/profits.pdf}
+\end{frame}
+\begin{frame}{Value of Observing Switching Type}
+\centering
+\includegraphics[width=.98\textwidth,height=.78\textheight,keepaspectratio]{../writeup/1108_writeup/assets/results/gamma_uncertainty/information_value.pdf}
+\end{frame}
+
+\section{Data}
+\begin{frame}{Data Sources}
+  \textbf{Nielsen HomeScan}
+  \begin{itemize}
+    \item Provides household level purchase data
+    \item Covers years 2006-2015
+    \item Products chosen, quantity chosen, timing of trips
+  \end{itemize}
+  \textbf{Nielsen RetailScan}
+  \begin{itemize}
+    \item Provides store level product data
+    \item For specified product category: prices, markets, product attributes
+  \end{itemize}
+  \textbf{Sample Description}
+  \begin{itemize}
+    \item Must be single-person household 
+    \item Must be seen at least 2 times
+    \item Purchases must be made at Nielsen store (prices available)
+    \item Flavor attribute must be present
+  \end{itemize}
+\end{frame}
+% Presentation tables use the aggregate values in
+% RESULTS_ONLY/summary_statistics/full_panel_vs_yogurt.tex.
+\begin{frame}{Sample Statistics: Purchase Activity}
+  \centering
+  \small
+  \renewcommand{\arraystretch}{1.15}
+  \begin{tabular}{lrr}
+    \toprule
+     & Full sample & Yogurt sample \\
+    \midrule
+    Households & 37,827 & 15,106 \\
+    Observed panel years & 3.96 & 3.16 \\
+    Trips per household & 493.13 & 20.26 \\
+    Trips per observed week (approx.) & 2.27 & 0.11 \\
+    Distinct UPCs per household & 1,178.31 & 13.89 \\
+    Purchase lines per household & 3,397.64 & 45.15 \\
+    Packages per household & 4,669.07 & 93.77 \\
+    \bottomrule
+  \end{tabular}
+
+  \medskip
+  {\footnotesize All statistics except household counts are means.}
+\end{frame}
+\begin{frame}{Sample Statistics: Demographics}
+  \centering
+  \small
+  \renewcommand{\arraystretch}{1.15}
+  \begin{tabular}{lrr}
+    \toprule
+     & Full sample & Yogurt sample \\
+    \midrule
+    Head age (category code) & 6.96 & 7.01 \\
+    Household income (category code) & 16.18 & 17.06 \\
+    White (\%) & 80.33 & 81.58 \\
+    Black (\%) & 12.81 & 12.15 \\
+    Asian (\%) & 1.57 & 1.57 \\
+    Other race (\%) & 2.19 & 2.11 \\
+    Hispanic (\%) & 3.10 & 2.59 \\
+    \bottomrule
+  \end{tabular}
+
+  \medskip
+  {\footnotesize Age and income are mean category codes.}
+\end{frame}
+\begin{frame}{Switching Stats}
+    \centering
+    \resizebox{\textwidth}{!}{%
+    \begin{minipage}{\textwidth}
+      \input{../writeup/1108_writeup/assets/results/summary_statistics/yogurt_dynamics.tex}
+    \end{minipage}%
+    }
+\end{frame}
+
+\begin{frame}{Persistence Across Aggregated Flavor Groups}
+  \centering
+  \includegraphics[height=0.69\textheight]{../writeup/1108_writeup/assets/results/summary_statistics/aggregated_flavors/flavor_transitions.pdf}
+  \par\small Plain repeats in approximately 80\% of eligible transitions, versus 53\% for berry.
+\end{frame}
+
+\section{Demand Estimation}
+\begin{frame}{Demand Setting and Objective}
+  \begin{itemize}
+    \item Consumers can either purchase the inside good, a flavor of yogurt, or the outside good, not yogurt 
+    \item Following Nevo (2001), a week contains seven choice opportunities with observed flavor purchases treated as fulfilling an opportunity 
+    \item Define outside good as $\max(0, 7-\sum_j x_{jt})$, or the difference in purchases and a full week
+    \item Consumers differ in preferences for novelty and price sensitivity, but derive the same base utility from the three flavor categories
+    \item Goal: \textcolor{red}{Recover distribution of novelty preferences}
+  \end{itemize}
+\end{frame}
+\begin{frame}{Demand Model}
+  \begin{tcolorbox}
+    [
+    boxsep=0pt,
+    left=2pt, right=2pt,
+    top=1pt, bottom=1pt,
+    before skip=2pt, after skip=2pt
+    ]
+    \setlength{\abovedisplayskip}{2pt}
+    \setlength{\belowdisplayskip}{2pt}
+  \begin{align*}
+    U_{ijt} &= \overbrace{\beta_0}^{Constant} + \underbrace{\beta_jX_{jt}}_{\text{Flavor specific constant}} + \overbrace{\gamma_iN_{ijt} + \phi_iH_{ijt}}^{\text{Preferences for novelty/habit}} + \underbrace{\alpha_ip_{jt}}_{\text{Price disutility}} + \overbrace{\varepsilon_{ijt}}^{\text{T1EV}} \\
+    &\text{s.t.}\quad w_{ijt}=y_{ijt}/\!\sum_k y_{ikt},\qquad
+    H_{ijt}=\sum_{s<t}w_{ijs},\\
+    &N_{ijt}=\begin{cases}1-w_{ij,t-1},&\text{prior calendar week observed},\\0,&\text{otherwise}.\end{cases}
+  \end{align*}
+  \end{tcolorbox}
+  \begin{itemize}
+    \item $N_{ijt}$ is the prior week's purchase share in flavors other than $j$
+    \item $H_{ijt}$ accumulates prior weekly own-flavor purchase shares
+    \item Normalize outside option to zero s.t. $U_{i0t} = \varepsilon_{i0t}$
+  \end{itemize}
+\end{frame}
+\begin{frame}{Probability and Shares}
+  \begin{align*}
+    P_{ijt} &= \frac{\text{exp}\{V_{ijt}\}}{1 + \sum_{k\in J}\text{exp}\{V_{ikt}\}} \\
+    &\text{s.t.} \ V_{ijt} = U_{ijt} - \varepsilon_{ijt} \\
+    s_{jt} &= \frac{1}{N}\sum_{n=1}^{N}P_{ijt}
+  \end{align*}
+  \begin{itemize}
+    \item Use deterministic utility to form purchase probabilities
+    \item Take average probability for product $j$ across individuals $i\in N$ to recover shares 
+  \end{itemize}
+\end{frame}
+\begin{frame}{Estimation}
+  \begin{tcolorbox}
+    [
+    boxsep=0pt,
+    left=2pt, right=2pt,
+    top=1pt, bottom=1pt,
+    before skip=2pt, after skip=2pt
+    ]
+    \setlength{\abovedisplayskip}{2pt}
+    \setlength{\belowdisplayskip}{2pt}
+    \begin{align*}
+      P_i(\theta) &= \int P(y_i\mid\nu,\theta)\ \phi(\nu)\,d\nu \\
+      \widehat P_i(\theta) &= \frac{1}{128}\sum_{r=1}^{128}\prod_{t=1}^{T_i}P_(y_i\mid\nu_{ir}, \theta)\qquad\nu_{ir}\sim\mathcal N(0, I) \\
+      Q_{128}(\theta) &= -\sum_{i=1}^N\log\widehat P_i(\theta)
+    \end{align*}
+  \end{tcolorbox}
+  \begin{itemize}
+    \item $\nu_i$ captures unobserved heterogreneity, $y_{it}$ represents observed choice, $\theta = \{\beta, \gamma, \alpha\}$ is the vector of heterogeneous demand parameters
+    \item 128 draws per household from a normal distribution
+    \item 3 starts at different starting values, keep lowest objective 
+    \item Minimize negative log-likelihood
+  \end{itemize}
+\end{frame}
+\begin{frame}{Estimates}
+  \centering
+  \input{../writeup/1108_writeup/assets/results/demand/estimates.tex}
+\end{frame}
+\begin{frame}{Implied Willingness to Pay}
+  \centering
+  \input{../writeup/1108_writeup/assets/results/demand/implied_wtp.tex}
+  \begin{itemize}
+    \item Would need to be subsidized to switch, though lots of variation
+    \item Willing to pay to continue consuming their same product
+  \end{itemize}
+\end{frame}
+\begin{frame}{Distributions}
+  \includegraphics[width=0.99\textwidth]{../writeup/1108_writeup/assets/results/demand/history_distributions.pdf}
+\end{frame}
+\begin{frame}{Discussion}
+  \begin{itemize}
+    \item Mean novelty effect is equivalent to $\approx\$1.75$ increase 
+    \item Habit provides some utility
+    \item Both plain and berry are less preferred than other flavors
+  \end{itemize}
+  \begin{tcolorbox}
+    How can the firm use the distribution of switching types to price discriminate?
+  \end{tcolorbox}
+\end{frame}
+
+\section{Pricing Exercise}
+\begin{frame}{Connecting Supply and Demand}
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \textbf{Supply Theory}
+      \begin{itemize}
+        \item Today's pricing offer changes tomorrow's demand
+        \item Single product firm pricing to attract customers against outside option
+        \item Maintain two-period timing with initial state
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \textbf{Empirical Demand}
+      \begin{itemize}
+        \item Employ estimated preference for novelty
+        \item Access observed purchase histories
+        \item Novelty and habit both enter demand
+      \end{itemize}
+    \end{column}
+  \end{columns}
+  \begin{tcolorbox}
+    How well does the theory map to what is observed in the data?
+  \end{tcolorbox}
+\end{frame}
+\begin{frame}{Procedure}
+  \begin{itemize}
+    \item Recover household type from observed purchase history and treat estimated type as known to firm
+    \item Use initial purchase $y_{i1}$ to determine "initial state", $h_0$
+    \item Separate high and low types as the 75th and 25th percentiles, respectively
+    \item Use observed prices and simulate discounts based on them, specific to the different types and their consumption path
+    \item Focus on berry and plain to maintain parity with the theoretical model and avoid aggregate weighting
+    \item Use the controlled split fit and estimated type $\gamma_i$ to discriminate, choosing an initial price offer, observing the period one choice, and choosing the terminal price
+  \end{itemize}
+\end{frame}
+\begin{frame}{Results: Berry Inside}
+  \centering
+  \includegraphics[width=\textwidth]{../writeup/1108_writeup/assets/results/pricing/berry/household_coupon_results.pdf}
+\end{frame}
+\begin{frame}{Results: Plain Inside}
+  \centering
+  \includegraphics[width=\textwidth]{../writeup/1108_writeup/assets/results/pricing/plain/household_coupon_results.pdf}
+\end{frame}
+\begin{frame}{Berry: Optimal Offers by Consumer Type}
+  \centering
+  \includegraphics[width=0.85\textwidth]{../writeup/1108_writeup/assets/results/pricing/berry/discounts_by_consumer_type.pdf}
+\end{frame}
+\begin{frame}{Plain: Optimal Offers by Consumer Type}
+  \centering
+  \includegraphics[width=0.85\textwidth]{../writeup/1108_writeup/assets/results/pricing/plain/discounts_by_consumer_type.pdf}
+\end{frame}
+% Generated by the server pricing run; include after aggregate figures are recovered.
+\IfFileExists{../writeup/1108_writeup/assets/results/pricing/plain/pricing_policy_benchmarks.pdf}{
+\begin{frame}{Pricing Benchmarks: Plain}
+  \centering
+  \includegraphics[width=0.85\textwidth]{../writeup/1108_writeup/assets/results/pricing/plain/pricing_policy_benchmarks.pdf}
+\end{frame}
+}{}
+\IfFileExists{../writeup/1108_writeup/assets/results/pricing/berry/pricing_policy_benchmarks.pdf}{
+\begin{frame}{Pricing Benchmarks: Berry}
+  \centering
+  \includegraphics[width=0.85\textwidth]{../writeup/1108_writeup/assets/results/pricing/berry/pricing_policy_benchmarks.pdf}
+\end{frame}
+}{}
+\begin{frame}{Plain: Initial Offers and Subsequent Pricing}
+  \centering
+  \includegraphics[width=0.95\textwidth]{../writeup/1108_writeup/assets/results/pricing/plain/pricing_mechanism.pdf}
+\end{frame}
+\IfFileExists{../writeup/1108_writeup/assets/results/pricing/plain/terminal_offers_by_purchase.pdf}{
+\begin{frame}{Plain: Terminal Offers After Purchase}
+  \centering
+  \includegraphics[width=0.95\textwidth]{../writeup/1108_writeup/assets/results/pricing/plain/terminal_offers_by_purchase.pdf}
+\end{frame}
+}{}
+\begin{frame}{Comparison}
+  \centering
+  \input{../writeup/1108_writeup/assets/results/pricing/focal_flavor_comparison.tex}
+\end{frame}
+
+\begin{frame}{Empirical Type Information: Fixed Beliefs}
+\begin{itemize}
+\item Low, middle, and high types use fitted group mean novelty coefficients.
+\item Equal probabilities or each permutation of $(0.50,0.25,0.25)$.
+\item Initial history is observed; type probabilities stay fixed after purchase.
+\item Evaluate both offer policies under the same persistent consumer types.
+\item Revenue gains use persistent-type revenue, not the fixed-belief objective.
+\end{itemize}
+\end{frame}
+\begin{frame}{Plain: Revenue under Type Uncertainty}
+\centering
+\includegraphics[width=.98\textwidth,height=.78\textheight,keepaspectratio]{../writeup/1108_writeup/assets/results/empirical_information/plain/revenues.pdf}
+\end{frame}
+\begin{frame}{Plain: Revenue Value of Novelty-Type Information}
+\centering
+\includegraphics[width=.98\textwidth,height=.78\textheight,keepaspectratio]{../writeup/1108_writeup/assets/results/empirical_information/plain/information_value.pdf}
+\end{frame}
+\begin{frame}{Berry: Revenue under Type Uncertainty}
+\centering
+\includegraphics[width=.98\textwidth,height=.78\textheight,keepaspectratio]{../writeup/1108_writeup/assets/results/empirical_information/berry/revenues.pdf}
+\end{frame}
+\begin{frame}{Berry: Revenue Value of Novelty-Type Information}
+\centering
+\includegraphics[width=.98\textwidth,height=.78\textheight,keepaspectratio]{../writeup/1108_writeup/assets/results/empirical_information/berry/information_value.pdf}
+\end{frame}
+
+\section{Conclusion}
+\begin{frame}{Conclusion}
+  \begin{itemize}
+    \item Firm can gain up to $~13.35\%$ simulated revenue by targeting based on switching type relative to no coupons
+    \item Consumers experience disutility from switching, needing to be subsidized $\approx\$1.75$ to switch products 
+    \item Consumers enjoy habit and would be willing to pay $\$0.083$ to contribute another unit to the product's share of purchase history
+  \end{itemize}
+\end{frame}
+\begin{frame}{Next Steps}
+  \begin{itemize}
+    \item Add firm learning to supply side
+    \item Extend market structure on supply
+    \item Add more product attributes to empirical estimation
+    \item Estimate unobserved quality in BLP fashion
+  \end{itemize}
+\end{frame}
+
+ 
+
+\section{Appendix}
+  \begin{frame}{Shares and Elasticities}
+  \begin{tcolorbox}
+    [
+    boxsep=0pt,
+    left=2pt, right=2pt,
+    top=1pt, bottom=1pt,
+    before skip=2pt, after skip=2pt
+    ]
+    \setlength{\abovedisplayskip}{2pt}
+    \setlength{\belowdisplayskip}{2pt}
+    \begin{gather*}
+      s_t(h) = \frac{e^{v_t(h)}}{1+e^{v_t(h)}}, \ s_{0t}(h) = 1-s_t(h) \\
+      \frac{\partial s_t(h)}{\partial p_t(h)} = -\alpha s_t(h)(1-s_t(h)) \\
+      \frac{\partial s_t(h)}{\partial\gamma} = q(h)s_t(h)(1-s_t(h))
+    \end{gather*}
+  \end{tcolorbox}
+  \end{frame}
+
+
+\begin{frame}{Type Uncertainty: Initial Offers}
+\centering
+\includegraphics[width=.98\textwidth,height=.78\textheight,keepaspectratio]{../writeup/1108_writeup/assets/results/gamma_uncertainty/first_prices.pdf}
+\end{frame}
+\begin{frame}{Type Uncertainty: Terminal Offers}
+\centering
+\includegraphics[width=.98\textwidth,height=.78\textheight,keepaspectratio]{../writeup/1108_writeup/assets/results/gamma_uncertainty/terminal_prices.pdf}
+\end{frame}
+
+\begin{frame}{Demand: Price-Control Comparison}
+\input{../writeup/1108_writeup/assets/results/demand/comparison.tex}
+\end{frame}
+\begin{frame}{Controlled Demand Estimates}
+\input{../writeup/1108_writeup/assets/results/demand_controlled/estimates.tex}
+\end{frame}
+\begin{frame}{Plain: Type Information and First Prices}
+\centering
+\includegraphics[width=.98\textwidth,height=.78\textheight,keepaspectratio]{../writeup/1108_writeup/assets/results/empirical_information/plain/first_prices.pdf}
+\end{frame}
+\begin{frame}{Plain: Type Information and Terminal Prices}
+\centering
+\includegraphics[width=.98\textwidth,height=.78\textheight,keepaspectratio]{../writeup/1108_writeup/assets/results/empirical_information/plain/terminal_prices.pdf}
+\end{frame}
+\begin{frame}{Berry: Type Information and First Prices}
+\centering
+\includegraphics[width=.98\textwidth,height=.78\textheight,keepaspectratio]{../writeup/1108_writeup/assets/results/empirical_information/berry/first_prices.pdf}
+\end{frame}
+\begin{frame}{Berry: Type Information and Terminal Prices}
+\centering
+\includegraphics[width=.98\textwidth,height=.78\textheight,keepaspectratio]{../writeup/1108_writeup/assets/results/empirical_information/berry/terminal_prices.pdf}
+\end{frame}
+
+\begin{frame}{Controlled Fit: Price First Stages}
+\input{../writeup/1108_writeup/assets/results/demand_controlled/first_stage.tex}
+\end{frame}
+\begin{frame}{Controlled Fit: Willingness to Pay}
+\input{../writeup/1108_writeup/assets/results/demand_controlled/implied_wtp.tex}
+\end{frame}
+\end{document}

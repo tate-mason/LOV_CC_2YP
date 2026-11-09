@@ -1,3 +1,8 @@
+
+% Empirical records remain on the research server.
+if ~isunix || ismac || ~isfolder('/scratch/dtm63837/Kilts_Panel')
+    error('ServerOnly:ResearchData', 'Run empirical code on the research server only.');
+end
 %=========================================================================
 %
 %    mu.m -- Compute beta_hat from input matrices
@@ -10,7 +15,7 @@
 %
 %=========================================================================
 
-clear all 
+clear all
 addpath('../external/');
 
 %---------+---------+---------+---------+---------+---------+---------+---
@@ -52,7 +57,7 @@ dlmwrite('..\temp\mu.csv',[index mundb mundc mub muc],'-append','precision',10);
 %=========================================================================
 
 
-clear all 
+clear all
 addpath('../external/');
 
 %---------+---------+---------+---------+---------+---------+---------+---

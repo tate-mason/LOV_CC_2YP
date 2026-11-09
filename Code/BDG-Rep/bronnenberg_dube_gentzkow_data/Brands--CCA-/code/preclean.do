@@ -1,3 +1,17 @@
+* Empirical records must remain on the research server.
+if "`c(os)'" != "Unix" {
+    display as error "Server-only empirical workflow: do not run on this computer."
+    exit 603
+}
+capture confirm file "/scratch/dtm63837/Kilts_Panel"
+* Require the server filesystem via a directory change, then restore the working directory.
+local policy_cwd "`c(pwd)'"
+capture cd "/scratch/dtm63837/Kilts_Panel"
+if _rc {
+    display as error "Research server filesystem is required."
+    exit 603
+}
+cd "`policy_cwd'"
 /**********************************************************
  *
  * PRECLEAN.DO  -- This file prepares the CCA and Homescan data for analysis
@@ -19,14 +33,14 @@ set matsize 5000
 set more off
 
 local hh_homescan "..\external\by_hh_brand.dta"
-local cca "..\external\brand_shares.dta" 
+local cca "..\external\brand_shares.dta"
 local cross_br "..\external\CCA_Homescan_crosswalk.dta"
 local demos "..\external\demos.dta"
 local cca_hs_brand "..\temp\cca_hs_brand.dta"
 
 adopath + ..\external
 
-tempfile temp      
+tempfile temp
 
 **********************************************************
 *  MAKE CCA-HOMESCAN CROSSWALK MANY TO ONE
@@ -53,7 +67,7 @@ restore
 mmerge brand_cca category_cca module using `temp', type(n:1) unmatched(none) ukeep()
 
 ** When CCA brand still matches to multiple HS brands, choose the one with the most HS hhs making purchases **
-mmerge brand using ../external/by_brand, type(n:1) unm(master) ukeep(hh) 
+mmerge brand using ../external/by_brand, type(n:1) unm(master) ukeep(hh)
 rankunique hh, by(brand_cca category_cca) gen(brandrank)
 keep if brandrank==1
 drop _merge
@@ -80,7 +94,7 @@ collapse (mean) share_cca_orig, by(brand market state year)
 egen tagyear = tag(year state brand)
 collapse (mean) share_cca_orig (sum) yrs_cca = tagyear, by(state brand)
 save ..\temp\cca_brand_state, replace
- 
+
 **********************************************************
 *  COLLAPSE HOMESCAN TO BRAND-STATE LEVEL
 **********************************************************

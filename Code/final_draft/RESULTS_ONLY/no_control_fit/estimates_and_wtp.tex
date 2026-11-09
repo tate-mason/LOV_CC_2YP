@@ -1,0 +1,34 @@
+% Alpha moments are on the coefficient scale; standard errors use the delta method and covariance.csv.
+% Sources: estimates.csv and implied_wtp.csv in this directory.
+% Requires \usepackage{booktabs}.
+\begin{table}[htbp]
+\centering
+\small
+\caption{Demand estimates and implied willingness to pay}
+\label{tab:estimates-and-wtp}
+\begin{tabular}{lrr}
+\toprule
+\multicolumn{3}{l}{\textit{Panel A: Demand estimates}} \\
+Parameter & Estimate & Standard error \\
+\midrule
+Inside constant $b_0$ & 1.1969 & 0.0034 \\
+Berry vs. other $\beta_{\mathrm{berry}}$ & -0.6143 & 0.0034 \\
+Plain vs. other $\beta_{\mathrm{plain}}$ & -0.2689 & 0.0055 \\
+Mean price coefficient $E[\alpha_i]$ & -0.9206 & 0.0051 \\
+Mean novelty coefficient & -0.8968 & 0.0096 \\
+Mean own-flavor stock coefficient & 0.0518 & 0.0003 \\
+SD price coefficient $\mathrm{SD}(\alpha_i)$ & 0.9781 & 0.0117 \\
+SD novelty coefficient & 0.8358 & 0.0093 \\
+SD own-flavor stock coefficient & 0.0751 & 0.0004 \\
+\midrule
+\multicolumn{3}{l}{\textit{Panel B: Implied willingness to pay}} \\
+Utility coefficient & Mean WTP & Population SD \\
+\midrule
+Inside constant $b_0$ & 2.7681 & 2.9412 \\
+Berry vs. other $\beta_{\mathrm{berry}}$ & -1.4208 & 1.5096 \\
+Plain vs. other $\beta_{\mathrm{plain}}$ & -0.6220 & 0.6609 \\
+Novelty & -2.0741 & 3.5793 \\
+Own-flavor stock & 0.1197 & 0.2836 \\
+\bottomrule
+\end{tabular}
+\end{table}

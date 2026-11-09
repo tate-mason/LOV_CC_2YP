@@ -1,5 +1,10 @@
 
-function [agedist] = Get_AgeDist(bins)  
+function [agedist] = Get_AgeDist(bins)
+
+% Empirical records remain on the research server.
+if ~isunix || ismac || ~isfolder('/scratch/dtm63837/Kilts_Panel')
+    error('ServerOnly:ResearchData', 'Run empirical code on the research server only.');
+end
 %=========================================================================
 %=========================================================================
 %
@@ -10,7 +15,7 @@ function [agedist] = Get_AgeDist(bins)
 % FUNCTION:         Compute the age dist of panelists
 % DATA:             homescan records
 % EXTERNAL CALLS:   none
-% NOTE:              
+% NOTE:
 %---------+---------+---------+---------+---------+---------+---------+---
 % BUG REPORTS TO:   bart.bronnenberg@uvt.nl
 %                   jdube@chicagobooth.edu
@@ -24,4 +29,4 @@ function [agedist] = Get_AgeDist(bins)
 
 hh_char = importdata('..\temp\hh_char.csv',',',1);
 N = hist(hh_char.data(:,2),bins) ;
-agedist = N/sum(N) ;  
+agedist = N/sum(N) ;

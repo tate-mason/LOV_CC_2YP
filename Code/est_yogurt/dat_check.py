@@ -1,3 +1,11 @@
+
+# Empirical I/O is permitted only on the research server, never on this computer.
+from pathlib import Path as _PolicyPath
+import sys as _policy_sys
+_policy_root = next(p for p in _PolicyPath(__file__).resolve().parents if (p / "Code/privacy/server_data_policy.py").is_file())
+_policy_sys.path.insert(0, str(_policy_root / "Code/privacy"))
+from server_data_policy import server_only, require_server, require_legacy_server
+require_legacy_server()
 # data loading
 import polars as pl
 import pandas as pd
@@ -19,12 +27,12 @@ agent_panel   = (
         .rename({'DMA_Cd':'dma_code'})
         .filter((pl.col('product_module_code') == 3612) | (pl.col('product_module_code') == 3603))
         .filter(pl.col('dma_code').is_in([524, 602, 751, 825]))
-        .to_pandas() # load in parquet and convert to pandas 
+        .to_pandas() # load in parquet and convert to pandas
 )
 product_panel = (
         pl.read_parquet(rms_path)
         .filter((pl.col('product_module_code') == 3612) | (pl.col('product_module_code') == 3603))
-        .to_pandas()                                                                                                          
+        .to_pandas()
 )
 
 agent_panel['purchase_date']   = agent_panel['purchase_date'].str.replace('-','',regex=False)

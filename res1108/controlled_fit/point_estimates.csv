@@ -1,0 +1,11 @@
+parameter,estimate,at_bound
+inside_constant,1.4761628332250152,False
+beta_berry,-0.6556379511170555,False
+beta_plain,-0.1191577820144462,False
+mu_log_minus_alpha,-0.1979335184837295,False
+mean_novelty,-0.7860897709491051,False
+mean_own_stock,0.03731840662965251,False
+sd_log_minus_alpha,0.6815182144862001,False
+sd_novelty,0.7998648489151177,False
+sd_own_stock,0.07928390067710456,False
+price_control,0.19591295387241534,False

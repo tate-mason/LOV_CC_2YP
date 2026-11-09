@@ -1,4 +1,9 @@
-function beta = Get_Beta_at(a,t, alpha, dd)  
+function beta = Get_Beta_at(a,t, alpha, dd)
+
+% Empirical records remain on the research server.
+if ~isunix || ismac || ~isfolder('/scratch/dtm63837/Kilts_Panel')
+    error('ServerOnly:ResearchData', 'Run empirical code on the research server only.');
+end
 %=========================================================================
 %=========================================================================
 %
@@ -9,8 +14,8 @@ function beta = Get_Beta_at(a,t, alpha, dd)
 %=========================================================================
 % FUNCTION:         This code computes the function beta(a,t,alpha,delta)
 % EXTERNAL CALLS:   none
-% NOTE:             a = current age, 
-%                   t = number of years in current area of residence  
+% NOTE:             a = current age,
+%                   t = number of years in current area of residence
 %---------+---------+---------+---------+---------+---------+---------+---
 % BUG REPORTS TO:   bart.bronnenberg@uvt.nl
 %                   jdube@chicagobooth.edu
@@ -20,6 +25,6 @@ function beta = Get_Beta_at(a,t, alpha, dd)
 
 beta = 1-(1-alpha)*prod( 1-alpha./dd(a+1:a+t-1) ) ;
 
-%note: this equals alpha if t=1, as desired.  
-%note: the elements into dd run from a+1 to a+t-1. 
-%      this contains sum_{k=0}^{x} delta^k with x running from a to a+t-2  
+%note: this equals alpha if t=1, as desired.
+%note: the elements into dd run from a+1 to a+t-1.
+%      this contains sum_{k=0}^{x} delta^k with x running from a to a+t-2

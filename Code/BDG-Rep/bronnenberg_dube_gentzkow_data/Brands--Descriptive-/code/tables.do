@@ -1,3 +1,17 @@
+* Empirical records must remain on the research server.
+if "`c(os)'" != "Unix" {
+    display as error "Server-only empirical workflow: do not run on this computer."
+    exit 603
+}
+capture confirm file "/scratch/dtm63837/Kilts_Panel"
+* Require the server filesystem via a directory change, then restore the working directory.
+local policy_cwd "`c(pwd)'"
+capture cd "/scratch/dtm63837/Kilts_Panel"
+if _rc {
+    display as error "Research server filesystem is required."
+    exit 603
+}
+cd "`policy_cwd'"
 /**********************************************************
  *
  * TABLES.DO
@@ -105,7 +119,7 @@ gen w1 = totpurch*sqdif/(modshare*(1-modshare))
 gen w1nd = totpurch*sqdifnd/(modshare*(1-modshare))
 
 * data screen drop if betahat == .
-drop if betahat == . 
+drop if betahat == .
 
 * rescale age_move coefficients
 gen age_move_10 = age_move/10
@@ -164,19 +178,19 @@ u ..\temp\purch_mig_bp, clear
 mmerge hhld_id using ..\temp\hh_mig, type(n:1) unm(master) ukeep(years)
 
 *generate bunch of variables plus weights
-gen yearumbrella = min(umbrella_year1, umbrella_year2) 
-gen yearlaunch = min(launch_year1, launch_year2) 
+gen yearumbrella = min(umbrella_year1, umbrella_year2)
+gen yearlaunch = min(launch_year1, launch_year2)
 gen ysl = 2007-yearlaunch
 gen years_b = ysl - years
 gen treat_in_b = years_b>0
 gen not_treat_in_b = 1-treat_in_b
-gen years_untreated = not_treat_in_b*years 
-gen years_treated = treat_in_b*years 
+gen years_untreated = not_treat_in_b*years
+gen years_treated = treat_in_b*years
 gen w1 = totpurch*sqdif/(pairshare*(1-pairshare))
 gen w1nd = totpurch*sqdifnd/(pairshare*(1-pairshare))
 
 * data screen drop if betahat == .
-drop if betahat == . 
+drop if betahat == .
 
 * all pairs (yearlaunch>=1955)
 reg betahatnd treat_in_b years_treated not_treat_in_b years_untreated [aw=sqdifnd] , cluster(pairid) nocons
@@ -217,10 +231,10 @@ foreach V in ad social {
 
 	reg betahat decades if `V'==0 [aw=sqdif], cluster(module)
 	addtotable
-	
+
 	reg betahat decades if `V'==1 [aw=sqdif], cluster(module)
 	addtotable
-	
+
 	gen cons_low`V' = `V'==0
 	gen cons_high`V' = `V'==1
 	gen decades_low`V' = decades*(`V'==0)
@@ -256,11 +270,11 @@ gen w1 = totpurch*sqdif/(modshare*(1-modshare))
 gen w1nd = totpurch*sqdif/(modshare*(1-modshare))
 
 * no controls
-reg betahatnd decades decades2 dec_move_cat [aw=sqdifnd], cluster(module) 
+reg betahatnd decades decades2 dec_move_cat [aw=sqdifnd], cluster(module)
 matrix TABLE = (nullmat(TABLE) , (_b[_cons] \ _se[_cons] \ _b[decades] \ _se[decades] \ _b[decades2] \ _se[decades2] \ _b[dec_move_cat] \ _se[dec_move_cat]))
 
 * controls
-reg betahat decades decades2 dec_move_cat [aw=sqdif], cluster(module) 
+reg betahat decades decades2 dec_move_cat [aw=sqdif], cluster(module)
 matrix TABLE = (nullmat(TABLE) , (_b[_cons] \ _se[_cons] \ _b[decades] \ _se[decades] \ _b[decades2] \ _se[decades2] \ _b[dec_move_cat] \ _se[dec_move_cat]))
 
 matrix_to_txt, saving(..\output\tables.txt) mat(TABLE) format(%20.6f) title(<extra_for_slides>) append

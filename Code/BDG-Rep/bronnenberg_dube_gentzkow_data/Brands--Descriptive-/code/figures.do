@@ -1,3 +1,17 @@
+* Empirical records must remain on the research server.
+if "`c(os)'" != "Unix" {
+    display as error "Server-only empirical workflow: do not run on this computer."
+    exit 603
+}
+capture confirm file "/scratch/dtm63837/Kilts_Panel"
+* Require the server filesystem via a directory change, then restore the working directory.
+local policy_cwd "`c(pwd)'"
+capture cd "/scratch/dtm63837/Kilts_Panel"
+if _rc {
+    display as error "Research server filesystem is required."
+    exit 603
+}
+cd "`policy_cwd'"
 /**********************************************************
  *
  * FIGURES.DO
@@ -55,7 +69,7 @@ graph drop _all
 u ..\temp\purch_mig, clear
 mmerge hhld_id using ..\temp\hh_mig, type(n:1) unm(master) ukeep(years_cat)
 
-local xlab "0-4 5-9 10-14 15-19 20-24 25-29 30-34 35-39 40-44 45-49 50-54 55-59 60+" 
+local xlab "0-4 5-9 10-14 15-19 20-24 25-29 30-34 35-39 40-44 45-49 50-54 55-59 60+"
 local options "ylabel(0(.1)1) yline(0 1, lpattern(dash)) yscale(range(-.1 1.1)) ytitle(Relative Share ({&beta} {subscript:ij})) xtitle(Years Since Move) label(`xlab')"
 quietly tab years_cat, gen(zyears)
 
@@ -76,7 +90,7 @@ graph export ..\output\figures\years_demo.eps, as(eps) replace
 u ..\temp\purch_mig, clear
 mmerge hhld_id using ..\temp\hh_mig, type(n:1) unm(master) ukeep(age_move_cat)
 
-local xlab "0-4 5-9 10-14 15-19 20-24 25-29 30-34 35-39 40-44 45-49 50-54 55-59 60+" 
+local xlab "0-4 5-9 10-14 15-19 20-24 25-29 30-34 35-39 40-44 45-49 50-54 55-59 60+"
 local options "ylabel(0(.1)1) yline(0 1, lpattern(dash)) yscale(range(-.1 1.1)) ytitle(Relative Share ({&beta} {subscript:ij})) xtitle(Age at Move) label(`xlab')"
 quietly tab age_move_cat, gen(zagemove)
 
@@ -97,7 +111,7 @@ graph export ..\output\figures\agemove_demo.eps, as(eps) replace
 u ..\temp\purch_mig, clear
 mmerge hhld_id using ..\temp\hh_mig, type(n:1) unm(master) ukeep(years age_move_cat)
 
-local xlab "20-24 25-29 30-34 35-39 40-44 45-49 50-54 55-59 60+" 
+local xlab "20-24 25-29 30-34 35-39 40-44 45-49 50-54 55-59 60+"
 local options "ylabel(0(.1)1) yline(0 1, lpattern(dash)) yscale(range(-.1 1.1)) ytitle(Relative Share ({&beta} {subscript:ij})) xtitle(Age at Move) label(`xlab')"
 quietly tab age_move_cat, gen(zagemove)
 
@@ -118,7 +132,7 @@ graph export ..\output\figures\agemove_recent_demo.eps, as(eps) replace
 u ..\temp\purch_mig, clear
 mmerge hhld_id using ..\temp\hh_mig, type(n:1) unm(master) ukeep(years age_move years_cat)
 
-local xlab "0-4 5-9 10-14 15-19 20-24 25-29 30-34 35-39 40-44 45-49 50-54" 
+local xlab "0-4 5-9 10-14 15-19 20-24 25-29 30-34 35-39 40-44 45-49 50-54"
 local options "ylabel(0(.1)1) yline(0 1, lpattern(dash)) yscale(range(-.1 1.1)) ytitle(Relative Share ({&beta} {subscript:ij})) xtitle(Years Since Move) label(`xlab')"
 quietly tab years_cat, gen(zyears)
 

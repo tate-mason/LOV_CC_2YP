@@ -5,6 +5,13 @@ User-supplied paths only. No estimation is performed. --self-test uses only
 generated synthetic inputs. See EMPIRICAL_TARGETING.md for definitions.
 """
 from __future__ import annotations
+
+# Empirical I/O is permitted only on the research server, never on this computer.
+from pathlib import Path as _PolicyPath
+import sys as _policy_sys
+_policy_root = next(p for p in _PolicyPath(__file__).resolve().parents if (p / "Code/privacy/server_data_policy.py").is_file())
+_policy_sys.path.insert(0, str(_policy_root / "Code/privacy"))
+from server_data_policy import server_only, require_server
 import argparse
 import hashlib
 import json
@@ -125,6 +132,7 @@ def digest(path):
     return h.hexdigest()
 
 
+@server_only
 def targeted_coupons(context, households, weights, alpha, gamma, beta, discounts,
                      delta=1., capacity=7, habit_weight=.7, control_coefficient=0.,
                      batch_size=24, type_treatment="posterior-mean", state_output=None):
@@ -244,7 +252,7 @@ def targeted_coupons(context, households, weights, alpha, gamma, beta, discounts
                                                state=np.arange(nstates), other=baskets[:, 0], berry=baskets[:, 1],
                                                plain=baskets[:, 2], outside=baskets[:, 3], probability=mass,
                                                discount1=discounts[action], discount2=state_coupon, p1=p1, p2=p2, price_ratio=ratio))
-                    detail.to_csv(state_output, mode="a" if wrote_states else "w", header=not wrote_states,
+                    detail.drop(columns=["household_code"]).to_csv(state_output, mode="a" if wrote_states else "w", header=not wrote_states,
                                   index=False, compression="gzip")
                     wrote_states = True
         if start % (batch_size*40) == 0 or start+batch_size >= len(indices):
@@ -261,6 +269,7 @@ def targeted_coupons(context, households, weights, alpha, gamma, beta, discounts
         raise AssertionError("Household dynamic policy does not dominate the feasible no-coupon baseline.")
     return table, maximum_mass_error
 
+@server_only
 def run_households(args):
     # This branch is entered only when the person running the script supplies
     # BOTH paths. Validation supplies generated temporary fixtures only.
@@ -308,8 +317,8 @@ def run_households(args):
         parameters.get("price_control", 0.) if control else 0., args.batch_size,
         args.type_treatment,
         args.output / "targeted_state_policies.csv.gz" if args.save_state_policies else None)
-    households.to_csv(args.output / "household_posterior_summary.csv", index=False)
-    table.to_csv(args.output / "targeted_household_results.csv", index=False)
+    households.drop(columns=["household_code"]).to_csv(args.output / "household_posterior_summary.csv", index=False)
+    table.drop(columns=["household_code"]).to_csv(args.output / "targeted_household_results.csv", index=False)
     totals = ["revenue1", "revenue2", "discounted_revenue", "baseline_revenue", "revenue_change",
               "berry_units1", "berry_units2", "coupon_expenditure"]
     aggregate = table.groupby("policy", sort=False)[totals].sum()
@@ -500,7 +509,9 @@ def self_test():
         report = run_households(args)
         assert report["households"] == 12
         states = pd.read_csv(root / "targeted_state_policies.csv.gz")
-        assert np.allclose(states.groupby(["household_code", "policy"]).probability.sum(), 1.)
+        assert "household_code" not in states.columns
+        expected_households = int(households.group.isin(["low", "high"]).sum())
+        assert np.allclose(states.groupby("policy").probability.sum(), expected_households)
         # Independent exhaustive two-period calculation for the first targeted
         # household: all first actions and all terminal actions at each basket.
         household = int(np.flatnonzero(households.group.eq("low").to_numpy())[0])
@@ -529,16 +540,18 @@ def self_test():
                 continuation += mass*max(returns)
             values.append(value+continuation)
         actual = pd.read_csv(root / "targeted_household_results.csv")
-        chosen = actual[(actual.household_code == households.iloc[household].household_code) & actual.policy.eq("personalized_dynamic")].iloc[0]
-        assert np.isclose(chosen.discounted_revenue, max(values))
+        assert "household_code" not in actual.columns
+        predicted = actual.loc[actual.policy.eq("personalized_dynamic"), "discounted_revenue"]
+        assert np.isclose(predicted, max(values)).any()
     print("Synthetic targeting checks passed: posterior likelihood, per-household optimization, full-basket backward induction, reporting-group invariance, policy dominance, missing menus, exact basket mass, exports.")
 
 
+@server_only
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--household-input", type=Path, help="Explicit household input selected by you; no default.")
     parser.add_argument("--fit-dir", type=Path, help="Explicit existing fitted-results directory; no default.")
-    parser.add_argument("--output", type=Path, default=Path(__file__).resolve().parent / "empirical_outputs")
+    parser.add_argument("--output", type=Path, default=Path("/scratch/dtm63837/Kilts_Panel/results") / "empirical_outputs")
     parser.add_argument("--discounts", type=float, nargs="+", default=np.linspace(0., 1., 101),
                         help="Candidate discounts; default is every 1%% from 0%% through 100%%.")
     parser.add_argument("--demand-delta", type=float, default=.95)

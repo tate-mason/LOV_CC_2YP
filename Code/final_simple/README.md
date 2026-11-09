@@ -1,9 +1,23 @@
+# Research data stay on the server
+
+Empirical reads/writes are now server-only, even with local path overrides.
+Only vetted estimates, predictions without household IDs, and aggregates may
+be recovered locally. See [the enforced policy](../privacy/README.md).
+The old full local data-processing check instructions below are superseded:
+use `python3 Code/privacy/check_policy.py` from the repository root for a local
+boundary check; run empirical I/O checks only on the server.
+
 # Start here
 
 This is a self-contained, simpler version of the data, demand, and supply code in
 `final_draft`. The layout follows `LOV_bundle_intro.py`: imports, editable
 parameters, numbered calculation sections, and the run steps at the bottom.
-The scientific calculations and model options are preserved. The original
+The scientific calculations and model options are preserved.
+The current empirical setup uses separate novelty and habit coefficients; start
+with [the split-model reading guide](demand/README.md) for the revised workflow.
+For the full teaching text, open [Python 101](../final_draft/code_guides_pdf/python101_walkthrough.pdf):
+worked lessons 11–16 cover the current split model and server workflow, followed
+by annotated chapters for these readable demand scripts. The original
 research directory has not been replaced.
 
 The code is organized by research task:
@@ -15,10 +29,15 @@ final_simple/
         summaries.py           # demographics, flavors, HHI, and demand input
     demand/
         estimation.py          # demand estimation and inference
-        pricing.py             # empirical dynamic berry offers
+        plain_berry_pricing.py # main comparison: plain and berry focal sellers
+        split_pricing.py       # split model; all three focal flavors
+        regenerate_weekly_inputs.py # server: rebuild the deleted weekly export
+        history_distributions.py    # export distributions from saved split fits
+        pricing.py             # earlier combined-gamma berry comparison
     supply/
         supply_sympy.py        # equations and exact derivatives
         supply_simulation.py   # numerical solutions and figures
+    server/run_split_pricing.sh # regenerate, export distributions, compare plain/berry
     checks/
     README.md
     requirements.txt
@@ -26,12 +45,13 @@ final_simple/
 
 Each research script has editable parameters at the top and visible run steps at
 the bottom. `supply/supply_simulation.py` imports its formulas from `supply/supply_sympy.py`;
-the other research calculations are contained in their own files. None imports
-from `final_draft`. Package `__init__.py` files only identify the folders; they
+the estimation and pricing calculations are contained in their own files.
+The distribution-export and weekly-regeneration entry points reuse functions
+from `demand/estimation.py`. None imports from `final_draft`. Package `__init__.py` files only identify the folders; they
 contain no research calculations or settings.
 
 Start with [the data guide](data/README.md) for a full rebuild. The usual order is
-**data/build_data.py → data/summaries.py → demand/estimation.py → demand/pricing.py**.
+**data/build_data.py → data/summaries.py → demand/estimation.py → demand/split_pricing.py**.
 The theoretical supply exercises run separately from the empirical data pipeline.
 
 `checks/` contains verification, not additional research steps. You can leave
@@ -52,7 +72,7 @@ For example, in `demand/estimation.py`:
 ```python
 sample = Path("/your/data/yogurt_estimation_sample.parquet")
 output = Path("/your/results/development")
-model = "heterogeneous"
+model = "heterogeneous_history"
 max_households = 100
 draws = 32
 starts = 1
@@ -99,10 +119,11 @@ and outputs. Nothing is estimated by the pricing script.
 estimated price controls fixed; the household bootstrap refits price controls
 and demand. These are different inference assumptions, not interchangeable labels.
 
-The original default `capacity = 0` estimates flavor choice conditional on
-buying yogurt. `capacity = 7` adds the constructed outside count and estimates
+`capacity = 0` estimates flavor choice conditional on buying yogurt. The current
+split-model default, `capacity = 7`, adds the constructed outside count and estimates
 participation under that convention. The empirical pricing exercise requires
-a converged `heterogeneous` fit with positive integer capacity from 1 through 12.
+a converged `heterogeneous_history` fit with positive integer capacity from 1 through 12.
+The earlier `pricing.py` remains available for combined-gamma fits.
 To use capacity 7 for pricing, estimate that model with capacity 7; do not simply
 change the saved fit's metadata. Each model/capacity should have its own output
 folder.
@@ -114,45 +135,36 @@ reader and optional product metadata recovery remain available.
 
 ## What empirical pricing does
 
-Set `household_input` to a saved `weekly_inputs.csv` and `fit_dir` to the
-corresponding estimation output folder. Both start as `None` so importing or
-running the script does not guess a dataset. For example:
+The current script is `demand/split_pricing.py`. Set `household_input` and
+`fit_dir` in its Parameters section; neither path is guessed. It reads the
+existing split-model fit, recovers persistent household price, novelty, and
+habit types, and verifies the saved likelihood before running pricing.
 
-```python
-household_input = Path("/your/results/outside_model/weekly_inputs.csv")
-fit_dir = Path("/your/results/outside_model")
-```
+It solves three separate seller problems: other, berry, and plain each serve
+as the focal inside product against the other two flavors combined. The outside
+alternative also includes constructed nonpurchase for positive-capacity fits.
+Only the focal price changes; rival prices stay fixed. These are separate
+counterfactuals, not a simultaneous equilibrium.
 
-Then run `python3 demand/pricing.py`.
+Bottom/top novelty quartiles receive household-specific offers, while the
+middle group remains at posted prices. Both novelty and habit coefficients
+enter every demand calculation. Timing is observed h0 → p1(h0) → realized
+basket h1 → terminal p2(h1), with exact basket integration and backward
+induction. The default treats posterior means as known; posterior uncertainty
+integration is optional. Coupons range from 0% through 100% in 1% steps.
+The revenue discount factor is .92, matching the theoretical supply default.
 
-Timing follows the discussion of the theoretical model:
+Results are saved in `other/`, `berry/`, and `plain/` folders, with a root
+`focal_flavor_comparison.csv`, `run_manifest.json`, and readable `run_notes.txt`.
+Read [the demand guide](demand/README.md) for distribution definitions, the
+inside/outside mapping, assumptions, output columns, and server instructions.
 
-- The first observed basket is relabeled from observed t=1 to model t=0 and
-  establishes initial history h0.
-- The firm chooses p1(h0); the resulting basket establishes h1.
-- The firm chooses terminal p2(h1), conditional on the realized basket and
-  estimated household type.
-
-The first observed menu, posted prices, and price-control residuals are carried
-forward. Type estimation still uses the complete observed estimation sample.
-The code checks that the supplied records reproduce the saved likelihood.
-This is a retrospective counterfactual with known estimated types.
-
-The main specification uses household posterior means. The optional
-`posterior-integrated` setting retains uncertainty about type and updates its
-weights after the first basket. No-coupon prices provide a revenue benchmark;
-there is only one optimized policy, dynamic pricing.
-
-Only the low/high gamma quartiles receive personalized offers. The middle half
-receives no coupons. Each eligible household is optimized separately; quartiles
-are reporting/eligibility groups, not pooled pricing groups. With capacity 7,
-all 120 possible baskets enter the expectation. Terminal offers are selected
-before their revenues are averaged over histories. The firm earns berry revenue. The revenue graph shows one bar per type for
-first-period revenue plus 0.95 times expected terminal revenue by default.
-`demand_delta` controls both optimization and the graph's terminal discounting.
-Type colors match the distribution chart. Offers are chosen to maximize the
-specified revenue objective; the labels do not claim that switching or retention
-was empirically demonstrated.
+Deleted `weekly_inputs.csv` should be regenerated **on the server** with
+`demand/regenerate_weekly_inputs.py`. This rebuilds histories, menus and price
+controls from the saved settings, verifies the original likelihood and sample
+counts, then writes the export. It retains fitted demand estimates and inference.
+`server/run_split_pricing.sh` does this before exporting distributions and
+running all three focal cases. Local checks access generated inputs only.
 
 ## What theoretical supply does
 
@@ -214,7 +226,8 @@ python3 checks/run_checks.py
 This runner blocks CSV reads and uses generated arrays/temporary synthetic
 Parquet data. Some checks write temporary output tables without reopening them.
 Two legacy checks that reopen generated CSVs remain in `checks/`, but are
-excluded from this runner. The original complete export self-test is also still
+excluded from this runner. New split-pricing and export-regeneration checks are included in the no-CSV
+runner. The original complete export self-test is also still
 available in `demand/pricing.py --self-test`; it creates and rereads temporary synthetic
 CSVs, so it was not used during this no-CSV development work.
 

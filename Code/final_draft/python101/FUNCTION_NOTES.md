@@ -149,7 +149,8 @@ optimization step would repeatedly perform label lookup and conversion.
 
 ## est_code/est.py::make_draws
 
-Inputs are an even draw count and an integer seed; output has shape `(number,2)`.
+Inputs are an even draw count, an integer seed, and an optional model name.
+Output has shape `(number,3)` for heterogeneous_history and `(number,2)` otherwise.
 `number % 2` is the remainder after division by two: zero for even numbers,
 one for odd. `number // 2` is integer division. The generator draws half the
 rows, then `vstack([z, -z])` appends their negatives. With two draws, an initial
@@ -160,6 +161,10 @@ changing NumPy's global random state. Reusing these fixed antithetic nodes
 reduces noise when comparing candidate parameter vectors. Drawing afresh inside
 each objective call would make the optimizer chase random changes as well as
 parameter effects. More draws still cost more computation.
+
+
+
+**Split-model update.** heterogeneous_history uses D-by-3 draws with alpha, novelty and own-stock coordinates; other models keep D-by-2 draws. The draw dimension and seed must match the saved fit when reconstructing likelihoods.
 
 ## est_code/est.py::parameter_names
 
@@ -176,10 +181,14 @@ Keeping this logic in one helper is safer than independently remembering vector
 positions in optimization, utility, and output. The order is part of the API:
 zipping a reordered list with old coefficients silently changes their meaning.
 
+
+
+**Split layouts.** separate_history adds mean_novelty and mean_own_stock plus random price sensitivity; heterogeneous_history also adds sd_novelty and sd_own_stock. This helper is also used when checking the saved likelihood during weekly-export regeneration.
+
 ## est_code/est.py::household_loglike
 
 Input `theta` is a one-dimensional parameter array, `data` is the dictionary
-from `make_arrays`, and `draws` is a draw-by-two matrix. The return is one log
+from `make_arrays`, and `draws` is a draw-by-two matrix for combined models or draw-by-three for split heterogeneity. The return is one log
 likelihood per household, not a scalar. `dict(zip(...))` attaches coefficient
 names so the rest of the function need not remember their numeric positions.
 
@@ -195,6 +204,10 @@ times minus infinity. `bincount` adds all weeks of the same household. Only
 after this aggregation does the final `logsumexp` integrate draws. This order
 implements persistent preferences. Averaging weekly probabilities first would
 be simpler computationally but would estimate a different preference process.
+
+
+
+**Current split utility.** history_utility supplies b_N*N+b_S*S, with separate means and normal draw coordinates. Gamma*Xi is retained only for combined models. In a mixture model, the separate component helper mixes complete household likelihoods. Neither split coefficient receives the old fixed lambda weight.
 
 ## est_code/est.py::demand_objective_gradient
 
@@ -286,6 +299,10 @@ frame available. Missing inference columns are explicitly filled with NaN so
 an absent SE cannot be mistaken for zero. `vars(args).items()` enumerates settings;
 Path objects become strings so JSON serialization can encode them. The returned
 `best` is still a SciPy result object, while CSV/JSON provide portable outputs.
+
+
+
+**Distribution outputs.** After the main split fit, both history marginals are exported as parameter/quantile summaries, density/CDF grids and PDF/PNG plots. Their SDs are population variation; SEs in estimates.csv describe sampling uncertainty. The saved fit can regenerate these plots without optimization.
 
 ## est_code/est.py::fit_model.estimate
 
@@ -1022,3 +1039,948 @@ so frozen controls would change the bootstrap distribution. It declares success
 and a harmless objective because the test targets bootstrap orchestration,
 not numerical optimization. Mocking the demand fit makes this check faster and
 isolates whether first stages are rerun and empirical SEs calculated correctly.
+
+
+## data_code/summ_stats.py::single_person_purchases
+
+Filters purchase records to household size one before purchase weeks or histories are counted. This is a record-level sample restriction: filtering households after constructing their histories would retain excluded purchases in the stocks.
+
+## data_code/test_summ_stats_memory.py::MemorySummaryChecks.test_single_person_records_precede_repeat_week_rule
+
+Checks record-level size-one filtering occurs before requiring repeated weeks; otherwise a household can qualify using excluded purchases. The assertions fail automatically when the stated property does not hold; passing synthetic checks does not establish empirical fit quality.
+
+## est_code/est.py::mixture_components
+
+Unpacks a parameter vector into two ordered normal-gamma components and a common price distribution. Adding a nonnegative gap orders component means and prevents label switching; it does not force either component to have positive gamma.
+
+## est_code/est.py::mixture_loglike_score
+
+Combines complete household likelihoods across persistent mixture components, using stable log-sum-exp. Mixing each week separately would change the model by allowing household membership to change over time. The score combines component derivatives with posterior membership weights.
+
+## est_code/est.py::history_utility
+
+Chooses the history formula from the model name. Split models use b_N*N+b_S*S directly, with distinct draw coordinates for the two random coefficients. Combined-gamma models use gamma*Xi. The habit-weight parameter belongs to Xi and does not multiply the independently estimated split coefficients.
+
+## est_code/est.py::plot_history_distributions
+
+Delegates to the population-distribution export routine immediately after a split fit. Its side effects are tables and plots, not new coefficient estimates. The readable estimator keeps the full export calculation in the same file; the original estimator imports that helper.
+
+## est_code/test_wtp.py::WTPChecks.table
+
+Builds a small generated coefficient table with the parameter/estimate schema expected by the WTP routines; it performs no file read.
+
+## est_code/test_wtp.py::WTPChecks.test_fixed_alpha_and_signed_history
+
+Checks WTP conversion against an elementary fixed-price-sensitivity calculation, preserving the signs of history effects. The assertions fail automatically when the stated property does not hold; passing synthetic checks does not establish empirical fit quality.
+
+## est_code/test_wtp.py::WTPChecks.test_mixture_moments_include_between_component_variation
+
+Checks mixture WTP variance includes differences between component means as well as within-component variances. The assertions fail automatically when the stated property does not hold; passing synthetic checks does not establish empirical fit quality.
+
+## est_code/test_wtp.py::WTPChecks.test_separate_history_wtp_has_no_fixed_weight
+
+Verifies independently estimated novelty and stock coefficients are converted to WTP without applying the old lambda weights. The assertions fail automatically when the stated property does not hold; passing synthetic checks does not establish empirical fit quality.
+
+## est_code/test_wtp.py::WTPChecks.test_beta_averages_ratios
+
+Checks beta WTP averages inverse price sensitivities rather than using the inverse of their mean. The assertions fail automatically when the stated property does not hold; passing synthetic checks does not establish empirical fit quality.
+
+## est_code/regenerate_weekly_inputs.py::regenerate
+
+**Job and contract.** Rebuild the deleted weekly_inputs.csv on the server using the existing fit directory, optionally overriding moved sample/reference paths. The function reads saved settings, calls the same sample/history/menu preparation, and reconstructs price controls. It never calls the demand optimizer or replaces fitted parameters and inference.
+
+`SimpleNamespace(**settings)` turns dictionary keys into ordinary attributes. Converting saved path strings back to Path objects restores the input contract. The reconstructed table must match household/week counts and the saved integrated likelihood, using the exact parameter order, draw count and seed. A mismatch raises before publishing a CSV.
+
+`NamedTemporaryFile` creates a private intermediate beside the destination; `temporary.replace(target)` publishes only a verified complete export. The finally block cleans up an unfinished intermediate. The JSON regeneration record stores diagnostics, not household rows. Run this entry point on the server; reading the textbook does not execute it.
+
+## est_code/regenerate_weekly_inputs.py::main
+
+Parses a fit directory and optional moved input paths, then calls server-side reconstruction. Missing required paths stop before processing purchases. No optimizer is invoked.
+
+## est_code/history_distributions.py::export_history_distributions
+
+**Inputs and outputs.** The coefficient table supplies mean_novelty, mean_own_stock and their SDs; output is a directory. For each marginal, the function writes a summary of mean, SD, sign share and quantiles, a grid of densities/CDFs, and PDF/PNG plots. These describe population heterogeneity, not confidence intervals or household posterior means.
+
+`NormalDist(mean, sd)` represents a fitted normal distribution; `.cdf(0)` gives its share below zero and `.inv_cdf(.25)` gives its lower quartile. A zero SD is handled as a point mass instead of dividing by zero. A negative own-stock coefficient means satiation, while a positive one means reinforcement. Convergence/boundary status marks provisional exports. This calculation recovers the already estimated distribution without optimizing demand again.
+
+## est_code/test_est.py::EstimationChecks.test_separate_history_nests_combined_index
+
+Sets b_N=(1-lambda)*gamma and b_S=-lambda*gamma and verifies the split likelihood nests the old combined index under that restriction. The assertions fail automatically when the stated property does not hold; passing synthetic checks does not establish empirical fit quality.
+
+## est_code/test_est.py::EstimationChecks.test_no_control_ignores_residuals_but_keeps_price
+
+Checks disabling the control removes residual utility while retaining price sensitivity. The assertions fail automatically when the stated property does not hold; passing synthetic checks does not establish empirical fit quality.
+
+## est_code/test_est.py::EstimationChecks.test_mixture_combines_household_likelihoods_and_nests_normal
+
+Verifies component mixing happens after whole-household likelihood construction and coincident components recover the single-normal model. The assertions fail automatically when the stated property does not hold; passing synthetic checks does not establish empirical fit quality.
+
+## est_code/test_est.py::EstimationChecks.test_mixture_fit_outputs
+
+Checks a tiny fitted mixture writes consistent parameter and inference metadata; its empirical content is entirely generated. The assertions fail automatically when the stated property does not hold; passing synthetic checks does not establish empirical fit quality.
+
+## est_code/wtp.py::implied_wtp
+
+Computes population moments of coefficient/positive price sensitivity. Independence permits multiplying the coefficient moments by inverse-lognormal moments. Averaging these household ratios differs from dividing a mean coefficient by mean price sensitivity. Split history rows use their own coefficients without lambda weights.
+
+## est_code/wtp.py::implied_wtp.add
+
+This nested helper adds one named WTP row from coefficient first and second moments. It uses variables captured from the enclosing WTP call, converts coefficient moments into ratio moments, and appends to the enclosing output list. Its side effect is a new row; it does not refit coefficients.
+
+## est_code/hessian_se.py::observed_covariance
+
+Central-differences the analytic mean-household NLL gradient to form observed information, checks bounds and eigenvalues, and divides its inverse by the household count. Missing household scaling would give incorrect standard errors. Nonpositive or ill-conditioned information is rejected instead of inverted blindly.
+
+## est_code/hessian_se.py::hessian_standard_errors
+
+Converts an accepted observed-information covariance into parameter SEs and normal intervals, writes the covariance, and returns inference metadata. These are conditional model-based SEs; they do not include price-first-stage uncertainty or provide a robust sandwich covariance.
+
+## est_code/test_hessian_se.py::HessianChecks.test_correlated_information_and_household_scaling
+
+Uses known quadratic curvature to check inversion and the number-of-households scaling in Hessian covariance. The assertions fail automatically when the stated property does not hold; passing synthetic checks does not establish empirical fit quality.
+
+## est_code/test_hessian_se.py::HessianChecks.test_boundary_and_indefinite_information_withheld
+
+Confirms boundary or invalid-information cases withhold inference instead of reporting misleading SEs. The assertions fail automatically when the stated property does not hold; passing synthetic checks does not establish empirical fit quality.
+
+## est_code/test_regenerate_weekly_inputs.py::RecoveryTests.check_recovery
+
+Builds temporary synthetic fit records and mocks data preparation/CSV loading. It checks successful publication or a likelihood mismatch, and verifies saved fitted parameters are preserved. The mock is a controlled substitute, not evidence that an actual server dataset has already matched.
+
+## est_code/test_regenerate_weekly_inputs.py::RecoveryTests.test_recovery_preserves_parameters
+
+Exercises successful weekly-export regeneration with mocks and confirms fit/parameter records remain byte-for-byte unchanged. The assertions fail automatically when the stated property does not hold; passing synthetic checks does not establish empirical fit quality.
+
+## est_code/test_regenerate_weekly_inputs.py::RecoveryTests.test_mismatch_preserves_existing_export
+
+Forces a reconstructed-likelihood mismatch and checks no replacement weekly export or success record is published. The assertions fail automatically when the stated property does not hold; passing synthetic checks does not establish empirical fit quality.
+
+## supply_code/make_comparative_static_figures.py::state_outcomes
+
+Conditions on each initial/first-choice history, retains terminal demand expectation, and produces histories with their path weights. This separates conditional economic mechanisms from ex ante comparisons.
+
+## supply_code/make_comparative_static_figures.py::plot_state_outcomes
+
+Plots conditional prices, ratios or profits across gamma for the history-specific outcomes. Histories that are rare under a policy should not be confused with an equally weighted population average.
+
+## supply_code/make_comparative_static_figures.py::plot_state_shares
+
+Plots how policy-induced probabilities allocate households across realized histories. These probability weights explain why an ex ante profit comparison can differ from comparing conditional histories alone.
+
+## pricing_exercises/test_empirical_timing.py::EmpiricalTimingTests.test_first_observation_becomes_t0
+
+Checks the observed first basket initializes h0 once and future observed purchases do not leak into counterfactual initial states. The assertions fail automatically when the stated property does not hold; passing synthetic checks does not establish empirical fit quality.
+
+## pricing_exercises/test_empirical_timing.py::EmpiricalTimingTests.test_p1_h0_then_terminal_p2_h1_matches_scalar_enumeration
+
+Independently enumerates basket probabilities and terminal actions, then compares the dynamic optimum and first coupon with the vectorized calculation. Split checks choose b_N and b_S outside the old fixed-lambda restriction. The assertions fail automatically when the stated property does not hold; passing synthetic checks does not establish empirical fit quality.
+
+## pricing_exercises/run_pricing_exercises.py::main
+
+Forwards compatibility arguments to the standalone theoretical supply or earlier combined-gamma household script. The launcher does not estimate demand or select the new split workflow automatically. Use the explicit split-pricing entry point for the current exercise.
+
+## pricing_exercises/test_split_targeting.py::EmpiricalTimingTests.test_first_observation_becomes_t0
+
+Checks the observed first basket initializes h0 once and future observed purchases do not leak into counterfactual initial states. The assertions fail automatically when the stated property does not hold; passing synthetic checks does not establish empirical fit quality.
+
+## pricing_exercises/test_split_targeting.py::EmpiricalTimingTests.test_p1_h0_then_terminal_p2_h1_matches_scalar_enumeration
+
+Independently enumerates basket probabilities and terminal actions, then compares the dynamic optimum and first coupon with the vectorized calculation. Split checks choose b_N and b_S outside the old fixed-lambda restriction. The assertions fail automatically when the stated property does not hold; passing synthetic checks does not establish empirical fit quality.
+
+## pricing_exercises/test_split_targeting.py::SplitPosteriorTests.fixture
+
+Constructs tiny, explicitly generated household histories and coefficient dictionaries for checks. These values are inputs chosen to expose errors, not estimates from the private sample.
+
+## pricing_exercises/test_split_targeting.py::SplitPosteriorTests.test_posterior_matches_scalar_and_estimator
+
+Compares persistent split-draw likelihoods and posterior weights against a scalar calculation and the demand estimator, and verifies exact binary aggregation by an outside inclusive value. The assertions fail automatically when the stated property does not hold; passing synthetic checks does not establish empirical fit quality.
+
+## pricing_exercises/test_split_targeting.py::SplitPosteriorTests.test_all_focal_exports_and_integrated_types
+
+Runs all focal flavors under both type treatments with generated temporary inputs and verifies policy dominance, likelihood guards, outputs and the all-flavor entry point. This complete export check reads only its own synthetic CSVs. The assertions fail automatically when the stated property does not hold; passing synthetic checks does not establish empirical fit quality.
+
+## pricing_exercises/run_supply_exercises.py::expit
+
+Evaluates the logistic probability with an exponential of a nonpositive magnitude to avoid overflow. Its input can be an array. This is a numerical transformation, not a demand-estimation call.
+
+## pricing_exercises/run_supply_exercises.py::golden_maximum
+
+Refines a bracketed scalar maximizer by golden-section interval reduction, reusing previous function values. This is a numerical search, not a proof that a multimodal objective has only one peak.
+
+## pricing_exercises/run_supply_exercises.py::scalar_maximum
+
+Evaluates a scalar objective on a grid, refines every detected local peak and includes endpoints, then keeps the best candidate. Hidden-state mixtures can be multimodal, so assuming a single global peak would be unsafe.
+
+## pricing_exercises/run_supply_exercises.py::static_price
+
+Solves the transformed binary-logit price first-order condition by bracketing and bisection for signed alpha<0. The effective cost can incorporate continuation value, allowing introductory subsidies; do not impose the coupon floor from empirical pricing on this theoretical solver.
+
+## pricing_exercises/run_supply_exercises.py::static_price.foc
+
+This nested function returns the transformed price first-order-condition residual for a trial scalar. Captured slope, intercept and effective cost remain fixed during the root search. A zero is a candidate optimal price under the maintained monotonicity argument.
+
+## pricing_exercises/run_supply_exercises.py::supply_solution
+
+Solves the known-state baseline, hidden-initial-state case, and commitment case for one fixed type and prior. Both terminal histories enter expected profits. The hidden-state case pools initial histories within a known type; it does not pool different gamma types. The commitment case chooses two numbers before the first purchase and cannot adapt p2 to h1.
+
+## pricing_exercises/run_supply_exercises.py::supply_solution.share1
+
+Returns first-period binary-logit demand, or its initial-state mixture, at a trial price. The function closes over the current theoretical type and prior. Initial history is integrated as probabilities, not averaged as utilities.
+
+## pricing_exercises/run_supply_exercises.py::supply_solution.adaptive_value
+
+Evaluates current profit plus discounted, state-contingent optimized terminal values. The first choice changes the probabilities of both continuation histories, which is why its derivative contains their value difference.
+
+## pricing_exercises/run_supply_exercises.py::supply_solution.committed_profile
+
+For a trial first price, solves the best single committed terminal price and returns its value/profile. This inner optimization must respect the information restriction: p2 is common across realized h1.
+
+## pricing_exercises/run_supply_exercises.py::supply_solution.committed_profile.objective
+
+Defines the scalar objective for the surrounding search using captured data and parameters. Inspect the displayed expression to identify whether it returns a profit or its negative; minimizers and maximizers require opposite conventions.
+
+## pricing_exercises/run_supply_exercises.py::plotting
+
+Selects a noninteractive plotting backend and a writable temporary configuration directory, then returns pyplot. It does not read household data. Backend selection precedes importing pyplot so server runs do not require a display.
+
+## pricing_exercises/run_supply_exercises.py::outcome_tables
+
+Exports history-specific prices, quantities and profits plus properly probability-weighted ex ante outcomes. Conditional realized-history values and expected profits answer different questions; averaging conditional profits without their path probabilities would be wrong.
+
+## pricing_exercises/run_supply_exercises.py::make_figures
+
+Turns already computed supply solution tables into case-comparison figures; it does not add another solver or change the information assumptions. Plot labels distinguish state-contingent policies from committed prices.
+
+## pricing_exercises/run_supply_exercises.py::self_test
+
+Runs generated examples and assertions to check numerical calculations without launching the user-selected empirical exercise. Read the specific body to distinguish the CSV-blocked simple split checks from earlier complete export tests that reopen their own synthetic CSVs. No private input is needed.
+
+## pricing_exercises/run_supply_exercises.py::main
+
+Parses the theoretical gamma grid, initial-history priors, cost/discount settings and output directory, then solves all three information cases and writes solution/outcome tables and figures. The self-test branch uses theoretical calibrations. No household sample or fitted empirical distribution is needed.
+
+## pricing_exercises/run_empirical_targeting.py::expit
+
+Evaluates the logistic probability with an exponential of a nonpositive magnitude to avoid overflow. Its input can be an array. This is a numerical transformation, not a demand-estimation call.
+
+## pricing_exercises/run_empirical_targeting.py::logsumexp
+
+Computes log(sum(exp(x))) after subtracting the largest entry. The maximum is added back afterwards. axis selects the aggregation direction and keepdims retains singleton axes for broadcasting. This stabilizes likelihood normalization when utilities are large.
+
+## pricing_exercises/run_empirical_targeting.py::plotting
+
+Selects a noninteractive plotting backend and a writable temporary configuration directory, then returns pyplot. It does not read household data. Backend selection precedes importing pyplot so server runs do not require a display.
+
+## pricing_exercises/run_empirical_targeting.py::persistent_draws
+
+Generates seeded antithetic normal integration points: half the draws and their negatives. Split pricing uses three columns for log price sensitivity, novelty and own-stock habit; combined-gamma pricing uses two. These are fixed population integration points, not newly estimated coefficients or a bootstrap sample.
+
+## pricing_exercises/run_empirical_targeting.py::posterior
+
+**Purpose.** Recover household types from a saved fit and a matching weekly table. Each draw represents one persistent type. Utilities yield weekly count-weighted log probabilities; bincount adds all weeks within household before log-sum-exp integrates types. Normalizing those whole-history likelihoods gives household posterior weights.
+
+For split pricing, alpha is positive price sensitivity, and the history array has columns b_N and b_S. weights @ history produces both posterior means. Sorting only the novelty means assigns bottom/top floor(N/4) reporting groups; both coefficients still enter forecasts. Posterior SDs and effective sample size describe type uncertainty. The returned NLL must match the saved fit before pricing. The earlier combined-gamma file instead returns a single gamma array.
+
+## pricing_exercises/run_empirical_targeting.py::compositions
+
+Enumerates every nonnegative integer basket whose four counts sum to capacity: three flavors plus constructed nonpurchase. For capacity 7 there are 120 baskets. Enumerating all baskets preserves realized history transitions; substituting the mean basket would generally alter continuation values.
+
+## pricing_exercises/run_empirical_targeting.py::forecast_context
+
+Relabels the first observed choice as t=0, adds its flavor shares once to its pre-choice stock, and uses that basket for next-week novelty. It carries the first menu/prices/controls forward, records the two subsequent pricing dates, and checks focal-menu eligibility. Later observed purchases affect type recovery but not this initial counterfactual history.
+
+## pricing_exercises/run_empirical_targeting.py::digest
+
+Streams file bytes through SHA-256 to identify the exact input or source used by a run. Hashes are provenance checks, not economic statistics. This function is called during an explicit empirical run, not by the documentation builder.
+
+## pricing_exercises/run_empirical_targeting.py::targeted_coupons
+
+**Research calculation.** Solve terminal prices for every realized first basket, then choose the initial coupon using immediate revenue plus discounted optimized continuation revenue. In the readable version the outer loop visits one household; remaining axes are type, basket, coupon and revenue metric. Default known posterior mean types leave just one type; posterior-integrated mode keeps draws and updates their weights through the first-basket likelihood.
+
+In split pricing, history_coefficient has two columns: history1=b_N*N1+b_S*S1, history2=b_N*N2+b_S*S2. Every basket updates own stock and other-flavor novelty. Both coefficients enter both dates. The solver's focal slot is coordinate one; run_households permutes the selected flavor into that coordinate. Rival quantities retain distinct identities for history updates.
+
+Terminal coupons maximize revenue after integrating remaining unobserved type uncertainty, before averaging over realized baskets. The firm cannot condition on an unobserved true draw. Both focal and no-focal-purchase branches count. Bottom/top novelty groups get personalized offers; middle households remain at posted prices. No coupons supplies a feasible benchmark and optimized revenue must weakly dominate it. Coupon prices lie between zero and the posted price; they are not unrestricted theoretical prices.
+
+## pricing_exercises/run_empirical_targeting.py::run_households
+
+Reads an explicitly selected fitted-results directory and its weekly table, checks the model, convergence, bounds, capacity and input schema, then recovers posterior types and reproduces the saved likelihood. For a split run, it permutes the selected focal flavor into the solver's berry coordinate, moving counts, prices, stocks, novelty, controls and intercepts consistently. Type recovery happens before permutation using the original fitted flavor labels.
+
+It calls the household solver, renames public berry-coordinate columns to focal names, and writes policy/group/aggregate tables and figures. The manifest records how rival state coordinates map back to flavors. Swapping only prices or only counts would silently price the wrong product. The three runs are separate focal sellers with fixed rival prices, not a simultaneous equilibrium.
+
+## pricing_exercises/run_empirical_targeting.py::make_targeting_figures
+
+Draws household posterior switching types, discounted dynamic revenue by reporting group, and coupon patterns. Split figures use b_N labels and the selected focal flavor. Revenue is R1+delta*R2 with terminal revenues averaged after state-dependent optimization; mean prices times mean quantities would not give the same object.
+
+## pricing_exercises/run_empirical_targeting.py::self_test
+
+Runs generated examples and assertions to check numerical calculations without launching the user-selected empirical exercise. Read the specific body to distinguish the CSV-blocked simple split checks from earlier complete export tests that reopen their own synthetic CSVs. No private input is needed.
+
+## pricing_exercises/run_empirical_targeting.py::main
+
+Parses explicit fit and weekly-input paths, validates coupon settings, and runs the earlier combined-gamma berry-only exercise. Its self-test uses generated temporary inputs. The new split fit requires the separate split entry point.
+
+## pricing_exercises/run_split_targeting.py::expit
+
+Evaluates the logistic probability with an exponential of a nonpositive magnitude to avoid overflow. Its input can be an array. This is a numerical transformation, not a demand-estimation call.
+
+## pricing_exercises/run_split_targeting.py::logsumexp
+
+Computes log(sum(exp(x))) after subtracting the largest entry. The maximum is added back afterwards. axis selects the aggregation direction and keepdims retains singleton axes for broadcasting. This stabilizes likelihood normalization when utilities are large.
+
+## pricing_exercises/run_split_targeting.py::plotting
+
+Selects a noninteractive plotting backend and a writable temporary configuration directory, then returns pyplot. It does not read household data. Backend selection precedes importing pyplot so server runs do not require a display.
+
+## pricing_exercises/run_split_targeting.py::persistent_draws
+
+Generates seeded antithetic normal integration points: half the draws and their negatives. Split pricing uses three columns for log price sensitivity, novelty and own-stock habit; combined-gamma pricing uses two. These are fixed population integration points, not newly estimated coefficients or a bootstrap sample.
+
+## pricing_exercises/run_split_targeting.py::posterior
+
+**Purpose.** Recover household types from a saved fit and a matching weekly table. Each draw represents one persistent type. Utilities yield weekly count-weighted log probabilities; bincount adds all weeks within household before log-sum-exp integrates types. Normalizing those whole-history likelihoods gives household posterior weights.
+
+For split pricing, alpha is positive price sensitivity, and the history array has columns b_N and b_S. weights @ history produces both posterior means. Sorting only the novelty means assigns bottom/top floor(N/4) reporting groups; both coefficients still enter forecasts. Posterior SDs and effective sample size describe type uncertainty. The returned NLL must match the saved fit before pricing. The earlier combined-gamma file instead returns a single gamma array.
+
+## pricing_exercises/run_split_targeting.py::compositions
+
+Enumerates every nonnegative integer basket whose four counts sum to capacity: three flavors plus constructed nonpurchase. For capacity 7 there are 120 baskets. Enumerating all baskets preserves realized history transitions; substituting the mean basket would generally alter continuation values.
+
+## pricing_exercises/run_split_targeting.py::forecast_context
+
+Relabels the first observed choice as t=0, adds its flavor shares once to its pre-choice stock, and uses that basket for next-week novelty. It carries the first menu/prices/controls forward, records the two subsequent pricing dates, and checks focal-menu eligibility. Later observed purchases affect type recovery but not this initial counterfactual history.
+
+## pricing_exercises/run_split_targeting.py::digest
+
+Streams file bytes through SHA-256 to identify the exact input or source used by a run. Hashes are provenance checks, not economic statistics. This function is called during an explicit empirical run, not by the documentation builder.
+
+## pricing_exercises/run_split_targeting.py::targeted_coupons
+
+**Research calculation.** Solve terminal prices for every realized first basket, then choose the initial coupon using immediate revenue plus discounted optimized continuation revenue. In the readable version the outer loop visits one household; remaining axes are type, basket, coupon and revenue metric. Default known posterior mean types leave just one type; posterior-integrated mode keeps draws and updates their weights through the first-basket likelihood.
+
+In split pricing, history_coefficient has two columns: history1=b_N*N1+b_S*S1, history2=b_N*N2+b_S*S2. Every basket updates own stock and other-flavor novelty. Both coefficients enter both dates. The solver's focal slot is coordinate one; run_households permutes the selected flavor into that coordinate. Rival quantities retain distinct identities for history updates.
+
+Terminal coupons maximize revenue after integrating remaining unobserved type uncertainty, before averaging over realized baskets. The firm cannot condition on an unobserved true draw. Both focal and no-focal-purchase branches count. Bottom/top novelty groups get personalized offers; middle households remain at posted prices. No coupons supplies a feasible benchmark and optimized revenue must weakly dominate it. Coupon prices lie between zero and the posted price; they are not unrestricted theoretical prices.
+
+## pricing_exercises/run_split_targeting.py::run_households
+
+Reads an explicitly selected fitted-results directory and its weekly table, checks the model, convergence, bounds, capacity and input schema, then recovers posterior types and reproduces the saved likelihood. For a split run, it permutes the selected focal flavor into the solver's berry coordinate, moving counts, prices, stocks, novelty, controls and intercepts consistently. Type recovery happens before permutation using the original fitted flavor labels.
+
+It calls the household solver, renames public berry-coordinate columns to focal names, and writes policy/group/aggregate tables and figures. The manifest records how rival state coordinates map back to flavors. Swapping only prices or only counts would silently price the wrong product. The three runs are separate focal sellers with fixed rival prices, not a simultaneous equilibrium.
+
+## pricing_exercises/run_split_targeting.py::make_targeting_figures
+
+Draws household posterior switching types, discounted dynamic revenue by reporting group, and coupon patterns. Split figures use b_N labels and the selected focal flavor. Revenue is R1+delta*R2 with terminal revenues averaged after state-dependent optimization; mean prices times mean quantities would not give the same object.
+
+## pricing_exercises/run_split_targeting.py::self_test
+
+Runs generated examples and assertions to check numerical calculations without launching the user-selected empirical exercise. Read the specific body to distinguish the CSV-blocked simple split checks from earlier complete export tests that reopen their own synthetic CSVs. No private input is needed.
+
+## pricing_exercises/run_split_targeting.py::main
+
+Parses explicit empirical inputs and loops over the selected focal-flavor cases, writing per-flavor outputs and a combined comparison. Defaults select all three flavors and delta=.92. The self-test branch uses generated inputs.
+
+## ../final_simple/demand/estimation.py::check_dma
+
+This converts a pandas Series to integer DMA IDs, rejecting missing, nonnumeric,
+nonpositive, and fractional entries. `pd.to_numeric(errors="coerce")` turns bad
+strings into missing numbers so one Boolean mask can find all invalid rows.
+`codes == np.floor(codes)` checks integrality without rounding fractional inputs
+into a valid ID. Only after validation does `astype("int64")` convert the dtype.
+`description` makes an error identify the consumer or retail source. Quietly
+replacing an invalid DMA with zero would contaminate own-market exclusion.
+
+In this readable version the settings record comes from editable Python variables at the top of the file; the algorithm is implemented here without importing final_draft.
+
+## ../final_simple/demand/estimation.py::other_dma_instruments
+
+This retained helper accepts three pandas tables and returns weekly rows with
+UPC-matched flavor IVs. It is **not** the pooled instrument construction used
+by current `est.py`. It first averages retail-DMA prices outside the consumer's
+DMA per UPC/week, then averages across the exposure store's UPC basket.
+
+Renaming the own-DMA table's columns makes its keys match the merge. `present`
+is a Boolean Series; converting it to integers subtracts one from the DMA count
+only when that own-market quote exists. The grouped `count` ignores missing
+values whereas `size` counts all rows. Comparing them detects an incompletely
+instrumented basket and marks the whole flavor IV missing, rather than quietly
+averaging only a subset. Several joins replace a much slower nested lookup loop.
+
+In this readable version the settings record comes from editable Python variables at the top of the file; the algorithm is implemented here without importing final_draft.
+
+## ../final_simple/demand/estimation.py::absorb_effects
+
+Input `values` is a numerical matrix; `groups` lists row-aligned group labels
+such as week and DMA. Output is a copy with group means removed. Factorization
+converts arbitrary labels to dense integers. `np.add.at(means, code, residual)`
+accumulates rows into group sums even when indices repeat; ordinary fancy-index
+`means[code] += residual` may not accumulate repeats as intended.
+
+`counts[:, None]` makes group counts a column so every variable is divided by
+its group size. The function cycles week and DMA demeaning until the biggest
+absolute change falls below tolerance, then returns. A maximum iteration limit
+raises on failure. A huge explicit dummy matrix is a valid alternative used in
+tests, but its memory grows with the number of fixed-effect groups. One pass
+is insufficient when group cells are unbalanced.
+
+In this readable version the settings record comes from editable Python variables at the top of the file; the algorithm is implemented here without importing final_draft.
+
+## ../final_simple/demand/estimation.py::add_price_controls
+
+This returns `(augmented_frame, diagnostic_table)`. For each flavor it selects
+covered prices, absorbs week/DMA effects jointly from price, instrument, and
+Xi, then partials Xi out of y and z. `within[:, 0]`, `[:, 1]`, `[:, 2:]` split
+those roles by known column order. `lstsq(...)[0]` keeps only the coefficient
+vector from the least-squares result tuple.
+
+Dot products compute the IV slope after partialling. A small residual instrument
+sum of squares raises instead of dividing by an almost zero denominator.
+`np.linalg.lstsq` tolerates redundant controls more gracefully than explicitly
+inverting their cross-product matrix. The residual is assigned only to covered
+rows; unavailable alternatives retain zero placeholders. Cluster score sums,
+partial R-squared, and residual SD describe first-stage relevance and fit.
+They do not prove instrument validity. Reusing this function in bootstrap
+replications keeps the two-stage estimator consistent across samples.
+
+In this readable version the settings record comes from editable Python variables at the top of the file; the algorithm is implemented here without importing final_draft.
+
+## ../final_simple/demand/estimation.py::normalize_upcs
+
+This is the pandas normalization helper also used in estimation: strip whitespace,
+recognize numeric-looking identifiers, remove `.0` and leading zeros, and retain
+nonnumeric strings. Its argument is a Series and its return is a Series. The
+`where` condition retains original text on nonnumeric rows. The reason for
+string processing rather than floating-point conversion is identifier precision.
+See the estimation function's worked examples; identical naming here does not
+mean Python automatically shares their definitions across modules.
+
+In this readable version the settings record comes from editable Python variables at the top of the file; the algorithm is implemented here without importing final_draft.
+
+## ../final_simple/demand/estimation.py::normalized_upc_expr
+
+This constructs the Polars-expression version of UPC normalization for a lazy
+pipeline. It returns a recipe named `upc`, not a table. Nested conditions replace
+an all-zero numeric identifier with `"0"`, preserving nonnumeric text. The
+function avoids repeating a long expression at every join boundary. Using
+matching canonical keys on both sides prevents `"001"` and `"1"` from
+mistakenly appearing unmatched.
+
+In this readable version the settings record comes from editable Python variables at the top of the file; the algorithm is implemented here without importing final_draft.
+
+## ../final_simple/demand/estimation.py::read_flavors
+
+Input `path` is a CSV path; optional `products_extra` is a Parquet path. Output
+is a two-column pandas table with one row per UPC. This function has an early
+return: if the CSV already contains resolved `upc,flavor`, validation succeeds
+and the rest of the recovery/classification code is never executed.
+
+`{"upc", "flavor"}.issubset(frame.columns)` asks whether both required labels
+exist. `missing = required - set(frame.columns)` is set subtraction. Validation
+uses `.any()` for "at least one invalid row" and `.all()` for "every label is
+allowed." `if products_extra is not None` distinguishes an omitted optional
+argument from a supplied path that happens not to exist.
+
+The metadata path scans only useful columns and anti-joins existing reference
+UPCs. It appends absent UPCs, rather than overwriting existing classifications.
+`[... for c in columns if c != "upc"]` builds one aggregation expression per
+non-key field. `np.select` picks the first matching condition, so plain wins
+when both plain and berry text occur. A generic substring loop could be easier
+to write at first, but would make precedence and vectorized missing-value
+handling less explicit. `drop_duplicates(..., keep="first")` is a reconciliation
+rule; it does not prove the retained label is correct.
+
+In this readable version the settings record comes from editable Python variables at the top of the file; the algorithm is implemented here without importing final_draft.
+
+## ../final_simple/demand/estimation.py::week_dates
+
+`pd.to_datetime` interprets strings with an explicit `%Y%m%d` format: four-digit
+year, two-digit month, two-digit day. The regex removes a trailing `.0` from
+integer dates that were stored as float-like text. `errors="raise"` rejects a
+malformed date instead of silently creating a missing date.
+
+For example, `20100109` should mean January 9, 2010. Passing that integer
+directly to a general timestamp constructor can instead mean nanoseconds from
+an epoch. Explicit parsing prevents that mistake. This helper exists in the
+module, but the current main preparation path parses purchase-date strings
+with Polars directly; a function's presence does not mean the entry point uses it.
+
+In this readable version the settings record comes from editable Python variables at the top of the file; the algorithm is implemented here without importing final_draft.
+
+## ../final_simple/demand/estimation.py::prepare_data
+
+This is the data assembly function. `args` is an argparse Namespace: a small
+object whose attributes hold command-line settings. It returns a pandas table
+with one row per usable household-week. Its work crosses a deliberate boundary:
+large input filtering and quote aggregation use lazy Polars, while the smaller
+household choice table becomes pandas for subsequent array calculations.
+
+Read it in phases. First it scans and filters years, resolves labels, chooses
+the price field, and projects columns. `getattr(args, name, default)` provides
+compatibility when a manually constructed Namespace lacks an optional attribute.
+`next((c for c in candidates if c in names), None)` chooses the first supported
+price field. It is a small loop written as a generator, not a special price API.
+
+Next it collects selected households, checks quantities, sums counts, and chooses
+an exposure store. Sorting by descending quantity followed by ascending store ID
+then keeping the first household-week row implements the tie-break exactly.
+`groupby(...).sum().unstack(...)` turns long flavor counts into three columns;
+`reindex` fixes column order even if one flavor is absent from an intermediate
+table. Merge `validate` arguments catch unintended duplicate keys.
+
+The quote section continues to use full `base`, not the household-limited
+`selected`. It deduplicates quotes and checks conflicts before constructing
+menus. The DMA section computes sums and counts and subtracts own-DMA totals.
+This algebra avoids looping over every possible outside DMA for every household.
+The same pooled IV is copied into all three flavor-named IV columns.
+
+Finally it constructs histories **before** menu/IV likelihood exclusions,
+builds Boolean availability masks, filters unusable rows, reapplies the two-week
+rule, and adds outside counts. `complete &= iv_complete` combines masks in
+place; it is not a comparison. `transform("nunique")` produces a row-aligned
+count so the household restriction can be applied without a second merge.
+Moving `add_stocks` below these exclusions is a plausible-looking alternative
+that changes the information used to build history.
+
+In this readable version the settings record comes from editable Python variables at the top of the file; the algorithm is implemented here without importing final_draft.
+
+## ../final_simple/demand/estimation.py::add_stocks
+
+Input is a weekly pandas table; output is a sorted copy with stock, novelty,
+and Xi columns. The outer loop resets history for each household. `for _, group`
+ignores the household label but keeps its subtable. The inner `iterrows()` loop
+supplies a row index and a Series containing that row's values.
+
+`stocks[index] = stock` stores pre-choice history into one output row. The
+seven-day condition tests genuine adjacent calendar weeks. Then counts are
+normalized into shares, stock is updated, and the current date becomes the
+previous date. A gap resets recent novelty by leaving its preallocated zeros,
+but does not reset cumulative stock. A loop is reasonable here because state
+at the next observation depends on the preceding update; vectorization requires
+careful shifted cumulative sums and calendar-gap checks.
+
+The final `enumerate` loop writes one named column per flavor. `stocks[:, j]`
+extracts all rows of the jth flavor. With `habit_weight=.7`, current Xi uses .3
+times novelty minus .7 times own stock. The separately preallocated `stocks`
+matrix means historical output rows do not change when `stock` is reassigned.
+Try a one-household, two-week example before reading the likelihood.
+
+In this readable version the settings record comes from editable Python variables at the top of the file; the algorithm is implemented here without importing final_draft.
+
+## ../final_simple/demand/estimation.py::make_arrays
+
+This converts a labeled table into a dictionary of NumPy arrays. `pd.factorize`
+returns both dense integer household codes and their original labels: household
+IDs `[10,10,30]` become codes `[0,0,1]`. Dense codes let `bincount` sum efficiently.
+The expression `FLAVORS + (["outside"] if capacity else [])` builds either three
+or four outcome columns without changing the inside-price array's three columns.
+
+The function validates counts/Xi, checks menu consistency, and inserts zero
+placeholders for missing prices. The separate availability mask ensures those
+zeros are not interpreted as offered free goods. `all(c in frame for c in cf_cols)`
+asks whether every residual column exists. If controls are absent, `zeros_like`
+supplies the right-shaped residual array. The returned dictionary deliberately
+keeps flags such as `outside` and `control` beside arrays so the likelihood can
+use one interface for several models. Passing raw tables directly into every
+optimization step would repeatedly perform label lookup and conversion.
+
+In this readable version the settings record comes from editable Python variables at the top of the file; the algorithm is implemented here without importing final_draft.
+
+## ../final_simple/demand/estimation.py::make_draws
+
+Inputs are an even draw count, an integer seed, and an optional model name.
+Output has shape `(number,3)` for heterogeneous_history and `(number,2)` otherwise.
+`number % 2` is the remainder after division by two: zero for even numbers,
+one for odd. `number // 2` is integer division. The generator draws half the
+rows, then `vstack([z, -z])` appends their negatives. With two draws, an initial
+row `[.4,-1.2]` gives a second row `[-.4,1.2]`.
+
+The seed makes repeated calls reproducible, and a local Generator avoids
+changing NumPy's global random state. Reusing these fixed antithetic nodes
+reduces noise when comparing candidate parameter vectors. Drawing afresh inside
+each objective call would make the optimizer chase random changes as well as
+parameter effects. More draws still cost more computation.
+
+In this readable version the settings record comes from editable Python variables at the top of the file; the algorithm is implemented here without importing final_draft.
+
+
+
+**Split-model update.** heterogeneous_history uses D-by-3 draws with alpha, novelty and own-stock coordinates; other models keep D-by-2 draws. The draw dimension and seed must match the saved fit when reconstructing likelihoods.
+
+## ../final_simple/demand/estimation.py::parameter_names
+
+This returns the ordered labels defining the parameter vector. `names += [...]`
+extends a list; it does not numerically add its string entries. Membership tests
+such as `model in ("mixed_naive", "heterogeneous")` let related specifications
+share branches. The default `control=False` omits a residual coefficient unless
+the caller explicitly enables it.
+
+For naive conditional demand without controls, the returned labels are two
+betas and mean log-minus-alpha. Heterogeneous demand adds mean gamma and both
+SDs; the optional outside constant is prepended and price control appended.
+Keeping this logic in one helper is safer than independently remembering vector
+positions in optimization, utility, and output. The order is part of the API:
+zipping a reordered list with old coefficients silently changes their meaning.
+
+In this readable version the settings record comes from editable Python variables at the top of the file; the algorithm is implemented here without importing final_draft.
+
+
+
+**Split layouts.** separate_history adds mean_novelty and mean_own_stock plus random price sensitivity; heterogeneous_history also adds sd_novelty and sd_own_stock. This helper is also used when checking the saved likelihood during weekly-export regeneration.
+
+## ../final_simple/demand/estimation.py::mixture_components
+
+Unpacks a parameter vector into two ordered normal-gamma components and a common price distribution. Adding a nonnegative gap orders component means and prevents label switching; it does not force either component to have positive gamma.
+
+## ../final_simple/demand/estimation.py::mixture_loglike_score
+
+Combines complete household likelihoods across persistent mixture components, using stable log-sum-exp. Mixing each week separately would change the model by allowing household membership to change over time. The score combines component derivatives with posterior membership weights.
+
+## ../final_simple/demand/estimation.py::history_utility
+
+Chooses the history formula from the model name. Split models use b_N*N+b_S*S directly, with distinct draw coordinates for the two random coefficients. Combined-gamma models use gamma*Xi. The habit-weight parameter belongs to Xi and does not multiply the independently estimated split coefficients.
+
+## ../final_simple/demand/estimation.py::household_loglike
+
+Input `theta` is a one-dimensional parameter array, `data` is the dictionary
+from `make_arrays`, and `draws` is a draw-by-two matrix for combined models or draw-by-three for split heterogeneity. The return is one log
+likelihood per household, not a scalar. `dict(zip(...))` attaches coefficient
+names so the rest of the function need not remember their numeric positions.
+
+For each latent-type draw, negative exponential constructs alpha and an affine
+normal transformation constructs gamma. Broadcasting makes beta and these
+scalar coefficients operate across every row/flavor. Unavailable utility is
+set to minus infinity; an optional zero outside column is appended.
+`logprob = utility - logsumexp(..., axis=1, keepdims=True)` normalizes each row.
+The retained column dimension makes subtraction broadcast across that row.
+
+The count-weighted row sum uses `where(counts > 0, logprob, 0)` to avoid zero
+times minus infinity. `bincount` adds all weeks of the same household. Only
+after this aggregation does the final `logsumexp` integrate draws. This order
+implements persistent preferences. Averaging weekly probabilities first would
+be simpler computationally but would estimate a different preference process.
+
+In this readable version the settings record comes from editable Python variables at the top of the file; the algorithm is implemented here without importing final_draft.
+
+
+
+**Current split utility.** history_utility supplies b_N*N+b_S*S, with separate means and normal draw coordinates. Gamma*Xi is retained only for combined models. In a mixture model, the separate component helper mixes complete household likelihoods. Neither split coefficient receives the old fixed lambda weight.
+
+## ../final_simple/demand/estimation.py::demand_objective_gradient
+
+This returns a tuple `(mean_negative_log_likelihood, gradient)`, which SciPy
+requests when `jac=True`. The utility and likelihood steps mirror
+`household_loglike`; the additional work computes derivatives in the same draw
+loop. `total[:, None]` expands a weekly count vector to a column so it can
+multiply the matrix of choice probabilities. `residual` is observed count
+minus predicted count for the three inside alternatives.
+
+The `columns` dictionary holds one weekly score vector per coefficient name.
+For example, the berry intercept takes column 1 of residual, while the alpha
+location score uses the price-weighted residual multiplied by alpha itself
+because differentiating `-exp(mu + sd*z)` contributes alpha. Each score is
+aggregated to households, and `column_stack` places parameters on a final axis.
+
+`np.einsum("rh,rhp->p", weights, scores)` means multiply posterior weight at
+draw r/household h by its parameter-p score, then sum r and h, retaining p.
+A nested loop over r, h, p would express the same sum more verbosely and slowly.
+The minus sign and household-count division match minimization of average NLL.
+This is an analytic derivative of the finite-draw objective, not automatic
+differentiation or a finite-difference estimate.
+
+In this readable version the settings record comes from editable Python variables at the top of the file; the algorithm is implemented here without importing final_draft.
+
+## ../final_simple/demand/estimation.py::optimize_demand
+
+This sets up and runs multiple bounded local searches and returns the selected
+fit, every starting solution, and the bounds. Initial SDs are .3 because zero
+can be stationary under symmetric integration. Bounds are pairs `(lower, upper)`
+in the same order as parameter names. The optional initial vector is copied
+before perturbation, preventing caller-owned coefficients from being changed.
+
+Each start uses `minimize(..., method="L-BFGS-B", jac=True)`. The callback reports
+progress every ten iterations, while completed starts are saved to JSON.
+`np.clip` keeps perturbed starts feasible. `min(results, key=lambda r: r.fun)`
+uses each result's loss as its comparison key; it selects the smallest loss,
+not necessarily a converged fit. An alternative is to select only converged
+results, but that is not the rule this code implements. Multistart search probes
+local solutions and does not establish a global optimum.
+
+In this readable version the settings record comes from editable Python variables at the top of the file; the algorithm is implemented here without importing final_draft.
+
+## ../final_simple/demand/estimation.py::optimize_demand.objective
+
+Defines the scalar objective for the surrounding search using captured data and parameters. Inspect the displayed expression to identify whether it returns a profit or its negative; minimizers and maximizers require opposite conventions.
+
+## ../final_simple/demand/estimation.py::optimize_demand.progress
+
+SciPy calls this nested callback after iterations, passing the current vector.
+The body increments `iterations[0]`, checks a remainder modulo ten, and prints
+elapsed time unless quiet mode is active. The callback does not return an
+objective value and does not choose the next parameter vector.
+
+The enclosing variable is a one-element list so the nested function can mutate
+its element without rebinding the outer name. An ordinary integer counter with
+assignment would require `nonlocal iterations`. That alternative is often clearer;
+the existing list technique works because objects can be mutated through a
+captured reference. `time.monotonic` measures elapsed duration without wall-clock
+adjustments changing the result.
+
+In this readable version the settings record comes from editable Python variables at the top of the file; the algorithm is implemented here without importing final_draft.
+
+## ../final_simple/demand/estimation.py::resample_households
+
+Input is the weekly frame and a NumPy random Generator. Output is a concatenated
+bootstrap sample with the same number of household draws as the original.
+The comprehension stores whole household subtables. `rng.integers(0, H, size=H)`
+draws indices with replacement; its upper endpoint H is excluded.
+
+`enumerate(selected)` supplies a fresh ID and selected old-group position.
+`.copy()` is essential before changing that ID so the original history is
+not modified. If selection is `[2,2,0]`, two copies of old household 2 get new
+IDs 0 and 1, keeping their likelihoods separate. Concatenating with
+`ignore_index=True` gives clean row labels. Resampling individual weeks would
+break persistent household preferences and within-household dependence.
+
+In this readable version the settings record comes from editable Python variables at the top of the file; the algorithm is implemented here without importing final_draft.
+
+## ../final_simple/demand/estimation.py::bootstrap_standard_errors
+
+The `estimate` argument is a callable, not an estimate array. Each repetition
+resamples households, refits enabled price controls, calls `estimate(sample,
+initial)`, and records its result. `record.update` adds named fields to an
+existing dictionary. Accepted vectors go to `values`; all attempts go to
+`records`, so failure does not disappear from the audit trail.
+
+The `try/except` catches expected data/linear-algebra problems. Every attempt
+checkpoints the records as CSV. After the loop, the threshold requires at least
+20 usable fits and at least 80% success. Returning `(None, report)` explicitly
+signals inference was withheld. Otherwise, `std(ddof=1)` uses sample rather than
+population SD, `quantile` forms empirical percentile intervals, and
+`np.cov(..., rowvar=False)` treats columns as parameters. Analytic Hessian SEs
+would be cheaper but would require handling the estimated first-stage residuals
+and household dependence; this implementation uses a two-stage cluster bootstrap.
+
+In this readable version the settings record comes from editable Python variables at the top of the file; the algorithm is implemented here without importing final_draft.
+
+## ../final_simple/demand/estimation.py::observed_covariance
+
+Central-differences the analytic mean-household NLL gradient to form observed information, checks bounds and eigenvalues, and divides its inverse by the household count. Missing household scaling would give incorrect standard errors. Nonpositive or ill-conditioned information is rejected instead of inverted blindly.
+
+## ../final_simple/demand/estimation.py::hessian_standard_errors
+
+Converts an accepted observed-information covariance into parameter SEs and normal intervals, writes the covariance, and returns inference metadata. These are conditional model-based SEs; they do not include price-first-stage uncertainty or provide a robust sandwich covariance.
+
+## ../final_simple/demand/estimation.py::implied_wtp
+
+Computes population moments of coefficient/positive price sensitivity. Independence permits multiplying the coefficient moments by inverse-lognormal moments. Averaging these household ratios differs from dividing a mean coefficient by mean price sensitivity. Split history rows use their own coefficients without lambda weights.
+
+## ../final_simple/demand/estimation.py::implied_wtp.add
+
+This nested helper adds one named WTP row from coefficient first and second moments. It uses variables captured from the enclosing WTP call, converts coefficient moments into ratio moments, and appends to the enclosing output list. Its side effect is a new row; it does not refit coefficients.
+
+## ../final_simple/demand/estimation.py::plot_gamma_distribution
+
+Input is an estimate table, output directory, and convergence flag. This is
+a side-effect function: it saves a figure and implicitly returns `None`.
+`set_index("parameter")["estimate"]` creates a name-indexed Series for coefficient
+lookup. The early bare `return` skips naive models with no gamma.
+
+For positive SD, `linspace` makes a smooth horizontal grid, `norm.pdf` computes
+density, and `fill_between(..., where=x < 0)` shades the negative region. For
+zero SD a continuous density would divide by zero or misrepresent a point mass,
+so the `else` branch draws a vertical line. `norm.cdf(0, ...)` computes the
+implied population habit share. `Agg` supports file rendering without a GUI;
+`plt.close(fig)` releases the figure. This is a distribution of latent types,
+not an uncertainty interval for the mean.
+
+In this readable version the settings record comes from editable Python variables at the top of the file; the algorithm is implemented here without importing final_draft.
+
+## ../final_simple/demand/estimation.py::export_history_distributions
+
+**Inputs and outputs.** The coefficient table supplies mean_novelty, mean_own_stock and their SDs; output is a directory. For each marginal, the function writes a summary of mean, SD, sign share and quantiles, a grid of densities/CDFs, and PDF/PNG plots. These describe population heterogeneity, not confidence intervals or household posterior means.
+
+`NormalDist(mean, sd)` represents a fitted normal distribution; `.cdf(0)` gives its share below zero and `.inv_cdf(.25)` gives its lower quartile. A zero SD is handled as a point mass instead of dividing by zero. A negative own-stock coefficient means satiation, while a positive one means reinforcement. Convergence/boundary status marks provisional exports. This calculation recovers the already estimated distribution without optimizing demand again.
+
+## ../final_simple/demand/estimation.py::plot_history_distributions
+
+Delegates to the population-distribution export routine immediately after a split fit. Its side effects are tables and plots, not new coefficient estimates. The readable estimator keeps the full export calculation in the same file; the original estimator imports that helper.
+
+## ../final_simple/demand/estimation.py::write_run_notes
+
+Writes a readable text rendering of the same automatic run information saved as JSON. pformat lays out nested records for reading; this is an output record, not an alternative settings file.
+
+## ../final_simple/demand/estimation.py::fit_model
+
+This coordinates point fitting, reporting, optional inference, and saved files.
+It turns `best.x` into a labeled table. The boundary list comprehension pairs
+each coefficient with its bounds and tests distance below `1e-4`; flags do not
+automatically change the estimate. Saving point estimates before bootstrap
+protects the useful main result if a long inference job is interrupted.
+
+The nested `estimate` callback supplies demand fitting to the generic bootstrap.
+The bootstrap runs only after a converged main fit and with the original weekly
+frame available. Missing inference columns are explicitly filled with NaN so
+an absent SE cannot be mistaken for zero. `vars(args).items()` enumerates settings;
+Path objects become strings so JSON serialization can encode them. The returned
+`best` is still a SciPy result object, while CSV/JSON provide portable outputs.
+
+In this readable version the settings record comes from editable Python variables at the top of the file; the algorithm is implemented here without importing final_draft.
+
+
+
+**Distribution outputs.** After the main split fit, both history marginals are exported as parameter/quantile summaries, density/CDF grids and PDF/PNG plots. Their SDs are population variation; SEs in estimates.csv describe sampling uncertainty. The saved fit can regenerate these plots without optimization.
+
+## ../final_simple/demand/estimation.py::fit_model.estimate
+
+This nested fake estimator returns an `OptimizeResult` with coefficients equal
+to resampled residual SDs. It deliberately depends on the recomputed controls,
+so frozen controls would change the bootstrap distribution. It declares success
+and a harmless objective because the test targets bootstrap orchestration,
+not numerical optimization. Mocking the demand fit makes this check faster and
+isolates whether first stages are rerun and empirical SEs calculated correctly.
+
+In this readable version the settings record comes from editable Python variables at the top of the file; the algorithm is implemented here without importing final_draft.
+
+## ../final_simple/demand/estimation.py::read_command_line
+
+Creates optional command-line overrides, then sets parser defaults from the ordinary Python settings record. With no flags, the top-of-file parameters govern the run. Parsing arguments itself does not estimate demand or rebuild household inputs.
+
+## ../final_simple/demand/estimation.py::run_estimation
+
+Runs the preparation, optional price first stages, exact weekly-table export, and demand fit/inference in that order. Current simple defaults select heterogeneous_history and capacity 7. Reconstructing a deleted weekly table with regeneration is a separate path that skips optimization.
+
+## ../final_simple/demand/split_pricing.py::expit
+
+Evaluates the logistic probability with an exponential of a nonpositive magnitude to avoid overflow. Its input can be an array. This is a numerical transformation, not a demand-estimation call.
+
+## ../final_simple/demand/split_pricing.py::logsumexp
+
+Computes log(sum(exp(x))) after subtracting the largest entry. The maximum is added back afterwards. axis selects the aggregation direction and keepdims retains singleton axes for broadcasting. This stabilizes likelihood normalization when utilities are large.
+
+## ../final_simple/demand/split_pricing.py::plotting
+
+Selects a noninteractive plotting backend and a writable temporary configuration directory, then returns pyplot. It does not read household data. Backend selection precedes importing pyplot so server runs do not require a display.
+
+## ../final_simple/demand/split_pricing.py::persistent_draws
+
+Generates seeded antithetic normal integration points: half the draws and their negatives. Split pricing uses three columns for log price sensitivity, novelty and own-stock habit; combined-gamma pricing uses two. These are fixed population integration points, not newly estimated coefficients or a bootstrap sample.
+
+## ../final_simple/demand/split_pricing.py::posterior
+
+**Purpose.** Recover household types from a saved fit and a matching weekly table. Each draw represents one persistent type. Utilities yield weekly count-weighted log probabilities; bincount adds all weeks within household before log-sum-exp integrates types. Normalizing those whole-history likelihoods gives household posterior weights.
+
+For split pricing, alpha is positive price sensitivity, and the history array has columns b_N and b_S. weights @ history produces both posterior means. Sorting only the novelty means assigns bottom/top floor(N/4) reporting groups; both coefficients still enter forecasts. Posterior SDs and effective sample size describe type uncertainty. The returned NLL must match the saved fit before pricing. The earlier combined-gamma file instead returns a single gamma array.
+
+## ../final_simple/demand/split_pricing.py::compositions
+
+Enumerates every nonnegative integer basket whose four counts sum to capacity: three flavors plus constructed nonpurchase. For capacity 7 there are 120 baskets. Enumerating all baskets preserves realized history transitions; substituting the mean basket would generally alter continuation values.
+
+## ../final_simple/demand/split_pricing.py::forecast_context
+
+Relabels the first observed choice as t=0, adds its flavor shares once to its pre-choice stock, and uses that basket for next-week novelty. It carries the first menu/prices/controls forward, records the two subsequent pricing dates, and checks focal-menu eligibility. Later observed purchases affect type recovery but not this initial counterfactual history.
+
+## ../final_simple/demand/split_pricing.py::digest
+
+Streams file bytes through SHA-256 to identify the exact input or source used by a run. Hashes are provenance checks, not economic statistics. This function is called during an explicit empirical run, not by the documentation builder.
+
+## ../final_simple/demand/split_pricing.py::targeted_coupons
+
+**Research calculation.** Solve terminal prices for every realized first basket, then choose the initial coupon using immediate revenue plus discounted optimized continuation revenue. In the readable version the outer loop visits one household; remaining axes are type, basket, coupon and revenue metric. Default known posterior mean types leave just one type; posterior-integrated mode keeps draws and updates their weights through the first-basket likelihood.
+
+In split pricing, history_coefficient has two columns: history1=b_N*N1+b_S*S1, history2=b_N*N2+b_S*S2. Every basket updates own stock and other-flavor novelty. Both coefficients enter both dates. The solver's focal slot is coordinate one; run_households permutes the selected flavor into that coordinate. Rival quantities retain distinct identities for history updates.
+
+Terminal coupons maximize revenue after integrating remaining unobserved type uncertainty, before averaging over realized baskets. The firm cannot condition on an unobserved true draw. Both focal and no-focal-purchase branches count. Bottom/top novelty groups get personalized offers; middle households remain at posted prices. No coupons supplies a feasible benchmark and optimized revenue must weakly dominate it. Coupon prices lie between zero and the posted price; they are not unrestricted theoretical prices.
+
+## ../final_simple/demand/split_pricing.py::run_households
+
+Reads an explicitly selected fitted-results directory and its weekly table, checks the model, convergence, bounds, capacity and input schema, then recovers posterior types and reproduces the saved likelihood. For a split run, it permutes the selected focal flavor into the solver's berry coordinate, moving counts, prices, stocks, novelty, controls and intercepts consistently. Type recovery happens before permutation using the original fitted flavor labels.
+
+It calls the household solver, renames public berry-coordinate columns to focal names, and writes policy/group/aggregate tables and figures. The manifest records how rival state coordinates map back to flavors. Swapping only prices or only counts would silently price the wrong product. The three runs are separate focal sellers with fixed rival prices, not a simultaneous equilibrium.
+
+## ../final_simple/demand/split_pricing.py::make_targeting_figures
+
+Draws household posterior switching types, discounted dynamic revenue by reporting group, and coupon patterns. Split figures use b_N labels and the selected focal flavor. Revenue is R1+delta*R2 with terminal revenues averaged after state-dependent optimization; mean prices times mean quantities would not give the same object.
+
+## ../final_simple/demand/split_pricing.py::self_test
+
+Runs generated examples and assertions to check numerical calculations without launching the user-selected empirical exercise. Read the specific body to distinguish the CSV-blocked simple split checks from earlier complete export tests that reopen their own synthetic CSVs. No private input is needed.
+
+## ../final_simple/demand/split_pricing.py::read_command_line
+
+Creates optional command-line overrides, then sets parser defaults from the ordinary Python settings record. With no flags, the top-of-file parameters govern the run. Parsing arguments itself does not estimate demand or rebuild household inputs.
+
+## ../final_simple/demand/split_pricing.py::run_pricing
+
+Validates explicit paths and coupon settings, loops through all selected focal flavors, and writes separate policy folders plus a root comparison table, manifest and plain-text notes. all selects three independent exercises; neither results nor competitor responses are shared as an equilibrium. Its default discount factor is .92.
+
+## ../final_simple/demand/regenerate_weekly_inputs.py::regenerate
+
+**Job and contract.** Rebuild the deleted weekly_inputs.csv on the server using the existing fit directory, optionally overriding moved sample/reference paths. The function reads saved settings, calls the same sample/history/menu preparation, and reconstructs price controls. It never calls the demand optimizer or replaces fitted parameters and inference.
+
+`SimpleNamespace(**settings)` turns dictionary keys into ordinary attributes. Converting saved path strings back to Path objects restores the input contract. The reconstructed table must match household/week counts and the saved integrated likelihood, using the exact parameter order, draw count and seed. A mismatch raises before publishing a CSV.
+
+`NamedTemporaryFile` creates a private intermediate beside the destination; `temporary.replace(target)` publishes only a verified complete export. The finally block cleans up an unfinished intermediate. The JSON regeneration record stores diagnostics, not household rows. Run this entry point on the server; reading the textbook does not execute it.
+
+## ../final_simple/demand/regenerate_weekly_inputs.py::main
+
+Parses a fit directory and optional moved input paths, then calls server-side reconstruction. Missing required paths stop before processing purchases. No optimizer is invoked.
+
+In this readable version the settings record comes from editable Python variables at the top of the file; the algorithm is implemented here without importing final_draft.
+
+## ../final_simple/demand/history_distributions.py::main
+
+Reads saved fit metadata and coefficient estimates, verifies a split model, and exports population marginals. It does not read household histories or re-estimate demand.
+
+In this readable version the settings record comes from editable Python variables at the top of the file; the algorithm is implemented here without importing final_draft.
+
+## ../final_simple/checks/test_split_pricing.py::EmpiricalTimingTests.test_first_observation_becomes_t0
+
+Checks the observed first basket initializes h0 once and future observed purchases do not leak into counterfactual initial states. The assertions fail automatically when the stated property does not hold; passing synthetic checks does not establish empirical fit quality.
+
+## ../final_simple/checks/test_split_pricing.py::EmpiricalTimingTests.test_p1_h0_then_terminal_p2_h1_matches_scalar_enumeration
+
+Independently enumerates basket probabilities and terminal actions, then compares the dynamic optimum and first coupon with the vectorized calculation. Split checks choose b_N and b_S outside the old fixed-lambda restriction. The assertions fail automatically when the stated property does not hold; passing synthetic checks does not establish empirical fit quality.
+
+## ../final_simple/checks/test_split_pricing.py::SplitPosteriorTests.fixture
+
+Constructs tiny, explicitly generated household histories and coefficient dictionaries for checks. These values are inputs chosen to expose errors, not estimates from the private sample.
+
+## ../final_simple/checks/test_split_pricing.py::SplitPosteriorTests.test_posterior_matches_scalar_and_estimator
+
+Compares persistent split-draw likelihoods and posterior weights against a scalar calculation and the demand estimator, and verifies exact binary aggregation by an outside inclusive value. The assertions fail automatically when the stated property does not hold; passing synthetic checks does not establish empirical fit quality.
+
+## ../final_simple/checks/test_split_pricing.py::SplitPosteriorTests.test_three_focal_cases_both_type_treatments
+
+Checks all focal permutations under known posterior means and persistent posterior uncertainty. Generated arrays preserve probability mass and dynamic revenue weakly dominates no coupons; the simple runner blocks all CSV reads. The assertions fail automatically when the stated property does not hold; passing synthetic checks does not establish empirical fit quality.
+
+## ../final_simple/checks/test_regenerate_weekly_inputs.py::RecoveryTests.check_recovery
+
+Builds temporary synthetic fit records and mocks data preparation/CSV loading. It checks successful publication or a likelihood mismatch, and verifies saved fitted parameters are preserved. The mock is a controlled substitute, not evidence that an actual server dataset has already matched.
+
+## ../final_simple/checks/test_regenerate_weekly_inputs.py::RecoveryTests.test_recovery_preserves_parameters
+
+Exercises successful weekly-export regeneration with mocks and confirms fit/parameter records remain byte-for-byte unchanged. The assertions fail automatically when the stated property does not hold; passing synthetic checks does not establish empirical fit quality.
+
+## ../final_simple/checks/test_regenerate_weekly_inputs.py::RecoveryTests.test_mismatch_preserves_existing_export
+
+Forces a reconstructed-likelihood mismatch and checks no replacement weekly export or success record is published. The assertions fail automatically when the stated property does not hold; passing synthetic checks does not establish empirical fit quality.
+
+
+## ../final_simple/demand/plain_berry_pricing.py::read_command_line
+
+Parses optional server flags and uses the editable top-of-file settings as defaults. There is no focal-selection flag: this entry point always compares plain and berry. The explicit fit and weekly-input paths still identify the full three-category demand fit, not a two-category re-estimation.
+
+## ../final_simple/demand/plain_berry_pricing.py::run_comparison
+
+Runs the shared split-pricing solver twice, once for plain and once for berry. FOCAL_FLAVORS controls which product earns seller revenue in each counterfactual; pricing.FLAVORS retains other, berry and plain in demand and history updates. Each case receives a copy of the settings record so its focal label and output path do not change the caller's record. It saves separate focal folders and stacks aggregate policy rows into focal_flavor_comparison.csv. The manifest records both the focal sellers and full demand categories, plus hashes of this entry point and its shared solver. These are separate fixed-rival counterfactuals, not a simultaneous equilibrium.
+
+## ../final_simple/checks/test_split_pricing.py::PlainBerryComparisonTests.test_only_focal_sellers_change_and_full_demand_is_retained
+
+Mocks the household solver and captures the comparison table in memory. It checks there are exactly two calls, plain and berry, with the original fitted-results and household-input paths, no other focal folder, all three demand categories in the run record, and an unchanged caller output path. No empirical inputs or CSV files are read.
+
+## ../final_simple/checks/test_split_pricing.py::PlainBerryComparisonTests.test_only_focal_sellers_change_and_full_demand_is_retained.solve
+
+This nested mock supplies a tiny aggregate result instead of reading household data. Its assertions ensure both focal cases receive the same full fitted-results and weekly-input paths. The surrounding test checks which focal products were requested.
+
+## ../final_simple/checks/test_split_pricing.py::PlainBerryComparisonTests.test_only_focal_sellers_change_and_full_demand_is_retained.capture
+
+Captures the DataFrame passed to to_csv in a Python list rather than creating or reopening a CSV. This makes it possible to verify the two comparison labels while the test runner blocks CSV readers. The helper is a test substitute, not a production export routine.

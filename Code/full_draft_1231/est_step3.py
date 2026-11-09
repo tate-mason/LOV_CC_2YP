@@ -1,3 +1,10 @@
+
+# Empirical I/O is permitted only on the research server, never on this computer.
+from pathlib import Path as _PolicyPath
+import sys as _policy_sys
+_policy_root = next(p for p in _PolicyPath(__file__).resolve().parents if (p / "Code/privacy/server_data_policy.py").is_file())
+_policy_sys.path.insert(0, str(_policy_root / "Code/privacy"))
+from server_data_policy import server_only, require_server
 import os
 import matplotlib.pyplot as plt
 import numpy as np
@@ -107,6 +114,7 @@ def compute_unbinned_satiation_state(
     return df_sat
 
 
+@server_only
 def load_and_preprocess_unbinned(weekly_capacity=14, top_n=TOP_N_FLAVORS):
     schema_names = pl.scan_parquet(MERGED_PATH).collect_schema().names()
 
@@ -526,6 +534,7 @@ def display_results(results, categories):
     console.print(f"[bold]Final LL Objective:[/bold] {results['fun']:.4f}\n")
 
 
+@server_only
 def main():
     console.print(
         "\n[bold yellow]--- Preprocessing Data for Unbinned All-Flavors Model ---[/bold yellow]"

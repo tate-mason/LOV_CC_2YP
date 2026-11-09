@@ -17,6 +17,7 @@ import numpy as np
 import pandas as pd
 from demand import estimation
 from demand import pricing
+from demand import split_pricing
 from supply import supply_simulation
 
 
@@ -98,6 +99,41 @@ def compare(original):
                 pd.testing.assert_frame_equal(new, old, check_exact=False, rtol=1e-11, atol=1e-11)
                 assert max(new_error, old_error) < 1e-12
     print('Matched all household-pricing output columns: both type treatments, three capacities, two discount factors, missing menus and eligibility.')
+
+    old_split = load_reference('original_split', original / 'pricing_exercises/run_split_targeting.py')
+    split_parameters = dict(parameters, mean_novelty=-.4, sd_novelty=.6,
+                            mean_own_stock=.1, sd_own_stock=.2)
+    split_draws = split_pricing.persistent_draws(8, 306)
+    recovered = split_pricing.posterior(frame, split_parameters, split_draws, True)
+    reference = old_split.posterior(frame, split_parameters, split_draws, True)
+    pd.testing.assert_frame_equal(recovered[0], reference[0])
+    for new, old in zip(recovered[1:], reference[1:]):
+        np.testing.assert_allclose(new, old, rtol=1e-12, atol=1e-12)
+    households, weights, alpha, history, beta, _ = recovered
+    for focal in split_pricing.FLAVORS:
+        forecast = frame.copy()
+        intercepts = beta.copy()
+        if focal != 'berry':
+            for destination, source in {'berry': focal, focal: 'berry'}.items():
+                for prefix in ['', 'price_', 'stock_', 'novelty_', 'cf_']:
+                    forecast[prefix+destination] = frame[prefix+source]
+                intercepts[split_pricing.FLAVORS.index(destination)] = beta[split_pricing.FLAVORS.index(source)]
+        context = split_pricing.forecast_context(forecast, households.copy())
+        context['available'][0, 2] = False
+        context['prices'][0, 2] = 0.
+        context['eligible'][1] = False
+        for treatment in ['posterior-mean', 'posterior-integrated']:
+            for capacity in [1, 2, 7]:
+                arguments = (context, households, weights, alpha, history, intercepts, np.linspace(0, 1, 5))
+                options = dict(capacity=capacity, delta=.92, type_treatment=treatment, control_coefficient=.5)
+                new, new_error = split_pricing.targeted_coupons(*arguments, **options)
+                old, old_error = old_split.targeted_coupons(*arguments, **options)
+                order = ['household_code', 'policy']
+                pd.testing.assert_frame_equal(new.sort_values(order).reset_index(drop=True),
+                    old.sort_values(order).reset_index(drop=True), check_exact=False, rtol=1e-11, atol=1e-11)
+                assert max(new_error, old_error) < 1e-12
+    print('Matched split posterior and all pricing columns: three focal flavors, both type treatments, capacities 1/2/7.')
+
 
     for gamma in [-2., 0., 2.]:
         for prior in [.25, .5, .75]:

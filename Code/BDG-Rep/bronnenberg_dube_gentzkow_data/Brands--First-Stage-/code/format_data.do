@@ -1,3 +1,17 @@
+* Empirical records must remain on the research server.
+if "`c(os)'" != "Unix" {
+    display as error "Server-only empirical workflow: do not run on this computer."
+    exit 603
+}
+capture confirm file "/scratch/dtm63837/Kilts_Panel"
+* Require the server filesystem via a directory change, then restore the working directory.
+local policy_cwd "`c(pwd)'"
+capture cd "/scratch/dtm63837/Kilts_Panel"
+if _rc {
+    display as error "Research server filesystem is required."
+    exit 603
+}
+cd "`policy_cwd'"
 /**********************************************************
  *
  * STATA_TO_MATLAB.DO: Output delimited data file that
@@ -55,8 +69,8 @@ mmerge hhld_id using `temp_hh_mig', type(n:1) unmatched(master) _merge(_mig)
 mmerge hhld_id using `temp_hh_mig_all', type(n:1) unmatched(master) _merge(_mig_all)
 drop if _nonmig==1 & _mig==1 & _mig_all==1
 gen nonmig = _nonmig==3
-gen mig = _mig==3 
-gen mig_all = _mig_all==3 
+gen mig = _mig==3
+gen mig_all = _mig_all==3
 
 save `temp_sales'
 sort hhld_id module
@@ -76,8 +90,8 @@ mmerge hhld_id using `temp_hh_mig', type(n:1) unmatched(master) _merge(_mig)
 mmerge hhld_id using `temp_hh_mig_all', type(n:1) unmatched(master) _merge(_mig_all)
 drop if _nonmig==1 & _mig==1 & _mig_all==1
 gen nonmig = _nonmig==3
-gen mig = _mig==3 
-gen mig_all = _mig_all==3 
+gen mig = _mig==3
+gen mig_all = _mig_all==3
 
 * confirm that the sets of birth and current states are the same
 levelsof state_born, clean local(stblist)
@@ -111,57 +125,57 @@ outsheet hhld_id zstb* using ../output/X_stb_mig_all.csv if mig_all==1, comma na
 
 *****************************************************************
 * FLAG STATE-MODULES WITH RECORDED SALES FOR BOTH TOP BRANDS
-* This is code added for robustness checks. Create an index 
+* This is code added for robustness checks. Create an index
 * that maps into lhs_mig which gives a 1 when we record sales
 * for both top brands (based on both migrants and non-migrants)
 * Primary keys are:
-*     hhld_id-module for 'both' 
+*     hhld_id-module for 'both'
 *     module for 'topshare' and 'totpurch' (=purchase frequency)
 *****************************************************************
 
 u hhld_id state_curr state_born keeper using ..\external\survey.dta if keeper==1, clear
 mmerge hhld_id using `temp_sales', type(1:n) unmatched(none)
 sort state_curr state_born module
-gen totpurch = $q1+$q2+purch_gen+purch_oth 
+gen totpurch = $q1+$q2+purch_gen+purch_oth
 save `temp_sales2', replace
 
-sort module state_curr 
-collapse (sum) $q1 $q2, by(module state_curr) 
-gen pair_available = $q1*$q2>0 
-gen state_field = state_curr 
-drop state_curr  
-save `temp_both', replace 
+sort module state_curr
+collapse (sum) $q1 $q2, by(module state_curr)
+gen pair_available = $q1*$q2>0
+gen state_field = state_curr
+drop state_curr
+save `temp_both', replace
 
-use `temp_sales2', clear 
-keep if nonmig==1 
+use `temp_sales2', clear
+keep if nonmig==1
 gen share = $q1/($q1+$q2)
-collapse (mean) $q1 $q2 share, by(module state_curr) 
+collapse (mean) $q1 $q2 share, by(module state_curr)
 gen avshare = $q1/($q1+$q2)
-collapse (sd) geog_sd = avshare share_sd = share, by(module) 
-keep module geog_sd share_sd 
+collapse (sd) geog_sd = avshare share_sd = share, by(module)
+keep module geog_sd share_sd
 save `module_sd'
 
-use `temp_sales2', clear 
-mmerge state_curr module using `temp_both', type(n:1) umatch(state_field module) urename("pair_available pav_curr") 
-mmerge state_born module using `temp_both', type(n:1) umatch(state_field module) urename("pair_available pav_born") 
-mmerge module using `module_sd', type(n:1) 
-gen both = pav_born*pav_curr 
-replace both = 0 if both == . 
+use `temp_sales2', clear
+mmerge state_curr module using `temp_both', type(n:1) umatch(state_field module) urename("pair_available pav_curr")
+mmerge state_born module using `temp_both', type(n:1) umatch(state_field module) urename("pair_available pav_born")
+mmerge module using `module_sd', type(n:1)
+gen both = pav_born*pav_curr
+replace both = 0 if both == .
 keep hhld_id module both geog_sd share_sd
 save `temp_both', replace
 
 use `temp_sales2', clear
-gen toppurch = $q1+$q2 
+gen toppurch = $q1+$q2
 collapse (sum) toppurch totpurch, by(module)
-gen topshare = toppurch/totpurch 
-mmerge module using `temp_both', type(1:n) unmatched(none) 
-drop if hhld_id == . 
+gen topshare = toppurch/totpurch
+mmerge module using `temp_both', type(1:n) unmatched(none)
+drop if hhld_id == .
 keep hhld_id module both topshare totpurch geog_sd share_sd
 
-mmerge hhld_id module using `temp_sales', type(1:1) unmatched(using) 
-drop if _merge == 1 
-save `temp_both', replace 
+mmerge hhld_id module using `temp_sales', type(1:1) unmatched(using)
+drop if _merge == 1
+save `temp_both', replace
 
-sort hhld_id module 
+sort hhld_id module
 
-outsheet hhld_id module both topshare totpurch geog_sd share_sd using ../output/lhs_mig_screen.csv if mig==1, comma names replace 
+outsheet hhld_id module both topshare totpurch geog_sd share_sd using ../output/lhs_mig_screen.csv if mig==1, comma names replace

@@ -4,7 +4,15 @@ Read from top to bottom: inputs -> weekly data -> histories -> probabilities ->
 likelihood -> optimization -> standard errors -> saved results.
 No calculations are imported from final_draft. All seven model choices remain.
 """
+
+# Empirical I/O is permitted only on the research server, never on this computer.
+from pathlib import Path as _PolicyPath
+import sys as _policy_sys
+_policy_root = next(p for p in _PolicyPath(__file__).resolve().parents if (p / "Code/privacy/server_data_policy.py").is_file())
+_policy_sys.path.insert(0, str(_policy_root / "Code/privacy"))
+from server_data_policy import server_only, require_server
 from pathlib import Path
+from statistics import NormalDist
 from types import SimpleNamespace
 import argparse
 import json
@@ -35,16 +43,16 @@ DATA_DIR = Path("/scratch/dtm63837/Kilts_Panel/Data")
 sample = DATA_DIR / "summary_outputs/yogurt_estimation_sample.parquet"
 flavors = DATA_DIR / "summary_outputs/estimation_flavor_reference.csv"
 products_extra = None                 # Optional flavor metadata for older inputs.
-output = Path(__file__).resolve().parents[1] / "results" / "estimation"
+output = Path("/scratch/dtm63837/Kilts_Panel/results") / "estimation_split"
 
-# Main model: common beta, household-specific alpha and gamma.
+# Main model: common beta, household-specific alpha, novelty, and own-stock habit.
 # Other choices: naive, homogeneous, mixed_naive, mixture,
 #               separate_history, heterogeneous_history.
-model = "heterogeneous"
+model = "heterogeneous_history"
 first_year = 2006
 last_year = 2015
 max_households = None                # Use 100 for a development sample.
-capacity = 0                         # 0: flavor choice only; 7: constructed outside counts.
+capacity = 7                         # Pricing setup; use 0 for conditional flavor choice.
 no_price_control = False             # False means include the IV residual control.
 household_dma_column = "dma_cd"
 habit_weight = 0.7                   # Xi = (1-lambda)*novelty - lambda*own stock.
@@ -206,6 +214,7 @@ def normalized_upc_expr():
         .alias("upc")
     )
 
+@server_only
 def read_flavors(path, products_extra=None):
     """Use the same plain-first classification as data_code/summ_stats.py."""
     frame = pd.read_csv(path, dtype={"upc": str})
@@ -322,6 +331,7 @@ def week_dates(values):
 
 # Build one row per household-week. Counts come from all stores; prices use the exposure
 # store. History is built before unusable weeks are removed.
+@server_only
 def prepare_data(settings):
     """Use only the merged purchase table, including its existing prices.
 
@@ -808,6 +818,7 @@ def resample_households(frame, rng):
 
 # Resample households, refit price controls, and refit demand. The spread across
 # successful fits gives the standard errors.
+@server_only
 def bootstrap_standard_errors(frame, settings, estimate, initial, names):
     """Refit price controls AND demand in every household-cluster replication.
 
@@ -1007,37 +1018,51 @@ def plot_gamma_distribution(table, output, converged=True):
     fig.savefig(output / "gamma_distribution.pdf")
     plt.close(fig)
 
-def plot_history_distributions(table, output, converged=True):
-    """Separate marginal population distributions, not confidence intervals."""
-    estimates = table.set_index("parameter")["estimate"]
-    if "mean_novelty" not in estimates:
+def export_history_distributions(table, output, converged=True):
+    p = table.set_index('parameter').estimate
+    if 'mean_novelty' not in p:
         return
+    output = Path(output)
+    output.mkdir(parents=True, exist_ok=True)
+    provisional = not converged or table.get('at_bound', pd.Series(False)).astype(str).str.lower().eq('true').any()
+    summaries, curves = [], []
+    os.environ.setdefault("MPLCONFIGDIR", str(Path(tempfile.gettempdir()) / "pricing_exercises_mpl"))
     import matplotlib
-    matplotlib.use("Agg")
+    matplotlib.use('Agg')
     import matplotlib.pyplot as plt
-    from scipy.stats import norm
     fig, axes = plt.subplots(1, 2, figsize=(10, 4))
-    for ax, term, label in zip(axes, ["novelty", "own_stock"],
-                               ["Recent other-flavor purchases", "Accumulated own-flavor purchases"]):
-        mean, sd = estimates["mean_" + term], estimates.get("sd_" + term, 0.)
-        if sd > 0:
-            x = np.linspace(mean - 4*sd, mean + 4*sd, 801)
-            ax.plot(x, norm.pdf(x, mean, sd))
-            ax.set_ylabel("Population density")
+    for ax, term, label in zip(axes, ['novelty', 'own_stock'], ['Switching / novelty', 'Own-stock habit']):
+        mean, sd = float(p['mean_'+term]), float(p.get('sd_'+term, 0.))
+        if not np.isfinite([mean, sd]).all() or sd < 0:
+            raise ValueError('Invalid distribution parameters')
+        normal = NormalDist(mean, sd) if sd > 0 else None
+        row = dict(coefficient=term, mean=mean, sd=sd, point_mass=sd == 0,
+                   share_below_zero=normal.cdf(0) if normal else float(mean < 0), provisional=bool(provisional))
+        for q in [.01, .05, .25, .5, .75, .95, .99]:
+            row[f'q{int(100*q):02d}'] = normal.inv_cdf(q) if normal else mean
+        summaries.append(row)
+        if normal:
+            x = np.linspace(mean-4*sd, mean+4*sd, 801)
+            density = np.exp(-.5*((x-mean)/sd)**2)/(sd*np.sqrt(2*np.pi))
+            ax.plot(x, density)
+            curves.extend(dict(coefficient=term, value=float(v), density=float(d), cdf=normal.cdf(float(v)), point_mass=False)
+                          for v, d in zip(x, density))
         else:
-            ax.axvline(mean, label="Point mass")
-            ax.set_xlim(mean - 1, mean + 1)
-            ax.set_yticks([])
-        ax.axvline(0, color="gray", ls="--")
-        ax.set(xlabel="Coefficient", title=f"{label}\nMean={mean:.4g}; SD={sd:.4g}")
-    title = "Separate history coefficients"
-    if not converged or table["at_bound"].any():
-        title += " (provisional fit)"
-    fig.suptitle(title)
+            ax.axvline(mean, label='Point mass')
+            curves.append(dict(coefficient=term, value=mean, density=np.nan, cdf=1., point_mass=True))
+        ax.axvline(0, color='gray', ls='--')
+        ax.set(title=f'{label}\nMean={mean:.4g}; SD={sd:.4g}', xlabel='Utility coefficient', ylabel='Population density')
+    pd.DataFrame(summaries).to_csv(output/'history_distribution_summary.csv', index=False)
+    pd.DataFrame(curves).to_csv(output/'history_distribution_grid.csv', index=False)
+    fig.suptitle('Fitted population history distributions'+(' (provisional)' if provisional else ''))
     fig.tight_layout()
-    fig.savefig(output / "history_distributions.pdf")
+    for extension in ['pdf', 'png']:
+        fig.savefig(output/f'history_distributions.{extension}')
     plt.close(fig)
 
+
+def plot_history_distributions(table, output, converged=True):
+    export_history_distributions(table, output, converged)
 
 
 # === 7. Save estimates, uncertainty, and a plain-text run record === #
@@ -1056,6 +1081,7 @@ def write_run_notes(output, information):
 
 # Save point estimates first, then run the requested inference and write final tables,
 # plots, and run notes.
+@server_only
 def fit_model(data, settings, frame=None):
     """Estimate demand, compute requested inference, and save readable outputs."""
     best, results, bounds = optimize_demand(data, settings)
@@ -1163,7 +1189,7 @@ def read_command_line(settings):
         type=Path,
         help="Annual flavor metadata; defaults to RMS/combined/products_extra.parquet beside the RMS data directory.",
     )
-    parser.add_argument("--output", type=Path, default=Path("estimation_output"))
+    parser.add_argument("--output", type=Path, default=Path("/scratch/dtm63837/Kilts_Panel/results/estimation_split"))
     parser.add_argument(
         "--model",
         choices=["naive", "homogeneous", "mixed_naive", "heterogeneous", "mixture", "separate_history", "heterogeneous_history"],
@@ -1205,6 +1231,7 @@ def read_command_line(settings):
 
 
 
+@server_only
 def run_estimation(settings):
     """The actual research steps, in the order they run."""
     if not 0 <= settings.habit_weight <= 1 or settings.capacity < 0 or settings.starts < 1:

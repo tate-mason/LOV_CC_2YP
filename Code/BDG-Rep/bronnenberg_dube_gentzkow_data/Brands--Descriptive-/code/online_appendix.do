@@ -1,3 +1,17 @@
+* Empirical records must remain on the research server.
+if "`c(os)'" != "Unix" {
+    display as error "Server-only empirical workflow: do not run on this computer."
+    exit 603
+}
+capture confirm file "/scratch/dtm63837/Kilts_Panel"
+* Require the server filesystem via a directory change, then restore the working directory.
+local policy_cwd "`c(pwd)'"
+capture cd "/scratch/dtm63837/Kilts_Panel"
+if _rc {
+    display as error "Research server filesystem is required."
+    exit 603
+}
+cd "`policy_cwd'"
 /**********************************************************
  *
  * ONLINE_APPENDIX.DO
@@ -42,7 +56,7 @@ mmerge state_born module using `temp', type(n:1) unm(none) umatch(state module) 
 mmerge state_curr module using `temp', type(n:1) unm(none) umatch(state module) ukeep(absdif) urename(absdif absdif_curr)
 gen decades = years/10
 gen decades2 = decades^2
-drop if betahat == . 
+drop if betahat == .
 
 reg betahatnd decades decades2 [aw=sqdifnd], cluster(module)
 test (_cons=.624) (decades=.098) (decades2=-.009)
@@ -51,11 +65,11 @@ reg betahatnd decades decades2 [aw=sqdifnd] if absdif_born<.2 & absdif_curr<.2, 
 test (_cons=.624) (decades=.098) (decades2=-.009)
 
 reg betahatnd decades decades2 [aw=sqdifnd] if absdif_born<.1 & absdif_curr<.1, cluster(module)
-test (_cons=.624) (decades=.098) (decades2=-.009) 
+test (_cons=.624) (decades=.098) (decades2=-.009)
 
 
 *****************************************************************
-* Alternative years & ages figures with 
+* Alternative years & ages figures with
 * non-parametric controls (R1, point 4)
 *****************************************************************
 
@@ -66,12 +80,12 @@ quietly tab age_move_cat, gen(zagemove)
 
 reg betahatnd zyears1-zyears13 zagemove2-zagemove13 [aw=sqdifnd], cluster(module) nocons
 
-local xlab "0-4 5-9 10-14 15-19 20-24 25-29 30-34 35-39 40-44 45-49 50-54 55-59 60+" 
+local xlab "0-4 5-9 10-14 15-19 20-24 25-29 30-34 35-39 40-44 45-49 50-54 55-59 60+"
 local options "ylabel(0(.1)1) yline(0 1, lpattern(dash)) yscale(range(-.1 1.1)) ytitle(Relative Share ({&beta} {subscript:ij})) xtitle(Years Since Move) label(`xlab')"
 plotcoeffs zyears1-zyears13, `options'
 graph export ..\output\reply\years_none_alt.eps, as(eps) replace
 
-local xlab "5-9 10-14 15-19 20-24 25-29 30-34 35-39 40-44 45-49 50-54 55-59 60+" 
+local xlab "5-9 10-14 15-19 20-24 25-29 30-34 35-39 40-44 45-49 50-54 55-59 60+"
 local options "ylabel(-0.5(.1)0.5) yscale(range(-.6 .6)) ytitle(Relative Share ({&beta} {subscript:ij})) xtitle(Age at Move) label(`xlab')"
 plotcoeffs zagemove2-zagemove13 , `options'
 graph export ..\output\reply\agemove_none_alt.eps, as(eps) replace
@@ -95,7 +109,7 @@ u ..\external\survey.dta, clear
     egen born_curr_code = group(state_born state_curr)
     qui unique born_curr_code, by(hhld_id) gen(temp)
     egen num_born_curr_code = max(temp), by(hhld_id)
-    
+
     gen secondary_is_migrant = 0 if numinhh==2 & primmig==1 & secmig==0
     replace secondary_is_migrant = 1 if nummig==2 & num_born_curr_code==1
     local secondary_is_migrant_lab0 "Secondary HH member is non-migrant"
@@ -153,12 +167,12 @@ replace years_bin = 3 if years>30 & years<=45
 replace years_bin = 4 if years>45
 
 local options "ylabel(0(.1)1) yline(0 1, lpattern(dash)) yscale(range(-.1 1.1)) ytitle(Relative Share ({&beta} {subscript:ij})) xtitle(Years Since Move)"
-    
+
 foreach VAR in `survey_chars' sqdif_over_median sdstateshare_over_median {
 
-    preserve    
+    preserve
     drop if `VAR'==.
-    
+
     * Table
     foreach BIN of numlist 1/4 {
         qui reg betahatnd ibn.`VAR' [w=sqdifnd] if years_bin==`BIN', nocons
@@ -167,16 +181,16 @@ foreach VAR in `survey_chars' sqdif_over_median sdstateshare_over_median {
     }
     matrix_to_txt, saving(..\output\online_appendix_tables.txt) mat(TABLE) format(%20.6f) title(<tab:`VAR'>) append
     cap matrix drop TABLE
-	
+
     * Figure
     collapse (mean) betahatnd [w=sqdifnd], by(years_cat `VAR')
-    twoway scatter betahatnd years_cat if `VAR'==0, msize(small) || /// 
+    twoway scatter betahatnd years_cat if `VAR'==0, msize(small) || ///
        scatter betahatnd years_cat if `VAR'==1, msize(small) `options' ///
        legend(label(1 "``VAR'_lab0'") ///
        label(2 "``VAR'_lab1'") cols(1)) ///
 	   xlabel(0 "0-4" 5 "5-9" 10 "10-14" 15 "15-19" 20 "20-24" 25 "25-29" 30 "30-34" 35 "35-39" 40 "40-44" 45 "45-49" 50 "50-54" 55 "55-59" 60 "60+", angle(90))
 	   graph export ..\output\figures\\`VAR'.eps, as(eps) replace
-    
+
     restore
 }
 
@@ -209,18 +223,18 @@ mmerge hhld_id using ..\temp\hh_mig, type(n:1) unm(master) ukeep(years)
 mmerge pairid using `temp_rand', type(n:1) unm(master) ukeep(yearlaunch_rand)
 
 * generate bunch of variables plus weights
-gen yearumbrella = min(umbrella_year1, umbrella_year2)  
+gen yearumbrella = min(umbrella_year1, umbrella_year2)
 gen years_since_launch = 2007-yearlaunch_rand
 gen years_b = years_since_launch - years
 gen treat_in_b = years_b>0
 gen not_treat_in_b = 1-treat_in_b
-gen years_untreated = not_treat_in_b*years 
-gen years_treated = treat_in_b*years 
+gen years_untreated = not_treat_in_b*years
+gen years_treated = treat_in_b*years
 gen w1 = totpurch*sqdif/(pairshare*(1-pairshare))
 gen w1nd = totpurch*sqdifnd/(pairshare*(1-pairshare))
 
 * data screen drop if betahat == .
-drop if betahat == . 
+drop if betahat == .
 
 * all pairs (yearlaunch_rand>=1955)
 reg betahatnd treat_in_b years_treated not_treat_in_b years_untreated [aw=sqdifnd] , cluster(pairid) nocons
@@ -246,7 +260,7 @@ gen decades = years/10
 gen decades2 = decades^2
 egen avgshare = mean(share), by(module)
 gen sampling_variance = avgshare*(1-avgshare)/totpurch
-drop if betahat == . 
+drop if betahat == .
 gen age_move_10 = age_move/10
 
 * decades only

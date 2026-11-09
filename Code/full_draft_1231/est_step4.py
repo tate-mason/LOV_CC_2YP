@@ -1,5 +1,12 @@
 """Household-week own-flavor estimation. See est_step4.md before interpreting results."""
 
+# Empirical I/O is permitted only on the research server, never on this computer.
+from pathlib import Path as _PolicyPath
+import sys as _policy_sys
+_policy_root = next(p for p in _PolicyPath(__file__).resolve().parents if (p / "Code/privacy/server_data_policy.py").is_file())
+_policy_sys.path.insert(0, str(_policy_root / "Code/privacy"))
+from server_data_policy import server_only, require_server
+
 from pathlib import Path
 import argparse
 import json
@@ -57,6 +64,7 @@ def make_draws(n_draws=N_DRAWS, seed=SEED):
 # =========================================================
 # PART 1: DATA AND STABLE OWN-FLAVOR STOCK
 # =========================================================
+@server_only
 def load_and_preprocess():
     schema_names = pl.scan_parquet(MERGED_PATH).collect_schema().names()
 
@@ -324,6 +332,7 @@ def center_states(households, reference=None):
 # =========================================================
 # PART 2: WITHIN-HOUSEHOLD IDENTIFICATION DIAGNOSTICS
 # =========================================================
+@server_only
 def diagnose_within(households, output_dir):
     rows = []
     for hh in households:
@@ -395,6 +404,7 @@ def diagnose_within(households, output_dir):
 # =========================================================
 # PART 3: HOMOGENEOUS AND HOUSEHOLD RANDOM-COEFFICIENT LOGITS
 # =========================================================
+@server_only
 def estimate_within_fixed_effects(households, output_dir):
     # Unrestricted HH-by-flavor intercepts isolate time variation for shared slopes.
     # This is a short-panel sensitivity benchmark, not a bias-corrected estimator.
@@ -611,6 +621,7 @@ def estimate_model(
     )
 
 
+@server_only
 def display_results(result, output_dir, suffix=""):
     table = Table(title=result["stage"] + suffix)
     for name in ["Parameter", "Estimate", "HH sandwich SE"]:
@@ -639,6 +650,7 @@ def display_results(result, output_dir, suffix=""):
 # =========================================================
 # PART 4: OPTIONAL PROFILE, DRAW, AND DYNAMIC RECOVERY CHECKS
 # =========================================================
+@server_only
 def profile_parameters(result, households, draws, output_dir):
     names, fitted = result["names"], result["params"]
     rows = []
@@ -728,6 +740,7 @@ def simulate_panel(seed, n_hh=RECOVERY_HOUSEHOLDS, n_weeks=RECOVERY_WEEKS):
     return households, truth
 
 
+@server_only
 def run_recovery(output_dir, draws):
     rows = []
     for replication in range(RECOVERY_REPLICATIONS):
@@ -747,6 +760,7 @@ def run_recovery(output_dir, draws):
     pd.DataFrame(rows).to_csv(output_dir / "recovery.csv", index=False)
 
 
+@server_only
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(

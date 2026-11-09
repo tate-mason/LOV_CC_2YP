@@ -2,9 +2,17 @@
     Code for data section
     - Summ stats for full sample
     - Summ stats for yogurt sample
-    - Switching heatmaps 
+    - Switching heatmaps
     - Switching behavior over time graph
 """
+
+# Empirical I/O is permitted only on the research server, never on this computer.
+from pathlib import Path as _PolicyPath
+import sys as _policy_sys
+_policy_root = next(p for p in _PolicyPath(__file__).resolve().parents if (p / "Code/privacy/server_data_policy.py").is_file())
+_policy_sys.path.insert(0, str(_policy_root / "Code/privacy"))
+from server_data_policy import server_only, require_server, require_legacy_server
+require_legacy_server()
 
 #===================================#
 # Loading Packages & Dependencies   #
@@ -67,7 +75,7 @@ agent_panel                    = agent_panel[agent_panel['size1_amount'].between
 
 agent_panel['purchase_date']   = agent_panel['purchase_date'].str.replace('-','',regex=False)   # get rid of hyphens in purchase date
 agent_panel['purchase_date']   = pd.to_datetime(agent_panel['purchase_date'], format='%Y%m%d')  # convert to YearMonthDay format
-agent_panel['week_end']        = agent_panel['purchase_date'] + pd.offsets.Week(weekday=5, n=0) # create a week_end variable like RMS has 
+agent_panel['week_end']        = agent_panel['purchase_date'] + pd.offsets.Week(weekday=5, n=0) # create a week_end variable like RMS has
 
 agent_panel['store_code_uc']   = agent_panel['store_code_uc'].astype('Int64') # convert code to Int64 datatype to match RMS
 agent_panel['upc']             = agent_panel['upc'].astype('Int64')           # same as above
@@ -80,7 +88,7 @@ product_panel = (
     pl.read_parquet(rms_path) # load data in via local path
     .filter((pl.col('product_module_code')==3612) | (pl.col('product_module_code')==3603)) # filter to yogurt
     .to_pandas()              # convert from LazyFrame to DataFrame
-) 
+)
 
 # Product panel cleaning
 
@@ -201,7 +209,7 @@ Full Household:
     - mean taking outside option
     - coupon users
 Yogurt Only:
-    - percent ever-switch 
+    - percent ever-switch
     - average time on a flavor
     - mean times switching
     - mean consecutive buys
@@ -236,7 +244,7 @@ agent_yogurt = agent_yogurt.sort_values(['household_code', 'trip_code_uc']) # so
 agent_yogurt['new_flavor'] = (
     (agent_yogurt['flavor']          != agent_yogurt.groupby('household_code')['flavor'].shift(1)) |
     (agent_yogurt['household_code'] != agent_yogurt['household_code'].shift(1))
-).astype(int) # dummy for if a household switched flavors between trips 
+).astype(int) # dummy for if a household switched flavors between trips
 agent_yogurt['flavor_spell_id']      = agent_yogurt.groupby('household_code')['new_flavor'].cumsum() # count of periods on new flavor
 agent_yogurt['flavor_spell_buys']    = agent_yogurt.groupby(['household_code','flavor_spell_id']).cumcount() + 1 # consecutive periods on flavor
 agent_yogurt['prev_flavor']          = agent_yogurt.groupby('household_code')['flavor'].shift(1) # last purchased flavor
@@ -286,7 +294,7 @@ heat_flav = (
 heat_flav = heat_flav.rename(columns={0:"Other", 1:"Berry", 2:"Plain"}) # labeling columns with flavor names
 cell_labs = np.array(
     [[f'{val:.1f} trips' for val in row] for row in heat_flav.to_numpy()]
-) # applying cell labels applying the word 'trips' after the spell value 
+) # applying cell labels applying the word 'trips' after the spell value
 fig, ax   = plt.subplots(figsize=(10,8)) # defining the canvas and plot area
 sns.heatmap(heat_flav,
             yticklabels=['Other', 'Berry', 'Plain'],

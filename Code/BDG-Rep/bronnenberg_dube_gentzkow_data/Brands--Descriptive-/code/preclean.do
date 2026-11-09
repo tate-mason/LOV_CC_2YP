@@ -1,3 +1,17 @@
+* Empirical records must remain on the research server.
+if "`c(os)'" != "Unix" {
+    display as error "Server-only empirical workflow: do not run on this computer."
+    exit 603
+}
+capture confirm file "/scratch/dtm63837/Kilts_Panel"
+* Require the server filesystem via a directory change, then restore the working directory.
+local policy_cwd "`c(pwd)'"
+capture cd "/scratch/dtm63837/Kilts_Panel"
+if _rc {
+    display as error "Research server filesystem is required."
+    exit 603
+}
+cd "`policy_cwd'"
 /**********************************************************
  *
  * PRECLEAN.DO
@@ -65,17 +79,17 @@ foreach V in mub muc mundb mundc {
 destring mub muc mundb mundc, replace
 
 * drop if no gap
-drop if mundb==mundc 
+drop if mundb==mundc
 
-* define share, betahat, sqdif, and variables need to compute weights 
-gen totpurch = purch1 + purch2 
+* define share, betahat, sqdif, and variables need to compute weights
+gen totpurch = purch1 + purch2
 gen share = purch1 / totpurch
 gen betahat = (share - mub) / (muc - mub)
 gen sqdif = (muc - mub)^2
 gen betahatnd = (share - mundb) / (mundc - mundb)
 gen sqdifnd = (mundc - mundb)^2
-by module, sort: egen modpurch = mean(totpurch) 
-by module, sort: egen modshare = mean(share) 
+by module, sort: egen modpurch = mean(totpurch)
+by module, sort: egen modshare = mean(share)
 
 save ../temp/purch_mig.dta, replace
 
@@ -108,14 +122,14 @@ foreach V in mub muc mundb mundc {
 destring mub muc mundb mundc, replace
 
 * define share, betahat, and sqdif
-gen totpurch = purch1 + purch2 
+gen totpurch = purch1 + purch2
 gen share = purch1 / totpurch
 gen betahat = (share - mub) / (muc - mub)
 gen sqdif = (muc - mub)^2
 gen betahatnd = (share - mundb) / (mundc - mundb)
 gen sqdifnd = (mundc - mundb)^2
 by module, sort: egen modpurch = mean(totpurch)
-by module, sort: egen modshare = mean(share) 
+by module, sort: egen modshare = mean(share)
 save ../temp/purch_mig_month.dta, replace
 
 
@@ -137,16 +151,16 @@ foreach V in mub muc mundb mundc {
 destring mub muc mundb mundc, replace
 
 *drop if no gap
-drop if mundb == mundc 
+drop if mundb == mundc
 
 * define share, betahat, sqdif, and other stuff needed to compute weightsd
-gen totpurch = purch1 + purch2 
+gen totpurch = purch1 + purch2
 gen share = purch1 / totpurch
 gen betahat = (share - mub) / (muc - mub)
 gen sqdif = (muc - mub)^2
 gen betahatnd = (share - mundb) / (mundc - mundb)
 gen sqdifnd = (mundc - mundb)^2
-by pairid, sort: egen pairpurch = mean(totpurch) 
+by pairid, sort: egen pairpurch = mean(totpurch)
 by pairid, sort: egen pairshare = mean(share)
 
 * keep only biggest pair in each  module

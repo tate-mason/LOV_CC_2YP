@@ -381,17 +381,17 @@ def information_frictions(frame, households, delta, output):
         for h0 in ["j", "0"]:
             k = summary.loc[(scenario, h0, "known")]
             u = summary.loc[(scenario, h0, "unknown")]
-            lines.append(f"{h0} & {scenario} & {k.profit:.4f} & {u.profit:.4f} & "
+            lines.append(f"{h0} & {scenario} & {k.persistent_type_revenue:.4f} & {u.persistent_type_revenue:.4f} & "
                          f"{k.value_of_information:.4f} " + r"\\")
     lines.append(r"\hline\end{tabular}")
     (output / "information_friction_results.tex").write_text("\n".join(lines)+"\n")
     plt = plotting()
     scenarios = [name for name, _ in PRIORS]
     labels = ["Equal", "Low-heavy", "Medium-heavy", "High-heavy"]
-    for metric, stem, ylabel in [("profit", "profits", "Expected discounted profit"),
+    for metric, stem, ylabel in [("persistent_type_revenue", "profits", "Expected discounted revenue"),
                                  ("expected_p1", "first_prices", "Mean first-period offered price"),
                                  ("expected_p2", "terminal_prices", "Mean terminal offered price"),
-                                 ("value_of_information", "information_value", "Known minus fixed-belief profit")]:
+                                 ("value_of_information", "information_value", "Revenue gain from knowing novelty type")]:
         fig, axes = plt.subplots(1, 2, figsize=(11, 4), sharey=True)
         x = np.arange(4)
         for ax, h0 in zip(axes, ["j", "0"]):

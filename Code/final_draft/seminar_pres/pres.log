@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.8.17)  8 NOV 2026 18:53
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.8.17)  9 NOV 2026 14:03
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -845,28 +845,53 @@ File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 
 ] [3
 
-] [4
+]
+./pres.tex:158: Misplaced alignment tab character &.
+\beamer@doifinframe ...et. al (2022) \item Anand &
+                                                   Shachar (2009) \item Karl...
+l.158 \end{frame}
+                 
+I can't figure out why you would want to use a tab mark
+here. If you just want an ampersand, the remedy is
+simple: Just type `I\&' now. But if some right brace
+up above has ended a previous alignment prematurely,
+you're probably due for more error messages, and you
+might try typing `S' now just to see what is salvageable.
+
+./pres.tex:158: Misplaced alignment tab character &.
+\beamer@doifinframe ...hachar (2009) \item Karle &
+                                                   Reisinger (2024) \item Du...
+l.158 \end{frame}
+                 
+I can't figure out why you would want to use a tab mark
+here. If you just want an ampersand, the remedy is
+simple: Just type `I\&' now. But if some right brace
+up above has ended a previous alignment prematurely,
+you're probably due for more error messages, and you
+might try typing `S' now just to see what is salvageable.
+
+[4
 
 ]
-<../writeup/1108_writeup/assets/results/summary_statistics/flavor_hhi_histogram.pdf, id=762, 505.89pt x 361.35pt>
+<../writeup/1108_writeup/assets/results/summary_statistics/flavor_hhi_histogram.pdf, id=731, 505.89pt x 361.35pt>
 File: ../writeup/1108_writeup/assets/results/summary_statistics/flavor_hhi_histogram.pdf Graphic file (type pdf)
 <use ../writeup/1108_writeup/assets/results/summary_statistics/flavor_hhi_histogram.pdf>
-Package pdftex.def Info: ../writeup/1108_writeup/assets/results/summary_statistics/flavor_hhi_histogram.pdf  used on input line 150.
+Package pdftex.def Info: ../writeup/1108_writeup/assets/results/summary_statistics/flavor_hhi_histogram.pdf  used on input line 165.
 (pdftex.def)             Requested size: 225.98874pt x 161.42053pt.
  [5
 
  <../writeup/1108_writeup/assets/results/summary_statistics/flavor_hhi_histogram.pdf>]
-<../writeup/1108_writeup/assets/results/summary_statistics/flavor_shares.pdf, id=948, 505.89pt x 361.35pt>
+<../writeup/1108_writeup/assets/results/summary_statistics/flavor_shares.pdf, id=918, 505.89pt x 361.35pt>
 File: ../writeup/1108_writeup/assets/results/summary_statistics/flavor_shares.pdf Graphic file (type pdf)
 <use ../writeup/1108_writeup/assets/results/summary_statistics/flavor_shares.pdf>
-Package pdftex.def Info: ../writeup/1108_writeup/assets/results/summary_statistics/flavor_shares.pdf  used on input line 154.
+Package pdftex.def Info: ../writeup/1108_writeup/assets/results/summary_statistics/flavor_shares.pdf  used on input line 169.
 (pdftex.def)             Requested size: 225.98874pt x 161.42053pt.
  [6
 
  <../writeup/1108_writeup/assets/results/summary_statistics/flavor_shares.pdf>] [7
 
 ]
-LaTeX Font Info:    Trying to load font information for U+bbm on input line 185.
+LaTeX Font Info:    Trying to load font information for U+bbm on input line 200.
  (/usr/local/texlive/2026/texmf-dist/tex/latex/bbm-macros/ubbm.fd
 File: ubbm.fd 1999/03/15 V 1.2 Font definition for bbm font - TH
 ) [8
@@ -884,26 +909,26 @@ File: ubbm.fd 1999/03/15 V 1.2 Font definition for bbm font - TH
 ] [14
 
 ]
-<~/LOV_CC_2YP/Code/final_draft/supply_code/writeup_math_graphs/figures/optimal_prices_by_gamma.pdf, id=2309, 722.7pt x 303.534pt>
+<~/LOV_CC_2YP/Code/final_draft/supply_code/writeup_math_graphs/figures/optimal_prices_by_gamma.pdf, id=2280, 722.7pt x 303.534pt>
 File: ~/LOV_CC_2YP/Code/final_draft/supply_code/writeup_math_graphs/figures/optimal_prices_by_gamma.pdf Graphic file (type pdf)
 <use ~/LOV_CC_2YP/Code/final_draft/supply_code/writeup_math_graphs/figures/optimal_prices_by_gamma.pdf>
-Package pdftex.def Info: ~/LOV_CC_2YP/Code/final_draft/supply_code/writeup_math_graphs/figures/optimal_prices_by_gamma.pdf  used on input line 315.
+Package pdftex.def Info: ~/LOV_CC_2YP/Code/final_draft/supply_code/writeup_math_graphs/figures/optimal_prices_by_gamma.pdf  used on input line 330.
 (pdftex.def)             Requested size: 338.59023pt x 142.20709pt.
  [15
 
  </Users/tate/LOV_CC_2YP/Code/final_draft/supply_code/writeup_math_graphs/figures/optimal_prices_by_gamma.pdf>]
-<~/LOV_CC_2YP/Code/final_draft/supply_code/writeup_math_graphs/figures/all_state_realized_profit.pdf, id=2501, 578.16pt x 361.35pt>
+<~/LOV_CC_2YP/Code/final_draft/supply_code/writeup_math_graphs/figures/all_state_realized_profit.pdf, id=2472, 578.16pt x 361.35pt>
 File: ~/LOV_CC_2YP/Code/final_draft/supply_code/writeup_math_graphs/figures/all_state_realized_profit.pdf Graphic file (type pdf)
 <use ~/LOV_CC_2YP/Code/final_draft/supply_code/writeup_math_graphs/figures/all_state_realized_profit.pdf>
-Package pdftex.def Info: ~/LOV_CC_2YP/Code/final_draft/supply_code/writeup_math_graphs/figures/all_state_realized_profit.pdf  used on input line 319.
+Package pdftex.def Info: ~/LOV_CC_2YP/Code/final_draft/supply_code/writeup_math_graphs/figures/all_state_realized_profit.pdf  used on input line 334.
 (pdftex.def)             Requested size: 298.75394pt x 186.71762pt.
  [16
 
  </Users/tate/LOV_CC_2YP/Code/final_draft/supply_code/writeup_math_graphs/figures/all_state_realized_profit.pdf>]
-<~/LOV_CC_2YP/Code/final_draft/supply_code/writeup_math_graphs/figures/all_state_price_ratios.pdf, id=2697, 578.16pt x 361.35pt>
+<~/LOV_CC_2YP/Code/final_draft/supply_code/writeup_math_graphs/figures/all_state_price_ratios.pdf, id=2668, 578.16pt x 361.35pt>
 File: ~/LOV_CC_2YP/Code/final_draft/supply_code/writeup_math_graphs/figures/all_state_price_ratios.pdf Graphic file (type pdf)
 <use ~/LOV_CC_2YP/Code/final_draft/supply_code/writeup_math_graphs/figures/all_state_price_ratios.pdf>
-Package pdftex.def Info: ~/LOV_CC_2YP/Code/final_draft/supply_code/writeup_math_graphs/figures/all_state_price_ratios.pdf  used on input line 323.
+Package pdftex.def Info: ~/LOV_CC_2YP/Code/final_draft/supply_code/writeup_math_graphs/figures/all_state_price_ratios.pdf  used on input line 338.
 (pdftex.def)             Requested size: 298.75394pt x 186.71762pt.
  [17
 
@@ -912,18 +937,18 @@ Package pdftex.def Info: ~/LOV_CC_2YP/Code/final_draft/supply_code/writeup_math_
 ] [19
 
 ]
-<../writeup/1108_writeup/assets/results/gamma_uncertainty/profits.pdf, id=3174, 722.7pt x 260.17201pt>
+<../writeup/1108_writeup/assets/results/gamma_uncertainty/profits.pdf, id=3145, 722.7pt x 260.17201pt>
 File: ../writeup/1108_writeup/assets/results/gamma_uncertainty/profits.pdf Graphic file (type pdf)
 <use ../writeup/1108_writeup/assets/results/gamma_uncertainty/profits.pdf>
-Package pdftex.def Info: ../writeup/1108_writeup/assets/results/gamma_uncertainty/profits.pdf  used on input line 350.
+Package pdftex.def Info: ../writeup/1108_writeup/assets/results/gamma_uncertainty/profits.pdf  used on input line 365.
 (pdftex.def)             Requested size: 390.37349pt x 140.53445pt.
  [20
 
  <../writeup/1108_writeup/assets/results/gamma_uncertainty/profits.pdf>]
-<../writeup/1108_writeup/assets/results/gamma_uncertainty/information_value.pdf, id=3360, 722.7pt x 260.17201pt>
+<../writeup/1108_writeup/assets/results/gamma_uncertainty/information_value.pdf, id=3331, 722.7pt x 260.17201pt>
 File: ../writeup/1108_writeup/assets/results/gamma_uncertainty/information_value.pdf Graphic file (type pdf)
 <use ../writeup/1108_writeup/assets/results/gamma_uncertainty/information_value.pdf>
-Package pdftex.def Info: ../writeup/1108_writeup/assets/results/gamma_uncertainty/information_value.pdf  used on input line 354.
+Package pdftex.def Info: ../writeup/1108_writeup/assets/results/gamma_uncertainty/information_value.pdf  used on input line 369.
 (pdftex.def)             Requested size: 390.37349pt x 140.53445pt.
  [21
 
@@ -936,10 +961,10 @@ Package pdftex.def Info: ../writeup/1108_writeup/assets/results/gamma_uncertaint
 ] (../writeup/1108_writeup/assets/results/summary_statistics/yogurt_dynamics.tex) [25
 
 ]
-<../writeup/1108_writeup/assets/results/summary_statistics/aggregated_flavors/flavor_transitions.pdf, id=4125, 433.62pt x 433.62pt>
+<../writeup/1108_writeup/assets/results/summary_statistics/aggregated_flavors/flavor_transitions.pdf, id=4097, 433.62pt x 433.62pt>
 File: ../writeup/1108_writeup/assets/results/summary_statistics/aggregated_flavors/flavor_transitions.pdf Graphic file (type pdf)
 <use ../writeup/1108_writeup/assets/results/summary_statistics/aggregated_flavors/flavor_transitions.pdf>
-Package pdftex.def Info: ../writeup/1108_writeup/assets/results/summary_statistics/aggregated_flavors/flavor_transitions.pdf  used on input line 434.
+Package pdftex.def Info: ../writeup/1108_writeup/assets/results/summary_statistics/aggregated_flavors/flavor_transitions.pdf  used on input line 449.
 (pdftex.def)             Requested size: 150.51213pt x 150.51225pt.
  [26
 
@@ -956,10 +981,10 @@ Package pdftex.def Info: ../writeup/1108_writeup/assets/results/summary_statisti
 ] (../writeup/1108_writeup/assets/results/demand/implied_wtp.tex) [32
 
 ]
-<../writeup/1108_writeup/assets/results/demand/history_distributions.pdf, id=5188, 722.7pt x 289.08pt>
+<../writeup/1108_writeup/assets/results/demand/history_distributions.pdf, id=5161, 722.7pt x 289.08pt>
 File: ../writeup/1108_writeup/assets/results/demand/history_distributions.pdf Graphic file (type pdf)
 <use ../writeup/1108_writeup/assets/results/demand/history_distributions.pdf>
-Package pdftex.def Info: ../writeup/1108_writeup/assets/results/demand/history_distributions.pdf  used on input line 517.
+Package pdftex.def Info: ../writeup/1108_writeup/assets/results/demand/history_distributions.pdf  used on input line 532.
 (pdftex.def)             Requested size: 394.35739pt x 157.74176pt.
  [33
 
@@ -970,102 +995,103 @@ Package pdftex.def Info: ../writeup/1108_writeup/assets/results/demand/history_d
 ] [36
 
 ]
-<../writeup/1108_writeup/assets/results/pricing/berry/household_coupon_results.pdf, id=5818, 939.51pt x 361.35pt>
+<../writeup/1108_writeup/assets/results/pricing/berry/household_coupon_results.pdf, id=5792, 939.51pt x 361.35pt>
 File: ../writeup/1108_writeup/assets/results/pricing/berry/household_coupon_results.pdf Graphic file (type pdf)
 <use ../writeup/1108_writeup/assets/results/pricing/berry/household_coupon_results.pdf>
-Package pdftex.def Info: ../writeup/1108_writeup/assets/results/pricing/berry/household_coupon_results.pdf  used on input line 566.
+Package pdftex.def Info: ../writeup/1108_writeup/assets/results/pricing/berry/household_coupon_results.pdf  used on input line 581.
 (pdftex.def)             Requested size: 398.3386pt x 153.20505pt.
  [37
 
  <../writeup/1108_writeup/assets/results/pricing/berry/household_coupon_results.pdf>]
-<../writeup/1108_writeup/assets/results/pricing/plain/household_coupon_results.pdf, id=6027, 939.51pt x 361.35pt>
+<../writeup/1108_writeup/assets/results/pricing/plain/household_coupon_results.pdf, id=6001, 939.51pt x 361.35pt>
 File: ../writeup/1108_writeup/assets/results/pricing/plain/household_coupon_results.pdf Graphic file (type pdf)
 <use ../writeup/1108_writeup/assets/results/pricing/plain/household_coupon_results.pdf>
-Package pdftex.def Info: ../writeup/1108_writeup/assets/results/pricing/plain/household_coupon_results.pdf  used on input line 570.
+Package pdftex.def Info: ../writeup/1108_writeup/assets/results/pricing/plain/household_coupon_results.pdf  used on input line 585.
 (pdftex.def)             Requested size: 398.3386pt x 153.20505pt.
  [38
 
  <../writeup/1108_writeup/assets/results/pricing/plain/household_coupon_results.pdf>]
-<../writeup/1108_writeup/assets/results/pricing/berry/discounts_by_consumer_type.pdf, id=6234, 650.43pt x 361.35pt>
+<../writeup/1108_writeup/assets/results/pricing/berry/discounts_by_consumer_type.pdf, id=6208, 650.43pt x 361.35pt>
 File: ../writeup/1108_writeup/assets/results/pricing/berry/discounts_by_consumer_type.pdf Graphic file (type pdf)
 <use ../writeup/1108_writeup/assets/results/pricing/berry/discounts_by_consumer_type.pdf>
-Package pdftex.def Info: ../writeup/1108_writeup/assets/results/pricing/berry/discounts_by_consumer_type.pdf  used on input line 574.
+Package pdftex.def Info: ../writeup/1108_writeup/assets/results/pricing/berry/discounts_by_consumer_type.pdf  used on input line 589.
 (pdftex.def)             Requested size: 338.59023pt x 188.10709pt.
  [39
 
  <../writeup/1108_writeup/assets/results/pricing/berry/discounts_by_consumer_type.pdf>]
-<../writeup/1108_writeup/assets/results/pricing/plain/discounts_by_consumer_type.pdf, id=6433, 650.43pt x 361.35pt>
+<../writeup/1108_writeup/assets/results/pricing/plain/discounts_by_consumer_type.pdf, id=6407, 650.43pt x 361.35pt>
 File: ../writeup/1108_writeup/assets/results/pricing/plain/discounts_by_consumer_type.pdf Graphic file (type pdf)
 <use ../writeup/1108_writeup/assets/results/pricing/plain/discounts_by_consumer_type.pdf>
-Package pdftex.def Info: ../writeup/1108_writeup/assets/results/pricing/plain/discounts_by_consumer_type.pdf  used on input line 578.
+Package pdftex.def Info: ../writeup/1108_writeup/assets/results/pricing/plain/discounts_by_consumer_type.pdf  used on input line 593.
 (pdftex.def)             Requested size: 338.59023pt x 188.10709pt.
  [40
 
  <../writeup/1108_writeup/assets/results/pricing/plain/discounts_by_consumer_type.pdf>]
-<../writeup/1108_writeup/assets/results/pricing/plain/pricing_policy_benchmarks.pdf, id=6632, 650.43pt x 361.35pt>
+<../writeup/1108_writeup/assets/results/pricing/plain/pricing_policy_benchmarks.pdf, id=6605, 650.43pt x 361.35pt>
 File: ../writeup/1108_writeup/assets/results/pricing/plain/pricing_policy_benchmarks.pdf Graphic file (type pdf)
 <use ../writeup/1108_writeup/assets/results/pricing/plain/pricing_policy_benchmarks.pdf>
-Package pdftex.def Info: ../writeup/1108_writeup/assets/results/pricing/plain/pricing_policy_benchmarks.pdf  used on input line 585.
+Package pdftex.def Info: ../writeup/1108_writeup/assets/results/pricing/plain/pricing_policy_benchmarks.pdf  used on input line 600.
 (pdftex.def)             Requested size: 338.59023pt x 188.10709pt.
  [41
 
  <../writeup/1108_writeup/assets/results/pricing/plain/pricing_policy_benchmarks.pdf>]
-<../writeup/1108_writeup/assets/results/pricing/berry/pricing_policy_benchmarks.pdf, id=6824, 650.43pt x 361.35pt>
+<../writeup/1108_writeup/assets/results/pricing/berry/pricing_policy_benchmarks.pdf, id=6798, 650.43pt x 361.35pt>
 File: ../writeup/1108_writeup/assets/results/pricing/berry/pricing_policy_benchmarks.pdf Graphic file (type pdf)
 <use ../writeup/1108_writeup/assets/results/pricing/berry/pricing_policy_benchmarks.pdf>
-Package pdftex.def Info: ../writeup/1108_writeup/assets/results/pricing/berry/pricing_policy_benchmarks.pdf  used on input line 591.
+Package pdftex.def Info: ../writeup/1108_writeup/assets/results/pricing/berry/pricing_policy_benchmarks.pdf  used on input line 606.
 (pdftex.def)             Requested size: 338.59023pt x 188.10709pt.
  [42
 
  <../writeup/1108_writeup/assets/results/pricing/berry/pricing_policy_benchmarks.pdf>]
-<../writeup/1108_writeup/assets/results/pricing/plain/pricing_mechanism.pdf, id=7020, 722.7pt x 289.08pt>
+<../writeup/1108_writeup/assets/results/pricing/plain/pricing_mechanism.pdf, id=6994, 722.7pt x 289.08pt>
 File: ../writeup/1108_writeup/assets/results/pricing/plain/pricing_mechanism.pdf Graphic file (type pdf)
 <use ../writeup/1108_writeup/assets/results/pricing/plain/pricing_mechanism.pdf>
-Package pdftex.def Info: ../writeup/1108_writeup/assets/results/pricing/plain/pricing_mechanism.pdf  used on input line 595.
+Package pdftex.def Info: ../writeup/1108_writeup/assets/results/pricing/plain/pricing_mechanism.pdf  used on input line 610.
 (pdftex.def)             Requested size: 378.42044pt x 151.36786pt.
  [43
 
  <../writeup/1108_writeup/assets/results/pricing/plain/pricing_mechanism.pdf>]
-<../writeup/1108_writeup/assets/results/pricing/plain/terminal_offers_by_purchase.pdf, id=7222, 650.43pt x 289.08pt>
+<../writeup/1108_writeup/assets/results/pricing/plain/terminal_offers_by_purchase.pdf, id=7196, 650.43pt x 289.08pt>
 File: ../writeup/1108_writeup/assets/results/pricing/plain/terminal_offers_by_purchase.pdf Graphic file (type pdf)
 <use ../writeup/1108_writeup/assets/results/pricing/plain/terminal_offers_by_purchase.pdf>
-Package pdftex.def Info: ../writeup/1108_writeup/assets/results/pricing/plain/terminal_offers_by_purchase.pdf  used on input line 601.
+Package pdftex.def Info: ../writeup/1108_writeup/assets/results/pricing/plain/terminal_offers_by_purchase.pdf  used on input line 616.
 (pdftex.def)             Requested size: 378.42044pt x 168.19142pt.
  [44
 
- <../writeup/1108_writeup/assets/results/pricing/plain/terminal_offers_by_purchase.pdf>] (../writeup/1108_writeup/assets/results/pricing/focal_flavor_comparison.tex) [45
+ <../writeup/1108_writeup/assets/results/pricing/plain/terminal_offers_by_purchase.pdf>]
+(../writeup/1108_writeup/assets/results/pricing/focal_flavor_comparison.tex) [45
 
 ] [46
 
 ]
-<../writeup/1108_writeup/assets/results/empirical_information/plain/revenues.pdf, id=7705, 722.7pt x 260.17201pt>
+<../writeup/1108_writeup/assets/results/empirical_information/plain/revenues.pdf, id=7679, 722.7pt x 260.17201pt>
 File: ../writeup/1108_writeup/assets/results/empirical_information/plain/revenues.pdf Graphic file (type pdf)
 <use ../writeup/1108_writeup/assets/results/empirical_information/plain/revenues.pdf>
-Package pdftex.def Info: ../writeup/1108_writeup/assets/results/empirical_information/plain/revenues.pdf  used on input line 619.
+Package pdftex.def Info: ../writeup/1108_writeup/assets/results/empirical_information/plain/revenues.pdf  used on input line 634.
 (pdftex.def)             Requested size: 390.37349pt x 140.53445pt.
  [47
 
  <../writeup/1108_writeup/assets/results/empirical_information/plain/revenues.pdf>]
-<../writeup/1108_writeup/assets/results/empirical_information/plain/information_value.pdf, id=7893, 722.7pt x 260.17201pt>
+<../writeup/1108_writeup/assets/results/empirical_information/plain/information_value.pdf, id=7867, 722.7pt x 260.17201pt>
 File: ../writeup/1108_writeup/assets/results/empirical_information/plain/information_value.pdf Graphic file (type pdf)
 <use ../writeup/1108_writeup/assets/results/empirical_information/plain/information_value.pdf>
-Package pdftex.def Info: ../writeup/1108_writeup/assets/results/empirical_information/plain/information_value.pdf  used on input line 623.
+Package pdftex.def Info: ../writeup/1108_writeup/assets/results/empirical_information/plain/information_value.pdf  used on input line 638.
 (pdftex.def)             Requested size: 390.37349pt x 140.53445pt.
  [48
 
  <../writeup/1108_writeup/assets/results/empirical_information/plain/information_value.pdf>]
-<../writeup/1108_writeup/assets/results/empirical_information/berry/revenues.pdf, id=8078, 722.7pt x 260.17201pt>
+<../writeup/1108_writeup/assets/results/empirical_information/berry/revenues.pdf, id=8052, 722.7pt x 260.17201pt>
 File: ../writeup/1108_writeup/assets/results/empirical_information/berry/revenues.pdf Graphic file (type pdf)
 <use ../writeup/1108_writeup/assets/results/empirical_information/berry/revenues.pdf>
-Package pdftex.def Info: ../writeup/1108_writeup/assets/results/empirical_information/berry/revenues.pdf  used on input line 627.
+Package pdftex.def Info: ../writeup/1108_writeup/assets/results/empirical_information/berry/revenues.pdf  used on input line 642.
 (pdftex.def)             Requested size: 390.37349pt x 140.53445pt.
  [49
 
  <../writeup/1108_writeup/assets/results/empirical_information/berry/revenues.pdf>]
-<../writeup/1108_writeup/assets/results/empirical_information/berry/information_value.pdf, id=8268, 722.7pt x 260.17201pt>
+<../writeup/1108_writeup/assets/results/empirical_information/berry/information_value.pdf, id=8241, 722.7pt x 260.17201pt>
 File: ../writeup/1108_writeup/assets/results/empirical_information/berry/information_value.pdf Graphic file (type pdf)
 <use ../writeup/1108_writeup/assets/results/empirical_information/berry/information_value.pdf>
-Package pdftex.def Info: ../writeup/1108_writeup/assets/results/empirical_information/berry/information_value.pdf  used on input line 631.
+Package pdftex.def Info: ../writeup/1108_writeup/assets/results/empirical_information/berry/information_value.pdf  used on input line 646.
 (pdftex.def)             Requested size: 390.37349pt x 140.53445pt.
  [50
 
@@ -1076,18 +1102,18 @@ Package pdftex.def Info: ../writeup/1108_writeup/assets/results/empirical_inform
 ] [53
 
 ]
-<../writeup/1108_writeup/assets/results/gamma_uncertainty/first_prices.pdf, id=8887, 722.7pt x 260.17201pt>
+<../writeup/1108_writeup/assets/results/gamma_uncertainty/first_prices.pdf, id=8862, 722.7pt x 260.17201pt>
 File: ../writeup/1108_writeup/assets/results/gamma_uncertainty/first_prices.pdf Graphic file (type pdf)
 <use ../writeup/1108_writeup/assets/results/gamma_uncertainty/first_prices.pdf>
-Package pdftex.def Info: ../writeup/1108_writeup/assets/results/gamma_uncertainty/first_prices.pdf  used on input line 675.
+Package pdftex.def Info: ../writeup/1108_writeup/assets/results/gamma_uncertainty/first_prices.pdf  used on input line 690.
 (pdftex.def)             Requested size: 390.37349pt x 140.53445pt.
  [54
 
  <../writeup/1108_writeup/assets/results/gamma_uncertainty/first_prices.pdf>]
-<../writeup/1108_writeup/assets/results/gamma_uncertainty/terminal_prices.pdf, id=9072, 722.7pt x 260.17201pt>
+<../writeup/1108_writeup/assets/results/gamma_uncertainty/terminal_prices.pdf, id=9048, 722.7pt x 260.17201pt>
 File: ../writeup/1108_writeup/assets/results/gamma_uncertainty/terminal_prices.pdf Graphic file (type pdf)
 <use ../writeup/1108_writeup/assets/results/gamma_uncertainty/terminal_prices.pdf>
-Package pdftex.def Info: ../writeup/1108_writeup/assets/results/gamma_uncertainty/terminal_prices.pdf  used on input line 679.
+Package pdftex.def Info: ../writeup/1108_writeup/assets/results/gamma_uncertainty/terminal_prices.pdf  used on input line 694.
 (pdftex.def)             Requested size: 390.37349pt x 140.53445pt.
  [55
 
@@ -1096,34 +1122,34 @@ Package pdftex.def Info: ../writeup/1108_writeup/assets/results/gamma_uncertaint
 ] (../writeup/1108_writeup/assets/results/demand_controlled/estimates.tex) [57
 
 ]
-<../writeup/1108_writeup/assets/results/empirical_information/plain/first_prices.pdf, id=9552, 794.97pt x 289.08pt>
+<../writeup/1108_writeup/assets/results/empirical_information/plain/first_prices.pdf, id=9528, 794.97pt x 289.08pt>
 File: ../writeup/1108_writeup/assets/results/empirical_information/plain/first_prices.pdf Graphic file (type pdf)
 <use ../writeup/1108_writeup/assets/results/empirical_information/plain/first_prices.pdf>
-Package pdftex.def Info: ../writeup/1108_writeup/assets/results/empirical_information/plain/first_prices.pdf  used on input line 690.
+Package pdftex.def Info: ../writeup/1108_writeup/assets/results/empirical_information/plain/first_prices.pdf  used on input line 705.
 (pdftex.def)             Requested size: 390.3757pt x 141.95479pt.
  [58
 
  <../writeup/1108_writeup/assets/results/empirical_information/plain/first_prices.pdf>]
-<../writeup/1108_writeup/assets/results/empirical_information/plain/terminal_prices.pdf, id=9743, 794.97pt x 289.08pt>
+<../writeup/1108_writeup/assets/results/empirical_information/plain/terminal_prices.pdf, id=9718, 794.97pt x 289.08pt>
 File: ../writeup/1108_writeup/assets/results/empirical_information/plain/terminal_prices.pdf Graphic file (type pdf)
 <use ../writeup/1108_writeup/assets/results/empirical_information/plain/terminal_prices.pdf>
-Package pdftex.def Info: ../writeup/1108_writeup/assets/results/empirical_information/plain/terminal_prices.pdf  used on input line 694.
+Package pdftex.def Info: ../writeup/1108_writeup/assets/results/empirical_information/plain/terminal_prices.pdf  used on input line 709.
 (pdftex.def)             Requested size: 390.3757pt x 141.95479pt.
  [59
 
  <../writeup/1108_writeup/assets/results/empirical_information/plain/terminal_prices.pdf>]
-<../writeup/1108_writeup/assets/results/empirical_information/berry/first_prices.pdf, id=9933, 794.97pt x 289.08pt>
+<../writeup/1108_writeup/assets/results/empirical_information/berry/first_prices.pdf, id=9909, 794.97pt x 289.08pt>
 File: ../writeup/1108_writeup/assets/results/empirical_information/berry/first_prices.pdf Graphic file (type pdf)
 <use ../writeup/1108_writeup/assets/results/empirical_information/berry/first_prices.pdf>
-Package pdftex.def Info: ../writeup/1108_writeup/assets/results/empirical_information/berry/first_prices.pdf  used on input line 698.
+Package pdftex.def Info: ../writeup/1108_writeup/assets/results/empirical_information/berry/first_prices.pdf  used on input line 713.
 (pdftex.def)             Requested size: 390.3757pt x 141.95479pt.
  [60
 
  <../writeup/1108_writeup/assets/results/empirical_information/berry/first_prices.pdf>]
-<../writeup/1108_writeup/assets/results/empirical_information/berry/terminal_prices.pdf, id=10123, 794.97pt x 289.08pt>
+<../writeup/1108_writeup/assets/results/empirical_information/berry/terminal_prices.pdf, id=10099, 794.97pt x 289.08pt>
 File: ../writeup/1108_writeup/assets/results/empirical_information/berry/terminal_prices.pdf Graphic file (type pdf)
 <use ../writeup/1108_writeup/assets/results/empirical_information/berry/terminal_prices.pdf>
-Package pdftex.def Info: ../writeup/1108_writeup/assets/results/empirical_information/berry/terminal_prices.pdf  used on input line 702.
+Package pdftex.def Info: ../writeup/1108_writeup/assets/results/empirical_information/berry/terminal_prices.pdf  used on input line 717.
 (pdftex.def)             Requested size: 390.3757pt x 141.95479pt.
  [61
 
@@ -1146,22 +1172,32 @@ Package pdftex.def Info: ../writeup/1108_writeup/assets/results/empirical_inform
 LaTeX2e <2026-06-01>
 L3 programming layer <2026-07-20>
  ***********
-Package rerunfilecheck Info: File `pres.out' has not changed.
-(rerunfilecheck)             Checksum: 71FB9276E90955D996C842365402F7B4;859.
+
+
+LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
+
+
+Package rerunfilecheck Warning: File `pres.out' has changed.
+(rerunfilecheck)                Rerun to get outlines right
+(rerunfilecheck)                or use package `bookmark'.
+
+Package rerunfilecheck Info: Checksums for `pres.out':
+(rerunfilecheck)             Before: D41D8CD98F00B204E9800998ECF8427E;0
+(rerunfilecheck)             After:  71FB9276E90955D996C842365402F7B4;859.
  ) 
 Here is how much of TeX's memory you used:
- 29993 strings out of 467159
- 623969 string characters out of 5409218
- 1055143 words of memory out of 5000000
- 58536 multiletter control sequences out of 15000+600000
+ 29985 strings out of 467159
+ 623879 string characters out of 5409218
+ 1054797 words of memory out of 5000000
+ 58528 multiletter control sequences out of 15000+600000
  637276 words of font info for 80 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  128i,20n,123p,380b,1012s stack positions out of 10000i,1000n,20000p,200000b,200000s
  </Users/tate/Library/texlive/2026/texmf-var/fonts/pk/ljfour/public/bbm/bbm10.657pk></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmss10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmss12.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmss8.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmss9.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmssbx10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb>
-Output written on pres.pdf (63 pages, 777867 bytes).
+Output written on pres.pdf (63 pages, 777780 bytes).
 PDF statistics:
- 10645 PDF objects out of 10688 (max. 8388607)
- 4902 compressed objects within 50 object streams
+ 10619 PDF objects out of 10688 (max. 8388607)
+ 4877 compressed objects within 49 object streams
  142 named destinations out of 1000 (max. 500000)
- 242 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 178 words of extra memory for PDF output out of 10000 (max. 10000000)
 

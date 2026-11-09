@@ -121,9 +121,9 @@ python3 "$project_dir/Code/final_simple/demand/estimation.py" \
     --se-method hessian --no-price-control --output "$uncontrolled_fit"
 # The estimator exports both population history distributions automatically.
 
-printf '\n[4/5] Plain and berry pricing, using this run\x27s controlled split fit\n'
+printf '\n[4/5] Plain and berry pricing, using this run\x27s uncontrolled split fit\n'
 python3 "$project_dir/Code/final_simple/demand/plain_berry_pricing.py" \
-    --household-input "$controlled_fit/weekly_inputs.csv" --fit-dir "$controlled_fit" \
+    --household-input "$uncontrolled_fit/weekly_inputs.csv" --fit-dir "$uncontrolled_fit" \
     --demand-delta 0.92 --output "$pricing_output"
 
 # Generate aggregate mechanism figures before staging the results-only export.

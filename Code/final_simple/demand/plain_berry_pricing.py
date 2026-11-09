@@ -11,7 +11,7 @@ import sys as _policy_sys
 _policy_root = next((p for p in _PolicyPath(__file__).resolve().parents if (p / "Code/privacy/server_data_policy.py").is_file()), None)
 if _policy_root is not None:
     _policy_sys.path.insert(0, str(_policy_root / "Code/privacy"))
-from server_data_policy import server_only, require_server
+from server_data_policy import server_only, require_server, require_data_path
 from pathlib import Path
 from types import SimpleNamespace
 from pprint import pformat
@@ -30,7 +30,7 @@ else:
 
 # === Parameters: edit these values on the server === #
 household_input = None   # Path to regenerated weekly_inputs.csv.
-fit_dir = None           # Matching heterogeneous_history fitted-results folder.
+fit_dir = None           # Matching uncontrolled heterogeneous_history fitted-results folder.
 output = Path("/scratch/dtm63837/Kilts_Panel/results") / "plain_berry_pricing"
 discounts = np.linspace(0., 1., 101)
 demand_delta = .92
@@ -62,6 +62,12 @@ def read_command_line(settings):
 def run_comparison(settings):
     if settings.household_input is None or settings.fit_dir is None:
         raise ValueError('Set household_input and fit_dir, or supply their server flags.')
+    require_data_path(settings.fit_dir)
+    fit = json.loads((settings.fit_dir / 'fit.json').read_text())
+    if fit['settings'].get('no_price_control') is not True or fit.get('price_control', False):
+        raise ValueError('Plain/berry pricing requires the uncontrolled demand fit.')
+    if fit['settings'].get('novelty_measure', 'previous_share') != 'previous_share':
+        raise ValueError('Pricing requires the original previous-share novelty measure.')
     grid = np.unique(np.asarray(settings.discounts, dtype=float))
     if (grid.size == 0 or not np.isfinite(grid).all() or grid[0] != 0. or grid[-1] > 1.
             or not 0 <= settings.demand_delta <= 1 or settings.batch_size < 1):

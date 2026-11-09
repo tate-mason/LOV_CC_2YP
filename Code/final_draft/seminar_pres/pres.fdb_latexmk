@@ -1,5 +1,5 @@
 # Fdb version 4
-["pdflatex"] 1794182006.32694 "pres.tex" "pres.pdf" "pres" 1794182022.0795 0
+["pdflatex"] 1794251033.74482 "pres.tex" "pres.pdf" "pres" 1794251049.92957 2
   "../writeup/1108_writeup/assets/results/demand/comparison.tex" 1794181800.30452 531 ade698ab8c093b51a87824b905bbb9e7 ""
   "../writeup/1108_writeup/assets/results/demand/estimates.tex" 1794181850.24587 662 a4d80cb4caf397530d5e3bcddee715bc ""
   "../writeup/1108_writeup/assets/results/demand/history_distributions.pdf" 1794181578.46092 18657 69a78f93dda1430335d13e536bd71158 ""
@@ -281,10 +281,10 @@
   "/usr/local/texlive/2026/texmf-var/fonts/map/pdftex/updmap/pdftex.map" 1787008065 5573194 3473593ed16e9f152d99f1a1aaa20677 ""
   "/usr/local/texlive/2026/texmf-var/web2c/pdftex/pdflatex.fmt" 1787008814 3656725 4e447c05aa121cdaa2af3e1480626bfc ""
   "/usr/local/texlive/2026/texmf.cnf" 1774209515 577 648cd9f92f9c0eac486f4c71c85cfbbe ""
-  "pres.aux" 1794182021.94986 11834 ab4d3939e754be796587ad5f7e027ce3 "pdflatex"
-  "pres.nav" 1794182021.95344 7280 dbf23c730c1b423de400d44815ceca8a "pdflatex"
-  "pres.out" 1794182021.95321 859 71fb9276e90955d996c842365402f7b4 "pdflatex"
-  "pres.tex" 1794181993.59868 28930 1a48a2ad3f0fb034da04506c51994e62 ""
+  "pres.aux" 1794251049.79049 11834 ab4d3939e754be796587ad5f7e027ce3 "pdflatex"
+  "pres.nav" 1794251049.79414 7280 dbf23c730c1b423de400d44815ceca8a "pdflatex"
+  "pres.out" 1794251049.79326 859 71fb9276e90955d996c842365402f7b4 "pdflatex"
+  "pres.tex" 1794251032.07195 29389 3fc57926d85521b75648c1952fceed0d ""
   (generated)
   "pres.aux"
   "pres.log"

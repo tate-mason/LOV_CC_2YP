@@ -123,6 +123,7 @@ def run_calibration(frame, households, delta, output):
             known = [known_prices(g, h0, alpha, beta, delta) for g in gamma]
             full = {key: float(np.dot(prior, [r[key] for r in known])) for key in known[0]}
             unknown = uncertainty(gamma, prior, h0, alpha, beta, delta)
+            persistent_unknown = []
             for k, label in enumerate(['low', 'medium', 'high']):
                 s1 = float(expit(beta+alpha*unknown['expected_p1']+(-gamma[k] if h0 == 'j' else gamma[k])))
                 s2j = float(expit(beta+alpha*unknown['p2j']-gamma[k]))
@@ -131,15 +132,19 @@ def run_calibration(frame, households, delta, output):
                     s1*unknown['p2j']*s2j+(1-s1)*unknown['p20']*s20)
                 if known[k]['profit']+1e-7 < true_profit:
                     raise AssertionError('Known-type bound on persistent-type revenue failed')
+                persistent_unknown.append(true_profit)
                 type_rows.append(dict(scenario=scenario, h0=h0, type=label,
                     gamma=float(gamma[k]), probability=prior[k],
                     known_profit=known[k]['profit'], known_p1=known[k]['expected_p1'],
                     known_expected_p2=known[k]['expected_p2'],
                     unknown_policy_persistent_profit=true_profit))
+            persistent_unknown_revenue = float(np.dot(prior, persistent_unknown))
+            information_gain = full['profit'] - persistent_unknown_revenue
             for case, result in [('known', full), ('unknown', unknown)]:
                 rows.append(dict(scenario=scenario, h0=h0, case=case,
                     **{key: result[key] for key in full},
-                    value_of_information=full['profit']-unknown['profit']))
+                    persistent_type_revenue=(full['profit'] if case == 'known' else persistent_unknown_revenue),
+                    value_of_information=information_gain))
     pd.DataFrame(type_rows).to_csv(output / 'information_friction_by_group.csv', index=False)
     table = pd.DataFrame(rows)
     table.to_csv(output / 'information_friction_aggregate.csv', index=False)
@@ -151,6 +156,8 @@ def run_calibration(frame, households, delta, output):
         households_without_complete_price_targets=int((~valid).sum()),
         observed_prices='actual weekly prices at t0+7 and t0+14 days',
         outcome_units='per model consumer, not population revenue totals',
+        revenue_evaluation='same persistent consumer types under both policies',
+        profit_column='fixed-belief optimization objective; use persistent_type_revenue for policy comparisons',
         assumption='observed mean offered prices target known-type optimal supply prices',
         gamma_mapping='fitted novelty group means used as symmetric binary theory gamma')
     (output / 'information_friction_settings.json').write_text(json.dumps(settings, indent=2)+'\n')

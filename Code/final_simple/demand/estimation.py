@@ -437,7 +437,8 @@ def prepare_data(settings):
             weekly["iv_" + f] = weekly["iv_overall"]
         weekly = weekly.drop(columns=["total_sum", "total_count", "dma_sum", "dma_count"])
         print("IV: overall same-week mean price outside consumer dma_cd, pooled across flavors.", flush=True)
-    weekly = add_stocks(weekly.sort_values(keys).reset_index(drop=True), settings.habit_weight)
+    weekly = add_stocks(weekly.sort_values(keys).reset_index(drop=True), settings.habit_weight,
+                        getattr(settings, "novelty_measure", "previous_share"))
     price_cols = ["price_" + f for f in FLAVORS]
     available = np.isfinite(weekly[price_cols].to_numpy(float)) & (weekly[price_cols].to_numpy(float) > 0)
     counts = weekly[FLAVORS].to_numpy(float)
@@ -461,18 +462,28 @@ def prepare_data(settings):
 
 # Record history BEFORE this week's purchases. Then add the current basket to the stock
 # for next week.
-def add_stocks(weekly, habit_weight=0.7):
-    """All past observed occasions, delta=1; no rolling window or decay.
+def switch_away_event(before, after):
+    """Binary recovery event for each flavor; inputs are consecutive basket shares.
 
-    S_jt = sum_{s<t} share_js
-    N_jt = sum_{k != j} share_k,t-1  (immediately preceding calendar week)
-    Xi_jt = (1-habit_weight)*N_jt - habit_weight*S_jt
-
-    Positive gamma rewards recent other-flavor consumption and penalizes own
-    fatigue. Negative gamma represents habit. A purchase occasion is an observed
-    household purchase week. Current purchases enter history only AFTER Xi is
-    recorded. The first observed occasion starts with zero history.
+    A strict majority is dominance. A new entry only rewards flavors whose
+    shares fall. Multiple triggers still produce a single unit boost.
     """
+    entered = (before == 0) & (after > 0)
+    takeover = ((before > .5)[:, None] & (after > .5)[None, :]
+                & ~np.eye(len(before), dtype=bool)).any(axis=1)
+    return (takeover | (entered.any() & (after < before))).astype(float)
+
+
+def add_stocks(weekly, habit_weight=0.7, novelty_measure="previous_share"):
+    """Record cumulative stock and novelty before current purchases.
+
+    previous_share: legacy N = 1 - own share in the preceding calendar week.
+    lagged_switch_away: N in t is the binary switch-away event from t-2 to t-1.
+    Both transitions must be adjacent calendar weeks; missing history gives 0.
+    Stock remains the sum of all preceding observed own-flavor shares.
+    """
+    if novelty_measure not in {"previous_share", "lagged_switch_away"}:
+        raise ValueError("Unknown novelty measure: " + str(novelty_measure))
     result = (
         weekly.sort_values(["household_code", "week"]).reset_index(drop=True).copy()
     )
@@ -482,12 +493,18 @@ def add_stocks(weekly, habit_weight=0.7):
         stock = np.zeros(3)
         previous_share = np.zeros(3)
         previous_week = None
+        previous_event = np.zeros(3)
         for index, row in group.iterrows():
             stocks[index] = stock
-            if previous_week is not None and (row["week"] - previous_week).days == 7:
-                novelty[index] = previous_share.sum() - previous_share
+            adjacent = previous_week is not None and (row["week"] - previous_week).days == 7
+            if adjacent:
+                novelty[index] = (previous_share.sum() - previous_share
+                                  if novelty_measure == "previous_share" else previous_event)
             counts = row[FLAVORS].to_numpy(float)
-            previous_share = counts / counts.sum()
+            current_share = counts / counts.sum()
+            previous_event = (switch_away_event(previous_share, current_share)
+                              if adjacent else np.zeros(3))
+            previous_share = current_share
             stock = stock + previous_share
             previous_week = row["week"]
     for j, name in enumerate(FLAVORS):
@@ -1137,6 +1154,7 @@ def fit_model(data, settings, frame=None):
     summary = dict(
         model=settings.model,
         price_control=data["control"],
+        novelty_measure=getattr(settings, "novelty_measure", "previous_share"),
         history_specification="separate" if settings.model in ("separate_history", "heterogeneous_history") else "combined_or_none",
         sample_restriction="household_size == 1 on each purchase record",
         households=data["n_households"],
@@ -1216,6 +1234,8 @@ def read_command_line(settings):
     )
     parser.add_argument("--bootstrap-reps", type=int, default=49)
     parser.add_argument("--bootstrap-starts", type=int, default=2)
+    parser.add_argument("--novelty-measure", choices=["previous_share", "lagged_switch_away"],
+                        default="previous_share", help="Legacy share or lagged binary recovery event")
     parser.add_argument("--habit-weight", type=float, default=0.7)
     parser.add_argument("--draws", type=int, default=128)
     parser.add_argument("--starts", type=int, default=3)
@@ -1282,6 +1302,7 @@ if __name__ == "__main__":
         bootstrap_reps=bootstrap_reps,
         bootstrap_starts=bootstrap_starts,
         habit_weight=habit_weight,
+        novelty_measure="previous_share",
         draws=draws,
         starts=starts,
         maxiter=maxiter,

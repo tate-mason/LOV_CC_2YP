@@ -64,6 +64,11 @@ se_method = "hessian"                # hessian, bootstrap, or none.
 bootstrap_reps = 49
 bootstrap_starts = 2
 
+
+# Shared descriptor rules; the selected categories are recorded with each fit.
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from flavor_specs import categories, classification_expression
+
 FLAVORS = ["other", "berry", "plain"] # This column order is used in all arrays.
 FLAVOR_FILE = flavors
 
@@ -228,7 +233,7 @@ def read_flavors(path, products_extra=None):
         ):
             raise ValueError(f"{path}: saved mapping needs unique, nonmissing UPCs.")
         if not frame["flavor"].isin(FLAVORS).all():
-            raise ValueError(f"{path}: saved mapping must use other, berry, plain.")
+            raise ValueError(f"{path}: saved mapping must use {FLAVORS}.")
         print(
             f"Loaded {len(frame):,} resolved UPC flavor labels from {path}.", flush=True
         )
@@ -303,14 +308,9 @@ def read_flavors(path, products_extra=None):
     if "product_descr" in frame.columns:
         text = text + " " + frame["product_descr"].fillna("")
     text = text.str.lower()
-    frame["flavor"] = np.select(
-        [
-            text.str.contains("plain|unflavored"),
-            text.str.contains("berry|straw|blue|rasp|black|cran|cherry|wildberry"),
-        ],
-        ["plain", "berry"],
-        default="other",
-    )
+    from flavor_specs import classify_descriptor
+    specification = "five" if len(FLAVORS) == 5 else "three"
+    frame["flavor"] = text.map(lambda value: classify_descriptor(value, specification))
     # Match summ_stats: retain missing labels and use the first CSV row per UPC.
     conflicts = (frame.groupby("upc")["flavor"].nunique() > 1).sum()
     if conflicts:
@@ -338,6 +338,7 @@ def prepare_data(settings):
     The IV pools all flavors: the same-week average observed price outside the
     consumer's DMA. Repeated purchases do not duplicate store/UPC price quotes.
     """
+    FLAVORS[:] = categories(getattr(settings, "flavor_spec", "three"))
     base = pl.scan_parquet(settings.sample)
     names = base.collect_schema().names()
     if "household_size" not in names:
@@ -487,13 +488,13 @@ def add_stocks(weekly, habit_weight=0.7, novelty_measure="previous_share"):
     result = (
         weekly.sort_values(["household_code", "week"]).reset_index(drop=True).copy()
     )
-    stocks = np.zeros((len(result), 3))
+    stocks = np.zeros((len(result), len(FLAVORS)))
     novelty = np.zeros_like(stocks)
     for _, group in result.groupby("household_code", sort=False):
-        stock = np.zeros(3)
-        previous_share = np.zeros(3)
+        stock = np.zeros(len(FLAVORS))
+        previous_share = np.zeros(len(FLAVORS))
         previous_week = None
-        previous_event = np.zeros(3)
+        previous_event = np.zeros(len(FLAVORS))
         for index, row in group.iterrows():
             stocks[index] = stock
             adjacent = previous_week is not None and (row["week"] - previous_week).days == 7
@@ -503,7 +504,7 @@ def add_stocks(weekly, habit_weight=0.7, novelty_measure="previous_share"):
             counts = row[FLAVORS].to_numpy(float)
             current_share = counts / counts.sum()
             previous_event = (switch_away_event(previous_share, current_share)
-                              if adjacent else np.zeros(3))
+                              if adjacent else np.zeros(len(FLAVORS)))
             previous_share = current_share
             stock = stock + previous_share
             previous_week = row["week"]
@@ -531,7 +532,7 @@ def make_arrays(frame, capacity):
     available = np.isfinite(prices) & (prices > 0)
     if not all(np.isfinite(x).all() for x in [counts, xi]):
         raise ValueError("Nonfinite estimation inputs.")
-    if ((counts[:, :3] > 0) & ~available).any() or not available.any(axis=1).all():
+    if ((counts[:, :len(FLAVORS)] > 0) & ~available).any() or not available.any(axis=1).all():
         raise ValueError("Purchased flavors must have covered prices and a nonempty choice set.")
     # Zero placeholders are masked out of utility, never treated as free goods.
     prices = np.where(available, prices, 0.)
@@ -572,7 +573,7 @@ def make_draws(number, seed, model=None):
 # This list fixes the order of coefficients in theta. Never change theta's order
 # independently of this function.
 def parameter_names(model, outside, control=False):
-    names = (["inside_constant"] if outside else []) + ["beta_berry", "beta_plain"]
+    names = (["inside_constant"] if outside else []) + ["beta_" + f for f in FLAVORS[1:]]
     names += ["mu_log_minus_alpha"]
     if model in ("homogeneous", "heterogeneous"):
         names += ["mean_gamma"]
@@ -656,7 +657,7 @@ def household_loglike(theta, data, draws, model):
     if model == "mixture":
         return mixture_loglike_score(theta, data, draws)
     p = dict(zip(parameter_names(model, data["outside"], data["control"]), theta))
-    beta = np.array([0.0, p["beta_berry"], p["beta_plain"]])
+    beta = np.array([0.] + [p["beta_" + f] for f in FLAVORS[1:]])
     beta += p.get("inside_constant", 0.0)
     loglikes = []
     active_draws = (
@@ -697,7 +698,7 @@ def demand_objective_gradient(theta, data, draws, model, household=False):
     for z in active:
         alpha = -np.exp(p["mu_log_minus_alpha"] + p.get("sd_log_minus_alpha", 0.) * z[0])
         gamma = p.get("mean_gamma", 0.) + p.get("sd_gamma", 0.) * z[1]
-        utility = (np.array([0., p["beta_berry"], p["beta_plain"]]) + p.get("inside_constant", 0.)
+        utility = (np.array([0.] + [p["beta_" + f] for f in FLAVORS[1:]]) + p.get("inside_constant", 0.)
                    + alpha * data["prices"] + history_utility(p, data, z, model) + p.get("price_control", 0.) * data["cf"])
         utility = np.where(data["available"], utility, -np.inf)
         if data["outside"]:
@@ -705,12 +706,13 @@ def demand_objective_gradient(theta, data, draws, model, household=False):
         logprob = utility - logsumexp(utility, axis=1, keepdims=True)
         row_ll = (data["counts"] * np.where(data["counts"] > 0, logprob, 0.)).sum(axis=1)
         likelihoods.append(np.bincount(data["hh"], weights=row_ll, minlength=data["n_households"]))
-        residual = data["counts"][:, :3] - total[:, None] * np.exp(logprob[:, :3])
+        residual = data["counts"][:, :len(FLAVORS)] - total[:, None] * np.exp(logprob[:, :len(FLAVORS)])
         price_score = (residual * data["prices"]).sum(axis=1) * alpha
         columns = {"inside_constant": residual.sum(axis=1), "beta_berry": residual[:, 1],
                    "beta_plain": residual[:, 2], "mu_log_minus_alpha": price_score,
                    "sd_log_minus_alpha": price_score * z[0],
                    "price_control": (residual * data["cf"]).sum(axis=1)}
+        columns.update({"beta_" + f: residual[:, j] for j, f in enumerate(FLAVORS) if j})
         columns["mean_gamma"] = (residual * data["xi"]).sum(axis=1)
         columns["sd_gamma"] = columns["mean_gamma"] * z[1]
         if model in ("separate_history", "heterogeneous_history"):
@@ -949,7 +951,7 @@ def implied_wtp(estimates, habit_weight=.7):
         rows.append(dict(term=term, mean_wtp=wtp_mean, population_sd=np.sqrt(variance),
                          interpretation=interpretation))
 
-    for name in ['inside_constant', 'beta_berry', 'beta_plain']:
+    for name in ['inside_constant'] + ['beta_' + f for f in FLAVORS[1:]]:
         if name in p:
             interpretation = ('Other flavor vs outside, at zero history and control residual'
                               if name == 'inside_constant' else 'Flavor premium relative to other')
@@ -1154,6 +1156,8 @@ def fit_model(data, settings, frame=None):
     summary = dict(
         model=settings.model,
         price_control=data["control"],
+        flavor_spec=getattr(settings, "flavor_spec", "three"),
+        flavor_categories=list(FLAVORS),
         novelty_measure=getattr(settings, "novelty_measure", "previous_share"),
         history_specification="separate" if settings.model in ("separate_history", "heterogeneous_history") else "combined_or_none",
         sample_restriction="household_size == 1 on each purchase record",
@@ -1196,6 +1200,7 @@ def fit_model(data, settings, frame=None):
 def read_command_line(settings):
     """Optional server flags. Normal use: edit the parameters at the top."""
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--flavor-spec", choices=["three", "five"], default="three")
     parser.add_argument(
         "--sample",
         type=Path,

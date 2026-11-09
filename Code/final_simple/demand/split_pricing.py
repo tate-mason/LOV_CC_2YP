@@ -42,6 +42,11 @@ run_self_tests = False
 
 # === 1. Persistent switching, habit, and price types === #
 
+
+# Shared descriptor rules; the selected categories are recorded with each fit.
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from flavor_specs import categories, classification_expression
+
 FLAVORS = ["other", "berry", "plain"]
 
 def expit(x):
@@ -80,9 +85,9 @@ def posterior(frame, parameters, draws, control=True):
     cf = frame[["cf_"+f for f in FLAVORS]].to_numpy(float) if control else np.zeros_like(prices)
     if (not np.isfinite(counts).all() or (counts < 0).any()
             or not np.isfinite(novelty).all() or not np.isfinite(stock).all() or not np.isfinite(cf).all()
-            or ((counts[:, :3] > 0) & ~available).any()):
+            or ((counts[:, :len(FLAVORS)] > 0) & ~available).any()):
         raise ValueError("Invalid counts, history, controls, or purchased-alternative coverage.")
-    beta = parameters["inside_constant"] + np.array([0., parameters["beta_berry"], parameters["beta_plain"]])
+    beta = parameters["inside_constant"] + np.array([0.] + [parameters["beta_"+f] for f in FLAVORS[1:]])
     alpha = np.exp(parameters["mu_log_minus_alpha"] + parameters["sd_log_minus_alpha"]*draws[:, 0])
     switching = parameters["mean_novelty"] + parameters["sd_novelty"]*draws[:, 1]
     habit = parameters["mean_own_stock"] + parameters["sd_own_stock"]*draws[:, 2]
@@ -115,10 +120,18 @@ def posterior(frame, parameters, draws, control=True):
 
 # === 2. Baskets and the observed initial history === #
 
-def compositions(capacity):
-    """All multinomial baskets of three inside flavors and outside."""
-    return np.array([(a,b,c,capacity-a-b-c) for a in range(capacity+1)
-                     for b in range(capacity-a+1) for c in range(capacity-a-b+1)], dtype=int)
+def compositions(capacity, inside=None):
+    """All baskets for the selected inside alternatives plus outside."""
+    inside = len(FLAVORS) if inside is None else inside
+    def generate(total, slots):
+        if slots == 1:
+            yield (total,)
+        else:
+            for count in range(total+1):
+                for rest in generate(total-count, slots-1):
+                    yield (count,)+rest
+    return np.array(list(generate(capacity, inside+1)), dtype=int)
+
 
 def forecast_context(frame, households):
     """First observed choice establishes h0; price the next two consecutive weeks.
@@ -178,7 +191,7 @@ def targeted_coupons(context, households, weights, alpha, switching, beta, disco
     state_numbers = np.arange(number_states)
 
     # A basket records [other, berry, plain, outside]. History uses inside shares.
-    inside_counts = baskets[:, :3]
+    inside_counts = baskets[:, :len(FLAVORS)]
     inside_total = inside_counts.sum(axis=1, keepdims=True)
     basket_shares = np.divide(
         inside_counts, inside_total,
@@ -254,7 +267,7 @@ def targeted_coupons(context, households, weights, alpha, switching, beta, disco
             utility[:, 1] += price_sensitivity * prices[1] * discount
             all_utilities = np.column_stack([utility, np.zeros(len(type_weights))])
             log_probability = all_utilities - logsumexp(all_utilities, axis=1, keepdims=True)
-            terms = np.zeros((len(type_weights), number_states, 4))
+            terms = np.zeros((len(type_weights), number_states, len(FLAVORS)+1))
             np.multiply(baskets[None, :, :], log_probability[:, None, :],
                         out=terms, where=baskets[None, :, :] > 0)
             basket_probability = np.exp(log_multinomial_coefficient + terms.sum(axis=-1))
@@ -366,14 +379,21 @@ def targeted_coupons(context, households, weights, alpha, switching, beta, disco
 
 # Exact binary supply calibration; target actual observed weekly prices.
 if __package__:
-    from .gamma_calibration import run_calibration, PRIORS
+    from .gamma_calibration import run_calibration, PRIORS, CalibrationError
 else:
-    from gamma_calibration import run_calibration, PRIORS
+    from gamma_calibration import run_calibration, PRIORS, CalibrationError
 
 
 @server_only
 def information_frictions(frame, households, delta, output):
-    table, settings = run_calibration(frame, households, delta, output)
+    try:
+        table, settings = run_calibration(frame, households, delta, output)
+    except CalibrationError:
+        # A rejected auxiliary binary calibration must not discard coupon results.
+        status = json.loads((output/'information_calibration_status.json').read_text())
+        print('Auxiliary type-information calibration rejected; coupon pricing will finish. '
+              'See information_calibration_status.json.', flush=True)
+        return status
     summary = table.set_index(["scenario", "h0", "case"])
     lines = [r"\begin{tabular}{llrrr}\hline",
              r"Initial state & Prior & Known profit & Fixed-belief profit & Difference\\\hline"]
@@ -417,7 +437,7 @@ def information_frictions(frame, households, delta, output):
         plt.close(fig)
 
 
-    return settings
+    return dict(settings, status='complete')
 
 
 @server_only
@@ -430,6 +450,7 @@ def run_households(args):
     fit = json.loads((args.fit_dir / "fit.json").read_text())
     if fit["model"] != "heterogeneous_history" or not fit.get("converged", False):
         raise ValueError("This exercise requires a converged split heterogeneous-history fit.")
+    FLAVORS[:] = categories(fit["settings"].get("flavor_spec", "three"))
     estimates = pd.read_csv(args.fit_dir / "point_estimates.csv")
     if "at_bound" in estimates and estimates.at_bound.astype(str).str.lower().eq("true").any():
         raise ValueError("Fit has boundary parameters; review before running counterfactuals.")
@@ -558,11 +579,13 @@ def run_households(args):
                            focal_flavor=focal)
     return dict(focal_flavor=focal, state_coordinates={"focal_units": focal,
                 "rival1_units": "berry" if focal == "other" else "other",
-                "rival2_units": "berry" if focal == "plain" else "plain"}, households=len(households), eligible_by_group=dict(zip(["low", "middle", "high"], counts)),
+                "rival2_units": "berry" if focal == "plain" else "plain",
+                "inside_flavors": list(FLAVORS)}, households=len(households), eligible_by_group=dict(zip(["low", "middle", "high"], counts)),
                 reconstructed_nll=nll, basket_mass_error=mass_error,
                 input_sha256=digest(args.household_input), fit_sha256=digest(args.fit_dir / "fit.json"),
                 parameter_sha256=digest(args.fit_dir / "point_estimates.csv"),
                 posterior_draws=len(draws), posterior_seed=settings["seed"],
+                flavor_spec=settings.get("flavor_spec", "three"), flavor_categories=list(FLAVORS),
                 capacity=capacity, history_model="b_N*N + b_S*S", price_control=control,
                 initial_history="first_observed_basket", pricing_periods=2,
                 baskets=len(compositions(capacity)),

@@ -68,6 +68,19 @@ def uncertainty(gamma, prior, h0, alpha, beta, delta):
                 p2j=p2j, p20=p20, belief_j=prior.tolist(), belief_0=prior.tolist())
 
 
+class CalibrationError(ValueError):
+    """Observed price moments do not support an admissible binary calibration."""
+    def __init__(self, diagnostics):
+        self.diagnostics = diagnostics
+        super().__init__('Binary supply calibration rejected; see information_calibration_status.json')
+
+
+def calibration_rank(jacobian):
+    """Reject numerically flat directions, not merely exact floating-point zeros."""
+    singular = np.linalg.svd(jacobian, compute_uv=False)
+    return int(np.sum(singular > max(1e-12, singular[0]*1e-7)))
+
+
 def calibrate(moments, gamma, delta):
     """Weighted relative price-moment fit, common alpha/beta across type/h0 cells."""
     target = moments[['observed_p1', 'observed_p2']].to_numpy()
@@ -81,11 +94,21 @@ def calibrate(moments, gamma, delta):
         return ((predictions(x)-target)/target*weight).ravel()
     start = -np.log(target.mean())
     fits = [least_squares(residual, [np.clip(start, -7., 4.), b],
-                          bounds=([-8., -15.], [5., 15.]), xtol=1e-11, ftol=1e-11, gtol=1e-11)
+                          bounds=([-8., -15.], [5., 15.]), x_scale='jac', max_nfev=4000,
+                          xtol=1e-11, ftol=1e-11, gtol=1e-11)
             for b in [-1., 2., 5.]]
-    fit = min(fits, key=lambda r: np.sum(r.fun**2))
-    if not fit.success or np.any(fit.active_mask) or np.linalg.matrix_rank(fit.jac) < 2:
-        raise ValueError('Supply calibration failed, hit a bound, or is not identified by observed prices')
+    # Choose among admissible solutions, not an inadmissible lower objective.
+    attempts = [dict(success=bool(f.success), active_bounds=f.active_mask.tolist(),
+                     jacobian_rank=calibration_rank(f.jac),
+                     singular_values=np.linalg.svd(f.jac, compute_uv=False).tolist(),
+                     parameters=f.x.tolist(), objective=float(np.sum(f.fun**2)),
+                     message=str(f.message)) for f in fits]
+    valid = [f for f in fits if f.success and not np.any(f.active_mask)
+             and calibration_rank(f.jac) == 2 and np.isfinite(f.fun).all()]
+    if not valid:
+        raise CalibrationError(dict(status='failed', attempts=attempts,
+                                    bounds=[[-8., -15.], [5., 15.]]))
+    fit = min(valid, key=lambda r: np.sum(r.fun**2))
     result = moments.copy()
     result[['fitted_p1', 'fitted_p2']] = predictions(fit.x)
     result['relative_error_p1'] = (result.fitted_p1-result.observed_p1)/result.observed_p1
@@ -110,13 +133,25 @@ def run_calibration(frame, households, delta, output):
     valid = np.isfinite(targets[['p1', 'p2']]).all(axis=1) & (targets[['p1', 'p2']] > 0).all(axis=1)
     targets = targets.loc[valid]
     if targets.empty:
-        raise ValueError('No households with observed focal prices at t0+7 and t0+14 days')
+        status = dict(status='failed', reason='No observed focal prices at both t0+7 and t0+14',
+                      coupon_pricing_affected=False)
+        (output/'information_calibration_status.json').write_text(json.dumps(status, indent=2)+'\n')
+        raise CalibrationError(status)
     moments = targets.groupby(['group', 'h0']).agg(
         households=('p1', 'size'), observed_p1=('p1', 'mean'), observed_p2=('p2', 'mean')).reset_index()
     gamma = households.groupby('group').switching_mean.mean().reindex(GROUPS).to_numpy(float)
     if not np.isfinite(gamma).all():
         raise ValueError('Missing fitted low/medium/high gamma types')
-    alpha, beta, _, rms = calibrate(moments, gamma, delta)
+    try:
+        alpha, beta, fitted_moments, rms = calibrate(moments, gamma, delta)
+    except CalibrationError as error:
+        moments.to_csv(output / 'information_calibration_moments.csv', index=False)
+        status = dict(error.diagnostics, estimated_gamma=gamma.tolist(),
+                      price_moment_cells=len(moments), delta=delta,
+                      coupon_pricing_affected=False)
+        (output/'information_calibration_status.json').write_text(json.dumps(status, indent=2)+'\n')
+        raise
+    fitted_moments.to_csv(output / 'information_calibration_moments.csv', index=False)
     rows, type_rows = [], []
     for scenario, prior in PRIORS:
         for h0 in ['j', '0']:
@@ -166,4 +201,6 @@ def run_calibration(frame, households, delta, output):
                        belief_j=prior[k], belief_0=prior[k])
                   for name, prior in PRIORS for k, label in enumerate(['low','medium','high'])]
                  ).to_csv(output / 'information_friction_states.csv', index=False)
+    (output/'information_calibration_status.json').write_text(json.dumps(
+        dict(status='complete', alpha=alpha, beta=beta, weighted_residual_rms=rms), indent=2)+'\n')
     return table, settings

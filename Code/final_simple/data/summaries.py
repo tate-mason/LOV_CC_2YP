@@ -46,6 +46,11 @@ RACE_LABELS = {}
 INCOME_LABELS = {}
 HISPANIC_LABELS = {}
 AGE_LABELS = {}
+
+# Shared descriptor rules; the selected categories are recorded with each fit.
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from flavor_specs import categories, classification_expression
+
 FLAVORS = ['other', 'berry', 'plain']
 DATA_DIR = data_dir
 FLAVOR_FILE = flavors
@@ -372,7 +377,7 @@ def recover_flavor_reference(reference_path, products_path, output):
 
 # Use the first reference row for each normalized UPC. Plain/unflavored classification has
 # priority over berry terms.
-def flavor_reference(path, detailed=False, output=None):
+def flavor_reference(path, detailed=False, output=None, flavor_spec="three"):
     """Use first reference row per normalized UPC; keep missing descriptors."""
     frame = scan_reference(path)
     names = frame.collect_schema().names()
@@ -390,9 +395,7 @@ def flavor_reference(path, detailed=False, output=None):
         flavor = (pl.col("flavor_descr").fill_null("").str.to_lowercase().str.strip_chars()
                   .str.replace_all(r"\s+", " ").replace({"": "unknown", "unflavored": "plain"}))
     else:
-        flavor = (pl.when(text.str.contains("plain|unflavored")).then(pl.lit("plain"))
-                  .when(text.str.contains("berry|straw|blue|rasp|black|cran|cherry|wildberry"))
-                  .then(pl.lit("berry")).otherwise(pl.lit("other")))
+        flavor = classification_expression(text, flavor_spec)
     frame = frame.with_columns(flavor.alias("flavor"))
     conflicting = frame.group_by("upc").agg(pl.col("flavor").n_unique().alias("n")).filter(pl.col("n") > 1)
     count = conflicting.select(pl.len()).collect(engine="streaming").item()
@@ -668,7 +671,8 @@ def summarize_flavor_groups(settings, output, work, flavor_path, source_partitio
     for detailed in [True, False]:
         folder = output if detailed else output / "aggregated_flavors"
         folder.mkdir(parents=True, exist_ok=True)
-        reference = flavor_reference(flavor_path, detailed=detailed, output=output)
+        reference = flavor_reference(flavor_path, detailed=detailed, output=output,
+                                     flavor_spec=getattr(settings, "flavor_spec", "three"))
         flavors = sorted(reference["flavor"].unique().to_list()) if detailed else FLAVORS
         if detailed:
             reference.write_csv(output / "detailed_flavor_reference.csv")
@@ -776,6 +780,7 @@ def run(settings, output, work):
 
 def read_command_line(settings):
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--flavor-spec", choices=["three", "five"], default="three")
     parser.add_argument("--data-dir", type=Path, default=DATA_DIR)
     parser.add_argument("--flavors", type=Path, default=FLAVOR_FILE)
     parser.add_argument("--products-extra", "--products", type=Path)
@@ -801,6 +806,7 @@ def read_command_line(settings):
 
 @server_only
 def run_summaries(settings):
+    FLAVORS[:] = categories(getattr(settings, "flavor_spec", "three"))
     if settings.recover_only:
         output = settings.output or settings.data_dir / "summary_outputs"
         products = settings.products_extra or settings.data_dir / "RMS/combined/products_extra.parquet"

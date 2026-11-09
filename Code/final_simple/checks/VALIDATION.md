@@ -1,3 +1,11 @@
+# Current three/five verification (November 9, 2026)
+
+The current pure-kernel check is `check_flavor_specifications.py`. It verifies Python/Polars descriptor agreement and dessert precedence, analytic gradients with all five categories active, nesting of the original likelihood when extra alternatives are unavailable, exact multinomial basket coverage/probability mass for both category counts, recovery of an interior theoretical calibration, and rejection of an unidentified calibration. It creates no household panels and performs no empirical I/O.
+
+`Code/privacy/check_policy.py` confirms fail-closed behavior of the six empirical entry points. Shell syntax and Python source parsing are checked separately. These checks do not establish empirical convergence or a successful server rerun.
+
+The earlier verification record below is historical; do not interpret its fixture runner as permission for local research-data I/O.
+
 # Verification of the simplification
 
 The refactor was checked using generated data and calculation references.

@@ -1,7 +1,7 @@
 """Summaries, flavor recovery, and the prepared input for demand estimation.
 
 Edit Parameters, then run python3 data/summaries.py. No data are read on import.
-The original detailed/three-flavor, demographic, HHI, and dynamics outputs remain.
+Detailed summaries are retained; grouped summaries select three or five categories.
 The work is split into named research steps below rather than separate launchers.
 """
 
@@ -38,6 +38,7 @@ last_year = 2015
 household_batches = 16 # Physical household partitions to bound aggregation memory.
 no_figures = False
 hhi_only = False       # True redraws saved HHI tables without reading raw purchases.
+flavor_spec = "three"  # "five" adds other_fruits and desserts; dessert cues win.
 recover_only = False   # True only supplements the flavor reference; no summaries.
 recovery_output = None # None uses output/recovered_flavor_reference.csv.
 
@@ -446,7 +447,7 @@ def flavor_summaries(weekly, output, flavors=FLAVORS):
     totals = weekly.group_by("flavor").agg(pl.col("quantity").sum().alias("packages")).collect(engine="streaming")
     if flavors != FLAVORS:
         flavors = sorted(totals["flavor"].to_list())
-    # Detailed tables include observed flavors; the three estimation groups stay fixed.
+    # Detailed tables include observed labels; the selected estimation groups stay fixed.
     shares = (pl.DataFrame({"flavor": flavors}).join(totals, on="flavor", how="left")
               .with_columns(pl.col("packages").fill_null(0))
               .with_columns((100 * pl.col("packages") / pl.col("packages").sum()).alias("percent_packages")))
@@ -662,7 +663,7 @@ def prepare_summary_samples(settings, output, work):
 
 
 
-# === 7. Summarize detailed flavors, then the three demand groups === #
+# === 7. Summarize detailed flavors, then the selected demand groups === #
 
 
 
@@ -712,7 +713,7 @@ def save_estimation_sample(settings, output, prepared_households, reference):
     if sample_destination.is_relative_to(Path(__file__).resolve().parents[3]):
         raise ValueError("Estimation samples must stay outside the code checkout; use the server data directory.")
 
-    # The last pass uses the estimation's three groups. Persist its exact
+    # The last pass uses the selected estimation groups. Persist its exact
     # resolved mapping so estimation can consume labels without reclassifying.
     reference.write_csv(output / "estimation_flavor_reference.csv")
     print(f"Saved estimation flavor mapping to {output / 'estimation_flavor_reference.csv'}", flush=True)
@@ -780,7 +781,7 @@ def run(settings, output, work):
 
 def read_command_line(settings):
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--flavor-spec", choices=["three", "five"], default="three")
+    parser.add_argument("--flavor-spec", choices=["three", "five"], default=flavor_spec)
     parser.add_argument("--data-dir", type=Path, default=DATA_DIR)
     parser.add_argument("--flavors", type=Path, default=FLAVOR_FILE)
     parser.add_argument("--products-extra", "--products", type=Path)
@@ -838,7 +839,7 @@ if __name__ == '__main__':
         data_dir=data_dir, flavors=flavors, products_extra=products_extra, output=output,
         first_year=first_year, last_year=last_year, household_batches=household_batches,
         no_figures=no_figures, hhi_only=hhi_only, recover_only=recover_only,
-        recovery_output=recovery_output)
+        recovery_output=recovery_output, flavor_spec=flavor_spec)
     if len(sys.argv) > 1:
         settings = read_command_line(settings)
     run_summaries(settings)

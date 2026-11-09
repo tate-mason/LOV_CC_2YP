@@ -11,6 +11,8 @@
 #SBATCH --mail-type=END,FAIL
 
 # sbatch Code/final_simple/server/run_novelty_estimation.sh EXISTING_REBUILD_RUN_DIR
+# RETIRED EXPERIMENT: lagged switch-away novelty was not adopted.
+# Current original-share novelty workflow: run_after_data.sh.
 # Reuses prepared data; estimates controlled and uncontrolled demand only.
 set -euo pipefail
 umask 077

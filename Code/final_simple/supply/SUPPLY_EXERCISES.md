@@ -1,3 +1,5 @@
+> Current workflow note: this is a theoretical binary mechanism exercise. The empirical three/five-category pipeline is documented in `../README.md` and `../demand/README.md`. Changing empirical flavor groups does not change these theoretical utilities. The calibrated empirical information exercise is in `demand/gamma_calibration.py`: fixed-belief offers, persistent-type revenue evaluation.
+
 > final_simple edition: run commands below from final_simple. Editable defaults
 > are near the top of each Python script. Supply also includes derivative figures;
 > use `--skip-derivatives` to run only the three pricing cases.

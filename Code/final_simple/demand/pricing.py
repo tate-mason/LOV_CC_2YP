@@ -1,3 +1,5 @@
+# Legacy comparison only: combined gamma, three demand groups, .95 discount default.
+# Current three/five split-history workflow: plain_berry_pricing.py and server/run_after_data.sh.
 """Empirical berry pricing. Edit Parameters, then run python3 demand/pricing.py.
 
 The first observed choice becomes t=0 and establishes h0. The firm then chooses
@@ -10,7 +12,7 @@ from pathlib import Path as _PolicyPath
 import sys as _policy_sys
 _policy_root = next(p for p in _PolicyPath(__file__).resolve().parents if (p / "Code/privacy/server_data_policy.py").is_file())
 _policy_sys.path.insert(0, str(_policy_root / "Code/privacy"))
-from server_data_policy import server_only, require_server
+from server_data_policy import server_only, require_server, require_data_path
 from pathlib import Path
 from types import SimpleNamespace
 import argparse
@@ -376,21 +378,24 @@ def digest(path):
 def run_households(settings):
     # This branch is entered only when the person running the script supplies
     # BOTH paths. Validation supplies generated temporary fixtures only.
+    require_data_path(settings.fit_dir)
     fit = json.loads((settings.fit_dir / "fit.json").read_text())
     if fit["model"] != "heterogeneous" or not fit.get("converged", False):
         raise ValueError("This exercise requires a converged single-normal heterogeneous-gamma fit.")
+    if fit['settings'].get('flavor_spec', 'three') != 'three':
+        raise ValueError('Legacy combined-gamma pricing supports only three groups; use plain_berry_pricing.py for current three/five fits.')
     estimates = pd.read_csv(settings.fit_dir / "point_estimates.csv")
     if "at_bound" in estimates and estimates.at_bound.astype(str).str.lower().eq("true").any():
         raise ValueError("Fit has boundary parameters; review before running counterfactuals.")
     parameters = dict(zip(estimates.parameter, estimates.estimate))
-    settings = fit["settings"]
-    capacity = settings["capacity"]
+    saved_settings = fit["settings"]
+    capacity = saved_settings["capacity"]
     if not isinstance(capacity, int) or not 1 <= capacity <= 12:
         raise ValueError("Exact basket enumeration supports integer capacity 1..12.")
     frame = pd.read_csv(settings.household_input, dtype={"household_code": str}, parse_dates=["week"])
     required = ["household_code", "week", "outside", *FLAVORS]
     required += [prefix+f for prefix in ["price_", "stock_", "novelty_", "xi_"] for f in FLAVORS]
-    control = not settings.get("no_price_control", False)
+    control = not saved_settings.get("no_price_control", False)
     if control:
         required += ["cf_"+f for f in FLAVORS]
     missing = set(required)-set(frame)
@@ -400,12 +405,12 @@ def run_households(settings):
         raise ValueError("Need unique household/week rows with nonmissing IDs/dates.")
     if len(frame) != fit["weeks"] or frame.household_code.nunique() != fit["households"]:
         raise ValueError("Input household/week counts do not match fit metadata.")
-    weight = settings.get("habit_weight", .7)
+    weight = saved_settings.get("habit_weight", .7)
     for f in FLAVORS:
         expected = (1-weight)*frame["novelty_"+f]-weight*frame["stock_"+f]
         if not np.allclose(expected, frame["xi_"+f], atol=1e-8):
             raise ValueError("Saved Xi does not match the fit's history definition.")
-    draws = persistent_draws(settings["draws"], settings["seed"])
+    draws = persistent_draws(saved_settings["draws"], saved_settings["seed"])
     households, weights, alpha, gamma, beta, nll = posterior(frame, parameters, draws, control)
     # Exact likelihood reproduction guards against silently pairing files from different fits.
     if not np.isclose(nll, fit["nll"], rtol=1e-9, atol=1e-4):
@@ -447,7 +452,7 @@ def run_households(settings):
                 reconstructed_nll=nll, basket_mass_error=mass_error,
                 input_sha256=digest(settings.household_input), fit_sha256=digest(settings.fit_dir / "fit.json"),
                 parameter_sha256=digest(settings.fit_dir / "point_estimates.csv"),
-                posterior_draws=len(draws), posterior_seed=settings["seed"],
+                posterior_draws=len(draws), posterior_seed=saved_settings["seed"],
                 capacity=capacity, habit_weight=weight, price_control=control,
                 initial_history="first_observed_basket", pricing_periods=2,
                 baskets=len(compositions(capacity)),

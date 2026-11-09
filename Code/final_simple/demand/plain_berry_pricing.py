@@ -75,7 +75,7 @@ def run_comparison(settings):
     settings.output.mkdir(parents=True, exist_ok=True)
     reports, comparison = {}, []
     for focal in FOCAL_FLAVORS:
-        # Each case uses the same fit and full three-category household table.
+        # Each case uses the same fit and its full three/five-category server table.
         # The shared solver moves this focal flavor into its priced coordinate.
         case = SimpleNamespace(**vars(settings))
         case.focal_flavor = focal

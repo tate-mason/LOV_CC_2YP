@@ -1,3 +1,7 @@
+# Legacy combined-gamma reference
+
+This document describes `pricing.py`, the earlier three-group combined-history model with a .95 discount default. It does not describe the current three/five split-history pipeline. Start with [the current demand guide](README.md) and use `server/run_after_data.sh` for new alongside runs. Empirical I/O is server-only; recover only explicit results-only exports.
+
 > final_simple edition: run commands below from final_simple. Editable defaults
 > are near the top of each Python script. Supply also includes derivative figures;
 > use `--skip-derivatives` to run only the three pricing cases.

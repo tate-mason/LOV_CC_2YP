@@ -81,7 +81,7 @@ named functions and explicit steps in `build_data.py`.
 ## 2. Recover flavors, summarize purchases, and prepare demand input
 
 Edit `data_dir`, `flavors`, `products_extra`, `output`, years, and
-`household_batches` in `summaries.py`.
+`household_batches`, and `flavor_spec` in `summaries.py`.
 
 ```bash
 python3 data/summaries.py
@@ -93,7 +93,7 @@ The script runs these research steps in order:
 2. Construct full-panel and matched-yogurt household samples.
 3. Summarize demographics and annual coverage with household partitions.
 4. Calculate detailed-flavor shares, household HHI, transitions, and spells.
-5. Repeat flavor calculations for the three groups: other, berry, plain.
+5. Repeat grouped calculations for the selected `flavor_spec`: original three or expanded five categories.
 6. Save the labeled purchase table and resolved mapping for demand estimation.
 
 Both the recovery and original classification rules remain: existing reference
@@ -170,3 +170,11 @@ the code checkout. Both raw matching and prepared-sample summary producers now
 reject an estimation-sample destination inside the checkout before opening
 purchase inputs. The sample filename and summary staging folders are also
 ignored by Git. This does not erase copies in earlier Git commits.
+
+## Current alongside run: skip the data build
+
+Use `server/run_after_data.sh EXISTING_REBUILD_RUN_DIR` from the server checkout. It reuses the completed conversion/merges/match and reruns this summary stage independently for `three` and `five`, followed by uncontrolled estimation and pricing. The five groups are other, berry, plain, other fruits, desserts. Shared `flavor_specs.py` gives dessert labels priority over fruit, with plain/unflavored first. The original three-group mapping remains available without changing its classification. New outputs have separate directories; earlier files are not replaced.
+
+The numerical baseline is preserved, but groups added in the expanded model change within-yogurt shares, concentration, transitions, menus and estimated fixed effects. Compare both runs instead of combining their tables. A full descriptor reference is required to classify the new groups; the old three-group mapping alone cannot recover the detail.
+
+The older verification commands above describe historical fixture checks. They do not authorize local empirical I/O. Current local validation uses pure numerical kernels and the privacy guard; run data-producing checks only under the research-server policy.

@@ -33,6 +33,8 @@ def regenerate(fit_dir, sample=None, flavors=None, weekly_output=None):
     fit_dir = Path(fit_dir)
     fit = json.loads((fit_dir / 'fit.json').read_text())
     settings = dict(fit['settings'])
+    settings.setdefault('flavor_spec', 'three')
+    settings.setdefault('novelty_measure', 'previous_share')
     required = ['sample', 'first_year', 'last_year', 'max_households', 'capacity',
                 'no_price_control', 'household_dma_column', 'habit_weight', 'draws', 'seed']
     missing = set(required)-settings.keys()
@@ -77,7 +79,8 @@ def regenerate(fit_dir, sample=None, flavors=None, weekly_output=None):
     finally:
         temporary.unlink(missing_ok=True)
     report = dict(households=data['n_households'], weeks=len(frame), reconstructed_nll=nll,
-                  saved_nll=fit['nll'], model=args.model, sample=str(args.sample),
+                  saved_nll=fit['nll'], model=args.model, flavor_spec=args.flavor_spec,
+                  novelty_measure=args.novelty_measure, sample=str(args.sample),
                   demand_refitted=False, price_control_refitted=not args.no_price_control)
     (fit_dir / 'weekly_inputs_regeneration.json').write_text(json.dumps(report, indent=2)+'\n')
     print(f'Regenerated {target}; household/week totals and saved likelihood verified.', flush=True)

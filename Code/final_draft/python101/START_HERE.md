@@ -4,8 +4,7 @@ The code now enforces a server boundary before empirical data I/O. Earlier
 local data-pipeline exercises in this book are superseded: do not run them on
 this computer. Only pure numerical/theoretical exercises and results-only work
 are local. See `Code/privacy/README.md` for enforcement and the non-data check.
-Source listings must be rebuilt after these policy edits; the previous PDF
-snapshot does not yet include the new guards.
+The current source listings include the guards; rebuilding this book parses code without executing empirical workflows.
 
 # Python 101: learning to read this research code
 
@@ -13,7 +12,7 @@ This is a separate companion to the economic and pipeline guides. Those guides
 explain the models. This book teaches you to read their implementation, beginning
 with Python punctuation and ending with each function and script in `data_code`,
 `est_code`, `supply_code`, and `pricing_exercises`, together with the current
-readable demand workflow in `final_simple/demand`. You do not need to understand all the economics
+readable workflow across `final_simple`. You do not need to understand all the economics
 before learning what a line of Python does.
 
 The book contains the actual source, source line references, function-specific
@@ -23,14 +22,7 @@ no functions receive the same treatment at module level. Empty package files
 are identified explicitly. Source excerpts are a snapshot of the working tree
 at build time; they are not edited versions of the executable research code.
 
-**Current edition, November 6, 2026.** For the revised empirical exercise, read
-worked lessons 11–16 after the foundations, then the chapters for
-`../final_simple/demand/estimation.py` and `split_pricing.py`. The split model
-estimates independent novelty and own-stock effects; novelty defines reporting
-groups while both effects enter demand. All three flavors are priced separately
-as the focal inside product. The regeneration and distribution-export chapters
-explain how to recover the deleted weekly file on the server using the saved fit.
-The original combined-gamma examples remain useful comparisons.
+**Current edition, November 9, 2026.** Begin with the current-workflow chapter. Lessons 18–22 explain alongside three/five categories, the original novelty interpretation, uncontrolled demand, fixed-belief decisions versus persistent-type revenues, and recovery after the auxiliary calibration failure. The source chapters now include every production Python module in `final_simple`, including data summaries, shared flavor rules and server orchestration. Older combined-gamma and `final_draft` chapters are retained as historical comparisons, not current submission instructions.
 
 Read the foundations first, then the small `make_draws` and `signed_state`
 functions. After that, try `add_stocks`, `resample_households`, and

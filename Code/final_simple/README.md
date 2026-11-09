@@ -1,244 +1,76 @@
-# Research data stay on the server
+# Readable research code: current workflow
 
-Empirical reads/writes are now server-only, even with local path overrides.
-Only vetted estimates, predictions without household IDs, and aggregates may
-be recovered locally. See [the enforced policy](../privacy/README.md).
-The old full local data-processing check instructions below are superseded:
-use `python3 Code/privacy/check_policy.py` from the repository root for a local
-boundary check; run empirical I/O checks only on the server.
+Empirical reads and writes are research-server-only. `Code/privacy/server_data_policy.py` enforces that boundary; local path overrides cannot authorize empirical processing. Copy back only the job's allowlisted `RESULTS_ONLY` folder. Never copy raw panels, purchase histories, household tables, weekly inputs, data partitions, or logs.
 
-# Start here
+The main empirical analysis uses **uncontrolled split-history demand** with the original novelty measure. Two flavor specifications run alongside each other, with separate outputs:
 
-This is a self-contained, simpler version of the data, demand, and supply code in
-`final_draft`. The layout follows `LOV_bundle_intro.py`: imports, editable
-parameters, numbered calculation sections, and the run steps at the bottom.
-The scientific calculations and model options are preserved.
-The current empirical setup uses separate novelty and habit coefficients; start
-with [the split-model reading guide](demand/README.md) for the revised workflow.
-For the full teaching text, open [Python 101](../final_draft/code_guides_pdf/python101_walkthrough.pdf):
-worked lessons 11–16 cover the current split model and server workflow, followed
-by annotated chapters for these readable demand scripts. The original
-research directory has not been replaced.
-
-The code is organized by research task:
-
-```text
-final_simple/
-    data/
-        build_data.py          # raw conversion, cleaning, and all merges
-        summaries.py           # demographics, flavors, HHI, and demand input
-    demand/
-        estimation.py          # demand estimation and inference
-        plain_berry_pricing.py # main comparison: plain and berry focal sellers
-        split_pricing.py       # split model; all three focal flavors
-        regenerate_weekly_inputs.py # server: rebuild the deleted weekly export
-        history_distributions.py    # export distributions from saved split fits
-        pricing.py             # earlier combined-gamma berry comparison
-    supply/
-        supply_sympy.py        # equations and exact derivatives
-        supply_simulation.py   # numerical solutions and figures
-    server/run_split_pricing.sh # regenerate, export distributions, compare plain/berry
-    checks/
-    README.md
-    requirements.txt
-```
-
-Each research script has editable parameters at the top and visible run steps at
-the bottom. `supply/supply_simulation.py` imports its formulas from `supply/supply_sympy.py`;
-the estimation and pricing calculations are contained in their own files.
-The distribution-export and weekly-regeneration entry points reuse functions
-from `demand/estimation.py`. None imports from `final_draft`. Package `__init__.py` files only identify the folders; they
-contain no research calculations or settings.
-
-Start with [the data guide](data/README.md) for a full rebuild. The usual order is
-**data/build_data.py → data/summaries.py → demand/estimation.py → demand/split_pricing.py**.
-The theoretical supply exercises run separately from the empirical data pipeline.
-
-`checks/` contains verification, not additional research steps. You can leave
-that folder alone unless you want to run checks or change the mathematics.
-`requirements.txt` lists the external Python packages.
-
-## How to work with a script
-
-1. Open its **Parameters: edit these values** section near the top.
-2. Change the ordinary Python variables you need, as in your simulation example.
-3. Read the corresponding `run_build`, `run_summaries`, `run_estimation`,
-   `run_pricing`, or `run_supply` function near the
-   bottom to see the exact order of research steps.
-4. Run the file. Function definitions above that section explain each step.
-
-For example, in `demand/estimation.py`:
-
-```python
-sample = Path("/your/data/yogurt_estimation_sample.parquet")
-output = Path("/your/results/development")
-model = "heterogeneous_history"
-max_households = 100
-draws = 32
-starts = 1
-se_method = "none"
-```
-
-Then run:
-
-```bash
-python3 demand/estimation.py
-```
-
-A smaller sample and fewer draws are development settings. For a research fit,
-choose your full sample, check convergence, and increase draws/starts as needed.
-Those settings affect what is estimated and how accurately it is solved.
-
-Optional command-line flags remain available for server jobs. For example,
-`python3 demand/estimation.py --draws 128` overrides the Python variable for that run.
-You do not have to use flags: editing the Parameters section is sufficient.
-`python3 demand/estimation.py --help` lists all available overrides.
-
-The `if __name__ == "__main__":` line at the bottom means “run these steps when
-I execute this file.” Importing a function for a check does not run estimation.
-`SimpleNamespace` is just a record bundling the variables you edited:
-`settings.draws` means your chosen `draws`, not a different hidden setting.
-
-## What the estimator contains
-
-The sections cover price controls; input preparation; histories; probabilities
-and likelihood; parameter optimization; standard errors; economic interpretation;
-and outputs. Nothing is estimated by the pricing script.
-
-| `model` setting | Specification |
+| Specification | Demand categories |
 |---|---|
-| `naive` | Common price coefficient; no history coefficient |
-| `homogeneous` | Common price coefficient and gamma |
-| `mixed_naive` | Household-specific price coefficient; no gamma |
-| `heterogeneous` | Household-specific price coefficient and gamma |
-| `mixture` | Two-component gamma population; heterogeneous price sensitivity |
-| `separate_history` | Separate common novelty/stock effects; heterogeneous price sensitivity |
-| `heterogeneous_history` | Separate heterogeneous novelty/stock effects and price sensitivity |
+| `three` | other, berry, plain; original classification retained |
+| `five` | other, berry, plain, other fruits, desserts |
 
-`se_method` can be `hessian`, `bootstrap`, or `none`. Hessian inference holds
-estimated price controls fixed; the household bootstrap refits price controls
-and demand. These are different inference assumptions, not interchangeable labels.
+`flavor_specs.py` defines category order and classification once for summaries and demand. In the expanded specification, dessert cues beat fruit cues; plain/unflavored keeps first priority. Strawberry cheesecake is dessert; peach is other fruit. Cherry moves from the original berry rule to other fruits only in `five`. Coffee/honey without other classification cues remains residual other.
 
-`capacity = 0` estimates flavor choice conditional on buying yogurt. The current
-split-model default, `capacity = 7`, adds the constructed outside count and estimates
-participation under that convention. The empirical pricing exercise requires
-a converged `heterogeneous_history` fit with positive integer capacity from 1 through 12.
-The earlier `pricing.py` remains available for combined-gamma fits.
-To use capacity 7 for pricing, estimate that model with capacity 7; do not simply
-change the saved fit's metadata. Each model/capacity should have its own output
-folder.
+## Restart after the completed data build
 
-The prepared input is the Parquet purchase table produced by
-`data/summaries.py`. Raw conversion, cleaning, merging, flavor recovery, and
-summaries are included in `data/`. The optional legacy flavor-reference CSV
-reader and optional product metadata recovery remain available.
-
-## What empirical pricing does
-
-The current script is `demand/split_pricing.py`. Set `household_input` and
-`fit_dir` in its Parameters section; neither path is guessed. It reads the
-existing split-model fit, recovers persistent household price, novelty, and
-habit types, and verifies the saved likelihood before running pricing.
-
-It solves three separate seller problems: other, berry, and plain each serve
-as the focal inside product against the other two flavors combined. The outside
-alternative also includes constructed nonpurchase for positive-capacity fits.
-Only the focal price changes; rival prices stay fixed. These are separate
-counterfactuals, not a simultaneous equilibrium.
-
-Bottom/top novelty quartiles receive household-specific offers, while the
-middle group remains at posted prices. Both novelty and habit coefficients
-enter every demand calculation. Timing is observed h0 → p1(h0) → realized
-basket h1 → terminal p2(h1), with exact basket integration and backward
-induction. The default treats posterior means as known; posterior uncertainty
-integration is optional. Coupons range from 0% through 100% in 1% steps.
-The revenue discount factor is .92, matching the theoretical supply default.
-
-Results are saved in `other/`, `berry/`, and `plain/` folders, with a root
-`focal_flavor_comparison.csv`, `run_manifest.json`, and readable `run_notes.txt`.
-Read [the demand guide](demand/README.md) for distribution definitions, the
-inside/outside mapping, assumptions, output columns, and server instructions.
-
-Deleted `weekly_inputs.csv` should be regenerated **on the server** with
-`demand/regenerate_weekly_inputs.py`. This rebuilds histories, menus and price
-controls from the saved settings, verifies the original likelihood and sample
-counts, then writes the export. It retains fitted demand estimates and inference.
-`server/run_split_pricing.sh` does this before exporting distributions and
-running all three focal cases. Local checks access generated inputs only.
-
-## What theoretical supply does
-
-The numerical script includes the observed-initial-state baseline, hidden
-initial state, and commitment to both prices. It retains both terminal branches,
-unrestricted theoretical prices, marginal costs, history-specific price ratios,
-information/flexibility values, and the original comparative statics.
-
-Run `python3 supply/supply_sympy.py` to print equations without running a numerical grid.
-Run `python3 supply/supply_simulation.py` to solve the cases, draw the figures, and write
-the benchmark appendix as LaTeX source. A LaTeX compiler is separate; this code
-does not automatically invoke one.
-
-Set `skip_derivatives = True` to run just the three supply cases. For a custom
-calibration or derivative grid, set `no_appendix = True`: the written appendix
-contains benchmark-specific statements. The derivative figures still use your
-chosen parameters. The theoretical binary switching model and empirical
-three-flavor stock model retain their different utility specifications; the
-refactor does not substitute one for the other.
-
-## Reading outputs without learning JSON
-
-Demand and supply outputs go under your selected `output` path. Their default
-is a project-level `results/` folder with a separate folder for each exercise.
-The raw data build writes under your selected `data_dir`; summaries default to
-`data_dir/summary_outputs`. These locations are explicit in each Parameters section.
-
-Start with:
-
-- `run_notes.txt`: readable settings, convergence, and diagnostics.
-- `estimates.csv` / `point_estimates.csv`: fitted coefficients and inference.
-- The PDF figures: the model's plots.
-- `weekly_inputs.csv`: household-week counts, prices, and histories for auditing.
-
-`fit.json` is an automatic estimation record. `demand/pricing.py` reads it automatically
-to learn which model and settings produced the estimates. `run_manifest.json`
-records a pricing/supply run. You do not need to write or edit either JSON file.
-Keep the automatic records with their output tables so scripts can verify that
-the pieces match. `starts_checkpoint.json` records optimizer progress; it is
-not an automatic resume instruction.
-
-Use different output folders for different specifications. Reusing a folder
-can leave earlier artifacts whose names are no longer relevant to the new run.
-
-## Checks and development
-
-Install the listed packages in your usual environment if needed:
+From the research-server checkout, after syncing source:
 
 ```bash
-python3 -m pip install -r requirements.txt
+sbatch Code/final_simple/server/run_after_data.sh \
+  /scratch/dtm63837/Kilts_Panel/rebuilds/run_ORIGINAL_JOB_ID
 ```
 
-Run the synthetic checks from this directory:
+An optional second argument selects the descriptor reference. Otherwise the job prefers the original run's recovered reference CSV, then the configured Nielsen descriptor reference. It reuses `data/merged_panel.parquet` and the matched `data/yogurt_estimation_sample.parquet`; it does not repeat conversion, cleaning, merging, or matching.
 
-```bash
-python3 checks/run_checks.py
-```
+For each specification it reruns **summaries → uncontrolled estimation → pricing**. Both fits finish before pricing begins. Plain and berry remain the focal sellers in separate pricing counterfactuals; all selected demand categories remain in the model and basket histories.
 
-This runner blocks CSV reads and uses generated arrays/temporary synthetic
-Parquet data. Some checks write temporary output tables without reopening them.
-Two legacy checks that reopen generated CSVs remain in `checks/`, but are
-excluded from this runner. New split-pricing and export-regeneration checks are included in the no-CSV
-runner. The original complete export self-test is also still
-available in `demand/pricing.py --self-test`; it creates and rereads temporary synthetic
-CSVs, so it was not used during this no-CSV development work.
+New outputs live in `run_ORIGINAL_JOB_ID/after_data_NEW_JOB_ID/`. Only its `RESULTS_ONLY/` directory should be recovered. It has separate `three/` and `five/` results, cross-spec estimate/revenue comparison CSVs, and `run_status.json`. Existing fits/results are not replaced. Check status before interpreting results.
 
-This refactor does not re-estimate the empirical model or claim new empirical
-results. See `checks/VALIDATION.md` for the checks actually completed.
+## Reading order
 
+| File | Read it to understand |
+|---|---|
+| `flavor_specs.py` | Shared classification and ordered three/five category lists |
+| `data/build_data.py` | Expensive raw-data build; skipped by the after-data job |
+| `data/summaries.py` | Descriptive statistics and specification-specific labeled demand input |
+| `demand/estimation.py` | Histories, likelihood, gradients, optimization, inference and WTP |
+| `demand/regenerate_weekly_inputs.py` | Reconstruct matching weekly inputs from saved settings without reestimating demand |
+| `demand/history_distributions.py` | Population distributions from saved estimates; no household input needed |
+| `demand/plain_berry_pricing.py` | Main plain/berry comparison using the uncontrolled fit |
+| `demand/split_pricing.py` | Shared persistent-type recovery and exact basket backward induction |
+| `demand/gamma_calibration.py` | Auxiliary binary supply calibration and fixed-belief offers |
+| `server/run_after_data.py` | Visible two-spec pipeline and aggregate comparison exports |
+| `server/export_uncontrolled_pricing.py` | Allowed export filenames and fit provenance checks |
+| `supply/` | Separate theoretical mechanism exercises |
 
-## Gamma uncertainty with observed initial state
+The textbook is [Python 101](../final_draft/code_guides_pdf/python101_walkthrough.pdf). Its current-workflow chapter and lessons 18–22 explain the revised code; source chapters cover every production Python module in `final_simple`. Historical `final_draft` listings remain labeled as earlier implementations.
 
-Run `python3 supply/unknown_type.py`. The firm knows h0 and chooses one policy
-against a distribution over unobserved gamma in {-1.25,0,+1.25}. Each of the
-four priors has a figure showing the uncertainty, optimal prices for both
-known initial states, and expected profit. Edit Parameters near the top.
-See [the pricing guide](supply/PRICING_EXERCISES.md).
+## Economic specification
+
+For flavor j, `N = 1 - last week's own-flavor share`, or zero when the preceding calendar purchase week is unavailable. `H` is the sum of all prior observed weekly own-flavor shares. Predictors precede current purchases. `N` measures novelty relative to last week's basket: binary for single-flavor baskets and gradual for mixed baskets. It does not promise a one-time bonus for mixed baskets. The rejected lagged-switch experiment is not selected by the current jobs.
+
+Utility includes `gamma_i*N + phi_i*H + alpha_i*price` plus constants. Novelty and stock coefficients are independently estimated and unrestricted in sign. Positive stock means reinforcement; negative stock means satiation. Alpha is negative lognormal. A unit of history is a weekly package share, not an additional package. WTP for N refers to a full unit increase in N.
+
+The main job sets `model=heterogeneous_history`, `capacity=7`, `no_price_control=True`, `novelty_measure=previous_share`, 128 draws, three optimizer starts, and Hessian inference. Ordinary estimator settings still support controlled and earlier-model sensitivity fits; label those outputs separately. `capacity=0` is conditional flavor demand and is not the participation model used by current pricing.
+
+## Pricing and information are different comparisons
+
+Coupons range from 0% to 100% in one-percentage-point steps; the revenue discount factor is .92. Posterior mean types are treated as known by default. Low/high novelty quartiles get personalized coupons; the middle half stays at posted prices by design. Rival prices stay fixed. Exact state counts at capacity seven are 120 for three inside categories and 792 for five.
+
+The primary exercise compares no coupons, optimized common coupons, and personalized dynamic coupons. The separate binary type-information exercise chooses uninformed offers using fixed beliefs, but evaluates both informed and uninformed policies under the same persistent consumer types. `profit` retains the fixed-belief objective; `persistent_type_revenue` is the common evaluation, and `value_of_information` is its known-minus-uninformed difference.
+
+A rejected auxiliary calibration does not invalidate completed coupon pricing. Read `information_calibration_status.json`: if calibration is unsupported, aggregate moment/optimizer diagnostics are exported and information-value figures are omitted. No substitute calibration is silently used. Demand/pricing failures remain failures.
+
+## Other entry points
+
+`server/run_split_pricing.sh EXISTING_REBUILD_RUN_DIR` reruns only pricing using a completed original-share uncontrolled fit. It regenerates matching server inputs and checks the saved likelihood. The after-data job is needed when summaries or grouping change.
+
+`demand/split_pricing.py --focal-flavor all` is a sensitivity launcher: all means every category in its saved fit, not a hardcoded three. The main job intentionally calls only plain and berry. `demand/pricing.py` is the earlier three-group combined-gamma berry model with a .95 discount default; it is not the new split-history workflow. `server/run_novelty_estimation.sh` is the unadopted lagged-novelty experiment, not the current job.
+
+Each calculation file retains editable settings and explicit run steps. Command-line flags override settings for server submissions. Keep separate output directories for separate models; do not edit saved fit metadata to change specifications.
+
+## Validation and rebuilding documentation
+
+Local checks may test pure numerical kernels and source/policy behavior. Do not run the older empirical-I/O fixture suite locally merely because it is called synthetic. Use `python3 Code/privacy/check_policy.py` for the boundary check. Current pure three/five numerical checks are in `checks/check_flavor_specifications.py`; they use descriptor strings, aggregate count arrays, and theoretical price moments, without household panels or empirical I/O.
+
+From `Code/`, rebuild the textbook with `python3 final_draft/build_python101.py`. This parses source text; it does not run research code. `--markdown-only` updates the readable source and coverage manifest without typesetting the PDF. See `checks/VALIDATION.md` for verification limits; passing numerical checks is not a completed empirical rerun.

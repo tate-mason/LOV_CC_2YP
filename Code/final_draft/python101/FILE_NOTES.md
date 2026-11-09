@@ -293,13 +293,11 @@ Compatibility launcher forwarding to the earlier supply or combined-gamma exerci
 
 ## ../final_simple/demand/estimation.py
 
-Readable demand estimator: editable settings, numbered sections, and visible run_estimation steps. Current defaults are heterogeneous_history and capacity 7. Section 3 contains split utility and persistent-type likelihood; section 6 exports population novelty/habit marginals. All supported earlier models remain available. No research functions are imported from final_draft.
-
+Current split-history estimator with dynamic three/five alternative dimensions, shared random price/novelty/stock coefficients, analytic gradients, inference and population WTP. The pipeline explicitly selects uncontrolled demand and original previous-share novelty; controlled and earlier models remain sensitivity options.
 
 ## ../final_simple/demand/split_pricing.py
 
-Recommended current pricing reading path. The parameter section selects all three focal flavors; sections 1–2 recover persistent types and initial history; section 3 visibly solves one household at a time; section 4 permutes/validates each focal case; run_pricing writes separate folders and a combined comparison. It retains habit even though reporting groups rank novelty alone.
-
+Shared exact-basket solver for three/five alternatives. Main plain/berry comparison uses this implementation; optional all-category sensitivity selects categories from saved metadata. It retains separate rival histories and reports auxiliary calibration failures without discarding coupon outputs.
 
 ## ../final_simple/demand/regenerate_weekly_inputs.py
 
@@ -323,4 +321,57 @@ Mocked regeneration checks. Synthetic records supply saved settings and paramete
 
 ## ../final_simple/demand/plain_berry_pricing.py
 
-The main plain-versus-berry comparison entry point. The broad other category remains in the fitted demand model and full basket histories, but is not treated as a focal seller here. Read the editable settings, the two-element FOCAL_FLAVORS tuple, and run_comparison. Pricing calculations are reused from the readable split_pricing module; the original three-focal exercise remains available as a sensitivity.
+Main two-focal comparison using an uncontrolled original-share split fit. Only the seller list is limited to plain/berry; the saved three/five demand category set remains intact. This wrapper does not estimate demand.
+
+## ../final_simple/flavor_specs.py
+
+Shared, data-free three/five category definitions and descriptor rules. Category order aligns counts, prices, histories and fixed effects. The baseline rule is preserved; five prioritizes plain, desserts, berries, other fruits, then residual other.
+
+## ../final_simple/data/build_data.py
+
+Expensive server-only raw conversion, cleaning, concatenation, panel/retail merges and yogurt matching. Current alongside jobs reuse its completed outputs rather than calling it again. Read it for provenance of the matched checkpoint, not as the next command for changing flavor groups.
+
+## ../final_simple/data/summaries.py
+
+Server summary and prepared-input stage. A flavor_spec chooses grouped classifications after detailed summaries; the exact mapping is carried into demand. The two-spec job gives each run a separate output, preserving prior artifacts.
+
+## ../final_simple/demand/gamma_calibration.py
+
+Auxiliary binary-theory calibration to aggregate observed price moments and estimated novelty-type support. The uninformed firm chooses offers with fixed beliefs; both policies are evaluated under persistent types. Numerical validity and status diagnostics are part of the result.
+
+## ../final_simple/demand/pricing.py
+
+Legacy three-group combined-gamma berry exercise, with .95 discount default. It explicitly rejects five-group fits. Current main code uses separate novelty/stock effects and plain_berry_pricing instead.
+
+## ../final_simple/server/run_after_data.py
+
+Current server pipeline after the expensive build. It runs summaries and uncontrolled estimates for both category specifications, then pricing and allowlisted exports, with separate outputs and cross-spec comparisons.
+
+## ../final_simple/server/export_uncontrolled_pricing.py
+
+Server-only results boundary. Explicit filenames and coefficient hashes restrict export to aggregate results and sanitized uncontrolled-fit provenance. Failed auxiliary calibrations export status/aggregate diagnostics and omit information figures.
+
+## ../final_simple/checks/check_flavor_specifications.py
+
+Pure numerical and descriptor-string verification. It checks original likelihood nesting, gradients with five active choices, all basket states/mass, classification agreement, calibration recovery and identification rejection, without empirical I/O or household panel fixtures.
+
+## ../final_simple/supply/pricing_model.py
+
+Reusable pure binary-theory numerical solver and outcome helpers. It is separate from empirical category grouping; changes to three/five yogurt categories do not rewrite these theoretical utilities.
+
+## ../final_simple/supply/supply_information.py
+
+Theoretical comparison of revealed gamma, hidden gamma with adaptive Bayesian learning, and committed common prices. Do not confuse this learning experiment with fixed beliefs in the empirically calibrated auxiliary exercise.
+
+## ../final_simple/supply/supply_simulation.py
+
+Readable theory simulation and comparative-statics entry point using supply_sympy expressions. It uses theoretical parameters and writes theory tables/figures, independently of the server data pipeline.
+
+## ../final_simple/supply/supply_sympy.py
+
+Symbolic binary-theory equations, envelope/implicit derivatives and benchmark appendix generation. This module defines algebra rather than loading household histories.
+
+## ../final_simple/supply/unknown_type.py
+
+Earlier theoretical hidden-gamma problem with Bayesian posterior updating after first-period outcomes. This remains available as a separate theory exercise; the new fixed-belief calibration intentionally does not learn.
+

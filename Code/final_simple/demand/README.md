@@ -1,245 +1,77 @@
-# Read the revised demand workflow
+# Demand and pricing: current reading guide
 
-The model and pricing changes are implemented here with editable Python settings
-and numbered calculation sections. `pricing.py` keeps the earlier combined-gamma
-berry exercise; **`split_pricing.py` is the current exercise**. Both use a visible
-one-household loop. No research file imports `final_draft`.
+Start with [the main workflow](../README.md). All empirical input/output is server-only. The current after-data job fits **three and five categories separately**, both with uncontrolled heterogeneous split-history demand. It retains the original share novelty and cumulative stock.
 
-The full [Python 101 textbook](../../final_draft/code_guides_pdf/python101_walkthrough.pdf)
-now includes this workflow. Start with worked lessons 11–16, then use its
-function-by-function chapters for the four readable demand scripts.
+## What is estimated
 
-## Plain and berry comparison
+For each inside flavor j:
 
-Use `plain_berry_pricing.py` for the main two-focal comparison. It reuses the
-split solver and retains other, berry and plain in demand, posterior recovery
-and history updates. Only plain and berry receive focal-seller counterfactuals;
-other is always part of the composite outside option. Outputs are separate
-`plain/` and `berry/` folders plus `focal_flavor_comparison.csv` and run records.
-No re-estimation is needed. Run on the server after regenerating the weekly file:
-
-```bash
-python3 Code/final_simple/demand/regenerate_weekly_inputs.py \
-  --fit-dir /path/to/res_het_hist
-python3 Code/final_simple/demand/plain_berry_pricing.py \
-  --household-input /path/to/res_het_hist/weekly_inputs.csv \
-  --fit-dir /path/to/res_het_hist --output /path/to/plain_berry_pricing
+```
+V_ijt = inside_constant + beta_j + alpha_i*p_ijt + gamma_i*N_ijt + phi_i*H_ijt
+N_ijt = 1 - w_ij,t-1     # if preceding calendar purchase week is observed; else 0
+H_ijt = sum(w_ijs for observed s < t)
+w_ijt = packages of j / all yogurt packages in that purchase week
 ```
 
-The all-three `split_pricing.py` exercise remains available as a sensitivity.
+Other is the reference flavor. Expanding the categories adds `beta_other_fruits` and `beta_desserts`, with their own choice probabilities, shares, menus and stocks. Gamma/phi remain household coefficients shared across flavor alternatives; the expansion does not add flavor-specific random coefficients. Types persist across observed weeks.
 
-Read in this order:
+Alpha is negative lognormal; gamma and phi are independent normal population coefficients. Positive gamma favors flavors less represented last week; positive phi means reinforcement and negative phi means satiation. These are purchase-based proxies. Mixed baskets receive gradual novelty scores. There is no first-ever-consumption claim and no lagged switching-event predictor in the current jobs.
 
-1. `estimation.py`, Parameters and sections 3 and 6: split-coefficient likelihood
-   and fitted population distributions. Choose `model = "heterogeneous_history"`
-   and `capacity = 7` for a new fit matching the saved pricing specification.
-2. `regenerate_weekly_inputs.py`: recover the deleted server export from saved
-   settings, refitting controls and checking the likelihood without refitting demand.
-3. `history_distributions.py`: export both population distributions from saved fits.
-4. `split_pricing.py`, Parameters, sections 1–4 and the final run function:
-   posterior types, initial history, backward induction, three focal cases.
-5. `../server/run_split_pricing.sh`: execute regeneration, distribution exports,
-   and the plain/berry comparison on the server. Submit from the repository root with
-   `sbatch Code/final_simple/server/run_split_pricing.sh` after syncing code and
-   installing `Code/final_simple/requirements.txt` in your server environment.
+The outside utility is zero. Seven opportunities imply outside count `max(0,7-Q)` and total count `max(7,Q)` for estimation. Weeks with no observed purchase are not inserted as observed outside weeks. Forecast pricing uses seven opportunities. Histories are constructed before likelihood exclusions and updated after each current predictor is recorded.
 
-# Split-history pricing for each focal flavor
+The estimator retains optional controlled fits and older model choices as sensitivities. The main jobs pass `--no-price-control`, `--model heterogeneous_history`, `--novelty-measure previous_share`, and `--flavor-spec three` or `five` explicitly. `flavor_spec` is also editable in the Parameters section. Keep each fit with its actual specification metadata.
 
-`split_pricing.py` uses the existing `heterogeneous_history` estimator:
+## Read the code in this order
 
-    V_ijt = inside_constant + beta_j - a_i p_ijt + b_Ni N_ijt + b_Si S_ijt + rho cf_ijt
-    b_N ~ Normal(mean_novelty, sd_novelty)
-    b_S ~ Normal(mean_own_stock, sd_own_stock)
-    a ~ Lognormal(mu_log_minus_alpha, sd_log_minus_alpha)
+1. `../flavor_specs.py`: descriptor precedence and ordered category lists.
+2. `estimation.py::prepare_data`, `add_stocks`, `parameter_names`: menus, histories, parameter-vector meaning.
+3. `household_loglike`, `demand_objective_gradient`: integrate complete persistent-type likelihoods and their analytic gradients.
+4. `optimize_demand`, `fit_model`, `implied_wtp`: optimizer starts, inference, saved settings, and unit interpretation.
+5. `regenerate_weekly_inputs.py`: reconstruct the original table with the saved flavor specification and verify household/week totals and likelihood. This does not reestimate demand.
+6. `split_pricing.py::posterior`, `compositions`, `forecast_context`, `targeted_coupons`: type recovery and exact basket backward induction.
+7. `gamma_calibration.py`: separate binary theory calibration and information evaluation.
+8. `plain_berry_pricing.py` and `../server/run_after_data.py`: assemble the main counterfactuals and pipeline.
 
-The population coefficients are independent in the fitted specification; posterior
-coefficients need not be independent. Positive b_N rewards switching from recent
-other-flavor purchases. Positive b_S reinforces accumulated own-flavor purchases;
-negative b_S represents satiation. Neither coefficient is multiplied by lambda.
-All three random coefficients persist over the full household history.
+## Main server command
 
-From the repository root:
+From the server checkout:
 
 ```bash
-python3 Code/final_simple/demand/split_pricing.py \
-  --household-input /path/to/res_het_hist/weekly_inputs.csv \
-  --fit-dir /path/to/res_het_hist --output split_pricing
+sbatch Code/final_simple/server/run_after_data.sh \
+  /scratch/dtm63837/Kilts_Panel/rebuilds/run_ORIGINAL_JOB_ID
 ```
 
-The default `--focal-flavor all` solves **three separate seller problems**, with
-other, berry, and plain respectively as the focal inside flavor. The remaining
-two flavors form the composite outside alternative. Nonpurchase also enters
-the outside alternative when the fitted capacity convention includes it.
-Only the focal flavor's price changes and only its sales earn seller revenue.
-These are separate counterfactuals with fixed rival prices, not simultaneous
-three-firm equilibrium prices. Use `--focal-flavor berry` for just one case.
+This skips the completed data build, reruns summaries and estimation for both category specifications, then runs plain and berry pricing for each. Supply theory simulations remain separate.
 
-For each focal j, the exact binary probability is
-
-    P_j = logistic(V_j - logsumexp(V_k for k != j, V_nonpurchase=0)).
-
-This is aggregation of choice probabilities, not averaging rivals' utilities.
-The code retains rival flavor identities and integrates their baskets so that
-novelty and cumulative stock remain consistent with the estimated demand model.
-The full flavor basket is observed before the terminal offer. Combining rivals
-for the seller's inside/outside comparison does not make their future history
-states interchangeable.
-
-## How it matches the supply exercise
-
-The firm's known estimated type is `(a_hat, b_N_hat, b_S_hat)`. Household posterior
-means use likelihood weights from all observed weeks, with the estimator's exact
-three-dimensional antithetic draws. The saved likelihood must be reproduced
-before pricing starts. Households are ranked by **b_N only** into bottom-quarter,
-middle-half, and top-quarter reporting groups. Both b_N and b_S enter all demand
-forecasts. High/low groups receive individually optimized coupons; the middle
-stays at posted prices. The groups are common to all three focal cases; initial
-menu eligibility can differ. Ranking does not hold habit or price sensitivity
-fixed, so group comparisons do not isolate a causal switching effect.
-
-Timing matches the known-state supply baseline: an observed basket establishes
-h0; p1(h0) induces a basket h1; terminal p2(h1) is chosen after observing h1.
-Backward induction maximizes current net revenue plus discounted expected
-optimized terminal revenue, integrating **every** basket, including no focal
-purchase and all nonpurchase. Both continuation branches matter. The default
-uses known posterior mean types; `--type-treatment posterior-integrated` is a
-separate sensitivity that integrates persistent type uncertainty and updates it
-after the first counterfactual basket.
-
-This implements the supply theory's known-type, observed-state mechanism for
-all three focal products. It is not an exact calibration of its symmetric
-`+gamma/-gamma` binary Markov utility: b_N and b_S are separate, own stock is
-cumulative, and the rivals' inclusive value can depend on their histories.
-Consequently **b_N is the estimated switching coefficient, not an algebraically
-identical theoretical gamma**. Using only b_N and dropping b_S would violate
-the fitted demand specification. Binary aggregation is exact at each state;
-compressing all rival histories to a single binary lag would not be exact.
-
-Prices are constrained to posted-price coupons (default 0% through 100% in 1%
-steps), whereas theoretical prices are unrestricted. Cost is zero, so net
-revenue equals profit. Consumers follow current-period fitted demand, without
-strategic delay. The empirical discount factor defaults to .92, matching the supply script. The first observed
-menu and control residuals are held fixed across both pricing weeks. Initial
-stocks add the first observed basket once. Known estimated types use the full
-sample, making this a retrospective exercise. Constructed nonpurchase counts
-and K forecast opportunities remain assumptions of the capacity specification.
-
-## Distributions and saved outputs
-
-The split estimator now writes `history_distribution_summary.csv` (normal
-parameters, sign shares, population quantiles), `history_distribution_grid.csv`
-(densities and CDFs), and `history_distributions.pdf/png` immediately after fitting.
-These are population heterogeneity distributions, not sampling confidence
-intervals or histograms of posterior means. Common split coefficients produce
-point masses. Existing fits can be exported without re-estimating:
+For pricing alone from an existing uncontrolled original-share fit:
 
 ```bash
-python3 Code/final_simple/demand/history_distributions.py --fit-dir /path/to/res_het_hist
+sbatch Code/final_simple/server/run_split_pricing.sh \
+  /scratch/dtm63837/Kilts_Panel/rebuilds/run_ORIGINAL_JOB_ID
 ```
 
-Copies of the earlier distribution exports are in
-[`fitted_distributions/with_control`](fitted_distributions/with_control/history_distributions.pdf)
-and [`fitted_distributions/without_control`](fitted_distributions/without_control/history_distributions.pdf). This directory's server workflow recreates those exports
-from your selected fits. No new optimization is needed for already estimated
-distributions. `demand/estimation.py` contains the export calculations directly;
-`demand/history_distributions.py` is the entry point for a saved fit.
+The pricing-only job expects that run's `fits/no_control`; the after-data job creates separate specification directories. A five-category fit needs a weekly table reconstructed from that same fit. Never pair it with a three-category or controlled table.
 
-Pricing saves one folder per focal flavor, each with household posterior means
-and SDs for switching and habit, eligibility, household policies, group and
-aggregate revenues, figures, and optional compressed state policies. Internal
-solver coordinates swap the focal flavor into the berry slot; public household
-outputs use `focal_*` names. The manifest records the focal flavor. The root
-`focal_flavor_comparison.csv` stacks aggregate policy results across the three
-cases. Every outcome is from the same split fitted demand model; no-coupon
-revenues supply the benchmark. No sampling confidence intervals are computed.
+## How pricing uses the expanded model
 
-The current local saved fit directories do not include `weekly_inputs.csv`;
-the deleted export must be regenerated on the server. The new
-`server/run_split_pricing.sh` first rebuilds `weekly_inputs.csv` using the
-controlled split fit's saved settings, reconstructs its price controls, and
-checks household/week totals and the saved likelihood before writing the CSV.
-It then exports both distributions and runs the plain/berry comparison. It does not
-refit demand or replace the saved estimates or standard errors. Regeneration
-and full empirical pricing are server operations; local checks use synthetic
-fixtures only.
+`plain_berry_pricing.py` always chooses two focal sellers: plain and berry. In each counterfactual only the focal product's price changes and only its sales earn revenue. All other demand categories and constructed nonpurchase remain alternatives. These are fixed-rival counterfactuals, not equilibrium prices from competing firms.
 
-To regenerate the export separately on the server:
+The focal choice probability can be written as logistic of its utility minus the log-sum-exp of all rival utilities and nonpurchase. That probability aggregation does not collapse the rivals' separate history states. The basket enumeration retains every category: `choose(K+J,J)` states for J inside flavors and K opportunities, hence 120 or 792 at K=7.
 
-```bash
-python3 Code/final_simple/demand/regenerate_weekly_inputs.py --fit-dir /path/to/res_het_hist
-```
+An observed basket sets h0; first-period offers induce a full basket h1; terminal offers condition on h1. Low/high novelty quartiles get coupons and the middle receives none by design. Groups rank gamma only, but also differ in posterior price sensitivity and habit. Group differences are not a causal effect of gamma holding everything else fixed.
 
-If the prepared sample or flavor reference moved, use `--sample` or `--flavors`
-to override its saved path. A likelihood mismatch stops the job without writing
-a replacement CSV.
-To refit, run `demand/estimation.py --model heterogeneous_history --capacity 7 --draws 64 --starts 3` with the
-appropriate sample/output paths first. Estimation retains the same likelihood;
-only its distribution exports have changed.
+The default `posterior-mean` treatment makes the estimated coefficient vector known to the firm. `posterior-integrated` is a separate sensitivity with posterior updating after counterfactual baskets; it is not the fixed-belief auxiliary experiment.
 
-## Checks
+## Fixed beliefs and persistent types
 
-```bash
-python3 Code/final_simple/demand/split_pricing.py --self-test
-```
+In the auxiliary binary exercise, the uninformed firm uses unchanged low/middle/high type probabilities when choosing offers after either purchase outcome. Actual consumers retain their type across both periods. Revenue is computed along each persistent type's full path and averaged afterward. The informed policy is evaluated over the same initial population.
 
-Synthetic checks compare posterior weights with a scalar likelihood, test exact
-binary aggregation, compare backward induction with exhaustive scalar basket
-calculations using independently chosen novelty/habit coefficients, and exercise
-all three focal cases under both type treatments, with CSV reads blocked. Run `python3 checks/run_checks.py` from `final_simple`
-for all synthetic checks and `python3 checks/compare_original.py ../final_draft`
-for direct numerical comparisons. None of the research scripts imports
-`final_draft`.
+Use `persistent_type_revenue` for policy comparisons and `value_of_information` for known minus uninformed revenue. `profit` is retained as the optimization objective and can differ from the persistent-type evaluation. The information value is distinct from personalized-coupon revenue gains relative to no coupons.
 
+`information_calibration_status.json` distinguishes complete from rejected calibrations. Rejection exports aggregate price moments and optimizer diagnostics; coupon pricing continues, but no invalid information-value charts are produced. Bounds/identification checks are retained.
 
-The server jobs default to saved fit directories
-`$project_dir/shell_files/res_het_hist` and
-`$project_dir/shell_files/res_het_nocf`. The estimation job's `--output` paths are
-relative to its submission working directory; change the two fit-directory
-variables if you submitted estimation elsewhere. A fit directory must contain
-`fit.json` and `point_estimates.csv`; it is not a single file. Both jobs check
-those artifacts before regenerating household inputs on the server.
+## Outputs and legacy scripts
 
+Copy only `RESULTS_ONLY`, with `run_status.json`, `pricing_provenance.json`, population estimates/WTP, grouped revenue and benchmark CSVs, and aggregate figures. Full fit settings, weekly inputs and internal manifests stay on the server. The exporter verifies fit/parameter hashes and `price_control=false` for both focal sellers.
 
-Both pricing shell jobs treat the regenerated weekly table as temporary. An EXIT
-trap deletes `weekly_inputs.csv` and `.weekly_inputs_*.csv` staging files from
-the controlled fit directory after success or failure; INT/TERM handlers also
-trigger cleanup. The file exists on the server only while the job needs it.
-Cleanup leaves fitted estimates and pricing results in place. These handlers
-cannot run after an uncatchable SIGKILL or a machine failure.
-
-## Pricing benchmarks for the seminar
-
-Each focal case now exports `pricing_policy_benchmarks.csv` and matching PDF/PNG
-figures. The common benchmark jointly chooses one coupon percentage for each
-period across the same low/high eligible households; the middle group remains
-at posted prices in all policies. Terminal common offers do not depend on
-realized history. Posted prices can vary across households, so common coupon
-percentages do not imply a common dollar price. The solver integrates every
-first-period basket under each candidate initial coupon before optimizing the
-two common coupons. It checks that aggregate revenue lies between no coupons
-and personalized dynamic pricing.
-
-The improvement beyond common coupons combines personalization and history
-contingency; it does not isolate the value of switching information alone.
-That requires a separate information-restricted targeting policy.
-
-Run the existing plain/berry workflow on the research server. Recover only
-`pricing_policy_benchmarks.csv`, its figures, and other allowed aggregates.
-The presentation automatically includes the benchmark PDFs once placed in the
-corresponding `RESULTS_ONLY/pricing/{plain,berry}` folders. Existing
-`discounts_by_consumer_type.pdf` figures are included immediately.
-
-The server run also exports `terminal_offers_by_purchase.csv` and PDF/PNG figures,
-comparing optimal terminal offers conditional on a focal purchase versus no focal
-purchase. Branch probabilities weight the conditional means.
-`terminal_offer_within_household_gap.csv` averages each household's conditional
-price difference (purchase minus no purchase) within switching groups, avoiding
-between-household composition differences. Positive gaps indicate higher terminal
-prices after purchase, consistent with harvesting; they are model policy summaries,
-not causal estimates from observed price variation. Both branches still integrate
-over different baskets, including rival purchases.
-
-All policy figures, including `pricing_mechanism.pdf/png`, are generated on the
-research server by `run_split_pricing.sh`. The seminar figure script is guarded
-by the same server policy and accepts only server output directories. Copy the
-finished permitted figures and aggregates manually; no transfer is automated.
+`split_pricing.py --focal-flavor all` selects all categories of its saved fit for optional separate-seller cases. Main pricing remains plain/berry. `pricing.py` supports only the earlier three-group combined-gamma model (discount default .95); it explicitly rejects five-group fits. `EMPIRICAL_TARGETING.md` documents that legacy exercise and is not the current submission guide.

@@ -79,3 +79,7 @@ to **49**, simulation draws to **128**, and main starts to **3**. For supply,
 `MODEL_CONVENTIONS.md` and `comparative_statics/canonical.py` describe the current
 symmetric-switching model. Several other supply notes and retained output files
 describe superseded models. The chapters below identify those boundaries.
+
+## Current three/five workflow
+
+For the updated empirical code, start with `../final_simple/README.md` and the current-workflow chapter of [Python 101](code_guides_pdf/python101_walkthrough.pdf). The main server command is `sbatch Code/final_simple/server/run_after_data.sh EXISTING_REBUILD_RUN_DIR`. It skips the completed data build, reruns separate three/five summaries, uncontrolled fits and plain/berry pricing, and stages only allowed aggregate outputs. The textbook covers every production Python module in final_simple, including shared classification and server orchestration. Earlier code-guide/model chapters remain historical references; do not substitute their controlled-pricing or combined-gamma submission instructions for the current workflow.

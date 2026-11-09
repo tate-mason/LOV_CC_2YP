@@ -1507,63 +1507,11 @@ In this readable version the settings record comes from editable Python variable
 
 ## ../final_simple/demand/estimation.py::prepare_data
 
-This is the data assembly function. `args` is an argparse Namespace: a small
-object whose attributes hold command-line settings. It returns a pandas table
-with one row per usable household-week. Its work crosses a deliberate boundary:
-large input filtering and quote aggregation use lazy Polars, while the smaller
-household choice table becomes pandas for subsequent array calculations.
-
-Read it in phases. First it scans and filters years, resolves labels, chooses
-the price field, and projects columns. `getattr(args, name, default)` provides
-compatibility when a manually constructed Namespace lacks an optional attribute.
-`next((c for c in candidates if c in names), None)` chooses the first supported
-price field. It is a small loop written as a generator, not a special price API.
-
-Next it collects selected households, checks quantities, sums counts, and chooses
-an exposure store. Sorting by descending quantity followed by ascending store ID
-then keeping the first household-week row implements the tie-break exactly.
-`groupby(...).sum().unstack(...)` turns long flavor counts into three columns;
-`reindex` fixes column order even if one flavor is absent from an intermediate
-table. Merge `validate` arguments catch unintended duplicate keys.
-
-The quote section continues to use full `base`, not the household-limited
-`selected`. It deduplicates quotes and checks conflicts before constructing
-menus. The DMA section computes sums and counts and subtracts own-DMA totals.
-This algebra avoids looping over every possible outside DMA for every household.
-The same pooled IV is copied into all three flavor-named IV columns.
-
-Finally it constructs histories **before** menu/IV likelihood exclusions,
-builds Boolean availability masks, filters unusable rows, reapplies the two-week
-rule, and adds outside counts. `complete &= iv_complete` combines masks in
-place; it is not a comparison. `transform("nunique")` produces a row-aligned
-count so the household restriction can be applied without a second merge.
-Moving `add_stocks` below these exclusions is a plausible-looking alternative
-that changes the information used to build history.
-
-In this readable version the settings record comes from editable Python variables at the top of the file; the algorithm is implemented here without importing final_draft.
+Configures the saved/selected three-or-five category list before constructing purchase weeks, exposure-store menus and histories. Demand is restricted to single-person households while broader quote coverage remains. Main jobs omit price controls; controlled sensitivity behavior is retained.
 
 ## ../final_simple/demand/estimation.py::add_stocks
 
-Input is a weekly pandas table; output is a sorted copy with stock, novelty,
-and Xi columns. The outer loop resets history for each household. `for _, group`
-ignores the household label but keeps its subtable. The inner `iterrows()` loop
-supplies a row index and a Series containing that row's values.
-
-`stocks[index] = stock` stores pre-choice history into one output row. The
-seven-day condition tests genuine adjacent calendar weeks. Then counts are
-normalized into shares, stock is updated, and the current date becomes the
-previous date. A gap resets recent novelty by leaving its preallocated zeros,
-but does not reset cumulative stock. A loop is reasonable here because state
-at the next observation depends on the preceding update; vectorization requires
-careful shifted cumulative sums and calendar-gap checks.
-
-The final `enumerate` loop writes one named column per flavor. `stocks[:, j]`
-extracts all rows of the jth flavor. With `habit_weight=.7`, current Xi uses .3
-times novelty minus .7 times own stock. The separately preallocated `stocks`
-matrix means historical output rows do not change when `stock` is reassigned.
-Try a one-household, two-week example before reading the likelihood.
-
-In this readable version the settings record comes from editable Python variables at the top of the file; the algorithm is implemented here without importing final_draft.
+Records cumulative own-share stock and prior-calendar-week novelty before current purchases. Current jobs select N=1-previous own share and zero after missing weeks; stock accumulates all observed prior shares. Three/five vector lengths follow FLAVORS. The optional lagged event branch is retained solely as an unadopted experiment.
 
 ## ../final_simple/demand/estimation.py::make_arrays
 
@@ -1607,24 +1555,7 @@ In this readable version the settings record comes from editable Python variable
 
 ## ../final_simple/demand/estimation.py::parameter_names
 
-This returns the ordered labels defining the parameter vector. `names += [...]`
-extends a list; it does not numerically add its string entries. Membership tests
-such as `model in ("mixed_naive", "heterogeneous")` let related specifications
-share branches. The default `control=False` omits a residual coefficient unless
-the caller explicitly enables it.
-
-For naive conditional demand without controls, the returned labels are two
-betas and mean log-minus-alpha. Heterogeneous demand adds mean gamma and both
-SDs; the optional outside constant is prepended and price control appended.
-Keeping this logic in one helper is safer than independently remembering vector
-positions in optimization, utility, and output. The order is part of the API:
-zipping a reordered list with old coefficients silently changes their meaning.
-
-In this readable version the settings record comes from editable Python variables at the top of the file; the algorithm is implemented here without importing final_draft.
-
-
-
-**Split layouts.** separate_history adds mean_novelty and mean_own_stock plus random price sensitivity; heterogeneous_history also adds sd_novelty and sd_own_stock. This helper is also used when checking the saved likelihood during weekly-export regeneration.
+Creates the ordered parameter vector from all nonreference flavor names plus price and history distribution parameters. The five-group split fit adds beta_other_fruits and beta_desserts; order must agree with every utility and gradient array.
 
 ## ../final_simple/demand/estimation.py::mixture_components
 
@@ -1842,7 +1773,7 @@ In this readable version the settings record comes from editable Python variable
 
 ## ../final_simple/demand/estimation.py::read_command_line
 
-Creates optional command-line overrides, then sets parser defaults from the ordinary Python settings record. With no flags, the top-of-file parameters govern the run. Parsing arguments itself does not estimate demand or rebuild household inputs.
+Parses server settings including flavor_spec, model, capacity, novelty_measure, controls, draws, starts and inference. Ordinary editable settings supply defaults; current pipeline flags explicitly select uncontrolled split demand and original previous-share novelty.
 
 ## ../final_simple/demand/estimation.py::run_estimation
 
@@ -1872,7 +1803,7 @@ For split pricing, alpha is positive price sensitivity, and the history array ha
 
 ## ../final_simple/demand/split_pricing.py::compositions
 
-Enumerates every nonnegative integer basket whose four counts sum to capacity: three flavors plus constructed nonpurchase. For capacity 7 there are 120 baskets. Enumerating all baskets preserves realized history transitions; substituting the mean basket would generally alter continuation values.
+Enumerates every nonnegative basket for the selected inside categories plus nonpurchase. With capacity K and J inside groups, there are choose(K+J,J) states: 120 for J=3/K=7 and 792 for J=5/K=7. Exact states preserve separate rival histories.
 
 ## ../final_simple/demand/split_pricing.py::forecast_context
 
@@ -1892,9 +1823,7 @@ Terminal coupons maximize revenue after integrating remaining unobserved type un
 
 ## ../final_simple/demand/split_pricing.py::run_households
 
-Reads an explicitly selected fitted-results directory and its weekly table, checks the model, convergence, bounds, capacity and input schema, then recovers posterior types and reproduces the saved likelihood. For a split run, it permutes the selected focal flavor into the solver's berry coordinate, moving counts, prices, stocks, novelty, controls and intercepts consistently. Type recovery happens before permutation using the original fitted flavor labels.
-
-It calls the household solver, renames public berry-coordinate columns to focal names, and writes policy/group/aggregate tables and figures. The manifest records how rival state coordinates map back to flavors. Swapping only prices or only counts would silently price the wrong product. The three runs are separate focal sellers with fixed rival prices, not a simultaneous equilibrium.
+Validates a converged split fit, configures its three/five categories, reconstructs the saved likelihood and permutes the focal category into solver coordinate one. It solves coupon benchmarks and records auxiliary calibration status. Rivals remain separate alternatives, and failed auxiliary calibration does not erase valid coupon outputs.
 
 ## ../final_simple/demand/split_pricing.py::make_targeting_figures
 
@@ -1910,15 +1839,11 @@ Creates optional command-line overrides, then sets parser defaults from the ordi
 
 ## ../final_simple/demand/split_pricing.py::run_pricing
 
-Validates explicit paths and coupon settings, loops through all selected focal flavors, and writes separate policy folders plus a root comparison table, manifest and plain-text notes. all selects three independent exercises; neither results nor competitor responses are shared as an equilibrium. Its default discount factor is .92.
+Reads the saved fit category metadata before selecting focal cases; all means all three or five fitted categories. Main jobs instead use plain_berry_pricing for two focal sellers. It validates choices and writes separate aggregate counterfactual outputs, not an equilibrium.
 
 ## ../final_simple/demand/regenerate_weekly_inputs.py::regenerate
 
-**Job and contract.** Rebuild the deleted weekly_inputs.csv on the server using the existing fit directory, optionally overriding moved sample/reference paths. The function reads saved settings, calls the same sample/history/menu preparation, and reconstructs price controls. It never calls the demand optimizer or replaces fitted parameters and inference.
-
-`SimpleNamespace(**settings)` turns dictionary keys into ordinary attributes. Converting saved path strings back to Path objects restores the input contract. The reconstructed table must match household/week counts and the saved integrated likelihood, using the exact parameter order, draw count and seed. A mismatch raises before publishing a CSV.
-
-`NamedTemporaryFile` creates a private intermediate beside the destination; `temporary.replace(target)` publishes only a verified complete export. The finally block cleans up an unfinished intermediate. The JSON regeneration record stores diagnostics, not household rows. Run this entry point on the server; reading the textbook does not execute it.
+Restores saved sample/model/category/history settings, defaulting older records to three groups and original-share novelty. It reconstructs the server table, checks household/week totals and the saved fixed-parameter likelihood, then atomically publishes the weekly file. It does not refit demand or change fitted parameters.
 
 ## ../final_simple/demand/regenerate_weekly_inputs.py::main
 
@@ -1967,11 +1892,11 @@ Forces a reconstructed-likelihood mismatch and checks no replacement weekly expo
 
 ## ../final_simple/demand/plain_berry_pricing.py::read_command_line
 
-Parses optional server flags and uses the editable top-of-file settings as defaults. There is no focal-selection flag: this entry point always compares plain and berry. The explicit fit and weekly-input paths still identify the full three-category demand fit, not a two-category re-estimation.
+Parses explicit server weekly-input and fit paths plus pricing settings. No focal-selection flag is needed because the main comparison always chooses plain and berry. A five-group fit still retains all five demand alternatives.
 
 ## ../final_simple/demand/plain_berry_pricing.py::run_comparison
 
-Runs the shared split-pricing solver twice, once for plain and once for berry. FOCAL_FLAVORS controls which product earns seller revenue in each counterfactual; pricing.FLAVORS retains other, berry and plain in demand and history updates. Each case receives a copy of the settings record so its focal label and output path do not change the caller's record. It saves separate focal folders and stacks aggregate policy rows into focal_flavor_comparison.csv. The manifest records both the focal sellers and full demand categories, plus hashes of this entry point and its shared solver. These are separate fixed-rival counterfactuals, not a simultaneous equilibrium.
+Rejects controlled or experimental-novelty fits, then runs the shared solver for plain and berry separately. FOCAL_FLAVORS selects sellers while saved metadata selects all three/five demand alternatives. Results and hashes are recorded for a later allowlisted export.
 
 ## ../final_simple/checks/test_split_pricing.py::PlainBerryComparisonTests.test_only_focal_sellers_change_and_full_demand_is_retained
 
@@ -1984,3 +1909,922 @@ This nested mock supplies a tiny aggregate result instead of reading household d
 ## ../final_simple/checks/test_split_pricing.py::PlainBerryComparisonTests.test_only_focal_sellers_change_and_full_demand_is_retained.capture
 
 Captures the DataFrame passed to to_csv in a Python list rather than creating or reopening a CSV. This makes it possible to verify the two comparison labels while the test runner blocks CSV readers. The helper is a test substitute, not a production export routine.
+## ../final_simple/data/summaries.py::normalize_upcs
+
+This is the pandas normalization helper also used in estimation: strip whitespace,
+recognize numeric-looking identifiers, remove `.0` and leading zeros, and retain
+nonnumeric strings. Its argument is a Series and its return is a Series. The
+`where` condition retains original text on nonnumeric rows. The reason for
+string processing rather than floating-point conversion is identifier precision.
+See the estimation function's worked examples; identical naming here does not
+mean Python automatically shares their definitions across modules.
+
+## ../final_simple/data/summaries.py::normalized_upc_expr
+
+This constructs the Polars-expression version of UPC normalization for a lazy
+pipeline. It returns a recipe named `upc`, not a table. Nested conditions replace
+an all-zero numeric identifier with `"0"`, preserving nonnumeric text. The
+function avoids repeating a long expression at every join boundary. Using
+matching canonical keys on both sides prevents `"001"` and `"1"` from
+mistakenly appearing unmatched.
+
+## ../final_simple/data/summaries.py::valid_flavor_labels
+
+Input is a pandas table with `flavor_descr`; output is a Boolean Series.
+Missing text becomes an empty string, is cast to string, stripped, and lowercased.
+`.isin` checks a list of unusable sentinel strings, then `~` negates the result.
+Thus `" N/A "` is invalid while `"Strawberry"` is valid. Normalizing once
+before comparison is clearer than writing separate conditions for every case
+and whitespace variant. This helper exists alongside directly written lazy
+filters; it is not automatically applied to every flavor-processing path.
+
+## ../final_simple/data/summaries.py::scan_purchases
+
+This builds and returns a lazy, projected purchase query. It validates required
+column labels and maps optional source labels to a common schema. `aliases.items()`
+supplies output name plus candidate source names. `next(..., None)` picks the
+first available candidate; otherwise `pl.lit(None, dtype=pl.String)` makes an
+explicitly typed missing column. A consistent schema simplifies later summaries.
+
+The comprehension builds expressions without reading rows. Dates, UPCs,
+quantities, and prices get consistent representations. Head-age zero codes
+become null, then `pl.coalesce` picks the first nonmissing head-age category,
+preferring female then male. This is a priority rule, not a mean. Eagerly loading
+all columns first would use more memory; dropping rows because an optional
+demographic is absent would change the summary population unnecessarily.
+
+## ../final_simple/data/summaries.py::single_person_purchases
+
+Filters purchase records to household size one before purchase weeks or histories are counted. This is a record-level sample restriction: filtering households after constructing their histories would retain excluded purchases in the stocks.
+
+## ../final_simple/data/summaries.py::repeated_yogurt_households
+
+This keeps household histories with at least two distinct purchase weeks after
+the caller's year/price filters. `week` is a Polars expression using modulo
+arithmetic to reach Saturday. The query obtains each household's minimum and
+maximum week: unequal endpoints prove at least two distinct weeks without
+retaining a full distinct-week set.
+
+Only eligible household IDs are collected. A semi join filters the original
+lazy purchase table while preserving its columns and all eligible purchase
+rows. Joining an expanded eligibility table could multiply rows; the semi join
+expresses membership only. Multiple trips in the same week do not satisfy this
+rule. Estimation later repeats a similar restriction after additional exclusions.
+
+## ../final_simple/data/summaries.py::household_summary
+
+Input is a lazy purchase table; output is a lazy one-row-per-household query.
+The `expressions` list defines exact purchase totals, distinct counts, and
+observed years. Demographic history follows a separate path: select a narrow
+table, deduplicate, stably sort, and take each field's first nonmissing value.
+Aggregating the full purchase table separately preserves exact trip/UPC/line
+counts while avoiding repeated wide demographic sorts.
+
+`group_by(...).agg([...])` evaluates each listed expression per group. A
+validated one-to-one join reunites totals and demographic values. Later
+`with_columns` steps preserve original race, apply the Hispanic override, and
+calculate approximate weeks/trip rate. The second step can refer to the new
+`approx_observed_weeks` created in the first. Counting only observed years
+avoids filling panel gaps but still assumes full-year exposure within those years.
+
+## ../final_simple/data/summaries.py::as_lazy
+
+This small adapter always returns a Polars LazyFrame. `isinstance` checks the
+runtime type. An existing LazyFrame is returned unchanged, a pandas table is
+converted through `pl.from_pandas(...).lazy()`, and the remaining expected Polars
+DataFrame receives `.lazy()`. This lets callers supply convenient small eager
+tables in tests while production uses lazy scans. It is not a universal converter:
+an arbitrary unsupported object without `.lazy()` will still fail. Avoiding a
+copy/conversion when already lazy preserves the existing query plan.
+
+## ../final_simple/data/summaries.py::partition_purchases
+
+This executes a lazy scan once to write physical household-hash partitions,
+then returns a list of lazy scans over those files. `hasattr(pl, "PartitionBy")`
+checks API availability before starting. `(hash(seed=0) % batches)` maps every
+row with the same household ID to the same bucket. This is deterministic routing,
+not random sample selection.
+
+`sink_parquet(pl.PartitionBy(...))` writes by bucket. The list comprehension
+includes only existing bucket directories, important because small examples
+can leave buckets empty. `sorted(directory.glob(...))` makes input order
+predictable. `hive_partitioning=False` prevents folder names from automatically
+adding a partition column that was intentionally excluded. The alternative
+of filtering/recollecting the original source for every bucket repeats large
+scans; physical partitions trade temporary disk space for reusable reads.
+
+## ../final_simple/data/summaries.py::save_table
+
+This writes both a machine-readable CSV and an escaped LaTeX table and prints a
+readable version. Polars inputs are collected and converted to pandas because
+the chosen table formatting/export methods belong to pandas. A pandas input
+already has those methods, so conversion is skipped.
+
+`lambda value: f"{value:.2f}"` formats display numbers without changing the
+stored numerical data. `index=False` suppresses an unwanted row-number column.
+`escape=True` protects LaTeX syntax characters in labels. CSV retains reusable
+data whereas LaTeX supplies paper-ready formatting; either output alone would
+serve only one of those purposes. This function's useful result is its side
+effects, so no explicit return is required.
+
+## ../final_simple/data/summaries.py::demographic_tables
+
+Input is a one-row-per-household table, an output directory, and filename prefix.
+The initial count is its denominator. The loop builds one categorical table
+per demographic using null-to-`Missing` replacement, grouped counts, optional
+codebook mappings, and percentages of all households. `.map(labels).fillna(code)`
+keeps source codes visible when a verified label is absent.
+
+The `specs` list pairs human-readable metric names with Polars aggregation
+expressions. Enumerated string aliases let all metrics be computed in a single
+query and then zipped back to names. `rows.extend(generator)` appends race
+percentages to the overview. Equal household weighting is achieved by summarizing
+households first; directly counting purchase rows would overweight frequent
+shoppers. Numeric means of income/head-age codes remain means of categories,
+not economic levels.
+
+## ../final_simple/data/summaries.py::scan_reference
+
+Returns a lazy reference scan, selecting CSV or Parquet behavior from the suffix. String-preserving CSV settings prevent numeric guessing from corrupting UPC identifiers; neither branch collects a table until the caller executes the plan.
+
+## ../final_simple/data/summaries.py::recover_flavor_reference
+
+This supplements, rather than overwrites, the descriptor reference. Both input
+tables are lazy; an anti join excludes product UPCs already present in the CSV.
+The filter removes missing/placeholder candidate descriptors. If annual metadata
+exists, each UPC's candidate columns take earliest-year values; otherwise first
+row deduplication is used. The output is a new combined reference plus a separate
+CSV of just recovered rows.
+
+`.with_name(output.stem + ...)` constructs a sibling output filename. Comparing
+resolved paths rejects accidental overwrite of the original reference. After
+writing additions, `scan_reference` rereads them under the same schema conventions
+before diagonal relaxed concatenation allows unequal optional columns. The
+return is the output Path, enabling `run` to use it for subsequent classification.
+It does not repair blank descriptors on UPCs already in the original reference.
+
+## ../final_simple/data/summaries.py::flavor_reference
+
+Normalizes UPCs and returns one resolved category per UPC with first-reference-row precedence. Detailed labels use normalized descriptors; grouped labels call the shared three/five classification expression, including dessert precedence in five. Conflicting assignments can be recorded server-side for review; they are not silently resolved semantically.
+
+## ../final_simple/data/summaries.py::yogurt_weeks
+
+This attaches flavor labels, audits matched purchase lines, and returns a lazy
+weekly quantity query plus an eager small audit table. A left join preserves
+unmatched purchases long enough to count/report them. Unmatched UPCs are exported
+and cause a ValueError, preventing an apparently successful summary of a silently
+reduced sample. Nonpositive/missing quantities also stop the run.
+
+The Saturday expression adds a row-dependent duration to purchase date. Grouping
+by household/week/flavor and summing quantity keeps only observed combinations.
+The alternative dense pivot would create a column for every detailed flavor
+and potentially a great many empty cells. Price problems are audited here;
+the main matched-sample caller has already applied its positive-price filter.
+
+## ../final_simple/data/summaries.py::flavor_summaries
+
+This is the main descriptive-statistics engine. It returns pandas share and
+transition tables for plotting, while writing much richer outputs. First it
+sums quantities by flavor and computes package shares; a rounding filter removes
+rows whose displayed share is zero but leaves the denominator unchanged. Next
+it aggregates household/flavor totals to number of flavors, squared quantities,
+and largest quantity, producing HHI and largest-flavor share.
+
+The basket query groups again by household/week. `pl.when(pl.len() == 1)` gives
+a single-flavor label only to unmixed baskets. `.shift().over("household_code")`
+looks at the previous basket within the household, not across household borders.
+Date differences identify adjacent weeks. A cumulative sum of spell-start flags
+creates run identifiers; mixed baskets and gaps break the runs.
+
+The expensive basket query is checkpointed once in a temporary directory so
+transitions, spells, CSV exports, and global medians can reuse it. Transition
+counts pivot into a small matrix; dividing by row sums produces probabilities.
+Zero denominators become NaN. Spells are averaged as spells, not as households.
+Finally a small metric table records basket frequencies and eligible-pair
+switching. This sequence uses several aggregation units intentionally; replacing
+them all with one grand groupby would obscure their different denominators.
+
+## ../final_simple/data/summaries.py::make_hhi_figures
+
+Reads the saved household HHI checkpoint on the server and draws household-weighted histogram/CDF figures. It prefers Parquet and supports the older CSV fallback. Only aggregate figures, not the household checkpoint, belong in local exports.
+
+## ../final_simple/data/summaries.py::make_figures
+
+Inputs are already computed flavor-share and transition tables. Sorting then
+`head(20)` selects a readable subset for plots, and `reindex` aligns matrix rows
+and columns with the displayed flavor order. It does not recompute transition
+denominators within that subset, so a plotted row need not sum to one.
+
+`fig, ax = plt.subplots` separates a Figure container from its plotting Axes.
+`ax.bar` draws shares; `ax.imshow` colors transition cells. Two nested index loops
+place formatted text inside each cell. Tick rotation improves long-label
+readability. `tight_layout`, `savefig`, and `close` finish each output. Plotting
+inside the data aggregation itself would make it harder to skip figures or
+recreate them from existing summary tables.
+
+## ../final_simple/data/summaries.py::run
+
+This orchestrates the summary workflow and writes final artifacts. `sources`
+and `source_partitions` are dictionaries keyed by sample prefix, keeping full
+panel and matched yogurt objects separate. It optionally supplements flavor
+metadata, then prepares each population, writes reusable hash partitions,
+computes household/demographic summaries, and audits annual coverage.
+
+The second loop runs detailed then grouped flavor taxonomies. Partition-level
+weekly outputs remain sparse, while small audit tables are summed. The last
+reference therefore holds the grouped mapping, which is saved for estimation.
+The final export intentionally reopens the original purchase file, rather than
+the demographic projection, to preserve store/DMA and other fields. A semi join
+keeps eligible households and a left join attaches the resolved flavor.
+
+`prepared.drop("flavor")` avoids two competing label columns when reprocessing
+an already labeled input. The resolved-path check prevents writing over the
+original source. This orchestration keeps the population restrictions explicit;
+running the estimator on an arbitrary intermediate table can produce another
+sample even if its filename looks similar.
+
+## ../final_simple/demand/pricing.py::expit
+
+Evaluates the logistic probability with an exponential of a nonpositive magnitude to avoid overflow. Its input can be an array. This is a numerical transformation, not a demand-estimation call.
+
+## ../final_simple/demand/pricing.py::logsumexp
+
+Computes log(sum(exp(x))) after subtracting the largest entry. The maximum is added back afterwards. axis selects the aggregation direction and keepdims retains singleton axes for broadcasting. This stabilizes likelihood normalization when utilities are large.
+
+## ../final_simple/demand/pricing.py::persistent_draws
+
+Generates seeded antithetic integration draws for the legacy combined-gamma model: price sensitivity and gamma. These two dimensions differ from the current split model's three dimensions.
+
+## ../final_simple/demand/pricing.py::posterior
+
+Recovers persistent price/gamma draw weights from the complete observed history under the legacy combined Xi model. It retains three flavor alternatives and ranks posterior gamma means for reporting. It does not accept a split-history fit.
+
+## ../final_simple/demand/pricing.py::compositions
+
+Enumerates every nonnegative integer basket whose four counts sum to capacity: three flavors plus constructed nonpurchase. For capacity 7 there are 120 baskets. Enumerating all baskets preserves realized history transitions; substituting the mean basket would generally alter continuation values.
+
+## ../final_simple/demand/pricing.py::forecast_context
+
+Relabels the first observed choice as t=0, adds its flavor shares once to its pre-choice stock, and uses that basket for next-week novelty. It carries the first menu/prices/controls forward, records the two subsequent pricing dates, and checks focal-menu eligibility. Later observed purchases affect type recovery but not this initial counterfactual history.
+
+## ../final_simple/demand/pricing.py::targeted_coupons
+
+**Research calculation.** Solve terminal prices for every realized first basket, then choose the initial coupon using immediate revenue plus discounted optimized continuation revenue. In the readable version the outer loop visits one household; remaining axes are type, basket, coupon and revenue metric. Default known posterior mean types leave just one type; posterior-integrated mode keeps draws and updates their weights through the first-basket likelihood.
+
+In split pricing, history_coefficient has two columns: history1=b_N*N1+b_S*S1, history2=b_N*N2+b_S*S2. Every basket updates own stock and other-flavor novelty. Both coefficients enter both dates. The solver's focal slot is coordinate one; run_households permutes the selected flavor into that coordinate. Rival quantities retain distinct identities for history updates.
+
+Terminal coupons maximize revenue after integrating remaining unobserved type uncertainty, before averaging over realized baskets. The firm cannot condition on an unobserved true draw. Both focal and no-focal-purchase branches count. Bottom/top novelty groups get personalized offers; middle households remain at posted prices. No coupons supplies a feasible benchmark and optimized revenue must weakly dominate it. Coupon prices lie between zero and the posted price; they are not unrestricted theoretical prices.
+
+## ../final_simple/demand/pricing.py::digest
+
+Streams file bytes through SHA-256 to identify the exact input or source used by a run. Hashes are provenance checks, not economic statistics. This function is called during an explicit empirical run, not by the documentation builder.
+
+## ../final_simple/demand/pricing.py::run_households
+
+Validates a converged three-group combined-gamma fit, preserves the caller settings separately from saved fit settings, reconstructs the likelihood and solves berry pricing. Five-group fits are rejected explicitly. The current main pipeline instead uses plain_berry_pricing and the split solver.
+
+## ../final_simple/demand/pricing.py::plotting
+
+Selects a noninteractive plotting backend and a writable temporary configuration directory, then returns pyplot. It does not read household data. Backend selection precedes importing pyplot so server runs do not require a display.
+
+## ../final_simple/demand/pricing.py::make_targeting_figures
+
+Draws legacy posterior gamma, berry revenue and discount comparisons. These figures are outputs of the earlier three-group combined-gamma exercise, not automatically updated results for the new split-history pipeline.
+
+## ../final_simple/demand/pricing.py::self_test
+
+Runs generated examples and assertions to check numerical calculations without launching the user-selected empirical exercise. Read the specific body to distinguish the CSV-blocked simple split checks from earlier complete export tests that reopen their own synthetic CSVs. No private input is needed.
+
+## ../final_simple/demand/pricing.py::write_run_notes
+
+Writes a readable text rendering of the same automatic run information saved as JSON. pformat lays out nested records for reading; this is an output record, not an alternative settings file.
+
+## ../final_simple/demand/pricing.py::run_pricing
+
+Validates explicit legacy input/settings, runs the single berry combined-gamma pricing case, and writes run records and figures. Its .95 discount default and single-normal combined history model differ from the current .92 split-history main workflow.
+
+## ../final_simple/supply/pricing_model.py::golden_maximum
+
+Refines a bracketed scalar maximizer by golden-section interval reduction, reusing previous function values. This is a numerical search, not a proof that a multimodal objective has only one peak.
+
+## ../final_simple/supply/pricing_model.py::scalar_maximum
+
+Evaluates a scalar objective on a grid, refines every detected local peak and includes endpoints, then keeps the best candidate. Hidden-state mixtures can be multimodal, so assuming a single global peak would be unsafe.
+
+## ../final_simple/supply/pricing_model.py::static_price
+
+Solves the transformed binary-logit price first-order condition by bracketing and bisection for signed alpha<0. The effective cost can incorporate continuation value, allowing introductory subsidies; do not impose the coupon floor from empirical pricing on this theoretical solver.
+
+## ../final_simple/supply/pricing_model.py::static_price.foc
+
+This nested function returns the transformed price first-order-condition residual for a trial scalar. Captured slope, intercept and effective cost remain fixed during the root search. A zero is a candidate optimal price under the maintained monotonicity argument.
+
+## ../final_simple/supply/pricing_model.py::supply_solution
+
+Solves the known-state baseline, hidden-initial-state case, and commitment case for one fixed type and prior. Both terminal histories enter expected profits. The hidden-state case pools initial histories within a known type; it does not pool different gamma types. The commitment case chooses two numbers before the first purchase and cannot adapt p2 to h1.
+
+## ../final_simple/supply/pricing_model.py::supply_solution.share1
+
+Returns first-period binary-logit demand, or its initial-state mixture, at a trial price. The function closes over the current theoretical type and prior. Initial history is integrated as probabilities, not averaged as utilities.
+
+## ../final_simple/supply/pricing_model.py::supply_solution.adaptive_value
+
+Evaluates current profit plus discounted, state-contingent optimized terminal values. The first choice changes the probabilities of both continuation histories, which is why its derivative contains their value difference.
+
+## ../final_simple/supply/pricing_model.py::supply_solution.committed_profile
+
+For a trial first price, solves the best single committed terminal price and returns its value/profile. This inner optimization must respect the information restriction: p2 is common across realized h1.
+
+## ../final_simple/supply/pricing_model.py::supply_solution.committed_profile.objective
+
+Defines the scalar objective for the surrounding search using captured data and parameters. Inspect the displayed expression to identify whether it returns a profit or its negative; minimizers and maximizers require opposite conventions.
+
+## ../final_simple/supply/pricing_model.py::outcome_tables
+
+Exports history-specific prices, quantities and profits plus properly probability-weighted ex ante outcomes. Conditional realized-history values and expected profits answer different questions; averaging conditional profits without their path probabilities would be wrong.
+
+## ../final_simple/supply/supply_simulation.py::golden_maximum
+
+Refines a bracketed scalar maximizer by golden-section interval reduction, reusing previous function values. This is a numerical search, not a proof that a multimodal objective has only one peak.
+
+## ../final_simple/supply/supply_simulation.py::scalar_maximum
+
+Evaluates a scalar objective on a grid, refines every detected local peak and includes endpoints, then keeps the best candidate. Hidden-state mixtures can be multimodal, so assuming a single global peak would be unsafe.
+
+## ../final_simple/supply/supply_simulation.py::static_price
+
+Solves the transformed binary-logit price first-order condition by bracketing and bisection for signed alpha<0. The effective cost can incorporate continuation value, allowing introductory subsidies; do not impose the coupon floor from empirical pricing on this theoretical solver.
+
+## ../final_simple/supply/supply_simulation.py::static_price.foc
+
+This nested function returns the transformed price first-order-condition residual for a trial scalar. Captured slope, intercept and effective cost remain fixed during the root search. A zero is a candidate optimal price under the maintained monotonicity argument.
+
+## ../final_simple/supply/supply_simulation.py::supply_solution
+
+Solves the known-state baseline, hidden-initial-state case, and commitment case for one fixed type and prior. Both terminal histories enter expected profits. The hidden-state case pools initial histories within a known type; it does not pool different gamma types. The commitment case chooses two numbers before the first purchase and cannot adapt p2 to h1.
+
+## ../final_simple/supply/supply_simulation.py::supply_solution.share1
+
+Returns first-period binary-logit demand, or its initial-state mixture, at a trial price. The function closes over the current theoretical type and prior. Initial history is integrated as probabilities, not averaged as utilities.
+
+## ../final_simple/supply/supply_simulation.py::supply_solution.adaptive_value
+
+Evaluates current profit plus discounted, state-contingent optimized terminal values. The first choice changes the probabilities of both continuation histories, which is why its derivative contains their value difference.
+
+## ../final_simple/supply/supply_simulation.py::supply_solution.committed_profile
+
+For a trial first price, solves the best single committed terminal price and returns its value/profile. This inner optimization must respect the information restriction: p2 is common across realized h1.
+
+## ../final_simple/supply/supply_simulation.py::supply_solution.committed_profile.objective
+
+Defines the scalar objective for the surrounding search using captured data and parameters. Inspect the displayed expression to identify whether it returns a profit or its negative; minimizers and maximizers require opposite conventions.
+
+## ../final_simple/supply/supply_simulation.py::outcome_tables
+
+Exports history-specific prices, quantities and profits plus properly probability-weighted ex ante outcomes. Conditional realized-history values and expected profits answer different questions; averaging conditional profits without their path probabilities would be wrong.
+
+## ../final_simple/supply/supply_simulation.py::optimal_price
+
+This finds one optimal price for a utility intercept, negative alpha, and an
+effective cost. `f = lambda p: ...` defines the transformed scalar FOC. `clip`
+limits the exponential's argument to a representable range; it is a numerical
+safeguard rather than a theoretical cap on utility.
+
+The initial lower endpoint is effective cost, where f is positive. `max` sets
+a reasonable initial width, and `while f(hi) > 0` doubles it until the bracket
+changes sign. `brentq` can then locate the zero to `xtol=1e-12`. A fixed interval
+is simpler but can miss a root under another calibration. Unconstrained generic
+minimization ignores the monotonic scalar structure and can need more evaluations.
+The maintained alpha<0 assumption establishes a unique root; the caller validates it.
+
+## ../final_simple/supply/supply_simulation.py::solve
+
+This is a compact convenience interface. The bare `*` makes `initial_state`
+keyword-only; `**parameters` collects other keywords. Membership tests reject
+obsolete z1/z2 inputs. `parameters.pop("gamma", 0.)` retrieves and removes gamma,
+allowing the rest to be expanded into `evaluate` without passing gamma twice.
+The function returns seven values as a tuple. It is convenient for unpacking,
+while `evaluate` is preferable when you need named derivative or diagnostic fields.
+
+## ../final_simple/supply/supply_simulation.py::state_outcomes
+
+Conditions on each initial/first-choice history, retains terminal demand expectation, and produces histories with their path weights. This separates conditional economic mechanisms from ex ante comparisons.
+
+## ../final_simple/supply/supply_simulation.py::plot_state_outcomes
+
+Plots conditional prices, ratios or profits across gamma for the history-specific outcomes. Histories that are rare under a policy should not be confused with an equally weighted population average.
+
+## ../final_simple/supply/supply_simulation.py::plot_state_shares
+
+Plots how policy-induced probabilities allocate households across realized histories. These probability weights explain why an ex ante profit comparison can differ from comparing conditional histories alone.
+
+## ../final_simple/supply/supply_simulation.py::save
+
+This formatting/output helper takes a Matplotlib Figure and filename stem.
+`tight_layout` adjusts spacing; a two-element suffix loop saves both PDF and
+PNG; `plt.close` frees the Figure. `OUT / f"{name}.{suffix}"` constructs each
+Path. Shared export code prevents one figure accidentally lacking its vector
+PDF version. DPI matters chiefly for raster PNG content; it does not make an
+ordinary vector line in a PDF more mathematically precise.
+
+## ../final_simple/supply/supply_simulation.py::write_run_notes
+
+Writes a readable text rendering of the same automatic run information saved as JSON. pformat lays out nested records for reading; this is an output record, not an alternative settings file.
+
+## ../final_simple/supply/supply_sympy.py::signed_state
+
+This converts the two accepted string state names into integer signs. Two
+independent `if` blocks are fine because each successful branch returns at
+once. Any other value reaches `raise ValueError`. `signed_state("j")` returns
+-1; `signed_state("0")` returns +1; numeric `0` is not string `"0"` and is rejected.
+A dictionary lookup could shorten this to a mapping, but these explicit branches
+make both accepted values and the custom error easy for a novice to see.
+
+## ../final_simple/supply/supply_sympy.py::raw_utilities
+
+Input `price` may be a SymPy symbol and `signed_history` a sign or symbolic q.
+The return statement contains two comma-separated expressions, so it returns
+a tuple `(inside_utility, outside_utility)`. The combinations `(1+q)/2` and
+`(1-q)/2` act as complementary indicators when q is ±1. At q=-1 the first is
+zero and second one; at q=+1 they reverse.
+
+Arithmetic with SymPy objects builds algebraic expressions rather than computing
+a numerical utility immediately. Returning both raw utilities preserves the
+outside switching payoff before normalization. Writing only an inside bonus
+would encode a different model. Module-level unpacking later names each result
+and subtracts the outside utility explicitly.
+
+## ../final_simple/supply/supply_sympy.py::price2_derivative
+
+This returns a **symbolic expression** for the terminal optimal-price derivative
+with respect to symbolic parameter theta. Default arguments `sj2`, `q2`, and
+`p2` are shared symbols; callers substitute a particular branch by passing u/-1/p2j
+or v/+1/p20. `sp.diff(beta, theta)` is one when theta is beta and zero for an
+independent parameter, so one generic expression covers several comparative statics.
+
+`direct` is the fixed-price derivative of the utility index. The returned
+formula already incorporates implicit share/price feedback; `simplify` reduces
+algebra. Differentiating the markup while holding its share fixed would omit
+that feedback. Unlike numerical finite differences, symbolic derivatives do
+not need a step size, though they still depend on a correct symbolic model.
+
+## ../final_simple/supply/supply_sympy.py::value2_derivative
+
+This computes the symbolic envelope derivative of a reoptimized continuation
+value. It uses the same fixed-price index derivative as terminal pricing, then
+returns `-share*direct/alpha - share*diff(c,theta)`. There is no explicit derivative
+of optimal price because the terminal FOC cancels that first-order effect.
+Omitting price responses here is justified by the envelope theorem, not a
+general Python or SymPy rule. Substituting fully expanded optimal prices would
+be harder algebra with the same result under the maintained optimum conditions.
+
+## ../final_simple/supply/supply_sympy.py::price1_derivative
+
+This forms the symbolic first-period price derivative. It builds its direct
+utility effect, obtains the two terminal envelope derivatives, subtracts them,
+and inserts the result into the implicit first-price formula. `sp.diff(delta,
+theta)` includes a direct discount-factor change when theta is delta; for gamma
+that term is zero but the continuation values still change.
+
+The two helper calls use the correct opposite signed terminal histories.
+Maintaining a single generic function avoids separate alpha/beta/delta/gamma
+formulas disagreeing about those branches. `sp.simplify` does algebraic cleanup;
+it does not decide whether a term is positive under the economic domain.
+
+## ../final_simple/supply/supply_sympy.py::total_derivative
+
+Input is a symbolic expression and differentiation parameter. Output is its
+total derivative along the solved equilibrium. The first assignments compute
+price derivatives, then logistic chain rules compute derivatives of the three
+shares. A dictionary maps each endogenous symbol to its derivative.
+
+The return is explicit partial differentiation plus
+`sum(diff(expr,k)*val for k,val in substitutions.items())`. This is the chain
+rule over every mapped endogenous object. The dictionary is a derivative map,
+not values actually substituted with `.subs` in this function. `sp.factor`
+collects common algebraic factors. Plain `sp.diff(expr,theta)` would treat shares,
+prices, and values as independent symbols and miss their indirect changes.
+
+## ../final_simple/supply/supply_sympy.py::terminal_total_derivative
+
+This is the smaller one-branch version of the total derivative. It calculates
+terminal price response, computes terminal share response including repricing,
+and adds explicit theta, price, and share chain-rule terms. Because there is
+only one terminal branch, a short direct expression is clearer than building
+the full period-1 derivative dictionary. It is used for terminal curvature and
+mixed derivatives; a second plain symbolic partial derivative would hold the
+share fixed and give the wrong comparative static.
+
+## ../final_simple/supply/supply_sympy.py::profit_derivative
+
+This returns the optimized two-period profit derivative with respect to theta.
+`partial` combines direct current demand/cost effects, direct discounting, and
+both branch envelope effects. `.subs(p1, markup_expression)` inserts the
+first-period optimal pricing equation, then `simplify` reduces the result.
+
+The code does not explicitly multiply by dp1/dtheta because the first-period
+FOC makes that contribution zero at the optimum. Replacing the entire objective
+with current revenue before differentiating would lose continuation effects.
+This helper is reusable for gamma and beta, while relying on the same fixed-type,
+two-branch, interior optimum as the rest of the model.
+
+## ../final_simple/supply/supply_sympy.py::display_equation
+
+This returns a LaTeX display-equation string. `lhs` is already a LaTeX label;
+`sp.latex(expression)` serializes the actual symbolic right-hand side.
+`'\\[\n'` contains a backslash followed by a bracket and a newline; Python string
+escapes are why source contains doubled backslashes. Concatenation places the
+equation between display delimiters. Deriving the right side from SymPy avoids
+manually copying a formula that later changes in the code. The function returns
+text and does not itself invoke a TeX compiler.
+
+## ../final_simple/supply/supply_sympy.py::show
+
+This is a terminal-output helper returning None. Blank `print()` creates a
+new line; `"=" * 70` repeats a string seventy times, whereas multiplication
+of numeric values has a different meaning. `sp.pprint` renders an expression
+in readable mathematical form in the terminal. It is useful for inspection,
+while `sp.latex` is the appropriate alternative for document source.
+
+## ../final_simple/supply/unknown_type.py::solve
+
+Solves a two-period hidden-gamma problem for a known initial history and prior over persistent types. Terminal prices use Bayesian type posteriors after each first-period outcome; the function checks probability mass, value reconstruction and first-order conditions, then returns path rows, policy summaries and residual. This is a learning theory, not fixed beliefs.
+
+## ../final_simple/checks/check_flavor_specifications.py::module
+
+Loads a source module for pure mathematical checks using an import specification. This registers functions without invoking guarded empirical run steps; only numerical kernels are called by this check.
+
+## ../final_simple/checks/check_flavor_specifications.py::mathematical_data
+
+Constructs aggregate multinomial count and utility arrays for an abstract likelihood calculation. The five-column version appends unavailable alternatives to check nesting; no household identifiers, purchase histories, or research records are constructed or persisted.
+
+## ../final_simple/data/build_data.py::convert_one_file
+
+On the server, scans one tab-separated raw source, lowercases columns and writes a Parquet conversion. Missing paths are reported and skipped, so the caller must separately verify coverage. This expensive build stage is not invoked by the after-data job.
+
+## ../final_simple/data/build_data.py::convert_panel_files
+
+Loops over requested panel years and annual table names, then optional master tables, composing each path explicitly. Actual I/O passes through convert_one_file and its server guard.
+
+## ../final_simple/data/build_data.py::convert_retail_files
+
+Converts annual metadata and movement modules 3603/3612, plus selected retail masters. The raw rms_versions filename maps to rms in output; the loop does not estimate demand or classify yogurt flavors.
+
+## ../final_simple/data/build_data.py::clean_parquet_files
+
+Keeps the specified columns in new cleaned_ files, preserving original conversions. Longer table names are matched first so products_extra is not confused with products. Column projection changes retained information, not just file size.
+
+## ../final_simple/data/build_data.py::combine_panel_files
+
+Stacks cleaned annual panel tables into combined Parquet outputs. Wildcard inputs mean a stale converted year can enter this old build step; the after-data job avoids rerunning it and reuses the completed build.
+
+## ../final_simple/data/build_data.py::align_retail_types
+
+Casts known retail identifiers and codes to compatible types before concatenation. Alignment avoids a schema mismatch across years; it does not reconcile inconsistent economic meanings of codes.
+
+## ../final_simple/data/build_data.py::combine_retail_files
+
+Concatenates compatible cleaned annual retail tables into combined outputs, applying retail type alignment. This is part of the expensive build rather than a flavor-specification transformation.
+
+## ../final_simple/data/build_data.py::join_panel_tables
+
+Anchors on purchases, inner joins trip information, then attaches demographics and product attributes. Read each join key and join type: they determine which purchases survive and whether metadata can remain missing.
+
+## ../final_simple/data/build_data.py::merge_panel_files
+
+Reads the combined panel tables, calls join_panel_tables and writes the merged server checkpoint. The pure join helper separates table logic from empirical file I/O.
+
+## ../final_simple/data/build_data.py::add_saturday_week
+
+Transforms purchase dates to the Saturday week-end used by retail matching, including Sunday and year-boundary cases. Calendar arithmetic defines matching eligibility; it is not a rolling seven-observation window.
+
+## ../final_simple/data/build_data.py::attach_panel_weeks
+
+Reads the merged panel checkpoint, adds its Saturday week identifier, and publishes the updated checkpoint on the server. Current alongside runs reuse this already-completed result.
+
+## ../final_simple/data/build_data.py::join_retail_tables
+
+Applies the original key casts, first-row deduplication and left joins between movement, versions, products, stores and metadata. A left join retains movement records even when an attribute is absent.
+
+## ../final_simple/data/build_data.py::merge_retail_files
+
+Collects combined retail sources, calls the join helper and writes the merged retail checkpoint. Downstream yogurt matching reads that checkpoint; changing category definitions does not require rebuilding it.
+
+## ../final_simple/data/build_data.py::yogurt_retail_quotes
+
+Builds one retained retail price quote for each year/week/UPC/store matching key. The year is part of the key; duplicates are not independent additional prices.
+
+## ../final_simple/data/build_data.py::match_one_year
+
+Inner joins the selected year of yogurt purchases to retained retail quotes. Purchases without matching prices are excluded rather than imputed or converted to observed outside choices.
+
+## ../final_simple/data/build_data.py::match_yogurt_files
+
+Runs the annual yogurt matching steps using a private temporary directory and explicit year outputs, then writes the matched purchase checkpoint. This is the final expensive data-build stage skipped by run_after_data.
+
+## ../final_simple/data/build_data.py::audit_file
+
+Reports aggregate schema, coverage, counts and key diagnostics for a server file. A row-count ratio alone is not proof of correct matching; the audit does not print individual purchase records.
+
+## ../final_simple/data/build_data.py::read_command_line
+
+Parses optional raw-path, year and step overrides for the data builder. Parsing an argument does not authorize empirical I/O locally; server guards still apply.
+
+## ../final_simple/data/build_data.py::run_build
+
+Executes explicitly selected build steps in dependency order and audits outputs. The current after-data pipeline does not call this function; it requires completed merged panel and matched yogurt checkpoints instead.
+
+## ../final_simple/data/summaries.py::summarize_household_batches
+
+Computes household summaries batch by batch from server partitions, then combines the results. Batching bounds memory use while keeping each household history intact; it is not a sample-size restriction.
+
+## ../final_simple/data/summaries.py::prepare_summary_samples
+
+Creates full-panel and matched-yogurt summary samples, applies single-person restrictions, and writes aggregate demographics and year coverage. The prepared estimation handoff retains additional households for retail-price coverage, while demand later restricts its consumers.
+
+## ../final_simple/data/summaries.py::summarize_flavor_groups
+
+Runs detailed-label summaries and then summaries using the selected three/five grouping. The same resolved grouped mapping is returned for estimation, preventing summaries and demand from silently using different classification rules.
+
+## ../final_simple/data/summaries.py::save_estimation_sample
+
+Writes the specification-specific labeled purchase input and exact UPC mapping on the research server, outside the checkout. The expanded input uses the same completed matched data with new labels; none of these purchase-level files belongs in RESULTS_ONLY.
+
+## ../final_simple/data/summaries.py::read_command_line
+
+Parses summary paths, years, partition count and flavor_spec, together with recovery/figure-only switches. Three remains the baseline; five adds the new categories. The full descriptor reference is needed to construct the expanded mapping.
+
+## ../final_simple/data/summaries.py::run_summaries
+
+Configures the shared ordered category list, selects recovery-only, figure-only or full summaries, and uses a temporary work directory. In-place list replacement keeps default arguments aligned with the chosen categories. All empirical work stays behind the server guard.
+
+## ../final_simple/demand/estimation.py::switch_away_event
+
+Retained helper for the unadopted lagged-switch experiment. It detects displacement or introduction with falling share, but current jobs explicitly select previous_share novelty and do not use this event as their predictor.
+
+## ../final_simple/demand/gamma_calibration.py::known_prices
+
+Solves the binary symmetric switching theory for a known gamma and initial history using Lambert W. Alpha is signed negative. This auxiliary theory differs from the full empirical split-history demand; its prices are calibrated to aggregate observed-price moments.
+
+## ../final_simple/demand/gamma_calibration.py::maximize
+
+Uses a coarse grid to find candidate local peaks, refines them with scalar optimization, and includes endpoints. It rejects an optimum at the search boundary rather than assuming an arbitrary bracket contains the solution.
+
+## ../final_simple/demand/gamma_calibration.py::uncertainty
+
+Chooses terminal and initial offers using unchanged prior weights in every history. It checks the first-price optimum against a wider grid and returns this fixed-belief policy and its objective. Actual persistent-type revenue is evaluated separately in run_calibration.
+
+## ../final_simple/demand/gamma_calibration.py::uncertainty.shares
+
+Returns the vector of type-specific binary purchase probabilities for a price/history pair. A closure supplies gamma, beta and alpha from uncertainty; the caller averages the vector using fixed prior weights.
+
+## ../final_simple/demand/gamma_calibration.py::uncertainty.objective
+
+Computes first-period expected margin plus discounted branch values using fixed beliefs. The same prior is used after either branch; this is the decision objective, not automatically the persistent-type policy evaluation.
+
+## ../final_simple/demand/gamma_calibration.py::CalibrationError.__init__
+
+Attaches an aggregate diagnostics dictionary to a named exception and sets a readable message pointing to the status file. Catching this specific exception permits coupon pricing to continue without treating a rejected calibration as valid.
+
+## ../final_simple/demand/gamma_calibration.py::calibration_rank
+
+Uses Jacobian singular values and a relative tolerance to detect nearly flat parameter directions. Numerical rank is an identification check for the aggregate calibration; convergence alone is insufficient.
+
+## ../final_simple/demand/gamma_calibration.py::calibrate
+
+Fits common binary-theory alpha and beta to group/history price moments with household-count weights and relative residuals. It uses multiple starts and a larger evaluation budget, filters out failed/bound/rank-deficient results, then chooses the best admissible objective. No admissible solution raises CalibrationError with optimizer diagnostics.
+
+## ../final_simple/demand/gamma_calibration.py::calibrate.predictions
+
+Transforms log price sensitivity to a negative alpha and solves known-type theoretical prices for every aggregate group/history cell. The output aligns with the two observed price columns; a wrong cell order would fit the wrong moments.
+
+## ../final_simple/demand/gamma_calibration.py::calibrate.residual
+
+Subtracts observed aggregate prices from predictions, divides by observed prices and applies square-root cell weights. Flattening gives least_squares a one-dimensional residual vector while preserving the weighted objective.
+
+## ../final_simple/demand/gamma_calibration.py::run_calibration
+
+Forms actual consecutive-week observed-price targets and fitted novelty support, calibrates binary supply, and solves known-type/fixed-belief offers. It evaluates both policies under persistent types before averaging. Valid runs save common-evaluation revenues; rejected runs save aggregate moments and explicit status without fabricated charts.
+
+## ../final_simple/demand/pricing.py::read_command_line
+
+Parses settings for the legacy three-group combined-gamma berry counterfactual. Its default discount factor is .95; use the main plain_berry entry point and after-data job for the current split-history three/five analysis.
+
+## ../final_simple/demand/split_pricing.py::compositions.generate
+
+A recursive generator assigns one category count at a time, then allocates the remaining total to the remaining slots. The base case puts all remaining opportunities into the last slot. Each nonnegative basket appears once.
+
+## ../final_simple/demand/split_pricing.py::information_frictions
+
+Calls the auxiliary binary calibration and creates information figures using persistent_type_revenue. CalibrationError is handled explicitly: diagnostics are returned and coupon pricing continues, while unsupported information figures are omitted. Other programming exceptions remain failures.
+
+## ../final_simple/flavor_specs.py::categories
+
+Returns a fresh ordered category list for three or five and rejects an unknown specification. Fresh lists avoid accidental mutation of the dictionary; order defines the alignment of counts, prices, histories and fixed effects.
+
+## ../final_simple/flavor_specs.py::classify_descriptor
+
+Applies explicit descriptor precedence without empirical I/O. The baseline keeps the original plain/berry/other rule. Five uses plain, then dessert, then berry, then nonberry fruit, then residual other; cherry is nonberry fruit only in the expanded rule.
+
+## ../final_simple/flavor_specs.py::classification_expression
+
+Constructs the equivalent chained Polars expression for server-side classification. It returns a computation plan, not collected data. Tests compare its outcomes against the Python string classifier so the two implementations share precedence.
+
+## ../final_simple/server/export_uncontrolled_pricing.py::export_results
+
+Validates server paths and uncontrolled original-share fit metadata, checks the pricing reports against parameter hashes, and copies only explicit allowed aggregate results. It preserves calibration status and copies presentation information figures only for valid calibrations. Household tables and full internal manifests are not exported.
+
+## ../final_simple/server/export_uncontrolled_pricing.py::export_results.digest
+
+Computes SHA-256 of a saved fit or parameter result file for provenance comparison. These hashes verify which coefficients the pricing run used; the function is not a research-record reader.
+
+## ../final_simple/server/run_after_data.py::run_pipeline
+
+Requires a completed server data build and a new job directory. It runs separate summaries and uncontrolled fits for three/five, then both plain/berry pricing exercises; it exports aggregate results, statuses and cross-spec comparisons. Raw conversion/matching is never invoked, and existing outputs remain intact.
+
+## ../final_simple/server/run_after_data.py::run_pipeline.call
+
+Builds a subprocess argument list using the current Python interpreter, a source script path and explicit settings. check=True raises on failure so the driver cannot label a failed child as completed; the working directory is server-side.
+
+## ../final_simple/supply/pricing_model.py::expit
+
+Evaluates the logistic probability with numerically stable exponential expressions. Its input is a utility difference; the output is a probability, not a price or a simulated purchase.
+
+## ../final_simple/supply/pricing_model.py::plotting
+
+Creates a noninteractive Matplotlib plotting interface and writable cache for theoretical figures. Importing this helper does not read purchase data.
+
+## ../final_simple/supply/pricing_model.py::self_test
+
+Checks the pure binary-theory solver against special cases and independent numerical conditions. It exercises mathematical parameters only and does not validate an empirical fit.
+
+## ../final_simple/supply/supply_information.py::committed_policy
+
+Chooses two common prices before outcomes when initial history is known but gamma is hidden. Both prices must apply across possible types; the method profiles over the terminal price and verifies first-order conditions. This is a commitment/Bayesian-theory comparison, distinct from empirical fixed beliefs.
+
+## ../final_simple/supply/supply_information.py::committed_policy.profile
+
+For a candidate committed second price, optimizes the first price and returns either its value or detailed price/value pair. The details flag lets the outer optimizer use a scalar while the caller later recovers the selected policy.
+
+## ../final_simple/supply/supply_information.py::committed_policy.profile.objective
+
+Weights each persistent type's first purchase and second-period branch revenues under a single committed policy. Broadcasting permits evaluating a price grid without changing which consumers keep their type.
+
+## ../final_simple/supply/supply_information.py::draw_figures
+
+Draws prices, expected profits and the value of observing first-period history as type probabilities vary. Grouping selects each focal gamma and initial state. These are theoretical curves, not newly estimated empirical revenues.
+
+## ../final_simple/supply/supply_information.py::run_information
+
+Loops over known initial states and probability grids, compares known gamma, adaptive hidden gamma and committed prices, checks value bounds, then saves theoretical figures and provenance. Its adaptive hidden-type model learns via outcomes; it is not the auxiliary fixed-belief specification.
+
+## ../final_simple/supply/supply_information.py::read_command_line
+
+Parses theoretical output/grid and beta/alpha/delta/cost overrides. These ordinary numerical parameters do not select empirical flavor groups.
+
+## ../final_simple/supply/supply_simulation.py::expit
+
+Stable logistic transformation for theoretical choice probabilities. It prevents exponential overflow at large positive or negative utility differences.
+
+## ../final_simple/supply/supply_simulation.py::plotting
+
+Returns the noninteractive plotting interface with an appropriate cache. It is shared by theoretical result and derivative figures; no empirical input is needed.
+
+## ../final_simple/supply/supply_simulation.py::make_case_figures
+
+Plots policy and outcome comparisons for the theoretical initial-history information cases. The values come from solved parameter grids, not household price records.
+
+## ../final_simple/supply/supply_simulation.py::inside_share
+
+Evaluates the binary inside purchase probability for a given price, gamma, signed initial state and common tastes. It is the numerical counterpart of the symbolic logit expression.
+
+## ../final_simple/supply/supply_simulation.py::evaluate
+
+Solves the known-state two-period pricing problem and evaluates named prices, profits and derivatives at one gamma/state. Parameter signs and both terminal branches must match the symbolic model.
+
+## ../final_simple/supply/supply_simulation.py::make_derivative_figures
+
+Runs the configured theoretical parameter grid and plots solved comparative statics. It reuses the symbolic/numerical model rather than estimating demand from data.
+
+## ../final_simple/supply/supply_simulation.py::self_test
+
+Checks the theory solver's special cases, analytic results and numerical optimality. It is a pure-theory check; passing it is not evidence that a server calibration is identified.
+
+## ../final_simple/supply/supply_simulation.py::read_command_line
+
+Parses theoretical grids and output options, including skipping derivative plots and benchmark appendices. Changing flavor_spec is not part of this binary simulation.
+
+## ../final_simple/supply/supply_simulation.py::run_supply
+
+Validates settings, solves the configured theory cases, saves tables/figures and optional derivative/appendix outputs. This entry point is independent of the empirical after-data pipeline.
+
+## ../final_simple/supply/supply_sympy.py::make_latex_appendix
+
+Writes a theoretical benchmark appendix from symbolic formulas, numerical parameter choices and a supplied evaluator. It generates documentation rather than editing presentation slides or accessing research records.
+
+## ../final_simple/supply/unknown_type.py::solve.maximize
+
+Chooses bounds appropriate to an initial or terminal price and delegates grid/refinement maximization. A boundary optimum raises rather than being silently accepted.
+
+## ../final_simple/supply/unknown_type.py::solve.terminal_policy
+
+Updates hidden-type weights by Bayes' rule after each possible first-period purchase outcome and optimizes one terminal price per history. Consumers retain type; this older theory learns, unlike the current fixed-belief auxiliary exercise.
+
+## ../final_simple/supply/unknown_type.py::solve.terminal_policy.expected_terminal_profit
+
+Computes terminal expected margin using the branch posterior over types. One price applies to all types in that observed history; optimizing separately by true gamma would give the firm information it lacks.
+
+## ../final_simple/supply/unknown_type.py::solve.expected_profit
+
+Combines initial expected margin and continuation values from the optimized history-specific policies. The first price affects both state probabilities and inferred type composition.
+
+## ../final_simple/supply/unknown_type.py::figures
+
+Draws one theoretical page per prior showing hidden gamma weights, optimal history-dependent prices and expected profit. All values are generated from model parameters rather than purchase data.
+
+## ../final_simple/supply/unknown_type.py::self_test
+
+Verifies degenerate-type nesting, common offers across hidden types, Bayesian belief consistency, probability mass, revenue reconstruction and first-order conditions. These checks distinguish this learning theory from fixed-belief pricing.
+
+## ../final_simple/supply/unknown_type.py::read_command_line
+
+Parses theoretical parameters, priors, output and self-test options. It does not recover household types or rerun demand estimation.
+
+## ../final_simple/supply/unknown_type.py::run_unknown_type
+
+Solves the configured theoretical hidden-gamma scenarios and initial states, records results and draws the policy figures. The main empirical pipeline does not call this Bayesian-learning entry point.
+
+
+
+## pricing_exercises/unknown_type/plot_supply_information.py::committed_policy
+
+Chooses two common prices before outcomes when initial history is known but gamma is hidden. Both prices must apply across possible types; the method profiles over the terminal price and verifies first-order conditions. This is a commitment/Bayesian-theory comparison, distinct from empirical fixed beliefs.
+
+
+## pricing_exercises/unknown_type/plot_supply_information.py::committed_policy.profile
+
+For a candidate committed second price, optimizes the first price and returns either its value or detailed price/value pair. The details flag lets the outer optimizer use a scalar while the caller later recovers the selected policy.
+
+
+## pricing_exercises/unknown_type/plot_supply_information.py::committed_policy.profile.objective
+
+Weights each persistent type's first purchase and second-period branch revenues under a single committed policy. Broadcasting permits evaluating a price grid without changing which consumers keep their type.
+
+
+## pricing_exercises/unknown_type/plot_supply_information.py::draw_figures
+
+Draws prices, expected profits and the value of observing first-period history as type probabilities vary. Grouping selects each focal gamma and initial state. These are theoretical curves, not newly estimated empirical revenues.
+
+
+## pricing_exercises/unknown_type/plot_supply_information.py::run_information
+
+Loops over known initial states and probability grids, compares known gamma, adaptive hidden gamma and committed prices, checks value bounds, then saves theoretical figures and provenance. Its adaptive hidden-type model learns via outcomes; it is not the auxiliary fixed-belief specification.
+
+
+## pricing_exercises/unknown_type/plot_supply_information.py::read_command_line
+
+Parses theoretical output/grid and beta/alpha/delta/cost overrides. These ordinary numerical parameters do not select empirical flavor groups.
+
+
+## pricing_exercises/unknown_type/run_unknown_type.py::solve
+
+Solves the historical Bayesian hidden-gamma theory for a known initial history. One common policy applies across possible types, with posterior learning after the first purchase. It returns theoretical path rows, policy summaries and numerical residuals; it is distinct from current fixed-belief empirical calibration.
+
+## pricing_exercises/unknown_type/run_unknown_type.py::solve.maximize
+
+Chooses bounds appropriate to an initial or terminal price and delegates grid/refinement maximization. A boundary optimum raises rather than being silently accepted.
+
+
+## pricing_exercises/unknown_type/run_unknown_type.py::solve.terminal_policy
+
+Updates hidden-type weights by Bayes' rule after each possible first-period purchase outcome and optimizes one terminal price per history. Consumers retain type; this older theory learns, unlike the current fixed-belief auxiliary exercise.
+
+
+## pricing_exercises/unknown_type/run_unknown_type.py::solve.terminal_policy.expected_terminal_profit
+
+Computes terminal expected margin using the branch posterior over types. One price applies to all types in that observed history; optimizing separately by true gamma would give the firm information it lacks.
+
+
+## pricing_exercises/unknown_type/run_unknown_type.py::solve.expected_profit
+
+Combines initial expected margin and continuation values from the optimized history-specific policies. The first price affects both state probabilities and inferred type composition.
+
+
+## pricing_exercises/unknown_type/run_unknown_type.py::figures
+
+Draws one theoretical page per prior showing hidden gamma weights, optimal history-dependent prices and expected profit. All values are generated from model parameters rather than purchase data.
+
+
+## pricing_exercises/unknown_type/run_unknown_type.py::self_test
+
+Verifies degenerate-type nesting, common offers across hidden types, Bayesian belief consistency, probability mass, revenue reconstruction and first-order conditions. These checks distinguish this learning theory from fixed-belief pricing.
+
+
+## pricing_exercises/unknown_type/run_unknown_type.py::read_command_line
+
+Parses theoretical parameters, priors, output and self-test options. It does not recover household types or rerun demand estimation.
+
+
+## pricing_exercises/unknown_type/run_unknown_type.py::main
+
+Solves the configured theoretical hidden-gamma scenarios and initial states, records results and draws the policy figures. The main empirical pipeline does not call this Bayesian-learning entry point.

@@ -49,6 +49,7 @@ output = Path("/scratch/dtm63837/Kilts_Panel/results") / "estimation_split"
 # Other choices: naive, homogeneous, mixed_naive, mixture,
 #               separate_history, heterogeneous_history.
 model = "heterogeneous_history"
+flavor_spec = "three"               # "three" baseline or "five" expanded groups.
 first_year = 2006
 last_year = 2015
 max_households = None                # Use 100 for a development sample.
@@ -67,7 +68,7 @@ bootstrap_starts = 2
 
 # Shared descriptor rules; the selected categories are recorded with each fit.
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from flavor_specs import categories, classification_expression
+from flavor_specs import categories
 
 FLAVORS = ["other", "berry", "plain"] # This column order is used in all arrays.
 FLAVOR_FILE = flavors
@@ -144,9 +145,9 @@ def absorb_effects(values, groups, tolerance=1e-10, maxiter=2000):
 
 
 # Run one price equation per flavor, removing week and DMA means and controlling for all
-# three history indices.
+# one history index per selected flavor.
 def add_price_controls(frame):
-    """OLS separately by flavor: price ~ IV + all three Xi + week FE + DMA FE.
+    """OLS separately by flavor: price ~ IV + all selected flavor Xi + week FE + DMA FE.
 
     Refit this function in every household bootstrap sample. Return residuals
     in DOLLARS (no arbitrary rescaling) for the choice-model control function.
@@ -517,7 +518,7 @@ def add_stocks(weekly, habit_weight=0.7, novelty_measure="previous_share"):
     return result
 
 # Turn the named table columns into numeric arrays. Rows are household-weeks; inside
-# columns are other, berry, plain.
+# Columns follow the ordered category list selected by flavor_spec.
 def make_arrays(frame, capacity):
     """Use household codes to sum log likelihoods before integrating types."""
     hh, labels = pd.factorize(frame["household_code"], sort=True)
@@ -1200,7 +1201,7 @@ def fit_model(data, settings, frame=None):
 def read_command_line(settings):
     """Optional server flags. Normal use: edit the parameters at the top."""
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--flavor-spec", choices=["three", "five"], default="three")
+    parser.add_argument("--flavor-spec", choices=["three", "five"], default=flavor_spec)
     parser.add_argument(
         "--sample",
         type=Path,
@@ -1297,6 +1298,7 @@ if __name__ == "__main__":
         products_extra=products_extra,
         output=output,
         model=model,
+        flavor_spec=flavor_spec,
         first_year=first_year,
         last_year=last_year,
         max_households=max_households,

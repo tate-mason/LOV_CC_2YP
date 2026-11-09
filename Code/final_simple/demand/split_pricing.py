@@ -32,7 +32,7 @@ import pandas as pd
 household_input = None
 fit_dir = None
 output = Path("/scratch/dtm63837/Kilts_Panel/results") / "split_pricing"
-focal_flavor = "all"                  # all, other, berry, or plain
+focal_flavor = "all"                  # all fitted groups, or one named fitted group
 discounts = np.linspace(0., 1., 101)  # Candidate focal-product coupons.
 demand_delta = .92                    # Same default as theoretical supply.
 batch_size = 24                       # Progress interval in the household loop.
@@ -45,7 +45,7 @@ run_self_tests = False
 
 # Shared descriptor rules; the selected categories are recorded with each fit.
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from flavor_specs import categories, classification_expression
+from flavor_specs import categories
 
 FLAVORS = ["other", "berry", "plain"]
 
@@ -190,7 +190,8 @@ def targeted_coupons(context, households, weights, alpha, switching, beta, disco
     number_coupons = len(discounts)
     state_numbers = np.arange(number_states)
 
-    # A basket records [other, berry, plain, outside]. History uses inside shares.
+    # A basket records the selected inside flavors followed by outside.
+    # Coordinate one is the focal seller after permutation; histories retain all flavors.
     inside_counts = baskets[:, :len(FLAVORS)]
     inside_total = inside_counts.sum(axis=1, keepdims=True)
     basket_shares = np.divide(
@@ -598,7 +599,7 @@ def run_households(args):
 # === 5. Figures === #
 
 def make_targeting_figures(households, table, aggregate, output, delta=.95, focal_flavor="berry"):
-    """Plot household types and individually optimized berry discounts."""
+    """Plot household types and individually optimized focal-flavor discounts."""
     plt = plotting()
     groups = ["low", "middle", "high"]
     labels = ["Low switching\n(bottom 25%)", "Middle switching\n(middle 50%)", "High switching\n(top 25%)"]
@@ -696,13 +697,13 @@ def read_command_line(settings):
     parser.add_argument("--type-treatment", choices=["posterior-mean", "posterior-integrated"], default="posterior-mean",
                         help="Default treats estimated household types as known, matching base supply; optional posterior uncertainty sensitivity.")
     parser.add_argument("--save-state-policies", action="store_true", help="Unsupported: this exercise saves aggregate comparisons only.")
-    parser.add_argument("--focal-flavor", choices=["all", *FLAVORS], default="all")
+    parser.add_argument("--focal-flavor", choices=["all", *categories("five")], default="all")
     parser.add_argument("--self-test", action="store_true", help="Generated synthetic inputs only.")
     parser.set_defaults(**vars(settings))
     return parser.parse_args()
 
 
-# === 7. Run the three focal-product exercises, step by step === #
+# === 7. Run selected focal-product exercises, step by step === #
 
 @server_only
 def run_pricing(args):
@@ -715,9 +716,14 @@ def run_pricing(args):
     if (not np.isfinite(args.discounts).all() or args.discounts[0] != 0. or args.discounts[-1] > 1.
             or not 0 <= args.demand_delta <= 1 or args.batch_size < 1):
         raise ValueError("Discounts must include zero and lie in [0,1]; delta in [0,1], batch size >=1.")
+    require_data_path(args.fit_dir)
+    fit = json.loads((args.fit_dir/'fit.json').read_text())
+    FLAVORS[:] = categories(fit['settings'].get('flavor_spec', 'three'))
+    if args.focal_flavor != 'all' and args.focal_flavor not in FLAVORS:
+        raise ValueError('Focal flavor is absent from the selected fit specification.')
     args.output.mkdir(parents=True, exist_ok=True)
     output_root = args.output
-    selected = FLAVORS if args.focal_flavor == "all" else [args.focal_flavor]
+    selected = list(FLAVORS) if args.focal_flavor == "all" else [args.focal_flavor]
     reports, comparisons = {}, []
     for focal in selected:
         args.focal_flavor = focal
@@ -727,7 +733,7 @@ def run_pricing(args):
         for row in reports[focal]["aggregate"]:
             comparisons.append(dict(focal_flavor=focal, **row))
     args.output = output_root
-    args.focal_flavor = "all" if len(selected) == 3 else selected[0]
+    args.focal_flavor = "all" if len(selected) == len(FLAVORS) else selected[0]
     pd.DataFrame(comparisons).to_csv(output_root / "focal_flavor_comparison.csv", index=False)
     report = reports
     manifest = dict(settings={k: str(v) if isinstance(v, Path) else v.tolist() if isinstance(v,np.ndarray) else v for k,v in vars(args).items()},

@@ -422,7 +422,7 @@ initializes counterfactual history. This is a retrospective exercise with known
 estimated types, not a prospective holdout forecast. Comparing novelty quartiles
 does not isolate novelty causally: their habits, prices and initial states differ.
 
-## Lesson 14: three focal flavors, one inside-versus-outside calculation each
+## Lesson 14: focal sellers and demand alternatives are different lists
 
 For focal berry, combine other and plain as the outside alternative. Include
 constructed nonpurchase when present. If utilities are V_o,V_b,V_p,0, then
@@ -437,9 +437,8 @@ utility is a log-sum-exp, not the arithmetic mean of rival utilities. With all
 four utilities zero, each original alternative has probability 1/4; the composite
 outside has utility log(3), so the binary formula also gives 1/4, not 1/2.
 
-`focal_flavor = "all"` repeats the seller exercise for other, berry and plain.
-Only that run's focal product earns revenue and changes price. These are three
-separate counterfactuals with fixed competitors, not three firms solving a joint
+`focal_flavor = "all"` repeats the seller exercise for every category of the saved fit: three or five. The main comparison intentionally selects only plain and berry.
+Only that run's focal product earns revenue and changes price. These are separate counterfactuals with fixed competitors, not three firms solving a joint
 equilibrium. The solver internally uses coordinate one for the priced product.
 `run_households` swaps the focal product's counts, prices, histories, controls and
 intercept into that coordinate together. Household posterior types are recovered
@@ -513,32 +512,16 @@ weight, capacity, draw seed/count and model from the saved fit. Moved sample or
 flavor-reference paths can be overridden explicitly. A mismatch stops rather
 than silently pairing old coefficients with a different weekly sample.
 
-The server job is `Code/final_simple/server/run_split_pricing.sh`. Its numbered
-steps regenerate the controlled fit's table, export both marginal distributions
-from controlled and uncontrolled fits, then run the plain/berry comparison using the
-controlled fit. Sync code and install the listed requirements in the server
-environment before submitting. Both pricing shell jobs install an EXIT cleanup
-trap that removes the regenerated weekly CSV and its staging files after success
-or failure. INT/TERM handlers exit through that cleanup as well. The weekly table
-is temporary server-side input; fitted estimates and pricing outputs remain.
-An uncatchable SIGKILL or machine failure cannot execute a shell cleanup handler.
-Submit with:
+For pricing alone from an existing completed rebuild, the server command is:
 
 ```bash
-sbatch Code/final_simple/server/run_split_pricing.sh
+sbatch Code/final_simple/server/run_split_pricing.sh \
+  /scratch/dtm63837/Kilts_Panel/rebuilds/run_ORIGINAL_JOB_ID
 ```
 
-This command is an instruction for the server, not something the book builder
-executes. Reading or rebuilding this book parses source text only. Local
-validation used generated inputs with CSV reads blocked; full empirical pricing
-has not been run locally. The saved marginal distribution plots are not new
-pricing results.
+It regenerates the uncontrolled fit's matching weekly inputs, verifies the saved likelihood, runs plain/berry pricing and stages allowed results. It does not refit demand. To change category grouping, use the after-data job in lesson 18 instead. Temporary weekly inputs remain on the server and the pricing-only shell removes its job-created inputs on exit. SIGKILL cannot run cleanup handlers.
 
-Begin reading pricing outputs at the root `focal_flavor_comparison.csv` and
-`run_notes.txt`, then open each focal subfolder's posterior summaries, household
-policies, group/aggregate tables and figures. `focal_units` always means the
-selected run's product. The manifest maps rival state coordinates back to flavor
-names. Keep fit records beside outputs so these consistency checks remain possible.
+Reading or rebuilding the book never executes these commands. Begin recovered results with `run_status.json` and `pricing_provenance.json`, then population estimates, aggregate policy CSVs and figures. Full fit records and internal manifests remain on the server. Never recover household tables or weekly inputs. The original novelty measure is retained.
 
 
 ## Lesson 17: restricting focal sellers does not restrict demand alternatives
@@ -551,7 +534,7 @@ FOCAL_FLAVORS = ("plain", "berry")
 ```
 
 This tuple controls the seller problems that are solved, not which products are
-in the estimated choice set. The shared solver still uses all three demand
+in the estimated choice set. The shared solver still uses all three or five demand
 categories and both estimated history coefficients. For focal plain, berry and
 other form the composite outside alternative; for focal berry, plain and other
 do so. Constructed nonpurchase remains outside too. There is no refit and no
@@ -559,8 +542,67 @@ new flavor-specific switching distribution: household coefficients remain shared
 across flavors as estimated.
 
 Plain and berry are easier to interpret as focal products than the broad other
-aggregate. The three-focal script remains a sensitivity exercise. The two-focal
+aggregate. The all-category focal script remains a sensitivity exercise. The two-focal
 entry point creates only plain/ and berry/ result folders and a combined
 comparison table. It changes neither competitor prices jointly nor the
 underlying demand sample. Run it on the server after weekly-input regeneration,
-using the same fit directory and weekly table as the three-focal exercise.
+using the same fit directory and weekly table belonging to that category specification.
+
+## Lesson 18: one category list controls several aligned arrays
+
+The shared mapping is ordinary Python:
+
+```python
+SPECIFICATIONS = {
+    'three': ['other', 'berry', 'plain'],
+    'five': ['other', 'berry', 'plain', 'other_fruits', 'desserts'],
+}
+```
+
+Dictionary lookup chooses a specification; `list(...)` returns a fresh ordered list. A price matrix with five columns must use that order, as must count, availability, N and H matrices. `FLAVORS[:] = categories(specification)` changes the existing list in place. This matters because some function defaults already refer to that list; rebinding `FLAVORS` alone would leave those defaults referring to the old object.
+
+`['beta_' + f for f in FLAVORS[1:]]` constructs fixed-effect names for every nonreference flavor. A hardcoded `['beta_berry','beta_plain']` would omit the two new intercepts. The residual gradient uses the same order to give each new coefficient its own derivative. Adding groups therefore changes parameter meaning as well as matrix width.
+
+The original three-group descriptor rule is retained separately. In `five`, dessert conditions precede fruit conditions. A chained Polars `when(...).then(...).when(...)` uses the first satisfied condition, so ordering is an economic grouping decision, not just style.
+
+## Lesson 19: novelty is a score for an alternative before choosing it
+
+```python
+previous_share = np.array([0., .25, .75])  # other, berry, plain
+novelty = previous_share.sum() - previous_share
+```
+
+The result is `[1., .75, .25]`. This is the original recent-exposure measure, not the realized change in the current basket. Current purchases determine the next state only after current predictors have been recorded. A binary reward for a contemporaneously observed switch would be an outcome-dependent regressor; our N uses prior shares and avoids that construction.
+
+With five categories, the subtraction is identical but the vector is longer. An absent category receives one when last week's basket exists. After a gap, the implemented convention assigns zero instead. The bonus is not restricted to one purchase in a mixed-basket episode. H accumulates past weekly shares, separately from N.
+
+## Lesson 20: decisions and evaluation need not use the same averaging order
+
+Suppose persistent type r has initial weight lambda_r and first-period purchase probability s1_r. Under fixed beliefs, the firm's second-period optimization still uses lambda_r. But the consumers actually reaching the purchased branch are weighted in revenue by lambda_r*s1_r.
+
+A schematic persistent-type revenue calculation is:
+
+```python
+revenue_r = s1_r*p1 + delta*(s1_r*p2j*s2j_r + (1-s1_r)*p20*s20_r)
+revenue = prior @ revenue_by_type
+```
+
+The `@` symbol computes a weighted sum here. The uninformed offer policy remains the fixed-belief optimizer; evaluation does not retroactively give the firm information it did not use. Compare informed and uninformed policies under the same persistent types. Keep the objective column and evaluated-revenue column distinct.
+
+This auxiliary fixed-belief experiment also differs from the full-demand `posterior-integrated` sensitivity, which updates beliefs after a simulated basket. Read the entry point rather than treating every use of uncertain types as the same specification.
+
+## Lesson 21: an exception can reject one optional component without erasing another
+
+`CalibrationError` carries aggregate numerical diagnostics. In `information_frictions`, `try` attempts the auxiliary calibration and `except CalibrationError` records its failed status and returns. The primary coupon solver can then finish writing its aggregate outputs.
+
+Only that named rejection is handled. An arbitrary programming exception is not converted into a successful calibration. An unidentified model is not repaired by deleting rank checks. The code exports price-moment diagnostics, omits unsupported information charts, and exposes status to the driver and results exporter.
+
+In `calibrate`, filter starts for convergence, interior parameters and numerical rank before choosing the smallest objective. Selecting a numerically smaller but inadmissible result first could reject the whole run even if another valid start exists.
+
+## Lesson 22: restarting after data is an explicit sequence, not a hidden resume
+
+`server/run_after_data.py` calls visible subprocesses: summaries, estimation, pricing, figures, and export. `subprocess.run(..., check=True)` waits for completion and raises on a failed child. The driver does not invoke `build_data.py`, so raw conversion and matching are skipped.
+
+Every output is under a new job directory. Both estimates are completed before either pricing stage, and one pricing failure does not prevent attempting the other specification. The exporter copies only allowed results; it does not copy a server work directory wholesale. `run_status.json` and aggregate comparison CSVs make the partial/completed state reviewable.
+
+The saved `flavor_spec` is also used when regenerating weekly inputs. A file with familiar column names is not sufficient: counts and the fixed-parameter likelihood must match the fit. Reconstructing inputs never means changing a saved three-group fit into a five-group fit by editing its metadata.

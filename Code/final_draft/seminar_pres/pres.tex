@@ -138,8 +138,8 @@
       \begin{itemize}
         \item Dub\'e (2008)
         \item Dub\'e et. al (2022) 
-        \item Anand & Shachar (2009)
-        \item Karle & Reisinger (2024)
+        \item Anand \& Shachar (2009)
+        \item Karle \& Reisinger (2024)
         \item Durrmeyer, Fournel, Samano (2026)
       \end{itemize}
     \end{column}
@@ -573,7 +573,7 @@
     \item Separate high and low types as the 75th and 25th percentiles, respectively
     \item Use observed prices and simulate discounts based on them, specific to the different types and their consumption path
     \item Focus on berry and plain to maintain parity with the theoretical model and avoid aggregate weighting
-    \item Use the controlled split fit and estimated type $\gamma_i$ to discriminate, choosing an initial price offer, observing the period one choice, and choosing the terminal price
+    \item Use the controlled split fit and estimated type $\gamma_i$ to discriminate, choosing the initial offer $p_1$ and then the terminal offer $p_2$ after observing the first-period choice
   \end{itemize}
 \end{frame}
 \begin{frame}{Results: Berry Inside}
@@ -637,6 +637,10 @@
 \centering
 \includegraphics[width=.98\textwidth,height=.78\textheight,keepaspectratio]{assets/pricing/plain/information_friction_information_value.pdf}
 \end{frame}
+\begin{frame}{Plain: Price Paths under Type Uncertainty ($p_1$ to $p_2$)}
+\centering
+\includegraphics[width=.98\textwidth,height=.78\textheight,keepaspectratio]{assets/pricing/plain/information_friction_price_paths.pdf}
+\end{frame}
 \begin{frame}{Berry: Revenue under Type Uncertainty}
 \centering
 \includegraphics[width=.98\textwidth,height=.78\textheight,keepaspectratio]{assets/pricing/berry/information_friction_profits.pdf}
@@ -644,6 +648,10 @@
 \begin{frame}{Berry: Revenue Value of Novelty-Type Information}
 \centering
 \includegraphics[width=.98\textwidth,height=.78\textheight,keepaspectratio]{assets/pricing/berry/information_friction_information_value.pdf}
+\end{frame}
+\begin{frame}{Berry: Price Paths under Type Uncertainty ($p_1$ to $p_2$)}
+\centering
+\includegraphics[width=.98\textwidth,height=.78\textheight,keepaspectratio]{assets/pricing/berry/information_friction_price_paths.pdf}
 \end{frame}
 
 \section{Conclusion}
@@ -699,22 +707,6 @@
 \end{frame}
 \begin{frame}{Controlled Demand Estimates}
 \input{../writeup/1108_writeup/assets/results/demand_controlled/estimates.tex}
-\end{frame}
-\begin{frame}{Plain: Type Information and First Prices}
-\centering
-\includegraphics[width=.98\textwidth,height=.78\textheight,keepaspectratio]{assets/pricing/plain/information_friction_price_paths.pdf}
-\end{frame}
-\begin{frame}{Plain: Type Information and Terminal Prices}
-\centering
-\includegraphics[width=.98\textwidth,height=.78\textheight,keepaspectratio]{assets/pricing/plain/information_friction_price_paths.pdf}
-\end{frame}
-\begin{frame}{Berry: Type Information and First Prices}
-\centering
-\includegraphics[width=.98\textwidth,height=.78\textheight,keepaspectratio]{assets/pricing/berry/information_friction_price_paths.pdf}
-\end{frame}
-\begin{frame}{Berry: Type Information and Terminal Prices}
-\centering
-\includegraphics[width=.98\textwidth,height=.78\textheight,keepaspectratio]{assets/pricing/berry/information_friction_price_paths.pdf}
 \end{frame}
 
 \begin{frame}{Controlled Fit: Price First Stages}

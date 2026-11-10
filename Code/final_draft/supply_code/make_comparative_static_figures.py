@@ -6,7 +6,7 @@ import numpy as np
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-PARAMETERS = dict(beta=2., alpha=-1., delta=.92, c=0.)
+PARAMETERS = dict(beta=2., alpha=-1., delta=1.0, c=0.)
 
 ROOT=Path(__file__).resolve().parent
 OUT=ROOT/'writeup_math_graphs'/'figures'
@@ -53,7 +53,7 @@ def plot_state_outcomes(rows):
         ax.set(xlabel=r'$\gamma$',ylabel=ylabel,title=title)
         ax.legend();ax.grid(alpha=.2)
         if key=='realized_profit':
-            fig.text(.5,.01,'First-period margin if purchased + discounted expected terminal profit',
+            fig.text(.5,.01,'Two-period profit by purchase history',
                      ha='center',fontsize=9)
             fig.tight_layout(rect=(0,.04,1,1))
         save(fig,name)

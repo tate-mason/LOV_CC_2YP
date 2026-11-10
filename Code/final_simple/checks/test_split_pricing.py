@@ -168,19 +168,19 @@ class SplitPosteriorTests(unittest.TestCase):
         # Both coefficients affect probabilities; logit collapsing is exact.
         u = np.array([.3, -.2, .7, 0.])
         probs = np.exp(u-pricing.logsumexp(u))
-        for focal in range(3):
-            inclusive = pricing.logsumexp(np.delete(u, focal))
-            self.assertAlmostEqual(pricing.expit(u[focal]-inclusive), probs[focal])
+        for flavor in range(3):
+            inclusive = pricing.logsumexp(np.delete(u, flavor))
+            self.assertAlmostEqual(pricing.expit(u[flavor]-inclusive), probs[flavor])
 
     def test_three_focal_cases_both_type_treatments(self):
         frame, parameters = self.fixture()
         households, weights, alpha, history, beta, _ = pricing.posterior(
             frame, parameters, pricing.persistent_draws(8, 306), False)
-        for focal in pricing.FLAVORS:
+        for flavor in pricing.FLAVORS:
             forecast = frame.copy()
             intercepts = beta.copy()
-            if focal != 'berry':
-                for destination, source in {'berry': focal, focal: 'berry'}.items():
+            if flavor != 'berry':
+                for destination, source in {'berry': flavor, flavor: 'berry'}.items():
                     for prefix in ['', 'price_', 'stock_', 'novelty_']:
                         forecast[prefix+destination] = frame[prefix+source]
                     intercepts[pricing.FLAVORS.index(destination)] = beta[pricing.FLAVORS.index(source)]
@@ -215,8 +215,8 @@ class PlainBerryComparisonTests(unittest.TestCase):
             with patch.object(comparison.pricing, 'run_households', side_effect=solve) as solver, \
                     patch.object(pd.DataFrame, 'to_csv', capture):
                 manifest = comparison.run_comparison(settings)
-            self.assertEqual([call.args[0].focal_flavor for call in solver.call_args_list], ['plain', 'berry'])
-            self.assertEqual(set(captured[0].focal_flavor), {'plain', 'berry'})
+            self.assertEqual([call.args[0].flavor for call in solver.call_args_list], ['plain', 'berry'])
+            self.assertEqual(set(captured[0].flavor), {'plain', 'berry'})
             self.assertEqual(manifest['demand_categories'], ['other', 'berry', 'plain'])
             self.assertEqual(set(manifest['results']), {'plain', 'berry'})
             self.assertFalse((settings.output/'other').exists())

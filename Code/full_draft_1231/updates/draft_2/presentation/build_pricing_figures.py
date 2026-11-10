@@ -23,8 +23,8 @@ def main():
     mix=pd.read_csv(RESULTS/'population_mix.csv');sweep=pd.read_csv(RESULTS/'gamma_H_sweep.csv')
     fixed=pd.read_csv(RESULTS/'fixed_menu_comparison.csv');gamma=pd.read_csv(RESULTS/'profit_by_gamma.csv')
     def population(a):
-        a[0].plot(mix.high_share,mix.common_profit,label='Optimized common prices')
-        a[0].plot(mix.high_share,mix.targeted_profit,label='Observed-type prices')
+        a[0].plot(mix.high_share,mix.common_profit,label='Common pricing')
+        a[0].plot(mix.high_share,mix.targeted_profit,label='Personalized pricing')
         a[1].plot(mix.high_share,mix.targeting_gain,label='Value of observing type')
         for ax in a:ax.set(xlabel='Probability assigned to H',ylabel='Discounted profit per arriving consumer')
     plot('population_profits',population)
@@ -52,14 +52,14 @@ def main():
             color='C0' if kind=='H' else 'C1'
             a[0].plot(sweep.gamma_H,sweep[f'{kind}_total'],color=color,label=f'{kind}: common-price value')
             a[0].plot(sweep.gamma_H,sweep[f'known_{kind}_total'],ls='--',color=color,label=f'{kind}: observed-type value')
-            a[1].plot(sweep.gamma_H,.95*sweep[f'{kind}_period2'],color=color,label=f'{kind}: discounted period 2')
+            a[1].plot(sweep.gamma_H,sweep[f'{kind}_period2'],color=color,label=f'{kind}: period 2')
             a[1].plot(sweep.gamma_H,sweep[f'{kind}_period1'],ls=':',color=color,label=f'{kind}: period 1')
         for ax in a:ax.set(xlabel=r'$\gamma_H$ ($\gamma_L=1$, Pr(H)=0.5)',ylabel='Profit per arriving consumer')
     plot('customer_value',value)
     def induce(a):
         a[0].plot(sweep.gamma_H,sweep.known_H_static_period1,label='H: one-period maximum')
         a[0].plot(sweep.gamma_H,sweep.known_H_period1,label='H: dynamic period-1 profit')
-        a[0].plot(sweep.gamma_H,.95*sweep.known_H_period2,label='H: discounted harvesting')
+        a[0].plot(sweep.gamma_H,sweep.known_H_period2,label='H: period-2 profit')
         a[1].plot(sweep.gamma_H,sweep.known_H_induction_sacrifice,label='H: current profit sacrificed')
         for ax in a:ax.set(xlabel=r'$\gamma_H$ ($\gamma_L=1$)',ylabel='Profit per arriving consumer')
     plot('induction_harvesting',induce)
@@ -83,7 +83,7 @@ def main():
     prices=pd.read_csv(RESULTS/'prices_50_50.csv')
     # Show every price: three initial states, six complete terminal histories.
     table=[r'\begin{tabular}{lrrrrrr}\toprule',
-           r'& \multicolumn{2}{c}{Observed H} & \multicolumn{2}{c}{Observed L} & \multicolumn{2}{c}{Common 50/50}\\',
+           r'& \multicolumn{2}{c}{Observed H} & \multicolumn{2}{c}{Observed L} & \multicolumn{2}{c}{Common pricing (50/50)}\\',
            r'History & $p_j$ & $p_k$ & $p_j$ & $p_k$ & $p_j$ & $p_k$\\\midrule']
     for period,title,histories in [(1,'Period 1: initial state',['j','k','0']),
                                   (2,'Period 2: state transition',[f'{a} to {h}' for a in ['j','k','0'] for h in ['j','k']])]:

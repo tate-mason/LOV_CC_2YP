@@ -1,0 +1,14 @@
+{
+  "operation": "aggregate presentation refresh; estimates and pricing policies unchanged",
+  "source": "/Users/tate/LOV_CC_2YP/res_pricing1108/pricing",
+  "flavors": {
+    "plain": {
+      "original_pricing_delta": 0.9199999999999999,
+      "pricing_rerun": false
+    },
+    "berry": {
+      "original_pricing_delta": 0.9199999999999999,
+      "pricing_rerun": false
+    }
+  }
+}

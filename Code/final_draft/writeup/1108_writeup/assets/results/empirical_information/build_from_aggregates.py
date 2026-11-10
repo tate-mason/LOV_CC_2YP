@@ -17,29 +17,23 @@ def table(path,caption,label,columns,rows):
  return text
 
 
-# Replot aggregate information results using consistent persistent-type revenue.
+# Presentation reads only the recovered aggregate result table.
+import sys
+import shutil
+sys.path.insert(0,str(root/'Code'))
+from pricing_presentation import information_figures
 for flavor in ['plain','berry']:
  target=asset/'empirical_information'/flavor;target.mkdir(parents=True,exist_ok=True)
  frame=pd.read_csv(src/'pricing'/flavor/'information_friction_aggregate.csv')
- scenarios=['Equal types','Low type more likely','Medium type more likely','High type more likely'];ticks=['Equal','More low types','More middle types','More high types'];x=np.arange(4)
- for metric,name,ylabel in [('persistent_type_revenue','revenues','Expected discounted revenue'),('gap','information_value','Revenue gain from knowing novelty type')]:
-  fig,axes=plt.subplots(1,2,figsize=(10,3.6),layout='constrained')
-  for ax,h in zip(axes,['0','j']):
-   v=frame[frame.h0.astype(str)==h].set_index(['scenario','case'])
-   known=np.array([v.loc[(sc,'known'),'persistent_type_revenue'] for sc in scenarios]);unknown=np.array([v.loc[(sc,'unknown'),'persistent_type_revenue'] for sc in scenarios])
-   assert np.all(known>=unknown-1e-7)
-   if metric=='gap':ax.bar(x,known-unknown,color='#386cb0')
-   else:
-    ax.bar(x-.18,known,.36,label='Known novelty type',color='#386cb0');ax.bar(x+.18,unknown,.36,label='Fixed-belief offers',color='#e08032')
-   ax.set_xticks(x,ticks,rotation=18);ax.set_title('Initially '+('outside' if h=='0' else 'inside'));ax.grid(axis='y',alpha=.2);ax.set_axisbelow(True)
-  axes[0].set_ylabel(ylabel)
-  if metric!='gap':fig.legend(*axes[0].get_legend_handles_labels(),loc='outside upper center',ncol=2,frameon=False)
-  fig.savefig(target/(name+'.pdf'));plt.close(fig)
- for name in ['first_prices','terminal_prices']:
-  shutil.copy2(src/'pricing'/flavor/('information_friction_'+name+'.pdf'),target/(name+'.pdf'))
- rows=[r'Prior & Initial state & Known & Fixed-belief policy & Difference\\\midrule']
- for sc in scenarios:
-  for h in ['0','j']:
-   v=frame[(frame.scenario==sc)&(frame.h0.astype(str)==h)].set_index('case');k=v.loc['known','persistent_type_revenue'];u=v.loc['unknown','persistent_type_revenue']
-   rows.append(f"{sc} & ${h}$ & {k:,.2f} & {u:,.2f} & {k-u:.2f} \\\\")
- table(target/'results.tex',flavor.capitalize()+': revenue evaluated under persistent consumer types','empirical-information-'+flavor,'llrrr',rows)
+ information_figures(frame,target,delta=None)
+ for old,new in [('profits','revenues'),('information_value','information_value'),
+                 ('price_paths','first_prices'),('price_paths','terminal_prices')]:
+  for extension in ['pdf','png']:
+   shutil.copyfile(target/f'information_friction_{old}.{extension}', target/f'{new}.{extension}')
+ rows=[r'Prior & Initial state & Personalized pricing & Common pricing & Difference\\\midrule']
+ for scenario in frame.scenario.unique():
+  for state in ['0','j']:
+   values=frame[(frame.scenario==scenario)&(frame.h0.astype(str)==state)].set_index('case')
+   personal=values.loc['known','persistent_type_revenue'];common=values.loc['unknown','persistent_type_revenue']
+   rows.append(f"{scenario} & ${state}$ & {personal:,.2f} & {common:,.2f} & {personal-common:.2f} " + r"\\")
+ table(target/'results.tex',flavor.capitalize()+': pricing comparison','empirical-information-'+flavor,'llrrr',rows)

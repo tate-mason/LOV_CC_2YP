@@ -1,0 +1,9 @@
+Known h0, unobserved gamma. One price policy per prior and observed history.
+settings: {'output': 'Code/final_draft/seminar_pres/assets/theory_delta1/unknown_type', 'beta': 2.0, 'alpha': -1.0, 'delta': 1.0, 'cost': 0.0, 'self_test': False}
+information: h0 observed, gamma unobserved and fixed; h1 observed before p2
+gamma_values: [-1.25, 0.0, 1.25]
+priors: {'favor_negative': [0.5, 0.25, 0.25], 'favor_zero': [0.25, 0.5, 0.25], 'favor_positive': [0.25, 0.25, 0.5], 'equal': [0.3333333333333333, 0.3333333333333333, 0.3333333333333333]}
+maximum_foc_residual: 2.7397932457484675e-08
+denser_search_verified: True
+script_sha256: 5f89628b41a030b10e26c56b8f7a752be89f41f4bec08b45e2d3fbea54cc09fb
+solver_sha256: f0ff34d74d7f20c76f83884536b95adb7da3ce69d6f92ba7f9622d9b5fa09f5c

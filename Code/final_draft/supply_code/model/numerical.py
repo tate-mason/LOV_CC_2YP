@@ -7,7 +7,7 @@ from model import symbols as S
 from model.utility import signed_state
 from comparative_statics import canonical as C
 
-PARAMETERS = dict(beta=2., alpha=-1., delta=.92, c=0.)
+PARAMETERS = dict(beta=2., alpha=-1., delta=1.0, c=0.)
 _KEYS = ("dp1", "d2p1", "dprofit", "matched_j", "matched_0", "induce_harvest", "dp2j", "dp20")
 _ARGS = (S.alpha,S.beta,S.gamma,S.delta,S.c,S.q,S.sj1,S.u,S.v,S.p1,S.p2j,S.p20,S.Vj,S.V0)
 _EXPRESSIONS = (C.dp1_dgamma,C.d2p1_dgamma2,C.dPi_dgamma,C.matched_j,C.matched_0,C.induce_harvest,
@@ -31,10 +31,10 @@ def optimal_price(intercept,alpha,effective_cost):
     return float(brentq(f,lo,hi,xtol=1e-12))
 
 
-def evaluate(gamma,initial_state,beta=2.,alpha=-1.,delta=.92,c=0.):
+def evaluate(gamma,initial_state,beta=2.,alpha=-1.,delta=1.0,c=0.):
     q = signed_state(initial_state)
-    if not (np.isfinite([gamma,beta,alpha,delta,c]).all() and alpha<0 and 0<=delta<1):
-        raise ValueError("Require finite parameters, alpha<0, and 0<=delta<1 (delta=0 is the static counterfactual).")
+    if not (np.isfinite([gamma,beta,alpha,delta,c]).all() and alpha<0 and 0<=delta<=1):
+        raise ValueError("Require finite parameters, alpha<0, and 0<=delta<=1 (delta=0 is the static counterfactual).")
     p2j,p20 = [optimal_price(beta+signed_state(state)*gamma,alpha,c) for state in ["j","0"]]
     u,v = inside_share(p2j,gamma,"j",beta,alpha),inside_share(p20,gamma,"0",beta,alpha)
     Vj,V0 = (p2j-c)*u,(p20-c)*v

@@ -104,7 +104,7 @@ p2_star = c-1/(alpha*s02)
 
 p2_star_eq = sp.Eq(p2_star_sym, p2_star)
 
-assumptions = {"alpha": "<0", "delta": "0<delta<1", "prices": "unconstrained real",
+assumptions = {"alpha": "<0", "delta": "0<delta<=1", "prices": "unconstrained real",
                "cost": "fixed", "shares": "strictly interior", "type": "fixed and observed",
                "history": "realized j or 0; both continuation states integrated"}
 
@@ -266,7 +266,7 @@ def show(title, expr):
 
 def make_latex_appendix(output, parameters, gammas, evaluate_model):
     TEX_OUTPUT = Path(output)
-    if parameters != dict(beta=2.0, alpha=-1.0, delta=0.92, c=0.0) or not np.array_equal(gammas, np.linspace(-3, 3, 601)):
+    if parameters != dict(beta=2.0, alpha=-1.0, delta=1.0, c=0.0) or not np.array_equal(gammas, np.linspace(-3, 3, 601)):
         raise ValueError("The written appendix describes the original benchmark. Set make_appendix=False for custom calibrations.")
     TEX_OUTPUT.mkdir(parents=True, exist_ok=True)
     equations='\\section{Symbolically derived equations}\n'
@@ -321,7 +321,7 @@ switching aversion and positive $\gamma$ denotes novelty preference.
 A realized state $x_t$, a hypothetical switching indicator, and the probability
 $s_t$ are distinct objects. Every derivative below holds the discrete history fixed.
 
-\textbf{Assumptions.} $\alpha<0$, $0<\delta<1$, fixed marginal cost $c$, finite
+\textbf{Assumptions.} $\alpha<0$, $0<\delta\leq1$, fixed marginal cost $c$, finite
 parameters, and interior binary-logit shares. Prices are unrestricted real
 numbers: introductory subsidies are allowed. Continuation values are conditional
 on realized states and have no direct dependence on $p_1$. Type does not evolve.
@@ -334,7 +334,7 @@ $s=s_1^*(x_0),\quad r_0=1-s$ & First-period equilibrium shares\\
 $u=s_2^*(j),\quad v=s_2^*(0)$ & Inside shares in the two continuation states\\
 $V_j=V_2(j),\quad V_0=V_2(0)$ & Optimized continuation profits\\
 $\Delta V=V_j-V_0,\quad B=u+v$ & Continuation difference and sum of terminal shares\\
-$\Pi^*$ & Expected discounted profit per initial consumer\\\bottomrule
+$\Pi^*$ & Expected two-period profit per initial consumer\\\bottomrule
 \end{tabular}\end{center}
 
 \section{Backward induction and optimality}
@@ -476,7 +476,7 @@ denominator is nonzero. No expected ratio or ratio of expectations is substitute
 \section{Numerical benchmark and verification}
 Every plotted point reoptimizes both terminal branches and period 1:
 \[
- \beta=2,\qquad\alpha=-1,\qquad\delta=0.92,\qquad c=0,\qquad
+ \beta=2,\qquad\alpha=-1,\qquad\delta=1.0,\qquad c=0,\qquad
  \gamma\in[-3,3]\ \text{on a 601-point grid}.
 \]
 The calibration is illustrative, not estimated. SymPy verifies raw-utility
@@ -506,7 +506,7 @@ $x_0$ & $\gamma$ & $p_1^*$ & $p_2^*(j)$ & $p_2^*(0)$ & $\Pi^*$ & $\Pi^{*\prime}$
         ('induce_harvest_price_ratio_derivative','Induce-then-harvest price-ratio derivative',
          r'$R_{0\to j}=p_1^*(0)/p_2^*(j)$, conditional on a first-period acquisition. This is a path-specific comparison, not an ex-ante expectation.'),
         ('profit_by_gamma','Optimized profit levels',
-         r'Expected discounted profit includes both realized continuation histories. The two curves condition on the initial realized state.'),
+         r'Expected two-period profit includes both realized continuation histories. The two curves condition on the initial realized state.'),
         ('gamma_profit_by_gamma','Optimized profit derivative',
          r'Total derivatives use the envelope theorem and both continuation-value derivatives. Their signs depend on the initial history and the stated thresholds.'),
         ('optimal_prices_by_gamma','Optimal prices in both periods',
@@ -519,7 +519,7 @@ $x_0$ & $\gamma$ & $p_1^*$ & $p_2^*(j)$ & $p_2^*(0)$ & $\Pi^*$ & $\Pi^{*\prime}$
             raise FileNotFoundError(name)
         document+='\\clearpage\n\\section*{'+title+'}\n'
         document+='\\begin{figure}[htbp]\\centering\n\\includegraphics[width=\\linewidth]{figures/'+name+'.pdf}\n'
-        document+='\\caption{'+caption+r' Benchmark: $\beta=2$, $\alpha=-1$, $\delta=0.92$, $c=0$; $\gamma\in[-3,3]$.}'+'\n\\end{figure}\n'
+        document+='\\caption{'+caption+r' Benchmark: $\beta=2$, $\alpha=-1$, $\delta=1.0$, $c=0$; $\gamma\in[-3,3]$.}'+'\n\\end{figure}\n'
     document+='\\end{document}\n'
     (TEX_OUTPUT/'comparative_statics_figures.tex').write_text(document)
     print('Generated verified symbolic equations and appendix with six requested figures.')
@@ -529,7 +529,7 @@ $x_0$ & $\gamma$ & $p_1^*$ & $p_2^*(j)$ & $p_2^*(0)$ & $\Pi^*$ & $\Pi^{*\prime}$
 if __name__ == "__main__":
     show("Inside utility in period 1", U1)
     show("Inside utility in period 2", U2)
-    show("Expected discounted profit", Pi)
+    show("Expected two-period profit", Pi)
     show("Period 1 first-order condition", foc1_collected)
     show("Terminal first-order condition", foc2)
     show("Period 1 optimal price", p1_star)

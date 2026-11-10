@@ -2,7 +2,7 @@
 
 Edit Parameters below or supply server flags. Uses the same household solver as
 split_pricing.py. Other remains a demand alternative and history state, while
-only plain and berry are considered as focal sellers in separate counterfactuals.
+only plain and berry are considered as flavor sellers in separate counterfactuals.
 """
 
 # Empirical I/O is permitted only on the research server, never on this computer.
@@ -33,13 +33,13 @@ household_input = None   # Path to regenerated weekly_inputs.csv.
 fit_dir = None           # Matching uncontrolled heterogeneous_history fitted-results folder.
 output = Path("/scratch/dtm63837/Kilts_Panel/results") / "plain_berry_pricing"
 discounts = np.linspace(0., 1., 101)
-demand_delta = .92
+demand_delta = 1.0
 type_treatment = "posterior-mean"   # Or posterior-integrated.
 batch_size = 24
 save_state_policies = False
 
-# This selects focal sellers, not the categories retained in demand estimation.
-FOCAL_FLAVORS = ("plain", "berry")
+# This selects flavor sellers, not the categories retained in demand estimation.
+PRICING_FLAVORS = ("plain", "berry")
 
 
 # === 1. Optional command-line overrides === #
@@ -74,21 +74,21 @@ def run_comparison(settings):
         raise ValueError('Discounts must include zero and lie in [0,1]; delta in [0,1], batch size >=1.')
     settings.output.mkdir(parents=True, exist_ok=True)
     reports, comparison = {}, []
-    for focal in FOCAL_FLAVORS:
+    for flavor in PRICING_FLAVORS:
         # Each case uses the same fit and its full three/five-category server table.
-        # The shared solver moves this focal flavor into its priced coordinate.
+        # The shared solver moves this selected flavor into its priced coordinate.
         case = SimpleNamespace(**vars(settings))
-        case.focal_flavor = focal
+        case.flavor = flavor
         case.discounts = grid
-        case.output = settings.output / focal
+        case.output = settings.output / flavor
         case.output.mkdir(parents=True, exist_ok=True)
-        reports[focal] = pricing.run_households(case)
-        for row in reports[focal]['aggregate']:
-            comparison.append(dict(focal_flavor=focal, **row))
+        reports[flavor] = pricing.run_households(case)
+        for row in reports[flavor]['aggregate']:
+            comparison.append(dict(flavor=flavor, **row))
 
-    pd.DataFrame(comparison).to_csv(settings.output / 'focal_flavor_comparison.csv', index=False)
+    pd.DataFrame(comparison).to_csv(settings.output / 'flavor_comparison.csv', index=False)
     manifest = dict(
-        focal_flavors=list(FOCAL_FLAVORS), demand_categories=list(pricing.FLAVORS),
+        pricing_flavors=list(PRICING_FLAVORS), demand_categories=list(pricing.FLAVORS),
         household_identifiers_exported=False,
         settings={key: str(value) if isinstance(value, Path) else value.tolist()
                   if isinstance(value, np.ndarray) else value for key, value in vars(settings).items()},

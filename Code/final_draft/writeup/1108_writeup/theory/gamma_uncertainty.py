@@ -7,14 +7,14 @@ import os
 os.environ.setdefault('MPLCONFIGDIR', '/tmp/gamma-uncertainty-mpl')
 import json
 import numpy as np
-from scipy.special import expit
-from scipy.optimize import minimize_scalar, brentq
-from scipy.special import lambertw
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parents[4] / 'final_simple/supply'))
+from pricing_model import expit, golden_maximum, static_price
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
-GAMMA=np.array([-1.25,0.,1.25]); BETA=2.; ALPHA=-1.; DELTA=.92; COST=0.
+GAMMA=np.array([-1.25,0.,1.25]); BETA=2.; ALPHA=-1.; DELTA=1.0; COST=0.
 OUT=Path(__file__).resolve().parents[1]/'assets/results/gamma_uncertainty'
 
 
@@ -26,8 +26,8 @@ def maximize(fun, wide=False):
     candidates=[(y[0],x[0]),(y[-1],x[-1])]
     for k in range(1,len(x)-1):
         if y[k]>=y[k-1] and y[k]>=y[k+1]:
-            fit=minimize_scalar(lambda p:-fun(p),bounds=(x[k-1],x[k+1]),method='bounded',options={'xatol':1e-10})
-            candidates.append((-fit.fun,fit.x))
+            price,value=golden_maximum(fun,x[k-1],x[k+1])
+            candidates.append((value,price))
     value,p=max(candidates)
     assert lo+1e-4<p<hi-1e-4,(p,value)
     return float(p),float(value)
@@ -42,7 +42,12 @@ def terminal(weights,h,wide=False):
     # checked at the solution; the independent grid maximizer audits every case.
     fun=lambda p: float(np.dot(weights,shares(p,h))*(p-COST))
     derivative=lambda p: float(np.dot(weights,shares(p,h)+(p-COST)*ALPHA*shares(p,h)*(1-shares(p,h))))
-    p=brentq(derivative,0.,20.,xtol=1e-12)
+    lo,hi=0.,20.
+    for _ in range(100):
+        mid=(lo+hi)/2
+        if derivative(mid)>0: lo=mid
+        else: hi=mid
+    p=(lo+hi)/2
     return p,fun(p)
 
 
@@ -51,11 +56,10 @@ def known(h,prior):
     for k,g in enumerate(GAMMA):
         p2={};values={}
         for a in ['j','0']:
-            z=float(lambertw(np.exp(BETA+(1 if a=='0' else -1)*g+ALPHA*COST-1)).real)
-            p2[a]=COST-(1+z)/ALPHA;values[a]=-z/ALPHA
+            p2[a]=static_price(BETA+(1 if a=='0' else -1)*g,ALPHA,COST)
+            values[a]=(p2[a]-COST)*float(shares(p2[a],a,g))
         effective=COST-DELTA*(values['j']-values['0'])
-        z=float(lambertw(np.exp(BETA+(1 if h=='0' else -1)*g+ALPHA*effective-1)).real)
-        p=effective-(1+z)/ALPHA;s=float(shares(p,h,g))
+        p=static_price(BETA+(1 if h=='0' else -1)*g,ALPHA,effective);s=float(shares(p,h,g))
         value=s*(p-COST)+DELTA*(s*values['j']+(1-s)*values['0'])
         rows.append(dict(gamma=float(g),p1=p,p2j=p2['j'],p20=p2['0'],s1=s,profit=value))
     expected_p1=sum(prior[k]*r['p1'] for k,r in enumerate(rows))
@@ -107,22 +111,20 @@ def main():
             assert abs(r['value_of_information'])<1e-8
     (OUT/'solutions.json').write_text(json.dumps(results,indent=2))
     (OUT/'settings.json').write_text(json.dumps(dict(gamma=GAMMA.tolist(),beta=BETA,alpha=ALPHA,delta=DELTA,c=COST,priors=priors,checks='Wider first-price grids; independent terminal maximizers; first-price finite-difference FOCs; Fixed-belief invariance; full-information bound; degenerate priors'),indent=2))
-    labels=['Equal','Habit-heavy','Neutral-heavy','Novelty-heavy'];x=np.arange(4)
-    for metric,name,ylabel in [('profit','profits','Expected discounted profit'),('expected_p1','first_prices','Expected first-period offered price'),('expected_p2','terminal_prices','Expected terminal offered price')]:
-        fig,axes=plt.subplots(1,2,figsize=(10,3.6),sharey=True,layout='constrained')
-        for ax,h in zip(axes,['j','0']):
-            rr=[r for r in results if r['h0']==h]
-            for offset,key,color,label in [(-.18,'known','#386cb0','Known type'),(.18,'unknown','#e08032','Uncertain type; fixed beliefs')]:
-                ax.bar(x+offset,[r[key][metric] for r in rr],.36,color=color,label=label)
-            ax.set_xticks(x,labels,rotation=20);ax.set_title('Initially '+('inside' if h=='j' else 'outside'));ax.grid(axis='y',alpha=.2);ax.set_axisbelow(True)
-        axes[0].set_ylabel(ylabel);handles,ls=axes[0].get_legend_handles_labels();fig.legend(handles,ls,loc='outside upper center',ncol=2,frameon=False,fontsize=9)
-        fig.savefig(OUT/(name+'.pdf'));fig.savefig(OUT/(name+'.png'),dpi=180);plt.close(fig)
-    fig,axes=plt.subplots(1,2,figsize=(10,3.6),sharey=True,layout='constrained')
-    for ax,h in zip(axes,['j','0']):
-        rr=[r for r in results if r['h0']==h]
-        ax.bar(x,[r['value_of_information'] for r in rr],color='#386cb0');ax.set_xticks(x,labels,rotation=20);ax.set_title('Initially '+('inside' if h=='j' else 'outside'));ax.grid(axis='y',alpha=.2);ax.set_axisbelow(True)
-    axes[0].set_ylabel('Known-type profit minus uncertain-type profit');fig.savefig(OUT/'information_value.pdf');fig.savefig(OUT/'information_value.png',dpi=180);plt.close(fig)
-    lines=[r'\begin{table}[htbp]\centering\small',r'\caption{Pricing with known and uncertain switching types}',r'\label{tab:gamma-uncertainty}',r'\begin{tabular}{llrrr}\toprule',r'Initial state & Prior & Known profit & Uncertain profit & Information value\\\midrule']
+    sys.path.insert(0, str(Path(__file__).resolve().parents[4]))
+    from pricing_presentation import information_figures
+    import pandas as pd
+    table = pd.DataFrame([dict(scenario=r['scenario'], h0=r['h0'], case=case,
+        expected_p1=r[case]['expected_p1'], expected_p2=r[case]['expected_p2'],
+        persistent_type_revenue=r[case]['profit'], value_of_information=r['value_of_information'])
+        for r in results for case in ['known', 'unknown']])
+    information_figures(table, OUT, DELTA)
+    # Existing slide filenames remain valid; all price figures show p1 -> p2.
+    import shutil
+    for name in ['profits', 'first_prices', 'terminal_prices', 'information_value']:
+        for extension in ['pdf', 'png']:
+            shutil.copyfile(OUT/f'information_friction_{name}.{extension}', OUT/f'{name}.{extension}')
+    lines=[r'\begin{table}[htbp]\centering\small',r'\caption{Pricing with known and uncertain switching types}',r'\label{tab:gamma-uncertainty}',r'\begin{tabular}{llrrr}\toprule',r'Initial state & Prior & Personalized pricing & Common pricing & Information value\\\midrule']
     for r in results:lines.append(f"${r['h0']}$ & {r['scenario']} & {r['known']['profit']:.4f} & {r['unknown']['profit']:.4f} & {r['value_of_information']:.4f} \\\\")
     lines += [r'\bottomrule\end{tabular}',r'\end{table}'];(OUT/'results.tex').write_text('\n'.join(lines)+'\n')
     print('All checks passed; wrote four figures, aggregate theoretical solutions, settings, and result table.')

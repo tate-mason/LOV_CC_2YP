@@ -42,14 +42,14 @@ links = {
  4:[(5,'Flavor Popularity')],
  10:[(9,'Terminal FOC'),(11,'Comparative statics'),(52,'Elasticities')],
  14:[(12,'Calibration'),(13,'Table'),(15,'Profit'),(16,'Price ratio'),(17,'Discussion')],
- 20:[(19,'Profit levels'),(53,'Initial offers'),(54,'Terminal offers')],
+ 20:[(19,'Profit levels'),(53,'Price paths'),(54,'Price paths')],
  29:[(28,'Probabilities'),(55,'Price controls'),(56,'Controlled estimates'),(61,'First stages')],
  32:[(30,'Estimates'),(33,'Discussion')],
  31:[(62,'Controlled WTP')],
  44:[(36,'Berry types'),(37,'Plain types')],
  42:[(38,'Berry offers'),(39,'Plain offers')],
- 47:[(46,'Revenue levels'),(57,'Initial offers'),(58,'Terminal offers')],
- 49:[(48,'Revenue levels'),(59,'Initial offers'),(60,'Terminal offers')],
+ 47:[(46,'Revenue levels'),(57,'Price paths'),(58,'Price paths')],
+ 49:[(48,'Revenue levels'),(59,'Price paths'),(60,'Price paths')],
 }
 preamble = text.split(r'\begin{document}',1)[0]
 # Navigation is placed in a separate footline row, outside unchanged frame bodies.

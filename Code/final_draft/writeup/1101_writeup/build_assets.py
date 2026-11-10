@@ -151,7 +151,7 @@ def main():
     s, u, v = solutions.s, solutions.u, solutions.v
     q = np.where(solutions.initial_state == "j", -1, 1)
     r = 1 - s
-    alpha, delta = 1., .92
+    alpha, delta = 1., 1.0
     np.testing.assert_allclose(solutions.p1, 1 / (alpha * r) - delta * solutions.DeltaV, atol=1e-10)
     np.testing.assert_allclose(solutions.dp1, (q * s + delta * r * (u + v)) / alpha, atol=1e-10)
     np.testing.assert_allclose(solutions.dprofit, (q * s - delta * s * u + delta * r * v) / alpha, atol=1e-10)

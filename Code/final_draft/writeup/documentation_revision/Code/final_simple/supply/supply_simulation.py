@@ -37,7 +37,7 @@ else:
 output = Path(__file__).resolve().parents[1] / "results" / "supply"
 beta = 2.0
 alpha = -1.0                         # Signed price coefficient: must be negative.
-delta = 0.92                         # Preserve the theory's existing calibration.
+delta = 1.0                         # Preserve the theory's existing calibration.
 cost = 0.0
 gamma_min = -3.0
 gamma_max = 3.0
@@ -132,8 +132,8 @@ def static_price(intercept, alpha, effective_cost=0.):
 
 # First solve terminal prices. Then solve initial prices for known history, hidden initial
 # history, and commitment to both prices.
-def supply_solution(gamma, prior=.5, beta=2., alpha=-1., delta=.92, cost=0.):
-    """Known type; hidden h0, then either observe h1 or commit to p1,p2."""
+def supply_solution(gamma, prior=.5, beta=2., alpha=-1., delta=1.0, cost=0.):
+    """Personalized pricing; hidden h0, then either observe h1 or commit to p1,p2."""
     if not (np.isfinite([gamma, prior, beta, alpha, delta, cost]).all()
             and alpha < 0 and 0 <= prior <= 1 and 0 <= delta <= 1):
         raise ValueError("Need finite inputs, alpha<0, prior/delta in [0,1].")
@@ -310,7 +310,7 @@ def make_case_figures(paths, summary, output):
             expected = summary[(summary.prior_inside == prior) & (summary.case == case)]
             axes[2, column].plot(expected.gamma, expected.optimal_profit, "k--", label="Ex ante E[profit]")
             axes[0, column].set_title(CASE_LABELS[case])
-        for row, ylabel in enumerate(["Optimal prices", "Path-specific p1 / p2", "Optimal discounted profit"]):
+        for row, ylabel in enumerate(["Optimal prices", "Path-specific p1 / p2", "Expected two-period profit"]):
             for ax in axes[row]:
                 ax.set(xlabel="gamma", ylabel=ylabel)
                 ax.axhline(0, color="gray", linewidth=.5)
@@ -377,10 +377,10 @@ def optimal_price(intercept,alpha,effective_cost):
 
 # Solve both terminal histories, solve the initial price, then evaluate the formulas from
 # supply_sympy at those optimized prices.
-def evaluate(gamma,initial_state,beta=2.,alpha=-1.,delta=.92,c=0.):
+def evaluate(gamma,initial_state,beta=2.,alpha=-1.,delta=1.0,c=0.):
     q = theory.signed_state(initial_state)
-    if not (np.isfinite([gamma,beta,alpha,delta,c]).all() and alpha<0 and 0<=delta<1):
-        raise ValueError("Require finite parameters, alpha<0, and 0<=delta<1 (delta=0 is the static counterfactual).")
+    if not (np.isfinite([gamma,beta,alpha,delta,c]).all() and alpha<0 and 0<=delta<=1):
+        raise ValueError("Require finite parameters, alpha<0, and 0<=delta<=1 (delta=0 is the static counterfactual).")
     p2j,p20 = [optimal_price(beta+theory.signed_state(state)*gamma,alpha,c) for state in ["j","0"]]
     u,v = inside_share(p2j,gamma,"j",beta,alpha),inside_share(p20,gamma,"0",beta,alpha)
     Vj,V0 = (p2j-c)*u,(p20-c)*v
@@ -454,7 +454,7 @@ def plot_state_outcomes(rows):
         ax.legend()
         ax.grid(alpha=.2)
         if key=='realized_profit':
-            fig.text(.5,.01,'First-period margin if purchased + discounted expected terminal profit',
+            fig.text(.5,.01,'Two-period profit by purchase history',
                      ha='center',fontsize=9)
             fig.tight_layout(rect=(0,.04,1,1))
         save(fig,name)
@@ -604,7 +604,7 @@ def read_command_line(settings):
     parser.add_argument("--priors", type=float, nargs="+", default=[.25, .5, .75])
     parser.add_argument("--beta", type=float, default=2.)
     parser.add_argument("--alpha", type=float, default=-1., help="Signed price coefficient, negative.")
-    parser.add_argument("--delta", type=float, default=.92)
+    parser.add_argument("--delta", type=float, default=1.0)
     parser.add_argument("--cost", type=float, default=0.)
     parser.add_argument("--self-test", action="store_true")
     parser.add_argument("--derivative-gamma-min", type=float)
@@ -639,7 +639,7 @@ def run_supply(settings):
         if settings.derivative_gamma_points < 2 or settings.derivative_gamma_max <= settings.derivative_gamma_min:
             raise ValueError("The derivative grid needs at least two points and increasing endpoints.")
         if not settings.no_appendix:
-            benchmark_parameters = dict(beta=2.0, alpha=-1.0, delta=0.92, c=0.0)
+            benchmark_parameters = dict(beta=2.0, alpha=-1.0, delta=1.0, c=0.0)
             benchmark_grid = np.linspace(-3.0, 3.0, 601)
             if PARAMETERS != benchmark_parameters or not np.array_equal(GAMMAS, benchmark_grid):
                 raise ValueError("The written appendix describes the original benchmark. Use no_appendix=True for a custom calibration/grid.")

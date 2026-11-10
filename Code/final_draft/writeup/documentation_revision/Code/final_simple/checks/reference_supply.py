@@ -9,7 +9,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.optimize import brentq
 
-BETA, ALPHA, DELTA, COST = 2.0, -1.0, 0.92, 0.0
+BETA, ALPHA, DELTA, COST = 2.0, -1.0, 1.0, 0.0
 GAMMAS = np.linspace(-3.0, 3.0, 601)
 OUTPUT = Path('outputs')
 

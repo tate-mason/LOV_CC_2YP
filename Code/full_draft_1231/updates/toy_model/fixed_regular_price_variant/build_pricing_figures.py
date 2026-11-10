@@ -36,32 +36,32 @@ def main():
     discounts = pd.read_csv(RESULTS / 'fixed_discount_comparison.csv')
     params = pd.read_csv(RESULTS / 'parameters.csv').iloc[0]
     fig, axes = canvas()
-    axes[0].plot(mix.high_share, mix.common_profit, label='Optimized common discount')
-    axes[0].plot(mix.high_share, mix.targeted_profit, label='Type-specific discounts')
+    axes[0].plot(mix.high_share, mix.common_profit, label='Common pricing')
+    axes[0].plot(mix.high_share, mix.targeted_profit, label='Personalized pricing')
     axes[1].plot(mix.high_share, mix.targeting_gain, label='Observed minus unobserved type')
     axes[1].axhline(0, color='black', linewidth=.8)
-    for ax, ylabel in zip(axes, ['Expected discounted profit', 'Profit gain from observing type']):
+    for ax, ylabel in zip(axes, ['Expected two-period profit', 'Profit gain from observing type']):
         ax.set(xlabel='High-type population share', ylabel=ylabel)
     save(fig, axes, 'population_profits')
 
     fig, axes = canvas()
-    for i, (key, label) in enumerate([('high','H discount'), ('low','L discount'), ('uniform_50_50','50/50 discount')]):
+    for i, (key, label) in enumerate([('high','Personalized pricing (H)'), ('low','Personalized pricing (L)'), ('uniform_50_50','Common pricing (50/50)')]):
         axes[0].plot(fixed.probability_H, fixed[f'profit_{key}'], label=label, color=COLORS[i])
-    for i, (key,label) in enumerate([('high','H minus 50/50 discount'),('low','L minus 50/50 discount')]):
+    for i, (key,label) in enumerate([('high','H minus Common pricing (50/50)'),('low','L minus Common pricing (50/50)')]):
         axes[1].plot(fixed.probability_H, fixed[f'profit_{key}']-fixed.profit_uniform_50_50, label=label, color=COLORS[i])
     axes[1].axhline(0,color='black',linewidth=.8)
     for boundary in regions.probability_H_min.iloc[1:]:
         for ax in axes:
             ax.axvline(boundary,color='gray',linestyle=':',label=f'Transition {boundary:.5f}')
-    for ax,ylabel in zip(axes,['Expected discounted profit','Profit gain over 50/50 discount']):
+    for ax,ylabel in zip(axes,['Expected two-period profit','Profit gain over Common pricing (50/50)']):
         ax.set(xlabel='Probability customer is H',ylabel=ylabel)
     save(fig, axes, 'fixed_menu_transitions')
 
     fig, axes = canvas()
-    for i,(key,label) in enumerate([('high','H discount'),('low','L discount'),('uniform_50_50','50/50 discount')]):
+    for i,(key,label) in enumerate([('high','Personalized pricing (H)'),('low','Personalized pricing (L)'),('uniform_50_50','Common pricing (50/50)')]):
         axes[0].plot(gamma.gamma,gamma[f'profit_{key}'],label=label,color=COLORS[i])
-    axes[1].plot(continuous.gamma,continuous.targeted_profit,label='Discount optimized for true gamma')
-    axes[1].plot(continuous.gamma,continuous.uniform_50_50_profit,label='Fixed 50/50 discount',color=COLORS[2])
+    axes[1].plot(continuous.gamma,continuous.targeted_profit,label='Personalized pricing')
+    axes[1].plot(continuous.gamma,continuous.uniform_50_50_profit,label='Common pricing (50/50)',color=COLORS[2])
     for ax in axes:
         for g,label in [(.1,'L'),(2.,'H')]:
             ax.axvline(g,color='gray',linestyle=':',label=f'{label}: gamma={g:g}')
@@ -92,17 +92,17 @@ def main():
     save(fig,axes,'mispricing_losses')
 
     fig, axes = canvas()
-    for col,label in [('regular_profit','No discount'),('discount_profit','Fixed L discount'),('reoptimized_common_profit','Optimized common discount')]:
+    for col,label in [('discount_profit','Personalized pricing (L)'),('reoptimized_common_profit','Common pricing')]:
         axes[0].plot(discounts.probability_L,discounts[col],label=label)
-    axes[1].plot(discounts.probability_L,discounts.discount_gain,label='Fixed L discount minus no discount')
+    axes[1].plot(discounts.probability_L,discounts.discount_profit-discounts.reoptimized_common_profit,label='Personalized − common')
     axes[1].axhline(0,color='black',linewidth=.8)
-    for ax,ylabel in zip(axes,['Expected discounted profit','Profit gain from terminal discount']):
+    for ax,ylabel in zip(axes,['Expected two-period profit','Profit gain']):
         ax.axvline(params.fixed_discount_cutoff_L,color='gray',linestyle=':',label=f'Break-even {params.fixed_discount_cutoff_L:.5f}')
         ax.set(xlabel='Probability customer is L',ylabel=ylabel)
     save(fig,axes,'terminal_discount')
 
     fig, axes = canvas()
-    axes[0].plot(mix.high_share, mix.discount, label='Optimal discount on good 2')
+    axes[0].plot(mix.high_share, mix.discount, label='Common pricing: price reduction')
     axes[0].plot(mix.high_share, mix.effective_good2_after_good1,
                  label='Effective price of good 2')
     axes[0].set(xlabel='Assumed probability customer is H', ylabel='Price / discount')
@@ -120,7 +120,7 @@ def main():
     prices = pd.read_csv(RESULTS / 'prices_50_50.csv')
     table = [r'\begin{tabular}{llrrrr}\toprule',
              r'Policy & Period / history & $p_1$ & $p_2$ & $m_1$ & $m_2$\\\midrule']
-    for policy,label in [('targeted_H','Observed H'),('targeted_L','Observed L'),('uniform_50_50','Common 50/50')]:
+    for policy,label in [('targeted_H','Observed H'),('targeted_L','Observed L'),('uniform_50_50','Common pricing (50/50)')]:
         for _, row in prices[prices.policy == policy].iterrows():
             history = '1 / no prior product' if row.period == 1 else f'2 / {row.history}'
             table.append(f'{label} & {history} & {row.price_good1:.3f} & {row.price_good2:.3f} & {row.margin_good1:.3f} & {row.margin_good2:.3f}' + r'\\')

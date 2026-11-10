@@ -12,7 +12,7 @@ from scipy.optimize import minimize, brentq
 
 beta_0=np.array([2.2,2.0])
 gamma_H,gamma_L=2.,1.
-alpha,delta=-1.5,.95
+alpha,delta=-1.5,1.0
 costs=np.array([1.2,.8])
 STATES=(0,1,None)  # products j, k, no previous product
 INITIAL_WEIGHTS=np.ones(3)/3
@@ -182,7 +182,7 @@ def run_analysis(output,points=61,gamma_max=10.,gamma_min=1.5,gamma_step=.5):
 Initial state is j, k, or 0, each with probability 1/3 independently of type. Initial 0 means no prior product and no switching bonus. Initial state is observed. Period-one outside choices exit permanently.
 Prices for both goods in both periods are freely optimized, with no coupon restriction, price floor, or price ceiling. Period-two menus can depend on both initial state and period-one purchase. Consumers are myopic. All menus are committed before choices; endogenous selection of types into purchase histories enters the objective. First purchases can now be informative about type.
 
-Parameters: beta=(2.2,2), costs=(1.2,0.8), alpha=-1.5, delta=.95. Good 2 costs 0.8 versus 1.2 for good 1; both prices remain freely optimized.
+Parameters: beta=(2.2,2), costs=(1.2,0.8), alpha=-1.5, delta=1.0. Good 2 costs 0.8 versus 1.2 for good 1; both prices remain freely optimized.
 50/50 common profit: {middle.common_profit:.8f}; observed-type profit: {middle.targeted_profit:.8f}; information gain: {middle.targeting_gain:.8f}.
 
 The gamma_H sweep uses gamma_H={gamma_min:g} to {gamma_max:g} in steps of {gamma_step:g}, holds gamma_L={gamma_L:g} and Pr(H)=0.5 fixed and reoptimizes all common prices for every gamma_H. It reports each true type's period-one profit, undiscounted period-two profit per arriving consumer, total discounted value, survival probability, and period-two profit per survivor. The known-type comparison separately optimizes each type. Induction sacrifice compares known-type dynamic period-one profit with its optimized one-period benchmark; it is not a causal effect of a coupon.

@@ -34,7 +34,7 @@ fit_dir = None
 output = Path("/scratch/dtm63837/Kilts_Panel/results") / "split_pricing"
 focal_flavor = "all"                  # all fitted groups, or one named fitted group
 discounts = np.linspace(0., 1., 101)  # Candidate focal-product coupons.
-demand_delta = .92                    # Same default as theoretical supply.
+demand_delta = 1.0                    # Same default as theoretical supply.
 batch_size = 24                       # Progress interval in the household loop.
 type_treatment = "posterior-mean"     # Or posterior-integrated.
 save_state_policies = False
@@ -363,7 +363,7 @@ def targeted_coupons(context, households, weights, alpha, switching, beta, disco
         totals = table.groupby("policy").discounted_revenue.sum()
         common = float(common_values[a1, a2])
         if common + 1e-8 < totals["no_coupon"] or common > totals["personalized_dynamic"] + 1e-8:
-            raise AssertionError("Expected no coupon <= common coupons <= personalized dynamic.")
+            raise AssertionError("Expected reference revenue <= common pricing <= personalized pricing.")
         for policy, value, d1, d2 in [
                 ("no_coupon", totals["no_coupon"], 0., 0.),
                 ("optimized_common_coupons", common, discounts[a1], discounts[a2]),
@@ -397,7 +397,7 @@ def information_frictions(frame, households, delta, output):
         return status
     summary = table.set_index(["scenario", "h0", "case"])
     lines = [r"\begin{tabular}{llrrr}\hline",
-             r"Initial state & Prior & Known profit & Fixed-belief profit & Difference\\\hline"]
+             r"Initial state & Prior & Personalized pricing & Common pricing & Difference\\\hline"]
     for scenario, _ in PRIORS:
         for h0 in ["j", "0"]:
             k = summary.loc[(scenario, h0, "known")]
@@ -406,39 +406,13 @@ def information_frictions(frame, households, delta, output):
                          f"{k.value_of_information:.4f} " + r"\\")
     lines.append(r"\hline\end{tabular}")
     (output / "information_friction_results.tex").write_text("\n".join(lines)+"\n")
-    plt = plotting()
-    scenarios = [name for name, _ in PRIORS]
-    labels = ["Equal", "Low-heavy", "Medium-heavy", "High-heavy"]
-    for metric, stem, ylabel in [("persistent_type_revenue", "profits", "Expected discounted revenue"),
-                                 ("expected_p1", "first_prices", "Mean first-period offered price"),
-                                 ("expected_p2", "terminal_prices", "Mean terminal offered price"),
-                                 ("value_of_information", "information_value", "Revenue gain from knowing novelty type")]:
-        fig, axes = plt.subplots(1, 2, figsize=(11, 4), sharey=True)
-        x = np.arange(4)
-        for ax, h0 in zip(axes, ["j", "0"]):
-            for case, offset, label in [("known", -.18, "Known type"), ("unknown", .18, "Uncertain type; fixed beliefs")]:
-                if metric == "value_of_information" and case == "unknown":
-                    continue
-                try:
-                    values = summary.xs((h0, case), level=("h0", "case")).reindex(scenarios)[metric]
-                except KeyError:
-                    values = np.full(4, np.nan)
-                ax.bar(x+(0 if metric == "value_of_information" else offset), values,
-                       width=.6 if metric == "value_of_information" else .36, label=label)
-            ax.set_xticks(x, labels, rotation=20)
-            ax.set_title("Initially "+("inside" if h0 == "j" else "outside"))
-            ax.grid(axis="y", alpha=.2)
-            ax.set_axisbelow(True)
-        axes[0].set_ylabel(ylabel)
-        if metric != "value_of_information":
-            axes[0].legend(fontsize=8)
-        fig.tight_layout()
-        for extension in ["pdf", "png"]:
-            fig.savefig(output / f"information_friction_{stem}.{extension}", dpi=180)
-        plt.close(fig)
-
-
-    return dict(settings, status='complete')
+    import sys
+    from pathlib import Path
+    presentation_root = next(p for p in Path(__file__).resolve().parents if (p / "pricing_presentation.py").is_file())
+    sys.path.insert(0, str(presentation_root))
+    from pricing_presentation import information_figures
+    information_figures(table, output, delta)
+    return settings
 
 
 @server_only
@@ -500,21 +474,16 @@ def run_households(args):
         args.type_treatment,
         None,
         benchmark_output=benchmarks)
-    benchmark_table = pd.DataFrame(benchmarks)
+    import sys
+    from pathlib import Path
+    presentation_root = next(p for p in Path(__file__).resolve().parents if (p / "pricing_presentation.py").is_file())
+    sys.path.insert(0, str(presentation_root))
+    from pricing_presentation import displayed_policies, benchmark_figure
+    benchmark_table = displayed_policies(pd.DataFrame(benchmarks))
+    reference = benchmark_table.loc[benchmark_table.policy == "Common pricing", "discounted_revenue"].iloc[0]
+    benchmark_table["revenue_change_pct"] = 100*(benchmark_table.discounted_revenue/reference-1)
     benchmark_table.to_csv(args.output / "pricing_policy_benchmarks.csv", index=False)
-    plt = plotting()
-    fig, ax = plt.subplots(figsize=(9, 5))
-    ax.bar(["No coupons", "Optimized common\ncoupons", "Personalized\ndynamic coupons"],
-           benchmark_table.revenue_change_pct, color=["#999999", "#3575AD", "#D17925"])
-    ax.set(ylabel="Revenue gain relative to no coupons (%)", title=f"{focal.title()}: pricing policy benchmarks")
-    ax.grid(axis="y", alpha=.2)
-    ax.set_axisbelow(True)
-    fig.text(.5, .015, "Same eligible households; middle group receives no coupons. Common offers vary by period, not household or history.",
-             ha="center", fontsize=8)
-    fig.tight_layout(rect=(0, .05, 1, 1))
-    for extension in ["pdf", "png"]:
-        fig.savefig(args.output / f"pricing_policy_benchmarks.{extension}", dpi=180)
-    plt.close(fig)
+    benchmark_figure(benchmark_table, args.output, focal)
     supply_calibration = information_frictions(frame, households, args.demand_delta, args.output)
     households.rename(columns={"berry_eligible": "focal_eligible"}, inplace=True)
     table.rename(columns={c: c.replace("berry", "focal") for c in table if "berry" in c}, inplace=True)
@@ -523,6 +492,8 @@ def run_households(args):
               "focal_units1", "focal_units2", "coupon_expenditure"]
     aggregate = table.groupby("policy", sort=False)[totals].sum()
     aggregate["revenue_change_pct"] = 100*aggregate.revenue_change/aggregate.baseline_revenue
+    aggregate = aggregate.drop(index="no_coupon", errors="ignore")
+    aggregate = aggregate.rename(index={"personalized_dynamic": "Personalized pricing", "optimized_common_coupons": "Common pricing"})
     aggregate.to_csv(args.output / "targeted_revenue_aggregate.csv")
     group = table.groupby(["policy", "group"], sort=False)[totals].sum()
     group["revenue_change_pct"] = 100*group.revenue_change/group.baseline_revenue
@@ -530,6 +501,8 @@ def run_households(args):
                                                    "ratio_of_expected_prices", "expected_price_ratio"]].mean()
     group = group.join(means)
     group["eligible_households"] = table.groupby(["policy", "group"]).size()
+    group = group.drop(index="no_coupon", level="policy", errors="ignore")
+    group = group.rename(index={"personalized_dynamic": "Personalized pricing", "optimized_common_coupons": "Common pricing"})
     group.to_csv(args.output / "targeted_revenue_by_switching_group.csv")
     # Aggregate terminal offers conditional on first-period focal purchase.
     # Weight by branch probability, rather than averaging household conditional means.
@@ -550,21 +523,6 @@ def run_households(args):
         households_with_both_branches=("terminal_price_gap", "count")
     ).to_csv(args.output / "terminal_offer_within_household_gap.csv")
     branches.to_csv(args.output / "terminal_offers_by_purchase.csv", index=False)
-    plt = plotting()
-    fig, ax = plt.subplots(figsize=(9, 4))
-    x = np.arange(3)
-    for branch, offset, label in [("no_focal", -.18, "After no focal purchase"),
-                                  ("focal", .18, "After focal purchase")]:
-        values = branches.loc[branches.branch == branch].set_index("group").reindex(["low", "middle", "high"])
-        ax.bar(x+offset, values.mean_terminal_price, width=.36, label=label)
-    ax.set(xticks=x, xticklabels=["Low switching", "Middle switching", "High switching"],
-           ylabel="Mean terminal price ($)", title=f"{focal.title()}: terminal offers conditional on purchase")
-    ax.legend()
-    fig.text(.5, .015, "Branch-probability-weighted means under personalized dynamic pricing; middle receives no coupons.\nConditional comparisons can reflect household composition as well as history effects.", ha="center", fontsize=8)
-    fig.tight_layout(rect=(0, .10, 1, 1))
-    for extension in ["pdf", "png"]:
-        fig.savefig(args.output / f"terminal_offers_by_purchase.{extension}", dpi=180)
-    plt.close(fig)
 
     households.groupby("group").agg(households=("household_code", "size"),
                                     focal_eligible=("focal_eligible", "sum"),
@@ -598,60 +556,13 @@ def run_households(args):
 
 # === 5. Figures === #
 
-def make_targeting_figures(households, table, aggregate, output, delta=.95, focal_flavor="berry"):
-    """Plot household types and individually optimized focal-flavor discounts."""
-    plt = plotting()
-    groups = ["low", "middle", "high"]
-    labels = ["Low switching\n(bottom 25%)", "Middle switching\n(middle 50%)", "High switching\n(top 25%)"]
-    colors = ["#3575AD", "#999999", "#D17925"]
-    fig, axes = plt.subplots(1, 2, figsize=(13, 5))
-    bins = np.histogram_bin_edges(households.switching_mean, bins=30)
-    for g, label, color in zip(groups, labels, colors):
-        axes[0].hist(households.loc[households.group == g, "switching_mean"],
-                     bins=bins, alpha=.65, label=label.replace("\n", " "), color=color)
-    axes[0].set(title="Estimated consumer types", xlabel=r"Estimated household type (posterior mean $b_N$)",
-                ylabel="Number of households")
-    axes[0].legend(fontsize=9)
-    revenue = table.loc[table.policy == "personalized_dynamic"].groupby("group")[["revenue1", "revenue2"]].sum().reindex(groups)
-    x = np.arange(len(groups))
-    # Average over state-contingent terminal prices first, discount, then total.
-    total_expected_revenue = revenue.revenue1 + delta * revenue.revenue2
-    axes[1].bar(x, total_expected_revenue, width=.5, color=colors)
-    axes[1].set_xticks(x, labels)
-    axes[1].set(title="Total Expected Revenue",
-                xlabel="Consumer type group", ylabel="Total Expected Revenue")
-    axes[1].set_ylim(bottom=0)
-    axes[1].grid(axis="y", alpha=.2)
-    axes[1].set_axisbelow(True)
-    axes[1].axhline(0, color="gray", linewidth=.6)
-    fig.text(.5, .015,
-             f"First-period revenue + {delta:g} × expected terminal revenue. "
-             f"Low/high types receive personalized {focal_flavor} offers; middle types receive no coupons.",
-             ha="center", fontsize=9)
-    fig.tight_layout(rect=(0, .05, 1, 1))
-    for extension in ["png", "pdf"]:
-        fig.savefig(output / f"household_coupon_results.{extension}", dpi=180)
-    plt.close(fig)
-
-    fig, ax = plt.subplots(figsize=(9, 5))
-    x = np.arange(3)
-    means = table.loc[table.policy == "personalized_dynamic"].groupby("group")[["discount1", "expected_discount2"]].mean().reindex(groups)
-    ax.bar(x-.18, 100*means.discount1, width=.36, label=r"$p_1(h_0)$ offer", color=colors[0])
-    ax.bar(x+.18, 100*means.expected_discount2, width=.36,
-           label=r"Terminal $p_2(h_1)$ offer (expected over histories)", color=colors[2])
-    ax.set_xticks(x, labels)
-    ax.set(xlabel="Consumer type group", ylim=(0, 105),
-           ylabel=f"Mean optimal {focal_flavor} discount (% of posted price)")
-    ax.grid(axis="y", alpha=.2)
-    ax.set_axisbelow(True)
-    ax.legend(fontsize=8, loc="upper left")
-    fig.suptitle("Dynamic pricing: optimal discounts by consumer type")
-    fig.text(.5, .015, f"Household-weighted means among {focal_flavor}-eligible households. Middle group receives no coupons by policy design.",
-             ha="center", fontsize=9)
-    fig.tight_layout(rect=(0, .05, 1, .94))
-    for extension in ["png", "pdf"]:
-        fig.savefig(output / f"discounts_by_consumer_type.{extension}", dpi=180)
-    plt.close(fig)
+def make_targeting_figures(households, table, aggregate, output, delta=1.0, focal_flavor="berry"):
+    import sys
+    from pathlib import Path
+    presentation_root = next(p for p in Path(__file__).resolve().parents if (p / "pricing_presentation.py").is_file())
+    sys.path.insert(0, str(presentation_root))
+    from pricing_presentation import empirical_figures
+    return empirical_figures(table, output, focal_flavor, delta)
 
 
 
@@ -692,7 +603,7 @@ def read_command_line(settings):
     parser.add_argument("--output", type=Path, default=Path("/scratch/dtm63837/Kilts_Panel/results") / "split_empirical_outputs")
     parser.add_argument("--discounts", type=float, nargs="+", default=np.linspace(0., 1., 101),
                         help="Candidate discounts; default is every 1%% from 0%% through 100%%.")
-    parser.add_argument("--demand-delta", type=float, default=.92)
+    parser.add_argument("--demand-delta", type=float, default=1.0)
     parser.add_argument("--batch-size", type=int, default=24)
     parser.add_argument("--type-treatment", choices=["posterior-mean", "posterior-integrated"], default="posterior-mean",
                         help="Default treats estimated household types as known, matching base supply; optional posterior uncertainty sensitivity.")

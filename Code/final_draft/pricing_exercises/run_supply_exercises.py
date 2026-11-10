@@ -73,8 +73,8 @@ def static_price(intercept, alpha, effective_cost=0.):
             hi = mid
     return (lo+hi)/2
 
-def supply_solution(gamma, prior=.5, beta=2., alpha=-1., delta=.92, cost=0.):
-    """Known type; hidden h0, then either observe h1 or commit to p1,p2."""
+def supply_solution(gamma, prior=.5, beta=2., alpha=-1., delta=1.0, cost=0.):
+    """Personalized pricing; hidden h0, then either observe h1 or commit to p1,p2."""
     if not (np.isfinite([gamma, prior, beta, alpha, delta, cost]).all()
             and alpha < 0 and 0 <= prior <= 1 and 0 <= delta <= 1):
         raise ValueError("Need finite inputs, alpha<0, prior/delta in [0,1].")
@@ -243,7 +243,7 @@ def make_figures(paths, summary, output):
             expected = summary[(summary.prior_inside == prior) & (summary.case == case)]
             axes[2, column].plot(expected.gamma, expected.optimal_profit, "k--", label="Ex ante E[profit]")
             axes[0, column].set_title(LABELS[case])
-        for row, ylabel in enumerate(["Optimal prices", "Path-specific p1 / p2", "Optimal discounted profit"]):
+        for row, ylabel in enumerate(["Optimal prices", "Path-specific p1 / p2", "Expected two-period profit"]):
             for ax in axes[row]:
                 ax.set(xlabel="gamma", ylabel=ylabel)
                 ax.axhline(0, color="gray", linewidth=.5)
@@ -305,7 +305,7 @@ def main():
     parser.add_argument("--priors", type=float, nargs="+", default=[.25, .5, .75])
     parser.add_argument("--beta", type=float, default=2.)
     parser.add_argument("--alpha", type=float, default=-1., help="Signed price coefficient, negative.")
-    parser.add_argument("--delta", type=float, default=.92)
+    parser.add_argument("--delta", type=float, default=1.0)
     parser.add_argument("--cost", type=float, default=0.)
     parser.add_argument("--self-test", action="store_true")
     args = parser.parse_args()

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Split-history pricing for each focal flavor, separate from demand estimation.
+"""Split-history pricing for each selected flavor, separate from demand estimation.
 
 User-supplied paths only. No estimation is performed. --self-test uses only
 generated synthetic inputs. See README.md for definitions.
@@ -32,9 +32,9 @@ import pandas as pd
 household_input = None
 fit_dir = None
 output = Path("/scratch/dtm63837/Kilts_Panel/results") / "split_pricing"
-focal_flavor = "all"                  # all fitted groups, or one named fitted group
-discounts = np.linspace(0., 1., 101)  # Candidate focal-product coupons.
-demand_delta = .92                    # Same default as theoretical supply.
+flavor = "all"                  # all fitted groups, or one named fitted group
+discounts = np.linspace(0., 1., 101)  # Candidate flavor coupons.
+demand_delta = 1.0                    # Same default as theoretical supply.
 batch_size = 24                       # Progress interval in the household loop.
 type_treatment = "posterior-mean"     # Or posterior-integrated.
 save_state_policies = False
@@ -45,6 +45,7 @@ run_self_tests = False
 
 # Shared descriptor rules; the selected categories are recorded with each fit.
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+sys.path.insert(0, str(_policy_root / "Code"))
 from flavor_specs import categories
 
 FLAVORS = ["other", "berry", "plain"]
@@ -175,7 +176,8 @@ def digest(path):
 @server_only
 def targeted_coupons(context, households, weights, alpha, switching, beta, discounts,
                      delta=1., capacity=7, control_coefficient=0.,
-                     batch_size=24, type_treatment="posterior-mean", state_output=None, benchmark_output=None):
+                     batch_size=24, type_treatment="posterior-mean", state_output=None, benchmark_output=None,
+                     common_group_output=None):
     """Choose household-specific p1(h0) and terminal p2(h1) by backward induction.
 
     Work through ONE household at a time. This makes type-specific pricing
@@ -191,7 +193,7 @@ def targeted_coupons(context, households, weights, alpha, switching, beta, disco
     state_numbers = np.arange(number_states)
 
     # A basket records the selected inside flavors followed by outside.
-    # Coordinate one is the focal seller after permutation; histories retain all flavors.
+    # Coordinate one is the flavor seller after permutation; histories retain all flavors.
     inside_counts = baskets[:, :len(FLAVORS)]
     inside_total = inside_counts.sum(axis=1, keepdims=True)
     basket_shares = np.divide(
@@ -208,6 +210,8 @@ def targeted_coupons(context, households, weights, alpha, switching, beta, disco
     maximum_mass_error = 0.
     wrote_states = False
     common_values = np.zeros((number_coupons, number_coupons))
+    common_by_group = {g: np.zeros((number_coupons, number_coupons, 2))
+                       for g in ["low", "middle", "high"]}
 
     for number_done, household in enumerate(eligible_households, start=1):
         prices = context["prices"][household]
@@ -289,8 +293,12 @@ def targeted_coupons(context, households, weights, alpha, switching, beta, disco
             weighted_terminal = (terminal * joint[None, :, :, None]).sum(axis=1)
             if targeted[household]:
                 common_values[action] += first[action, 0] + delta * weighted_terminal[:, :, 0].sum(axis=1)
+                common_by_group[households.iloc[household].group][action, :, 0] += first[action, 0]
+                common_by_group[households.iloc[household].group][action, :, 1] += weighted_terminal[:, :, 0].sum(axis=1)
             elif action == 0:
                 common_values += first[0, 0] + delta * weighted_terminal[0, :, 0].sum()
+                common_by_group[households.iloc[household].group][:, :, 0] += first[0, 0]
+                common_by_group[households.iloc[household].group][:, :, 1] += weighted_terminal[0, :, 0].sum()
             best_terminal_action = weighted_terminal[:, :, 0].argmax(axis=0)
             selected = weighted_terminal[best_terminal_action, state_numbers]
             second[action] = selected.sum(axis=0)
@@ -358,25 +366,43 @@ def targeted_coupons(context, households, weights, alpha, switching, beta, disco
     comparison = table.pivot(index="household_code", columns="policy", values="discounted_revenue")
     if (comparison.personalized_dynamic + 1e-8 < comparison.no_coupon).any():
         raise AssertionError("Dynamic pricing does not dominate the feasible no-coupon benchmark.")
-    if benchmark_output is not None:
+    np.testing.assert_allclose(
+        sum(values[:, :, 0] + delta*values[:, :, 1] for values in common_by_group.values()),
+        common_values, rtol=1e-11, atol=1e-8)
+    if benchmark_output is not None or common_group_output is not None:
         a1, a2 = np.unravel_index(common_values.argmax(), common_values.shape)
         totals = table.groupby("policy").discounted_revenue.sum()
         common = float(common_values[a1, a2])
         if common + 1e-8 < totals["no_coupon"] or common > totals["personalized_dynamic"] + 1e-8:
-            raise AssertionError("Expected no coupon <= common coupons <= personalized dynamic.")
+            raise AssertionError("Expected reference revenue <= common pricing <= personalized pricing.")
+        if common_group_output is not None:
+            posted = table.loc[table.policy == "no_coupon"]
+            for group, grid in common_by_group.items():
+                segment = posted.loc[posted.group == group]
+                if segment.empty:
+                    continue
+                d1, d2 = (discounts[a1], discounts[a2]) if group != "middle" else (0., 0.)
+                first_revenue, second_revenue = grid[a1, a2]
+                common_group_output.append(dict(group=group, policy="Common pricing",
+                    eligible_households=len(segment), p1=float(segment.p1.mean()*(1-d1)),
+                    expected_p2=float(segment.p1.mean()*(1-d2)), discount1=float(d1),
+                    expected_discount2=float(d2), revenue1=float(first_revenue),
+                    revenue2=float(second_revenue),
+                    discounted_revenue=float(first_revenue+delta*second_revenue)))
         for policy, value, d1, d2 in [
                 ("no_coupon", totals["no_coupon"], 0., 0.),
                 ("optimized_common_coupons", common, discounts[a1], discounts[a2]),
                 ("personalized_dynamic", totals["personalized_dynamic"], np.nan, np.nan)]:
-            benchmark_output.append(dict(policy=policy, discounted_revenue=value,
-                discount1=d1, discount2=d2,
-                revenue_change_pct=100*(value/totals["no_coupon"]-1)))
+            if benchmark_output is not None:
+                benchmark_output.append(dict(policy=policy, discounted_revenue=value,
+                    discount1=d1, discount2=d2,
+                    revenue_change_pct=100*(value/totals["no_coupon"]-1)))
     return table, maximum_mass_error
 
 
 
 
-# === 4. Validate a saved split fit and solve one focal case === #
+# === 4. Validate a saved split fit and solve one flavor case === #
 
 # Exact binary supply calibration; target actual observed weekly prices.
 if __package__:
@@ -397,7 +423,7 @@ def information_frictions(frame, households, delta, output):
         return status
     summary = table.set_index(["scenario", "h0", "case"])
     lines = [r"\begin{tabular}{llrrr}\hline",
-             r"Initial state & Prior & Known profit & Fixed-belief profit & Difference\\\hline"]
+             r"Initial state & Prior & Personalized pricing & Common pricing & Difference\\\hline"]
     for scenario, _ in PRIORS:
         for h0 in ["j", "0"]:
             k = summary.loc[(scenario, h0, "known")]
@@ -406,39 +432,9 @@ def information_frictions(frame, households, delta, output):
                          f"{k.value_of_information:.4f} " + r"\\")
     lines.append(r"\hline\end{tabular}")
     (output / "information_friction_results.tex").write_text("\n".join(lines)+"\n")
-    plt = plotting()
-    scenarios = [name for name, _ in PRIORS]
-    labels = ["Equal", "Low-heavy", "Medium-heavy", "High-heavy"]
-    for metric, stem, ylabel in [("persistent_type_revenue", "profits", "Expected discounted revenue"),
-                                 ("expected_p1", "first_prices", "Mean first-period offered price"),
-                                 ("expected_p2", "terminal_prices", "Mean terminal offered price"),
-                                 ("value_of_information", "information_value", "Revenue gain from knowing novelty type")]:
-        fig, axes = plt.subplots(1, 2, figsize=(11, 4), sharey=True)
-        x = np.arange(4)
-        for ax, h0 in zip(axes, ["j", "0"]):
-            for case, offset, label in [("known", -.18, "Known type"), ("unknown", .18, "Uncertain type; fixed beliefs")]:
-                if metric == "value_of_information" and case == "unknown":
-                    continue
-                try:
-                    values = summary.xs((h0, case), level=("h0", "case")).reindex(scenarios)[metric]
-                except KeyError:
-                    values = np.full(4, np.nan)
-                ax.bar(x+(0 if metric == "value_of_information" else offset), values,
-                       width=.6 if metric == "value_of_information" else .36, label=label)
-            ax.set_xticks(x, labels, rotation=20)
-            ax.set_title("Initially "+("inside" if h0 == "j" else "outside"))
-            ax.grid(axis="y", alpha=.2)
-            ax.set_axisbelow(True)
-        axes[0].set_ylabel(ylabel)
-        if metric != "value_of_information":
-            axes[0].legend(fontsize=8)
-        fig.tight_layout()
-        for extension in ["pdf", "png"]:
-            fig.savefig(output / f"information_friction_{stem}.{extension}", dpi=180)
-        plt.close(fig)
-
-
-    return dict(settings, status='complete')
+    from pricing_presentation import information_figures
+    information_figures(table, output, delta)
+    return settings
 
 
 @server_only
@@ -478,9 +474,9 @@ def run_households(args):
     # Exact likelihood reproduction guards against silently pairing files from different fits.
     if not np.isclose(nll, fit["nll"], rtol=1e-9, atol=1e-4):
         raise ValueError(f"Likelihood mismatch: reconstructed {nll}, fit {fit['nll']}.")
-    focal = args.focal_flavor
-    if focal != "berry":
-        mapping = {"berry": focal, focal: "berry"}
+    flavor = args.flavor
+    if flavor != "berry":
+        mapping = {"berry": flavor, flavor: "berry"}
         original = frame.copy()
         original_beta = beta.copy()
         for destination, source in mapping.items():
@@ -491,52 +487,33 @@ def run_households(args):
     context = forecast_context(frame, households)
     counts = [int(((households.group == g) & households.berry_eligible).sum()) for g in ["low", "middle", "high"]]
     if any(n == 0 for n in counts):
-        raise ValueError("Each switching segment must have focal-eligible forecast households.")
+        raise ValueError("Each switching segment must have flavor-eligible forecast households.")
     benchmarks = []
+    common_groups = []
     table, mass_error = targeted_coupons(
         context, households, weights, alpha, switching, beta, args.discounts,
         args.demand_delta, capacity,
         parameters.get("price_control", 0.) if control else 0., args.batch_size,
         args.type_treatment,
         None,
-        benchmark_output=benchmarks)
-    benchmark_table = pd.DataFrame(benchmarks)
+        benchmark_output=benchmarks, common_group_output=common_groups)
+    from pricing_presentation import displayed_policies, benchmark_figure, group_results
+    benchmark_table = displayed_policies(pd.DataFrame(benchmarks))
+    common_revenue = float(benchmark_table.loc[benchmark_table.policy == "Common pricing", "discounted_revenue"].iloc[0])
+    benchmark_table["revenue_change_pct"] = 100*(benchmark_table.discounted_revenue/common_revenue-1)
     benchmark_table.to_csv(args.output / "pricing_policy_benchmarks.csv", index=False)
-    plt = plotting()
-    fig, ax = plt.subplots(figsize=(9, 5))
-    ax.bar(["No coupons", "Optimized common\ncoupons", "Personalized\ndynamic coupons"],
-           benchmark_table.revenue_change_pct, color=["#999999", "#3575AD", "#D17925"])
-    ax.set(ylabel="Revenue gain relative to no coupons (%)", title=f"{focal.title()}: pricing policy benchmarks")
-    ax.grid(axis="y", alpha=.2)
-    ax.set_axisbelow(True)
-    fig.text(.5, .015, "Same eligible households; middle group receives no coupons. Common offers vary by period, not household or history.",
-             ha="center", fontsize=8)
-    fig.tight_layout(rect=(0, .05, 1, 1))
-    for extension in ["pdf", "png"]:
-        fig.savefig(args.output / f"pricing_policy_benchmarks.{extension}", dpi=180)
-    plt.close(fig)
+    benchmark_figure(benchmark_table, args.output, flavor)
     supply_calibration = information_frictions(frame, households, args.demand_delta, args.output)
-    households.rename(columns={"berry_eligible": "focal_eligible"}, inplace=True)
-    table.rename(columns={c: c.replace("berry", "focal") for c in table if "berry" in c}, inplace=True)
-    table["focal_flavor"] = focal
-    totals = ["revenue1", "revenue2", "discounted_revenue", "baseline_revenue", "revenue_change",
-              "focal_units1", "focal_units2", "coupon_expenditure"]
-    aggregate = table.groupby("policy", sort=False)[totals].sum()
-    aggregate["revenue_change_pct"] = 100*aggregate.revenue_change/aggregate.baseline_revenue
-    aggregate.to_csv(args.output / "targeted_revenue_aggregate.csv")
-    group = table.groupby(["policy", "group"], sort=False)[totals].sum()
-    group["revenue_change_pct"] = 100*group.revenue_change/group.baseline_revenue
-    means = table.groupby(["policy", "group"])[["p1", "expected_p2", "discount1", "expected_discount2",
-                                                   "ratio_of_expected_prices", "expected_price_ratio"]].mean()
-    group = group.join(means)
-    group["eligible_households"] = table.groupby(["policy", "group"]).size()
-    group.to_csv(args.output / "targeted_revenue_by_switching_group.csv")
-    # Aggregate terminal offers conditional on first-period focal purchase.
+    households.rename(columns={"berry_eligible": "flavor_eligible"}, inplace=True)
+    table.rename(columns={c: c.replace("no_berry", "outside").replace("berry", "flavor") for c in table if "berry" in c}, inplace=True)
+    table["flavor"] = flavor
+    aggregate = None
+    # Aggregate terminal offers conditional on first-period flavor purchase.
     # Weight by branch probability, rather than averaging household conditional means.
     branch_rows = []
     dynamic = table.loc[table.policy == "personalized_dynamic"]
     for group_name, segment in dynamic.groupby("group"):
-        for branch in ["focal", "no_focal"]:
+        for branch in ["flavor", "outside"]:
             mass = segment["probability_" + branch]
             branch_price = segment["mean_p2_given_" + branch]
             probability_sum = mass.sum()
@@ -544,30 +521,15 @@ def run_households(args):
                 probability=probability_sum/len(segment),
                 mean_terminal_price=(mass*branch_price).sum()/probability_sum if probability_sum else np.nan))
     branches = pd.DataFrame(branch_rows)
-    paired = dynamic.assign(terminal_price_gap=(dynamic.mean_p2_given_focal - dynamic.mean_p2_given_no_focal))
+    paired = dynamic.assign(terminal_price_gap=(dynamic.mean_p2_given_flavor - dynamic.mean_p2_given_outside))
     paired.groupby("group").agg(
         mean_within_household_price_gap=("terminal_price_gap", "mean"),
         households_with_both_branches=("terminal_price_gap", "count")
     ).to_csv(args.output / "terminal_offer_within_household_gap.csv")
     branches.to_csv(args.output / "terminal_offers_by_purchase.csv", index=False)
-    plt = plotting()
-    fig, ax = plt.subplots(figsize=(9, 4))
-    x = np.arange(3)
-    for branch, offset, label in [("no_focal", -.18, "After no focal purchase"),
-                                  ("focal", .18, "After focal purchase")]:
-        values = branches.loc[branches.branch == branch].set_index("group").reindex(["low", "middle", "high"])
-        ax.bar(x+offset, values.mean_terminal_price, width=.36, label=label)
-    ax.set(xticks=x, xticklabels=["Low switching", "Middle switching", "High switching"],
-           ylabel="Mean terminal price ($)", title=f"{focal.title()}: terminal offers conditional on purchase")
-    ax.legend()
-    fig.text(.5, .015, "Branch-probability-weighted means under personalized dynamic pricing; middle receives no coupons.\nConditional comparisons can reflect household composition as well as history effects.", ha="center", fontsize=8)
-    fig.tight_layout(rect=(0, .10, 1, 1))
-    for extension in ["pdf", "png"]:
-        fig.savefig(args.output / f"terminal_offers_by_purchase.{extension}", dpi=180)
-    plt.close(fig)
 
     households.groupby("group").agg(households=("household_code", "size"),
-                                    focal_eligible=("focal_eligible", "sum"),
+                                    flavor_eligible=("flavor_eligible", "sum"),
                                     switching_mean=("switching_mean", "mean"),
                                     switching_mean_min=("switching_mean", "min"),
                                     switching_mean_max=("switching_mean", "max"),
@@ -577,10 +539,19 @@ def run_households(args):
                                     mean_alpha=("alpha_mean", "mean"),
                                     median_posterior_ess=("posterior_ess", "median")).to_csv(args.output / "household_group_summary.csv")
     make_targeting_figures(households, table, aggregate, args.output, delta=args.demand_delta,
-                           focal_flavor=focal)
-    return dict(focal_flavor=focal, state_coordinates={"focal_units": focal,
-                "rival1_units": "berry" if focal == "other" else "other",
-                "rival2_units": "berry" if focal == "plain" else "plain",
+                           flavor=flavor, common_groups=common_groups)
+    # Public comparisons contain only the two pricing policies.
+    report_groups = group_results(table, common_groups)
+    common_by_group = report_groups.loc[report_groups.policy == "Common pricing"].set_index("group").discounted_revenue
+    report_groups["revenue_change"] = report_groups.discounted_revenue-report_groups.group.map(common_by_group)
+    report_groups["revenue_change_pct"] = 100*report_groups.revenue_change/report_groups.group.map(common_by_group)
+    report_groups.to_csv(args.output / "targeted_revenue_by_switching_group.csv", index=False)
+    aggregate = report_groups.groupby("policy", sort=False)[["revenue1", "revenue2", "discounted_revenue", "revenue_change"]].sum()
+    aggregate["revenue_change_pct"] = 100*aggregate.revenue_change/common_revenue
+    aggregate.to_csv(args.output / "targeted_revenue_aggregate.csv")
+    return dict(flavor=flavor, state_coordinates={"flavor_units": flavor,
+                "rival1_units": "berry" if flavor == "other" else "other",
+                "rival2_units": "berry" if flavor == "plain" else "plain",
                 "inside_flavors": list(FLAVORS)}, households=len(households), eligible_by_group=dict(zip(["low", "middle", "high"], counts)),
                 reconstructed_nll=nll, basket_mass_error=mass_error,
                 input_sha256=digest(args.household_input), fit_sha256=digest(args.fit_dir / "fit.json"),
@@ -598,60 +569,10 @@ def run_households(args):
 
 # === 5. Figures === #
 
-def make_targeting_figures(households, table, aggregate, output, delta=.95, focal_flavor="berry"):
-    """Plot household types and individually optimized focal-flavor discounts."""
-    plt = plotting()
-    groups = ["low", "middle", "high"]
-    labels = ["Low switching\n(bottom 25%)", "Middle switching\n(middle 50%)", "High switching\n(top 25%)"]
-    colors = ["#3575AD", "#999999", "#D17925"]
-    fig, axes = plt.subplots(1, 2, figsize=(13, 5))
-    bins = np.histogram_bin_edges(households.switching_mean, bins=30)
-    for g, label, color in zip(groups, labels, colors):
-        axes[0].hist(households.loc[households.group == g, "switching_mean"],
-                     bins=bins, alpha=.65, label=label.replace("\n", " "), color=color)
-    axes[0].set(title="Estimated consumer types", xlabel=r"Estimated household type (posterior mean $b_N$)",
-                ylabel="Number of households")
-    axes[0].legend(fontsize=9)
-    revenue = table.loc[table.policy == "personalized_dynamic"].groupby("group")[["revenue1", "revenue2"]].sum().reindex(groups)
-    x = np.arange(len(groups))
-    # Average over state-contingent terminal prices first, discount, then total.
-    total_expected_revenue = revenue.revenue1 + delta * revenue.revenue2
-    axes[1].bar(x, total_expected_revenue, width=.5, color=colors)
-    axes[1].set_xticks(x, labels)
-    axes[1].set(title="Total Expected Revenue",
-                xlabel="Consumer type group", ylabel="Total Expected Revenue")
-    axes[1].set_ylim(bottom=0)
-    axes[1].grid(axis="y", alpha=.2)
-    axes[1].set_axisbelow(True)
-    axes[1].axhline(0, color="gray", linewidth=.6)
-    fig.text(.5, .015,
-             f"First-period revenue + {delta:g} × expected terminal revenue. "
-             f"Low/high types receive personalized {focal_flavor} offers; middle types receive no coupons.",
-             ha="center", fontsize=9)
-    fig.tight_layout(rect=(0, .05, 1, 1))
-    for extension in ["png", "pdf"]:
-        fig.savefig(output / f"household_coupon_results.{extension}", dpi=180)
-    plt.close(fig)
-
-    fig, ax = plt.subplots(figsize=(9, 5))
-    x = np.arange(3)
-    means = table.loc[table.policy == "personalized_dynamic"].groupby("group")[["discount1", "expected_discount2"]].mean().reindex(groups)
-    ax.bar(x-.18, 100*means.discount1, width=.36, label=r"$p_1(h_0)$ offer", color=colors[0])
-    ax.bar(x+.18, 100*means.expected_discount2, width=.36,
-           label=r"Terminal $p_2(h_1)$ offer (expected over histories)", color=colors[2])
-    ax.set_xticks(x, labels)
-    ax.set(xlabel="Consumer type group", ylim=(0, 105),
-           ylabel=f"Mean optimal {focal_flavor} discount (% of posted price)")
-    ax.grid(axis="y", alpha=.2)
-    ax.set_axisbelow(True)
-    ax.legend(fontsize=8, loc="upper left")
-    fig.suptitle("Dynamic pricing: optimal discounts by consumer type")
-    fig.text(.5, .015, f"Household-weighted means among {focal_flavor}-eligible households. Middle group receives no coupons by policy design.",
-             ha="center", fontsize=9)
-    fig.tight_layout(rect=(0, .05, 1, .94))
-    for extension in ["png", "pdf"]:
-        fig.savefig(output / f"discounts_by_consumer_type.{extension}", dpi=180)
-    plt.close(fig)
+def make_targeting_figures(households, table, aggregate, output, delta=1., flavor="berry", common_groups=None):
+    """Draw common/personalized pricing comparisons and p1 -> p2 paths."""
+    from pricing_presentation import empirical_figures
+    return empirical_figures(table, output, flavor, delta, common_groups)
 
 
 
@@ -692,18 +613,18 @@ def read_command_line(settings):
     parser.add_argument("--output", type=Path, default=Path("/scratch/dtm63837/Kilts_Panel/results") / "split_empirical_outputs")
     parser.add_argument("--discounts", type=float, nargs="+", default=np.linspace(0., 1., 101),
                         help="Candidate discounts; default is every 1%% from 0%% through 100%%.")
-    parser.add_argument("--demand-delta", type=float, default=.92)
+    parser.add_argument("--demand-delta", type=float, default=1.0)
     parser.add_argument("--batch-size", type=int, default=24)
     parser.add_argument("--type-treatment", choices=["posterior-mean", "posterior-integrated"], default="posterior-mean",
                         help="Default treats estimated household types as known, matching base supply; optional posterior uncertainty sensitivity.")
     parser.add_argument("--save-state-policies", action="store_true", help="Unsupported: this exercise saves aggregate comparisons only.")
-    parser.add_argument("--focal-flavor", choices=["all", *categories("five")], default="all")
+    parser.add_argument("--flavor", choices=["all", *categories("five")], default="all")
     parser.add_argument("--self-test", action="store_true", help="Generated synthetic inputs only.")
     parser.set_defaults(**vars(settings))
     return parser.parse_args()
 
 
-# === 7. Run selected focal-product exercises, step by step === #
+# === 7. Run selected flavor exercises, step by step === #
 
 @server_only
 def run_pricing(args):
@@ -719,22 +640,22 @@ def run_pricing(args):
     require_data_path(args.fit_dir)
     fit = json.loads((args.fit_dir/'fit.json').read_text())
     FLAVORS[:] = categories(fit['settings'].get('flavor_spec', 'three'))
-    if args.focal_flavor != 'all' and args.focal_flavor not in FLAVORS:
-        raise ValueError('Focal flavor is absent from the selected fit specification.')
+    if args.flavor != 'all' and args.flavor not in FLAVORS:
+        raise ValueError('Flavor is absent from the selected fit specification.')
     args.output.mkdir(parents=True, exist_ok=True)
     output_root = args.output
-    selected = list(FLAVORS) if args.focal_flavor == "all" else [args.focal_flavor]
+    selected = list(FLAVORS) if args.flavor == "all" else [args.flavor]
     reports, comparisons = {}, []
-    for focal in selected:
-        args.focal_flavor = focal
-        args.output = output_root / focal
+    for flavor in selected:
+        args.flavor = flavor
+        args.output = output_root / flavor
         args.output.mkdir(parents=True, exist_ok=True)
-        reports[focal] = run_households(args)
-        for row in reports[focal]["aggregate"]:
-            comparisons.append(dict(focal_flavor=focal, **row))
+        reports[flavor] = run_households(args)
+        for row in reports[flavor]["aggregate"]:
+            comparisons.append(dict(flavor=flavor, **row))
     args.output = output_root
-    args.focal_flavor = "all" if len(selected) == len(FLAVORS) else selected[0]
-    pd.DataFrame(comparisons).to_csv(output_root / "focal_flavor_comparison.csv", index=False)
+    args.flavor = "all" if len(selected) == len(FLAVORS) else selected[0]
+    pd.DataFrame(comparisons).to_csv(output_root / "flavor_comparison.csv", index=False)
     report = reports
     manifest = dict(settings={k: str(v) if isinstance(v, Path) else v.tolist() if isinstance(v,np.ndarray) else v for k,v in vars(args).items()},
                     results=report, script_sha256=digest(Path(__file__).resolve()),
@@ -746,7 +667,7 @@ def run_pricing(args):
 
 if __name__ == "__main__":
     settings = SimpleNamespace(household_input=household_input, fit_dir=fit_dir,
-        output=output, focal_flavor=focal_flavor, discounts=discounts,
+        output=output, flavor=flavor, discounts=discounts,
         demand_delta=demand_delta, batch_size=batch_size, type_treatment=type_treatment,
         save_state_policies=save_state_policies, self_test=run_self_tests)
     if len(sys.argv) > 1:

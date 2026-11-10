@@ -20,7 +20,7 @@ output = Path(__file__).resolve().parents[1] / "results" / "unknown_type"
 probability_points = 41
 beta = 2.0
 alpha = -1.0
-delta = 0.92
+delta = 1.0
 cost = 0.0
 
 
@@ -61,14 +61,14 @@ def committed_policy(h0, weights, beta, alpha, delta, cost, points=81):
     return first, second, value
 
 
-def draw_figures(results, output):
+def draw_figures(results, output, delta=1.):
     """Use the original figure's horizontal three-panel line-plot layout."""
     plt = plotting()
     for (focal_gamma, h0), data in results.groupby(["focal_gamma", "h0"], sort=False):
         state = "inside" if h0 == "j" else "outside"
         tag = {-1.25: "negative", 0.: "zero", 1.25: "positive"}[focal_gamma]
         stem = ("supply_information" if focal_gamma == 1.25 and h0 == "0"
-                else f"supply_information_{tag}_h0_{state}")
+                else f"supply_information_{tag}_h0_{'inside' if h0 == 'j' else 'outside'}")
         x = data.focal_probability
         with plt.rc_context({"font.size": 11, "axes.titlesize": 13}):
             fig, axes = plt.subplots(1, 3, figsize=(17, 4.6), layout="constrained")
@@ -81,15 +81,17 @@ def draw_figures(results, output):
                                ("optimal_profit", "Gamma unknown: observe h1"),
                                ("committed_profit", "Gamma unknown: commit to both prices")]:
                 axes[1].plot(x, data[key], label=label, linewidth=2)
-            axes[1].set(title="Expected two-period profit", ylabel="Discounted expected profit")
+            axes[1].set(title="Expected two-period profit", ylabel="Expected two-period profit")
             axes[2].plot(x, data.value_observing_h1, linewidth=2,
                          label="Adaptive profit − committed profit")
             axes[2].set(title="Value of observing h1", ylabel="Expected profit gain")
             axes[2].set_ylim(bottom=0)
             for ax in axes:
-                ax.set(xlabel=f"Pr(gamma = {focal_gamma:g})", xlim=(0, 1))
+                type_label = {-1.25: "L", 0.: "0", 1.25: "H"}[focal_gamma]
+                ax.set(xlabel=rf"$\mu_{{{type_label}}}=\Pr(\gamma=\gamma_{{{type_label}}})$", xlim=(0, 1))
+                ax.set_xticks([0., .25, 1/3, .5, .75, 1.], ["0", "0.25", "0.33", "0.50", "0.75", "1"])
                 ax.legend(fontsize=8, frameon=True)
-            fig.suptitle(f"Known h0: {state} | Gamma unobserved in {{−1.25, 0, +1.25}} | Remaining probability split equally",
+            fig.suptitle(f"Known h0: {state} | Gamma unobserved in {{−1.25, 0, +1.25}} | δ = {delta:g} | Remaining probability split equally",
                          fontsize=13)
             for extension in ["png", "pdf"]:
                 fig.savefig(output / f"{stem}.{extension}", dpi=180)
@@ -132,7 +134,7 @@ def run_information(settings):
     settings.output.mkdir(parents=True, exist_ok=True)
     results = pd.DataFrame(rows)
     results.to_csv(settings.output / "supply_information_results.csv", index=False)
-    draw_figures(results, settings.output)
+    draw_figures(results, settings.output, settings.delta)
     manifest = dict(settings={k: str(v) if isinstance(v, Path) else v for k, v in vars(settings).items()},
                     information="h0 known in every case; gamma uncertain except in revealed-type benchmark",
                     varying="Probability of one gamma; other two types split remaining probability equally",

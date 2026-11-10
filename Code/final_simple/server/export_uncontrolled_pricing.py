@@ -47,7 +47,7 @@ def export_results(fit_dir, pricing_dir, output):
     # Exact names and locations only; never copy an entire research directory.
     for source, destination, names in [
             (fit_dir, output/'no_control_fit', FIT_RESULTS),
-            (pricing_dir, output/'pricing', {'focal_flavor_comparison.csv'})]:
+            (pricing_dir, output/'pricing', {'flavor_comparison.csv'})]:
         destination.mkdir()
         for name in sorted(names):
             item = source/name

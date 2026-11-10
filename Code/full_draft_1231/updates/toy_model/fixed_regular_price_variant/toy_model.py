@@ -17,7 +17,7 @@ from scipy.optimize import brentq, minimize_scalar
 
 beta_0 = np.array([2.2, 2.0])
 gamma_H, gamma_L = 2.0, 0.1
-alpha, delta = -1.5, 0.95
+alpha, delta = -1.5, 1.0
 costs = np.array([1.2, 0.2])
 regular_prices = np.array([2.0, 2.0])
 PRICE_MIN = 1.0
@@ -211,9 +211,9 @@ def run_analysis(output, points=101, gamma_max=3.0):
     pd.DataFrame([parameters]).to_csv(out/'parameters.csv',index=False)
     lines=['# Fixed regular prices and targeted discounts', '',
            'Effective price = regular price - discount. Only good 2 can be discounted, in period two after buying good 1. All other prices remain at the fixed regular price.', '',
-           'Illustrative regular prices (2.00, 2.00), costs (1.20, 0.20), price coefficient -1.5, gamma_H=2, gamma_L=0.1, delta=0.95. The cost gap and fixed-price restriction replace the previous unrestricted-price calibration. Regular prices are maintained assumptions, not claimed to be unrestricted monopoly optima.', '',
-           'No prior purchase, myopic logit consumers, permanent exit after period-one outside. First purchases do not reveal type. Known type probabilities; no Bayesian learning or classifier. Profits are per initial consumer.', '',
-           f'H discount: {personal[0].discount:.8f}; L discount: {personal[1].discount:.8f}; 50/50 common discount: {common50.discount:.8f}.', '',
+           'Illustrative regular prices (2.00, 2.00), costs (1.20, 0.20), price coefficient -1.5, gamma_H=2, gamma_L=0.1, delta=1.0. The cost gap and fixed-price restriction replace the previous unrestricted-price calibration. Regular prices are maintained assumptions, not claimed to be unrestricted monopoly optima.', '',
+           'No prior purchase, myopic logit consumers, permanent exit after period-one outside. First purchases do not reveal type. Personalized pricing probabilities; no Bayesian learning or classifier. Profits are per initial consumer.', '',
+           f'Personalized pricing (H): {personal[0].discount:.8f}; Personalized pricing (L): {personal[1].discount:.8f}; 50/50 common discount: {common50.discount:.8f}.', '',
            f'50/50 common profit: {common50.profit:.8f}; observed-type profit: {(personal[0].profit+personal[1].profit)/2:.8f}; information gain: {mix.loc[np.isclose(mix.high_share,.5),"targeting_gain"].iloc[0]:.8f}.', '',
            f'Offering the fixed L-optimal coupon instead of no coupon breaks even at Pr(L)={cutoff:.8f}. Continuous discount optimization is a different problem.', '',
            'Fixed discount regions (q=Pr(H)):']

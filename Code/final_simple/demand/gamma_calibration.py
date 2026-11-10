@@ -118,7 +118,7 @@ def calibrate(moments, gamma, delta):
 
 @server_only
 def run_calibration(frame, households, delta, output):
-    # frame is already permuted so berry is the focal flavor. Require actual
+    # frame is already permuted so berry is the flavor flavor. Require actual
     # consecutive-week observations; never carry one price into future periods.
     first = frame.sort_values(['household_code', 'week']).groupby('household_code').head(1)
     first = first.set_index('household_code').reindex(households.household_code)
@@ -133,7 +133,7 @@ def run_calibration(frame, households, delta, output):
     valid = np.isfinite(targets[['p1', 'p2']]).all(axis=1) & (targets[['p1', 'p2']] > 0).all(axis=1)
     targets = targets.loc[valid]
     if targets.empty:
-        status = dict(status='failed', reason='No observed focal prices at both t0+7 and t0+14',
+        status = dict(status='failed', reason='No observed flavor prices at both t0+7 and t0+14',
                       coupon_pricing_affected=False)
         (output/'information_calibration_status.json').write_text(json.dumps(status, indent=2)+'\n')
         raise CalibrationError(status)

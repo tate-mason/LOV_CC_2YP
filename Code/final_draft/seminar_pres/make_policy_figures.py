@@ -17,25 +17,11 @@ def main(output):
     for flavor in ['plain', 'berry']:
         folder = output / flavor
         table = pd.read_csv(folder / 'targeted_revenue_by_switching_group.csv')
-        selected = table.loc[(table.policy == 'personalized_dynamic') & table.group.isin(['low', 'high'])].set_index('group').reindex(['low', 'high'])
-        fig, axes = plt.subplots(1, 2, figsize=(10, 4))
-        labels = ['Low switching\n(bottom quartile)', 'High switching\n(top quartile)']
-        for group, color, label in zip(['low', 'high'], ['#3575AD', '#D17925'], labels):
-            row = selected.loc[group]
-            axes[0].plot([1, 2], [100*row.discount1, 100*row.expected_discount2], 'o-', color=color, label=label.replace('\n', ' '))
-        axes[0].set(xticks=[1, 2], xticklabels=['Initial offer', 'Expected terminal offer'], ylabel='Mean discount (% of posted price)', title=f'{flavor.title()}: offer path by switching type')
-        axes[0].legend(fontsize=8)
-        gains = selected.revenue_change / selected.eligible_households
-        axes[1].bar(labels, gains, color=['#3575AD', '#D17925'])
-        axes[1].set(ylabel='Discounted revenue gain per eligible household ($)', title='Gain relative to no coupons')
-        for ax in axes:
-            ax.grid(axis='y', alpha=.2)
-            ax.set_axisbelow(True)
-        fig.text(.5, .02, 'Terminal offers average over purchase histories. Type groups also differ in price sensitivity and habit.', ha='center', fontsize=8)
-        fig.tight_layout(rect=(0, .06, 1, 1))
-        for ext in ['pdf', 'png']:
-            fig.savefig(folder / f'pricing_mechanism.{ext}', dpi=180)
-        plt.close(fig)
+        sys.path.insert(0, str(_policy_root / 'Code'))
+        from pricing_presentation import price_paths, POLICY_LABELS
+        table = table.loc[table.policy != 'no_coupon'].copy()
+        table['policy'] = table.policy.replace(POLICY_LABELS)
+        price_paths(table, folder, flavor)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)

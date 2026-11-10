@@ -2,7 +2,7 @@
 
 Run python3 toy_model.py --help. Prices are net transaction prices. A period-one
 outside choice exits permanently. Consumers have no prior purchase, so variety
-utility begins in period two. Known type masses are fixed. Profits are per
+utility begins in period two. Personalized pricing masses are fixed. Profits are per
 initial consumer. 'Uniform' means common across types, not across products.
 """
 
@@ -16,7 +16,7 @@ from scipy.optimize import minimize
 
 beta_0 = np.array([2.2, 2.0])
 gamma_H, gamma_L = 2.0, 0.1
-alpha, delta = -1.5, 0.95
+alpha, delta = -1.5, 1.0
 costs = np.array([1.2, 1.0])
 J = len(costs)
 PRICE_MIN, PRICE_MAX = 1.0, 8.0
@@ -68,7 +68,7 @@ class Policy:
 
 
 def evaluate_policy(p1, p2, gammas):
-    """Expected discounted profit conditional on each type, before the first purchase."""
+    """Expected two-period profit conditional on each type, before the first purchase."""
     values = []
     for gamma in gammas:
         s1, _ = shares_jac(p1, gamma)
@@ -232,7 +232,7 @@ def newborn_discount_analysis(output):
         f"Break-even Pr(L): {threshold:.8f}\n\n"
         f"Break-even Pr(H): {1 - threshold:.8f}\n\n"
         f"50/50 regular profit: {regular_values.mean():.8f}\n\n"
-        f"50/50 discount profit: {discount_values.mean():.8f}\n\n"
+        f"Common pricing (50/50) profit: {discount_values.mean():.8f}\n\n"
         f"50/50 reoptimized common profit: {common50.profit:.8f}\n\n"
         "Expected gain = (1-q)*Delta_H + q*Delta_L. The exact cutoff is "
         "-Delta_H/(Delta_L-Delta_H). Offer the fixed discount when the expected "
@@ -314,7 +314,7 @@ def fixed_menu_analysis(output, personal, uniform, gamma_grid):
     for left, _, _ in regions[1:]:
         for ax in axes:
             ax.axvline(left, color="gray", linestyle=":", label=f"Transition {left:.5f}")
-    for ax, ylabel in zip(axes, ["Expected discounted profit", "Profit gain over uniform"]):
+    for ax, ylabel in zip(axes, ["Expected two-period profit", "Profit gain over uniform"]):
         ax.set(xlabel="Probability customer is H", ylabel=ylabel)
         ax.grid(alpha=0.25)
         ax.legend(fontsize=8)
@@ -498,7 +498,7 @@ def run_analysis(output, points=21, gamma_max=3.0):
     axes[0].plot(
         newborn.probability_L,
         newborn.reoptimized_common_profit,
-        label="Reoptimized common menu",
+        label="Common pricing",
     )
     axes[0].set(xlabel="Probability newborn is low type", ylabel="Profit per newborn")
     axes[1].plot(

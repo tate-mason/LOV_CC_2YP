@@ -124,7 +124,7 @@ python3 "$project_dir/Code/final_simple/demand/estimation.py" \
 printf '\n[4/5] Plain and berry pricing, using this run\x27s uncontrolled split fit\n'
 python3 "$project_dir/Code/final_simple/demand/plain_berry_pricing.py" \
     --household-input "$uncontrolled_fit/weekly_inputs.csv" --fit-dir "$uncontrolled_fit" \
-    --demand-delta 0.92 --output "$pricing_output"
+    --demand-delta 1.0 --output "$pricing_output"
 
 # Generate aggregate mechanism figures before staging the results-only export.
 python3 "$project_dir/Code/final_draft/seminar_pres/make_policy_figures.py" \

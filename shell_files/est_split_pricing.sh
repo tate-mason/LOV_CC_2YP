@@ -62,5 +62,5 @@ python3 "$project_dir/Code/final_draft/est_code/history_distributions.py" \
 python3 "$project_dir/Code/final_simple/demand/plain_berry_pricing.py" \
         --household-input "$weekly_input" \
         --fit-dir "$controlled_fit" \
-        --demand-delta 0.92 \
+        --demand-delta 1.0 \
         --output "/scratch/dtm63837/Kilts_Panel/results/plain_berry_pricing_ex"

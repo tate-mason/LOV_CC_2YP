@@ -85,7 +85,7 @@ python3 "$project_dir/Code/final_simple/demand/regenerate_weekly_inputs.py" \
 # with estimated low/medium/high gamma and fixed type probabilities.
 python3 "$project_dir/Code/final_simple/demand/plain_berry_pricing.py" \
     --household-input "$weekly_input" --fit-dir "$uncontrolled_fit" \
-    --demand-delta 0.92 --output "$pricing_output"
+    --demand-delta 1.0 --output "$pricing_output"
 python3 "$project_dir/Code/final_draft/seminar_pres/make_policy_figures.py" \
     --output "$pricing_output"
 

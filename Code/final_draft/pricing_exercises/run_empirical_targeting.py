@@ -323,6 +323,8 @@ def run_households(args):
               "berry_units1", "berry_units2", "coupon_expenditure"]
     aggregate = table.groupby("policy", sort=False)[totals].sum()
     aggregate["revenue_change_pct"] = 100*aggregate.revenue_change/aggregate.baseline_revenue
+    aggregate = aggregate.drop(index="no_coupon", errors="ignore")
+    aggregate = aggregate.rename(index={"personalized_dynamic": "Personalized pricing", "optimized_common_coupons": "Common pricing"})
     aggregate.to_csv(args.output / "targeted_revenue_aggregate.csv")
     group = table.groupby(["policy", "group"], sort=False)[totals].sum()
     group["revenue_change_pct"] = 100*group.revenue_change/group.baseline_revenue
@@ -330,6 +332,8 @@ def run_households(args):
                                                    "ratio_of_expected_prices", "expected_price_ratio"]].mean()
     group = group.join(means)
     group["eligible_households"] = table.groupby(["policy", "group"]).size()
+    group = group.drop(index="no_coupon", level="policy", errors="ignore")
+    group = group.rename(index={"personalized_dynamic": "Personalized pricing", "optimized_common_coupons": "Common pricing"})
     group.to_csv(args.output / "targeted_revenue_by_gamma_group.csv")
     households.groupby("group").agg(households=("household_code", "size"),
                                     berry_eligible=("berry_eligible", "sum"),
@@ -353,85 +357,13 @@ def run_households(args):
                 aggregate=aggregate.reset_index().to_dict("records"))
 
 
-def make_targeting_figures(households, table, aggregate, output, delta=.95):
-    """Plot household types and individually optimized berry discounts."""
-    plt = plotting()
-    groups = ["low", "middle", "high"]
-    labels = ["Low gamma\n(bottom 25%)", "Middle gamma\n(middle 50%)", "High gamma\n(top 25%)"]
-    colors = ["#3575AD", "#999999", "#D17925"]
-    fig, axes = plt.subplots(1, 2, figsize=(13, 5))
-    bins = np.histogram_bin_edges(households.gamma_mean, bins=30)
-    for g, label, color in zip(groups, labels, colors):
-        axes[0].hist(households.loc[households.group == g, "gamma_mean"],
-                     bins=bins, alpha=.65, label=label.replace("\n", " "), color=color)
-    axes[0].set(title="Estimated consumer types", xlabel=r"Estimated household type (posterior mean $\gamma$)",
-                ylabel="Number of households")
-    axes[0].legend(fontsize=9)
-    revenue = table.loc[table.policy == "personalized_dynamic"].groupby("group")[["revenue1", "revenue2"]].sum().reindex(groups)
-    x = np.arange(len(groups))
-    # Average over state-contingent terminal prices first, discount, then total.
-    total_expected_revenue = revenue.revenue1 + delta * revenue.revenue2
-    axes[1].bar(x, total_expected_revenue, width=.5, color=colors)
-    axes[1].set_xticks(x, labels)
-    axes[1].set(title="Total Expected Revenue",
-                xlabel="Consumer type group", ylabel="Total Expected Revenue")
-    axes[1].set_ylim(bottom=0)
-    axes[1].grid(axis="y", alpha=.2)
-    axes[1].set_axisbelow(True)
-    axes[1].axhline(0, color="gray", linewidth=.6)
-    fig.text(.5, .015,
-             f"First-period revenue + {delta:g} × expected terminal revenue. "
-             "Low/high types receive personalized berry offers; middle types receive no coupons.",
-             ha="center", fontsize=9)
-    fig.tight_layout(rect=(0, .05, 1, 1))
-    for extension in ["png", "pdf"]:
-        fig.savefig(output / f"household_coupon_results.{extension}", dpi=180)
-    plt.close(fig)
-
-    fig, ax = plt.subplots(figsize=(9, 5))
-    x = np.arange(3)
-    means = table.loc[table.policy == "personalized_dynamic"].groupby("group")[["discount1", "expected_discount2"]].mean().reindex(groups)
-    ax.bar(x-.18, 100*means.discount1, width=.36, label=r"$p_1(h_0)$ offer", color=colors[0])
-    ax.bar(x+.18, 100*means.expected_discount2, width=.36,
-           label=r"Terminal $p_2(h_1)$ offer (expected over histories)", color=colors[2])
-    ax.set_xticks(x, labels)
-    ax.set(xlabel="Consumer type group", ylim=(0, 105),
-           ylabel="Mean optimal berry discount (% of posted price)")
-    ax.grid(axis="y", alpha=.2)
-    ax.set_axisbelow(True)
-    ax.legend(fontsize=8, loc="upper left")
-    fig.suptitle("Dynamic pricing: optimal discounts by consumer type")
-    fig.text(.5, .015, "Household-weighted means among berry-eligible households. Middle group receives no coupons by policy design.",
-             ha="center", fontsize=9)
-    fig.tight_layout(rect=(0, .05, 1, .94))
-    for extension in ["png", "pdf"]:
-        fig.savefig(output / f"discounts_by_consumer_type.{extension}", dpi=180)
-    plt.close(fig)
-
-    dynamic = table.loc[table.policy == "personalized_dynamic"].merge(
-        households[["household_code", "gamma_mean", "alpha_mean"]], on="household_code", validate="one_to_one")
-    fig, axes = plt.subplots(2, 2, figsize=(13, 9), sharey=True)
-    for column, (variable, xlabel) in enumerate([
-            ("gamma_mean", r"Estimated household type (posterior mean $\gamma$)"),
-            ("alpha_mean", r"Estimated price sensitivity (posterior mean $a$)")]):
-        for row, (discount, title) in enumerate([
-                ("discount1", r"Optimal discount at $p_1(h_0)$"),
-                ("expected_discount2", r"Expected terminal discount at $p_2(h_1)$")]):
-            ax = axes[row, column]
-            for g, label, color in zip(groups, labels, colors):
-                subset = dynamic.loc[dynamic.group == g]
-                ax.scatter(subset[variable], 100*subset[discount], s=12, alpha=.5,
-                           color=color, label=label.replace("\n", " "))
-            ax.set(xlabel=xlabel, ylabel="Berry discount (% of posted price)", title=title, ylim=(-2, 102))
-            ax.grid(alpha=.2)
-    axes[0, 0].legend(fontsize=8)
-    fig.suptitle("Dynamic pricing: household discounts and estimated consumer characteristics")
-    fig.text(.5, .015, "Each point is one berry-eligible household. Terminal offers average over the household's realized h1 histories.",
-             ha="center", fontsize=9)
-    fig.tight_layout(rect=(0, .04, 1, .95))
-    for extension in ["png", "pdf"]:
-        fig.savefig(output / f"discounts_by_household_type.{extension}", dpi=180)
-    plt.close(fig)
+def make_targeting_figures(households, table, aggregate, output, delta=1.0):
+    import sys
+    from pathlib import Path
+    presentation_root = next(p for p in Path(__file__).resolve().parents if (p / "pricing_presentation.py").is_file())
+    sys.path.insert(0, str(presentation_root))
+    from pricing_presentation import empirical_figures
+    return empirical_figures(table, output, "berry", delta)
 
 
 def self_test():
@@ -554,7 +486,7 @@ def main():
     parser.add_argument("--output", type=Path, default=Path("/scratch/dtm63837/Kilts_Panel/results") / "empirical_outputs")
     parser.add_argument("--discounts", type=float, nargs="+", default=np.linspace(0., 1., 101),
                         help="Candidate discounts; default is every 1%% from 0%% through 100%%.")
-    parser.add_argument("--demand-delta", type=float, default=.95)
+    parser.add_argument("--demand-delta", type=float, default=1.0)
     parser.add_argument("--batch-size", type=int, default=24)
     parser.add_argument("--type-treatment", choices=["posterior-mean", "posterior-integrated"], default="posterior-mean",
                         help="Default treats estimated household types as known, matching base supply; optional posterior uncertainty sensitivity.")

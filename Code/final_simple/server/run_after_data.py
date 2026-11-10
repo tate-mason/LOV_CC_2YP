@@ -87,7 +87,7 @@ def run_pipeline(args):
         print('\nPRICING: '+spec, flush=True)
         try:
             call('demand/plain_berry_pricing.py', '--household-input', fit/'weekly_inputs.csv',
-                 '--fit-dir', fit, '--demand-delta', .92, '--output', pricing)
+                 '--fit-dir', fit, '--demand-delta', 1.0, '--output', pricing)
             subprocess.run([sys.executable, str(project/'Code/final_draft/seminar_pres/make_policy_figures.py'),
                             '--output', str(pricing)], cwd=work, check=True)
             # The exporter requires a new directory; merge only its allowlisted output.
@@ -116,7 +116,7 @@ def run_pipeline(args):
         for flavor in ['plain', 'berry']:
             file = work/'RESULTS_ONLY'/spec/'pricing'/flavor/'pricing_policy_benchmarks.csv'
             if file.is_file():
-                comparisons.append(pd.read_csv(file).assign(flavor_spec=spec, focal_flavor=flavor))
+                comparisons.append(pd.read_csv(file).assign(flavor_spec=spec, flavor=flavor))
     if comparisons:
         pd.concat(comparisons, ignore_index=True).to_csv(
             work/'RESULTS_ONLY/pricing_specification_comparison.csv', index=False)

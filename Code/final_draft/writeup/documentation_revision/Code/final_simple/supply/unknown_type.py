@@ -19,7 +19,7 @@ else:
 output = Path(__file__).resolve().parents[1] / "results" / "unknown_type"
 beta = 2.0
 alpha = -1.0
-delta = 0.92
+delta = 1.0
 cost = 0.0
 run_self_tests = False
 
@@ -32,7 +32,7 @@ PRIORS = {
 }
 # === 1. Solve one policy under gamma uncertainty === #
 
-def solve(h0, weights, beta=2., alpha=-1., delta=.92, cost=0., points=81):
+def solve(h0, weights, beta=2., alpha=-1., delta=1.0, cost=0., points=81):
     """One policy for a known h0 and a distribution over unobserved gamma."""
     weights = np.asarray(weights, dtype=float)
     if (h0 not in ["j", "0"] or weights.shape != (3,) or not np.isfinite(weights).all()
@@ -124,7 +124,7 @@ def solve(h0, weights, beta=2., alpha=-1., delta=.92, cost=0., points=81):
 
 # === 2. Plot the distribution, optimal policy, and expected profit === #
 
-def figures(paths, summary, output):
+def figures(paths, summary, output, delta=1.):
     """One readable page per prior: distribution, policy, and expected profit."""
     plt = plotting()
     colors = ["#3366a6", "#78909c", "#d48435"]
@@ -140,9 +140,9 @@ def figures(paths, summary, output):
             prior_ax = fig.add_subplot(grid[:, 0])
             price_ax = fig.add_subplot(grid[0, 1])
             profit_ax = fig.add_subplot(grid[1, 1])
-            bars = prior_ax.bar(["−1.25", "0", "+1.25"], weights, color="#8267a0", width=.6)
-            prior_ax.bar_label(bars, labels=[f"{p:.0%}" if scenario != "equal" else "1/3" for p in weights], padding=6)
-            prior_ax.set(xlabel="Possible gamma (unobserved)", ylabel="Firm's prior probability",
+            bars = prior_ax.bar([r"$L$", r"$0$", r"$H$"], weights, color="#8267a0", width=.6)
+            prior_ax.bar_label(bars, labels=[f"{p:.2f}" for p in weights], padding=6)
+            prior_ax.set(xlabel=r"$\Pr(\gamma=\gamma_r)=\mu_r$", ylabel=r"$\Pr(\gamma=\gamma_r)=\mu_r$",
                          title="Uncertainty faced by the firm", ylim=(0, .65))
             x = np.arange(2)
             width = .23
@@ -157,13 +157,15 @@ def figures(paths, summary, output):
             price_ax.legend(loc="upper left", bbox_to_anchor=(0, 1.01), fontsize=9, frameon=False)
             bars = profit_ax.bar(x, data.optimal_profit, color="#467d5d", width=.5)
             profit_ax.bar_label(bars, fmt="%.3f", padding=4)
-            profit_ax.set(title="Maximized expected two-period profit", ylabel="Discounted expected profit",
+            profit_ax.set(title="Maximized expected two-period profit", ylabel="Expected two-period profit",
                           ylim=(min(0, data.optimal_profit.min()*1.2), data.optimal_profit.max()*1.2))
             for ax in [price_ax, profit_ax]:
                 ax.set_xticks(x, ["Known h0: outside", "Known h0: inside"])
                 ax.spines[["top", "right"]].set_visible(False)
             prior_ax.spines[["top", "right"]].set_visible(False)
-            fig.suptitle(titles[scenario], fontsize=18)
+            dominant = ["L", "0", "H"][int(np.argmax(weights))]
+            prior_title = r"$\mu_r=0.33$" if scenario == "equal" else rf"$\mu_{{{dominant}}}=0.5$"
+            fig.suptitle(prior_title + f" | δ = {delta:g}", fontsize=18)
             for extension in ["png", "pdf"]:
                 fig.savefig(output / f"optimal_policy_{scenario}.{extension}", dpi=180)
             plt.close(fig)
@@ -198,7 +200,7 @@ def read_command_line(settings):
     parser.add_argument("--output", type=Path, default=Path(__file__).resolve().parent / "outputs")
     parser.add_argument("--beta", type=float, default=2.)
     parser.add_argument("--alpha", type=float, default=-1.)
-    parser.add_argument("--delta", type=float, default=.92)
+    parser.add_argument("--delta", type=float, default=1.0)
     parser.add_argument("--cost", type=float, default=0.)
     parser.add_argument("--self-test", action="store_true")
     parser.set_defaults(**vars(settings))
@@ -230,7 +232,7 @@ def run_unknown_type(args):
     histories.to_csv(args.output / "supply_history_outcomes.csv", index=False)
     expected.to_csv(args.output / "supply_expected_outcomes.csv", index=False)
     expected.to_csv(args.output / "optimal_policies.csv", index=False)
-    figures(histories, expected, args.output)
+    figures(histories, expected, args.output, args.delta)
     manifest = dict(settings={k: str(v) if isinstance(v, Path) else v for k, v in vars(args).items()},
                     information="h0 observed, gamma unobserved and fixed; h1 observed before p2",
                     gamma_values=GAMMAS.tolist(), priors={k: v.tolist() for k, v in PRIORS.items()},

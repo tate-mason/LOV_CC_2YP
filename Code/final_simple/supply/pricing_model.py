@@ -69,8 +69,8 @@ def static_price(intercept, alpha, effective_cost=0.):
             hi = mid
     return (lo+hi)/2
 
-def supply_solution(gamma, prior=.5, beta=2., alpha=-1., delta=.92, cost=0.):
-    """Known type; hidden h0, then either observe h1 or commit to p1,p2."""
+def supply_solution(gamma, prior=.5, beta=2., alpha=-1., delta=1.0, cost=0.):
+    """Personalized pricing; hidden h0, then either observe h1 or commit to p1,p2."""
     if not (np.isfinite([gamma, prior, beta, alpha, delta, cost]).all()
             and alpha < 0 and 0 <= prior <= 1 and 0 <= delta <= 1):
         raise ValueError("Need finite inputs, alpha<0, prior/delta in [0,1].")

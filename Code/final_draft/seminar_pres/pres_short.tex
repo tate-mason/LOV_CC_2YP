@@ -286,7 +286,24 @@
 \gdef\shortbuttons{\hyperlink{short-12}{\beamergotobutton{Calibration}}\hspace{.35em}\hyperlink{short-13}{\beamergotobutton{Table}}\hspace{.35em}\hyperlink{short-15}{\beamergotobutton{Profit}}\hspace{.35em}\hyperlink{short-16}{\beamergotobutton{Price ratio}}\hspace{.35em}\hyperlink{short-17}{\beamergotobutton{Discussion}}}
 \begin{frame}[label=short-14]{Optimal Prices}
   \centering
-  \includegraphics[width=0.85\textwidth]{~/LOV_CC_2YP/Code/final_draft/supply_code/writeup_math_graphs/figures/optimal_prices_by_gamma.pdf}
+  \includegraphics[width=0.85\textwidth]{assets/theory_delta1/optimal_prices_by_gamma.pdf}
+\end{frame}
+
+
+% Theory plots regenerated at delta=1.
+\gdef\shortbuttons{\hyperlink{short-14}{\beamergotobutton{Optimal prices}}\hspace{.35em}\hyperlink{short-15}{\beamergotobutton{Profit detail}}\hspace{.35em}\hyperlink{short-16}{\beamergotobutton{Price-ratio detail}}}
+\begin{frame}[label=short-prices-profit]{Optimal Price Ratios and Profit}
+  \centering
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{.49\textwidth}
+      \includegraphics[width=\linewidth,height=.66\textheight,keepaspectratio]{assets/theory_delta1/all_state_price_ratios.pdf}
+    \end{column}
+    \begin{column}{.49\textwidth}
+      \includegraphics[width=\linewidth,height=.66\textheight,keepaspectratio]{assets/theory_delta1/all_state_realized_profit.pdf}
+    \end{column}
+  \end{columns}
+  \vspace{.3em}
+  {\footnotesize $\delta=1$: no discounting. Flavor is $j$; outside is everything except that flavor.}
 \end{frame}
 
 
@@ -295,23 +312,24 @@
 \begin{frame}[label=short-18]{Information Friction: Fixed Beliefs about Switching Type}
  \begin{itemize}
  \item Initial purchase history is observed.
- \item $\gamma\in\{-1.25,0,1.25\}$.
- \item Beliefs: $(1/3,1/3,1/3)$ and each permutation of $(0.50,0.25,0.25)$.
+ \item $\gamma_L=-1.25$, $\gamma_0=0$, $\gamma_H=1.25$.
+ \item $\Pr(\gamma=\gamma_r)=\mu_r$, $r\in\{H,0,L\}$. Equal case: $\mu_r=0.33$.
+ \item Other cases: each permutation of $(0.50,0.25,0.25)$.
  \item Type probabilities stay fixed in both periods, after either purchase outcome.
  \item Offers depend on observed history; there is no learning about type.
  \end{itemize}
  \begin{align*}
- s_t(h)&=\sum_r\Pr(\gamma=\gamma_r)\,s_t(h\mid\gamma_r),\\
+ s_t(h)&=\sum_r\mu_r\,s_t(h\mid\gamma_r),\\
  \pi_2(h)&=\max_{p_2(h)}s_2(h)\,[p_2(h)-c].
  \end{align*}
 \end{frame}
 
 
 % Original numbered slide 20
-\gdef\shortbuttons{\hyperlink{short-19}{\beamergotobutton{Profit levels}}\hspace{.35em}\hyperlink{short-53}{\beamergotobutton{Initial offers}}\hspace{.35em}\hyperlink{short-54}{\beamergotobutton{Terminal offers}}}
-\begin{frame}[label=short-20]{Value of Observing Switching Type}
+\gdef\shortbuttons{\hyperlink{short-19}{\beamergotobutton{Profit levels}}\hspace{.35em}\hyperlink{short-53}{\beamergotobutton{Price paths}}\hspace{.35em}\hyperlink{short-54}{\beamergotobutton{Price paths}}}
+\begin{frame}[label=short-20]{Personalized vs Common Pricing}
 \centering
-\includegraphics[width=.98\textwidth,height=.78\textheight,keepaspectratio]{../writeup/1108_writeup/assets/results/gamma_uncertainty/information_value.pdf}
+\includegraphics[width=.98\textwidth,height=.78\textheight,keepaspectratio]{assets/theory_delta1/gamma_uncertainty/information_value.pdf}
 \end{frame}
 
 
@@ -513,56 +531,48 @@
     \item Recover household type from observed purchase history and treat estimated type as known to firm
     \item Use initial purchase $y_{i1}$ to determine "initial state", $h_0$
     \item Separate high and low types as the 75th and 25th percentiles, respectively
-    \item Use observed prices and simulate discounts based on them, specific to the different types and their consumption path
+    \item Compare common pricing and personalized pricing over two periods
     \item Focus on berry and plain to maintain parity with the theoretical model and avoid aggregate weighting
-    \item Use the estimated demand model and estimated type $\gamma_i$ to discriminate, choosing an initial price offer, observing the period one choice, and choosing the terminal price
+    \item Use the estimated demand model to choose $p_1$ and then $p_2$ after observing the first-period choice
   \end{itemize}
 \end{frame}
 
 
 % Original numbered slide 40
-\IfFileExists{../writeup/1108_writeup/assets/results/pricing/plain/pricing_policy_benchmarks.pdf}{
+\IfFileExists{assets/pricing/plain/pricing_policy_benchmarks.pdf}{
 \gdef\shortbuttons{}
-\begin{frame}[label=short-40]{Pricing Benchmarks: Plain}
+\begin{frame}[label=short-40]{Pricing Comparison: Plain}
   \centering
-  \includegraphics[width=0.85\textwidth]{../writeup/1108_writeup/assets/results/pricing/plain/pricing_policy_benchmarks.pdf}
+  \includegraphics[width=0.85\textwidth]{assets/pricing/plain/pricing_policy_benchmarks.pdf}
 \end{frame}
 }{}
 
 
 % Original numbered slide 41
-\IfFileExists{../writeup/1108_writeup/assets/results/pricing/berry/pricing_policy_benchmarks.pdf}{
+\IfFileExists{assets/pricing/berry/pricing_policy_benchmarks.pdf}{
 \gdef\shortbuttons{}
-\begin{frame}[label=short-41]{Pricing Benchmarks: Berry}
+\begin{frame}[label=short-41]{Pricing Comparison: Berry}
   \centering
-  \includegraphics[width=0.85\textwidth]{../writeup/1108_writeup/assets/results/pricing/berry/pricing_policy_benchmarks.pdf}
+  \includegraphics[width=0.85\textwidth]{assets/pricing/berry/pricing_policy_benchmarks.pdf}
 \end{frame}
 }{}
 
 
 % Original numbered slide 42
 \gdef\shortbuttons{\hyperlink{short-38}{\beamergotobutton{Berry offers}}\hspace{.35em}\hyperlink{short-39}{\beamergotobutton{Plain offers}}}
-\begin{frame}[label=short-42]{Plain: Initial Offers and Subsequent Pricing}
+\begin{frame}[label=short-42]{Plain: Price Paths}
   \centering
-  \includegraphics[width=0.95\textwidth]{../writeup/1108_writeup/assets/results/pricing/plain/pricing_mechanism.pdf}
+  \includegraphics[width=0.95\textwidth]{assets/pricing/plain/pricing_mechanism.pdf}
 \end{frame}
 
 
-% Original numbered slide 43
-\IfFileExists{../writeup/1108_writeup/assets/results/pricing/plain/terminal_offers_by_purchase.pdf}{
-\gdef\shortbuttons{}
-\begin{frame}[label=short-43]{Plain: Terminal Offers After Purchase}
-  \centering
-  \includegraphics[width=0.95\textwidth]{../writeup/1108_writeup/assets/results/pricing/plain/terminal_offers_by_purchase.pdf}
-\end{frame}
-}{}
 
 
 % Original numbered slide 44
 \gdef\shortbuttons{\hyperlink{short-36}{\beamergotobutton{Berry types}}\hspace{.35em}\hyperlink{short-37}{\beamergotobutton{Plain types}}}
 \begin{frame}[label=short-44]{Comparison}
   \centering
-  \input{../writeup/1108_writeup/assets/results/pricing/focal_flavor_comparison.tex}
+  \input{assets/pricing/flavor_comparison.tex}
 \end{frame}
 
 
@@ -571,27 +581,27 @@
 \begin{frame}[label=short-45]{Empirical Type Information: Fixed Beliefs}
 \begin{itemize}
 \item Low, middle, and high types use fitted group mean novelty coefficients.
-\item Equal probabilities or each permutation of $(0.50,0.25,0.25)$.
+\item $\Pr(\gamma=\gamma_r)=\mu_r$. Equal case: $\mu_r=0.33$; other cases permute $(0.50,0.25,0.25)$.
 \item Initial history is observed; type probabilities stay fixed after purchase.
-\item Evaluate both offer policies under the same persistent consumer types.
-\item Revenue gains use persistent-type revenue, not the fixed-belief objective.
+\item Compare common pricing and personalized pricing under the same persistent consumer types.
+\item Revenue gains compare personalized pricing with common pricing.
 \end{itemize}
 \end{frame}
 
 
 % Original numbered slide 47
-\gdef\shortbuttons{\hyperlink{short-46}{\beamergotobutton{Revenue levels}}\hspace{.35em}\hyperlink{short-57}{\beamergotobutton{Initial offers}}\hspace{.35em}\hyperlink{short-58}{\beamergotobutton{Terminal offers}}}
-\begin{frame}[label=short-47]{Plain: Revenue Value of Novelty-Type Information}
+\gdef\shortbuttons{\hyperlink{short-46}{\beamergotobutton{Revenue levels}}\hspace{.35em}\hyperlink{short-57}{\beamergotobutton{Price paths}}\hspace{.35em}\hyperlink{short-58}{\beamergotobutton{Price paths}}}
+\begin{frame}[label=short-47]{Plain: Personalized vs Common Pricing}
 \centering
-\includegraphics[width=.98\textwidth,height=.78\textheight,keepaspectratio]{../writeup/1108_writeup/assets/results/empirical_information/plain/information_value.pdf}
+\includegraphics[width=.98\textwidth,height=.78\textheight,keepaspectratio]{assets/pricing/plain/information_friction_information_value.pdf}
 \end{frame}
 
 
 % Original numbered slide 49
-\gdef\shortbuttons{\hyperlink{short-48}{\beamergotobutton{Revenue levels}}\hspace{.35em}\hyperlink{short-59}{\beamergotobutton{Initial offers}}\hspace{.35em}\hyperlink{short-60}{\beamergotobutton{Terminal offers}}}
-\begin{frame}[label=short-49]{Berry: Revenue Value of Novelty-Type Information}
+\gdef\shortbuttons{\hyperlink{short-48}{\beamergotobutton{Revenue levels}}\hspace{.35em}\hyperlink{short-59}{\beamergotobutton{Price paths}}\hspace{.35em}\hyperlink{short-60}{\beamergotobutton{Price paths}}}
+\begin{frame}[label=short-49]{Berry: Personalized vs Common Pricing}
 \centering
-\includegraphics[width=.98\textwidth,height=.78\textheight,keepaspectratio]{../writeup/1108_writeup/assets/results/empirical_information/berry/information_value.pdf}
+\includegraphics[width=.98\textwidth,height=.78\textheight,keepaspectratio]{assets/pricing/berry/information_friction_information_value.pdf}
 \end{frame}
 
 
@@ -601,7 +611,7 @@
 \gdef\shortbuttons{}
 \begin{frame}[label=short-50]{Conclusion}
   \begin{itemize}
-    \item Firm can gain up to $~13.35\%$ simulated revenue by targeting based on switching type relative to no coupons
+    \item Personalized pricing increases simulated revenue by up to $9.48\%$ relative to common pricing
     \item Consumers experience disutility from switching, needing to be subsidized $\approx\$1.75$ to switch products 
     \item Consumers enjoy habit and would be willing to pay $\$0.083$ to contribute another unit to the product's share of purchase history
   \end{itemize}
@@ -746,7 +756,7 @@
     \midrule
     $\beta$ & Inside-good intercept & $2$ \\
     $\alpha$ & Price sensitivity & $1$ \\
-    $\delta$ & Discount factor & $0.92$ \\
+    $\delta$ & Discount factor (no discounting) & $1$ \\
     $c$ & Marginal cost & $0$ \\
     $\gamma$ & Switching preference & $[-3,3]$ \\
     \midrule
@@ -769,16 +779,16 @@
 \begin{frame}[label=short-13,noframenumbering]{Results}
   \begin{center}\small\begin{tabular}{crrrrrr}\toprule
   $x_0$ & $\gamma$ & $p_1^*$ & $p_2^*(j)$ & $p_2^*(0)$ & $\Pi^*$ & $\Pi^{*\prime}$\\\midrule
-  $j$ & -3 & 3.395 & 3.926 & 1.120 & 5.087 & -1.387\\
-  $j$ & -1 & 2.236 & 2.557 & 1.567 & 2.669 & -0.959\\
-  $j$ & 0 & 2.000 & 2.000 & 2.000 & 1.920 & -0.500\\
-  $j$ & 1 & 2.209 & 1.567 & 2.557 & 1.731 & 0.125\\
-  $j$ & 3 & 3.592 & 1.120 & 3.926 & 2.702 & 0.668\\
-  $0$ & -3 & -0.780 & 3.926 & 1.120 & 0.913 & 0.195\\
-  $0$ & -1 & 1.045 & 2.557 & 1.567 & 1.478 & 0.385\\
-  $0$ & 0 & 2.000 & 2.000 & 2.000 & 1.920 & 0.500\\
-  $0$ & 1 & 2.956 & 1.567 & 2.557 & 2.478 & 0.615\\
-  $0$ & 3 & 4.801 & 1.120 & 3.926 & 3.912 & 0.804\\
+  $j$ & -3 & 3.358 & 3.926 & 1.120 & 5.284 & -1.445\\
+  $j$ & -1 & 2.211 & 2.557 & 1.567 & 2.768 & -0.993\\
+  $j$ & 0 & 2.000 & 2.000 & 2.000 & 2.000 & -0.500\\
+  $j$ & 1 & 2.271 & 1.567 & 2.557 & 1.838 & 0.177\\
+  $j$ & 3 & 3.814 & 1.120 & 3.926 & 2.934 & 0.730\\
+  $0$ & -3 & -0.901 & 3.926 & 1.120 & 1.026 & 0.177\\
+  $0$ & -1 & 1.005 & 2.557 & 1.567 & 1.562 & 0.376\\
+  $0$ & 0 & 2.000 & 2.000 & 2.000 & 2.000 & 0.500\\
+  $0$ & 1 & 2.995 & 1.567 & 2.557 & 2.562 & 0.624\\
+  $0$ & 3 & 4.905 & 1.120 & 3.926 & 4.025 & 0.823\\
   \bottomrule\end{tabular}\end{center}
 \end{frame}
 
@@ -787,7 +797,7 @@
 \gdef\shortbuttons{\hyperlink{short-14}{\beamergotobutton{Back to Optimal Prices}}}
 \begin{frame}[label=short-15,noframenumbering]{Optimal Profit}
   \centering
-  \includegraphics[width=0.75\textwidth]{~/LOV_CC_2YP/Code/final_draft/supply_code/writeup_math_graphs/figures/all_state_realized_profit.pdf}
+  \includegraphics[width=.75\textwidth,height=.68\textheight,keepaspectratio]{assets/theory_delta1/all_state_realized_profit.pdf}
 \end{frame}
 
 
@@ -795,7 +805,7 @@
 \gdef\shortbuttons{\hyperlink{short-14}{\beamergotobutton{Back to Optimal Prices}}}
 \begin{frame}[label=short-16,noframenumbering]{Optimal Price Ratio}
   \centering
-  \includegraphics[width=0.75\textwidth]{~/LOV_CC_2YP/Code/final_draft/supply_code/writeup_math_graphs/figures/all_state_price_ratios.pdf}
+  \includegraphics[width=.75\textwidth,height=.68\textheight,keepaspectratio]{assets/theory_delta1/all_state_price_ratios.pdf}
 \end{frame}
 
 
@@ -812,26 +822,26 @@
 
 
 % Original numbered slide 19
-\gdef\shortbuttons{\hyperlink{short-20}{\beamergotobutton{Back to Value of Observing Switching Type}}}
+\gdef\shortbuttons{\hyperlink{short-20}{\beamergotobutton{Back to Personalized vs Common Pricing}}}
 \begin{frame}[label=short-19,noframenumbering]{Known versus Uncertain Switching Type}
 \centering
-\includegraphics[width=.98\textwidth,height=.78\textheight,keepaspectratio]{../writeup/1108_writeup/assets/results/gamma_uncertainty/profits.pdf}
+\includegraphics[width=.98\textwidth,height=.78\textheight,keepaspectratio]{assets/theory_delta1/gamma_uncertainty/profits.pdf}
 \end{frame}
 
 
 % Original numbered slide 53
-\gdef\shortbuttons{\hyperlink{short-20}{\beamergotobutton{Back to Value of Observing Switching Type}}}
-\begin{frame}[label=short-53,noframenumbering]{Type Uncertainty: Initial Offers}
+\gdef\shortbuttons{\hyperlink{short-20}{\beamergotobutton{Back to Personalized vs Common Pricing}}}
+\begin{frame}[label=short-53,noframenumbering]{Type Uncertainty: Price Paths}
 \centering
-\includegraphics[width=.98\textwidth,height=.78\textheight,keepaspectratio]{../writeup/1108_writeup/assets/results/gamma_uncertainty/first_prices.pdf}
+\includegraphics[width=.98\textwidth,height=.78\textheight,keepaspectratio]{assets/theory_delta1/gamma_uncertainty/first_prices.pdf}
 \end{frame}
 
 
 % Original numbered slide 54
-\gdef\shortbuttons{\hyperlink{short-20}{\beamergotobutton{Back to Value of Observing Switching Type}}}
-\begin{frame}[label=short-54,noframenumbering]{Type Uncertainty: Terminal Offers}
+\gdef\shortbuttons{\hyperlink{short-20}{\beamergotobutton{Back to Personalized vs Common Pricing}}}
+\begin{frame}[label=short-54,noframenumbering]{Type Uncertainty: Price Paths}
 \centering
-\includegraphics[width=.98\textwidth,height=.78\textheight,keepaspectratio]{../writeup/1108_writeup/assets/results/gamma_uncertainty/terminal_prices.pdf}
+\includegraphics[width=.98\textwidth,height=.78\textheight,keepaspectratio]{assets/theory_delta1/gamma_uncertainty/terminal_prices.pdf}
 \end{frame}
 
 
@@ -904,7 +914,7 @@
 \gdef\shortbuttons{\hyperlink{short-44}{\beamergotobutton{Back to Comparison}}}
 \begin{frame}[label=short-36,noframenumbering]{Results: Berry Inside}
   \centering
-  \includegraphics[width=\textwidth]{../writeup/1108_writeup/assets/results/pricing/berry/household_coupon_results.pdf}
+  \includegraphics[width=\textwidth]{assets/pricing/berry/household_coupon_results.pdf}
 \end{frame}
 
 
@@ -912,71 +922,71 @@
 \gdef\shortbuttons{\hyperlink{short-44}{\beamergotobutton{Back to Comparison}}}
 \begin{frame}[label=short-37,noframenumbering]{Results: Plain Inside}
   \centering
-  \includegraphics[width=\textwidth]{../writeup/1108_writeup/assets/results/pricing/plain/household_coupon_results.pdf}
+  \includegraphics[width=\textwidth]{assets/pricing/plain/household_coupon_results.pdf}
 \end{frame}
 
 
 % Original numbered slide 38
-\gdef\shortbuttons{\hyperlink{short-42}{\beamergotobutton{Back to Plain: Initial Offers and Subsequent Pricing}}}
+\gdef\shortbuttons{\hyperlink{short-42}{\beamergotobutton{Back to Plain: Price Paths}}}
 \begin{frame}[label=short-38,noframenumbering]{Berry: Optimal Offers by Consumer Type}
   \centering
-  \includegraphics[width=0.85\textwidth]{../writeup/1108_writeup/assets/results/pricing/berry/discounts_by_consumer_type.pdf}
+  \includegraphics[width=0.85\textwidth]{assets/pricing/berry/discounts_by_consumer_type.pdf}
 \end{frame}
 
 
 % Original numbered slide 39
-\gdef\shortbuttons{\hyperlink{short-42}{\beamergotobutton{Back to Plain: Initial Offers and Subsequent Pricing}}}
+\gdef\shortbuttons{\hyperlink{short-42}{\beamergotobutton{Back to Plain: Price Paths}}}
 \begin{frame}[label=short-39,noframenumbering]{Plain: Optimal Offers by Consumer Type}
   \centering
-  \includegraphics[width=0.85\textwidth]{../writeup/1108_writeup/assets/results/pricing/plain/discounts_by_consumer_type.pdf}
+  \includegraphics[width=0.85\textwidth]{assets/pricing/plain/discounts_by_consumer_type.pdf}
 \end{frame}
 
 
 % Original numbered slide 46
-\gdef\shortbuttons{\hyperlink{short-47}{\beamergotobutton{Back to Plain: Revenue Value of Novelty-Type Information}}}
+\gdef\shortbuttons{\hyperlink{short-47}{\beamergotobutton{Back to Plain: Personalized vs Common Pricing}}}
 \begin{frame}[label=short-46,noframenumbering]{Plain: Revenue under Type Uncertainty}
 \centering
-\includegraphics[width=.98\textwidth,height=.78\textheight,keepaspectratio]{../writeup/1108_writeup/assets/results/empirical_information/plain/revenues.pdf}
+\includegraphics[width=.98\textwidth,height=.78\textheight,keepaspectratio]{assets/pricing/plain/information_friction_profits.pdf}
 \end{frame}
 
 
 % Original numbered slide 57
-\gdef\shortbuttons{\hyperlink{short-47}{\beamergotobutton{Back to Plain: Revenue Value of Novelty-Type Information}}}
+\gdef\shortbuttons{\hyperlink{short-47}{\beamergotobutton{Back to Plain: Personalized vs Common Pricing}}}
 \begin{frame}[label=short-57,noframenumbering]{Plain: Type Information and First Prices}
 \centering
-\includegraphics[width=.98\textwidth,height=.78\textheight,keepaspectratio]{../writeup/1108_writeup/assets/results/empirical_information/plain/first_prices.pdf}
+\includegraphics[width=.98\textwidth,height=.78\textheight,keepaspectratio]{assets/pricing/plain/information_friction_price_paths.pdf}
 \end{frame}
 
 
 % Original numbered slide 58
-\gdef\shortbuttons{\hyperlink{short-47}{\beamergotobutton{Back to Plain: Revenue Value of Novelty-Type Information}}}
+\gdef\shortbuttons{\hyperlink{short-47}{\beamergotobutton{Back to Plain: Personalized vs Common Pricing}}}
 \begin{frame}[label=short-58,noframenumbering]{Plain: Type Information and Terminal Prices}
 \centering
-\includegraphics[width=.98\textwidth,height=.78\textheight,keepaspectratio]{../writeup/1108_writeup/assets/results/empirical_information/plain/terminal_prices.pdf}
+\includegraphics[width=.98\textwidth,height=.78\textheight,keepaspectratio]{assets/pricing/plain/information_friction_price_paths.pdf}
 \end{frame}
 
 
 % Original numbered slide 48
-\gdef\shortbuttons{\hyperlink{short-49}{\beamergotobutton{Back to Berry: Revenue Value of Novelty-Type Information}}}
+\gdef\shortbuttons{\hyperlink{short-49}{\beamergotobutton{Back to Berry: Personalized vs Common Pricing}}}
 \begin{frame}[label=short-48,noframenumbering]{Berry: Revenue under Type Uncertainty}
 \centering
-\includegraphics[width=.98\textwidth,height=.78\textheight,keepaspectratio]{../writeup/1108_writeup/assets/results/empirical_information/berry/revenues.pdf}
+\includegraphics[width=.98\textwidth,height=.78\textheight,keepaspectratio]{assets/pricing/berry/information_friction_profits.pdf}
 \end{frame}
 
 
 % Original numbered slide 59
-\gdef\shortbuttons{\hyperlink{short-49}{\beamergotobutton{Back to Berry: Revenue Value of Novelty-Type Information}}}
+\gdef\shortbuttons{\hyperlink{short-49}{\beamergotobutton{Back to Berry: Personalized vs Common Pricing}}}
 \begin{frame}[label=short-59,noframenumbering]{Berry: Type Information and First Prices}
 \centering
-\includegraphics[width=.98\textwidth,height=.78\textheight,keepaspectratio]{../writeup/1108_writeup/assets/results/empirical_information/berry/first_prices.pdf}
+\includegraphics[width=.98\textwidth,height=.78\textheight,keepaspectratio]{assets/pricing/berry/information_friction_price_paths.pdf}
 \end{frame}
 
 
 % Original numbered slide 60
-\gdef\shortbuttons{\hyperlink{short-49}{\beamergotobutton{Back to Berry: Revenue Value of Novelty-Type Information}}}
+\gdef\shortbuttons{\hyperlink{short-49}{\beamergotobutton{Back to Berry: Personalized vs Common Pricing}}}
 \begin{frame}[label=short-60,noframenumbering]{Berry: Type Information and Terminal Prices}
 \centering
-\includegraphics[width=.98\textwidth,height=.78\textheight,keepaspectratio]{../writeup/1108_writeup/assets/results/empirical_information/berry/terminal_prices.pdf}
+\includegraphics[width=.98\textwidth,height=.78\textheight,keepaspectratio]{assets/pricing/berry/information_friction_price_paths.pdf}
 \end{frame}
 
 

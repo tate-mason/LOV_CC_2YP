@@ -1,0 +1,5 @@
+flavor,policy,discounted_revenue,discount1,discount2,revenue_change_pct
+plain,Common pricing,11559.517537080786,0.33,0.27,0.0
+plain,Personalized pricing,12655.779042189375,,,9.483626817399472
+berry,Common pricing,13257.189824640303,0.0,0.0,0.0
+berry,Personalized pricing,14219.706891351556,,,7.2603400829509335

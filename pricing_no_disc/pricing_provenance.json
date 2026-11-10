@@ -1,0 +1,45 @@
+{
+  "price_control": false,
+  "novelty_measure": "previous_share",
+  "flavor_spec": "three",
+  "cases": {
+    "plain": {
+      "price_control": false,
+      "fit_sha256": "78b947c71f73afc856564fbb490a0ccdd027f2d61f35c534c0267a23f5035a7d",
+      "parameter_sha256": "385f718c85ddd3938e3b81307879cae982b6a736dbe745f7f5bd1e76f5fd508f",
+      "reconstructed_nll": 1627493.8833353105,
+      "households": 15105,
+      "capacity": 7,
+      "history_model": "b_N*N + b_S*S",
+      "demand_delta": 1.0,
+      "type_treatment": "posterior-mean",
+      "flavor_spec": "three",
+      "flavor_categories": [
+        "other",
+        "berry",
+        "plain"
+      ],
+      "information_calibration_status": "complete"
+    },
+    "berry": {
+      "price_control": false,
+      "fit_sha256": "78b947c71f73afc856564fbb490a0ccdd027f2d61f35c534c0267a23f5035a7d",
+      "parameter_sha256": "385f718c85ddd3938e3b81307879cae982b6a736dbe745f7f5bd1e76f5fd508f",
+      "reconstructed_nll": 1627493.8833353105,
+      "households": 15105,
+      "capacity": 7,
+      "history_model": "b_N*N + b_S*S",
+      "demand_delta": 1.0,
+      "type_treatment": "posterior-mean",
+      "flavor_spec": "three",
+      "flavor_categories": [
+        "other",
+        "berry",
+        "plain"
+      ],
+      "information_calibration_status": "failed"
+    }
+  },
+  "script_sha256": "52bde34be4c336213a1b505d5cb3c5d105a1c995a94c2522fa1bff4b1afaf10b",
+  "solver_sha256": "6bbad86f9d5d0c9380cb8c0126ad622de0df1997d80d8c9a69bdbdbd80582d00"
+}

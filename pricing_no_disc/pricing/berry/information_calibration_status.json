@@ -1,0 +1,77 @@
+{
+  "status": "failed",
+  "attempts": [
+    {
+      "success": true,
+      "active_bounds": [
+        0,
+        -1
+      ],
+      "jacobian_rank": 1,
+      "singular_values": [
+        1.4030690885739525,
+        1.2838878248528196e-07
+      ],
+      "parameters": [
+        0.041380566343324876,
+        -14.999999999999964
+      ],
+      "objective": 0.031397083635907014,
+      "message": "`ftol` termination condition is satisfied."
+    },
+    {
+      "success": true,
+      "active_bounds": [
+        0,
+        -1
+      ],
+      "jacobian_rank": 1,
+      "singular_values": [
+        1.4030690906228656,
+        1.285752310130155e-07
+      ],
+      "parameters": [
+        0.041380566526910516,
+        -14.999999999987374
+      ],
+      "objective": 0.03139708363590701,
+      "message": "`ftol` termination condition is satisfied."
+    },
+    {
+      "success": true,
+      "active_bounds": [
+        0,
+        1
+      ],
+      "jacobian_rank": 2,
+      "singular_values": [
+        1.4076379150379683,
+        0.0037656929933912696
+      ],
+      "parameters": [
+        2.5839967235355323,
+        14.999999999999998
+      ],
+      "objective": 0.028979337368918414,
+      "message": "Both `ftol` and `xtol` termination conditions are satisfied."
+    }
+  ],
+  "bounds": [
+    [
+      -8.0,
+      -15.0
+    ],
+    [
+      5.0,
+      15.0
+    ]
+  ],
+  "estimated_gamma": [
+    -1.1124779058832859,
+    -0.7629796228669113,
+    -0.22297081688171783
+  ],
+  "price_moment_cells": 6,
+  "delta": 1.0,
+  "coupon_pricing_affected": false
+}

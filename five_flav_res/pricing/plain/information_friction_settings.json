@@ -1,0 +1,66 @@
+{
+  "alpha": -3.881141127861446,
+  "beta": 12.543176202102627,
+  "delta": 0.92,
+  "cost": 0.0,
+  "types": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "estimated_gamma": [
+    -1.040366319474044,
+    -0.4406601013926398,
+    0.1325210529003261
+  ],
+  "priors": [
+    [
+      "Equal types",
+      [
+        0.3333333333333333,
+        0.3333333333333333,
+        0.3333333333333333
+      ]
+    ],
+    [
+      "Low type more likely",
+      [
+        0.5,
+        0.25,
+        0.25
+      ]
+    ],
+    [
+      "Medium type more likely",
+      [
+        0.25,
+        0.5,
+        0.25
+      ]
+    ],
+    [
+      "High type more likely",
+      [
+        0.25,
+        0.25,
+        0.5
+      ]
+    ]
+  ],
+  "beliefs": "fixed in every state",
+  "baseline": "known type supply pricing",
+  "calibrated_parameters": [
+    "alpha",
+    "beta"
+  ],
+  "calibration": "household-count-weighted relative price moments",
+  "weighted_residual_rms": 0.08980485566678088,
+  "households_in_price_targets": 32,
+  "households_without_complete_price_targets": 15067,
+  "observed_prices": "actual weekly prices at t0+7 and t0+14 days",
+  "outcome_units": "per model consumer, not population revenue totals",
+  "revenue_evaluation": "same persistent consumer types under both policies",
+  "profit_column": "fixed-belief optimization objective; use persistent_type_revenue for policy comparisons",
+  "assumption": "observed mean offered prices target known-type optimal supply prices",
+  "gamma_mapping": "fitted novelty group means used as symmetric binary theory gamma"
+}

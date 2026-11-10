@@ -1,0 +1,4 @@
+policy,discounted_revenue,discount1,discount2,revenue_change_pct
+no_coupon,7044.258844428661,0.0,0.0,0.0
+optimized_common_coupons,7044.258844428655,0.0,0.0,-8.881784197001252e-14
+personalized_dynamic,7267.369091568769,,,3.167263612360971

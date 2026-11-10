@@ -19,6 +19,7 @@ PRICING_RESULTS = {
     'information_friction_profits.pdf', 'information_friction_profits.png',
     'information_friction_first_prices.pdf', 'information_friction_first_prices.png',
     'information_friction_terminal_prices.pdf', 'information_friction_terminal_prices.png',
+    'information_friction_price_paths.pdf', 'information_friction_price_paths.png',
     'information_friction_information_value.pdf', 'information_friction_information_value.png',
     'flavor_comparison.csv', 'targeted_revenue_aggregate.csv',
     'pricing_policy_benchmarks.csv', 'pricing_policy_benchmarks.pdf', 'pricing_policy_benchmarks.png',

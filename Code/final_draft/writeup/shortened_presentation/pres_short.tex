@@ -105,7 +105,7 @@
 
 % Short-version navigation only. Original frame content is preserved verbatim.
 \newcommand{\shortbuttons}{}
-\newcommand{\shortmaincount}{33}
+\newcommand{\shortmaincount}{37}
 \newif\ifshortappendix
 \shortappendixfalse
 \setbeamertemplate{footline}{%
@@ -533,7 +533,7 @@
     \item Separate high and low types as the 75th and 25th percentiles, respectively
     \item Compare common pricing and personalized pricing over two periods
     \item Focus on berry and plain to maintain parity with the theoretical model and avoid aggregate weighting
-    \item Use the estimated demand model to choose $p_1$ and then $p_2$ after observing the first-period choice
+    \item Use the estimated demand model to choose the initial offer $p_1$ and then the terminal offer $p_2$ after observing the first-period choice
   \end{itemize}
 \end{frame}
 
@@ -589,21 +589,47 @@
 \end{frame}
 
 
+% Original numbered slide 46
+\gdef\shortbuttons{}
+\begin{frame}[label=short-46]{Plain: Revenue under Type Uncertainty}
+\centering
+\includegraphics[width=.98\textwidth,height=.78\textheight,keepaspectratio]{assets/pricing/plain/information_friction_profits.pdf}
+\end{frame}
+
 % Original numbered slide 47
-\gdef\shortbuttons{\hyperlink{short-46}{\beamergotobutton{Revenue levels}}\hspace{.35em}\hyperlink{short-57}{\beamergotobutton{Price paths}}\hspace{.35em}\hyperlink{short-58}{\beamergotobutton{Price paths}}}
+\gdef\shortbuttons{}
 \begin{frame}[label=short-47]{Plain: Personalized vs Common Pricing}
 \centering
 \includegraphics[width=.98\textwidth,height=.78\textheight,keepaspectratio]{assets/pricing/plain/information_friction_information_value.pdf}
 \end{frame}
 
+% Original numbered slide 57
+\gdef\shortbuttons{}
+\begin{frame}[label=short-57]{Plain: Price Paths under Type Uncertainty ($p_1$ to $p_2$)}
+\centering
+\includegraphics[width=.98\textwidth,height=.78\textheight,keepaspectratio]{assets/pricing/plain/information_friction_price_paths.pdf}
+\end{frame}
+
+% Original numbered slide 48
+\gdef\shortbuttons{}
+\begin{frame}[label=short-48]{Berry: Revenue under Type Uncertainty}
+\centering
+\includegraphics[width=.98\textwidth,height=.78\textheight,keepaspectratio]{assets/pricing/berry/information_friction_profits.pdf}
+\end{frame}
 
 % Original numbered slide 49
-\gdef\shortbuttons{\hyperlink{short-48}{\beamergotobutton{Revenue levels}}\hspace{.35em}\hyperlink{short-59}{\beamergotobutton{Price paths}}\hspace{.35em}\hyperlink{short-60}{\beamergotobutton{Price paths}}}
+\gdef\shortbuttons{}
 \begin{frame}[label=short-49]{Berry: Personalized vs Common Pricing}
 \centering
 \includegraphics[width=.98\textwidth,height=.78\textheight,keepaspectratio]{assets/pricing/berry/information_friction_information_value.pdf}
 \end{frame}
 
+% Original numbered slide 59
+\gdef\shortbuttons{}
+\begin{frame}[label=short-59]{Berry: Price Paths under Type Uncertainty ($p_1$ to $p_2$)}
+\centering
+\includegraphics[width=.98\textwidth,height=.78\textheight,keepaspectratio]{assets/pricing/berry/information_friction_price_paths.pdf}
+\end{frame}
 
 \section{Conclusion}
 
@@ -939,54 +965,6 @@
 \begin{frame}[label=short-39,noframenumbering]{Plain: Optimal Offers by Consumer Type}
   \centering
   \includegraphics[width=0.85\textwidth]{assets/pricing/plain/discounts_by_consumer_type.pdf}
-\end{frame}
-
-
-% Original numbered slide 46
-\gdef\shortbuttons{\hyperlink{short-47}{\beamergotobutton{Back to Plain: Personalized vs Common Pricing}}}
-\begin{frame}[label=short-46,noframenumbering]{Plain: Revenue under Type Uncertainty}
-\centering
-\includegraphics[width=.98\textwidth,height=.78\textheight,keepaspectratio]{assets/pricing/plain/information_friction_profits.pdf}
-\end{frame}
-
-
-% Original numbered slide 57
-\gdef\shortbuttons{\hyperlink{short-47}{\beamergotobutton{Back to Plain: Personalized vs Common Pricing}}}
-\begin{frame}[label=short-57,noframenumbering]{Plain: Type Information and First Prices}
-\centering
-\includegraphics[width=.98\textwidth,height=.78\textheight,keepaspectratio]{assets/pricing/plain/information_friction_price_paths.pdf}
-\end{frame}
-
-
-% Original numbered slide 58
-\gdef\shortbuttons{\hyperlink{short-47}{\beamergotobutton{Back to Plain: Personalized vs Common Pricing}}}
-\begin{frame}[label=short-58,noframenumbering]{Plain: Type Information and Terminal Prices}
-\centering
-\includegraphics[width=.98\textwidth,height=.78\textheight,keepaspectratio]{assets/pricing/plain/information_friction_price_paths.pdf}
-\end{frame}
-
-
-% Original numbered slide 48
-\gdef\shortbuttons{\hyperlink{short-49}{\beamergotobutton{Back to Berry: Personalized vs Common Pricing}}}
-\begin{frame}[label=short-48,noframenumbering]{Berry: Revenue under Type Uncertainty}
-\centering
-\includegraphics[width=.98\textwidth,height=.78\textheight,keepaspectratio]{assets/pricing/berry/information_friction_profits.pdf}
-\end{frame}
-
-
-% Original numbered slide 59
-\gdef\shortbuttons{\hyperlink{short-49}{\beamergotobutton{Back to Berry: Personalized vs Common Pricing}}}
-\begin{frame}[label=short-59,noframenumbering]{Berry: Type Information and First Prices}
-\centering
-\includegraphics[width=.98\textwidth,height=.78\textheight,keepaspectratio]{assets/pricing/berry/information_friction_price_paths.pdf}
-\end{frame}
-
-
-% Original numbered slide 60
-\gdef\shortbuttons{\hyperlink{short-49}{\beamergotobutton{Back to Berry: Personalized vs Common Pricing}}}
-\begin{frame}[label=short-60,noframenumbering]{Berry: Type Information and Terminal Prices}
-\centering
-\includegraphics[width=.98\textwidth,height=.78\textheight,keepaspectratio]{assets/pricing/berry/information_friction_price_paths.pdf}
 \end{frame}
 
 

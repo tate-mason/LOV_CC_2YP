@@ -2,7 +2,7 @@
 
 `pres_short.tex` and `pres_short.pdf` are separate from the original `pres.tex`/`pres.pdf`.
 
-This version has 33 main slides, 30 appendix slides, and the original title page. All original content is retained; the Demand Model content is now split across two main slides. The Motivation and Research Question frames use the user-approved revised introduction. Literature is now the third main slide for the progress presentation. Theory figures and tables now use delta=1. Pricing figures use common/personalized labels and p1-to-p2 paths; empirical figures retain the recovered run results. Two literal ampersands in existing author names are escaped for TeX compilation, without changing rendered wording. No original slide was removed; only the explicitly approved introduction wording was rewritten.
+This version has 37 main slides, 24 appendix slides, and the original title page. All original content is retained; the Demand Model content is now split across two main slides. The Motivation and Research Question frames use the user-approved revised introduction. Literature is now the third main slide for the progress presentation. Theory figures and tables now use delta=1. Pricing figures use common/personalized labels and p1-to-p2 paths; empirical figures retain the recovered run results. Two literal ampersands in existing author names are escaped for TeX compilation, without changing rendered wording. The Pricing Exercise includes revenue levels, gains from personalization, and one two-period price path for each flavor.
 
 Detail buttons link from the main sequence to related appendix slides; each appendix frame has a return button to its originating main frame. Appendix slides do not increase the main slide counter. Main and appendix section navigation are separate.
 
@@ -56,10 +56,14 @@ The annotated utility equation remains unchanged on Demand Model. The unboxed sh
 | 27 | short-42 | Plain: Initial Offers and Subsequent Pricing |
 | 28 | short-44 | Comparison |
 | 29 | short-45 | Empirical Type Information: Fixed Beliefs |
-| 30 | short-47 | Plain: Revenue Value of Novelty-Type Information |
-| 31 | short-49 | Berry: Revenue Value of Novelty-Type Information |
-| 32 | short-50 | Conclusion |
-| 33 | short-51 | Next Steps |
+| 30 | short-46 | Plain: Revenue under Type Uncertainty |
+| 31 | short-47 | Plain: Personalized vs Common Pricing |
+| 32 | short-57 | Plain: Price Paths under Type Uncertainty (p1 to p2) |
+| 33 | short-48 | Berry: Revenue under Type Uncertainty |
+| 34 | short-49 | Berry: Personalized vs Common Pricing |
+| 35 | short-59 | Berry: Price Paths under Type Uncertainty (p1 to p2) |
+| 36 | short-50 | Conclusion |
+| 37 | short-51 | Next Steps |
 
 ## Appendix sequence
 
@@ -89,12 +93,6 @@ The annotated utility equation remains unchanged on Demand Model. The unboxed sh
 | 22 | short-37 | Results: Plain Inside |
 | 23 | short-38 | Berry: Optimal Offers by Consumer Type |
 | 24 | short-39 | Plain: Optimal Offers by Consumer Type |
-| 25 | short-46 | Plain: Revenue under Type Uncertainty |
-| 26 | short-57 | Plain: Type Information and First Prices |
-| 27 | short-58 | Plain: Type Information and Terminal Prices |
-| 28 | short-48 | Berry: Revenue under Type Uncertainty |
-| 29 | short-59 | Berry: Type Information and First Prices |
-| 30 | short-60 | Berry: Type Information and Terminal Prices |
 
 
 The slide immediately after Optimal Prices puts price ratios and profit side by side. Updated figures live in `seminar_pres/assets/theory_delta1` and `seminar_pres/assets/pricing`. `refresh_pricing_slides.py` restyles recovered aggregate results; `presentation_provenance.json` records their original pricing delta (0.92). This display refresh is not a delta=1 empirical rerun.

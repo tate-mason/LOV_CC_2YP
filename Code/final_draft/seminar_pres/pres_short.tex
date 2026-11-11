@@ -166,7 +166,7 @@
   \begin{itemize}
     \item Propose and solve a theoretical two-period supply model when consumer's exhibit heterogeneous preferences for novelty
     \item Estimate demand for yogurt and recover distribution of novelty preferences
-    \item Apply distribution to supply model to quantify theoretical gains from personalized pricing 
+    \item Apply estimated distribution to supply model to quantify theoretical gains from personalized pricing 
   \end{itemize}
 \end{frame}
 
@@ -225,7 +225,7 @@
     \end{gather*}
   \end{tcolorbox}
   \begin{itemize}\setlength{\itemsep}{2pt}
-    \item Prices, set by the firm, and switching utility depend on history $h_t=x_{t-1}$
+    \item Prices and switching utility depend on history $h_t=x_{t-1}$
   \end{itemize}
 \end{frame}
 
@@ -248,8 +248,7 @@
     \end{gather*}
   \end{tcolorbox}
   \begin{itemize}
-    \item Firm profits are comprised of period one margins, given history of consumption, and the value of that consumer in the different states in period two
-    \item The firm will set prices according to consumer type and history to maximize expected profit
+    \item Firm profits are comprised of period one margins given initial state and the expected value of that consumer given their period one choice
   \end{itemize}
 \end{frame}
 
@@ -303,6 +302,10 @@
 % Original numbered slide 18
 \gdef\shortbuttons{}
 \begin{frame}[label=short-18]{Information Friction: Fixed Beliefs about Switching Type}
+ \begin{align*}
+ s_t(h_1)&=\sum_r\mu_r\,s_t(h\mid\gamma_r),\\
+ \pi_2(h_1)&=\max_{p_2(h_1)}s_2(h_1)\,[p_2(h_1)-c].
+ \end{align*}
  \begin{itemize}
  \item Initial purchase history is observed.
  \item $\gamma_L=-1.25$, $\gamma_0=0$, $\gamma_H=1.25$.
@@ -311,10 +314,6 @@
  \item Type probabilities stay fixed in both periods, after either purchase outcome.
  \item Offers depend on observed history; there is no learning about type.
  \end{itemize}
- \begin{align*}
- s_t(h_1)&=\sum_r\mu_r\,s_t(h\mid\gamma_r),\\
- \pi_2(h_1)&=\max_{p_2(h_1)}s_2(h_1)\,[p_2(h_1)-c].
- \end{align*}
 \end{frame}
 
 
@@ -342,7 +341,7 @@
     \item Provides store level product data
     \item For specified product category: prices, markets, product attributes
   \end{itemize}
-  \textbf{Sample Description}
+  \textbf{Sample Selection}
   \begin{itemize}
     \item Must be single-person household 
     \item Must be seen at least 2 times
@@ -447,12 +446,13 @@
     \setlength{\belowdisplayskip}{2pt}
     \begin{align*}
       P_i(\theta) &= \int P(y_i\mid\nu,\theta)\ \phi(\nu)\,d\nu \\
-      \widehat P_i(\theta) &= \frac{1}{128}\sum_{r=1}^{128}\prod_{t=1}^{T_i}P_(y_i\mid\nu_{ir}, \theta)\qquad\nu_{ir}\sim\mathcal N(0, I) \\
-      Q_{128}(\theta) &= -\sum_{i=1}^N\log\widehat P_i(\theta)
+      \widehat P_i(\theta) &= \frac{1}{n}\sum_{r=1}^{n}\prod_{t=1}^{T_i}P(y_i\mid\nu_{ir}, \theta)\qquad\nu_{ir}\sim\mathcal N(0, I) \\
+      G_{128}(\theta) &= -\sum_{i=1}^N\log\widehat P_i(\theta)
     \end{align*}
   \end{tcolorbox}
   \begin{itemize}
     \item $\nu_i$ captures unobserved heterogeneity, $y_{it}$ represents observed choice, $\theta = \{\gamma, \phi, \alpha\}$ is the vector of heterogeneous demand parameters
+    \item n = 128 draws per household from a normal distribution
   \end{itemize}
 \end{frame}
 

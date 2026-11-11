@@ -47,7 +47,7 @@ The textbook is [Python 101](../final_draft/code_guides_pdf/python101_walkthroug
 
 ## Economic specification
 
-For flavor j, `N = 1 - last week's own-flavor share`, or zero when the preceding calendar purchase week is unavailable. `H` is the sum of all prior observed weekly own-flavor shares. Predictors precede current purchases. `N` measures novelty relative to last week's basket: binary for single-flavor baskets and gradual for mixed baskets. It does not promise a one-time bonus for mixed baskets. The rejected lagged-switch experiment is not selected by the current jobs.
+For flavor j, `N = 1 - last week's own-flavor share`, or zero when the preceding calendar purchase week is unavailable. `H` is the average of all prior observed purchase-week own-flavor shares, with zero for empty prehistory. Missing calendar weeks add no observations to its denominator. `--stock-measure decaying` or `cumulative` remain available for sensitivity runs and saved-fit reconstruction. Predictors precede current purchases. `N` measures novelty relative to last week's basket: binary for single-flavor baskets and gradual for mixed baskets. It does not promise a one-time bonus for mixed baskets. The rejected lagged-switch experiment is not selected by the current jobs.
 
 Utility includes `gamma_i*N + phi_i*H + alpha_i*price` plus constants. Novelty and stock coefficients are independently estimated and unrestricted in sign. Positive stock means reinforcement; negative stock means satiation. Alpha is negative lognormal. A unit of history is a weekly package share, not an additional package. WTP for N refers to a full unit increase in N.
 

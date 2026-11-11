@@ -53,6 +53,7 @@ def run_pipeline(args):
              '--flavors', summary/'estimation_flavor_reference.csv',
              '--flavor-spec', spec, '--output', fit, '--no-price-control',
              '--novelty-measure', 'previous_share', '--model', 'heterogeneous_history',
+             '--stock-measure', args.stock_measure, '--stock-retention', args.stock_retention,
              '--capacity', 7, '--first-year', args.first_year, '--last-year', args.last_year,
              '--draws', args.draws, '--starts', args.starts, '--seed', args.seed,
              '--maxiter', args.maxiter, '--se-method', 'hessian')
@@ -67,7 +68,7 @@ def run_pipeline(args):
                 shutil.copyfile(item, estimate_export/name)
         fit_info = json.loads((fit/'fit.json').read_text())
         allowed = ['model', 'price_control', 'flavor_spec', 'flavor_categories',
-                   'novelty_measure', 'households', 'weeks', 'converged', 'inference',
+                   'novelty_measure', 'stock_measure', 'stock_retention', 'households', 'weeks', 'converged', 'inference',
                    'capacity', 'nll', 'aic', 'bic', 'message']
         (estimate_export/'fit_summary.json').write_text(json.dumps(
             {k: fit_info[k] for k in allowed}, indent=2)+'\n')
@@ -138,6 +139,8 @@ if __name__ == '__main__':
     parser.add_argument('--first-year', type=int, default=2006)
     parser.add_argument('--last-year', type=int, default=2015)
     parser.add_argument('--household-batches', type=int, default=16)
+    parser.add_argument('--stock-measure', choices=['average', 'decaying', 'cumulative'], default='average')
+    parser.add_argument('--stock-retention', type=float, default=0.9)
     parser.add_argument('--draws', type=int, default=128)
     parser.add_argument('--starts', type=int, default=3)
     parser.add_argument('--maxiter', type=int, default=600)

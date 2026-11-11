@@ -20,24 +20,24 @@ class EstimationChecks(unittest.TestCase):
             "price_plain": [1.5, 1.4, 1.3], "outside": [5., 5., 5.]})
 
     def test_history_excludes_current_counts_and_accumulates_all_occasions(self):
-        frame = add_stocks(self.frame())
+        frame = add_stocks(self.frame(), stock_retention=1.0, stock_measure="cumulative")
         stock = frame[["stock_other", "stock_berry", "stock_plain"]]
         np.testing.assert_allclose(stock.iloc[0], [0., 0., 0.])
         np.testing.assert_allclose(stock.iloc[1], [1., 0., 0.])
         np.testing.assert_allclose(stock.iloc[2], [1., 1., 0.])
         changed = self.frame()
         changed.loc[2, "plain"] = 100
-        np.testing.assert_allclose(add_stocks(changed).filter(like="stock_"),
+        np.testing.assert_allclose(add_stocks(changed, stock_retention=1.0, stock_measure="cumulative").filter(like="stock_"),
                                    frame.filter(like="stock_"))
 
     def test_xi_sign_and_unlimited_history(self):
-        frame = add_stocks(self.frame(), .7)
+        frame = add_stocks(self.frame(), .7, stock_retention=1.0, stock_measure="cumulative")
         self.assertAlmostEqual(frame.loc[1, "xi_other"], -.7)
         self.assertAlmostEqual(frame.loc[1, "xi_berry"], .3)
         # Time gaps do not change occasion-time histories when delta=1.
         old = self.frame()
         old.loc[2, "week"] = pd.Timestamp("2011-04-03")
-        old = add_stocks(old)
+        old = add_stocks(old, stock_retention=1.0, stock_measure="cumulative")
         np.testing.assert_allclose(old.filter(like="xi_"), frame.filter(like="xi_"))
         self.assertEqual(frame.loc[2, "novelty_other"], 0.)
         self.assertAlmostEqual(frame.loc[2, "xi_other"], -.7)

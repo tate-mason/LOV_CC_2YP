@@ -1,3 +1,23 @@
+# Average-stock verification (November 11, 2026)
+
+The current default is an average of prior observed purchase-week shares, with
+zero for empty history. `check_stock_average.py` checks abstract vectors only:
+ordinary means, excluded missing weeks, outside-only transitions, basket
+broadcasting, boundedness, and legacy specification metadata. No household panel
+or empirical input/output is generated. Existing saved fits keep their original
+history construction. Average-stock coefficients require a server-side refit;
+no estimates were recomputed locally.
+
+# Habit-stock decay verification (November 11, 2026)
+
+`check_stock_decay.py` checks only mathematical stock vectors: the closed-form
+discounted sum, calendar gaps, zero/one retention, three/five dimensions, outside-only
+transitions, and the limiting bound under weekly repetition. It constructs no
+household panels and performs no empirical I/O. Current estimation and both
+pricing implementations share this transition. Existing fits without a retention
+setting keep retention one during reconstruction and pricing. New fits default
+to 0.9 and require server-side reestimation; existing estimates are not revised.
+
 # Current three/five verification (November 9, 2026)
 
 The current pure-kernel check is `check_flavor_specifications.py`. It verifies Python/Polars descriptor agreement and dessert precedence, analytic gradients with all five categories active, nesting of the original likelihood when extra alternatives are unavailable, exact multinomial basket coverage/probability mass for both category counts, recovery of an interior theoretical calibration, and rejection of an unidentified calibration. It creates no household panels and performs no empirical I/O.

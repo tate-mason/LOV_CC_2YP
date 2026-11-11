@@ -1,6 +1,6 @@
 # Demand and pricing: current reading guide
 
-Start with [the main workflow](../README.md). All empirical input/output is server-only. The current after-data job fits **three and five categories separately**, both with uncontrolled heterogeneous split-history demand. It retains the original share novelty and cumulative stock.
+Start with [the main workflow](../README.md). All empirical input/output is server-only. The current after-data job fits **three and five categories separately**, both with uncontrolled heterogeneous split-history demand. It retains the original share novelty and average prior purchase-week shares.
 
 ## What is estimated
 
@@ -9,9 +9,11 @@ For each inside flavor j:
 ```
 V_ijt = inside_constant + beta_j + alpha_i*p_ijt + gamma_i*N_ijt + phi_i*H_ijt
 N_ijt = 1 - w_ij,t-1     # if preceding calendar purchase week is observed; else 0
-H_ijt = sum(w_ijs for observed s < t)
+H_ijt = sum(w_ijs for observed s < t) / number_of_prior_purchase_weeks  # zero if none
 w_ijt = packages of j / all yogurt packages in that purchase week
 ```
+
+Missing calendar weeks do not enter the average denominator. Current purchases enter only the next state. This is an ordinary purchase-occasion average, with no decay parameter; stock stays in [0,1]. Pricing carries both the average and the number of prior purchase occasions, and an outside-only basket leaves the average unchanged. New fits save `stock_measure=average`. Saved fits without this setting retain their original cumulative (or explicitly configured decaying) specification. Changing stock construction requires refitting demand: old coefficients cannot be relabeled as estimates of the average-stock model.
 
 Other is the reference flavor. Expanding the categories adds `beta_other_fruits` and `beta_desserts`, with their own choice probabilities, shares, menus and stocks. Gamma/phi remain household coefficients shared across flavor alternatives; the expansion does not add flavor-specific random coefficients. Types persist across observed weeks.
 

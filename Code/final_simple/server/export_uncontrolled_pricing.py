@@ -40,6 +40,9 @@ def export_results(fit_dir, pricing_dir, output):
                 'households', 'capacity', 'history_model', 'demand_delta', 'type_treatment',
                 'flavor_spec', 'flavor_categories']
         cases[flavor] = {key: report[key] for key in keys}
+        cases[flavor]['stock_measure'] = report.get('stock_measure',
+            'decaying' if 'stock_retention' in report else 'cumulative')
+        cases[flavor]['stock_retention'] = report.get('stock_retention', 1.0)
         cases[flavor]['information_calibration_status'] = report['gamma_information'].get('status', 'complete')
     if output.exists():
         raise FileExistsError('Refusing to overwrite an existing results export.')
@@ -76,6 +79,9 @@ def export_results(fit_dir, pricing_dir, output):
                 raise ValueError('Missing presentation figure: '+str(source))
             shutil.copyfile(source, target/(target_name+'.pdf'))
     provenance = dict(price_control=False, novelty_measure='previous_share',
+                      stock_measure=fit['settings'].get('stock_measure',
+                          'decaying' if 'stock_retention' in fit['settings'] else 'cumulative'),
+                      stock_retention=fit['settings'].get('stock_retention', 1.0),
                       flavor_spec=fit['settings'].get('flavor_spec', 'three'),
                       cases=cases, script_sha256=manifest['script_sha256'],
                       solver_sha256=manifest['solver_sha256'])

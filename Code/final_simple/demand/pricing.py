@@ -22,6 +22,13 @@ import sys
 import tempfile
 from pprint import pformat
 
+try:
+    from .history import (DEFAULT_STOCK_RETENTION, advance_stock,
+                          DEFAULT_STOCK_MEASURE, update_history, saved_stock_measure)
+except ImportError:
+    from history import (DEFAULT_STOCK_RETENTION, advance_stock,
+                          DEFAULT_STOCK_MEASURE, update_history, saved_stock_measure)
+
 import numpy as np
 import pandas as pd
 
@@ -130,7 +137,8 @@ def compositions(capacity):
 
 # Treat the first observed basket as t=0, form h0, and price the next two weeks. Later
 # baskets affect type estimation but do not enter h0.
-def forecast_context(frame, households):
+def forecast_context(frame, households, stock_retention=DEFAULT_STOCK_RETENTION,
+                     stock_measure=DEFAULT_STOCK_MEASURE):
     """First observed choice establishes h0; price the next two consecutive weeks.
 
     Carry the initial observation's menu, posted prices and controls forward.
@@ -141,8 +149,13 @@ def forecast_context(frame, households):
     counts = first[FLAVORS].to_numpy(float)
     totals = counts.sum(axis=1, keepdims=True)
     shares = np.divide(counts, totals, out=np.zeros_like(counts), where=totals > 0)
-    # Saved stocks precede the observed choice; add its basket exactly once.
-    stocks = first[["stock_"+f for f in FLAVORS]].to_numpy(float)+shares
+    # Advance the pre-choice stock to the next calendar week.
+    previous_occasions = (first["stock_occasions"].to_numpy(int)[:, None]
+                          if "stock_occasions" in first else np.zeros((len(first), 1), dtype=int))
+    stocks = update_history(first[["stock_"+f for f in FLAVORS]].to_numpy(float),
+                            shares, previous_occasions,
+                            measure=stock_measure, retention=stock_retention)
+    occasions = previous_occasions + (totals > 0)
     novelty = shares.sum(axis=1, keepdims=True)-shares
     prices = first[["price_"+f for f in FLAVORS]].to_numpy(float)
     available = np.isfinite(prices) & (prices > 0)
@@ -156,7 +169,8 @@ def forecast_context(frame, households):
     cf = first[cf_cols].to_numpy(float) if all(c in first for c in cf_cols) else np.zeros_like(prices)
     if not np.isfinite(stocks).all() or not np.isfinite(novelty).all():
         raise ValueError("Nonfinite forecast history.")
-    return dict(stocks=stocks, novelty=novelty, prices=np.where(available, prices, 0.),
+    return dict(stocks=stocks, stock_retention=stock_retention,
+                stock_measure=stock_measure, stock_occasions=occasions, novelty=novelty, prices=np.where(available, prices, 0.),
                 available=available, cf=cf, eligible=eligible)
 
 
@@ -204,6 +218,7 @@ def targeted_coupons(context, households, weights, alpha, gamma, beta, discounts
         prices = context["prices"][household]
         available = context["available"][household]
         stock = context["stocks"][household]
+        prior_count = context.get("stock_occasions", np.zeros((len(households), 1)))[household]
         novelty = context["novelty"][household]
         control = context["cf"][household]
 
@@ -220,7 +235,10 @@ def targeted_coupons(context, households, weights, alpha, gamma, beta, discounts
 
         xi1 = (1 - habit_weight) * novelty - habit_weight * stock
         xi2 = ((1 - habit_weight) * basket_novelty
-               - habit_weight * (stock + basket_shares))
+               - habit_weight * update_history(
+                        stock, basket_shares, prior_count,
+                        measure=context.get("stock_measure", "cumulative"),
+                        retention=context.get("stock_retention", 1.0)))
 
         # u1: possible type x flavor. u2: possible type x basket h1 x flavor.
         utility1 = (beta - price_sensitivity[:, None] * prices
@@ -415,7 +433,9 @@ def run_households(settings):
     # Exact likelihood reproduction guards against silently pairing files from different fits.
     if not np.isclose(nll, fit["nll"], rtol=1e-9, atol=1e-4):
         raise ValueError(f"Likelihood mismatch: reconstructed {nll}, fit {fit['nll']}.")
-    context = forecast_context(frame, households)
+    retention = saved_settings.get("stock_retention", 1.0)
+    measure = saved_stock_measure(saved_settings)
+    context = forecast_context(frame, households, retention, measure)
     counts = [int(((households.group == g) & households.berry_eligible).sum()) for g in ["low", "middle", "high"]]
     if any(n == 0 for n in counts):
         raise ValueError("Each gamma segment must have berry-eligible forecast households.")
@@ -457,7 +477,7 @@ def run_households(settings):
                 input_sha256=digest(settings.household_input), fit_sha256=digest(settings.fit_dir / "fit.json"),
                 parameter_sha256=digest(settings.fit_dir / "point_estimates.csv"),
                 posterior_draws=len(draws), posterior_seed=saved_settings["seed"],
-                capacity=capacity, habit_weight=weight, price_control=control,
+                capacity=capacity, habit_weight=weight, stock_retention=retention, stock_measure=measure, price_control=control,
                 initial_history="first_observed_basket", pricing_periods=2,
                 baskets=len(compositions(capacity)),
                 discount_grid=settings.discounts.tolist(), demand_delta=settings.demand_delta,

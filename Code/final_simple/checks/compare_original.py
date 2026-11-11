@@ -47,7 +47,7 @@ def compare(original):
                 row['cf_'+flavor] = rng.normal(0, .1)
             rows.append(row)
     raw = pd.DataFrame(rows)
-    frame = estimation.add_stocks(raw)
+    frame = estimation.add_stocks(raw, stock_retention=1.0, stock_measure="cumulative")
     pd.testing.assert_frame_equal(frame, old_estimation.add_stocks(raw))
     models = ['naive', 'homogeneous', 'mixed_naive', 'heterogeneous', 'mixture', 'separate_history', 'heterogeneous_history']
     likelihood_checks = 0

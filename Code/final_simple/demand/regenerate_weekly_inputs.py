@@ -35,6 +35,9 @@ def regenerate(fit_dir, sample=None, flavors=None, weekly_output=None):
     settings = dict(fit['settings'])
     settings.setdefault('flavor_spec', 'three')
     settings.setdefault('novelty_measure', 'previous_share')
+    # Fits predating the retention setting used cumulative stock.
+    settings.setdefault('stock_measure', 'decaying' if 'stock_retention' in settings else 'cumulative')
+    settings.setdefault('stock_retention', 1.0)
     required = ['sample', 'first_year', 'last_year', 'max_households', 'capacity',
                 'no_price_control', 'household_dma_column', 'habit_weight', 'draws', 'seed']
     missing = set(required)-settings.keys()
@@ -80,7 +83,8 @@ def regenerate(fit_dir, sample=None, flavors=None, weekly_output=None):
         temporary.unlink(missing_ok=True)
     report = dict(households=data['n_households'], weeks=len(frame), reconstructed_nll=nll,
                   saved_nll=fit['nll'], model=args.model, flavor_spec=args.flavor_spec,
-                  novelty_measure=args.novelty_measure, sample=str(args.sample),
+                  novelty_measure=args.novelty_measure, stock_retention=args.stock_retention, stock_measure=args.stock_measure,
+                  sample=str(args.sample),
                   demand_refitted=False, price_control_refitted=not args.no_price_control)
     (fit_dir / 'weekly_inputs_regeneration.json').write_text(json.dumps(report, indent=2)+'\n')
     print(f'Regenerated {target}; household/week totals and saved likelihood verified.', flush=True)

@@ -21,6 +21,13 @@ import sys
 import tempfile
 from pprint import pformat
 
+try:
+    from .history import (DEFAULT_STOCK_RETENTION, advance_stock,
+                          DEFAULT_STOCK_MEASURE, update_history, saved_stock_measure)
+except ImportError:
+    from history import (DEFAULT_STOCK_RETENTION, advance_stock,
+                          DEFAULT_STOCK_MEASURE, update_history, saved_stock_measure)
+
 import numpy as np
 import pandas as pd
 
@@ -57,6 +64,8 @@ capacity = 7                         # Pricing setup; use 0 for conditional flav
 no_price_control = False             # False means include the IV residual control.
 household_dma_column = "dma_cd"
 habit_weight = 0.7                   # Xi = (1-lambda)*novelty - lambda*own stock.
+stock_measure = DEFAULT_STOCK_MEASURE  # Average of prior observed purchase-week shares.
+stock_retention = DEFAULT_STOCK_RETENTION  # Used only with stock_measure="decaying".
 draws = 128                          # Even number of fixed integration draws.
 starts = 3                           # Number of optimizer starting points.
 maxiter = 600
@@ -440,7 +449,9 @@ def prepare_data(settings):
         weekly = weekly.drop(columns=["total_sum", "total_count", "dma_sum", "dma_count"])
         print("IV: overall same-week mean price outside consumer dma_cd, pooled across flavors.", flush=True)
     weekly = add_stocks(weekly.sort_values(keys).reset_index(drop=True), settings.habit_weight,
-                        getattr(settings, "novelty_measure", "previous_share"))
+                        getattr(settings, "novelty_measure", "previous_share"),
+                        getattr(settings, "stock_retention", DEFAULT_STOCK_RETENTION),
+                        getattr(settings, "stock_measure", DEFAULT_STOCK_MEASURE))
     price_cols = ["price_" + f for f in FLAVORS]
     available = np.isfinite(weekly[price_cols].to_numpy(float)) & (weekly[price_cols].to_numpy(float) > 0)
     counts = weekly[FLAVORS].to_numpy(float)
@@ -476,14 +487,19 @@ def switch_away_event(before, after):
     return (takeover | (entered.any() & (after < before))).astype(float)
 
 
-def add_stocks(weekly, habit_weight=0.7, novelty_measure="previous_share"):
-    """Record cumulative stock and novelty before current purchases.
+def add_stocks(weekly, habit_weight=0.7, novelty_measure="previous_share",
+               stock_retention=DEFAULT_STOCK_RETENTION, stock_measure=DEFAULT_STOCK_MEASURE):
+    """Record average purchase-share history and novelty before current purchases.
 
     previous_share: legacy N = 1 - own share in the preceding calendar week.
     lagged_switch_away: N in t is the binary switch-away event from t-2 to t-1.
     Both transitions must be adjacent calendar weeks; missing history gives 0.
-    Stock remains the sum of all preceding observed own-flavor shares.
+    Average: H_t = mean of all preceding observed purchase-week shares.
+    Empty prehistory gives zero; missing calendar weeks add no occasions.
+    Decaying and cumulative measures remain available for saved-fit reproduction.
     """
+    update_history(np.zeros(len(FLAVORS)), np.zeros(len(FLAVORS)), 0,
+                   measure=stock_measure, retention=stock_retention)
     if novelty_measure not in {"previous_share", "lagged_switch_away"}:
         raise ValueError("Unknown novelty measure: " + str(novelty_measure))
     result = (
@@ -491,13 +507,21 @@ def add_stocks(weekly, habit_weight=0.7, novelty_measure="previous_share"):
     )
     stocks = np.zeros((len(result), len(FLAVORS)))
     novelty = np.zeros_like(stocks)
+    history_occasions = np.zeros(len(result), dtype=int)
     for _, group in result.groupby("household_code", sort=False):
         stock = np.zeros(len(FLAVORS))
+        occasions = 0
         previous_share = np.zeros(len(FLAVORS))
         previous_week = None
         previous_event = np.zeros(len(FLAVORS))
         for index, row in group.iterrows():
+            if previous_week is not None:
+                gap = (row["week"] - previous_week).total_seconds() / (7 * 86400)
+                stock = update_history(stock, previous_share, occasions, gap,
+                                       stock_measure, stock_retention)
+                occasions += int(previous_share.sum() > 0)
             stocks[index] = stock
+            history_occasions[index] = occasions
             adjacent = previous_week is not None and (row["week"] - previous_week).days == 7
             if adjacent:
                 novelty[index] = (previous_share.sum() - previous_share
@@ -507,8 +531,9 @@ def add_stocks(weekly, habit_weight=0.7, novelty_measure="previous_share"):
             previous_event = (switch_away_event(previous_share, current_share)
                               if adjacent else np.zeros(len(FLAVORS)))
             previous_share = current_share
-            stock = stock + previous_share
             previous_week = row["week"]
+    if stock_measure == "average":
+        result["stock_occasions"] = history_occasions
     for j, name in enumerate(FLAVORS):
         result["stock_" + name] = stocks[:, j]
         result["novelty_" + name] = novelty[:, j]
@@ -1160,6 +1185,8 @@ def fit_model(data, settings, frame=None):
         flavor_spec=getattr(settings, "flavor_spec", "three"),
         flavor_categories=list(FLAVORS),
         novelty_measure=getattr(settings, "novelty_measure", "previous_share"),
+        stock_retention=getattr(settings, "stock_retention", DEFAULT_STOCK_RETENTION),
+        stock_measure=getattr(settings, "stock_measure", DEFAULT_STOCK_MEASURE),
         history_specification="separate" if settings.model in ("separate_history", "heterogeneous_history") else "combined_or_none",
         sample_restriction="household_size == 1 on each purchase record",
         households=data["n_households"],
@@ -1173,7 +1200,10 @@ def fit_model(data, settings, frame=None):
         aic=float(2 * best.fun * data["n_households"] + 2 * len(names)),
         bic=float(2 * best.fun * data["n_households"] + np.log(data["n_households"]) * len(names)),
         settings={
-            k: str(v) if isinstance(v, Path) else v for k, v in vars(settings).items()
+            k: str(v) if isinstance(v, Path) else v
+            for k, v in dict(vars(settings), stock_retention=getattr(
+                settings, "stock_retention", DEFAULT_STOCK_RETENTION), stock_measure=getattr(
+                settings, "stock_measure", DEFAULT_STOCK_MEASURE)).items()
         },
         starts=[
             dict(
@@ -1243,6 +1273,10 @@ def read_command_line(settings):
     parser.add_argument("--novelty-measure", choices=["previous_share", "lagged_switch_away"],
                         default="previous_share", help="Legacy share or lagged binary recovery event")
     parser.add_argument("--habit-weight", type=float, default=0.7)
+    parser.add_argument("--stock-measure", choices=["average", "decaying", "cumulative"],
+                        default=DEFAULT_STOCK_MEASURE)
+    parser.add_argument("--stock-retention", type=float, default=DEFAULT_STOCK_RETENTION,
+                        help="Weekly habit retention in [0,1]; 1 disables decay.")
     parser.add_argument("--draws", type=int, default=128)
     parser.add_argument("--starts", type=int, default=3)
     parser.add_argument("--maxiter", type=int, default=600)
@@ -1272,6 +1306,9 @@ def run_estimation(settings):
         settings.bootstrap_reps < 20 or settings.bootstrap_starts < 1
     ):
         raise ValueError("Bootstrap requires at least 20 replications and one start.")
+    update_history(np.zeros(len(FLAVORS)), np.zeros(len(FLAVORS)), 0,
+                   measure=getattr(settings, "stock_measure", DEFAULT_STOCK_MEASURE),
+                   retention=getattr(settings, "stock_retention", DEFAULT_STOCK_RETENTION))
     # Step 1: read purchases and build weekly counts, prices, and histories.
     frame = prepare_data(settings)
 
@@ -1309,6 +1346,8 @@ if __name__ == "__main__":
         bootstrap_reps=bootstrap_reps,
         bootstrap_starts=bootstrap_starts,
         habit_weight=habit_weight,
+        stock_retention=stock_retention,
+        stock_measure=stock_measure,
         novelty_measure="previous_share",
         draws=draws,
         starts=starts,

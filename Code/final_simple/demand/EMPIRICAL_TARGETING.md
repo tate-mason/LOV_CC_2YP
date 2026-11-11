@@ -127,9 +127,11 @@ choice. This is the timing of the known-state supply theory.
 The first chronologically observed basket for each household is relabeled
 from observed `t=1` to model `t=0` and establishes `h0`.
 The counterfactual begins in the following calendar week, with `p1(h0)`;
-`p2(h1)` is terminal in the next consecutive week. Initial stock equals the
-first observation's pre-purchase stock (zero at sample entry under the estimator)
-plus that basket's inside flavor shares. Initial novelty uses the same basket.
+`p2(h1)` is terminal in the next consecutive week. Initial stock incorporates the first basket according to the saved fit's stock
+measure. For the current average specification, it equals that basket's shares;
+the next purchase basket updates the mean using the number of previous purchase
+occasions. An outside-only basket does not add a purchase occasion. Legacy fits
+retain their cumulative or decaying transitions. Initial novelty uses the same basket.
 Later observed baskets do not enter this initial demand state. Household type
 estimates still use the complete estimation sample: this is a retrospective
 known-estimated-type counterfactual, not an out-of-sample forecast. Households'

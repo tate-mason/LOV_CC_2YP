@@ -1,0 +1,1168 @@
+% ============================================================
+% UGA-Themed Beamer Template (Clean MWE)
+% ============================================================
+
+\documentclass[aspectratio=169,professionalfonts]{beamer}
+
+% ---------- COLORS (swap with official UGA hex if you like) ----------
+\usepackage{xcolor}
+\definecolor{UGARed}{HTML}{BA0C2F}   % Verify with brand guide
+\definecolor{UGABlack}{HTML}{000000}
+\definecolor{UGAGray}{HTML}{8A8D8F}
+
+% ---------- THEME & PROGRESS DOTS ----------
+\usetheme{default}
+\useinnertheme{circles}
+\useoutertheme[subsection=false]{miniframes}
+\usefonttheme{professionalfonts}
+\setbeamertemplate{navigation symbols}{}
+% Head/foot colors
+\setbeamercolor{subsection in head/foot}{fg=white,bg=UGARed}
+\setbeamercolor{headline}{fg=white, bg=UGARed}
+
+\setbeamercolor{section in head/foot}{fg=white,bg=UGARed}
+\setbeamercolor{section in head/foot shaded}{fg=white,bg=UGARed}
+\setbeamercolor{footline}{bg=UGABlack,fg=white}
+\setbeamercolor{frametitle}{fg=UGABlack}
+\setbeamercolor{title}{fg=UGABlack}
+\setbeamercolor{normal text}{fg=UGABlack}
+\setbeamercolor{structure}{fg=UGARed}
+
+% --- HEADLINE: slide dots grouped by section ---
+\setbeamersize{mini frame size=0.16cm,mini frame offset=0pt}
+% Show section labels above the clickable slide dots.
+\setbeamertemplate{section in head/foot}[default]
+\setbeamertemplate{section in head/foot shaded}[default][75]
+\setbeamertemplate{mini frame}{%
+  \tikz[baseline=-0.5ex] \filldraw[draw=white,fill=white,line width=0.6pt] (0,0) circle (2pt);%
+}
+\setbeamertemplate{mini frame in current subsection}{%
+  \tikz[baseline=-0.5ex] \filldraw[draw=white,fill=UGARed,line width=0.6pt] (0,0) circle (2pt);%
+}
+\setbeamertemplate{mini frame in other subsection}{%
+  \usebeamertemplate{mini frame in current subsection}%
+}
+\setbeamertemplate{mini frame in other section}{%
+  \usebeamertemplate{mini frame in current subsection}%
+}
+\setbeamertemplate{headline}{%
+  \begin{beamercolorbox}[wd=\paperwidth]{headline}
+    \vskip1ex
+    \insertnavigation{\paperwidth}
+    \vskip3ex
+  \end{beamercolorbox}
+}
+
+% Simple footline with slide numbers
+\setbeamertemplate{footline}{
+  \leavevmode%
+  \hbox{%
+    \begin{beamercolorbox}[wd=\paperwidth,ht=2.5ex,dp=1ex,leftskip=1em,rightskip=1em]{footline}%
+      \insertshortauthor{} \hfill \insertframenumber/\inserttotalframenumber
+    \end{beamercolorbox}}%
+}
+
+% ---------- PACKAGES ----------
+\usepackage{amsmath,amssymb,mathtools}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{bbm}
+\usepackage{array}
+\usepackage{adjustbox}
+\usepackage{hyperref}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta, positioning}
+\usepackage{tcolorbox}
+\usepackage{eurosym}
+\usepackage{threeparttable}
+% ---------- METADATA (fill these later) ----------
+\title{Optimal Dynamic Pricing With Preferences for Novelty}
+\subtitle{}
+\author{Tate Mason}
+\institute{The University of Georgia}
+\date{\today}
+
+% ---------- MACROS ----------
+% Numbered equation with label
+\newcommand{\beq}[1]{\begin{equation}\label{#1}}
+\newcommand{\eeq}{\end{equation}}
+% Accent color highlight
+\newcommand{\hl}[1]{\textbf{\textcolor{UGARed}{#1}}}
+% Simple figure placeholder macro
+\newcommand{\figph}[2][0.9\linewidth]{%
+  \begin{figure}
+    \centering
+    \fbox{\rule{0pt}{0.55#1}\rule{#1}{0pt}}%
+    \caption{#2}
+  \end{figure}
+}
+
+% ============================================================
+
+% Keep navigation links in the theme's white foreground on the red header.
+\hypersetup{colorlinks=true, linkcolor=., urlcolor=UGARed}
+
+
+% Short-version navigation only. Original frame content is preserved verbatim.
+\newcommand{\shortbuttons}{}
+\newcommand{\shortmaincount}{28}
+\IfFileExists{assets/quantified_theory/plain/optimal_prices_by_gamma.pdf}{\renewcommand{\shortmaincount}{34}}{}
+\newif\ifshortappendix
+\shortappendixfalse
+\setbeamertemplate{footline}{%
+  \leavevmode\vbox{\hbox{%
+  \begin{beamercolorbox}[wd=\paperwidth,ht=3.8ex,dp=.6ex,rightskip=1em]{normal text}%
+    \hfill{\scriptsize\shortbuttons}
+  \end{beamercolorbox}}%
+  \hbox{\begin{beamercolorbox}[wd=\paperwidth,ht=2.5ex,dp=1ex,leftskip=1em,rightskip=1em]{footline}%
+    \insertshortauthor{}\hfill
+    \ifshortappendix Appendix\else\insertframenumber/\shortmaincount\fi
+  \end{beamercolorbox}}}%
+}
+
+
+\begin{document}
+
+% Original numbered slide 0
+\gdef\shortbuttons{}
+\begin{frame}[plain,noframenumbering,label=short-0]
+  \titlepage
+\end{frame}
+
+
+\section{Introduction}
+
+% BRING SLIDES ONE AND TWO TOGETHER
+% Original numbered slide 1
+\gdef\shortbuttons{}
+\begin{frame}[label=short-1]{Motivation}
+  \begin{itemize}
+    \item Across repeated interactions with a firm, consumer preferences may evolve
+    \item Novelty, habit, boredom all contribute to consumption patterns varying across time
+    \item Allows for targeted discounting based on past choices and preference dynamics
+    \item Targeted discounts allow firms to steer consumers toward particular products.
+  \end{itemize}
+\end{frame}
+
+% Original numbered slide 2
+\begin{frame}[label=short-novelty-definition]{What is Novelty}
+  DO LIKE RACHEL
+\end{frame}
+
+\gdef\shortbuttons{\hyperlink{short-5}{\beamergotobutton{Flavor Popularity}}}
+\begin{frame}[label=short-4]{Novelty Motivation}
+  \centering
+    \includegraphics[width=.95\textwidth,height=.74\textheight,keepaspectratio]{../writeup/1108_writeup/assets/results/summary_statistics/flavor_hhi_histogram.pdf}
+
+  \begin{itemize}
+    \item NUMBER OF SWITCHES PER HH
+    \item NUMBER OF UNIQUE FLAVORS
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[label=short-2]{Research Question}
+  \begin{tcolorbox}
+    How can firms price discriminate via consumer preferences for novelty and habit and how much is information about these preferences worth?
+  \end{tcolorbox}
+  \begin{itemize}
+    \item Propose and solve a theoretical two-period supply model when consumer's exhibit heterogeneous preferences for novelty
+    \item Estimate demand for yogurt and recover distribution of novelty preferences
+    \item Apply estimated distribution to supply model to quantify theoretical gains from household-specific prices
+  \end{itemize}
+\end{frame}
+
+% Original numbered slide 3
+\gdef\shortbuttons{}
+\begin{frame}[label=short-3]{Literature}
+  \textbf{Dynamic Targeting:}
+    \begin{itemize}
+      \item Dub\'e (2008), Anand \& Shachar (2009), Karle \& Reisinger (2024), Durrmeyer, Fournel, Samano (2026)
+      \item \textcolor{red}{Contribution:} Firm pricing based off of novelty with varying levels of information on consumers.
+    \end{itemize}
+  \textbf{Estimating preferences for novelty:}
+  \begin{itemize}
+      \item McAllister (1982), Lattin (1987), Chintagunta (1999), Ackerberg (2003), Dub\'e (2004), Dub\'e et. al (2021)
+      \item \textcolor{red}{Contribution:} Recovering a distribution for preferences over novelty in consumption to be used in a pricing exercise
+  \end{itemize}
+  \textbf{Pricing with State Dependence}
+  \begin{itemize}
+    \item Klemperer (198x), Dub\'e et. al (2022),GO THROUGH ZOTERO
+    \item \textcolor{red}{Contribution:} Modeling novelty rather than habit as driver for differential pricing.
+  \end{itemize}
+\end{frame}
+
+\section{Supply Model}
+
+% Original numbered slide 6
+\gdef\shortbuttons{}
+\begin{frame}[label=short-6]{Supply Setting}
+  \begin{itemize}
+    \item Monopolistic firm producing a single product $j$
+    \item A consumer is born into the world with a type and an initial purchase state:
+    \begin{gather*}
+      \shortintertext{Consumer Type} r = \{H, L\} \\
+      \shortintertext{Initial Purchase} h_0 = \{0, j\}
+    \end{gather*}
+    \item Consumers live for two periods, purchasing the inside good or opting for the outside good in each period
+    \item The firm knows $h_0\ \& \gamma_r$, setting prices to individual consumers by type and history
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Timing of the Model}
+
+\begin{center}
+\begin{tikzpicture}[
+    >=Stealth,
+    thick,
+    every node/.style={font=\small}
+]
+
+    % Timeline
+    \draw[->] (0,0) -- (11,0);
+
+    % Decision positions
+    \foreach \x in {1.5,4,7,9.5} {
+        \draw (\x,0.12) -- (\x,-0.12);
+    }
+
+    % Firm decisions (above)
+    \node[above=0.5cm, align=center] at (1.5,0)
+        {Observe $h_0$ \\ Choose $p_1$};
+
+    \node[above=0.5cm, align=center] at (7,0)
+        {Observe $h_1$ \\ Choose $p_2$};
+
+    % Consumer decisions (below)
+    \node[below=0.5cm, align=center] at (4,0)
+        {Choose $x_1$};
+
+    \node[below=0.5cm, align=center] at (9.5,0)
+        {Choose $x_2$};
+
+    % Period labels
+    \node[below=1.5cm] at (2.75,0)
+        {\textbf{Period 1}};
+
+    \node[below=1.5cm] at (8.25,0)
+        {\textbf{Period 2}};
+
+\end{tikzpicture}
+\end{center}
+
+\end{frame}
+
+
+% Original numbered slide 7
+\gdef\shortbuttons{}
+\begin{frame}[label=short-7]{Consumer's Problem}
+  \begin{tcolorbox}[
+    boxsep=0pt,
+    left=2pt, right=2pt,
+    top=1pt, bottom=1pt,
+    before skip=2pt, after skip=2pt
+    ]
+    \setlength{\abovedisplayskip}{2pt}
+    \setlength{\belowdisplayskip}{2pt}
+    \begin{gather*}
+      V^{inside}_{jt} = \underbrace{\beta}_{\text{Constant}} + \overbrace{\gamma_r\mathbbm{1}\{h_t=0\}}^{\text{Utilty from Switching}} - \underbrace{\alpha p_t(h_t)}_{\text{Price Disutility}}, \ V^{Outside}_{0t} = \underbrace{\gamma_r\mathbbm{1}\{h_t=j\}}_{\text{Utility from Switching}} \\
+      v_t(x) = V_{jt}^{inside} - V_{0t}^{outside} = \beta + \gamma_r\underbrace{[\mathbbm{1}\{h_t=0\} - \mathbbm{1}\{h_t=j\}]}_{q(h_t)} - \alpha p_t(h_t)
+    \end{gather*}
+  \end{tcolorbox}
+  \begin{itemize}\setlength{\itemsep}{2pt}
+    \item Prices and switching utility depend on history $h_t=x_{t-1}$
+    \item If $\mathbbm{1}\{h_t=j\}, \ \gamma_r < 0$, or they would experience disutility from switching and prefer to continue consuming $j$.
+  \end{itemize}
+\end{frame}
+
+
+% Original numbered slide 8
+\gdef\shortbuttons{}
+\begin{frame}[label=short-8]{Firm's Problem}
+  \begin{tcolorbox}
+    [
+    boxsep=0pt,
+    left=2pt, right=2pt,
+    top=1pt, bottom=1pt,
+    before skip=2pt, after skip=2pt
+    ]
+    \setlength{\abovedisplayskip}{2pt}
+    \setlength{\belowdisplayskip}{2pt}
+    \begin{gather*}
+      \pi_t(h) = \max_{p_{tr}(h_t)} s_t(h_t)[p_{tr}(h_t) - c] \\
+      \Pi(h) = s_1(h_0)\underbrace{(p_{1r}(h0) - c)}_{\text{Margin in Period 1}} + \underbrace{\delta\{s_1(h_0)\pi_2(j) + (1-s_1(h_0))\pi_2(0)\}}_\text{{Continuation Value}}
+    \end{gather*}
+  \end{tcolorbox}
+  \begin{itemize}
+    \item Firm profits are comprised of period one margins given initial state and the expected value of that consumer given their period one choice
+  \end{itemize}
+\end{frame}
+
+
+% Original numbered slide 10
+\gdef\shortbuttons{\hyperlink{short-9}{\beamergotobutton{Terminal FOC}}\hspace{.35em}\hyperlink{short-11}{\beamergotobutton{Comparative statics}}\hspace{.35em}\hyperlink{short-52}{\beamergotobutton{Elasticities}}}
+\begin{frame}[label=short-10]{First Period Optimization}
+  \begin{align*}
+    \frac{d\Pi}{d p_1(h_0)} &= s_1 + \frac{\partial}{\partial p_1(h_0)}s_1(h_0)[p_1(h_0) - c + \delta(\pi_2(j) - \pi_2(0))] \\
+    p_1^*(h_0) &= c + \underbrace{\frac{1}{\alpha(1-s_1^*(h_0))}}_{\text{Static markup}} + \overbrace{\delta(\pi_2(j) - \pi_2(0))}^{\text{Dynamic tradeoff between profit states}} \\
+    \Pi^*(h_t) &= \delta\pi_2(0) + \frac{s_1^*(h_0)}{\alpha(1-s_1^*(h_0))}
+  \end{align*}
+  \begin{itemize}
+    \item The tradeoff term requires the firm to consider both future states when setting period one prices.
+  \end{itemize}
+\end{frame}
+
+
+% Original numbered slide 14
+\gdef\shortbuttons{\hyperlink{short-12}{\beamergotobutton{Calibration}}\hspace{.35em}\hyperlink{short-13}{\beamergotobutton{Table}}\hspace{.35em}\hyperlink{short-15}{\beamergotobutton{Profit}}\hspace{.35em}\hyperlink{short-16}{\beamergotobutton{Price ratio}}\hspace{.35em}\hyperlink{short-17}{\beamergotobutton{Discussion}}}
+\begin{frame}[label=short-14]{Optimal Prices}
+  \centering
+  \includegraphics[width=0.85\textwidth]{assets/theory_delta1/optimal_prices_by_gamma.pdf}
+\end{frame}
+
+
+% Theory plots regenerated at delta=1.
+\gdef\shortbuttons{\hyperlink{short-14}{\beamergotobutton{Optimal prices}}\hspace{.35em}\hyperlink{short-15}{\beamergotobutton{Profit detail}}\hspace{.35em}\hyperlink{short-16}{\beamergotobutton{Price-ratio detail}}}
+\begin{frame}[label=short-prices-profit]{Optimal Price Ratios and Profit}
+  \centering
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{.49\textwidth}
+      \includegraphics[width=\linewidth,height=.66\textheight,keepaspectratio]{assets/theory_delta1/all_state_price_ratios.pdf}
+    \end{column}
+    \begin{column}{.49\textwidth}
+      \includegraphics[width=\linewidth,height=.66\textheight,keepaspectratio]{assets/theory_delta1/all_state_realized_profit.pdf}
+    \end{column}
+  \end{columns}
+  \vspace{.3em}
+  {\footnotesize $\delta=1$: no discounting. Flavor is $j$; outside is everything except that flavor.}
+\end{frame}
+
+
+% Original numbered slide 18
+\gdef\shortbuttons{}
+\begin{frame}[label=short-18]{Two Pricing Regimes: The Same Consumer Types}
+  \small
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{.48\textwidth}
+      \textbf{Household-specific: type observed}
+      \begin{itemize}
+        \item Observe type $\gamma_r$ and initial history $h_0$.
+        \item Choose $p_{1r}(h_0)$ and then $p_{2r}(h_1)$.
+      \end{itemize}
+    \end{column}
+    \begin{column}{.48\textwidth}
+      \textbf{Common: type hidden}
+      \begin{itemize}
+        \item Observe history and know type weights $\mu_r$.
+        \item One offer across types with the same history.
+        \item Weights stay fixed; no Bayesian learning.
+      \end{itemize}
+    \end{column}
+  \end{columns}
+  \medskip
+  \begin{tcolorbox}
+    Consumers keep their type in both periods. Evaluate both policies on these
+    same persistent types; the gain is household-specific minus common revenue.
+  \end{tcolorbox}
+  {\footnotesize $\gamma_r\in\{-1.25,0,1.25\}$; equal weights $1/3$ or permutations of $(.50,.25,.25)$.
+  In all cases, $h_0$ and subsequent purchases are observed; $\delta=1$, $c=0$.}
+\end{frame}
+
+
+% Original numbered slide 20
+\gdef\shortbuttons{\hyperlink{short-19}{\beamergotobutton{Profit levels}}\hspace{.35em}\hyperlink{short-53}{\beamergotobutton{Price paths}}\hspace{.35em}\hyperlink{short-54}{\beamergotobutton{Revenue evaluation}}}
+\begin{frame}[label=short-20]{Theory: Revenue Gain from Observing Type}
+  \centering
+  \includegraphics[width=.98\textwidth,height=.66\textheight,keepaspectratio]{assets/theory_delta1/gamma_uncertainty/information_value.pdf}
+  \par\smallskip\footnotesize Expected revenue per consumer, evaluated under the same persistent types.
+  Initially outside means outside the focal flavor; it is an initial state, not a population share.
+\end{frame}
+
+
+\section{Data}
+
+% Original numbered slide 21
+\gdef\shortbuttons{\hyperlink{short-22}{\beamergotobutton{Activity}}}
+\begin{frame}[label=short-21]{Data Sources}
+  \textbf{Nielsen HomeScan}
+  \begin{itemize}
+    \item Provides household level purchase data
+    \item Covers years 2006-2015
+    \item Products chosen, quantity chosen, timing of trips
+  \end{itemize}
+  \textbf{Nielsen RetailScan}
+  \begin{itemize}
+    \item Provides store level product data
+    \item For specified product category: prices, markets, product attributes
+  \end{itemize}
+  \textbf{Sample Selection}
+  \begin{itemize}
+    \item Must be single-person household
+    \item Must be seen at least 2 times
+    \item Purchases must be made at Nielsen store (prices available)
+    \item Flavor attribute must be present
+  \end{itemize}
+\end{frame}
+
+
+% Original numbered slide 23
+\gdef\shortbuttons{}
+\begin{frame}[label=short-23]{Sample Statistics: Demographics}
+  \centering
+  \begin{adjustbox}{max totalsize={\textwidth}{.83\textheight},center}
+    \begin{minipage}{\textwidth}
+      \input{../writeup/1108_writeup/assets/results/summary_statistics/full_panel_vs_yogurt.tex}
+    \end{minipage}
+  \end{adjustbox}
+\end{frame}
+
+% Original numbered slide 24
+\gdef\shortbuttons{}
+\begin{frame}[label=short-24]{Switching Stats}
+    \centering
+    \begin{adjustbox}{max totalsize={\textwidth}{.75\textheight},center}
+    \begin{minipage}{\textwidth}
+      \input{../RESULTS_ONLY/summary_statistics/aggregated_flavors/yogurt_dynamics.tex}
+    \end{minipage}%
+    \end{adjustbox}
+\end{frame}
+
+
+% Original numbered slide 25
+\gdef\shortbuttons{}
+\begin{frame}[label=short-25]{Persistence Across Aggregated Flavor Groups}
+  \centering
+  \includegraphics[height=0.69\textheight]{../writeup/1108_writeup/assets/results/summary_statistics/aggregated_flavors/flavor_transitions.pdf}
+  \par\small Plain repeats in approximately 80\% of eligible transitions, versus 53\% for berry.
+\end{frame}
+
+
+\section{Demand Estimation}
+
+% Original numbered slide 26
+\gdef\shortbuttons{}
+\begin{frame}[label=short-26]{Estimate Heterogeneity in Price, Novelty and Habit}
+  \begin{itemize}
+    \item Weekly choices: other yogurt, berry, plain, or nonpurchase.
+    \item Households differ in price sensitivity and responses to recent and
+    longer purchase histories.
+    \item Flavor intercepts are common across households and differ across flavors.
+  \end{itemize}
+  \begin{tcolorbox}
+    Recover the distribution of switching preferences, then use it in the
+    two-period pricing model.
+  \end{tcolorbox}
+\end{frame}
+
+
+% Original numbered slide 27
+\gdef\shortbuttons{\hyperlink{short-average-history}{\beamergotobutton{Average-history specification}}}
+\begin{frame}[label=short-27]{Demand Model}
+  \small
+  \[
+    U_{ijt}=\beta_0+\beta_jX_{jt}+\gamma_iN_{ijt}+\phi_iH_{ijt}
+             +\alpha_i p_{jt}+\varepsilon_{ijt},
+    \qquad U_{i0t}=\varepsilon_{i0t}.
+  \]
+
+  Household $i$'s share of yogurt purchases in flavor $j$ in week $t$ is
+  \[
+    w_{ijt}=\frac{y_{ijt}}{\sum_k y_{ikt}}.
+  \]
+
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{.58\textwidth}
+      \textbf{Novelty}
+      \[
+        N_{ijt}=\begin{cases}
+          1-w_{ij,t-1}, & \text{if yogurt bought in $t-1$},\\
+          0, & \text{otherwise}.
+        \end{cases}
+      \]
+    \end{column}
+    \begin{column}{.35\textwidth}
+      \textbf{Habit: fitted specification}
+      \[
+        H_{ijt}=\frac{1}{n_{it}}\sum_{s\in\mathcal{O}_i,\,s<t}w_{ijs}.
+      \]
+    \end{column}
+  \end{columns}
+  {\footnotesize $\mathcal{O}_i$: observed purchase weeks; $n_{it}$: prior purchase weeks; empty history gives zero.}
+  \begin{itemize}
+    \item A week contains seven choice opportunities; observed purchases fulfill opportunities.
+    \item Nonpurchase count is $\max(0,7-\sum_j y_{ijt})$.
+  \end{itemize}
+\end{frame}
+
+\gdef\shortbuttons{}
+\begin{frame}[label=short-identification]{What Variation Separates Tastes from Purchase History?}
+  \begin{itemize}
+    \item \textbf{Persistent tastes:} repeated choices help estimate stable
+    differences across households.
+    \item \textbf{Recent history:} changes in last week's basket change the
+    novelty predictor within a household.
+    \item \textbf{Longer history:} the same last-week basket can follow very
+    different earlier purchase patterns.
+  \end{itemize}
+  \begin{tcolorbox}
+    Both histories bought only plain last week and contain 10 earlier purchase weeks.
+    Plain's earlier share averages 80\% versus 20\%: novelty is identical,
+    average habit is 0.8 versus 0.2.
+  \end{tcolorbox}
+  \par\smallskip\footnotesize This describes the variation used by the model.
+  Separating causal history effects from stable tastes also relies on the
+  distributional, initial-history and transitory-shock assumptions.
+\end{frame}
+
+
+% Original numbered slide 29
+\gdef\shortbuttons{\hyperlink{short-28}{\beamergotobutton{Probabilities}}\hspace{.35em}\hyperlink{short-55}{\beamergotobutton{Price controls}}\hspace{.35em}\hyperlink{short-56}{\beamergotobutton{Controlled estimates}}\hspace{.35em}\hyperlink{short-61}{\beamergotobutton{First stages}}}
+\begin{frame}[label=short-29]{Estimation}
+  \begin{tcolorbox}
+    [
+    boxsep=0pt,
+    left=2pt, right=2pt,
+    top=1pt, bottom=1pt,
+    before skip=2pt, after skip=2pt
+    ]
+    \setlength{\abovedisplayskip}{2pt}
+    \setlength{\belowdisplayskip}{2pt}
+    \begin{align*}
+      P_i(\theta) &= \int P(y_i\mid\nu,\theta)\ \phi(\nu)\,d\nu \\
+      \widehat P_i(\theta) &= \frac{1}{n}\sum_{r=1}^{n}\prod_{t=1}^{T_i}P(y_{it}\mid\nu_{ir}, \theta)\qquad\nu_{ir}\sim\mathcal N(0, I) \\
+      G_{128}(\theta) &= -\sum_{i=1}^N\log\widehat P_i(\theta)
+    \end{align*}
+  \end{tcolorbox}
+  \begin{itemize}
+    \item $\nu_i$ captures unobserved heterogeneity, $y_{it}$ represents observed choice, $\theta = \{\gamma, \phi, \alpha\}$ is the vector of heterogeneous demand parameters
+    \item n = 128 draws per household from a normal distribution
+  \end{itemize}
+\end{frame}
+
+
+% Original numbered slide 32
+\gdef\shortbuttons{\hyperlink{short-30}{\beamergotobutton{Estimates}}\hspace{.35em}\hyperlink{short-33}{\beamergotobutton{Discussion}}}
+\begin{frame}[label=short-32]{Distributions}
+  \includegraphics[width=.92\textwidth,height=.50\textheight,keepaspectratio]{assets/demand_1111_three/history_distributions.pdf}
+  \begin{itemize}
+    \item Consumers generally resist switching, with substantial heterogeneity.
+    \item Habit preference also varies substantially across consumers.
+  \end{itemize}
+\end{frame}
+
+
+% Original numbered slide 31
+\gdef\shortbuttons{\hyperlink{short-62}{\beamergotobutton{Controlled WTP}}}
+\begin{frame}[label=short-31]{Implied Willingness to Pay}
+  \centering
+  \input{assets/demand_1111_three/implied_wtp.tex}
+  \begin{itemize}
+    \item Would need to be subsidized to switch, though lots of variation
+    \item Willing to pay to continue consuming their same product
+  \end{itemize}
+\end{frame}
+
+
+\section{Pricing Exercise}
+
+% Original numbered slide 34
+\gdef\shortbuttons{}
+\begin{frame}[label=short-34]{Quantifying the Theory with Estimated Preferences}
+  \[
+    v_t=\beta_f+\alpha p_t+\gamma\big[\mathbbm{1}\{h_t=0\}-\mathbbm{1}\{h_t=j\}\big].
+  \]
+  \begin{itemize}
+    \item Same binary choices and pricing problem as the theory: plain ($j$) versus not plain ($0$).
+    \item Use the estimated novelty distribution, mean price sensitivity and plain intercept.
+    \item Hold habit at its reference level; no additional history dynamics.
+  \end{itemize}
+  \begin{tcolorbox}
+    Compare informed and common prices, and the revenue each generates.
+    This is a quantified theory illustration using saved estimates.
+  \end{tcolorbox}
+\end{frame}
+
+\gdef\shortbuttons{}
+\begin{frame}[label=short-40]{Only Knowledge of Novelty Changes}
+  \begin{itemize}
+    \item Informed: the firm observes the consumer's $\gamma$.
+    \item Common: the firm knows the distribution of $\gamma$ and offers one price across types.
+    \item Both observe purchase history and adapt the second price to plain versus not plain.
+    \item Common-price beliefs remain fixed, as in the theory; consumer types persist.
+  \end{itemize}
+  \begin{tcolorbox}
+    Evaluate both policies on the same consumers over two periods.
+  \end{tcolorbox}
+\end{frame}
+
+% Revised empirical information comparison; populated by aggregate-only refresh.
+\IfFileExists{assets/quantified_theory/plain/optimal_prices_by_gamma.pdf}{%
+\gdef\shortbuttons{}
+\begin{frame}[label=short-revised-prices]{Quantified Theory: Optimal Prices across Novelty Types}
+  \centering
+  \includegraphics[width=.98\textwidth,height=.68\textheight,keepaspectratio]{assets/quantified_theory/plain/optimal_prices_by_gamma.pdf}
+  \par\smallskip\footnotesize Same model and layout as supply, using estimated preference parameters.
+  There are exactly two terminal prices, after plain and after not plain.
+\end{frame}
+
+\gdef\shortbuttons{}
+
+
+\gdef\shortbuttons{}
+\begin{frame}[label=short-revised-paths]{Quantified Theory: Informed and Common Price Paths}
+  \centering
+  \includegraphics[width=.98\textwidth,height=.68\textheight,keepaspectratio]{assets/quantified_theory/plain/information_price_paths_comparison.pdf}
+  \par\smallskip\footnotesize Solid paths average informed prices within novelty groups; dashed paths show common prices.
+  Both regimes choose the terminal price after observing the first-period binary choice.
+\end{frame}
+
+\gdef\shortbuttons{}
+
+
+\gdef\shortbuttons{}
+\begin{frame}[label=short-revised-revenue]{Revenue under the Same Persistent Novelty Types}
+  \centering
+  \includegraphics[width=.98\textwidth,height=.68\textheight,keepaspectratio]{assets/quantified_theory/plain/information_revenues.pdf}
+  \par\smallskip\footnotesize Expected two-period revenue per model consumer; zero marginal cost.
+  Common prices are history-adaptive, with novelty hidden and fixed beliefs.
+\end{frame}
+
+\gdef\shortbuttons{}
+\begin{frame}[label=short-revised-gain]{How Much Revenue Does Knowing Novelty Add?}
+  \centering
+  \includegraphics[width=.98\textwidth,height=.68\textheight,keepaspectratio]{assets/quantified_theory/plain/information_value.pdf}
+  \par\smallskip\footnotesize Informed minus common revenue, evaluated on the same persistent types.
+  Prior sensitivities use one novelty group with probability one-half.
+\end{frame}
+
+\gdef\shortbuttons{}
+\begin{frame}[label=short-revised-table]{Revenue Comparison by Initial History and Prior}
+  \centering\small
+  \begin{adjustbox}{max width=\linewidth}
+    \input{assets/quantified_theory/plain/revenue_table.tex}
+  \end{adjustbox}
+  \par\smallskip\footnotesize Dollars per model consumer over two periods.
+  Both regimes adapt second prices to history; only novelty information differs.
+\end{frame}
+}{%
+\gdef\shortbuttons{}
+\begin{frame}[label=short-revised-pending]{Binary Plain-versus-Not Pricing: Rerun Pending}
+  \begin{itemize}
+    \item Saved estimates are inputs to the binary model, including known habit.
+    \item Recompute household-specific and common prices over two binary purchase periods.
+    \item Only novelty is hidden; price sensitivity and habit are known.
+    \item Report price changes and revenue gains in the same figure layouts as supply.
+  \end{itemize}
+  \begin{tcolorbox}
+    Revised results require a pricing-only server run.
+    Earlier full-basket results do not apply to this binary specification.
+  \end{tcolorbox}
+\end{frame}
+}
+
+
+
+
+
+
+
+
+
+% Original numbered slide 47
+
+
+% Original numbered slide 57
+
+
+
+
+
+
+\section{Conclusion}
+
+% Original numbered slide 50
+\gdef\shortbuttons{}
+\begin{frame}[label=short-50]{What Does Knowing Novelty Change?}
+  \begin{itemize}
+    \item Estimated preferences quantify the theoretical information comparison.
+    \item Compare acquisition and repeat-purchase prices separately for initially inside and outside consumers.
+    \item Measure the revenue gain from knowing novelty on the same persistent consumer types.
+  \end{itemize}
+  \begin{tcolorbox}
+    \IfFileExists{assets/quantified_theory/plain/gain_headline.tex}{%
+      \input{assets/quantified_theory/plain/gain_headline.tex}
+    }{Compare informed and common revenue under the estimated novelty distribution.}
+  \end{tcolorbox}
+  \par\smallskip\footnotesize Fitted-distribution baseline; expected revenue per model consumer over two periods.
+  Both regimes adapt prices to purchase history; only knowledge of novelty differs.
+\end{frame}
+
+
+% Original numbered slide 51
+
+
+
+\appendix
+
+\shortappendixtrue
+
+\section{Appendix}
+
+% Original numbered slide 22
+\gdef\shortbuttons{\hyperlink{short-21}{\beamergotobutton{Back to Data Sources}}}
+\begin{frame}[label=short-22,noframenumbering]{Sample Statistics: Purchase Activity}
+  \centering
+  \small
+  \renewcommand{\arraystretch}{1.15}
+  \begin{tabular}{lrr}
+    \toprule
+     & Full sample & Yogurt sample \\
+    \midrule
+    Households & 37,827 & 15,106 \\
+    Observed panel years & 3.96 & 3.16 \\
+    Trips per household & 493.13 & 20.26 \\
+    Trips per observed week (approx.) & 2.27 & 0.11 \\
+    Distinct UPCs per household & 1,178.31 & 13.89 \\
+    Purchase lines per household & 3,397.64 & 45.15 \\
+    Packages per household & 4,669.07 & 93.77 \\
+    \bottomrule
+  \end{tabular}
+
+  \medskip
+  {\footnotesize All statistics except household counts are means.}
+\end{frame}
+
+
+
+
+
+% Original numbered slide 5
+\gdef\shortbuttons{\hyperlink{short-4}{\beamergotobutton{Back to HHI}}}
+\begin{frame}[label=short-5,noframenumbering]{Flavor Popularity}
+  \centering
+    \includegraphics[width=.95\textwidth,height=.74\textheight,keepaspectratio]{../writeup/1108_writeup/assets/results/summary_statistics/flavor_shares.pdf}
+\end{frame}
+
+
+% Original numbered slide 9
+\gdef\shortbuttons{\hyperlink{short-10}{\beamergotobutton{Back to First Period Optimization}}}
+\begin{frame}[label=short-9,noframenumbering]{Optimal Terminal Price and Profit}
+  \begin{tcolorbox}
+    [
+    boxsep=0pt,
+    left=2pt, right=2pt,
+    top=1pt, bottom=1pt,
+    before skip=2pt, after skip=2pt
+    ]
+    \setlength{\abovedisplayskip}{2pt}
+    \setlength{\belowdisplayskip}{2pt}
+    \begin{align*}
+      \frac{\partial\pi_2(h_1)}{\partial p_2(h_1)} &= s_2(h_1) + (p_2 - c)\frac{\partial s_2(h_1)}{\partial p_2(h_1)} \\
+      p_2^*(h_1)&= c + \frac{1}{\alpha(1-s_2^*(h_1))} \\
+      \pi^*_2(p_2^*(h_1); h_1) &= \frac{s_2^*(h_1)}{\alpha(1-s_2^*(h_1))}
+    \end{align*}
+  \end{tcolorbox}
+  \begin{itemize}
+    \item Optimal period two price is cost plus a demand markup term
+    \item Period two profit at optimal prices is the odds of purchase, scaled by the inverse price sensitivity
+  \end{itemize}
+\end{frame}
+
+
+% Original numbered slide 11
+\gdef\shortbuttons{\hyperlink{short-10}{\beamergotobutton{Back to First Period Optimization}}}
+\begin{frame}[label=short-11,noframenumbering]{Optimal Profit Given Switching Type}
+  \begin{tcolorbox}
+    [
+    boxsep=0pt,
+    left=2pt, right=2pt,
+    top=1pt, bottom=1pt,
+    before skip=2pt, after skip=2pt
+    ]
+    \setlength{\abovedisplayskip}{2pt}
+    \setlength{\belowdisplayskip}{2pt}
+    \begin{align*}
+      \frac{d\Pi}{d\gamma} &= \frac{q(h)s_1^*(h) - \delta s_1^*(h)s_2^*(j) + \delta(1-s_1^*(h))s_2^*(0)}{\alpha}
+    \end{align*}
+  \end{tcolorbox}
+  \begin{itemize}
+    \item There are two interpretations:
+    \begin{enumerate}
+      \item If $h_0=j$, $q(h)<0$, leading us to ambiguous signage as we raise profits from initially outside consumers but see opposing forces for the initially inside: leave in period one, return in period two
+      \item If $h_0=0$, $q(h)>0\Rightarrow \frac{d\Pi}{d\gamma} > 0$, meaning that profits increase as $\gamma$ increases
+    \end{enumerate}
+    \item Points to firms potentially reaping great benefit from knowing consumer types and histories
+  \end{itemize}
+\end{frame}
+
+
+% Original numbered slide 52
+\gdef\shortbuttons{\hyperlink{short-10}{\beamergotobutton{Back to First Period Optimization}}}
+\begin{frame}[label=short-52,noframenumbering]{Shares and Elasticities}
+  \begin{tcolorbox}
+    [
+    boxsep=0pt,
+    left=2pt, right=2pt,
+    top=1pt, bottom=1pt,
+    before skip=2pt, after skip=2pt
+    ]
+    \setlength{\abovedisplayskip}{2pt}
+    \setlength{\belowdisplayskip}{2pt}
+    \begin{gather*}
+      s_t(h) = \frac{e^{v_t(h)}}{1+e^{v_t(h)}}, \ s_{0t}(h) = 1-s_t(h) \\
+      \frac{\partial s_t(h)}{\partial p_t(h)} = -\alpha s_t(h)(1-s_t(h)) \\
+      \frac{\partial s_t(h)}{\partial\gamma} = q(h)s_t(h)(1-s_t(h))
+    \end{gather*}
+  \end{tcolorbox}
+  \end{frame}
+
+
+% Original numbered slide 12
+\gdef\shortbuttons{\hyperlink{short-14}{\beamergotobutton{Back to Optimal Prices}}}
+\begin{frame}[label=short-12,noframenumbering]{Pricing Simulations Specification}
+  \centering
+  \small
+  \begin{tabular}{lll}
+    \toprule
+    Parameter & Description & Value \\
+    \midrule
+    $\beta$ & Inside-good intercept & $2$ \\
+    $\alpha$ & Price sensitivity & $1$ \\
+    $\delta$ & Discount factor (no discounting) & $1$ \\
+    $c$ & Marginal cost & $0$ \\
+    $\gamma$ & Switching preference & $[-3,3]$ \\
+    \midrule
+    \multicolumn{2}{l}{Initial Consumption State}
+      & $h_0\in\{0,j\}$ \\
+    \multicolumn{2}{l}{Feasible Prices}
+      & $p_t(h)\in\mathbb{R}$ \\
+    \bottomrule
+  \end{tabular}
+  \begin{itemize}
+    \item Allow for negative pricing
+    \item Firm has knowledge of both type and history, allowing for targeted pricing
+    \item Four consumption histories possible $(h_0, h_1) \in \{(0,0), (0,j), (j,j), (j,0)\}$
+  \end{itemize}
+\end{frame}
+
+
+% Original numbered slide 13
+\gdef\shortbuttons{\hyperlink{short-14}{\beamergotobutton{Back to Optimal Prices}}}
+\begin{frame}[label=short-13,noframenumbering]{Results}
+  \begin{center}\small\begin{tabular}{crrrrrr}\toprule
+  $x_0$ & $\gamma$ & $p_1^*$ & $p_2^*(j)$ & $p_2^*(0)$ & $\Pi^*$ & $\Pi^{*\prime}$\\\midrule
+  $j$ & -3 & 3.358 & 3.926 & 1.120 & 5.284 & -1.445\\
+  $j$ & -1 & 2.211 & 2.557 & 1.567 & 2.768 & -0.993\\
+  $j$ & 0 & 2.000 & 2.000 & 2.000 & 2.000 & -0.500\\
+  $j$ & 1 & 2.271 & 1.567 & 2.557 & 1.838 & 0.177\\
+  $j$ & 3 & 3.814 & 1.120 & 3.926 & 2.934 & 0.730\\
+  $0$ & -3 & -0.901 & 3.926 & 1.120 & 1.026 & 0.177\\
+  $0$ & -1 & 1.005 & 2.557 & 1.567 & 1.562 & 0.376\\
+  $0$ & 0 & 2.000 & 2.000 & 2.000 & 2.000 & 0.500\\
+  $0$ & 1 & 2.995 & 1.567 & 2.557 & 2.562 & 0.624\\
+  $0$ & 3 & 4.905 & 1.120 & 3.926 & 4.025 & 0.823\\
+  \bottomrule\end{tabular}\end{center}
+\end{frame}
+
+
+% Original numbered slide 15
+\gdef\shortbuttons{\hyperlink{short-14}{\beamergotobutton{Back to Optimal Prices}}}
+\begin{frame}[label=short-15,noframenumbering]{Optimal Profit}
+  \centering
+  \includegraphics[width=.75\textwidth,height=.68\textheight,keepaspectratio]{assets/theory_delta1/all_state_realized_profit.pdf}
+\end{frame}
+
+
+% Original numbered slide 16
+\gdef\shortbuttons{\hyperlink{short-14}{\beamergotobutton{Back to Optimal Prices}}}
+\begin{frame}[label=short-16,noframenumbering]{Optimal Price Ratio}
+  \centering
+  \includegraphics[width=.75\textwidth,height=.68\textheight,keepaspectratio]{assets/theory_delta1/all_state_price_ratios.pdf}
+\end{frame}
+
+
+% Original numbered slide 17
+\gdef\shortbuttons{\hyperlink{short-14}{\beamergotobutton{Back to Optimal Prices}}}
+\begin{frame}[label=short-17,noframenumbering]{Discussion}
+  \begin{itemize}
+    \item Two mechanisms: Induce and harvest, Retain and gain
+    \item Most profit from those who are habitual inside purchasers
+    \item Least profit from those who purchase outside in period 1 across all levels of gamma
+    \item Interesting when $(j,j)$ and $(0,0)$ cross
+  \end{itemize}
+\end{frame}
+
+
+% Original numbered slide 19
+\gdef\shortbuttons{\hyperlink{short-20}{\beamergotobutton{Back to Household-Specific vs Common Prices}}}
+\begin{frame}[label=short-19,noframenumbering]{Theory: Revenue Levels under the Same Persistent Types}
+  \centering
+  \includegraphics[width=.98\textwidth,height=.72\textheight,keepaspectratio]{assets/theory_delta1/gamma_uncertainty/profits.pdf}
+  \par\smallskip\footnotesize Full-information optimal revenue versus realized revenue of the fixed-belief common policy.
+\end{frame}
+
+
+% Original numbered slide 53
+\gdef\shortbuttons{\hyperlink{short-20}{\beamergotobutton{Back to Household-Specific vs Common Prices}}}
+\begin{frame}[label=short-53,noframenumbering]{Theory: Type-Specific and Common Offers}
+  \centering
+  \includegraphics[width=.98\textwidth,height=.70\textheight,keepaspectratio]{assets/theory_delta1/gamma_uncertainty/information_price_paths_comparison.pdf}
+  \par\smallskip\footnotesize Equal type weights; same format as the calibrated plain price paths.
+\end{frame}
+
+
+% Original numbered slide 54
+\gdef\shortbuttons{\hyperlink{short-20}{\beamergotobutton{Back to Household-Specific vs Common Prices}}}
+\begin{frame}[label=short-54,noframenumbering]{Fixed Beliefs for Offers; Persistent Types for Evaluation}
+  \begin{itemize}
+    \item The hidden-type firm uses $\mu_r$ in every state to choose offers;
+    it does not update beliefs after a purchase.
+    \item Real consumers retain their type. First-period choices sort types into
+    histories even when the firm ignores that information.
+  \end{itemize}
+  \[
+    \Pr(j\text{ in both periods})=\sum_r\mu_r s_{1r}s_{2r}(j),
+    \quad\text{not}\quad
+    \left(\sum_r\mu_r s_{1r}\right)\left(\sum_r\mu_r s_{2r}(j)\right).
+  \]
+  \begin{tcolorbox}
+    The firm's fixed-belief optimization objective and realized persistent-type
+    revenue need not coincide. All displayed policy comparisons use the latter.
+  \end{tcolorbox}
+\end{frame}
+
+
+% Original numbered slide 28
+\gdef\shortbuttons{\hyperlink{short-29}{\beamergotobutton{Back to Estimation}}}
+\begin{frame}[label=short-28,noframenumbering]{Probability and Shares}
+  \begin{align*}
+    P_{ijt} &= \frac{\text{exp}\{V_{ijt}\}}{1 + \sum_{k\in J}\text{exp}\{V_{ikt}\}} \\
+    &\text{s.t.} \ V_{ijt} = U_{ijt} - \varepsilon_{ijt} \\
+    s_{jt} &= \frac{1}{N}\sum_{n=1}^{N}P_{ijt}
+  \end{align*}
+  \begin{itemize}
+    \item Use deterministic utility to form purchase probabilities
+    \item Take average probability for product $j$ across individuals $i\in N$ to recover shares
+  \end{itemize}
+\end{frame}
+
+
+% Original numbered slide 55
+\gdef\shortbuttons{\hyperlink{short-29}{\beamergotobutton{Back to Estimation}}}
+\begin{frame}[label=short-55,noframenumbering]{Demand: Price-Control Comparison}
+\input{../writeup/1108_writeup/assets/results/demand/comparison.tex}
+\end{frame}
+
+
+% Original numbered slide 56
+\gdef\shortbuttons{\hyperlink{short-29}{\beamergotobutton{Back to Estimation}}}
+\begin{frame}[label=short-56,noframenumbering]{Controlled Demand Estimates}
+\input{../writeup/1108_writeup/assets/results/demand_controlled/estimates.tex}
+\end{frame}
+
+
+% Original numbered slide 61
+\gdef\shortbuttons{\hyperlink{short-29}{\beamergotobutton{Back to Estimation}}}
+\begin{frame}[label=short-61,noframenumbering]{Controlled Fit: Price First Stages}
+\input{../writeup/1108_writeup/assets/results/demand_controlled/first_stage.tex}
+\end{frame}
+
+
+% Original numbered slide 30
+\gdef\shortbuttons{\hyperlink{short-32}{\beamergotobutton{Back to Distributions}}}
+\begin{frame}[label=short-30,noframenumbering]{Estimates}
+  \centering
+  \input{assets/demand_1111_three/estimates.tex}
+\end{frame}
+
+
+% Original numbered slide 33
+\gdef\shortbuttons{\hyperlink{short-32}{\beamergotobutton{Back to Distributions}}}
+\begin{frame}[label=short-33,noframenumbering]{Discussion}
+  \begin{itemize}
+    \item Mean novelty WTP is approximately $-\$0.84$
+    \item Mean habit preference is positive
+    \item Berry is less preferred than other; plain is similar to other
+  \end{itemize}
+  \begin{tcolorbox}
+    How can the firm use the distribution of switching types to price discriminate?
+  \end{tcolorbox}
+\end{frame}
+
+
+% Original numbered slide 62
+\gdef\shortbuttons{\hyperlink{short-31}{\beamergotobutton{Back to Implied Willingness to Pay}}}
+\begin{frame}[label=short-62,noframenumbering]{Controlled Fit: Willingness to Pay}
+\input{../writeup/1108_writeup/assets/results/demand_controlled/implied_wtp.tex}
+\end{frame}
+
+
+% Original numbered slide 37
+\gdef\shortbuttons{\hyperlink{short-44}{\beamergotobutton{Back to Revenue Gain}}}
+\begin{frame}[label=short-37,noframenumbering]{Results: Plain Inside}
+  \centering
+  \includegraphics[width=\textwidth]{../../../Results/pricing_no_disc/pricing/plain/household_coupon_results.pdf}
+\end{frame}
+
+
+% Original numbered slide 39
+\gdef\shortbuttons{\hyperlink{short-44}{\beamergotobutton{Back to Full-Demand Prices}}}
+\begin{frame}[label=short-39,noframenumbering]{Plain: Optimal Offers by Consumer Type}
+  \centering
+  \includegraphics[width=0.85\textwidth]{../../../Results/pricing_no_disc/pricing/plain/discounts_by_consumer_type.pdf}
+\end{frame}
+
+
+
+
+\gdef\shortbuttons{\hyperlink{short-plain-complete-paths}{\beamergotobutton{Back to Calibrated Prices}}}
+\begin{frame}[label=short-plain-gamma-detail,noframenumbering]{Calibrated Plain: Detail around Estimated Group Means}
+  \centering
+  \includegraphics[width=.98\textwidth,height=.69\textheight,keepaspectratio]{assets/aligned_pricing/calibrated_prices_by_gamma_detail.pdf}
+  \par\smallskip\footnotesize Same curves, zoomed around low, middle and high group means.
+  All three means are negative. Terminal curves condition on the first-period choice.
+\end{frame}
+
+
+
+\gdef\shortbuttons{\hyperlink{short-plain-info-table}{\beamergotobutton{Back to Revenue Comparison}}\hspace{.35em}\hyperlink{short-37}{\beamergotobutton{Plain types}}\hspace{.35em}\hyperlink{short-39}{\beamergotobutton{Price offers}}}
+\begin{frame}[label=short-44,noframenumbering]{Separate Full-Demand Exercise: Earlier Shared-Schedule Price Benchmark}
+  \centering
+  \includegraphics[width=.85\textwidth,height=.57\textheight,keepaspectratio]{assets/aligned_pricing/pricing_policy_benchmarks.pdf}
+  \par\smallskip\small Plain: \input{assets/aligned_pricing/coupon_headline.tex}.
+  \par\smallskip\footnotesize Same dynamic-pricing mechanism, with multinomial demand, novelty and habit.
+  Common prices use shared percentage reductions from posted prices;
+  household-specific prices use estimated types and basket histories.
+  The middle group remains at posted prices. Totals are not per-consumer binary-model revenue.
+\end{frame}
+
+\gdef\shortbuttons{\hyperlink{short-34}{\beamergotobutton{Back}}}
+\begin{frame}[label=short-35,noframenumbering]{Earlier Binary Illustration: Calibration Details}
+  \begin{itemize}
+    \item Low, middle and high groups are defined by estimated novelty preferences.
+    Use each group's mean; the middle type is \textbf{not} set to zero.
+    \[
+      (\gamma_L,\gamma_M,\gamma_H)=(-1.112,\,-0.763,\,-0.223).
+    \]
+    \item These are relative low/high types: all three group means are negative.
+    \item Map novelty to the binary model's symmetric history effect,
+    $\gamma_r[\mathbbm{1}\{h=0\}-\mathbbm{1}\{h=j\}]$.
+    \item Calibrate a common intercept and price sensitivity to observed offered prices.
+    Keep $\delta=1$ and $c=0$.
+  \end{itemize}
+  \par\smallskip\footnotesize Illustration, not the full split-history demand model:
+  habit is not separately carried into this binary calibration.
+  Price targets use 32 complete histories; treat the calibration as preliminary.
+\end{frame}
+
+\gdef\shortbuttons{\hyperlink{short-40}{\beamergotobutton{Back}}}
+\begin{frame}[label=short-42,noframenumbering]{Revenue Evaluation with Full Basket Histories}
+  \small
+  \[
+    R(h_0)=\sum_r\mu_r\sum_{b_1\in\mathcal B}
+      P_r(b_1\mid p_{1r},h_0)
+      \left[p_{1r}b_{1j}
+       +\delta\,p_{2r}(b_1)K s_{rj}\big(p_{2r}(b_1),h_1(b_1)\big)\right].
+  \]
+  \begin{itemize}
+    \item $b_1$ is the entire first-period binary choice; $b_{1j}$ counts focal purchases.
+    \item $h_1(b_1)$ updates both novelty and habit using the saved demand specification.
+    \item Household-specific prices vary with $r$. Common prices do not, conditional
+    on the other known characteristics and the same basket history.
+    \item The same type $r$ determines purchases in both periods.
+  \end{itemize}
+  \begin{tcolorbox}
+    Limited-information offers use fixed-belief optimization. Reported revenue
+    evaluates those offers under persistent types, as in the theory comparison.
+  \end{tcolorbox}
+\end{frame}
+
+\gdef\shortbuttons{\hyperlink{short-50}{\beamergotobutton{Back}}}
+\begin{frame}[label=short-51,noframenumbering]{Next Steps}
+  \begin{itemize}
+    \item Add firm learning to supply side
+    \item Extend market structure on supply
+    \item Add more product attributes to empirical estimation
+    \item Estimate unobserved quality in BLP fashion
+  \end{itemize}
+\end{frame}
+
+\gdef\shortbuttons{\hyperlink{short-27}{\beamergotobutton{Back to Demand Model}}}
+\begin{frame}[label=short-average-history,noframenumbering]{Average History: Fitted Specification}
+  \[
+    H^{\mathrm{avg}}_{ijt}=\frac{1}{n_{it}}
+      \sum_{s\in\mathcal{O}_i,\,s<t}w_{ijs},
+    \qquad n_{it}=\#\{s\in\mathcal{O}_i:s<t\}.
+  \]
+  \begin{itemize}
+    \item $\mathcal{O}_i$: observed yogurt-purchase weeks; $n_{it}$ counts prior occasions.
+    \item Empty history gives zero. Unobserved calendar weeks do not enter the denominator.
+    \item Current purchases affect the next state only.
+  \end{itemize}
+  \begin{tcolorbox}
+    Displayed demand estimates use the November 11 three-flavor average-history fit.
+    The pricing illustration holds habit at its reference level.
+  \end{tcolorbox}
+\end{frame}
+
+\gdef\shortbuttons{\hyperlink{short-34}{\beamergotobutton{Back to Revised Exercise}}}
+\begin{frame}[label=short-plain-complete-paths,noframenumbering]{Earlier Binary Illustration: Optimal Prices across Switching Types}
+  \centering
+  \includegraphics[width=.98\textwidth,height=.68\textheight,keepaspectratio]{assets/aligned_pricing/calibrated_prices_by_gamma.pdf}
+  \par\smallskip\footnotesize Same known-type model as the theory price plots;
+  plain calibration: $\beta=10.502$, price sensitivity $\alpha=3.187$, $\delta=1$, $c=0$.
+  Points mark estimated group means; shading spans those means.
+  The wider $\gamma$ range is a comparative-static exercise, not estimated support.
+\end{frame}
+
+\gdef\shortbuttons{\hyperlink{short-34}{\beamergotobutton{Back to Revised Exercise}}}
+\begin{frame}[label=short-plain-price-paths,noframenumbering]{Earlier Binary Illustration: Type-Specific and Common Price Paths}
+  \centering
+  \includegraphics[width=.98\textwidth,height=.54\textheight,keepaspectratio]{assets/aligned_pricing/information_price_paths_comparison.pdf}
+  \par\smallskip\footnotesize Equal type weights. Paths show $p_1\rightarrow\mathbb{E}[p_2]$.
+  \begin{itemize}
+    \item Initially inside consumers receive nearly flat prices; common prices are close to the middle-type offer.
+    \item Initially outside consumers receive lower initial prices followed by higher expected terminal prices; the strongest acquisition incentive goes to the low type.
+  \end{itemize}
+\end{frame}
+
+\gdef\shortbuttons{\hyperlink{short-34}{\beamergotobutton{Back to Revised Exercise}}}
+\begin{frame}[label=short-47,noframenumbering]{Earlier Binary Illustration: Revenue Gain from Observing Type}
+  \centering
+  \includegraphics[width=.98\textwidth,height=.55\textheight,keepaspectratio]{assets/aligned_pricing/information_friction_information_value.pdf}
+  \par\smallskip\footnotesize Gain per consumer over two periods, using the same persistent types under both policies.
+  \begin{itemize}
+    \item Personalization adds more revenue for initially outside consumers at all probability levels.
+  \end{itemize}
+\end{frame}
+
+\gdef\shortbuttons{\hyperlink{short-34}{\beamergotobutton{Back to Revised Exercise}}}
+\begin{frame}[label=short-57,noframenumbering]{Earlier Binary Illustration: Information Gains by Initial State}
+  \begin{center}
+    \begin{tabular}{lrr}\toprule
+      Equal type weights & Initially inside & Initially outside\\\midrule
+      Theory: personalization gain & \$0.0555 & \$0.2642\\
+      Calibrated plain: personalization gain & \$0.0249 & \$0.0358\\\bottomrule
+    \end{tabular}
+  \end{center}
+  \begin{itemize}
+    \item Attracting different types can require very different offers.
+    A common offer sacrifices the ability to tailor those incentives.
+    \item Information value depends on the separation between optimal type-specific offers,
+    not simply the revenue level or initial purchase rate.
+    \item In the calibrated example, initially outside consumers generate less total
+    revenue but a larger \textbf{incremental gain} from personalization.
+  \end{itemize}
+\end{frame}
+
+\gdef\shortbuttons{\hyperlink{short-34}{\beamergotobutton{Back to Revised Exercise}}}
+\begin{frame}[label=short-plain-info-table,noframenumbering]{Earlier Binary Illustration: Revenue by State and Prior}
+  \centering\small
+  \begin{adjustbox}{max width=\linewidth}
+    \input{assets/aligned_pricing/information_results.tex}
+  \end{adjustbox}
+  \par\medskip\footnotesize Dollars per model consumer, evaluated under persistent types.
+  $j$: initially plain; $0$: initially outside plain, including other yogurt.
+  Price targets use 32 complete histories; this is an illustrative calibration.
+\end{frame}
+
+\end{document}

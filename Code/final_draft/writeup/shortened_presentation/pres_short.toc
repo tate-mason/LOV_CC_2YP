@@ -4,5 +4,5 @@
 \beamer@sectionintoc {4}{Data}{14}{0}{4}
 \beamer@sectionintoc {5}{Demand Estimation}{18}{0}{5}
 \beamer@sectionintoc {6}{Pricing Exercise}{24}{0}{6}
-\beamer@sectionintoc {7}{Conclusion}{28}{0}{7}
-\beamer@sectionintoc {8}{Appendix}{29}{1}{8}
+\beamer@sectionintoc {7}{Conclusion}{32}{0}{7}
+\beamer@sectionintoc {8}{Appendix}{33}{1}{8}

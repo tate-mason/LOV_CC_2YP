@@ -1,0 +1,23 @@
+{
+  "model": "original binary theory with aggregate estimated inputs",
+  "utility": "beta_flavor + alpha*p + gamma*(1{previous not focal}-1{previous focal})",
+  "alpha": -0.8025228737932282,
+  "alpha_mapping": "negative population mean magnitude: -exp(mu_log_minus_alpha+sd_log_minus_alpha^2/2)",
+  "beta_mapping": "inside_constant + beta_flavor; other is reference flavor",
+  "habit": "held fixed at reference stock zero; no habit dynamics",
+  "outside": "theory outside utility normalized to zero; no composite outside reconstruction",
+  "information": "informed knows gamma; common knows distribution; fixed beliefs in both histories",
+  "evaluation": "same persistent gamma in both periods; actual revenue, not subjective common objective",
+  "delta": 1.0,
+  "cost": 0.0,
+  "nodes": 9,
+  "gamma_mean": -0.3576115189881821,
+  "gamma_sd": 1.130643523570304,
+  "observed_price_comparison": false,
+  "demand_refitted": false,
+  "source": "/Users/tate/LOV_CC_2YP/estimates_1111/three/no_control_fit/point_estimates.csv",
+  "source_sha256": "9954b5336b052064cb5c841794b8e147d8a0bfeb3ccc1a97a16abc38070abad5",
+  "script_sha256": "72bf4fdfdb8033db64f1e9d890d9f02072052fa9f472e7e09a634f1286f38405",
+  "flavor": "berry",
+  "beta": 0.40273404074065133
+}

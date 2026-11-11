@@ -1,0 +1,149 @@
+\documentclass[11pt]{article}
+\usepackage[margin=0.85in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern,microtype,amsmath,amssymb,booktabs,tabularx,enumitem,xcolor}
+\usepackage[hidelinks]{hyperref}
+\definecolor{reviewred}{HTML}{BA0C2F}
+\usepackage{titlesec}
+\titleformat{\section}{\large\bfseries\color{reviewred}}{}{0pt}{}
+\titleformat{\subsection}{\normalsize\bfseries}{}{0pt}{}
+\setlist{nosep,leftmargin=*}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt}
+\newcommand{\todo}{\(\square\)\quad}
+\begin{document}
+\begin{center}
+{\LARGE\bfseries Departmental Seminar: Revision Feedback}\\[5pt]
+{\large Short presentation --- substantive slides}\\[3pt]
+November 11, 2026
+\end{center}
+
+\textbf{Overall grade: B$-$.} This assessment treats the presentation as a PhD departmental work-in-progress seminar and excludes introductory filler. The research question supports a good talk, and the theory--estimation--pricing structure is sensible. The main vulnerabilities are identification and the connection between estimated demand and the pricing exercise. Two displayed mathematical issues also need immediate attention.
+
+This is a review of what the slides establish, not an audit of the estimation or pricing code. Spoken explanations may address some gaps. Grades and slide references refer to the reviewed deck; slide numbers may change during revision.
+
+\section{Section grades}
+\small
+\begin{tabularx}{\textwidth}{@{}p{0.28\textwidth}p{0.07\textwidth}X@{}}
+\toprule
+Slides / section & Grade & Assessment \\
+\midrule
+6--9: setting, timing, consumer and firm problems & B & Manageable model; consumer behavior and information assumptions need sharper statements.\\[5pt]
+10--12: optimization and prices & C+ & Useful mechanism, undermined by an apparent sign error and insufficient interpretation of curves.\\[5pt]
+13--14: information comparison & B & Clear comparison on persistent types. Fixed beliefs need an economic justification.\\[5pt]
+15--18: data and descriptives & B & Relevant persistence evidence. Too much table detail; observation and opportunity construction need attention.\\[5pt]
+19--22: demand and estimation & C+ & Estimation notation is clearer. Identification claims exceed what the specification demonstrates.\\[5pt]
+23--24: distributions and WTP & B$-$ & Interesting results; uncertainty, fit, units, and interpretation need strengthening.\\[5pt]
+25--31: quantified pricing & B$-$ & Concrete results; demand-to-binary-model mapping needs a stronger defense. Several displays repeat the comparison.\\[5pt]
+Conclusion & C & Describes the exercise instead of stating what was learned.\\
+\bottomrule
+\end{tabularx}
+\normalsize
+
+\section{What is working}
+The timing slide is easy to follow. Distinguishing initial history from consumer type is useful. Evaluating both policies on the same persistent types is a strong organizing choice. The transition matrix motivates the empirical question, and the distribution plots communicate heterogeneity efficiently.
+
+The pricing results contain a clear headline: the displayed fitted-distribution table implies revenue gains of approximately \textbf{3.6\% for initially inside consumers and 12.5\% for initially outside consumers}, relative to common-policy revenue. These are calculated from the displayed table and are model illustration results. They are more memorable than the conclusion's description of what is being compared.
+
+\newpage
+\section{Priority fixes: mathematical consistency and identification}
+
+\subsection{1. Check the sign of the dynamic pricing term (slide 10)}
+The displayed first-order condition implies
+\[
+ p_1^*=c+\frac{1}{\alpha(1-s_1^*)}
+       -\delta\bigl[\pi_2(j)-\pi_2(0)\bigr],
+\]
+whereas the following line shows a plus sign. With the slide's positive price-disutility parameter, a more profitable future customer state should encourage sacrificing current margin.
+
+\textbf{Action:} Check the equation against the implementation before changing figures. This is the most immediately damaging issue because it appears on the slide explaining the central mechanism.
+
+\subsection{2. Reconcile the persistent-taste claim with common flavor intercepts (slides 19--21)}
+Slide 19 says flavor intercepts are common across households. Slide 21 says $\beta_j$ captures stable differences across households. Those statements conflict.
+
+\textbf{Likely question:} If someone persistently likes plain yogurt, why does the model not interpret that as habit or negative novelty preference?
+
+Variation in recent and longer histories helps distinguish the two history regressors. It does not by itself establish that either is separated from persistent flavor tastes.
+
+\textbf{Action:} Distinguish sources of identifying variation from assumptions needed to interpret that variation. Correct the claim about $\beta_j$ and explain how persistent flavor tastes are addressed or what limitation remains.
+
+\subsection{3. Check the habit equation (slide 20)}
+The displayed denominator is $\sum_{s<t}s$. An average over prior weeks would ordinarily divide by the number of prior weeks, with the treatment of nonpurchase weeks explicitly defined. The displayed expression is not a conventional average.
+
+\textbf{Action:} Compare the equation with the implementation and state exactly which weeks enter the numerator and denominator. This is a displayed-equation concern, not a finding that the code is wrong.
+
+\subsection{4. Explain price endogeneity and initial conditions}
+The fit is labeled as having no price controls. Explain what makes price variation informative about price sensitivity, and what remains assumed. Also explain how initial histories are handled when tastes persist and pre-sample choices are unobserved.
+
+\textbf{Action:} Give these assumptions a visible place in the main argument. They are particularly consequential because the estimated preferences are subsequently used to optimize prices.
+
+\newpage
+\section{Priority fixes: empirical construction and counterfactual scope}
+
+\subsection{5. Explain the seven-opportunity construction}
+The model assumes seven opportunities per week, but the switching-statistics table reports that roughly 21\% of purchase weeks exceed seven packages. With nonpurchase counts truncated at zero, those weeks do not have seven total modeled choices.
+
+\textbf{Questions to answer:}
+\begin{itemize}
+\item What is one choice: a package, serving, purchase occasion, or day?
+\item How do purchases relate to consumption and inventory?
+\item Which nonpurchase weeks enter the likelihood?
+\item Why does a calendar week without a purchase reset novelty to zero?
+\end{itemize}
+
+\textbf{Action:} Add a main-deck explanation of the observation unit and likelihood construction. These substantive choices deserve more airtime than simulation mechanics.
+
+\subsection{6. Defend the mapping from estimated demand to binary pricing}
+Estimated demand has multiple flavors, novelty, habit, and heterogeneous price sensitivity. Pricing uses binary choices, zero-reference habit, and mean price sensitivity. Calling this a quantified theory illustration is appropriate, but the simplification needs an explicit explanation.
+
+\textbf{Questions to answer:}
+\begin{itemize}
+\item What does this simplification preserve, and what does it discard?
+\item Why is the multinomial plain intercept an appropriate input for plain versus an aggregate of all alternatives?
+\item How does a flavor-share novelty variable map into a symmetric binary switching payoff?
+\end{itemize}
+
+\textbf{Action:} Explain the mapping and delimit the interpretation of the dollar results. The parameters do not automatically retain the same meaning across these choice environments.
+
+\subsection{7. State consumer behavior and defend fixed beliefs}
+A two-period pricing model invites questions about whether consumers anticipate future prices. State explicitly whether they are myopic or forward-looking.
+
+Observed purchases are informative about persistent types. A common-price benchmark with fixed beliefs restricts learning as well as hiding type.
+
+\textbf{Action:} Explain the economic motivation for fixed beliefs before presenting information gains. Be clear about the benchmark to which the gains apply.
+
+\section{Evidence and interpretation}
+\textbf{Show behavioral fit in the main deck.} An observed-versus-predicted comparison for switching, repeat purchase, or nonpurchase would help. Convergence, AIC, and BIC alone do not establish behavioral fit.
+
+\textbf{Clarify WTP.} State the dollar and quantity units, explain what a one-unit change in novelty or habit means, and distinguish population dispersion from estimation uncertainty. A concrete basket example would help.
+
+\newpage
+\section{Presentation revisions}
+\begin{enumerate}[itemsep=7pt]
+\item \textbf{Use result titles.} Replace generic titles such as ``How Much Revenue Does Knowing Novelty Add?'' with the finding, for example: ``Knowing novelty is more valuable for initially outside consumers.''
+\item \textbf{Interpret theory curves.} Explain which price changes represent acquisition incentives or harvesting, and connect them directly to the continuation-value term.
+\item \textbf{Reduce table detail.} Keep descriptive statistics that support the economic argument. Move the remaining demographic and sample detail to backup.
+\item \textbf{Cut repetitive pricing displays.} Revenue levels, revenue gains, and the full revenue table need not receive equal main-deck attention. Use the space for identification, observation construction, and fit.
+\item \textbf{End with findings.} State the estimated preference pattern, its pricing implication, and the principal assumption limiting interpretation. The current conclusion mostly describes the exercise.
+\end{enumerate}
+
+\section{Revision checklist}
+\begin{itemize}[label={},itemsep=6pt]
+\item \todo Verify the dynamic pricing sign against the implementation.
+\item \todo Verify the habit denominator and nonpurchase-week treatment.
+\item \todo Reconcile common flavor intercepts with the persistent-taste identification claim.
+\item \todo State the observation unit and explain weeks with more than seven packages.
+\item \todo Explain included nonpurchase weeks, inventory concerns, and novelty reset.
+\item \todo State price-identification and initial-condition assumptions.
+\item \todo State consumer myopia or forward-looking behavior.
+\item \todo Defend the fixed-belief benchmark and explain its scope.
+\item \todo Explain the demand-to-binary-pricing parameter mapping.
+\item \todo Add one observed-versus-predicted behavioral fit comparison.
+\item \todo Clarify WTP units and population dispersion versus uncertainty.
+\item \todo Give result slides finding-based titles; reduce redundant displays.
+\item \todo Rewrite the conclusion around findings, magnitudes, and limitations.
+\end{itemize}
+
+\section{Target for the next draft}
+This is a credible work-in-progress talk with an interesting economic mechanism. Fixing mathematical inconsistencies and strengthening identification, empirical construction, and the counterfactual mapping would move it toward an A$-$ seminar presentation. Cosmetic polishing alone would leave the main faculty objections intact.
+\end{document}

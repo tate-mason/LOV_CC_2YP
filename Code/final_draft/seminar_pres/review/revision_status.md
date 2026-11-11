@@ -1,0 +1,22 @@
+# Review against seminar_feedback.pdf — November 11
+
+The pricing setup and appendix are clearer, but the initial revisions left the three main equation/identification objections unresolved. Both presentation sources now correct the continuation sign, average-habit denominator, and common-intercept claim. Source inspection confirms the negative continuation adjustment in gamma_calibration.known_prices and purchase-week averaging in estimation.add_stocks. No empirical data were read or estimation jobs run.
+
+Other edits: state consumer myopia, qualify the restricted-learning benchmark and binary mapping, correct 11 flavors per week to 11 over the sample, qualify WTP, and put findings in the conclusion.
+
+## What to tackle next, in order
+
+1. **Observation construction.** The estimator builds rows from purchase weeks, adds outside=max(7-Q,0), and does not insert all calendar nonpurchase weeks. A package is the counted purchase unit; it is not an observed daily consumption decision. Thus the likelihood has max(7,Q) choices per retained purchase week. The seven-opportunity interpretation is only a reference convention, and conditioning on purchase weeks matters for the outside option. Explain this visibly before interpreting nonpurchase probabilities. Decide whether the intended model is conditional flavor demand or calendar demand before doing a server refit. Do not silently cap package purchases or invent unobserved consumption.
+2. **Persistent tastes.** Within-household history variation separates the two regressors mechanically, but common flavor intercepts cannot absorb household-specific flavor tastes. A negative novelty coefficient can partly reflect stable tastes. For the current talk, say this limitation explicitly. A stronger causal claim needs a defensible specification/initial-conditions strategy and supporting checks on the server; simply adding identification prose does not establish it.
+3. **Binary mapping.** The current exercise deliberately carries parameter values into a different model. In multinomial logit, the focal-versus-rest log odds subtract a log-sum-exp over alternatives. The fitted plain intercept alone is not that intercept. Likewise, a share-based novelty term is not automatically a symmetric binary switching reward: the latter changes relative utility by 2*gamma between histories. Present the existing exercise as a parameterized theory illustration; an empirically faithful counterfactual needs a separately derived mapping or the full demand system.
+4. **Fit.** Add observed-versus-predicted flavor shares, repeat/switch rates and outside counts under the exact estimation construction. Generate these only on the research server and recover aggregates. AIC, convergence and parameter distributions are not behavioral validation. Do not portray implied outside counts as observed calendar nonpurchase.
+5. **Trim the talk.** Move demographics and the full pricing table to backup; retain one gain figure and one mechanism/price-path figure. Use the freed space for observation construction and behavioral fit.
+
+## Useful explanations for questions
+
+- **Why a minus sign?** An extra dollar of continuation profit after buying lowers the optimal current margin by delta dollars, holding the static FOC component fixed. The share and static markup also change at equilibrium.
+- **Why fixed beliefs?** This is a restricted-use-of-information policy benchmark. Purchases reveal information about persistent types, so it is not the fully optimal uninformed Bayesian firm. Without an institutional motivation, call it a restriction rather than an empirical fact.
+- **What does WTP mean?** -$0.838 is the mean coefficient ratio for a full unit of N, holding habit and other utility terms fixed. It is not the total cost of switching flavors. A 0.5 increase in N has half this direct utility-equivalent effect, about -$0.419 per package. Habit WTP is similarly for a full unit of average prior share. Population SD is heterogeneity, not a confidence interval.
+- **How large are the gains?** Fitted baseline: $0.0581 / $1.6059 = about 3.6% initially inside; $0.1219 / $0.9774 = about 12.5% initially outside. The $0.144 maximum comes from a sensitivity distribution, not the fitted baseline.
+
+The original auxiliary file was already malformed (undefined control sequence \newla). Validate using a fresh output directory rather than deleting user files. The canonical PDF is rebuilt from fresh temporary auxiliary files.

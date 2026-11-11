@@ -1,0 +1,13 @@
+{
+  "source": "estimates_1111/three/no_control_fit",
+  "flavor_spec": "three",
+  "stock_measure": "average",
+  "inputs": {
+    "point_estimates.csv": "9954b5336b052064cb5c841794b8e147d8a0bfeb3ccc1a97a16abc38070abad5",
+    "estimates.csv": "86d873e2f3046ce52ccdb52e9e4dc9916b9d5709396c3923d373b367372302b5",
+    "fit_summary.json": "0b789f40220231eda80d3fa578c359e9973d78138ad3b211cc254e234f81003e",
+    "implied_wtp.csv": "1b66d415012bc948604ec233ffa256aa3f63bbe990cda75fc88f844d47d40e96",
+    "history_distribution_summary.csv": "62161c12f84a74c4bff4638a4b5e996b53643fe836c07bc683e440f4ef927c4d",
+    "history_distributions.pdf": "e3c2c1df7710fefbefd8070b93e2ad4a39102f5ef21333a05fef5f53c8274e5b"
+  }
+}

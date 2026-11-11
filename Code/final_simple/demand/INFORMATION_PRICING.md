@@ -1,3 +1,9 @@
+> **Current presentation exercise:** use `demand/quantified_theory.py` with the
+> saved aggregate parameter estimates. It computes common versus informed pricing
+> in the original theory for all three flavors. No server job is needed. See
+> `Code/final_simple/demand/QUANTIFIED_THEORY.md`. The server-based exercises
+> below are earlier work and are not the current presentation exercise.
+
 # Current specification: binary focal flavor versus not focal
 
 The active runner uses `binary_information_pricing_model.py`. Each period has one

@@ -1,0 +1,43 @@
+\documentclass[11pt]{article}
+\usepackage[margin=.85in]{geometry}
+\usepackage{amsmath,booktabs,hyperref}
+\setlength{\parindent}{0pt}\setlength{\parskip}{.65em}
+\begin{document}
+\begin{center}\Large Quantifying the theory: informed versus common prices\end{center}
+\textbf{Question.} How much do prices and revenue change when the firm knows a consumer's novelty preference rather than only its distribution? Use the original two-period binary theory with estimated preference parameters. No observed-price comparison.
+
+\textbf{Consumer.} Each period choose focal flavor $j$ or not $0$. Relative utility is
+\[
+v_t=\beta_f+\alpha p_t+\gamma q(h_{t-1}),\qquad q(j)=-1,\quad q(0)=1,\quad\alpha<0.
+\]
+Purchase probability is $s(p,h,\gamma)=(1+\exp(-v))^{-1}$. The same gamma persists in both periods. The second price depends on the first binary choice.
+
+\textbf{Estimated inputs.} November 11 three-flavor uncontrolled demand fit.
+\begin{itemize}
+\item Gamma: estimated population normal distribution, represented by nine Gauss--Hermite nodes and weights.
+\item Price sensitivity: $\alpha=-\exp(\widehat\mu_{\log a}+\widehat\sigma_{\log a}^{2}/2)$, the negative population mean magnitude.
+\item Flavor intercept: estimated inside constant plus flavor coefficient; other is the reference flavor.
+\end{itemize}
+Habit is held at its zero-stock reference; theory outside utility is zero. These are explicit reference choices for quantifying the theory, not an exact aggregation of fitted multinomial demand. Discounting is one and cost is zero. The saved fit has a shared gamma distribution; flavor intercepts differ.
+
+\textbf{Informed.} For each gamma, choose a terminal price after each history to maximize $p\,s(p,h,\gamma)$. Then choose the initial price to maximize initial revenue plus expected optimal continuation revenue.
+
+\textbf{Common.} Use distribution-average purchase probabilities. Choose one terminal price per history and one initial price per initial history. Beliefs stay fixed, exactly as in the theory exercise.
+
+\textbf{Revenue comparison.} Evaluate either policy on the same persistent gamma types:
+\[
+E_\gamma\left[p_1s_1+\delta\{s_1p_{2j}s_{2j}+(1-s_1)p_{20}s_{20}\}\right].
+\]
+Informed prices may vary with gamma; common prices do not. Report actual persistent-type revenue, not the common firm's fixed-belief subjective objective.
+
+\textbf{Plain, fitted-distribution baseline.} Dollars per model consumer over two periods:
+\begin{center}\begin{tabular}{lrrr}\toprule
+Initial history & Informed & Common & Gain\\\midrule
+Plain & 1.6639 & 1.6059 & 0.0581\\
+Not plain & 1.0993 & 0.9774 & 0.1219\\\bottomrule
+\end{tabular}\end{center}
+
+\textbf{Outputs and code.} All three flavors have been computed; slides use plain. Price curves, price paths and revenues are in \texttt{assets/quantified\_theory/}. Low-, middle- and high-heavy distributions are sensitivity scenarios, not estimated probabilities.
+
+\texttt{quantified\_theory.py} reads aggregate estimates and calls the existing theory's \texttt{known\_prices} and \texttt{uncertainty} functions. It does not call household calibration, reconstruct purchase paths or add habit dynamics. No server run or reestimation is needed. This guide supersedes the long walkthrough for the presentation exercise.
+\end{document}

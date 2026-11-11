@@ -1,0 +1,124 @@
+{
+  "status": "complete",
+  "model": "multinomial habit-inclusive demand",
+  "demand_refitted": false,
+  "saved_fit_nll": 1627493.8833353105,
+  "reconstructed_nll": 1627493.8833353105,
+  "fit_sha256": "78b947c71f73afc856564fbb490a0ccdd027f2d61f35c534c0267a23f5035a7d",
+  "parameters_sha256": "385f718c85ddd3938e3b81307879cae982b6a736dbe745f7f5bd1e76f5fd508f",
+  "solver_sha256": "9253725cc805537e8373341e725c8db4a733ecf933df50ccbb01ede78b5e4c8d",
+  "flavor_categories": [
+    "other",
+    "berry",
+    "plain"
+  ],
+  "stock_measure": "cumulative",
+  "stock_retention": 1.0,
+  "novelty_measure": "previous_share",
+  "capacity": 7,
+  "delta": 1.0,
+  "hidden": "novelty preference only",
+  "known": "price sensitivity and habit: estimated posterior means; histories and menus",
+  "beliefs": "fitted population normal novelty distribution; fixed in every state",
+  "gamma_nodes": [
+    -4.3848654948455446,
+    -3.33859831697107,
+    -2.435376367642476,
+    -1.5921691152930286,
+    -0.7732407836016637,
+    0.0456875480897011,
+    0.8888948004391484,
+    1.7921167497677428,
+    2.8383839276422176
+  ],
+  "gamma_weights": [
+    2.2345844007746576e-05,
+    0.0027891413212317653,
+    0.04991640676521791,
+    0.2440975028949394,
+    0.4063492063492064,
+    0.2440975028949394,
+    0.04991640676521791,
+    0.0027891413212317653,
+    2.2345844007746576e-05
+  ],
+  "quadrature_nodes": 9,
+  "prior_scenarios": [
+    {
+      "name": "Fitted distribution",
+      "weights": [
+        2.2345844007746576e-05,
+        0.0027891413212317653,
+        0.04991640676521791,
+        0.2440975028949394,
+        0.4063492063492064,
+        0.2440975028949394,
+        0.04991640676521791,
+        0.0027891413212317653,
+        2.2345844007746576e-05
+      ]
+    },
+    {
+      "name": "Low type more likely",
+      "weights": [
+        3.764139498631108e-05,
+        0.004698286182823562,
+        0.08408378679702483,
+        0.4111802856251653,
+        0.25,
+        0.20559014281258267,
+        0.04204189339851242,
+        0.0023491430914117815,
+        1.882069749315554e-05
+      ]
+    },
+    {
+      "name": "Middle type more likely",
+      "weights": [
+        1.882069749315554e-05,
+        0.002349143091411781,
+        0.042041893398512414,
+        0.20559014281258264,
+        0.5,
+        0.20559014281258267,
+        0.04204189339851242,
+        0.0023491430914117815,
+        1.882069749315554e-05
+      ]
+    },
+    {
+      "name": "High type more likely",
+      "weights": [
+        1.882069749315554e-05,
+        0.002349143091411781,
+        0.042041893398512414,
+        0.20559014281258264,
+        0.25,
+        0.41118028562516534,
+        0.08408378679702484,
+        0.004698286182823563,
+        3.764139498631108e-05
+      ]
+    }
+  ],
+  "evaluation": "same persistent gamma types under both policies",
+  "limited_objective": "fixed-belief objective at each decision, matching theory; realized revenue accounts for persistent types",
+  "common_prices": "common across novelty types conditional on known alpha, habit, history, rivals and menus",
+  "initial_history": "first observed basket; next two consecutive calendar weeks priced",
+  "population": "fitted population novelty crossed with observed pricing environments; not realized household revenue",
+  "participation": "nonpurchase utility zero; competing flavor prices fixed",
+  "prices": "continuous; first-period prices may rise/fall or be negative; terminal prices nonnegative; zero cost",
+  "restrictions": "all novelty types optimized; no middle-group exclusion",
+  "search_points": 65,
+  "development_limit": null,
+  "results": {
+    "plain": {
+      "environments": 1839,
+      "initial_states": {
+        "inside": 1324,
+        "outside": 515
+      },
+      "max_mass_error": 3.3306690738754696e-15
+    }
+  }
+}

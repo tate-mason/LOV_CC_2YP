@@ -1,0 +1,27 @@
+{
+  "source_files": {
+    "type_node_aggregate.csv": "5e4b94223d7c4d1d2af2fed99d9a6dd63262bb30520bed4898b43c3f6fdbcbfa",
+    "price_paths_by_type.csv": "bd4eb55647b5574a173dcb90046aad47aea9624ae1703458b2cf8fc7bd2cf898",
+    "revenue_comparison.csv": "040bea982b6815f18a06d1a9a9ad0c600fee315104804a447cb05b4aa99a9a8f"
+  },
+  "figures": [
+    "optimal_prices_by_gamma.pdf",
+    "optimal_prices_by_gamma.png",
+    "price_ratios_and_profit.pdf",
+    "price_ratios_and_profit.png",
+    "information_price_paths_comparison.pdf",
+    "information_price_paths_comparison.png",
+    "information_revenues.pdf",
+    "information_revenues.png",
+    "information_value.pdf",
+    "information_value.png",
+    "price_changes.pdf",
+    "price_changes.png"
+  ],
+  "baseline": "Fitted distribution",
+  "meaning": "Means across observed environments; gamma curves connect numerical integration nodes",
+  "terminal": "Conditional on at least one focal purchase versus no focal purchase; averages over baskets",
+  "ratio": "Conditional mean of realized p1/p2, not ratio of population-average prices",
+  "profit": "Expected revenue conditional on purchase branch; zero marginal cost",
+  "common": "Common across novelty types within a known alpha/habit/history environment"
+}

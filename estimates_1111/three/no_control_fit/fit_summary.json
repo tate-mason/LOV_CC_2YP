@@ -1,0 +1,28 @@
+{
+  "model": "heterogeneous_history",
+  "price_control": false,
+  "flavor_spec": "three",
+  "flavor_categories": [
+    "other",
+    "berry",
+    "plain"
+  ],
+  "novelty_measure": "previous_share",
+  "stock_measure": "average",
+  "stock_retention": 0.9,
+  "households": 15105,
+  "weeks": 281695,
+  "converged": true,
+  "inference": {
+    "method": "observed-information Hessian",
+    "conditional_on": "estimated price controls, retail instruments, and fixed integration draws",
+    "first_stage_uncertainty": "not included",
+    "robust": false,
+    "status": "computed; normal 95% intervals; first-stage uncertainty omitted"
+  },
+  "capacity": 7,
+  "nll": 1590033.030347355,
+  "aic": 3180084.06069471,
+  "bic": 3180152.665724554,
+  "message": "CONVERGENCE: RELATIVE REDUCTION OF F <= FACTR*EPSMCH"
+}

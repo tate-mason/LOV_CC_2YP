@@ -1,0 +1,16 @@
+{
+  "three": {
+    "status": "complete",
+    "information_calibration": {
+      "plain": "complete",
+      "berry": "complete"
+    }
+  },
+  "five": {
+    "status": "complete",
+    "information_calibration": {
+      "plain": "complete",
+      "berry": "complete"
+    }
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "price_control": false,
+  "novelty_measure": "previous_share",
+  "stock_measure": "average",
+  "stock_retention": 0.9,
+  "flavor_spec": "five",
+  "cases": {
+    "plain": {
+      "price_control": false,
+      "fit_sha256": "ae5793543814e79df36374388ac2e70ff868f0dfbf8dd3f89814c85798ccad11",
+      "parameter_sha256": "847ae778ada96cb404c75e3ac7261d5e8c9995c0867179038991626190e3e013",
+      "reconstructed_nll": 2035228.1454174886,
+      "households": 15099,
+      "capacity": 7,
+      "history_model": "b_N*N + b_S*S",
+      "demand_delta": 1.0,
+      "type_treatment": "posterior-mean",
+      "flavor_spec": "five",
+      "flavor_categories": [
+        "other",
+        "berry",
+        "plain",
+        "other_fruits",
+        "desserts"
+      ],
+      "stock_measure": "average",
+      "stock_retention": 0.9,
+      "information_calibration_status": "complete"
+    },
+    "berry": {
+      "price_control": false,
+      "fit_sha256": "ae5793543814e79df36374388ac2e70ff868f0dfbf8dd3f89814c85798ccad11",
+      "parameter_sha256": "847ae778ada96cb404c75e3ac7261d5e8c9995c0867179038991626190e3e013",
+      "reconstructed_nll": 2035228.1454174886,
+      "households": 15099,
+      "capacity": 7,
+      "history_model": "b_N*N + b_S*S",
+      "demand_delta": 1.0,
+      "type_treatment": "posterior-mean",
+      "flavor_spec": "five",
+      "flavor_categories": [
+        "other",
+        "berry",
+        "plain",
+        "other_fruits",
+        "desserts"
+      ],
+      "stock_measure": "average",
+      "stock_retention": 0.9,
+      "information_calibration_status": "complete"
+    }
+  },
+  "script_sha256": "52bde34be4c336213a1b505d5cb3c5d105a1c995a94c2522fa1bff4b1afaf10b",
+  "solver_sha256": "f504e82664b1666bed63bf09304ba37548e396d509eb69b7bb32f141d51011d1"
+}

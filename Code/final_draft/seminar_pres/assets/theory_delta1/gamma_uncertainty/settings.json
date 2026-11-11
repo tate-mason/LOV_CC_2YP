@@ -42,5 +42,6 @@
       ]
     ]
   ],
+  "revenue_evaluation": "same persistent types under both policies; common profit field remains fixed-belief objective",
   "checks": "Wider first-price grids; independent terminal maximizers; first-price finite-difference FOCs; Fixed-belief invariance; full-information bound; degenerate priors"
 }

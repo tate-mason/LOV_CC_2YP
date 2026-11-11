@@ -1,92 +1,52 @@
-# Short seminar version
+# Short presentation: revised information comparison
 
-`pres_short.tex` and `pres_short.pdf` are separate from the original `pres.tex`/`pres.pdf`.
+The main empirical exercise retains the saved habit-inclusive demand model. Both
+firms know history, price sensitivity and habit, and both can respond to the
+first-period purchase. Only novelty preference is hidden in limited information.
+Prices are common across novelty types within otherwise known environments;
+they are not one fixed schedule across time or all consumers. Beliefs stay fixed.
 
-This version has 33 main slides, 22 appendix slides, and the title page. The Pricing Exercise uses plain as the inside flavor. Its figures and tables use the uncontrolled three-flavor fit with previous-share novelty and a discount factor of 1. The empirical pricing exports are in `Results/pricing_no_disc`.
+The old binary calibration and shared-schedule pricing results are explicitly
+labeled earlier benchmarks in the appendix. Their numerical gains are not used
+as results for the revised exercise. The saved cumulative-history fit is retained;
+the planned average-history specification is documented separately.
 
-Detail buttons link from the main sequence to related appendix slides; each appendix frame has a return button to its originating main frame. Appendix slides do not increase the main slide counter. Main and appendix section navigation are separate.
+## Pricing-only rerun
 
-For a 75-minute hard stop, budget 63 minutes of delivery and 12 for questions/interruption/appendix excursions. Suggested blocks: introduction/data motivation 8, supply theory 14, data 5, demand 11, pricing 22, conclusion 3 minutes. If discussion uses the reserve, do not extend past 75 minutes.
-
-Compile from `Code/final_draft/seminar_pres`:
+Sync the source and submit on the research server:
 
 ```bash
-pdflatex -interaction=nonstopmode -halt-on-error pres_short.tex
-pdflatex -interaction=nonstopmode -halt-on-error pres_short.tex
+cd /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP
+sbatch Code/final_simple/server/run_information_pricing.sh \
+  /scratch/dtm63837/Kilts_Panel/rebuilds/run_JOB_ID/fits/no_control plain
 ```
 
-HHI is retained in the opening Motivation from Data section. Its Flavor Popularity button opens the unchanged popularity figure in the appendix, with a return to HHI. The aggregated-flavor heatmap is in the later Data section, after Data Sources and Switching Stats.
+The argument is the actual fit directory, including for an after-data run.
+Recover only the job's RESULTS_ONLY folder. See
+`Code/final_simple/demand/INFORMATION_PRICING.md` for definitions, validation and
+quadrature/search sensitivity. No empirical pricing run has been performed here.
 
-The full-versus-sample demographics comparison is now in the main Data section, immediately after Data Sources. The original table wording and values are unchanged.
+## Import aggregate outputs and build
 
-The Demand Model slide presents the utility equation, weekly purchase share, novelty, and habit together.
+From the local repository root:
 
-## Main sequence
+```bash
+python3 Code/final_draft/seminar_pres/refresh_information_pricing.py \
+  --source /path/to/recovered/RESULTS_ONLY --flavor plain
+```
 
-| New order | Label | Title |
-|---|---|---|
-| 1 | short-1 | Motivation |
-| 2 | short-2 | Research Question |
-| 3 | short-3 | Literature |
-| 4 | short-4 | HHI |
-| 5 | short-6 | Supply Setting |
-| 6 | short-7 | Consumer's Problem |
-| 7 | short-8 | Firm's Problem |
-| 8 | short-10 | First Period Optimization |
-| 9 | short-14 | Optimal Prices |
-| 10 | short-prices-profit | Optimal Price Ratios and Profit |
-| 11 | short-18 | Information Friction: Fixed Beliefs about Switching Type |
-| 12 | short-20 | Value of Observing Switching Type |
-| 13 | short-21 | Data Sources |
-| 14 | short-23 | Sample Statistics: Demographics |
-| 15 | short-24 | Switching Stats |
-| 16 | short-25 | Persistence Across Aggregated Flavor Groups |
-| 17 | short-26 | Demand Setting and Objective |
-| 18 | short-27 | Demand Model |
-| 19 | short-29 | Estimation |
-| 20 | short-32 | Distributions |
-| 21 | short-31 | Implied Willingness to Pay |
-| 22 | short-34 | Connecting Supply and Demand |
-| 23 | short-35 | Complete Information: Type-Specific Offers |
-| 24 | short-40 | What If Switching Type Is Hidden? |
-| 25 | short-42 | Common Pricing When Type Is Hidden |
-| 26 | short-44 | Plain: Revenue Gain from Personalized Pricing |
-| 27 | short-46 | Plain: Revenue with Observed or Hidden Types |
-| 28 | short-plain-complete-paths | Plain: Type-Specific and Common Price Paths |
-| 29 | short-47 | Plain: Personalized vs Common Pricing |
-| 30 | short-57 | Plain: Price Paths under Type Uncertainty (p1 to p2) |
-| 31 | short-plain-info-table | Plain: Expected Revenue by Initial State and Prior |
-| 32 | short-50 | Conclusion |
-| 33 | short-51 | Next Steps |
+This reads named aggregate outputs only and generates plots matching supply.
+Once imported, the main deck shows the new price, ratio/profit, price-path,
+price-change and revenue figures. Until then, one clearly labeled results-pending
+slide appears. Frame counts adjust automatically. No old empirical gains stand
+in for the new comparison.
 
-## Appendix sequence
+Compile from `Code/final_draft/seminar_pres` twice. The source in
+`writeup/shortened_presentation` also uses paths relative to that working directory;
+it retains its separate introduction. Use distinct job names/output directories
+if an editor is building concurrently. Do not regenerate from the obsolete
+`build_short_version.py`; that would replace later user edits.
 
-| New order | Label | Title |
-|---|---|---|
-| 0 | short-22 | Sample Statistics: Purchase Activity |
-| 1 | short-5 | Flavor Popularity |
-| 2 | short-9 | Optimal Terminal Price and Profit |
-| 3 | short-11 | Optimal Profit Given Switching Type |
-| 4 | short-52 | Shares and Elasticities |
-| 5 | short-12 | Pricing Simulations Specification |
-| 6 | short-13 | Results |
-| 7 | short-15 | Optimal Profit |
-| 8 | short-16 | Optimal Price Ratio |
-| 10 | short-17 | Discussion |
-| 11 | short-19 | Known versus Uncertain Switching Type |
-| 12 | short-53 | Type Uncertainty: Initial Offers |
-| 13 | short-54 | Type Uncertainty: Terminal Offers |
-| 14 | short-28 | Probability and Shares |
-| 15 | short-55 | Demand: Price-Control Comparison |
-| 16 | short-56 | Controlled Demand Estimates |
-| 17 | short-61 | Controlled Fit: Price First Stages |
-| 18 | short-30 | Estimates |
-| 19 | short-33 | Discussion |
-| 20 | short-62 | Controlled Fit: Willingness to Pay |
-| 22 | short-37 | Results: Plain Inside |
-| 24 | short-39 | Plain: Optimal Offers by Consumer Type |
-
-
-The slide immediately after Optimal Prices puts price ratios and profit side by side. The theory figures are in `seminar_pres/assets/theory_delta1`.
-
-Removed the duplicate main Plain: Price Paths slide (short-43). The information-friction slides define Pr(gamma=gamma_r)=mu_r and display mu_H=mu_0=mu_L=0.33 for the equal case. Computation retains exact thirds.
+The identification explanation sits between the demand model and estimation.
+The likelihood indexes weekly choices correctly, and model history notation is
+explicit about observed purchase occasions.

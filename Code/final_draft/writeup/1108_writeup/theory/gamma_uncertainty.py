@@ -6,6 +6,7 @@ from pathlib import Path
 import os
 os.environ.setdefault('MPLCONFIGDIR', '/tmp/gamma-uncertainty-mpl')
 import json
+import argparse
 import numpy as np
 import sys
 sys.path.insert(0, str(Path(__file__).resolve().parents[4] / 'final_simple/supply'))
@@ -77,12 +78,30 @@ def evaluate(p,h,prior,details=False):
                 p2j=p2j,p20=p20,s1=a,belief_j=prior.tolist(),belief_0=prior.tolist())
 
 
+def persistent_revenue(policy, h, prior):
+    """Evaluate a fixed-belief policy with the SAME type in both periods.
+
+    Policy selection retains fixed beliefs; evaluation accounts for the sorting
+    of persistent types into first-period purchase outcomes.
+    """
+    s1 = shares(policy['expected_p1'], h)
+    s2j = shares(policy['p2j'], 'j')
+    s20 = shares(policy['p20'], '0')
+    by_type = (s1*(policy['expected_p1']-COST)
+               + DELTA*(s1*s2j*(policy['p2j']-COST)
+                        + (1-s1)*s20*(policy['p20']-COST)))
+    return float(np.asarray(prior) @ by_type)
+
+
 def solve(prior,h,validate=True):
     prior=np.asarray(prior,dtype=float)
     assert np.isclose(prior.sum(),1) and (prior>=0).all()
     p,value=maximize(lambda p:evaluate(p,h,prior))
     unknown=evaluate(p,h,prior,True);full=known(h,prior)
-    assert full['profit']+1e-8>=value
+    unknown['fixed_belief_objective'] = value
+    unknown['persistent_type_revenue'] = persistent_revenue(unknown, h, prior)
+    full['persistent_type_revenue'] = full['profit']
+    assert full['profit']+1e-8 >= unknown['persistent_type_revenue']
     assert unknown['belief_j']==prior.tolist()==unknown['belief_0']
     if validate:
         pwide,vwide=maximize(lambda p:evaluate(p,h,prior),wide=True)
@@ -94,10 +113,14 @@ def solve(prior,h,validate=True):
             assert abs(vv-float(w@shares(price,state)*(price-COST)))<1e-8
         eps=1e-4
         assert abs((evaluate(p+eps,h,prior)-evaluate(p-eps,h,prior))/(2*eps))<1e-5
-    return dict(prior=prior.tolist(),h0=h,known=full,unknown=unknown,value_of_information=full['profit']-value)
+    return dict(prior=prior.tolist(),h0=h,known=full,unknown=unknown,value_of_information=full['profit']-unknown['persistent_type_revenue'])
 
 
 def main():
+    global OUT
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--output', type=Path, default=OUT)
+    OUT = parser.parse_args().output
     OUT.mkdir(parents=True,exist_ok=True)
     priors=[('Equal types',[1/3]*3),('Habit type more likely',[.5,.25,.25]),('Neutral type more likely',[.25,.5,.25]),('Novelty type more likely',[.25,.25,.5])]
     results=[]
@@ -110,14 +133,22 @@ def main():
             prior=np.eye(3)[k];r=solve(prior,h)
             assert abs(r['value_of_information'])<1e-8
     (OUT/'solutions.json').write_text(json.dumps(results,indent=2))
-    (OUT/'settings.json').write_text(json.dumps(dict(gamma=GAMMA.tolist(),beta=BETA,alpha=ALPHA,delta=DELTA,c=COST,priors=priors,checks='Wider first-price grids; independent terminal maximizers; first-price finite-difference FOCs; Fixed-belief invariance; full-information bound; degenerate priors'),indent=2))
+    (OUT/'settings.json').write_text(json.dumps(dict(gamma=GAMMA.tolist(),beta=BETA,alpha=ALPHA,delta=DELTA,c=COST,priors=priors,revenue_evaluation='same persistent types under both policies; common profit field remains fixed-belief objective',checks='Wider first-price grids; independent terminal maximizers; first-price finite-difference FOCs; Fixed-belief invariance; full-information bound; degenerate priors'),indent=2))
     sys.path.insert(0, str(Path(__file__).resolve().parents[4]))
     from pricing_presentation import information_figures
     import pandas as pd
     table = pd.DataFrame([dict(scenario=r['scenario'], h0=r['h0'], case=case,
         expected_p1=r[case]['expected_p1'], expected_p2=r[case]['expected_p2'],
-        persistent_type_revenue=r[case]['profit'], value_of_information=r['value_of_information'])
+        persistent_type_revenue=r[case]['persistent_type_revenue'], value_of_information=r['value_of_information'])
         for r in results for case in ['known', 'unknown']])
+    table.to_csv(OUT/'information_friction_aggregate.csv', index=False)
+    type_rows = []
+    for r in results:
+        for label, row in zip(['low', 'medium', 'high'], r['known']['types']):
+            type_rows.append(dict(scenario=r['scenario'], h0=r['h0'], type=label,
+                gamma=row['gamma'], known_p1=row['p1'],
+                known_expected_p2=row['s1']*row['p2j']+(1-row['s1'])*row['p20']))
+    pd.DataFrame(type_rows).to_csv(OUT/'information_friction_by_group.csv', index=False)
     information_figures(table, OUT, DELTA)
     # Existing slide filenames remain valid; all price figures show p1 -> p2.
     import shutil
@@ -125,7 +156,7 @@ def main():
         for extension in ['pdf', 'png']:
             shutil.copyfile(OUT/f'information_friction_{name}.{extension}', OUT/f'{name}.{extension}')
     lines=[r'\begin{table}[htbp]\centering\small',r'\caption{Pricing with known and uncertain switching types}',r'\label{tab:gamma-uncertainty}',r'\begin{tabular}{llrrr}\toprule',r'Initial state & Prior & Personalized pricing & Common pricing & Information value\\\midrule']
-    for r in results:lines.append(f"${r['h0']}$ & {r['scenario']} & {r['known']['profit']:.4f} & {r['unknown']['profit']:.4f} & {r['value_of_information']:.4f} \\\\")
+    for r in results:lines.append(f"${r['h0']}$ & {r['scenario']} & {r['known']['profit']:.4f} & {r['unknown']['persistent_type_revenue']:.4f} & {r['value_of_information']:.4f} \\\\")
     lines += [r'\bottomrule\end{tabular}',r'\end{table}'];(OUT/'results.tex').write_text('\n'.join(lines)+'\n')
     print('All checks passed; wrote four figures, aggregate theoretical solutions, settings, and result table.')
 

@@ -1,0 +1,25 @@
+scenario,h0,type,gamma,known_p1,known_expected_p2
+Equal types,j,low,-1.25,2.3153633539313088,2.365110903709423
+Equal types,j,medium,0.0,2.0,2.0
+Equal types,j,high,1.25,2.419303043330536,2.517090550705641
+Equal types,0,low,-1.25,0.7595604117659109,2.0938088179402174
+Equal types,0,medium,0.0,2.0,2.0
+Equal types,0,high,1.25,3.2404850713794637,2.093822814204046
+Habit type more likely,j,low,-1.25,2.3153633539313088,2.365110903709423
+Habit type more likely,j,medium,0.0,2.0,2.0
+Habit type more likely,j,high,1.25,2.419303043330536,2.517090550705641
+Habit type more likely,0,low,-1.25,0.7595604117659109,2.0938088179402174
+Habit type more likely,0,medium,0.0,2.0,2.0
+Habit type more likely,0,high,1.25,3.2404850713794637,2.093822814204046
+Neutral type more likely,j,low,-1.25,2.3153633539313088,2.365110903709423
+Neutral type more likely,j,medium,0.0,2.0,2.0
+Neutral type more likely,j,high,1.25,2.419303043330536,2.517090550705641
+Neutral type more likely,0,low,-1.25,0.7595604117659109,2.0938088179402174
+Neutral type more likely,0,medium,0.0,2.0,2.0
+Neutral type more likely,0,high,1.25,3.2404850713794637,2.093822814204046
+Novelty type more likely,j,low,-1.25,2.3153633539313088,2.365110903709423
+Novelty type more likely,j,medium,0.0,2.0,2.0
+Novelty type more likely,j,high,1.25,2.419303043330536,2.517090550705641
+Novelty type more likely,0,low,-1.25,0.7595604117659109,2.0938088179402174
+Novelty type more likely,0,medium,0.0,2.0,2.0
+Novelty type more likely,0,high,1.25,3.2404850713794637,2.093822814204046

@@ -35,7 +35,8 @@
           "s1": 0.15851712338382123,
           "profit": 1.9005915097281223
         }
-      ]
+      ],
+      "persistent_type_revenue": 2.309389353989968
     },
     "unknown": {
       "profit": 2.027076821464431,
@@ -53,9 +54,11 @@
         0.3333333333333333,
         0.3333333333333333,
         0.3333333333333333
-      ]
+      ],
+      "fixed_belief_objective": 2.027076821464431,
+      "persistent_type_revenue": 2.2538828794786223
     },
-    "value_of_information": 0.2823125325255371,
+    "value_of_information": 0.055506474511345605,
     "scenario": "Equal types"
   },
   {
@@ -94,7 +97,8 @@
           "s1": 0.5023787142089783,
           "profit": 2.7217735377770502
         }
-      ]
+      ],
+      "persistent_type_revenue": 2.0645157159511447
     },
     "unknown": {
       "profit": 2.0270768214644317,
@@ -112,9 +116,11 @@
         0.3333333333333333,
         0.3333333333333333,
         0.3333333333333333
-      ]
+      ],
+      "fixed_belief_objective": 2.0270768214644317,
+      "persistent_type_revenue": 1.8002707620905407
     },
-    "value_of_information": 0.037438894486713004,
+    "value_of_information": 0.264244953860604,
     "scenario": "Equal types"
   },
   {
@@ -153,7 +159,8 @@
           "s1": 0.15851712338382123,
           "profit": 1.9005915097281223
         }
-      ]
+      ],
+      "persistent_type_revenue": 2.4889361535529213
     },
     "unknown": {
       "profit": 2.1995257158072556,
@@ -171,9 +178,11 @@
         0.5,
         0.25,
         0.25
-      ]
+      ],
+      "fixed_belief_objective": 2.1995257158072556,
+      "persistent_type_revenue": 2.436359495392212
     },
-    "value_of_information": 0.28941043774566566,
+    "value_of_information": 0.05257665816070922,
     "scenario": "Habit type more likely"
   },
   {
@@ -212,7 +221,8 @@
           "s1": 0.5023787142089783,
           "profit": 2.7217735377770502
         }
-      ]
+      ],
+      "persistent_type_revenue": 1.9163301894824547
     },
     "unknown": {
       "profit": 1.8613697129669726,
@@ -230,9 +240,11 @@
         0.5,
         0.25,
         0.25
-      ]
+      ],
+      "fixed_belief_objective": 1.8613697129669726,
+      "persistent_type_revenue": 1.6228764233221709
     },
-    "value_of_information": 0.05496047651548208,
+    "value_of_information": 0.29345376616028385,
     "scenario": "Habit type more likely"
   },
   {
@@ -271,7 +283,8 @@
           "s1": 0.15851712338382123,
           "profit": 1.9005915097281223
         }
-      ]
+      ],
+      "persistent_type_revenue": 2.232042015492476
     },
     "unknown": {
       "profit": 2.014276851188476,
@@ -289,9 +302,11 @@
         0.25,
         0.5,
         0.25
-      ]
+      ],
+      "fixed_belief_objective": 2.014276851188476,
+      "persistent_type_revenue": 2.1804723611020878
     },
-    "value_of_information": 0.21776516430400017,
+    "value_of_information": 0.0515696543903883,
     "scenario": "Neutral type more likely"
   },
   {
@@ -330,7 +345,8 @@
           "s1": 0.5023787142089783,
           "profit": 2.7217735377770502
         }
-      ]
+      ],
+      "persistent_type_revenue": 2.0483867869633587
     },
     "unknown": {
       "profit": 2.014276851188476,
@@ -348,9 +364,11 @@
         0.25,
         0.5,
         0.25
-      ]
+      ],
+      "fixed_belief_objective": 2.014276851188476,
+      "persistent_type_revenue": 1.8480813413302126
     },
-    "value_of_information": 0.03410993577488286,
+    "value_of_information": 0.20030544563314612,
     "scenario": "Neutral type more likely"
   },
   {
@@ -389,7 +407,8 @@
           "s1": 0.15851712338382123,
           "profit": 1.9005915097281223
         }
-      ]
+      ],
+      "persistent_type_revenue": 2.2071898929245064
     },
     "unknown": {
       "profit": 1.9217756070846872,
@@ -407,9 +426,11 @@
         0.25,
         0.25,
         0.5
-      ]
+      ],
+      "fixed_belief_objective": 1.9217756070846872,
+      "persistent_type_revenue": 2.153367578205844
     },
-    "value_of_information": 0.2854142858398192,
+    "value_of_information": 0.0538223147186625,
     "scenario": "Novelty type more likely"
   },
   {
@@ -448,7 +469,8 @@
           "s1": 0.5023787142089783,
           "profit": 2.7217735377770502
         }
-      ]
+      ],
+      "persistent_type_revenue": 2.2288301714076213
     },
     "unknown": {
       "profit": 2.2096010325753337,
@@ -466,9 +488,11 @@
         0.25,
         0.25,
         0.5
-      ]
+      ],
+      "fixed_belief_objective": 2.2096010325753337,
+      "persistent_type_revenue": 1.9815373819207431
     },
-    "value_of_information": 0.019229138832287607,
+    "value_of_information": 0.24729278948687816,
     "scenario": "Novelty type more likely"
   }
 ]

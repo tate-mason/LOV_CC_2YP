@@ -1,3 +1,67 @@
+# Revised information comparison: habit retained, only novelty hidden
+
+- Added a new pricing-only server runner, pure numerical solver and aggregate-only
+  supply-style plotting pipeline. Existing demand estimates and saved history
+  construction remain unchanged; no empirical data were accessed locally.
+- Both regimes adapt terminal prices to the realized purchase basket. The firm
+  knows price sensitivity and habit in both; only novelty information differs.
+  Prices can rise or fall; all novelty groups are optimized.
+- Main setup now states this empirical extension. Earlier binary and shared-schedule
+  numerical results are in backup and are not described as the new results.
+- Added an aggregate import command and conditional result slides. Until server
+  output is imported, the main deck explicitly marks the new results as pending.
+- Supply-style figure templates include optimal prices by gamma, price ratios and
+  conditional profit, type/common price paths, information gains, and changes
+  relative to observed prices. Consumer type persists during revenue evaluation.
+- Pure tests cover analytic limits, direct enumeration, menu expansion, fixed
+  beliefs, history updates, grid refinement and full-information dominance.
+  All seven empirical entry points remain blocked locally by policy checks.
+
+Earlier entries below document prior iterations and their then-current results.
+
+# Price paths restored to the main sequence
+
+The calibrated gamma curves are main slide 28 in the seminar deck, followed by
+a dedicated type-specific/common price-path slide 29. The paths separate low,
+middle and high types and initially inside/outside histories. The zoom remains
+in the appendix. Both short sources retain their distinct introductions. The
+seminar deck now has 35 main slides, the title, and 23 appendix slides (59 pages).
+No numerical results changed.
+
+# Calibrated gamma-price plots
+
+Replaced the calibrated plain expected price-path main slide with two optimal
+price-versus-gamma panels matching the theory format. Saved plain calibration
+parameters generate the curves; markers and shading identify the three estimated
+group means. Added appendix links to a zoom and the retained price paths.
+All six exported type/state paths match; terminal and initial FOCs pass over
+the full gamma grid. No empirical I/O or server rerun was required. The canonical
+short deck now has 34 main slides, the title, and 24 appendix slides (59 pages).
+
+# November 11: aligned theory and calibrated pricing sections
+
+- Both sections now use known-type personalized offers versus hidden-type common
+  offers with fixed beliefs, evaluated on the same persistent consumer types.
+- Corrected the theoretical common-policy revenue evaluation. Original policies
+  and fixed-belief objectives match the saved results exactly; all eight
+  state/prior comparisons now report persistent-type revenue differences.
+- Rebuilt the plain information figures and price paths from the named
+  `Results/pricing_no_disc` aggregates, with independent numerical reconstruction
+  of all eight cells. No empirical estimates or policies were rerun or overwritten.
+- The binary illustration, its 32-history price calibration, and the separate
+  full-demand coupon exercise are explicitly distinguished. The estimated middle
+  type is not zero. The coupon result remains +7.23% for plain.
+- Updated both short-deck pricing sections, retaining their distinct introductions.
+  The canonical deck has 34 main slides plus title and 22 appendix slides.
+- Added `build_aligned_pricing.py`, aggregate asset provenance, and
+  `PRICING_SPEAKER_NOTES.md`. New average-stock demand remains a pending server
+  refit; the presentation correctly labels the saved cumulative-stock estimates.
+- Both PDFs compile; revised pricing slides were visually inspected. Appendix
+  links and frame-label uniqueness pass. Fixed two pre-existing build problems:
+  duplicate introduction labels and list items outside a list environment.
+
+The remaining notes below record earlier revisions and their then-current inputs.
+
 # Pricing and presentation changes
 
 The updated presentation is `Code/final_draft/seminar_pres/pres_short.pdf`, with an identical PDF in `Code/final_draft/writeup/shortened_presentation/pres_short.pdf`.

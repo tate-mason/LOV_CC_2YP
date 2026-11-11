@@ -31,3 +31,11 @@ Coupon benchmarks can be complete even when the separate binary type-information
 The export verifies uncontrolled-fit parameter hashes and restricts allowed filenames. Do not copy weekly inputs, prepared samples, raw/household data, data partitions or logs. Full internal manifests stay on the server. The textbook's current-workflow chapter explains the function order and revenue definitions.
 
 `run_novelty_estimation.sh` is a retained, unadopted lagged-switch experiment. It is not used by either current command.
+
+## Revised novelty-information exercise
+
+Use `run_information_pricing.sh EXISTING_FIT_DIRECTORY [plain|berry|both]` for
+history-adaptive prices in both information regimes. Only novelty is hidden;
+price sensitivity and habit are known. This reuses the saved fit without
+estimating demand. See [the model and run guide](../demand/INFORMATION_PRICING.md).
+The older shared schedule is a different benchmark.

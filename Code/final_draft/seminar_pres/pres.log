@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.8.17)  10 NOV 2026 18:50
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.8.17)  11 NOV 2026 12:42
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -920,7 +920,7 @@ Package pdftex.def Info: assets/theory_delta1/gamma_uncertainty/profits.pdf  use
  [20
 
  <./assets/theory_delta1/gamma_uncertainty/profits.pdf>]
-<assets/theory_delta1/gamma_uncertainty/information_value.pdf, id=3285, 794.97pt x 289.08pt>
+<assets/theory_delta1/gamma_uncertainty/information_value.pdf, id=3286, 794.97pt x 289.08pt>
 File: assets/theory_delta1/gamma_uncertainty/information_value.pdf Graphic file (type pdf)
 <use assets/theory_delta1/gamma_uncertainty/information_value.pdf>
 Package pdftex.def Info: assets/theory_delta1/gamma_uncertainty/information_value.pdf  used on input line 370.
@@ -936,7 +936,7 @@ Package pdftex.def Info: assets/theory_delta1/gamma_uncertainty/information_valu
 ] (../writeup/1108_writeup/assets/results/summary_statistics/yogurt_dynamics.tex) [25
 
 ]
-<../writeup/1108_writeup/assets/results/summary_statistics/aggregated_flavors/flavor_transitions.pdf, id=4035, 433.62pt x 433.62pt>
+<../writeup/1108_writeup/assets/results/summary_statistics/aggregated_flavors/flavor_transitions.pdf, id=4040, 433.62pt x 433.62pt>
 File: ../writeup/1108_writeup/assets/results/summary_statistics/aggregated_flavors/flavor_transitions.pdf Graphic file (type pdf)
 <use ../writeup/1108_writeup/assets/results/summary_statistics/aggregated_flavors/flavor_transitions.pdf>
 Package pdftex.def Info: ../writeup/1108_writeup/assets/results/summary_statistics/aggregated_flavors/flavor_transitions.pdf  used on input line 450.
@@ -956,7 +956,7 @@ Package pdftex.def Info: ../writeup/1108_writeup/assets/results/summary_statisti
 ] (../writeup/1108_writeup/assets/results/demand/implied_wtp.tex) [32
 
 ]
-<../writeup/1108_writeup/assets/results/demand/history_distributions.pdf, id=5070, 722.7pt x 289.08pt>
+<../writeup/1108_writeup/assets/results/demand/history_distributions.pdf, id=5075, 722.7pt x 289.08pt>
 File: ../writeup/1108_writeup/assets/results/demand/history_distributions.pdf Graphic file (type pdf)
 <use ../writeup/1108_writeup/assets/results/demand/history_distributions.pdf>
 Package pdftex.def Info: ../writeup/1108_writeup/assets/results/demand/history_distributions.pdf  used on input line 533.
@@ -970,7 +970,7 @@ Package pdftex.def Info: ../writeup/1108_writeup/assets/results/demand/history_d
 ] [36
 
 ]
-<assets/pricing/berry/household_coupon_results.pdf, id=5684, 794.97pt x 289.08pt>
+<assets/pricing/berry/household_coupon_results.pdf, id=5689, 794.97pt x 289.08pt>
 File: assets/pricing/berry/household_coupon_results.pdf Graphic file (type pdf)
 <use assets/pricing/berry/household_coupon_results.pdf>
 Package pdftex.def Info: assets/pricing/berry/household_coupon_results.pdf  used on input line 582.
@@ -978,7 +978,7 @@ Package pdftex.def Info: assets/pricing/berry/household_coupon_results.pdf  used
  [37
 
  <./assets/pricing/berry/household_coupon_results.pdf>]
-<assets/pricing/plain/household_coupon_results.pdf, id=5882, 794.97pt x 289.08pt>
+<assets/pricing/plain/household_coupon_results.pdf, id=5887, 794.97pt x 289.08pt>
 File: assets/pricing/plain/household_coupon_results.pdf Graphic file (type pdf)
 <use assets/pricing/plain/household_coupon_results.pdf>
 Package pdftex.def Info: assets/pricing/plain/household_coupon_results.pdf  used on input line 586.
@@ -986,7 +986,7 @@ Package pdftex.def Info: assets/pricing/plain/household_coupon_results.pdf  used
  [38
 
  <./assets/pricing/plain/household_coupon_results.pdf>]
-<assets/pricing/berry/discounts_by_consumer_type.pdf, id=6077, 939.51pt x 289.08pt>
+<assets/pricing/berry/discounts_by_consumer_type.pdf, id=6082, 939.51pt x 289.08pt>
 File: assets/pricing/berry/discounts_by_consumer_type.pdf Graphic file (type pdf)
 <use assets/pricing/berry/discounts_by_consumer_type.pdf>
 Package pdftex.def Info: assets/pricing/berry/discounts_by_consumer_type.pdf  used on input line 590.
@@ -994,7 +994,7 @@ Package pdftex.def Info: assets/pricing/berry/discounts_by_consumer_type.pdf  us
  [39
 
  <./assets/pricing/berry/discounts_by_consumer_type.pdf>]
-<assets/pricing/plain/discounts_by_consumer_type.pdf, id=6270, 939.51pt x 289.08pt>
+<assets/pricing/plain/discounts_by_consumer_type.pdf, id=6275, 939.51pt x 289.08pt>
 File: assets/pricing/plain/discounts_by_consumer_type.pdf Graphic file (type pdf)
 <use assets/pricing/plain/discounts_by_consumer_type.pdf>
 Package pdftex.def Info: assets/pricing/plain/discounts_by_consumer_type.pdf  used on input line 594.
@@ -1002,7 +1002,7 @@ Package pdftex.def Info: assets/pricing/plain/discounts_by_consumer_type.pdf  us
  [40
 
  <./assets/pricing/plain/discounts_by_consumer_type.pdf>]
-<assets/pricing/plain/pricing_policy_benchmarks.pdf, id=6462, 578.16pt x 289.08pt>
+<assets/pricing/plain/pricing_policy_benchmarks.pdf, id=6467, 578.16pt x 289.08pt>
 File: assets/pricing/plain/pricing_policy_benchmarks.pdf Graphic file (type pdf)
 <use assets/pricing/plain/pricing_policy_benchmarks.pdf>
 Package pdftex.def Info: assets/pricing/plain/pricing_policy_benchmarks.pdf  used on input line 601.
@@ -1010,7 +1010,7 @@ Package pdftex.def Info: assets/pricing/plain/pricing_policy_benchmarks.pdf  use
  [41
 
  <./assets/pricing/plain/pricing_policy_benchmarks.pdf>]
-<assets/pricing/berry/pricing_policy_benchmarks.pdf, id=6643, 578.16pt x 289.08pt>
+<assets/pricing/berry/pricing_policy_benchmarks.pdf, id=6648, 578.16pt x 289.08pt>
 File: assets/pricing/berry/pricing_policy_benchmarks.pdf Graphic file (type pdf)
 <use assets/pricing/berry/pricing_policy_benchmarks.pdf>
 Package pdftex.def Info: assets/pricing/berry/pricing_policy_benchmarks.pdf  used on input line 607.
@@ -1018,7 +1018,7 @@ Package pdftex.def Info: assets/pricing/berry/pricing_policy_benchmarks.pdf  use
  [42
 
  <./assets/pricing/berry/pricing_policy_benchmarks.pdf>]
-<assets/pricing/plain/pricing_mechanism.pdf, id=6825, 939.51pt x 289.08pt>
+<assets/pricing/plain/pricing_mechanism.pdf, id=6830, 939.51pt x 289.08pt>
 File: assets/pricing/plain/pricing_mechanism.pdf Graphic file (type pdf)
 <use assets/pricing/plain/pricing_mechanism.pdf>
 Package pdftex.def Info: assets/pricing/plain/pricing_mechanism.pdf  used on input line 611.
@@ -1026,7 +1026,7 @@ Package pdftex.def Info: assets/pricing/plain/pricing_mechanism.pdf  used on inp
  [43
 
  <./assets/pricing/plain/pricing_mechanism.pdf>]
-<assets/pricing/plain/terminal_offers_by_purchase.pdf, id=7018, 939.51pt x 289.08pt>
+<assets/pricing/plain/terminal_offers_by_purchase.pdf, id=7023, 939.51pt x 289.08pt>
 File: assets/pricing/plain/terminal_offers_by_purchase.pdf Graphic file (type pdf)
 <use assets/pricing/plain/terminal_offers_by_purchase.pdf>
 Package pdftex.def Info: assets/pricing/plain/terminal_offers_by_purchase.pdf  used on input line 617.
@@ -1038,7 +1038,7 @@ Package pdftex.def Info: assets/pricing/plain/terminal_offers_by_purchase.pdf  u
 ] [46
 
 ]
-<assets/pricing/plain/information_friction_profits.pdf, id=7492, 794.97pt x 289.08pt>
+<assets/pricing/plain/information_friction_profits.pdf, id=7497, 794.97pt x 289.08pt>
 File: assets/pricing/plain/information_friction_profits.pdf Graphic file (type pdf)
 <use assets/pricing/plain/information_friction_profits.pdf>
 Package pdftex.def Info: assets/pricing/plain/information_friction_profits.pdf  used on input line 635.
@@ -1046,7 +1046,7 @@ Package pdftex.def Info: assets/pricing/plain/information_friction_profits.pdf  
  [47
 
  <./assets/pricing/plain/information_friction_profits.pdf>]
-<assets/pricing/plain/information_friction_information_value.pdf, id=7686, 794.97pt x 289.08pt>
+<assets/pricing/plain/information_friction_information_value.pdf, id=7691, 794.97pt x 289.08pt>
 File: assets/pricing/plain/information_friction_information_value.pdf Graphic file (type pdf)
 <use assets/pricing/plain/information_friction_information_value.pdf>
 Package pdftex.def Info: assets/pricing/plain/information_friction_information_value.pdf  used on input line 639.
@@ -1054,7 +1054,7 @@ Package pdftex.def Info: assets/pricing/plain/information_friction_information_v
  [48
 
  <./assets/pricing/plain/information_friction_information_value.pdf>]
-<assets/pricing/plain/information_friction_price_paths.pdf, id=7871, 1011.78pt x 433.62pt>
+<assets/pricing/plain/information_friction_price_paths.pdf, id=7876, 1011.78pt x 433.62pt>
 File: assets/pricing/plain/information_friction_price_paths.pdf Graphic file (type pdf)
 <use assets/pricing/plain/information_friction_price_paths.pdf>
 Package pdftex.def Info: assets/pricing/plain/information_friction_price_paths.pdf  used on input line 643.
@@ -1062,7 +1062,7 @@ Package pdftex.def Info: assets/pricing/plain/information_friction_price_paths.p
  [49
 
  <./assets/pricing/plain/information_friction_price_paths.pdf>]
-<assets/pricing/berry/information_friction_profits.pdf, id=8078, 794.97pt x 289.08pt>
+<assets/pricing/berry/information_friction_profits.pdf, id=8083, 794.97pt x 289.08pt>
 File: assets/pricing/berry/information_friction_profits.pdf Graphic file (type pdf)
 <use assets/pricing/berry/information_friction_profits.pdf>
 Package pdftex.def Info: assets/pricing/berry/information_friction_profits.pdf  used on input line 647.
@@ -1070,7 +1070,7 @@ Package pdftex.def Info: assets/pricing/berry/information_friction_profits.pdf  
  [50
 
  <./assets/pricing/berry/information_friction_profits.pdf>]
-<assets/pricing/berry/information_friction_information_value.pdf, id=8273, 794.97pt x 289.08pt>
+<assets/pricing/berry/information_friction_information_value.pdf, id=8278, 794.97pt x 289.08pt>
 File: assets/pricing/berry/information_friction_information_value.pdf Graphic file (type pdf)
 <use assets/pricing/berry/information_friction_information_value.pdf>
 Package pdftex.def Info: assets/pricing/berry/information_friction_information_value.pdf  used on input line 651.
@@ -1078,7 +1078,7 @@ Package pdftex.def Info: assets/pricing/berry/information_friction_information_v
  [51
 
  <./assets/pricing/berry/information_friction_information_value.pdf>]
-<assets/pricing/berry/information_friction_price_paths.pdf, id=8458, 1011.78pt x 433.62pt>
+<assets/pricing/berry/information_friction_price_paths.pdf, id=8463, 1011.78pt x 433.62pt>
 File: assets/pricing/berry/information_friction_price_paths.pdf Graphic file (type pdf)
 <use assets/pricing/berry/information_friction_price_paths.pdf>
 Package pdftex.def Info: assets/pricing/berry/information_friction_price_paths.pdf  used on input line 655.
@@ -1092,7 +1092,7 @@ Package pdftex.def Info: assets/pricing/berry/information_friction_price_paths.p
 ] [55
 
 ]
-<assets/theory_delta1/gamma_uncertainty/first_prices.pdf, id=9087, 1011.78pt x 433.62pt>
+<assets/theory_delta1/gamma_uncertainty/first_prices.pdf, id=9092, 1011.78pt x 433.62pt>
 File: assets/theory_delta1/gamma_uncertainty/first_prices.pdf Graphic file (type pdf)
 <use assets/theory_delta1/gamma_uncertainty/first_prices.pdf>
 Package pdftex.def Info: assets/theory_delta1/gamma_uncertainty/first_prices.pdf  used on input line 699.
@@ -1100,7 +1100,7 @@ Package pdftex.def Info: assets/theory_delta1/gamma_uncertainty/first_prices.pdf
  [56
 
  <./assets/theory_delta1/gamma_uncertainty/first_prices.pdf>]
-<assets/theory_delta1/gamma_uncertainty/terminal_prices.pdf, id=9292, 1011.78pt x 433.62pt>
+<assets/theory_delta1/gamma_uncertainty/terminal_prices.pdf, id=9298, 1011.78pt x 433.62pt>
 File: assets/theory_delta1/gamma_uncertainty/terminal_prices.pdf Graphic file (type pdf)
 <use assets/theory_delta1/gamma_uncertainty/terminal_prices.pdf>
 Package pdftex.def Info: assets/theory_delta1/gamma_uncertainty/terminal_prices.pdf  used on input line 703.
@@ -1142,9 +1142,9 @@ Here is how much of TeX's memory you used:
  1141 hyphenation exceptions out of 8191
  128i,20n,123p,380b,1012s stack positions out of 10000i,1000n,20000p,200000b,200000s
  </Users/tate/Library/texlive/2026/texmf-var/fonts/pk/ljfour/public/bbm/bbm10.657pk></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmss10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmss12.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmss8.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmss9.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmssbx10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb>
-Output written on pres.pdf (61 pages, 796309 bytes).
+Output written on pres.pdf (61 pages, 797131 bytes).
 PDF statistics:
- 10110 PDF objects out of 10688 (max. 8388607)
+ 10117 PDF objects out of 10688 (max. 8388607)
  4673 compressed objects within 47 object streams
  137 named destinations out of 1000 (max. 500000)
  232 words of extra memory for PDF output out of 10000 (max. 10000000)

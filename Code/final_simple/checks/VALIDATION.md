@@ -1,3 +1,14 @@
+# Revised information-pricing kernel
+
+`check_information_pricing.py` uses abstract utility arrays only. Checks cover
+degenerate-type equality, a static analytic limit, fixed beliefs with adaptive
+second prices, independent direct basket enumeration, unavailable/five-flavor
+menus, alternative saved history transitions, price-grid refinement and informed
+revenue dominance. A nine-type 120-basket numerical case also passes. The policy
+checker now rejects all seven empirical entry points locally. No research records
+were read or generated; empirical likelihood reconstruction and production
+pricing remain server-side validation steps.
+
 # Average-stock verification (November 11, 2026)
 
 The current default is an average of prior observed purchase-week shares, with

@@ -1,0 +1,31 @@
+{
+  "operation": "aggregate-only presentation alignment; no empirical rerun",
+  "empirical_source": "Results/pricing_no_disc",
+  "delta": 1.0,
+  "revenue_evaluation": "same persistent consumer types under both policies",
+  "common_policy": "fixed-belief policy, no Bayesian updating; evaluated under persistent types",
+  "empirical_stock_measure": "cumulative (saved fit); average-stock specification not yet estimated",
+  "information_calibration_price_target_households": 32,
+  "excluded_price_target_households": 15073,
+  "estimated_gamma": [
+    -1.1124779058832859,
+    -0.7629796228669113,
+    -0.22297081688171783
+  ],
+  "gamma_sweep": [
+    -3.0,
+    3.0
+  ],
+  "gamma_sweep_interpretation": "calibrated comparative statics, not estimated support",
+  "note": "binary calibration maps novelty to symmetric state dependence; full split-history coupon exercise is separate",
+  "coupon_common": 11615.343730332988,
+  "coupon_personal": 12455.274176626186,
+  "coupon_gain_pct": 7.231214725912527,
+  "inputs": {
+    "Results/pricing_no_disc/pricing/plain/information_friction_aggregate.csv": "e71081b6d3b56b10b265c5f3e3120d9664c2a9da82ea28af7a3e765253b7101d",
+    "Results/pricing_no_disc/pricing/plain/information_friction_by_group.csv": "62ab75c572b11a8f58799b09efee5ee5858a017c36ccc62a0453bc047821ff0f",
+    "Results/pricing_no_disc/pricing/plain/information_friction_settings.json": "7a63560b6453b46519e7d25397a16103cbdaa67b9837eea7451af2ff6124da31",
+    "Results/pricing_no_disc/pricing/plain/information_calibration_status.json": "bf393d8861fd94165f4c7fe8deda82b2fdc70924fb7287ee0ba629a9d14825c1",
+    "Results/pricing_no_disc/pricing/plain/pricing_policy_benchmarks.csv": "141e2fc230076cde8db06f6428c7ed2409840301e6cbe6eb4f2c6ffcf57e2a37"
+  }
+}

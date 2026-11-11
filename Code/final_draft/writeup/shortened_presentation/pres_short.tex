@@ -106,7 +106,7 @@
 % Short-version navigation only. Original frame content is preserved verbatim.
 \newcommand{\shortbuttons}{}
 \newcommand{\shortmaincount}{27}
-\IfFileExists{assets/information_pricing/plain/optimal_prices_by_gamma.pdf}{\renewcommand{\shortmaincount}{33}}{}
+\IfFileExists{assets/binary_information_pricing/plain/optimal_prices_by_gamma.pdf}{\renewcommand{\shortmaincount}{33}}{}
 \newif\ifshortappendix
 \shortappendixfalse
 \setbeamertemplate{footline}{%
@@ -530,19 +530,20 @@
 
 % Original numbered slide 34
 \gdef\shortbuttons{}
-\begin{frame}[label=short-34]{Apply the Theory's Information Comparison to Estimated Demand}
+\begin{frame}[label=short-34]{Two Outcomes in Both Periods: Plain versus Not Plain}
   \[
-    U_{ijt}=\bar\beta_j-a_i p_{ijt}+\gamma_iN_{ijt}+\phi_iH_{ijt}+\varepsilon_{ijt}.
+    v_{irt}=b_i+\gamma_r\big[\mathbbm{1}\{h_t=0\}-\mathbbm{1}\{h_t=j\}\big]
+             +\phi_iH_{it}-a_i p_{it}.
   \]
   \begin{itemize}
-    \item Keep the fitted flavor choices, price sensitivity, novelty and habit.
-    \item A single seller chooses its flavor's price; rival prices stay fixed.
-    \item Observe the initial basket, choose $p_1$, observe the next basket, then choose $p_2$.
-    \item Prices can rise or fall from observed levels. Reuse the saved demand fit.
+    \item $j$: plain. $0$: berry, other yogurt, or nonpurchase.
+    \item Exactly one binary choice per period; the next price depends only on plain versus not plain.
+    \item Own habit updates as $H_{i,t+1}=H_{it}+\mathbbm{1}\{x_{it}=j\}$.
+    \item Use saved estimates as inputs; fix the composite outside baseline and rival prices.
   \end{itemize}
   \begin{tcolorbox}
-    Extend the binary theory to include estimated habit and all flavor alternatives.
-    Both information regimes use exactly the same consumer model and history update.
+    Binary extension of the theory with known habit. The outside-value mapping
+    is an explicit counterfactual assumption, not a refit of binary demand.
   \end{tcolorbox}
 \end{frame}
 
@@ -571,35 +572,35 @@
 \end{frame}
 
 % Revised empirical information comparison; populated by aggregate-only refresh.
-\IfFileExists{assets/information_pricing/plain/optimal_prices_by_gamma.pdf}{%
+\IfFileExists{assets/binary_information_pricing/plain/optimal_prices_by_gamma.pdf}{%
 \gdef\shortbuttons{}
 \begin{frame}[label=short-revised-prices]{Estimated Demand: Optimal Prices across Novelty Types}
   \centering
-  \includegraphics[width=.98\textwidth,height=.68\textheight,keepaspectratio]{assets/information_pricing/plain/optimal_prices_by_gamma.pdf}
-  \par\smallskip\footnotesize Same layout as supply. Means across observed environments;
-  price sensitivity and habit remain known. Terminal prices average within purchase-history branches.
+  \includegraphics[width=.98\textwidth,height=.68\textheight,keepaspectratio]{assets/binary_information_pricing/plain/optimal_prices_by_gamma.pdf}
+  \par\smallskip\footnotesize Same layout as supply. Means across observed environments; price sensitivity and habit remain known.
+  There are exactly two terminal prices, after plain and after not plain.
 \end{frame}
 
 \gdef\shortbuttons{}
 \begin{frame}[label=short-revised-ratios]{Estimated Demand: Price Ratios and Profit by History}
   \centering
-  \includegraphics[width=.98\textwidth,height=.68\textheight,keepaspectratio]{assets/information_pricing/plain/price_ratios_and_profit.pdf}
+  \includegraphics[width=.98\textwidth,height=.68\textheight,keepaspectratio]{assets/binary_information_pricing/plain/price_ratios_and_profit.pdf}
   \par\smallskip\footnotesize Four initial/first-period purchase histories, matching supply.
-  Inside means at least one focal purchase; full basket states remain in the calculation.
+  The initial and next choices are binary: plain ($j$) or not plain ($0$).
 \end{frame}
 
 \gdef\shortbuttons{}
 \begin{frame}[label=short-revised-paths]{Estimated Demand: Household-Specific and Common Price Paths}
   \centering
-  \includegraphics[width=.98\textwidth,height=.68\textheight,keepaspectratio]{assets/information_pricing/plain/information_price_paths_comparison.pdf}
+  \includegraphics[width=.98\textwidth,height=.68\textheight,keepaspectratio]{assets/binary_information_pricing/plain/information_price_paths_comparison.pdf}
   \par\smallskip\footnotesize Solid paths distinguish novelty groups; dashed paths are common across novelty types.
-  Both regimes choose the terminal price after observing the first-period basket.
+  Both regimes choose the terminal price after observing the first-period binary choice.
 \end{frame}
 
 \gdef\shortbuttons{}
 \begin{frame}[label=short-revised-changes]{How Far Do Optimal Prices Move from Observed Prices?}
   \centering
-  \includegraphics[width=.98\textwidth,height=.68\textheight,keepaspectratio]{assets/information_pricing/plain/price_changes.pdf}
+  \includegraphics[width=.98\textwidth,height=.68\textheight,keepaspectratio]{assets/binary_information_pricing/plain/price_changes.pdf}
   \par\smallskip\footnotesize Zero means no change from the observed posted price.
   Both regimes use the same known price sensitivity, habit, menus and rival prices.
 \end{frame}
@@ -607,7 +608,7 @@
 \gdef\shortbuttons{}
 \begin{frame}[label=short-revised-revenue]{Revenue under the Same Persistent Novelty Types}
   \centering
-  \includegraphics[width=.98\textwidth,height=.68\textheight,keepaspectratio]{assets/information_pricing/plain/information_revenues.pdf}
+  \includegraphics[width=.98\textwidth,height=.68\textheight,keepaspectratio]{assets/binary_information_pricing/plain/information_revenues.pdf}
   \par\smallskip\footnotesize Expected two-period revenue per model consumer; zero marginal cost.
   Common prices are history-adaptive, with novelty hidden and fixed beliefs.
 \end{frame}
@@ -615,7 +616,7 @@
 \gdef\shortbuttons{}
 \begin{frame}[label=short-revised-gain]{How Much Revenue Does Knowing Novelty Add?}
   \centering
-  \includegraphics[width=.98\textwidth,height=.68\textheight,keepaspectratio]{assets/information_pricing/plain/information_value.pdf}
+  \includegraphics[width=.98\textwidth,height=.68\textheight,keepaspectratio]{assets/binary_information_pricing/plain/information_value.pdf}
   \par\smallskip\footnotesize Household-specific minus common revenue, evaluated on the same persistent types.
   Prior sensitivities use one novelty group with probability one-half.
 \end{frame}
@@ -624,23 +625,23 @@
 \begin{frame}[label=short-revised-table]{Revenue Comparison by Initial History and Prior}
   \centering\small
   \begin{adjustbox}{max width=\linewidth}
-    \input{assets/information_pricing/plain/revenue_table.tex}
+    \input{assets/binary_information_pricing/plain/revenue_table.tex}
   \end{adjustbox}
   \par\smallskip\footnotesize Dollars per model consumer over two periods.
   Both regimes adapt second prices to history; only novelty information differs.
 \end{frame}
 }{%
 \gdef\shortbuttons{}
-\begin{frame}[label=short-revised-pending]{Revised Information Comparison: Pricing Run Pending}
+\begin{frame}[label=short-revised-pending]{Binary Plain-versus-Not Pricing: Rerun Pending}
   \begin{itemize}
-    \item Existing demand estimates are retained, including habit.
-    \item Recompute household-specific and common prices, both adaptive to purchase history.
+    \item Saved estimates are inputs to the binary model, including known habit.
+    \item Recompute household-specific and common prices over two binary purchase periods.
     \item Only novelty is hidden; price sensitivity and habit are known.
     \item Report price changes and revenue gains in the same figure layouts as supply.
   \end{itemize}
   \begin{tcolorbox}
     Revised results require a pricing-only server run.
-    Earlier binary illustrations are retained in the appendix as benchmarks.
+    Earlier full-basket results do not apply to this binary specification.
   \end{tcolorbox}
 \end{frame}
 }
@@ -676,22 +677,20 @@
 
 % Original numbered slide 50
 \gdef\shortbuttons{}
-\begin{frame}[label=short-50]{Measure the Value of Knowing Novelty, Holding Other Information Fixed}
+\begin{frame}[label=short-50]{What Does Knowing Novelty Change?}
   \begin{itemize}
-    \item Retain the estimated consumer objective, including novelty and habit.
-    \item Both firms know price sensitivity, habit and purchase history.
-    Both respond to the first-period purchase.
-    \item Knowing novelty allows prices to vary across novelty types within
-    an otherwise identical pricing environment.
+    \item The binary pricing model uses estimated novelty and habit; only the firm's
+    information about novelty changes.
+    \item Compare acquisition and repeat-purchase prices separately for initially inside and outside consumers.
+    \item Measure the revenue gain from knowing novelty on the same persistent consumer types.
   \end{itemize}
   \begin{tcolorbox}
-    Compare changes in optimal prices and expected revenue under the same
-    consumers and history transitions.
+    \IfFileExists{assets/binary_information_pricing/plain/gain_headline.tex}{%
+      \input{assets/binary_information_pricing/plain/gain_headline.tex}
+    }{Revised pricing results pending.}
   \end{tcolorbox}
-  \par\smallskip\small
-  \IfFileExists{assets/information_pricing/plain/gain_headline.tex}{%
-    \input{assets/information_pricing/plain/gain_headline.tex}
-  }{Pricing-only server run pending; the displayed demand fit is unchanged.}
+  \par\smallskip\footnotesize Fitted-distribution baseline; expected revenue per model consumer over two periods.
+  Both regimes adapt prices to purchase history and retain known price sensitivity and habit.
 \end{frame}
 
 
@@ -1062,7 +1061,7 @@
        +\delta\,p_{2r}(b_1)K s_{rj}\big(p_{2r}(b_1),h_1(b_1)\big)\right].
   \]
   \begin{itemize}
-    \item $b_1$ is the entire first-period basket; $b_{1j}$ counts focal purchases.
+    \item $b_1$ is the entire first-period binary choice; $b_{1j}$ counts focal purchases.
     \item $h_1(b_1)$ updates both novelty and habit using the saved demand specification.
     \item Household-specific prices vary with $r$. Common prices do not, conditional
     on the other known characteristics and the same basket history.

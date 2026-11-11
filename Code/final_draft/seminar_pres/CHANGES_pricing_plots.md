@@ -1,3 +1,15 @@
+# Completed revised pricing results imported
+
+- Imported aggregate-only `new_pricing_res/`, verified the solver hash and exact
+  likelihood reconstruction, and checked all aggregate accounting identities.
+- Rebuilt six supply-style figures for 1,839 eligible environments. Both pricing
+  regimes adapt to history; only novelty information differs.
+- Main conclusion now reports 0.15% initially inside and 2.21% initially outside
+  revenue gains for the fitted-distribution baseline, with dollar gains per model
+  consumer. Added coverage context and `PRICING_RESULTS.md`.
+- Both short decks compile with the completed result slides; earlier binary and
+  shared-schedule results remain in backup, clearly separated.
+
 # Revised information comparison: habit retained, only novelty hidden
 
 - Added a new pricing-only server runner, pure numerical solver and aggregate-only

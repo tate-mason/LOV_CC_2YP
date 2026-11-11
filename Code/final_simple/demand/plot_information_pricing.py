@@ -23,6 +23,9 @@ def plot_results(source, output):
             raise ValueError('Figures accept aggregate result tables only.')
         if not {'scenario', 'initial_state', 'regime', 'weight', 'p1', 'expected_p2', 'revenue'} <= set(table):
             raise ValueError('Missing aggregate pricing columns.')
+    metadata_path = source.parent/'information_pricing_summary.json'
+    metadata = json.loads(metadata_path.read_text()) if metadata_path.is_file() else {}
+    binary = metadata.get('specification') == 'binary_focal_vs_not'
     output.mkdir(parents=True, exist_ok=True)
     base = 'Fitted distribution'
     baseline = nodes[nodes.scenario == base]
@@ -133,7 +136,9 @@ def plot_results(source, output):
         source_files={name: hashlib.sha256((source/name).read_bytes()).hexdigest() for name in names},
         figures=files, baseline=base,
         meaning='Means across observed environments; gamma curves connect numerical integration nodes',
-        terminal='Conditional on at least one focal purchase versus no focal purchase; averages over baskets',
+        specification=metadata.get('specification', 'previous_full_basket_model'),
+        terminal=('Exactly two outcomes: focal flavor and not focal' if binary else
+                  'Conditional on at least one focal purchase versus no focal purchase; averages over baskets'),
         ratio='Conditional mean of realized p1/p2, not ratio of population-average prices',
         profit='Expected revenue conditional on purchase branch; zero marginal cost',
         common='Common across novelty types within a known alpha/habit/history environment'), indent=2)+'\n')

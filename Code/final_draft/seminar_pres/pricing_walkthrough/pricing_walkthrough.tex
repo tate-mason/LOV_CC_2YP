@@ -1,0 +1,685 @@
+\documentclass[11pt]{article}
+\usepackage[margin=.8in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern,microtype}
+\usepackage{amsmath,amssymb,mathtools}
+\usepackage{booktabs,longtable,array,tabularx}
+\usepackage{xcolor,graphicx,listings,tcolorbox}
+\usepackage{hyperref,fancyhdr,enumitem}
+\definecolor{navy}{HTML}{214C69}
+\definecolor{pale}{HTML}{EDF4F8}
+\definecolor{warning}{HTML}{8B3325}
+\hypersetup{colorlinks=true,linkcolor=navy,urlcolor=navy}
+\setlength{\emergencystretch}{3em}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{.45em}
+\setlist[itemize]{nosep,leftmargin=*}
+\setlist[enumerate]{itemsep=.3em,leftmargin=*}
+\pagestyle{fancy}\fancyhf{}\fancyhead[L]{Binary pricing: mathematics and code}\fancyhead[R]{Verification copy}\fancyfoot[C]{\thepage}
+\setlength{\headheight}{14pt}
+\lstset{language=Python,basicstyle=\ttfamily\scriptsize,keywordstyle=\color{navy}\bfseries,
+ commentstyle=\color{black!55},stringstyle=\color{warning},numbers=left,numberstyle=\tiny\color{black!50},
+ numbersep=7pt,frame=single,rulecolor=\color{black!15},breaklines=true,breakatwhitespace=false,
+ columns=fullflexible,keepspaces=true,showstringspaces=false,tabsize=4,
+ literate={è}{{\`e}}1 {é}{{\'e}}1 {û}{{\^u}}1 {γ}{{\ensuremath{\gamma}}}1 {−}{{\ensuremath{-}}}1}
+\newcommand{\sig}{\operatorname{logit}^{-1}}
+\newcommand{\LSE}{\operatorname{LSE}}
+\newcommand{\ind}{\mathbf{1}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\code}[1]{\texttt{\detokenize{#1}}}
+\newcommand{\review}[1]{\begin{tcolorbox}[colback=pale,colframe=navy,title=Decision to verify]#1\end{tcolorbox}}
+\newcommand{\important}[1]{\begin{tcolorbox}[colback=white,colframe=warning]#1\end{tcolorbox}}
+\begin{document}
+\begin{titlepage}
+\vspace*{.7in}
+{\Huge\bfseries Plain versus not plain\par}
+\vspace{.2in}
+{\LARGE A verification walkthrough of the binary pricing rewrite\par}
+\vspace{.3in}
+{\large Consumer objective, firm information, optimization, code syntax, and links to the theory\par}
+\vspace{.4in}
+\important{The earlier results in \code{new_pricing_res/} came from the full-basket model. They are \textbf{not results for the binary specification requested here}. The corrected binary solver is implemented and mathematically tested; its empirical results require a new server run.}
+This document explains what the corrected code does, including the assumptions needed to reuse the existing estimates. It does not claim that a binary demand model has been estimated.
+
+Read Sections 1--4 first to check the model itself. Sections 5--13 connect every calculation to Python syntax and equations. The appendices contain complete active pricing sources and the reused dependencies, with line numbers and frozen source hashes.
+
+All material here is source code, estimates, aggregate results from the earlier run, or explicitly labeled mathematical examples. No household records or purchase histories were read or generated locally.
+\vfill
+Verification version: November 11, 2026.\par
+Presentation flavor: plain. The same code can run berry and other yogurt as the inside alternative.
+\end{titlepage}
+\tableofcontents\clearpage
+
+\section{The model you asked for, in one page}
+Let $j$ denote the selected inside flavor. For the presentation, $j$ is plain. There are exactly two alternatives and two possible first-period outcomes:
+\[
+ x_t\in\{j,0\},\qquad 0=\text{not plain: berry, other yogurt, or nonpurchase}.
+\]
+The initial history $h_0$ and the new history $h_1$ each record only inside or outside. The model never sets a different second price after berry versus other yogurt versus nonpurchase. It chooses $p_2(j)$ or $p_2(0)$.
+
+A consumer's current relative utility is
+\begin{equation}\label{eq:binary}
+ v_{ir,t}=b_i+\gamma_r q(h_t)+\phi_i H_{it}-a_i p_{it},\qquad
+ q(j)=-1,\quad q(0)=+1,\quad a_i>0.
+\end{equation}
+The current purchase probability is $s_{ir,t}=\sig(v_{ir,t})$. Consumers make the current choice using current utility; they are not solving their own forward-looking consumption problem. The firm is forward-looking over two periods.
+
+Own-flavor habit updates by
+\begin{equation}\label{eq:habit}
+ H_{i,t+1}=H_{it}+\ind\{x_t=j\}.
+\end{equation}
+For a given starting $H_{i1}$, there are just two successor states:
+\[
+ (h_1,H_{i2})=(j,H_{i1}+1)\quad\text{or}\quad(0,H_{i1}).
+\]
+Habit adds a continuous state to the binary model, but each starting environment still has exactly two next-period branches.
+
+\begin{center}\begin{tabular}{lcc}\toprule
+ & Perfect information & Limited information\\\midrule
+Initial history, price sensitivity, habit & Known & Known\\
+Novelty $\gamma$ & Known value & Known distribution\\
+First price & $p_{1r}(h_0)$ & $p_1(h_0)$\\
+Second price & $p_{2r}(h_1)$ & $p_2(h_1)$\\
+Observe first purchase before second price & Yes & Yes\\
+Update beliefs about novelty & Not needed & No: fixed weights\\\bottomrule
+\end{tabular}\end{center}
+
+Prices are continuous. The first price may be above or below the observed price and can be negative. The terminal optimum is nonnegative at zero marginal cost. There is no restriction leaving a middle type at its observed price.
+
+\review{Is this the intended consumer objective? In particular: (i) one binary purchase opportunity in each period; (ii) the symmetric theory switching effect $+\gamma$ after outside and $-\gamma$ after inside; (iii) own habit increases only after an inside choice; (iv) only novelty is hidden.}
+
+\section{The outside option: what is combined, and what is fixed}
+There is one consumer-specific novelty preference, not separate novelty parameters for berry, plain, and other yogurt. There is therefore no averaging of different flavor-specific $\gamma$ coefficients.
+
+The code first combines the \emph{baseline} utilities of the available non-focal alternatives. Write $\bar\beta_k$ for the fitted flavor intercept, $p^0_{ik}$ for its observed price, $S^0_{ik}$ for its starting stock, and $c_{ik}$ for an optional fixed utility control. Then
+\begin{align}
+ B_{ik}&=\bar\beta_k-a_i p^0_{ik}+\phi_i S^0_{ik}+c_{ik},\qquad k\ne j,\\
+ C_i&=\log\left(1+\sum_{k\ne j,\,k\text{ available}} e^{B_{ik}}\right),\label{eq:outside}\\
+ b_i&=\bar\beta_j+c_{ij}-C_i.\label{eq:b}
+\end{align}
+The $1$ in (\ref{eq:outside}) is $e^0$, the nonpurchase alternative. Unavailable flavors are omitted. For plain, the sum includes berry and other yogurt when their prices are available.
+
+This is a log-sum-exp, not an arithmetic mean of utility, price, or novelty. For any specified utilities,
+\[
+ \frac{e^{V_j}}{e^{V_j}+\sum_{k\ne j}e^{V_k}}
+ =\sig\left(V_j-\log\sum_{k\ne j}e^{V_k}\right).
+\]
+That algebra explains how several alternatives can form one outside index.
+
+\subsection{How switching is kept separate}
+The two binary deterministic utilities can be written
+\begin{align}
+ V_{j,t}&=\bar\beta_j+c_{ij}-a_i p_t+\phi_i H_{it}+\gamma_r\ind\{h_t=0\},\\
+ V_{0,t}&=C_i+\gamma_r\ind\{h_t=j\}.
+\end{align}
+Subtracting $V_{0,t}$ gives (\ref{eq:binary}). Every non-focal choice receives the same binary switching treatment. The code excludes novelty from $C_i$ because it is represented explicitly by these switching terms.
+
+\begin{lstlisting}
+rivals = np.flatnonzero(available & (np.arange(j) != focal))
+rival_base = beta[rivals]-alpha*prices[rivals] \
+             + habit*stock[rivals]+controls[rivals]
+outside_index = float(logsumexp(np.r_[rival_base, 0.]))
+intercept = float(beta[focal]+controls[focal]-outside_index)
+\end{lstlisting}
+Here \code{np.r_[rival_base, 0.]} appends nonpurchase utility zero to the vector of rival baseline utilities. \code{logsumexp} computes their inclusive value stably, without directly exponentiating large numbers.
+
+\subsection{The transport assumption you need to inspect}
+The baseline index $C_i$, rival prices, and rival habit stocks are held fixed during the two pricing periods. Only the inside habit stock and the binary last-choice indicator evolve. This makes the future history genuinely binary.
+
+\important{This is an explicit binary counterfactual using estimates from the original multinomial demand model. It is not an exact dynamic aggregation of that fitted model. In the original model, novelty and habit of every flavor can change after a basket. Here, outside baseline utility is frozen and novelty follows the theory's symmetric binary rule.}
+
+The original fitted own-flavor novelty index is a past purchase-share measure. The rewrite uses the same numerical coefficient in $\gamma q(h)$, with $q\in\{-1,+1\}$. The difference between the two binary histories is therefore $2\gamma$. No automatic factor-of-two rescaling or binary reestimation is performed. That parameter transfer is a modeling assumption, not something established by the saved likelihood check.
+
+\review{Are you comfortable fixing the outside baseline for two periods and transporting the estimated novelty coefficient directly into the theory's binary switching rule? If the target is exact dynamic aggregation of the original fitted multinomial model, this binary specification does not deliver that different target.}
+
+\section{Direct comparison with the theoretical supply exercise}
+The theoretical relative utility in the existing supply code is
+\[
+ v_r^T(p,h)=\beta+\gamma_r q(h)-a p,
+ \qquad h\in\{j,0\}.
+\]
+Its numerical script uses \code{ALPHA=-a} and writes \code{BETA + ALPHA*p}. The rewritten empirical code uses positive \code{alpha=a_i} and subtracts \code{alpha*p}. These are equivalent sign conventions.
+
+\begin{longtable}{p{.22\textwidth}p{.33\textwidth}p{.36\textwidth}}\toprule
+Object & Theoretical example & Binary empirical rewrite\\\midrule\endhead
+Choice & Inside or outside & Selected flavor or all other choices\\
+Choice opportunities & One per period & One per period\\
+History after first choice & $j$ or $0$ & $j$ or $0$\\
+Baseline intercept & Common illustrative $\beta$ & Known $b_i=\bar\beta_j+c_{ij}-C_i$\\
+Price sensitivity & Common illustrative $a$ & Known estimated $a_i$\\
+Novelty & Illustrative discrete support & Nine nodes approximating fitted normal population\\
+Habit & Absent & Known $\phi_i$, evolving inside stock $H_i$\\
+Outside attractiveness & Normalized baseline zero & Fixed inclusive value, subtracted into $b_i$\\
+Firm horizon & Two periods & Two periods\\
+Revenue discount & $\delta=1$ in the displayed example & $\delta=1$ by default\\
+Marginal cost & Zero & Zero\\
+Limited information & Fixed type weights in each state & Same fixed-weight rule\\
+Policy evaluation & Same type through both periods & Same type through both periods\\\bottomrule
+\end{longtable}
+
+The binary rewrite reduces exactly to the theoretical objective when $\phi_i=0$, $b_i=\beta$, and $a_i=a$. The regression test checks both starting histories, every informed type, the common first price, both common terminal prices, and the limited firm's subjective objective against the separate theoretical implementation.
+
+\subsection{How habit changes the optimum}
+The two period-two relative utility intercepts are
+\begin{equation}\label{eq:z2}
+ z_{ir,j}=b_i-\gamma_r+\phi_i(H_{i1}+1),\qquad
+ z_{ir,0}=b_i+\gamma_r+\phi_i H_{i1}.
+\end{equation}
+The initial intercept is
+\begin{equation}\label{eq:z1}
+ z_{ir,1}=b_i+\gamma_r q(h_0)+\phi_i H_{i1}.
+\end{equation}
+Thus habit is additive in current utility, but it changes the continuation value after an inside choice. It cannot be removed from the dynamic calculation while claiming to preserve the habit-inclusive objective. Negative $\gamma$ rewards repeating the most recent binary choice; $\phi H$ is a distinct accumulated-exposure effect. $\phi$ can itself be negative.
+
+\begin{lstlisting}
+history_sign = -1. if initial_inside else 1.
+intercept1 = intercept+gamma*history_sign+habit*own_stock
+intercept2 = np.column_stack([
+    intercept-gamma+habit*(own_stock+1.),
+    intercept+gamma+habit*own_stock])
+\end{lstlisting}
+The two columns are ordered \emph{after inside, after outside}. They are not berry and other yogurt. \code{np.column_stack} makes a $G\times2$ matrix when there are $G$ novelty nodes.
+
+\section{What is reused from estimation, and what is not reestimated}
+\subsection{Saved parameters}
+The aggregate parameter file below has the same SHA-256 as the parameter file recorded in the earlier completed server run. It is safe to inspect these estimates locally. The new binary run has not yet produced results.
+\input{parameter_table.tex}
+
+The pricing vector of fitted flavor intercepts is
+\[
+ \bar\beta=(\beta_{inside},\ \beta_{inside}+\beta_{berry},\ \beta_{inside}+\beta_{plain}),
+\]
+ordered \emph{other, berry, plain}. For plain the fitted baseline intercept before outside normalization is approximately $0.945391$; it is not the older binary calibration intercept $10.502$.
+
+The saved random-coefficient mapping is
+\begin{align}
+ a_d&=\exp(\mu_a+\sigma_a z_{ad})>0,\\
+ \gamma_d&=\mu_\gamma+\sigma_\gamma z_{\gamma d},\\
+ \phi_d&=\mu_\phi+\sigma_\phi z_{\phi d}.
+\end{align}
+The saved population distributions are independent in these latent draws. Conditioning on observed choices can make posterior coefficient beliefs correlated.
+
+\subsection{Posterior means treated as known}
+The server reconstructs the original estimation input and computes, for draw $d$,
+\[
+ \ell_{id}=\sum_t\sum_k y_{ikt}\log P_{ikt}(a_d,\gamma_d,\phi_d).
+\]
+Constants not depending on the draw are unnecessary for posterior weights. With equally weighted integration draws,
+\begin{align}
+ \rho_{id}&=\frac{e^{\ell_{id}}}{\sum_{d'}e^{\ell_{id'}}},\\
+ \widehat a_i&=\sum_d\rho_{id}a_d,\qquad
+ \widehat\phi_i=\sum_d\rho_{id}\phi_d.\label{eq:postmean}
+\end{align}
+These two posterior means enter \emph{both} pricing regimes as if known. They are not actual directly observed tastes and their estimation uncertainty is not integrated in pricing.
+
+\begin{lstlisting}
+weights = np.exp(loglike-logsumexp(loglike, axis=1, keepdims=True))
+table["alpha_mean"] = weights @ alpha  # constructed in the table
+# The implementation uses the same weighted sum for habit:
+table["habit_mean"] = weights @ habit
+\end{lstlisting}
+The first assignment to \code{alpha_mean} is embedded in a \code{DataFrame} constructor in the actual source; the displayed line spells out its operation. The complete source is in the appendix.
+
+\review{The firm is assumed to know these nuisance tastes at the pricing date even though they are estimated using the full observed sample, including later choices. This is a retrospective information experiment, not a claim that a new customer's tastes could be known from the first purchase alone.}
+
+\subsection{What happens to household-specific novelty estimates?}
+The reused posterior function also computes each household's posterior mean novelty and assigns household quartile groups for the older exercise. \textbf{The new information exercise does not use those household-specific novelty estimates as its true types.} It crosses a population novelty distribution with every eligible known-price/habit/history environment. Its low/middle/high display groups are groups of population integration nodes, not those old household quartile assignments.
+
+\subsection{What the likelihood check establishes}
+The runner requires the reconstructed old-model likelihood to match the saved value. In the earlier completed run both values were $1{,}627{,}493.8833353105$. This validates reconstruction of the \emph{saved multinomial fit}. It does not validate the new binary parameter mapping or show that binary demand has been estimated.
+
+The workflow does not rerun the optimizer that estimated the original demand parameters. Source for the needed reconstruction and posterior calculations is included; unrelated old estimation optimization code is not an active part of this pricing job.
+
+\section{Starting environments: the role of actual observed histories}
+An environment consists of a known starting menu, observed prices, saved stocks, and the nuisance posterior means in (\ref{eq:postmean}). Only this reconstruction is performed on the research server. No such individual environments are exported locally.
+
+\begin{enumerate}
+\item Reconstruct the saved estimation sample using its original settings.
+\item Construct cumulative history before exclusions of unusable weeks.
+\item Keep households with the required usable weeks and verify the likelihood.
+\item Take each household's earliest retained estimation row.
+\item Carry its menu, rival prices, and fixed utility controls forward for two pricing periods.
+\item Retain an environment for a focal flavor only when that flavor has a finite positive price in the starting menu.
+\end{enumerate}
+
+The initial binary history is
+\[
+ h_{i0}=j\quad\text{if any focal-flavor units occur in that starting row};\qquad h_{i0}=0\text{ otherwise}.
+\]
+A mixed initial basket containing plain is therefore initially inside plain. This initialization rule does not require the initial observed week to have been a single binary purchase. The two \emph{counterfactual pricing decisions} that follow it are binary.
+
+If the saved pre-purchase inside stock is $S_{ij,t_0}$ and the initial observed share is $w_{ij,t_0}$, the stock entering the first priced period is
+\[
+ H_{i1}=S_{ij,t_0}+w_{ij,t_0}.
+\]
+It need not be zero or an integer. Earlier history can remain in $S$ because stocks are built before unusable-price rows are filtered. Future binary purchases add one or zero.
+
+\important{The rewrite accepts the saved cumulative-history specification only. It does not silently apply the newer average-stock default to old estimates. The original estimation uses weekly counts with capacity seven for the nonpurchase construction; the binary counterfactual uses one theoretical choice opportunity per pricing period. The unit and transition change are explicitly recorded in the new run summary.}
+
+The previous full-basket plain run had 1,839 eligible environments: 1,324 initially inside and 515 initially outside. These are counts of underlying eligible household setups, not 1,839 aggregate preference groups. The local exported files are aggregates over these setups. Coverage for the corrected all-flavor run must be read from its new metadata; it has not been observed yet.
+
+An inside/outside comparison of averaged outcomes uses different observed environments. It is not automatically a ceteris paribus change of $h_0$ holding menus, prices, and nuisance tastes fixed, as in a single illustrative theoretical calibration.
+
+\section{How the novelty distribution enters the calculation}
+\subsection{Mean and standard deviation generate a distribution, not one average type}
+For $Z\sim N(0,1)$ and $\gamma=\mu_\gamma+\sigma_\gamma Z$, the code approximates
+\begin{equation}
+ \E[f(\gamma)]\simeq\sum_{r=1}^{G}w_r f(\gamma_r),\qquad
+ \gamma_r=\mu_\gamma+\sqrt2\sigma_\gamma z_r,\quad
+ w_r=\frac{w_r^{GH}}{\sqrt\pi}.
+\end{equation}
+Here $z_r,w_r^{GH}$ are Gauss--Hermite nodes and weights for integrating against $e^{-z^2}$. The default is $G=9$.
+\begin{lstlisting}
+nodes, weights = hermgauss(args.nodes)
+gamma = parameters['mean_novelty'] \
+        + np.sqrt(2)*parameters['sd_novelty']*nodes
+weights = weights/np.sqrt(np.pi)
+\end{lstlisting}
+This is deterministic numerical integration, not nine sampled households or nine realized shocks. A type $\gamma_r$ remains fixed through both periods.
+\input{quadrature_table.tex}
+
+\subsection{Population crossing is an explicit experiment}
+For every eligible environment $i$, the solver considers all nine types using the same weights $w$. The firm knows $a_i,\phi_i,H_i,C_i$; only the population type $\gamma_r$ is hidden in limited information. Thus the expectation is over a population distribution crossed with observed environments. It is not a forecast conditional on that household's posterior novelty distribution or on its past choices beyond the known environment.
+
+\review{If the intended perfect-information case instead uses each household's estimated novelty posterior mean, or the limited-information prior should be conditional on initial history and known tastes, those are different experiments. The current crossing is the distribution-to-theory experiment implemented here.}
+
+\subsection{Low/middle/high groups and prior sensitivity}
+The code partitions nodes using the continuous normal quartile cutoffs $\mu_\gamma\pm0.67448975\sigma_\gamma$. Nine-node quadrature is not exact for threshold indicators, so the node masses are not exactly $25/50/25$:
+\begin{center}\input{group_table.tex}\end{center}
+For a sensitivity scenario favoring group $g$, target masses are $m_g=.5$ and $.25$ for the other groups. Within a group, relative node weights stay unchanged:
+\[
+ w'_r=w_r\frac{m_{g(r)}}{\sum_{s:g(s)=g(r)}w_s}.
+\]
+Both policies are optimized and evaluated using the same scenario weights. Changing scenarios changes the hypothetical population as well as the firm's weights. These are sensitivity experiments, not estimates of different observed population shares. The fitted-distribution baseline is separate from an equal-three-type prior in the original illustrative theory.
+
+\section{Step one of backward induction: the two informed terminal prices}
+Fix an environment and drop $i$ from notation. The terminal probability for type $r$ after history $b\in\{j,0\}$ is
+\[
+ s_{2r,b}(p)=\sig(z_{r,b}-ap),\qquad z_{r,b}\text{ given in (\ref{eq:z2})}.
+\]
+At zero marginal cost, terminal revenue is $p\,s_{2r,b}(p)$. Differentiating,
+\[
+ \frac{d}{dp}[p\,s(p)]=s(p)\{1-ap[1-s(p)]\}.
+\]
+The first-order condition is $ap=1/[1-s(p)]$. If $\omega(x)$ solves $\omega+\log\omega=x$, then
+\begin{equation}\label{eq:p2}
+ p^F_{2r,b}=\frac{1+\omega(z_{r,b}-1)}a,
+ \qquad V^F_{2r,b}=p^F_{2r,b}s_{2r,b}(p^F_{2r,b}).
+\end{equation}
+Equivalently, $\omega(x)=W(e^x)$, where $W$ is Lambert $W$. \code{wrightomega} avoids constructing an overflow-prone exponential $e^x$.
+\begin{lstlisting}
+p2_full = (1+wrightomega(intercept2-1))/alpha
+r2_full = p2_full*expit(intercept2-alpha*p2_full)
+\end{lstlisting}
+Both arrays have $G$ rows and exactly two columns. Every informed type gets a price after inside and a price after outside. There is no loop over yogurt baskets.
+
+\section{Step two: the informed first price}
+For type $r$, let $s_{1r}(p)=\sig(z_{r,1}-ap)$. Its two-period objective is
+\begin{equation}\label{eq:fullobj}
+ \Pi^F_r(p)=p s_{1r}(p)+\delta\{s_{1r}(p)V^F_{2r,j}+[1-s_{1r}(p)]V^F_{2r,0}\}.
+\end{equation}
+Define an effective first-period cost
+\[
+ c^{eff}_r=-\delta(V^F_{2r,j}-V^F_{2r,0}).
+\]
+Then
+\[
+ \Pi^F_r(p)=\delta V^F_{2r,0}+s_{1r}(p)(p-c^{eff}_r),
+\]
+and the solution is
+\begin{equation}\label{eq:p1full}
+ p^F_{1r}=c^{eff}_r+
+ \frac{1+\omega(z_{r,1}-a c^{eff}_r-1)}a.
+\end{equation}
+This is the same continuation-value adjustment as in the supply first-order condition. A large benefit from an inside purchase lowers the effective cost and can induce an introductory subsidy. A disadvantage from that purchase raises it.
+\begin{lstlisting}
+effective_cost = -delta*(r2_full[:, 0]-r2_full[:, 1])
+p1_full = effective_cost + \
+    (1+wrightomega(intercept1-alpha*effective_cost-1))/alpha
+\end{lstlisting}
+Revenue is optimized \emph{separately for each novelty type}, then averaged. Averaging types before this maximization would solve the limited-information problem instead.
+
+\section{Limited information: two common terminal prices}
+The firm uses the same weights $w_r$ after either outcome. For each terminal history $b$ it chooses
+\begin{equation}\label{eq:common2}
+ p^L_{2,b}\in\arg\max_{p\ge0}\ p\sum_r w_r s_{2r,b}(p),\qquad
+ \bar V^L_{2,b}=\sum_rw_r p^L_{2,b}s_{2r,b}(p^L_{2,b}).
+\end{equation}
+This is \emph{one price across novelty types conditional on history}. It is not a single price across periods, and not one dollar price across all environments: known price sensitivity, habit, and outside attractiveness can differ across environments.
+
+The common terminal-price first-order condition, in dimensionless price $t=ap$, is
+\begin{equation}\label{eq:foccommon}
+ D_b(t)=\sum_rw_r s_{r,b}(t)\{1-t[1-s_{r,b}(t)]\}=0.
+\end{equation}
+There is generally no single closed-form logit markup for the mixture. The optimizer brackets its candidates between the smallest and largest type-specific optimal prices. Below all individual optima each component derivative is nonnegative; above all of them it is nonpositive. A mixture can have multiple local maxima within that interval, so the code screens a grid and refines every detected positive-to-negative derivative crossing.
+
+\begin{lstlisting}
+p2_limited, perceived2 = _terminal_common(
+    intercept2, weights, alpha, 1, search_points)
+\end{lstlisting}
+The argument \code{1} is one binary purchase opportunity. The output prices and mixture values are length-two arrays, ordered after inside and after outside. The helper does not update $w_r$ using purchases.
+
+\subsection{Numerical details and the rounding failure}
+The helper evaluates mixture shares on a dimensionless grid, bisects derivative crossings for 48 iterations, and compares objective values across candidate optima. If a refined stationary point and a grid point have objective values differing only within a scale-aware $64\epsilon_{machine}$ bound, it prefers the refined point. This prevents a rounded objective tie from retaining a grid point with a larger derivative residual.
+
+The terminal derivative check remains at absolute tolerance $2\times10^{-9}$. The earlier screenshot's residual around $3.28\times10^{-9}$ was reproduced using theoretical utility arrays and corrected through tie-breaking, not by removing that check. A grid search is numerical screening rather than a formal proof that every stationary point is detected for arbitrary inputs. The dense-search regression and wider-search options are checks of numerical accuracy, not statistical uncertainty intervals.
+
+\section{Limited information: the first price and the meaning of fixed beliefs}
+Write $\bar s_1(p)=\sum_rw_r s_{1r}(p)$. Under the specified fixed-belief rule, the first-period objective is
+\begin{equation}\label{eq:subjective}
+ \Pi^L_{\mathrm{belief}}(p)=p\bar s_1(p)+\delta\{\bar s_1(p)\bar V^L_{2,j}
+                    +[1-\bar s_1(p)]\bar V^L_{2,0}\}.
+\end{equation}
+This is the direct analogue of the theoretical script's \code{evaluate} function: use mixture demand in the first period and a fixed-belief mixture continuation value after each history.
+
+Let $A=\delta(\bar V^L_{2,j}-\bar V^L_{2,0})$ and $p'=p+A$. Then
+\[
+ \Pi^L_{\mathrm{belief}}(p)=\delta\bar V^L_{2,0}
+       +p'\sum_rw_r\sig\{(z_{r,1}+aA)-ap'\}.
+\]
+The same mixture-price helper can optimize $p'$, after which $p=p'-A$. Although $p'\ge0$ at the terminal-style optimum, $p$ can be negative.
+\begin{lstlisting}
+adjustment = delta*(perceived2[0]-perceived2[1])
+relative_price, relative_value = _terminal_common(
+    intercept1[:, None]+alpha*adjustment,
+    weights, alpha, 1, search_points)
+p1_limited = np.full(len(gamma), relative_price[0]-adjustment)
+limited_objective = relative_value[0]+delta*perceived2[1]
+\end{lstlisting}
+\code{intercept1[:, None]} converts a length-$G$ vector into a $G\times1$ matrix so that the helper solves one first-price problem. \code{np.full} repeats the common price across all possible types for evaluation. It does not give the firm knowledge of the true type.
+
+\subsection{The distinction most important to verify}
+The consumers keep their type, so a purchase generally changes the actual type composition of purchasers. Holding the firm's beliefs fixed is a restriction on its pricing behavior. Its subjective objective (\ref{eq:subjective}) need not equal the revenue actually produced by those prices.
+
+For a Bayesian firm, weights after inside would be
+\[
+ w_{r|j}(p)=\frac{w_r s_{1r}(p)}{\sum_s w_s s_{1s}(p)},
+\]
+and after outside they would be
+\[
+ w_{r|0}(p)=\frac{w_r[1-s_{1r}(p)]}{\sum_s w_s[1-s_{1s}(p)]}.
+\]
+The current code \emph{does not use these weights to choose prices}. It uses $w_r$ in each terminal state and the matching subjective first-period objective.
+
+\review{Does ``limited information with fixed beliefs'' mean exactly (\ref{eq:common2}) and (\ref{eq:subjective})? This is not the fully rational Bayesian optimum for an uninformed firm. Another possible specification would keep the fixed-belief terminal rule but choose the first price using correctly anticipated persistent-type revenue. That would also differ from the implemented first objective.}
+
+\section{Policy evaluation: consumers keep their type}
+Once prices have been selected, the actual expected revenue for type $r$ under policy $z\in\{F,L\}$ is
+\begin{equation}\label{eq:realized}
+ R^z_r=p^z_{1r}s^z_{1r}+\delta\{s^z_{1r}p^z_{2r,j}s_{2r,j}(p^z_{2r,j})
+       +(1-s^z_{1r})p^z_{2r,0}s_{2r,0}(p^z_{2r,0})\}.
+\end{equation}
+For common pricing, $p^L_{1r}$ is identical across $r$, and the terminal prices are also identical across $r$ within a history. Probabilities still differ across $r$.
+\[
+ R^z=\sum_rw_rR^z_r,\qquad \Delta R=R^F-R^L.
+\]
+These expectations use the same $r$ in both periods. They do not redraw novelty after the first purchase. The current choice shocks can be independent conditional on type while purchases are linked by the persistent type and history.
+
+\begin{lstlisting}
+s1 = expit(intercept1-alpha*p1)
+mass = np.column_stack([s1, 1-s1])
+revenue1 = p1*s1
+revenue2 = (mass*r2).sum(axis=1)
+revenue = revenue1+delta*revenue2
+\end{lstlisting}
+\code{mass} is $G\times2$, \code{r2} is $G\times2$, and their elementwise product pairs each type's history probabilities with that \emph{same type's} terminal revenue.
+
+\subsection{Why the belief objective and evaluated revenue differ}
+Let $V^L_{2r,b}=p^L_{2,b}s_{2r,b}(p^L_{2,b})$. At the selected common policy,
+\[
+ R^L-\Pi^L_{\mathrm{belief}}
+ =\delta\{\operatorname{Cov}_w(s_{1r},V^L_{2r,j})
+         -\operatorname{Cov}_w(s_{1r},V^L_{2r,0})\}.
+\]
+This is an average-of-products versus product-of-averages difference. It is not a distinction between ``total revenue'' and ``information value.'' Both price regimes have a revenue level, and their difference is the information gain under the stated restrictions.
+
+The informed type can always choose the limited-information price path. Hence, with the same feasible prices and consumer model,
+\[
+ R^F_r\ge R^L_r\quad\text{for every type},\qquad R^F\ge R^L.
+\]
+This explains the dominance assertion. A positive gain by itself does not validate the demand specification, establish causal real-world gains, or demonstrate that the unknown-type policy is Bayesian optimal.
+
+\section{A complete numerical example you can follow by hand}
+This example is mathematical, not an empirical household. Take
+\[
+ b=2,\quad a=1,\quad\phi=.25,\quad H_1=.5,\quad h_0=0,\quad\delta=1,
+ \qquad\Pr(\gamma=-1)=\Pr(\gamma=1)=.5.
+\]
+The outside baseline is normalized to zero in this example. The intercepts are
+\[
+ z_{r,1}=2.125+\gamma_r,\quad
+ z_{r,j}=2.375-\gamma_r,\quad z_{r,0}=2.125+\gamma_r.
+\]
+Work backwards: use (\ref{eq:p2}) for each terminal state and type; compute $V^F_{2r,j},V^F_{2r,0}$; form the effective cost and use (\ref{eq:p1full}). For limited information, maximize the two weighted terminal revenue functions, then the shifted mixture first-price problem.
+\begin{center}\input{example_prices.tex}\end{center}
+\input{example_values.tex}
+
+\input{example_selection.tex}
+
+The limited firm can respond to \emph{which binary history occurred} while still ignoring how that history changes the distribution of hidden novelty. That is exactly what ``history-adaptive common prices with fixed beliefs'' means in the code.
+
+\section{The server loop, line by line in economic terms}
+The full numbered source appears in the appendix. The following map covers every block of the orchestration file, including blocks with no economic equation.
+\begin{longtable}{p{.25\textwidth}p{.65\textwidth}}\toprule
+Code operation & Meaning and verification purpose\\\midrule\endhead
+Imports and path setup & Locate modules and the server policy. They do not estimate or simulate anything.\\
+\code{@server_only}, \code{require_data_path} & Stop before empirical I/O on this computer; restrict server input/output paths.\\
+Read \code{fit.json}, saved estimates & Load the old model's parameters and settings; reject missing, unconverged, or boundary fits.\\
+Resolve saved history & Require cumulative stock for this binary rewrite. No use of an average-stock default.\\
+\code{prepare_data} & Rebuild the saved estimation inputs on the server, including historical stocks and menus.\\
+\code{posterior} and likelihood check & Recover known nuisance means and verify the old fitted likelihood.\\
+\code{forecast_context} & Select the first retained observation and advance its stock once before pricing begins.\\
+\code{hermgauss} & Build nine population novelty nodes and weights.\\
+Build scenario weights & Keep the fitted distribution, or reweight one display group to one-half probability.\\
+\code{flavor == 'all'} & Run every fitted flavor as $j$, including other yogurt; reconstruct data once.\\
+Select eligible indices & Require the focal flavor in the starting price menu.\\
+Initial state test & Any focal purchase in the starting row means $h_0=j$; otherwise $0$.\\
+\code{solve_binary} & Compute all informed type prices, two common second prices, one common first price, and persistent-type revenues.\\
+Compute mapping diagnostics & Compare binary and original multinomial probabilities at the observed price, using the same nuisance inputs.\\
+Accumulate weighted metrics & Add sums indexed only by prior, initial state, regime, node and display group; never export individual policies.\\
+\code{groupby(...).sum()} & Roll node sums into group and overall aggregates. No average is taken until dividing by the exported denominator.\\
+\code{pivot} and information gain & Put informed and limited revenues side by side and subtract. Percent gains divide by limited revenue when positive.\\
+Write summary, figures & Record model, source hashes, one-opportunity pricing unit, the outside mapping and aggregate outputs. Mark complete only after plotting succeeds.\\\bottomrule
+\end{longtable}
+
+\subsection{Mapping diagnostics: an important new export}
+The new runner records aggregate columns
+\path{posted_probability_binary}, \path{posted_probability_multinomial}, and \path{posted_probability_gap}. For each environment and node these compare
+\[
+ s^{B}_{ir}(p^0_{ij})=\sig(b_i+\gamma_rq(h_0)+\phi_iH_{i1}-a_i p^0_{ij})
+\]
+with
+\[
+ s^{M}_{ir}(p^0_{ij})=\frac{e^{\bar\beta_j-a_ip^0_{ij}+\gamma_rN^0_{ij}+\phi_iS^0_{ij}+c_{ij}}}
+ {1+\sum_{k\text{ available}} e^{\bar\beta_k-a_ip^0_{ik}+\gamma_rN^0_{ik}+\phi_iS^0_{ik}+c_{ik}}}.
+\]
+Their difference is not assumed zero. A large aggregate gap would show that the binary mapping changes baseline choice behavior materially. It would be a reason to revisit the transport assumption; it is not repaired by a numerical optimizer tolerance.
+
+\section{Python syntax: how to read the array calculations}
+Indices are: environment $i$; novelty node $r=1,\ldots,G$; flavor $k$; binary terminal state $b\in\{j,0\}$. An environment loop runs on the server. The solver handles all novelty types for one environment simultaneously.
+\begin{longtable}{p{.30\textwidth}p{.60\textwidth}}\toprule
+Syntax & Mathematical operation\\\midrule\endhead
+\code{np.asarray(x, float)} & Convert input to a numeric array; does not average it.\\
+\code{gamma.shape == (G,)} & A vector of possible persistent novelty coefficients.\\
+\code{gamma[:, None]} & Add a dimension: $G$ values become $G\times1$ so one term can be used in each state column.\\
+\code{intercept2.shape == (G,2)} & Every novelty type paired with exactly two histories.\\
+\code{np.column_stack([a,b])} & Put vectors $a$ and $b$ in adjacent columns.\\
+\code{p2_limited[None,:]} & One row with two common prices, broadcast across all novelty types.\\
+\code{np.broadcast_to(...)} & Repeat values for arithmetic, not draw or observe extra types.\\
+\code{A*B} & Elementwise multiplication, e.g. $P_{rb}V_{rb}$.\\
+\code{weights @ values} & Dot product $\sum_rw_r\,\text{values}_r$.\\
+\code{(mass*r2).sum(axis=1)} & Sum the two state contributions \emph{within each type}.\\
+\code{expit(x)} & $1/(1+e^{-x})$, implemented stably.\\
+\code{logsumexp(x)} & $\log\sum_ke^{x_k}$, implemented stably.\\
+\code{wrightomega(x)} & Positive real solution of $\omega+\log\omega=x$.\\
+\code{np.where(condition,a,b)} & Choose $a$ or $b$ elementwise; used for availability and group labels.\\
+\code{np.flatnonzero(mask)} & Indices of available non-focal products.\\
+\code{zip(gamma,weights,labels)} & Visit the aligned node, its probability, and its display group.\\
+\code{dict(...)} & Named results, not a statistical distribution unless its values explicitly encode weights.\\
+\code{sums.setdefault(key,...)} & Initialize an aggregate cell once, then add into it.\\
+\code{table.groupby(keys).sum()} & Sum over omitted indices; means require a later denominator.\\
+\code{frame.iloc[index]} & Select an in-memory row on the server. No rows are copied into this PDF.\\
+\code{frame.loc[labels]} & Align source observations to the same household order as the nuisance means.\\
+\code{np.testing.assert_allclose} & Numerical invariant check. Passing is not evidence of empirical identification.\\\bottomrule
+\end{longtable}
+
+\subsection{The exact two-state return value}
+\begin{lstlisting}
+states = np.array([[1, 0], [0, 1]], dtype=int)
+focal_index = 0
+\end{lstlisting}
+The first row means inside, the second outside. These rows are not weekly counts across three flavors. There are always two rows, even when the starting menu contains three or five fitted flavor categories. The runner uses \code{result['focal_index']} when forming branch aggregates, avoiding an accidental use of the original multinomial flavor-column index.
+
+\section{Aggregation: from solved prices to exported means}
+Let $I_s$ denote the environments with initial state $s$ and $n_s=|I_s|$. For policy $z$, the basic exported numerator for the first price at node $r$ is
+\[
+ A^{z,p1}_{s,r}=\sum_{i\in I_s}w_r p^z_{1,ir},\qquad
+ A^{weight}_{s,r}=n_s w_r.
+\]
+The plotted mean at that node is $A^{z,p1}_{s,r}/A^{weight}_{s,r}$. The weights cancel because the same node is evaluated in every environment; the averaging is across environments.
+
+Overall expected revenue and information gains are
+\begin{align}
+ R^z_{s,total}&=\sum_{i\in I_s}\sum_rw_rR^z_{ir},\\
+ \bar R^z_s&=R^z_{s,total}/n_s,\\
+ \Delta\bar R_s&=(R^F_{s,total}-R^L_{s,total})/n_s,\\
+ g_s^{\%}&=100\left(\frac{R^F_{s,total}}{R^L_{s,total}}-1\right).
+\end{align}
+The exported column named \code{weight} is a denominator: it sums to $n_s$ across all nodes. It is not always a probability after aggregation.
+
+\subsection{Expected terminal prices}
+For a type and environment,
+\[
+ \E[p_2^z\mid i,r]=s^z_{1,ir}p^z_{2,ir,j}+(1-s^z_{1,ir})p^z_{2,ir,0}.
+\]
+A type-group price path averages this expression across nodes in the group and across environments. It is not $p_2$ for a representative history. The common-price path uses its own induced history probabilities and the same population weights.
+
+\subsection{Price changes and ratios}
+Dollar change uses $p_1-p^0_j$ or $\E[p_2]-p^0_j$. The average percentage change computes $100(p_1/p^0_j-1)$ inside each environment before averaging. It generally differs from $100(\bar p_1/\bar p^0_j-1)$.
+
+The realized-history ratio plot uses
+\[
+ \E[p_1/p_2(h_1)\mid h_0=s,h_1=b],
+\]
+not a ratio of average prices and not an unconditional average of the two branch ratios.
+
+\subsection{Revenue conditional on a purchase history}
+For a given branch, first-period revenue is $p_1$ if inside was chosen and zero if outside was chosen. Terminal revenue remains an expectation over the period-two shock. Thus the branch payoff is
+\[
+ p_1\ind\{b=j\}+\delta p_2(b)s_{2r,b}(p_2(b)).
+\]
+The runner weights this by the branch probability before aggregating. Summing the inside and outside branch numerators reconstructs total revenue. In the previous full-basket code, first revenue instead used the realized focal count within a basket; the rewritten binary count is exactly zero or one.
+
+\section{How the figures mirror supply, and how to interpret them}
+\begin{enumerate}
+\item \textbf{Optimal prices against $\gamma$.} Left: informed $p_1$ by initial binary history. Right: informed $p_2$ after inside and outside. Empirical curves average over environments and connect numerical integration nodes; they are model implications, not fitted data points proving a fit.
+\item \textbf{Price ratios and conditional profit.} Four $(h_0,h_1)$ histories, with the same history order and line styles as supply. At zero cost, revenue equals profit within the exercise.
+\item \textbf{Type-specific and common paths.} Low/middle/high groups show informed paths; the dashed path shows the common policy. Terminal offers are expectations over the first purchase outcome.
+\item \textbf{Price changes.} Compare optimal offers with observed posted prices, in dollars. A negative value means a lower offer, not negative revenue.
+\item \textbf{Revenue levels.} Expected two-period revenue per model consumer. This is not realized sales or actual household revenue.
+\item \textbf{Information gains.} Informed minus limited actual expected revenue under the same persistent novelty types. Each prior sensitivity is a distinct population experiment.
+\end{enumerate}
+
+A difference between empirical initially-inside and initially-outside averages may reflect both the binary history and differences in the environments being averaged. A change in conditional mean terminal price can reflect selection into the branch as well as the individual price rule.
+
+\review{The source of an economic explanation should be individual price rules and continuation values, not only the sign of an aggregate curve. ``Initially outside has a larger gain'' and ``initially outside generates more revenue'' are different claims. Recheck both with the new binary output rather than importing an explanation from the old run.}
+
+\section{What the earlier results were, and why they need rerunning}
+The earlier completed run in \code{new_pricing_res/} has no binary specification tag, records capacity seven, and explicitly identifies a multinomial habit-inclusive demand model. Its solver hash matches the preserved previous source snapshot.
+
+It enumerated all multinomial baskets. With seven opportunities and $M$ available inside categories, the number of baskets is
+\[
+ |\mathcal B|={7+M\choose M}.
+\]
+That is 120 for three inside categories, 36 for two, and eight for one. The earlier \emph{7/36 mismatched elements} error therefore came from a terminal check over 36 basket states. The rewritten binary terminal array always has two state columns.
+
+The old code updated every flavor's novelty and stock after a basket, allowed different second prices across those baskets, and evaluated revenue for seven choice opportunities. The new code updates only the focal binary history and own stock, has two second prices, and evaluates one opportunity per period. These are substantive model changes.
+
+For reference only, the old fitted-distribution aggregates were:
+\begin{center}\begin{tabular}{llrrrr}\toprule
+Initial & Information & Observed price & $p_1$ & $\E[p_2]$ & Revenue\\\midrule
+Inside & Full & 2.399 & 2.460 & 2.541 & 10.889\\
+Inside & Limited & 2.399 & 2.469 & 2.539 & 10.873\\
+Outside & Full & 2.293 & 1.597 & 1.900 & 4.076\\
+Outside & Limited & 2.293 & 1.729 & 1.962 & 3.988\\\bottomrule
+\end{tabular}\end{center}
+Those generated old gains of approximately 0.15\% and 2.21\%. \textbf{Do not label these as the binary rewrite's gains.} The display units and dynamic transitions changed. The new result importer explicitly rejects these old outputs for the binary presentation.
+
+\section{What has been checked, and what remains a choice}
+The binary mathematical tests check:
+\begin{itemize}
+\item exact agreement with the separate theoretical solver when habit is zero and baseline parameters match;
+\item exactly two outcomes and two successor histories even with three or five starting flavor categories;
+\item the outside inclusive-value formula and the two habit transitions;
+\item equality of regimes when novelty type is certain;
+\item dense independent first-price searches for both informed and subjective limited objectives;
+\item persistent-type revenue reconstruction and informed dominance;
+\item focal-flavor permutation, missing rivals, zero continuation weight, and negative habit preferences.
+\end{itemize}
+The server policy checks still reject empirical execution locally. The new binary empirical job has not yet been completed, so its sample reconstruction, resulting prices, aggregate mapping gaps and numerical sensitivity must be checked after the run.
+
+\begin{longtable}{p{.49\textwidth}p{.42\textwidth}}\toprule
+Verified computational property & Not established by that property\\\midrule\endhead
+Two state columns & That the chosen outside-value mapping is economically correct\\
+Theory limit matches & That transported multinomial coefficients estimate the binary model\\
+Old likelihood reconstructs & That the new binary choice probabilities fit observed data\\
+Informed revenue dominates & That the magnitude is economically large or causal\\
+Quadrature weights sum to one & That nine nodes are sufficient for every target moment\\
+Price derivative residual is small & That every possible mixture maximum is found analytically\\
+Outputs are aggregate-only & That every underlying environment could be reviewed locally\\\bottomrule
+\end{longtable}
+
+\section{Verification checklist before interpreting the rerun}
+\begin{enumerate}
+\item The inside alternative is the selected flavor; all other available flavors and nonpurchase form one outside alternative.
+\item Initial observed history is collapsed using any focal purchase versus none. Mixed starting baskets are handled by that rule.
+\item There is one binary choice in each counterfactual period, not seven weekly opportunities.
+\item The outside baseline uses known observed rival prices and initial rival habit, remains fixed, and excludes novelty because switching is represented separately.
+\item Novelty follows the theory's symmetric $\pm\gamma$ effect. Its numerical coefficient is transported directly from the saved fit.
+\item Own habit is cumulative, starts from the saved state, and increments only after the inside choice.
+\item Price sensitivity and habit are known estimated posterior means in both regimes.
+\item Perfect information reveals each population integration type; limited information keeps fixed population weights.
+\item The limited first-price objective is the fixed-belief objective, not the Bayesian optimum and not a separately optimized persistent-type first objective.
+\item Reported revenue uses the same consumer type through both periods.
+\item Common prices can differ across histories and known environments, but not across hidden novelty types within one such environment.
+\item Old full-basket results are kept separate. Read the new specification tag and one-opportunity capacity before importing figures.
+\end{enumerate}
+
+\section{How to run all three flavors and update plain in the presentation}
+After syncing the changed source to the research server, submit using the directory containing \code{fit.json} and \code{point_estimates.csv}:
+\begin{lstlisting}[language=bash]
+cd /scratch/dtm63837/Kilts_Panel/LOV_CC_2YP
+sbatch Code/final_simple/server/run_information_pricing.sh \
+  /scratch/dtm63837/Kilts_Panel/rebuilds/run_JOB_ID/fits/no_control all
+\end{lstlisting}
+Replace the example fit directory with the actual saved fit directory. For an after-data run it can be a path ending in \code{three/fits/no_control}. No demand refit is performed. The job reconstructs the fit once, then runs other yogurt, berry and plain as the focal flavor, with separate outputs.
+
+The result directory is
+\begin{lstlisting}[language=bash]
+/scratch/dtm63837/Kilts_Panel/results/information_pricing_JOB_ID/RESULTS_ONLY/
+\end{lstlisting}
+Its summary must contain \code{specification="binary_focal_vs_not"}, \code{capacity=1}, and the explicit outside and habit mapping. The fitted estimation capacity is reported separately. Recover only this aggregate-only directory.
+
+To update the plain slides from those new aggregates:
+\begin{lstlisting}[language=bash]
+python3 Code/final_draft/seminar_pres/refresh_information_pricing.py \
+  --source /path/to/new/RESULTS_ONLY --flavor plain
+\end{lstlisting}
+Berry and other results remain separate and do not replace the plain main-deck figures. The importer rejects the previous multinomial outputs. It writes to a separate binary asset directory, so old full-basket figures cannot accidentally activate the binary result slides.
+
+To check mathematical code without empirical data:
+\begin{lstlisting}[language=bash]
+python3 Code/final_simple/checks/check_binary_information_pricing.py
+python3 Code/privacy/check_policy.py
+\end{lstlisting}
+
+\section{Code reading map and frozen sources}
+The full binary solver, server orchestration, plotting, presentation import and submission launcher are reproduced below. The reused optimizer, posterior and data reconstruction functions are included with their original line numbers. Optional preprocessing branches are visible even when the saved fit does not use them. No raw-data contents are included.
+
+Filesystem validation, directory creation and JSON/CSV serialization have no economic equation; their syntax is explained in the server-loop map. Statistical estimation optimization is not rerun by this job and is therefore outside its active execution path. The earlier full-basket solver is preserved separately at the end so its additional states can be inspected directly.
+
+\input{source_index.tex}
+\clearpage\appendix
+\input{source_appendix.tex}
+\end{document}

@@ -1,0 +1,72 @@
+{
+  "binary_model": {
+    "path": "Code/final_simple/demand/binary_information_pricing_model.py",
+    "sha256": "c2ecece0ce671ce04764d6522d77c56ac563053e6858dc811e0c83153e013740",
+    "lines": 97
+  },
+  "runner": {
+    "path": "Code/final_simple/demand/information_pricing.py",
+    "sha256": "3ead24816f5ceec5b397f48054ddd9c8595f53128e968b99823eec63c843cd7c",
+    "lines": 265
+  },
+  "optimizer": {
+    "path": "Code/final_simple/demand/information_pricing_model.py",
+    "sha256": "9253725cc805537e8373341e725c8db4a733ecf933df50ccbb01ede78b5e4c8d",
+    "lines": 242
+  },
+  "history": {
+    "path": "Code/final_simple/demand/history.py",
+    "sha256": "21c7b3673c5b636c3f965a72e8f7eb73f306789b82d88ddc7e5a1445d0d8d34e",
+    "lines": 49
+  },
+  "posterior": {
+    "path": "Code/final_simple/demand/split_pricing.py",
+    "sha256": "f504e82664b1666bed63bf09304ba37548e396d509eb69b7bb32f141d51011d1",
+    "lines": 696
+  },
+  "data": {
+    "path": "Code/final_simple/demand/estimation.py",
+    "sha256": "c5fa94767abcce080222a172f85175390f49aa445b5e90893a7ba0c5b2154d92",
+    "lines": 1359
+  },
+  "categories": {
+    "path": "Code/final_simple/flavor_specs.py",
+    "sha256": "1bd6d783d1d201b250dbf0b7b275a5bc95ac79b2dc8c88b2e4b71c250e72426a",
+    "lines": 57
+  },
+  "policy": {
+    "path": "Code/privacy/server_data_policy.py",
+    "sha256": "086b26b485e0943428f290282b8f032dafb52de3b62d8edab64d310c14b844b4",
+    "lines": 53
+  },
+  "plots": {
+    "path": "Code/final_simple/demand/plot_information_pricing.py",
+    "sha256": "2a76d99a5d3f56773af884819a702ee6e92c32a877ad2cf842f4e98955fc1c75",
+    "lines": 157
+  },
+  "refresh": {
+    "path": "Code/final_draft/seminar_pres/refresh_information_pricing.py",
+    "sha256": "6572a0c95141341c6f73c0a3163796740de9fea07bbcb1af81d8e7508f3d8652",
+    "lines": 67
+  },
+  "theory": {
+    "path": "Code/final_draft/writeup/1108_writeup/theory/gamma_uncertainty.py",
+    "sha256": "26130017873283479026ff844be08fef70565ec84f63d1efdd49bc6f9909ab0e",
+    "lines": 163
+  },
+  "theory_helpers": {
+    "path": "Code/final_simple/supply/pricing_model.py",
+    "sha256": "f0ff34d74d7f20c76f83884536b95adb7da3ce69d6f92ba7f9622d9b5fa09f5c",
+    "lines": 215
+  },
+  "tests": {
+    "path": "Code/final_simple/checks/check_binary_information_pricing.py",
+    "sha256": "5d2d0426ad2b8054d565e13441d630ba27de1627c76e620f402a8a4b00843ecb",
+    "lines": 103
+  },
+  "launcher": {
+    "path": "Code/final_simple/server/run_information_pricing.sh",
+    "sha256": "ab324fb84fd0fd7bc14b689f0315f6f3216b0c7b4915c5650ef5356a5d1ebe5a",
+    "lines": 31
+  }
+}

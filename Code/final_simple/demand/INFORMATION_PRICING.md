@@ -1,3 +1,35 @@
+# Current specification: binary focal flavor versus not focal
+
+The active runner uses `binary_information_pricing_model.py`. Each period has one
+binary purchase opportunity: the focal flavor versus the other flavors and
+nonpurchase. Initial history is any focal purchase versus none; subsequent
+history has exactly two outcomes. Known price sensitivity and additive cumulative
+habit remain in demand; only the persistent novelty coefficient is hidden in
+the limited-information regime. Limited-information beliefs stay fixed, as in
+the theory exercise. This is a plug-in binary pricing extension of the saved
+multinomial estimates, not a binary demand refit or exact dynamic aggregation.
+The nonfocal inclusive-value baseline is fixed in both periods.
+
+Run on the research server, using the directory containing the existing fit:
+
+```bash
+sbatch Code/final_simple/server/run_information_pricing.sh /path/to/existing_fit all
+```
+
+`all` runs each saved flavor as the focal alternative (plain, berry, and other
+for the three-category fit). Outputs are separate flavor subdirectories under
+`results/information_pricing_JOBID/RESULTS_ONLY`. The presentation importer
+defaults to plain. New summaries identify `specification=binary_focal_vs_not`,
+`capacity=1`, and the separate original estimation capacity. Older results in
+`new_pricing_res` are from the full-basket exercise and must not be presented as
+these binary results. No new empirical job has been submitted from this machine.
+
+The mathematical derivation, syntax guide, source snapshots, theory comparison,
+and modeling decisions are in
+`Code/final_draft/seminar_pres/pricing_walkthrough/pricing_walkthrough.pdf`.
+
+## Historical full-basket specification (superseded)
+
 # History-adaptive pricing when only novelty is hidden
 
 This is the theory's information comparison applied to the saved multinomial,

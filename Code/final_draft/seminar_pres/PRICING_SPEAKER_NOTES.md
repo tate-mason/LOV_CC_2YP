@@ -1,3 +1,11 @@
+# Completed results now imported
+
+The run in `new_pricing_res/` is complete and its aggregates have been imported.
+The new figures and conclusion are live in the main deck. Knowing novelty adds
+0.15% initially inside and 2.21% initially outside under the fitted distribution.
+See `PRICING_RESULTS.md` for mean price paths, revenue levels and validation.
+Earlier pending-run language below describes the rebuild workflow.
+
 # Revised pricing comparison
 
 The theoretical model explains why a current price changes purchases and future

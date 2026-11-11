@@ -1,0 +1,30 @@
+{
+  "status": "complete",
+  "model": "multinomial habit-inclusive demand",
+  "demand_refitted": false,
+  "fit_sha256": "78b947c71f73afc856564fbb490a0ccdd027f2d61f35c534c0267a23f5035a7d",
+  "parameters_sha256": "385f718c85ddd3938e3b81307879cae982b6a736dbe745f7f5bd1e76f5fd508f",
+  "solver_sha256": "9253725cc805537e8373341e725c8db4a733ecf933df50ccbb01ede78b5e4c8d",
+  "stock_measure": "cumulative",
+  "stock_retention": 1.0,
+  "novelty_measure": "previous_share",
+  "capacity": 7,
+  "delta": 1.0,
+  "hidden": "novelty preference only",
+  "known": "price sensitivity and habit: estimated posterior means; histories and menus",
+  "beliefs": "fitted population normal novelty distribution; fixed in every state",
+  "common_prices": "common across novelty types conditional on known alpha, habit, history, rivals and menus",
+  "evaluation": "same persistent gamma types under both policies",
+  "quadrature_nodes": 9,
+  "search_points": 65,
+  "results": {
+    "plain": {
+      "environments": 1839,
+      "initial_states": {
+        "inside": 1324,
+        "outside": 515
+      },
+      "max_mass_error": 3.3306690738754696e-15
+    }
+  }
+}

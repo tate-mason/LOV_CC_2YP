@@ -1,0 +1,98 @@
+\clearpage
+\section{Complete binary solver}
+\noindent Source: \path{Code/final_simple/demand/binary_information_pricing_model.py}.\par
+\noindent SHA-256: {\scriptsize\path{c2ecece0ce671ce04764d6522d77c56ac563053e6858dc811e0c83153e013740}}.\par\medskip
+\lstinputlisting[language=Python]{source_snapshot/binary_model.py}
+\clearpage
+\section{Reused mixture-price optimizer}
+\noindent Source: \path{Code/final_simple/demand/information_pricing_model.py}.\par
+\noindent SHA-256: {\scriptsize\path{9253725cc805537e8373341e725c8db4a733ecf933df50ccbb01ede78b5e4c8d}}.\par\medskip
+\subsection{\texttt{\_terminal\_common}}
+\lstinputlisting[firstline=63,lastline=104,firstnumber=63]{source_snapshot/optimizer.py}
+\clearpage
+\section{Complete server orchestration and aggregation}
+\noindent Source: \path{Code/final_simple/demand/information_pricing.py}.\par
+\noindent SHA-256: {\scriptsize\path{3ead24816f5ceec5b397f48054ddd9c8595f53128e968b99823eec63c843cd7c}}.\par\medskip
+\lstinputlisting[language=Python]{source_snapshot/runner.py}
+\clearpage
+\section{History rules: only saved cumulative history is accepted by the new binary runner}
+\noindent Source: \path{Code/final_simple/demand/history.py}.\par
+\noindent SHA-256: {\scriptsize\path{21c7b3673c5b636c3f965a72e8f7eb73f306789b82d88ddc7e5a1445d0d8d34e}}.\par\medskip
+\lstinputlisting[language=Python]{source_snapshot/history.py}
+\clearpage
+\section{Reused posterior and starting-context functions}
+\noindent Source: \path{Code/final_simple/demand/split_pricing.py}.\par
+\noindent SHA-256: {\scriptsize\path{f504e82664b1666bed63bf09304ba37548e396d509eb69b7bb32f141d51011d1}}.\par\medskip
+\subsection{\texttt{logsumexp}}
+\lstinputlisting[firstline=65,lastline=69,firstnumber=65]{source_snapshot/posterior.py}
+\subsection{\texttt{persistent\_draws}}
+\lstinputlisting[firstline=78,lastline=82,firstnumber=78]{source_snapshot/posterior.py}
+\subsection{\texttt{posterior}}
+\lstinputlisting[firstline=84,lastline=127,firstnumber=84]{source_snapshot/posterior.py}
+\subsection{\texttt{forecast\_context}}
+\lstinputlisting[firstline=144,lastline=178,firstnumber=144]{source_snapshot/posterior.py}
+\clearpage
+\section{Saved-data reconstruction dependencies}
+\noindent Source: \path{Code/final_simple/demand/estimation.py}.\par
+\noindent SHA-256: {\scriptsize\path{c5fa94767abcce080222a172f85175390f49aa445b5e90893a7ba0c5b2154d92}}.\par\medskip
+\subsection{\texttt{normalized\_upc\_expr}}
+\lstinputlisting[firstline=221,lastline=230,firstnumber=221]{source_snapshot/data.py}
+\subsection{\texttt{read\_flavors}}
+\lstinputlisting[firstline=232,lastline=332,firstnumber=232]{source_snapshot/data.py}
+\subsection{\texttt{prepare\_data}}
+\lstinputlisting[firstline=344,lastline=474,firstnumber=344]{source_snapshot/data.py}
+\subsection{\texttt{check\_dma}}
+\lstinputlisting[firstline=92,lastline=98,firstnumber=92]{source_snapshot/data.py}
+\subsection{\texttt{switch\_away\_event}}
+\lstinputlisting[firstline=478,lastline=487,firstnumber=478]{source_snapshot/data.py}
+\subsection{\texttt{add\_stocks}}
+\lstinputlisting[firstline=490,lastline=543,firstnumber=490]{source_snapshot/data.py}
+\clearpage
+\section{Flavor ordering and classification definitions}
+\noindent Source: \path{Code/final_simple/flavor_specs.py}.\par
+\noindent SHA-256: {\scriptsize\path{1bd6d783d1d201b250dbf0b7b275a5bc95ac79b2dc8c88b2e4b71c250e72426a}}.\par\medskip
+\lstinputlisting[language=Python]{source_snapshot/categories.py}
+\clearpage
+\section{Complete aggregate figure generation}
+\noindent Source: \path{Code/final_simple/demand/plot_information_pricing.py}.\par
+\noindent SHA-256: {\scriptsize\path{2a76d99a5d3f56773af884819a702ee6e92c32a877ad2cf842f4e98955fc1c75}}.\par\medskip
+\lstinputlisting[language=Python]{source_snapshot/plots.py}
+\clearpage
+\section{Complete aggregate import into the presentation}
+\noindent Source: \path{Code/final_draft/seminar_pres/refresh_information_pricing.py}.\par
+\noindent SHA-256: {\scriptsize\path{6572a0c95141341c6f73c0a3163796740de9fea07bbcb1af81d8e7508f3d8652}}.\par\medskip
+\lstinputlisting[language=Python]{source_snapshot/refresh.py}
+\clearpage
+\section{Complete server submission launcher}
+\noindent Source: \path{Code/final_simple/server/run_information_pricing.sh}.\par
+\noindent SHA-256: {\scriptsize\path{ab324fb84fd0fd7bc14b689f0315f6f3216b0c7b4915c5650ef5356a5d1ebe5a}}.\par\medskip
+\lstinputlisting[language=bash]{source_snapshot/launcher.sh}
+\clearpage
+\section{Complete server data policy}
+\noindent Source: \path{Code/privacy/server_data_policy.py}.\par
+\noindent SHA-256: {\scriptsize\path{086b26b485e0943428f290282b8f032dafb52de3b62d8edab64d310c14b844b4}}.\par\medskip
+\lstinputlisting[language=Python]{source_snapshot/policy.py}
+\clearpage
+\section{Complete binary theoretical information exercise}
+\noindent Source: \path{Code/final_draft/writeup/1108_writeup/theory/gamma_uncertainty.py}.\par
+\noindent SHA-256: {\scriptsize\path{26130017873283479026ff844be08fef70565ec84f63d1efdd49bc6f9909ab0e}}.\par\medskip
+\lstinputlisting[language=Python]{source_snapshot/theory.py}
+\clearpage
+\section{Theoretical numerical helper functions}
+\noindent Source: \path{Code/final_simple/supply/pricing_model.py}.\par
+\noindent SHA-256: {\scriptsize\path{f0ff34d74d7f20c76f83884536b95adb7da3ce69d6f92ba7f9622d9b5fa09f5c}}.\par\medskip
+\subsection{\texttt{expit}}
+\lstinputlisting[firstline=17,lastline=20,firstnumber=17]{source_snapshot/theory_helpers.py}
+\subsection{\texttt{golden\_maximum}}
+\lstinputlisting[firstline=22,lastline=37,firstnumber=22]{source_snapshot/theory_helpers.py}
+\subsection{\texttt{static\_price}}
+\lstinputlisting[firstline=57,lastline=70,firstnumber=57]{source_snapshot/theory_helpers.py}
+\clearpage
+\section{Complete binary regression and mathematical tests}
+\noindent Source: \path{Code/final_simple/checks/check_binary_information_pricing.py}.\par
+\noindent SHA-256: {\scriptsize\path{5d2d0426ad2b8054d565e13441d630ba27de1627c76e620f402a8a4b00843ecb}}.\par\medskip
+\lstinputlisting[language=Python]{source_snapshot/tests.py}
+\clearpage
+\section{Previous full-basket solver: the source of the earlier results}
+This is preserved for comparison, not called by the corrected binary runner. Its full \texttt{solve\_environment} enumeration explains why the earlier output was not the requested binary exercise.
+\lstinputlisting{source_snapshot/previous_information_pricing_model.py}

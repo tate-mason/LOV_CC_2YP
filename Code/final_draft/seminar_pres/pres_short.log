@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.8.17)  11 NOV 2026 13:10
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.8.17)  11 NOV 2026 14:19
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1212,7 +1212,7 @@ distributions.pdf  used on input line 550.
 ]
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `\translate ' on input line 730.
+(hyperref)                removing `\translate ' on input line 729.
 
 [30
 
@@ -1224,7 +1224,7 @@ df Graphic file (type pdf)
 <use ../writeup/1108_writeup/assets/results/summary_statistics/flavor_shares.pd
 f>
 Package pdftex.def Info: ../writeup/1108_writeup/assets/results/summary_statist
-ics/flavor_shares.pdf  used on input line 768.
+ics/flavor_shares.pdf  used on input line 767.
 (pdftex.def)             Requested size: 213.83093pt x 152.73639pt.
  [31
 
@@ -1244,7 +1244,7 @@ File: assets/theory_delta1/all_state_realized_profit.pdf Graphic file (type pdf
 )
 <use assets/theory_delta1/all_state_realized_profit.pdf>
 Package pdftex.def Info: assets/theory_delta1/all_state_realized_profit.pdf  us
-ed on input line 897.
+ed on input line 896.
 (pdftex.def)             Requested size: 224.55518pt x 140.34698pt.
  [37
 
@@ -1252,7 +1252,7 @@ ed on input line 897.
 File: assets/theory_delta1/all_state_price_ratios.pdf Graphic file (type pdf)
 <use assets/theory_delta1/all_state_price_ratios.pdf>
 Package pdftex.def Info: assets/theory_delta1/all_state_price_ratios.pdf  used 
-on input line 905.
+on input line 904.
 (pdftex.def)             Requested size: 224.55518pt x 140.34698pt.
  [38
 
@@ -1265,7 +1265,7 @@ File: assets/theory_delta1/gamma_uncertainty/profits.pdf Graphic file (type pdf
 )
 <use assets/theory_delta1/gamma_uncertainty/profits.pdf>
 Package pdftex.def Info: assets/theory_delta1/gamma_uncertainty/profits.pdf  us
-ed on input line 926.
+ed on input line 925.
 (pdftex.def)             Requested size: 390.3757pt x 141.95479pt.
  [40
 
@@ -1277,7 +1277,7 @@ File: assets/theory_delta1/gamma_uncertainty/information_price_paths_comparison
 <use assets/theory_delta1/gamma_uncertainty/information_price_paths_comparison.
 pdf>
 Package pdftex.def Info: assets/theory_delta1/gamma_uncertainty/information_pri
-ce_paths_comparison.pdf  used on input line 935.
+ce_paths_comparison.pdf  used on input line 934.
 (pdftex.def)             Requested size: 337.11197pt x 144.47656pt.
  [41
 
@@ -1312,7 +1312,7 @@ df Graphic file (type pdf)
 <use ../../../Results/pricing_no_disc/pricing/plain/household_coupon_results.pd
 f>
 Package pdftex.def Info: ../../../Results/pricing_no_disc/pricing/plain/househo
-ld_coupon_results.pdf  used on input line 1029.
+ld_coupon_results.pdf  used on input line 1028.
 (pdftex.def)             Requested size: 398.3386pt x 107.78366pt.
  [50
 
@@ -1324,7 +1324,7 @@ File: ../../../Results/pricing_no_disc/pricing/plain/discounts_by_consumer_type
 <use ../../../Results/pricing_no_disc/pricing/plain/discounts_by_consumer_type.
 pdf>
 Package pdftex.def Info: ../../../Results/pricing_no_disc/pricing/plain/discoun
-ts_by_consumer_type.pdf  used on input line 1037.
+ts_by_consumer_type.pdf  used on input line 1036.
 (pdftex.def)             Requested size: 338.59023pt x 104.17899pt.
  [51
 
@@ -1336,7 +1336,7 @@ File: assets/aligned_pricing/calibrated_prices_by_gamma_detail.pdf Graphic file
  (type pdf)
 <use assets/aligned_pricing/calibrated_prices_by_gamma_detail.pdf>
 Package pdftex.def Info: assets/aligned_pricing/calibrated_prices_by_gamma_deta
-il.pdf  used on input line 1048.
+il.pdf  used on input line 1047.
 (pdftex.def)             Requested size: 347.7715pt x 142.4207pt.
  [52
 
@@ -1347,7 +1347,7 @@ File: assets/aligned_pricing/pricing_policy_benchmarks.pdf Graphic file (type p
 df)
 <use assets/aligned_pricing/pricing_policy_benchmarks.pdf>
 Package pdftex.def Info: assets/aligned_pricing/pricing_policy_benchmarks.pdf  
-used on input line 1061.
+used on input line 1060.
 (pdftex.def)             Requested size: 235.29155pt x 117.64577pt.
  (./assets/aligned_pricing/coupon_headline.tex) [53
 
@@ -1366,7 +1366,7 @@ File: assets/aligned_pricing/calibrated_prices_by_gamma.pdf Graphic file (type
 pdf)
 <use assets/aligned_pricing/calibrated_prices_by_gamma.pdf>
 Package pdftex.def Info: assets/aligned_pricing/calibrated_prices_by_gamma.pdf 
- used on input line 1140.
+ used on input line 1139.
 (pdftex.def)             Requested size: 342.72311pt x 140.35327pt.
  [58
 
@@ -1377,7 +1377,7 @@ File: assets/aligned_pricing/information_price_paths_comparison.pdf Graphic fil
 e (type pdf)
 <use assets/aligned_pricing/information_price_paths_comparison.pdf>
 Package pdftex.def Info: assets/aligned_pricing/information_price_paths_compari
-son.pdf  used on input line 1151.
+son.pdf  used on input line 1150.
 (pdftex.def)             Requested size: 260.05843pt x 111.45361pt.
  [59
 
@@ -1388,7 +1388,7 @@ File: assets/aligned_pricing/information_friction_information_value.pdf Graphic
  file (type pdf)
 <use assets/aligned_pricing/information_friction_information_value.pdf>
 Package pdftex.def Info: assets/aligned_pricing/information_friction_informatio
-n_value.pdf  used on input line 1161.
+n_value.pdf  used on input line 1160.
 (pdftex.def)             Requested size: 312.17198pt x 113.51707pt.
  [60
 
@@ -1418,8 +1418,8 @@ Package rerunfilecheck Info: File `pres_short_aligned.out' has not changed.
  ) 
 Here is how much of TeX's memory you used:
  30814 strings out of 467159
- 636666 string characters out of 5409218
- 1045480 words of memory out of 5000000
+ 636694 string characters out of 5409218
+ 1046483 words of memory out of 5000000
  59219 multiletter control sequences out of 15000+600000
  640890 words of font info for 93 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
@@ -1452,7 +1452,7 @@ t/fonts/type1/public/amsfonts/symbols/msbm10.pfb></usr/local/texlive/2026/texmf
 -dist/fonts/type1/public/cm-super/sfss1000.pfb></usr/local/texlive/2026/texmf-d
 ist/fonts/type1/public/cm-super/sfss1095.pfb>
 Output written on /tmp/pres_short_alignment_build/pres_short_aligned.pdf (62 pa
-ges, 677015 bytes).
+ges, 677300 bytes).
 PDF statistics:
  5918 PDF objects out of 6186 (max. 8388607)
  2847 compressed objects within 29 object streams

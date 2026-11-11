@@ -1,4 +1,4 @@
-"""Server-only history-adaptive prices; only novelty preference is hidden.
+"""Server-only BINARY history-adaptive prices; only novelty preference is hidden.
 
 Reuses an existing converged habit-inclusive fit. Writes aggregate results only.
 No demand refit, binary price calibration, or individual policy export.
@@ -17,15 +17,16 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from server_data_policy import server_only, require_data_path, require_server
 import numpy as np
 import pandas as pd
+from scipy.special import expit, logsumexp
 from numpy.polynomial.hermite import hermgauss
 try:
     from . import estimation, split_pricing
     from .history import saved_stock_measure
-    from .information_pricing_model import solve_environment
+    from .binary_information_pricing_model import solve_binary
 except ImportError:
     import estimation, split_pricing
     from history import saved_stock_measure
-    from information_pricing_model import solve_environment
+    from binary_information_pricing_model import solve_binary
 from flavor_specs import categories
 
 
@@ -51,6 +52,8 @@ def run(args):
     if settings.get('novelty_measure', 'previous_share') != 'previous_share':
         raise ValueError('This transition requires the saved previous-share novelty definition.')
     measure = saved_stock_measure(settings)
+    if measure != 'cumulative':
+        raise ValueError('The binary specification currently requires the saved cumulative-stock fit; no silent history conversion.')
     settings['stock_measure'] = measure
     settings.setdefault('stock_retention', 1.)
     settings.setdefault('flavor_spec', 'three')
@@ -109,12 +112,12 @@ def run(args):
                 mask = labels == group
                 alternative[mask] *= target[group]/weights[mask].sum()
             scenarios.append((favored.title()+' type more likely', alternative))
-    flavors = ['plain', 'berry'] if args.flavor == 'both' else [args.flavor]
+    flavors = list(selected) if args.flavor == 'all' else (['plain', 'berry'] if args.flavor == 'both' else [args.flavor])
     if not set(flavors) <= set(selected):
         raise ValueError('Requested focal flavor is absent from saved fit.')
-    capacity = settings['capacity']
-    if not isinstance(capacity, int) or not 1 <= capacity <= 12:
-        raise ValueError('Saved capacity must be an integer in 1..12.')
+    estimation_capacity = settings['capacity']
+    if not isinstance(estimation_capacity, int) or not 1 <= estimation_capacity <= 12:
+        raise ValueError('Saved estimation capacity must be an integer in 1..12.')
     args.output.mkdir(parents=True)
     reports = {}
     for flavor in flavors:
@@ -132,16 +135,23 @@ def run(args):
             total_environments[state] += 1
             posted = context['prices'][index, focal]
             for scenario, prior in scenarios:
-                result = solve_environment(
+                known_alpha = float(households.iloc[index].alpha_mean)
+                known_habit = float(households.iloc[index].habit_mean)
+                fixed_controls = parameters.get('price_control', 0.)*context['cf'][index]
+                result = solve_binary(
                     prices=context['prices'][index], available=context['available'][index], beta=beta,
-                    novelty=context['novelty'][index], stock=context['stocks'][index],
-                    alpha=float(households.iloc[index].alpha_mean),
-                    habit=float(households.iloc[index].habit_mean), gamma=gamma, weights=prior,
-                    capacity=capacity, focal=focal, delta=args.delta, stock_measure=measure,
-                    stock_retention=settings['stock_retention'],
-                    occasions=int(context['stock_occasions'][index, 0]),
-                    controls=parameters.get('price_control', 0.)*context['cf'][index],
+                    stock=context['stocks'][index], alpha=known_alpha, habit=known_habit,
+                    gamma=gamma, weights=prior, initial_inside=(state == 'inside'),
+                    focal=focal, delta=args.delta, controls=fixed_controls,
                     search_points=args.search_points)
+                # Expose the plug-in mapping difference using aggregates only.
+                full_utility = (beta-known_alpha*context['prices'][index]
+                                +gamma[:, None]*context['novelty'][index]
+                                +known_habit*context['stocks'][index]+fixed_controls)
+                full_utility = np.where(context['available'][index], full_utility, -np.inf)
+                full_utility = np.column_stack([full_utility, np.zeros(len(gamma))])
+                posted_multinomial = np.exp(full_utility[:, focal]-logsumexp(full_utility, axis=1))
+                posted_binary = expit(result['first_utility_intercept']-known_alpha*posted)
                 for regime in ['full', 'limited']:
                     values = result[regime]
                     max_mass_error = max(max_mass_error,
@@ -155,15 +165,18 @@ def run(args):
                             pct_change_p1=weight*100*(values['p1'][k]/posted-1),
                             pct_change_p2=weight*100*(values['expected_p2'][k]/posted-1),
                             revenue1=weight*values['revenue1'][k], revenue2=weight*values['revenue2'][k],
-                            revenue=weight*values['revenue'][k])
+                            revenue=weight*values['revenue'][k],
+                            posted_probability_binary=weight*posted_binary[k],
+                            posted_probability_multinomial=weight*posted_multinomial[k],
+                            posted_probability_gap=weight*(posted_binary[k]-posted_multinomial[k]))
                         p2 = result['p2_full'][k] if regime == 'full' else result['p2_limited']
                         terminal_revenue = result['terminal_revenue_'+regime][k]
                         mass = values['state_probability'][k]
-                        for branch, mask in [('inside', result['states'][:, focal] > 0),
-                                             ('outside', result['states'][:, focal] == 0)]:
+                        for branch, mask in [('inside', result['states'][:, result['focal_index']] > 0),
+                                             ('outside', result['states'][:, result['focal_index']] == 0)]:
                             metrics['mass_'+branch] = weight*mass[mask].sum()
                             metrics['p2_'+branch] = weight*(mass[mask] @ p2[mask])
-                            realized = (result['states'][mask, focal]*values['p1'][k]
+                            realized = (result['states'][mask, result['focal_index']]*values['p1'][k]
                                         +args.delta*terminal_revenue[mask])
                             metrics['profit_'+branch] = weight*(mass[mask] @ realized)
                             metrics['ratio_'+branch] = weight*(mass[mask] @ (values['p1'][k]/p2[mask]))
@@ -190,13 +203,18 @@ def run(args):
         comparison.to_csv(destination/'information_gain.csv')
         reports[flavor] = dict(environments=len(eligible), initial_states=total_environments,
                               max_mass_error=max_mass_error)
-    summary = dict(status='pricing_complete', model='multinomial habit-inclusive demand',
+    summary = dict(status='pricing_complete', model='binary habit-inclusive pricing extension',
+        specification='binary_focal_vs_not',
+        parameter_mapping='plug-in from saved multinomial fit; not an exact dynamic aggregation or binary refit',
         demand_refitted=False, saved_fit_nll=float(fit['nll']), reconstructed_nll=float(nll),
         fit_sha256=_hash(args.fit_dir/'fit.json'),
         parameters_sha256=_hash(args.fit_dir/'point_estimates.csv'),
-        solver_sha256=_hash(Path(__file__).with_name('information_pricing_model.py')),
-        flavor_categories=selected, stock_measure=measure, stock_retention=settings['stock_retention'],
-        novelty_measure=settings['novelty_measure'], capacity=capacity, delta=args.delta,
+        solver_sha256=_hash(Path(__file__).with_name('binary_information_pricing_model.py')),
+        optimizer_sha256=_hash(Path(__file__).with_name('information_pricing_model.py')),
+        flavor_categories=selected, focal_flavors=flavors, stock_measure=measure, stock_retention=settings['stock_retention'],
+        novelty_measure='theory binary switching sign: +gamma after not-plain, -gamma after plain',
+        estimation_novelty_measure=settings['novelty_measure'],
+        capacity=1, estimation_capacity=estimation_capacity, delta=args.delta,
         hidden='novelty preference only', known='price sensitivity and habit: estimated posterior means; histories and menus',
         beliefs='fitted population normal novelty distribution; fixed in every state',
         gamma_nodes=gamma.tolist(), gamma_weights=weights.tolist(), quadrature_nodes=args.nodes,
@@ -204,9 +222,13 @@ def run(args):
         evaluation='same persistent gamma types under both policies',
         limited_objective='fixed-belief objective at each decision, matching theory; realized revenue accounts for persistent types',
         common_prices='common across novelty types conditional on known alpha, habit, history, rivals and menus',
-        initial_history='first observed basket; next two consecutive calendar weeks priced',
+        initial_history='inside if any focal flavor in first retained purchase week, otherwise outside',
+        subsequent_histories='exactly two: focal and not-focal; one binary decision per pricing period',
+        habit_transition='H_focal next = H_focal current + indicator(focal chosen); cumulative',
+        outside_index='fixed logsumexp of rival baseline utilities including initial rival habit, and zero nonpurchase',
+        outside_switching='outside index excludes gamma; switching enters via the explicit binary history sign',
         population='fitted population novelty crossed with observed pricing environments; not realized household revenue',
-        participation='nonpurchase utility zero; competing flavor prices fixed',
+        participation='focal flavor versus all other available flavors and nonpurchase; outside baseline fixed',
         prices='continuous; first-period prices may rise/fall or be negative; terminal prices nonnegative; zero cost',
         restrictions='all novelty types optimized; no middle-group exclusion',
         search_points=args.search_points, development_limit=args.max_environments,

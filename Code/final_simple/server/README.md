@@ -1,3 +1,13 @@
+## Binary pricing: all focal flavors
+
+Use `sbatch Code/final_simple/server/run_information_pricing.sh EXISTING_FIT_DIRECTORY all`
+on the research server. This runs plain, berry, and other separately for the
+three-category fit, each as focal flavor versus not focal in both periods.
+Use only the plain output for the presentation. Existing multinomial estimates
+are reused; no demand estimation is rerun. See `../demand/INFORMATION_PRICING.md`
+for the current specification and walkthrough. Earlier full-basket pricing
+results are not results from this new binary specification.
+
 # Server jobs and recovery
 
 Run these commands from the research-server checkout after syncing the code. The shells require Linux, the research filesystem and a Slurm job. No local empirical overrides are supported.

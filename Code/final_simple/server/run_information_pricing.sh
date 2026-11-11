@@ -16,7 +16,7 @@ if [[ "$(uname -s)" != Linux || ! -d "$server_root" || -z "${SLURM_JOB_ID:-}" ]]
     exit 1
 fi
 if [[ $# -lt 1 || $# -gt 2 ]]; then
-    echo "Usage: sbatch $0 EXISTING_FIT_DIRECTORY [plain|berry|both]" >&2
+    echo "Usage: sbatch $0 EXISTING_FIT_DIRECTORY [plain|berry|other|all]" >&2
     exit 1
 fi
 fit_dir="$1"
@@ -24,6 +24,7 @@ focal_flavor="${2:-plain}"
 ml Python/3.12.3-GCCcore-13.3.0
 export MPLCONFIGDIR="$server_root/information_pricing_cache/matplotlib"
 export PYTHONPYCACHEPREFIX="$server_root/information_pricing_cache/python"
+echo "Binary specification: focal flavor versus not focal in both periods; two successor histories."
 python3 "$project_dir/Code/final_simple/demand/information_pricing.py" \
     --fit-dir "$fit_dir" \
     --output "$server_root/results/information_pricing_${SLURM_JOB_ID}/RESULTS_ONLY" \

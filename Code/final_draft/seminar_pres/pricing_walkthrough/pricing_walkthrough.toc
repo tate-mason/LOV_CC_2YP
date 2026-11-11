@@ -1,0 +1,68 @@
+\contentsline {section}{\numberline {1}The model you asked for, in one page}{4}{section.1}%
+\contentsline {section}{\numberline {2}The outside option: what is combined, and what is fixed}{4}{section.2}%
+\contentsline {subsection}{\numberline {2.1}How switching is kept separate}{5}{subsection.2.1}%
+\contentsline {subsection}{\numberline {2.2}The transport assumption you need to inspect}{5}{subsection.2.2}%
+\contentsline {section}{\numberline {3}Direct comparison with the theoretical supply exercise}{6}{section.3}%
+\contentsline {subsection}{\numberline {3.1}How habit changes the optimum}{6}{subsection.3.1}%
+\contentsline {section}{\numberline {4}What is reused from estimation, and what is not reestimated}{7}{section.4}%
+\contentsline {subsection}{\numberline {4.1}Saved parameters}{7}{subsection.4.1}%
+\contentsline {subsection}{\numberline {4.2}Posterior means treated as known}{8}{subsection.4.2}%
+\contentsline {subsection}{\numberline {4.3}What happens to household-specific novelty estimates?}{8}{subsection.4.3}%
+\contentsline {subsection}{\numberline {4.4}What the likelihood check establishes}{8}{subsection.4.4}%
+\contentsline {section}{\numberline {5}Starting environments: the role of actual observed histories}{9}{section.5}%
+\contentsline {section}{\numberline {6}How the novelty distribution enters the calculation}{10}{section.6}%
+\contentsline {subsection}{\numberline {6.1}Mean and standard deviation generate a distribution, not one average type}{10}{subsection.6.1}%
+\contentsline {subsection}{\numberline {6.2}Population crossing is an explicit experiment}{10}{subsection.6.2}%
+\contentsline {subsection}{\numberline {6.3}Low/middle/high groups and prior sensitivity}{10}{subsection.6.3}%
+\contentsline {section}{\numberline {7}Step one of backward induction: the two informed terminal prices}{11}{section.7}%
+\contentsline {section}{\numberline {8}Step two: the informed first price}{11}{section.8}%
+\contentsline {section}{\numberline {9}Limited information: two common terminal prices}{12}{section.9}%
+\contentsline {subsection}{\numberline {9.1}Numerical details and the rounding failure}{12}{subsection.9.1}%
+\contentsline {section}{\numberline {10}Limited information: the first price and the meaning of fixed beliefs}{13}{section.10}%
+\contentsline {subsection}{\numberline {10.1}The distinction most important to verify}{13}{subsection.10.1}%
+\contentsline {section}{\numberline {11}Policy evaluation: consumers keep their type}{14}{section.11}%
+\contentsline {subsection}{\numberline {11.1}Why the belief objective and evaluated revenue differ}{14}{subsection.11.1}%
+\contentsline {section}{\numberline {12}A complete numerical example you can follow by hand}{14}{section.12}%
+\contentsline {section}{\numberline {13}The server loop, line by line in economic terms}{15}{section.13}%
+\contentsline {subsection}{\numberline {13.1}Mapping diagnostics: an important new export}{16}{subsection.13.1}%
+\contentsline {section}{\numberline {14}Python syntax: how to read the array calculations}{16}{section.14}%
+\contentsline {subsection}{\numberline {14.1}The exact two-state return value}{17}{subsection.14.1}%
+\contentsline {section}{\numberline {15}Aggregation: from solved prices to exported means}{17}{section.15}%
+\contentsline {subsection}{\numberline {15.1}Expected terminal prices}{17}{subsection.15.1}%
+\contentsline {subsection}{\numberline {15.2}Price changes and ratios}{18}{subsection.15.2}%
+\contentsline {subsection}{\numberline {15.3}Revenue conditional on a purchase history}{18}{subsection.15.3}%
+\contentsline {section}{\numberline {16}How the figures mirror supply, and how to interpret them}{18}{section.16}%
+\contentsline {section}{\numberline {17}What the earlier results were, and why they need rerunning}{19}{section.17}%
+\contentsline {section}{\numberline {18}What has been checked, and what remains a choice}{19}{section.18}%
+\contentsline {section}{\numberline {19}Verification checklist before interpreting the rerun}{20}{section.19}%
+\contentsline {section}{\numberline {20}How to run all three flavors and update plain in the presentation}{21}{section.20}%
+\contentsline {section}{\numberline {21}Code reading map and frozen sources}{21}{section.21}%
+\contentsline {section}{\numberline {A}Complete binary solver}{23}{appendix.A}%
+\contentsline {section}{\numberline {B}Reused mixture-price optimizer}{25}{appendix.B}%
+\contentsline {subsection}{\numberline {B.1}\texttt {\_terminal\_common}}{25}{subsection.B.1}%
+\contentsline {section}{\numberline {C}Complete server orchestration and aggregation}{26}{appendix.C}%
+\contentsline {section}{\numberline {D}History rules: only saved cumulative history is accepted by the new binary runner}{30}{appendix.D}%
+\contentsline {section}{\numberline {E}Reused posterior and starting-context functions}{31}{appendix.E}%
+\contentsline {subsection}{\numberline {E.1}\texttt {logsumexp}}{31}{subsection.E.1}%
+\contentsline {subsection}{\numberline {E.2}\texttt {persistent\_draws}}{31}{subsection.E.2}%
+\contentsline {subsection}{\numberline {E.3}\texttt {posterior}}{31}{subsection.E.3}%
+\contentsline {subsection}{\numberline {E.4}\texttt {forecast\_context}}{32}{subsection.E.4}%
+\contentsline {section}{\numberline {F}Saved-data reconstruction dependencies}{33}{appendix.F}%
+\contentsline {subsection}{\numberline {F.1}\texttt {normalized\_upc\_expr}}{33}{subsection.F.1}%
+\contentsline {subsection}{\numberline {F.2}\texttt {read\_flavors}}{33}{subsection.F.2}%
+\contentsline {subsection}{\numberline {F.3}\texttt {prepare\_data}}{34}{subsection.F.3}%
+\contentsline {subsection}{\numberline {F.4}\texttt {check\_dma}}{36}{subsection.F.4}%
+\contentsline {subsection}{\numberline {F.5}\texttt {switch\_away\_event}}{37}{subsection.F.5}%
+\contentsline {subsection}{\numberline {F.6}\texttt {add\_stocks}}{37}{subsection.F.6}%
+\contentsline {section}{\numberline {G}Flavor ordering and classification definitions}{39}{appendix.G}%
+\contentsline {section}{\numberline {H}Complete aggregate figure generation}{40}{appendix.H}%
+\contentsline {section}{\numberline {I}Complete aggregate import into the presentation}{43}{appendix.I}%
+\contentsline {section}{\numberline {J}Complete server submission launcher}{45}{appendix.J}%
+\contentsline {section}{\numberline {K}Complete server data policy}{46}{appendix.K}%
+\contentsline {section}{\numberline {L}Complete binary theoretical information exercise}{47}{appendix.L}%
+\contentsline {section}{\numberline {M}Theoretical numerical helper functions}{50}{appendix.M}%
+\contentsline {subsection}{\numberline {M.1}\texttt {expit}}{50}{subsection.M.1}%
+\contentsline {subsection}{\numberline {M.2}\texttt {golden\_maximum}}{50}{subsection.M.2}%
+\contentsline {subsection}{\numberline {M.3}\texttt {static\_price}}{50}{subsection.M.3}%
+\contentsline {section}{\numberline {N}Complete binary regression and mathematical tests}{51}{appendix.N}%
+\contentsline {section}{\numberline {O}Previous full-basket solver: the source of the earlier results}{53}{appendix.O}%

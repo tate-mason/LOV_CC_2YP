@@ -1,3 +1,11 @@
+# Completed pricing results imported
+
+The main deck now includes the completed revised comparison from
+`new_pricing_res/`. Only aggregate outputs were read. The run covers 1,839 eligible
+environments and retains the existing cumulative-history demand fit. Under the
+fitted distribution, information raises revenue 0.15% initially inside and 2.21%
+initially outside. See `seminar_pres/PRICING_RESULTS.md` for price paths and checks.
+
 # Short presentation: revised information comparison
 
 The main empirical exercise retains the saved habit-inclusive demand model. Both
@@ -24,7 +32,7 @@ sbatch Code/final_simple/server/run_information_pricing.sh \
 The argument is the actual fit directory, including for an after-data run.
 Recover only the job's RESULTS_ONLY folder. See
 `Code/final_simple/demand/INFORMATION_PRICING.md` for definitions, validation and
-quadrature/search sensitivity. No empirical pricing run has been performed here.
+quadrature/search sensitivity. The completed server run has been recovered as aggregate outputs in `new_pricing_res/` and imported. No empirical records were processed locally.
 
 ## Import aggregate outputs and build
 

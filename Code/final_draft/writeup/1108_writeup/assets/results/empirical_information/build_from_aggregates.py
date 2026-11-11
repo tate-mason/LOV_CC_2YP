@@ -8,7 +8,7 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 root=next(p for p in Path(__file__).resolve().parents if p.name=='LOV_CC_2YP')
-src=root/'res_pricing1108'
+src=root/'Results/archive/res_pricing1108'
 asset=Path(__file__).resolve().parents[1]
 def table(path,caption,label,columns,rows):
  path.parent.mkdir(parents=True,exist_ok=True)

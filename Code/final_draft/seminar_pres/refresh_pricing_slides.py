@@ -79,7 +79,7 @@ def refresh(source, output):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--source", type=Path, default=ROOT / "res_pricing1108/pricing")
+    parser.add_argument("--source", type=Path, default=ROOT / "Results/archive/res_pricing1108/pricing")
     parser.add_argument("--output", type=Path, default=Path(__file__).resolve().parent / "assets/pricing")
     args = parser.parse_args()
     refresh(args.source, args.output)

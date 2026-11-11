@@ -1,5 +1,5 @@
 # Fdb version 4
-["pdflatex"] 1794353307.58992 "pres.tex" "pres.pdf" "pres" 1794353322.88334 0
+["pdflatex"] 1794354653.63904 "pres.tex" "pres.pdf" "pres" 1794354669.01177 0
   "../writeup/1108_writeup/assets/results/demand/comparison.tex" 1794181800.30452 531 ade698ab8c093b51a87824b905bbb9e7 ""
   "../writeup/1108_writeup/assets/results/demand/estimates.tex" 1794181850.24587 662 a4d80cb4caf397530d5e3bcddee715bc ""
   "../writeup/1108_writeup/assets/results/demand/history_distributions.pdf" 1794181578.46092 18657 69a78f93dda1430335d13e536bd71158 ""
@@ -283,9 +283,9 @@
   "assets/theory_delta1/gamma_uncertainty/profits.pdf" 1794353156.84178 18239 2df0441549be16a051dc9db3db9a646b ""
   "assets/theory_delta1/gamma_uncertainty/terminal_prices.pdf" 1794353156.84231 26761 c6f5d1e3400719dd4cea6446d6566d93 ""
   "assets/theory_delta1/optimal_prices_by_gamma.pdf" 1794353156.84904 18445 8513da1c6bc0d10fbc8bd6caea43efc2 ""
-  "pres.aux" 1794353322.75662 11415 4a194c7d3bbe3a82f079d2c7f7421fcc "pdflatex"
-  "pres.nav" 1794353322.76034 7096 98ac4f92bccb3f5b1b3b5d4ea5db9eb7 "pdflatex"
-  "pres.out" 1794353322.76007 859 71fb9276e90955d996c842365402f7b4 "pdflatex"
+  "pres.aux" 1794354668.89584 11415 4a194c7d3bbe3a82f079d2c7f7421fcc "pdflatex"
+  "pres.nav" 1794354668.89787 7096 98ac4f92bccb3f5b1b3b5d4ea5db9eb7 "pdflatex"
+  "pres.out" 1794354668.89762 859 71fb9276e90955d996c842365402f7b4 "pdflatex"
   "pres.tex" 1794353307.31909 28339 b866e69b37a037d92a0ae0c9bae18c49 ""
   (generated)
   "pres.aux"

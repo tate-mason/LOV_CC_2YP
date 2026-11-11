@@ -20,6 +20,8 @@ sbatch Code/final_simple/server/run_split_pricing.sh \
 
 This job expects `fits/no_control` in the specified directory and regenerates its matching weekly table. It does not rerun summaries or demand estimation. It refuses controlled or experimental novelty fits.
 
+The pricing export includes `pricing_revenue_gain.pdf` for each flavor. A successful type-information calibration also produces `information_price_paths_comparison.pdf`, which compares type-specific offers with common offers under equal type probabilities for both initial states.
+
 ## What to inspect and copy
 
 Copy only the printed `RESULTS_ONLY` path. The after-data job includes separate `three` and `five` directories, estimate/pricing comparison CSVs and `run_status.json`. Start with that status, then each specification's fit summary and pricing provenance. A failed pricing stage is not reported as complete.

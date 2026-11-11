@@ -40,4 +40,4 @@ The initial-state uncertainty figures above are retained as unused assets. The p
 
 The gamma-type uncertainty exercise now uses static beliefs with no learning: identical type probabilities enter both periods and both terminal histories. Bayesian-learning results were replaced.
 
-Empirical assets refreshed from `/Users/tate/LOV_CC_2YP/res_pricing1108`; see `../../RESULTS_UPDATE.md` for replacements, generated aggregate comparisons and evaluation conventions. Original exports are unchanged.
+Empirical assets refreshed from `Results/archive/res_pricing1108`; see `../../RESULTS_UPDATE.md` for replacements, generated aggregate comparisons and evaluation conventions. Original exports are unchanged.

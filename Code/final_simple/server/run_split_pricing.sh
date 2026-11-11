@@ -86,6 +86,7 @@ python3 "$project_dir/Code/final_simple/demand/regenerate_weekly_inputs.py" \
 python3 "$project_dir/Code/final_simple/demand/plain_berry_pricing.py" \
     --household-input "$weekly_input" --fit-dir "$uncontrolled_fit" \
     --demand-delta 1.0 --output "$pricing_output"
+# Render the revenue gain and, when calibration succeeds, the information-policy price paths.
 python3 "$project_dir/Code/final_draft/seminar_pres/make_policy_figures.py" \
     --output "$pricing_output"
 

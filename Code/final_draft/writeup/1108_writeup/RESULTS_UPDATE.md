@@ -1,6 +1,6 @@
 # Empirical results refresh
 
-Source: `/Users/tate/LOV_CC_2YP/res_pricing1108`. Its demand estimate tables match `res1108`. The original exports were left intact. Only estimates, covariance matrices, aggregate tables and figures were read. No empirical estimation or household processing was run.
+Source: `Results/archive/res_pricing1108`. Its demand estimate tables match `Results/archive/res1108`. The original exports were left intact. Only estimates, covariance matrices, aggregate tables and figures were read. No empirical estimation or household processing was run.
 
 ## Replacements
 

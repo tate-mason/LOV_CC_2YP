@@ -23,6 +23,8 @@ PRICING_RESULTS = {
     'information_friction_information_value.pdf', 'information_friction_information_value.png',
     'flavor_comparison.csv', 'targeted_revenue_aggregate.csv',
     'pricing_policy_benchmarks.csv', 'pricing_policy_benchmarks.pdf', 'pricing_policy_benchmarks.png',
+    'pricing_revenue_gain.pdf', 'pricing_revenue_gain.png',
+    'information_price_paths_comparison.pdf', 'information_price_paths_comparison.png',
     'terminal_offers_by_purchase.csv', 'terminal_offers_by_purchase.pdf', 'terminal_offers_by_purchase.png',
     'terminal_offer_within_household_gap.csv',
     'pricing_mechanism.pdf', 'pricing_mechanism.png',

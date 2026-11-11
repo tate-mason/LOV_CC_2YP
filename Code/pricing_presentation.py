@@ -4,6 +4,7 @@ Calculations retain their internal policy keys. Presentation compares common
 and personalized pricing; posted-price diagnostics are never a displayed series.
 """
 from pathlib import Path
+import json
 import os
 import tempfile
 import numpy as np
@@ -104,6 +105,91 @@ def benchmark_figure(benchmarks, output, flavor):
     ax.set_axisbelow(True)
     save_figure(fig, output, ["pricing_policy_benchmarks"])
     plt.close(fig)
+
+
+def revenue_gain_figure(aggregate, output):
+    """Show the proportional lift over common pricing for each horizon."""
+    from matplotlib.ticker import PercentFormatter
+
+    metrics = ["revenue1", "revenue2", "discounted_revenue"]
+    policies = displayed_policies(aggregate).set_index("policy")
+    common = policies.loc["Common pricing", metrics].to_numpy(dtype=float)
+    personalized = policies.loc["Personalized pricing", metrics].to_numpy(dtype=float)
+    if np.any(common <= 0) or not np.isfinite([common, personalized]).all():
+        raise ValueError("Revenue gain requires finite revenues and a positive common-pricing baseline.")
+    gains = (personalized / common - 1) * 100
+
+    plt = plotting()
+    fig, ax = plt.subplots(figsize=(8.4, 3.5), layout="constrained")
+    bars = ax.barh(["Period 1", "Period 2", "Both periods"], gains, height=.54,
+                   color=["#667E90", "#667E90", COLORS["Personalized pricing"]])
+    ax.invert_yaxis()
+    ax.bar_label(bars, labels=[f"{value:+.2f}%" for value in gains],
+                 padding=7, fontsize=12, fontweight="semibold")
+    ax.axvline(0, color="#4A5560", linewidth=.9)
+    ax.set_xlabel("Revenue gain over common pricing", fontsize=12, labelpad=9)
+    ax.xaxis.set_major_formatter(PercentFormatter(xmax=100, decimals=0))
+    span = max(gains.max(), 0) - min(gains.min(), 0)
+    padding = max(.18 * span, .5)
+    ax.set_xlim(min(gains.min() - padding, 0), max(gains.max() + padding, 0))
+    ax.tick_params(axis="both", length=0, labelsize=12, pad=7)
+    ax.grid(axis="x", color="#DCE2E7", linewidth=.8)
+    ax.set_axisbelow(True)
+    ax.spines[:].set_visible(False)
+    save_figure(fig, output, ["pricing_revenue_gain"])
+    plt.close(fig)
+
+
+def information_price_paths_comparison(type_results, information, output, flavor):
+    """Compare known-type offers with common offers under the equal-type prior."""
+    fields = ["known_p1", "known_expected_p2"]
+    # Known-type offers do not depend on the prior. Repeated prior rows must agree.
+    paths = type_results[["type", "h0", *fields]].drop_duplicates()
+    paths = paths.set_index(["type", "h0"], verify_integrity=True)
+    common = information.loc[(information["scenario"] == "Equal types") &
+                             (information["case"] == "unknown")].set_index("h0", verify_integrity=True)
+    types = [("low", "#2E6896", "o"), ("medium", "#208475", "s"), ("high", "#B35C21", "^")]
+    plt = plotting()
+    fig, axes = plt.subplots(1, 2, figsize=(9.8, 4.2), sharey=True)
+    for ax, (state, title) in zip(axes, [("j", f"Initially inside ({flavor})"), ("0", "Initially outside")]):
+        for switching_type, color, marker in types:
+            prices = paths.loc[(switching_type, state), fields].to_numpy(dtype=float)
+            if not np.isfinite(prices).all():
+                raise ValueError("Complete-information prices must be finite.")
+            ax.plot([1, 2], prices, label=f"{switching_type.title()} type", color=color,
+                    marker=marker, linewidth=1.9, markersize=5)
+        common_prices = common.loc[state, ["expected_p1", "expected_p2"]].to_numpy(dtype=float)
+        if not np.isfinite(common_prices).all():
+            raise ValueError("Common-pricing offers must be finite.")
+        ax.plot([1, 2], common_prices, label="Common price", color="#232C35", marker="D",
+                markerfacecolor="white", linestyle="--", linewidth=2.1, markersize=6)
+        ax.set_title(title, fontsize=13, pad=11)
+        ax.set_xticks([1, 2], [r"Initial offer $p_1$", r"Expected offer $\mathbb{E}[p_2]$"])
+        ax.set_xlim(.75, 2.25)
+        ax.margins(y=.13)
+        ax.tick_params(axis="both", length=0, labelsize=11, pad=8)
+        ax.grid(axis="y", color="#DCE2E7", linewidth=.8)
+        ax.set_axisbelow(True)
+        ax.spines[["top", "right", "left"]].set_visible(False)
+        ax.spines["bottom"].set_color("#B8C2CB")
+    axes[0].set_ylabel("Price ($)", fontsize=12, labelpad=8)
+    handles, labels = axes[0].get_legend_handles_labels()
+    fig.legend(handles, labels, loc="upper center", ncol=4, frameon=False, fontsize=11,
+               title="Solid: complete information   |   Dashed: type unobserved")
+    fig.subplots_adjust(left=.09, right=.985, bottom=.16, top=.75, wspace=.13)
+    save_figure(fig, output, ["information_price_paths_comparison"])
+    plt.close(fig)
+
+
+def pricing_comparison_figures(pricing_folder, output, flavor):
+    """Render slide figures from the same aggregate tables available in RESULTS_ONLY."""
+    aggregate = pd.read_csv(pricing_folder / "targeted_revenue_aggregate.csv")
+    revenue_gain_figure(aggregate, output)
+    status = json.loads((pricing_folder / "information_calibration_status.json").read_text())
+    if status["status"] == "complete":
+        types = pd.read_csv(pricing_folder / "information_friction_by_group.csv", dtype={"h0": str})
+        information = pd.read_csv(pricing_folder / "information_friction_aggregate.csv", dtype={"h0": str})
+        information_price_paths_comparison(types, information, output, flavor)
 
 
 def empirical_figures(table, output, flavor="berry", delta=1., common_groups=None):
@@ -210,3 +296,14 @@ def information_figures(table, output, delta=1., filename_prefix="information_fr
     axes[1, 0].set_ylabel("Price ($)")
     save_figure(fig, output, [filename_prefix + "_first_prices", filename_prefix + "_terminal_prices", filename_prefix + "_price_paths"])
     plt.close(fig)
+
+
+if __name__ == "__main__":
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Render slide figures from exported aggregate pricing tables.")
+    parser.add_argument("--pricing-folder", type=Path, required=True)
+    parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--flavor", required=True)
+    args = parser.parse_args()
+    pricing_comparison_figures(args.pricing_folder, args.output, args.flavor)

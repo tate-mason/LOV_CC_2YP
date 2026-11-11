@@ -1,3 +1,14 @@
+# Terminal-price roundoff regression
+
+A theoretical nine-type, 36-state utility fixture reproduced the server's strict
+terminal first-order-condition failure. Objective values at a grid point and a
+refined root can differ only by floating-point rounding, yet the grid derivative
+can exceed tolerance. The solver now prefers refined stationary points when
+objective values differ by at most a scale-aware machine-precision bound; the
+original derivative tolerance is unchanged. The eight kernel tests, a dense
+independent revenue comparison, 72 mathematical utility stress cases, and all
+seven privacy entry-point checks pass. No empirical records were accessed.
+
 # Revised information-pricing kernel
 
 `check_information_pricing.py` uses abstract utility arrays only. Checks cover

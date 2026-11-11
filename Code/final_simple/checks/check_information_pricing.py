@@ -5,7 +5,7 @@ import unittest
 import numpy as np
 from scipy.special import expit, logsumexp, gammaln
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from demand.information_pricing_model import solve_environment
+from demand.information_pricing_model import solve_environment, _terminal_common
 from supply.pricing_model import static_price
 
 
@@ -19,6 +19,24 @@ def environment(**changes):
 
 
 class InformationPricingChecks(unittest.TestCase):
+    def test_terminal_roundoff_prefers_refined_stationary_price(self):
+        # Mathematical utility columns, not household records. This fixture
+        # reproduced the server assertion before the tie-breaking fix.
+        rng = np.random.default_rng(217)
+        for _ in range(8):
+            offsets = rng.normal(size=(9, 36))
+        intercepts = -20.+10.*offsets
+        weights = np.ones(9)/9
+        price, revenue = _terminal_common(intercepts, weights, 1., 7, 65)
+        q = expit(intercepts-price)
+        slope = (weights[:, None]*q*(1-price*(1-q))).sum(axis=0)
+        np.testing.assert_allclose(slope, 0., atol=2e-9)
+        # Independently check achieved revenue against a dense price search.
+        for state in [0, 6, 17]:
+            grid = np.linspace(.5, max(2., price[state]*2), 10001)
+            quantity = 7*(weights[:, None]*expit(intercepts[:, state, None]-grid)).sum(axis=0)
+            self.assertGreaterEqual(revenue[state]+1e-12, np.max(grid*quantity))
+
     def test_degenerate_type_regimes_coincide(self):
         for g in [-1., 0., 1.]:
             result = solve_environment(**environment(gamma=np.array([g]), weights=np.ones(1)))

@@ -46,6 +46,15 @@ def _scalar_maximum(value, derivative, bound, points):
     candidates = np.r_[grid, (left+right)/2]
     values = value(candidates)
     best = int(np.argmax(values))
+    # Near an optimum, objective differences are second order. Rounding can make
+    # a grid point look one ulp better while its first-order residual is larger.
+    # Prefer a refined stationary point when values differ only by roundoff.
+    if len(left):
+        root_best = len(grid)+int(np.argmax(values[len(grid):]))
+        tolerance = 64*np.finfo(float).eps*max(abs(values[best]), abs(values[root_best]),
+                                             np.finfo(float).tiny)
+        if values[root_best] >= values[best]-tolerance:
+            best = root_best
     if candidates[best] in [grid[0], grid[-1]]:
         raise ArithmeticError('First-period optimum touches search boundary.')
     return float(candidates[best]), float(values[best])
@@ -85,7 +94,11 @@ def _terminal_common(intercepts, weights, alpha, capacity, points):
     roots = (left+right)/2
     root_values = objective(roots, states)
     for state, root, value in zip(states, roots, root_values):
-        if value > best[state]:
+        # Prefer the refined root to a revenue-equivalent grid point. A strict
+        # comparison can retain the grid point solely because of rounding.
+        tolerance = 64*np.finfo(float).eps*max(abs(best[state]), abs(value),
+                                             np.finfo(float).tiny)
+        if value >= best[state]-tolerance:
             best[state], price_t[state] = value, root
     np.testing.assert_allclose(slope(price_t, states_all), 0., atol=2e-9)
     return price_t/alpha, best

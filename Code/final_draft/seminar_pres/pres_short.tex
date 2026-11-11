@@ -131,85 +131,79 @@
 
 \section{Introduction}
 
+% BRING SLIDES ONE AND TWO TOGETHER
 % Original numbered slide 1
 \gdef\shortbuttons{}
 \begin{frame}[label=short-1]{Motivation}
   \begin{itemize}
-    \item Firms have more access than ever to consumer information
-    \item Allows for targeted discounting based on preferences derived from repeat interactions
+    \item Across repeated interactions with a firm, consumer preferences may evolve
+    \item Novelty, habit, boredom all contribute to consumption patterns varying across time
+    \item Allows for targeted discounting based on past choices and preference dynamics
     \item Targeted discounts allow firms to steer consumers toward particular products.
   \end{itemize}
-  \begin{tcolorbox}
-    How do firms price based on repeated interactions with consumers and how are profits affected?
-  \end{tcolorbox}
 \end{frame}
 
-
 % Original numbered slide 2
-\gdef\shortbuttons{}
-\begin{frame}[label=short-2]{Research Question}
+\begin{frame}[label=short-4]{What is Novelty}
+  DO LIKE RACHEL
+\end{frame}
+
+\gdef\shortbuttons{\hyperlink{short-5}{\beamergotobutton{Flavor Popularity}}}
+\begin{frame}[label=short-4]{Novelty Motivation}
+  \centering
+    \includegraphics[width=.95\textwidth,height=.74\textheight,keepaspectratio]{../writeup/1108_writeup/assets/results/summary_statistics/flavor_hhi_histogram.pdf}
+
+  \begin{itemize}
+    \item NUMBER OF SWITCHES PER HH
+    \item NUMBER OF UNIQUE FLAVORS
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[label=short-4]{Research Question}
   \begin{tcolorbox}
     How can firms price discriminate via consumer preferences for novelty and habit and how much is information about these preferences worth?
   \end{tcolorbox}
-  How do I answer?
   \begin{itemize}
-    \item Solve a theoretical model to understand firm's behavior
-    \item Estimate consumer's preferences with Nielsen data, recovering the distribution of novelty/habit preferences
-    \item Use the estimated distribution in the pricing model to understand how firm's revenues are impacted by this sort of targeting
+    \item Propose and solve a theoretical two-period supply model when consumer's exhibit heterogeneous preferences for novelty
+    \item Estimate demand for yogurt and recover distribution of novelty preferences
+    \item Apply distribution to supply model to quantify theoretical gains from personalized pricing 
   \end{itemize}
 \end{frame}
-
 
 % Original numbered slide 3
 \gdef\shortbuttons{}
 \begin{frame}[label=short-3]{Literature}
-  \begin{columns}[T]
-    \begin{column}{0.48\textwidth}
-      \textbf{Targeting:}
-      \begin{itemize}
-        \item Dub\'e (2008)
-        \item Dub\'e et. al (2022) 
-        \item Anand \& Shachar (2009)
-        \item Karle \& Reisinger (2024)
-        \item Durrmeyer, Fournel, Samano (2026)
-      \end{itemize}
-    \end{column}
-    \begin{column}{0.48\textwidth}
-      \textbf{Estimating preferences for novelty:}
-      \begin{itemize}
-        \item Dub\'e (2004)
-        \item Dub\'e et. al (2021)
-        \item Chintagunta (1999)
-        \item Lattin (1987)
-        \item McAllister (1982)
-        \item Ackerberg (2003)
-      \end{itemize}
-    \end{column}
-  \end{columns}
+  \textbf{Dynamic Targeting:}
+    \begin{itemize}
+      \item Dub\'e (2008), Anand \& Shachar (2009), Karle \& Reisinger (2024), Durrmeyer, Fournel, Samano (2026)
+      \item \textcolor{red}{Contribution:} Firm pricing based off of novelty with varying levels of information on consumers.
+    \end{itemize}
+  \textbf{Estimating preferences for novelty:}
+  \begin{itemize}
+      \item McAllister (1982), Lattin (1987), Chintagunta (1999), Ackerberg (2003), Dub\'e (2004), Dub\'e et. al (2021)
+      \item \textcolor{red}{Contribution:} Recovering a distribution for preferences over novelty in consumption to be used in a pricing exercise
+  \end{itemize}
+  \textbf{Pricing with State Dependence}
+  \begin{itemize}
+    \item Klemperer (198x), Dub\'e et. al (2022),GO THROUGH ZOTERO
+    \item \textcolor{red}{Contribution:} Modeling novelty rather than habit as driver for differential pricing.
+  \end{itemize}
 \end{frame}
 
-
-\section{Motivation from Data}
-
-% Original numbered slide 4
-\gdef\shortbuttons{\hyperlink{short-5}{\beamergotobutton{Flavor Popularity}}}
-\begin{frame}[label=short-4]{HHI}
-  \centering
-    \includegraphics[width=.95\textwidth,height=.74\textheight,keepaspectratio]{../writeup/1108_writeup/assets/results/summary_statistics/flavor_hhi_histogram.pdf}
-\end{frame}
-
-
-\section{Supply Theory}
+\section{Supply Model}
 
 % Original numbered slide 6
 \gdef\shortbuttons{}
 \begin{frame}[label=short-6]{Supply Setting}
   \begin{itemize}
     \item Monopolistic firm producing a single product $j$
-    \item Firm is profit maximizing, setting prices according to that objective
-    \item A consumer is born into the world with a type $r\in\{H,L\}$, determining how much utility they derive from switching and an initial state $h_0\in\{0,j\}$
+    \item A consumer is born into the world with a type and an initial purchase state: 
+    \begin{gather*}
+      \shortintertext{Consumer Type} r = \{H, L\} \\
+      \shortintertext{Initial Purchase} h_0 = \{0, j\}
+    \end{gather*}
     \item Consumers live for two periods, purchasing the inside good or opting for the outside good in each period
-    \item The firm knows initial states and types, setting prices to individual consumers by type and history
+    \item The firm knows $h_0\ \& \gamma_r$, setting prices to individual consumers by type and history
   \end{itemize}
 \end{frame}
 
@@ -226,13 +220,12 @@
     \setlength{\abovedisplayskip}{2pt}
     \setlength{\belowdisplayskip}{2pt}
     \begin{gather*}
-      V^{inside}_{jt} = \underbrace{\beta}_{\text{Constant}} + \overbrace{\gamma_r\mathbbm{1}\{h=0\}}^{\text{Utilty from Switching}} - \underbrace{\alpha p_t(h)}_{\text{Price Disutility}}, \ V^{Outside}_{0t} = \underbrace{\gamma_r\mathbbm{1}\{h=j\}}_{\text{Utility from Switching}} \\
-      v_t(x) = V_{jt}^{inside} - V_{0t}^{outside} = \beta + \underbrace{\gamma[\mathbbm{1}\{h=0\} - \mathbbm{1}\{h=j\}]}_{q(h)} - \alpha p_t(h)
+      V^{inside}_{jt} = \underbrace{\beta}_{\text{Constant}} + \overbrace{\gamma_r\mathbbm{1}\{h_t=0\}}^{\text{Utilty from Switching}} - \underbrace{\alpha p_t(h_t)}_{\text{Price Disutility}}, \ V^{Outside}_{0t} = \underbrace{\gamma_r\mathbbm{1}\{h_t=j\}}_{\text{Utility from Switching}} \\
+      v_t(x) = V_{jt}^{inside} - V_{0t}^{outside} = \beta + \underbrace{\gamma[\mathbbm{1}\{h_t=0\} - \mathbbm{1}\{h_t=j\}]}_{q(h_t)} - \alpha p_t(h_t)
     \end{gather*}
   \end{tcolorbox}
   \begin{itemize}\setlength{\itemsep}{2pt}
-    \item Prices, set by the firm, and switching utility depend on history $h=x_{t-1}$
-    \item Utility for the outside good is normalized to zero
+    \item Prices, set by the firm, and switching utility depend on history $h_t=x_{t-1}$
   \end{itemize}
 \end{frame}
 
@@ -274,9 +267,9 @@
     \setlength{\abovedisplayskip}{2pt}
     \setlength{\belowdisplayskip}{2pt}
     \begin{align*}
-      \frac{d\Pi}{d p_1(h_0)} &= s_1 + \frac{\partial}{\partial p_1(h)}s_1(h_0)[p_1(h_0) - c + \delta(\pi_2(j) - \pi_2(0))] \\
+      \frac{d\Pi}{d p_1(h_0)} &= s_1 + \frac{\partial}{\partial p_1(h_0)}s_1(h_0)[p_1(h_0) - c + \delta(\pi_2(j) - \pi_2(0))] \\
       p_1^*(h_0) &= c + \frac{1}{\alpha(1-s_1^*(h_0))} - \delta(\pi_2(j) - \pi_2(0)) \\
-      \Pi^*(h) &= \delta\pi_2(0) + \frac{s_1^*(h_0)}{\alpha(1-s_1^*(h_0))}
+      \Pi^*(h_t) &= \delta\pi_2(0) + \frac{s_1^*(h_0)}{\alpha(1-s_1^*(h_0))}
     \end{align*}
   \end{tcolorbox}
 \end{frame}
@@ -319,8 +312,8 @@
  \item Offers depend on observed history; there is no learning about type.
  \end{itemize}
  \begin{align*}
- s_t(h)&=\sum_r\mu_r\,s_t(h\mid\gamma_r),\\
- \pi_2(h)&=\max_{p_2(h)}s_2(h)\,[p_2(h)-c].
+ s_t(h_1)&=\sum_r\mu_r\,s_t(h\mid\gamma_r),\\
+ \pi_2(h_1)&=\max_{p_2(h_1)}s_2(h_1)\,[p_2(h_1)-c].
  \end{align*}
 \end{frame}
 
@@ -398,8 +391,6 @@
 \begin{frame}[label=short-26]{Demand Setting and Objective}
   \begin{itemize}
     \item Consumers can either purchase the inside good, a flavor of yogurt, or the outside good, not yogurt 
-    \item Following Nevo (2001), a week contains seven choice opportunities with observed flavor purchases treated as fulfilling an opportunity 
-    \item Define outside good as $\max(0, 7-\sum_j x_{jt})$, or the difference in purchases and a full week
     \item Consumers differ in preferences for novelty and price sensitivity, but derive the same base utility from the three flavor categories
     \item Goal: \textcolor{red}{Recover distribution of novelty preferences}
   \end{itemize}
@@ -437,6 +428,8 @@
       \]
     \end{column}
   \end{columns}
+    \item Following Nevo (2001), a week contains seven choice opportunities with observed flavor purchases treated as fulfilling an opportunity 
+    \item Define outside good as $\max(0, 7-\sum_j x_{jt})$, or the difference in purchases and a full week
 \end{frame}
 
 
@@ -459,10 +452,7 @@
     \end{align*}
   \end{tcolorbox}
   \begin{itemize}
-    \item $\nu_i$ captures unobserved heterogreneity, $y_{it}$ represents observed choice, $\theta = \{\beta, \gamma, \phi, \alpha\}$ is the vector of heterogeneous demand parameters
-    \item 128 draws per household from a normal distribution
-    \item 3 starts at different starting values, keep lowest objective 
-    \item Minimize negative log-likelihood
+    \item $\nu_i$ captures unobserved heterogeneity, $y_{it}$ represents observed choice, $\theta = \{\gamma, \phi, \alpha\}$ is the vector of heterogeneous demand parameters
   \end{itemize}
 \end{frame}
 
@@ -509,28 +499,24 @@
       \end{itemize}
     \end{column}
   \end{columns}
-  \begin{tcolorbox}
-    How well does the theory map to what is observed in the data?
-  \end{tcolorbox}
 \end{frame}
 
 
 \gdef\shortbuttons{}
 \begin{frame}[label=short-35]{Complete Information: Type-Specific Offers}
   \begin{itemize}
-    \item The firm observes each consumer's switching type and whether they started with plain or outside.
-    \item In the coupon exercise, we recover types from purchase histories and use the bottom and top quartiles as the low and high groups.
-    \item The firm chooses the initial offer $p_1$ and can revise the terminal offer $p_2$ after observing the first-period choice.
-    \item Both periods receive equal weight ($\delta=1$).
+    \item The firm observes $\gamma_r \ \forall \ r = \{H, L\}, \ h_0 = \{0, j\}$ 
+    \item Use estimated bottom and top quartiles from distribution of $\gamma_i$ as the low and high groups, medium group is assusmed to derive no utility from switching.
+    \item The firm chooses $p_1$ and decides $p_2$ after observing the first-period choice.
   \end{itemize}
 \end{frame}
 
 \gdef\shortbuttons{}
 \begin{frame}[label=short-40]{What If Switching Type Is Hidden?}
   \begin{itemize}
-    \item The firm sees purchase history, including whether the consumer started with plain or outside.
-    \item It knows the distribution of low, medium, and high switching types. In the calibrated model, each type uses its group's mean novelty coefficient.
-    \item The consumer's type persists across periods. The firm's type probabilities stay fixed after the first-period choice.
+    \item The firm observes initial state $h_0$, but now does not know individual $\gamma_r$.
+    \item It knows the distribution of low, medium, and high switching types.
+    \item The firm's type probabilities stay fixed across periods but it can offer dynamic pricing.
   \end{itemize}
 \end{frame}
 
@@ -538,7 +524,7 @@
 \begin{frame}[label=short-42]{Common Pricing When Type Is Hidden}
   \begin{itemize}
     \item Choose a single offer for all types with the same observed history to maximize expected two-period revenue.
-    \item The offer can vary with the starting state and with the observed first-period choice.
+    \item The offer can vary with $h_0, \ h_1$.
     \item For the price-path comparison, the firm assigns probability $1/3$ to each type.
   \end{itemize}
 \end{frame}

@@ -8,8 +8,22 @@ The pricing exercise quantifies the original binary theory with the new
 estimated gamma distribution, population mean price sensitivity and flavor
 intercepts. It compares common and informed pricing, holding habit at its zero
 reference. All three focal flavors have results; plain is the main example.
+All empirical comparisons use the estimated gamma distribution without alternative
+low/middle/high probability scenarios. Display groups summarize price paths only.
+Uniform prices depend on history but not gamma; discriminatory prices depend on both.
 There is no observed-price benchmark or household context reconstruction.
 See `Code/final_simple/demand/QUANTIFIED_THEORY.md` for the calculation command.
+
+Both theory and quantified pricing now compare consumer surplus, profit, total
+welfare, and expected binary purchases. Main slides show percentage changes from uniform pricing, dividing each change
+by the absolute uniform level of that measure. Empirical revenue and welfare
+appear together with matching inside/outside x-axes and distinct history colors; the appendix gives accounting
+formulas and prior-by-history
+tables. Welfare retains the original outside switching utility
+`V0 = gamma*1{h=j}` and integrates over each policy's own future histories.
+It is expected experienced welfare under myopic choice, conditional on the
+parameter mapping and fixed-belief policy restriction. Aggregate CSVs also save
+the alternative zero-outside utility convention as a sensitivity calculation.
 
 ## Appendix
 

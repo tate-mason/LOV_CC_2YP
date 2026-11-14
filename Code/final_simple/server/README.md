@@ -18,6 +18,48 @@ results are not results from this new binary specification.
 
 Run these commands from the research-server checkout after syncing the code. The shells require Linux, the research filesystem and a Slurm job. No local empirical overrides are supported.
 
+## Bundle-inclusive switching and flavor spells
+
+```bash
+sbatch Code/final_simple/server/run_bundle_statistics.sh \
+  /scratch/dtm63837/Kilts_Panel/PATH_TO_EXISTING_SUMMARY_OUTPUT
+```
+
+Pass the summary folder containing `yogurt_weekly_flavor_quantities.csv` and
+`aggregated_flavors/yogurt_weekly_flavor_quantities.csv`, not a fit directory.
+These are existing **server-only** weekly exports from `data/summaries.py`.
+The job reuses both detailed flavors and the selected aggregated flavor grouping.
+It does not rerun matching, summary sample selection, or demand estimation.
+
+All mixed baskets are included. New statistics are:
+
+- Flavor-set change rate, mean numbers of flavors added/dropped, and mean set
+  turnover (`1 - intersection/union`, or Jaccard distance).
+- Mean flavor-set changes per household, including households with no changes.
+  This count depends on the observation window and is reported beside pair rates.
+- Mean and median flavor-presence spell lengths, pooled over spells, overall
+  and by flavor. A flavor remains present even when bought alongside other flavors.
+
+Each measure uses both successive observed yogurt purchase weeks (allowing gaps)
+and adjacent calendar weeks (gaps excluded from pairs and breaking spells).
+Purchase-clock spell lengths count purchase weeks, not elapsed calendar weeks.
+Changing package quantities without changing flavors is not a flavor-set change.
+The first/last observed spells are included without a censoring adjustment.
+No purchase in a calendar gap is inferred as a switch or a nonpurchase choice.
+
+Recover **only** the printed
+`/scratch/dtm63837/Kilts_Panel/results/bundle_stats_JOB_ID/RESULTS_ONLY` folder.
+It contains aggregate CSV/LaTeX tables for `detailed` and `aggregated_flavors`,
+plus `definitions.json`; no household IDs, weekly records, partitions or logs.
+Existing source summaries are preserved. Use the aggregate spell statistics to
+replace the presentation's older single-flavor spell statistic after the run.
+
+Local arithmetic checks use synthetic in-memory fixtures only:
+
+```bash
+python3 Code/final_simple/server/test_bundle_statistics.py
+```
+
 ## Change grouping or rerun summaries and estimates
 
 ```bash

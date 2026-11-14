@@ -135,7 +135,7 @@ def main():
     (OUT/'solutions.json').write_text(json.dumps(results,indent=2))
     (OUT/'settings.json').write_text(json.dumps(dict(gamma=GAMMA.tolist(),beta=BETA,alpha=ALPHA,delta=DELTA,c=COST,priors=priors,revenue_evaluation='same persistent types under both policies; common profit field remains fixed-belief objective',checks='Wider first-price grids; independent terminal maximizers; first-price finite-difference FOCs; Fixed-belief invariance; full-information bound; degenerate priors'),indent=2))
     sys.path.insert(0, str(Path(__file__).resolve().parents[4]))
-    from pricing_presentation import information_figures
+    from pricing_presentation import information_figures, prior_labels
     import pandas as pd
     table = pd.DataFrame([dict(scenario=r['scenario'], h0=r['h0'], case=case,
         expected_p1=r[case]['expected_p1'], expected_p2=r[case]['expected_p2'],
@@ -156,8 +156,11 @@ def main():
         for extension in ['pdf', 'png']:
             shutil.copyfile(OUT/f'information_friction_{name}.{extension}', OUT/f'{name}.{extension}')
     lines=[r'\begin{table}[htbp]\centering\small',r'\caption{Pricing with known and uncertain switching types}',r'\label{tab:gamma-uncertainty}',r'\begin{tabular}{llrrr}\toprule',r'Initial state & Prior & Personalized pricing & Common pricing & Information value\\\midrule']
-    for r in results:lines.append(f"${r['h0']}$ & {r['scenario']} & {r['known']['profit']:.4f} & {r['unknown']['persistent_type_revenue']:.4f} & {r['value_of_information']:.4f} \\\\")
+    for r in results:lines.append(f"${r['h0']}$ & {prior_labels([r['scenario']])[0]} & {r['known']['profit']:.4f} & {r['unknown']['persistent_type_revenue']:.4f} & {r['value_of_information']:.4f} \\\\")
     lines += [r'\bottomrule\end{tabular}',r'\end{table}'];(OUT/'results.tex').write_text('\n'.join(lines)+'\n')
+    sys.path.insert(0, str(Path(__file__).resolve().parents[4] / 'final_simple/demand'))
+    from welfare_reporting import theory_report
+    theory_report(OUT)
     print('All checks passed; wrote four figures, aggregate theoretical solutions, settings, and result table.')
 
 if __name__=='__main__':main()

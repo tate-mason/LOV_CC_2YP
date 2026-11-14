@@ -27,14 +27,16 @@ def prior_labels(scenarios):
     labels = []
     for scenario in scenarios:
         name = str(scenario).lower()
-        if "equal" in name:
-            label = r"$\mu_r=0.33$"
+        if "fitted" in name:
+            label = "Fitted distribution"
+        elif "equal" in name:
+            label = r"$\mu_r=1/3$"
         elif any(term in name for term in ["low", "habit", "negative"]):
-            label = r"$\mu_L=0.5$"
+            label = r"$\mu_L=0.50$"
         elif any(term in name for term in ["medium", "middle", "neutral", "zero"]):
-            label = r"$\mu_0=0.5$"
+            label = r"$\mu_M=0.50$"
         elif any(term in name for term in ["high", "novelty", "positive"]):
-            label = r"$\mu_H=0.5$"
+            label = r"$\mu_H=0.50$"
         else:
             raise ValueError(f"Unrecognized type prior: {scenario}")
         labels.append(label)
@@ -70,6 +72,12 @@ def group_results(table, common_groups=None):
 
 
 def save_figure(fig, output, stems):
+    # Display terminology is independent of legacy solver and CSV policy keys.
+    from matplotlib.text import Text
+    import re
+    for item in fig.findobj(Text):
+        label = re.sub(r'\bCommon\b', 'Uniform', item.get_text())
+        item.set_text(re.sub(r'\bcommon\b', 'uniform', label))
     output = Path(output)
     output.mkdir(parents=True, exist_ok=True)
     for stem in stems:
@@ -235,6 +243,7 @@ def empirical_figures(table, output, flavor="berry", delta=1., common_groups=Non
 def information_figures(table, output, delta=1., filename_prefix="information_friction"):
     """The same two policy names and p1 -> p2 paths for type-information results."""
     plt = plotting()
+    from matplotlib.ticker import PercentFormatter
     scenarios = list(dict.fromkeys(table.scenario))
     probability_labels = prior_labels(scenarios)
     probability_axis = r"$\Pr(\gamma=\gamma_r)=\mu_r$"
@@ -249,35 +258,47 @@ def information_figures(table, output, delta=1., filename_prefix="information_fr
                 axes[0].plot([1, 2], [values.expected_p1, values.expected_p2],
                              marker="o", linewidth=1.5, color=COLORS[label],
                              linestyle=["-", "--", "-.", ":"][index % 4],
-                             label=label + ": " + ["Equal", "Low-heavy", "Middle-heavy", "High-heavy"][index])
+                             label=label + ": " + probability_labels[index])
             axes[1].plot(range(len(rows)), rows.persistent_type_revenue,
                          marker="o", linewidth=2, color=COLORS[label], label=label)
         gains = selected.loc[selected.case == "known"].set_index("scenario").reindex(scenarios)
-        axes[2].plot(range(len(gains)), gains.value_of_information, marker="o", linewidth=2,
-                     label="Personalized − common")
+        uniform = selected.loc[selected.case == "unknown"].set_index("scenario").reindex(scenarios).persistent_type_revenue
+        if (uniform <= 0).any():
+            raise ValueError('Percentage revenue gains require positive uniform revenue.')
+        axes[2].plot(range(len(gains)), 100*gains.value_of_information/uniform, marker="o", linewidth=2)
+        axes[2].yaxis.set_major_formatter(PercentFormatter(xmax=100))
         axes[0].set(title="Price paths", ylabel="Price ($)", xticks=[1, 2], xticklabels=[r"$p_1$", r"$p_2$"])
         axes[1].set(title="Expected two-period revenue", ylabel="Revenue per model consumer ($)")
-        axes[2].set(title="Revenue gain", ylabel="Expected gain ($)")
+        axes[2].set(title="Revenue gain", ylabel="Gain over uniform pricing (%)")
         for ax in axes[1:]:
             ax.set(xticks=range(len(scenarios)), xticklabels=probability_labels, xlabel=probability_axis)
         for ax in axes:
-            ax.legend(fontsize=8)
+            if ax is not axes[2]:
+                ax.legend(fontsize=8)
             ax.grid(axis="y", alpha=.2)
         fig.suptitle(f"Initially {'inside' if state == 'j' else 'outside'}" + (f" | δ = {delta:g}" if delta is not None else ""))
         save_figure(fig, output, [f"information_theory_{state_name}"])
         plt.close(fig)
     # Keep existing filenames usable by slide sources and export allowlists.
     for stem, metric, ylabel in [("profits", "persistent_type_revenue", "Expected two-period revenue ($)"),
-                                 ("information_value", "value_of_information", "Personalized − common ($)")]:
+                                 ("information_value", "value_of_information", "Revenue gain over uniform pricing (%)")]:
         fig, axes = plt.subplots(1, 2, figsize=(11, 4), sharey=True, layout="constrained")
         for ax, state, state_name in zip(axes, ["j", "0"], ["flavor", "outside"]):
             for case in (["known"] if stem == "information_value" else ["unknown", "known"]):
                 values = table.loc[(table.h0 == state) & (table.case == case)].set_index("scenario").reindex(scenarios)
                 label = "Personalized − common" if stem == "information_value" else POLICY_LABELS[case]
+                shown = values[metric]
+                if stem == "information_value":
+                    uniform = table.loc[(table.h0 == state) & (table.case == 'unknown')].set_index('scenario').reindex(scenarios).persistent_type_revenue
+                    if (uniform <= 0).any():
+                        raise ValueError('Percentage revenue gains require positive uniform revenue.')
+                    shown = 100*shown/uniform
+                    ax.yaxis.set_major_formatter(PercentFormatter(xmax=100))
                 ax.bar(np.arange(len(scenarios)) + (0 if stem == "information_value" else (-.18 if case == "unknown" else .18)),
-                       values[metric], width=.6 if stem == "information_value" else .36, label=label)
+                       shown, width=.6 if stem == "information_value" else .36, label=label)
             ax.set(xticks=range(len(scenarios)), xticklabels=probability_labels, xlabel=probability_axis, title="Initially " + ("inside" if state == "j" else "outside"))
-            ax.legend(fontsize=8)
+            if stem != 'information_value':
+                ax.legend(fontsize=8)
         axes[0].set_ylabel(ylabel)
         save_figure(fig, output, [filename_prefix + "_" + stem])
         plt.close(fig)

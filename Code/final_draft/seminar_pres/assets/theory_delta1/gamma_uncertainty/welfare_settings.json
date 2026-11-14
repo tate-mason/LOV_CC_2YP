@@ -1,0 +1,8 @@
+{
+  "utility_inside": "beta + alpha*p + gamma*1{h=0}",
+  "utility_outside": "gamma*1{h=j}",
+  "welfare": "CS + profit; common shock constant omitted; same delta for both",
+  "evaluation": "myopic choices; persistent types; policy-specific history probabilities",
+  "normalization_sensitivity": "zero_outside_* removes gamma*1{h=j} from both utilities",
+  "source": "solutions.json; settings.json; pure theory only"
+}

@@ -5,7 +5,9 @@
   "alpha_mapping": "negative population mean magnitude: -exp(mu_log_minus_alpha+sd_log_minus_alpha^2/2)",
   "beta_mapping": "inside_constant + beta_flavor; other is reference flavor",
   "habit": "held fixed at reference stock zero; no habit dynamics",
-  "outside": "theory outside utility normalized to zero; no composite outside reconstruction",
+  "outside": "relative utility subtracts V0=gamma*1{h=j}; welfare restores this theory utility level",
+  "welfare": "expected experienced logit utility / (-alpha); common shock constant omitted; total=CS+profit",
+  "welfare_discount": "same delta for consumer utility and firm profit; myopic consumer choices",
   "information": "informed knows gamma; common knows distribution; fixed beliefs in both histories",
   "evaluation": "same persistent gamma in both periods; actual revenue, not subjective common objective",
   "delta": 1.0,
@@ -17,7 +19,8 @@
   "demand_refitted": false,
   "source": "/Users/tate/LOV_CC_2YP/estimates_1111/three/no_control_fit/point_estimates.csv",
   "source_sha256": "9954b5336b052064cb5c841794b8e147d8a0bfeb3ccc1a97a16abc38070abad5",
-  "script_sha256": "72bf4fdfdb8033db64f1e9d890d9f02072052fa9f472e7e09a634f1286f38405",
+  "welfare_sha256": "29112d08acab76279559cebe75c7a29e3c452832404c93027c6937c67400b817",
+  "script_sha256": "5ae3b8d029182ad3143376999571210fdfd3b76f933d1f94bd39e03da593c8c2",
   "flavor": "plain",
   "beta": 0.6986270222152703
 }

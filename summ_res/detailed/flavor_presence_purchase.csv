@@ -1,0 +1,1181 @@
+flavor,spells,mean_length,median_length
+.go-gurt mixed berry,25,1.08,1.0
+.go-gurt st,39,1.2564102564102564,1.0
+acai,34,1.3235294117647058,1.0
+acai mixed berry,6,1.0,1.0
+acai smoothie,1,1.0,1.0
+acl/h&dc,3,1.0,1.0
+acl/ta&dcc,556,1.564748201438849,1.0
+almond creme,59,1.1694915254237288,1.0
+alphonso mango,2,2.0,2.0
+amaretto cheesec,393,1.6005089058524173,1.0
+ande! creamy st,70,1.2,1.0
+ande! creamy vanilla,106,1.2830188679245282,1.0
+anee apple crumble,9,1.2222222222222223,1.0
+anee coconut,9,1.1111111111111112,1.0
+anee date & fig,1,1.0,1.0
+anee french vanilla,10,1.6,1.0
+anee lemon,13,1.2307692307692308,1.0
+anee peach passion fr,14,1.5,1.0
+anee plum walnut,7,1.4285714285714286,1.0
+anee st,17,1.411764705882353,1.0
+anee wild blackberry,20,1.45,1.0
+anics bb,2,1.0,1.0
+anics blueberry pom,2,2.0,2.0
+anics plain,1,1.0,1.0
+anics st,3,1.0,1.0
+anics vanilla,2,1.5,1.5
+apple,3,1.0,1.0
+apple & cinnamon,127,1.3937007874015748,1.0
+apple blueberry smoothie,6,1.0,1.0
+apple cinnamon,717,1.3333333333333333,1.0
+apple cinnamon oat,157,1.2229299363057324,1.0
+apple cobbler,6,1.0,1.0
+apple crisp,60,1.2,1.0
+apple pear cobbler smoothie,1,1.0,1.0
+apple pie,643,1.2426127527216173,1.0
+apple pie a la m,89,2.4831460674157304,1.0
+apple turnover,1918,1.4129301355578727,1.0
+apricot,287,1.362369337979094,1.0
+apricot mango,2258,1.3945969884853853,1.0
+arms bb,1,2.0,2.0
+arms peach,1,1.0,1.0
+arms perfect blueberr,1,1.0,1.0
+arms plain,2,2.5,2.5
+arms st,4,1.5,1.5
+arms tp,2,1.0,1.0
+arms vanilla,11,1.4545454545454546,1.0
+arms vanilla bean,2,1.0,1.0
+assorted,1385,1.3220216606498194,1.0
+assorted/dccpwcc,54,1.2777777777777777,1.0
+autumn carmel apple,2,1.0,1.0
+bacon,695,1.3266187050359712,1.0
+baked apple pie,38,1.7105263157894737,1.0
+banana,8,1.125,1.0
+banana & strb,51,1.3333333333333333,1.0
+banana berry ble,20,1.15,1.0
+banana berry smo,36,1.1388888888888888,1.0
+banana berry smoothie,287,1.2961672473867596,1.0
+banana creme,76,1.3026315789473684,1.0
+banana smoothie,1,1.0,1.0
+banana split mousse,1,1.0,1.0
+banilla,75,1.3866666666666667,1.0
+bb,18360,1.670479302832244,1.0
+bb & acai,1,1.0,1.0
+bb & black cherry,1,1.0,1.0
+bb & cream,287,1.456445993031359,1.0
+bb & peach & st,2,1.0,1.0
+bb & rby & st,269,1.5985130111524164,1.0
+bb & st,925,1.3978378378378378,1.0
+bb & vanilla & s,21,1.0952380952380953,1.0
+bb acai,700,1.247142857142857,1.0
+bb blast,16,1.125,1.0
+bb bliss,251,1.1912350597609562,1.0
+bb bonanza,1,1.0,1.0
+bb cardamom,6,1.0,1.0
+bb cheesecake,357,1.1624649859943978,1.0
+bb cream,2,1.0,1.0
+bb crumb pie,55,2.1272727272727274,1.0
+bb crumble,36,1.5555555555555556,1.0
+bb lemon,5,1.0,1.0
+bb mss,190,1.3578947368421053,1.0
+bb oat,163,1.2453987730061349,1.0
+bb parfait/grano,123,1.1951219512195121,1.0
+bb patch,4708,1.5889974511469838,1.0
+bb patch & st,270,1.2925925925925925,1.0
+bb pomegranate,5,1.2,1.0
+bb power/cp&ssw,143,1.1748251748251748,1.0
+bb/chch cookie bites,7,1.0,1.0
+bb/granola,549,1.2258652094717668,1.0
+bbl & berry extreme,4,1.0,1.0
+bbp & st watermelonator,11,1.1818181818181819,1.0
+bc&stbn&p,1,1.0,1.0
+bcp,30,1.3,1.0
+bcp & rby n cream,6,1.3333333333333333,1.0
+bcp/cfc,2,1.5,1.5
+beet,1,1.0,1.0
+belle bb,23,1.0434782608695652,1.0
+bello st & bn & bello st,1,1.0,1.0
+berries,2,1.5,1.5
+berries & cream,23,1.8695652173913044,1.0
+berries n cream,1296,1.5169753086419753,1.0
+berry,4,1.25,1.0
+berry & banana & beet smoothie,1,1.0,1.0
+berry bash,39,1.1794871794871795,1.0
+berry bg bash & blue razzberry,4,1.5,1.0
+berry blue blast,22,1.0,1.0
+berry bn,49,1.1428571428571428,1.0
+berry bn split,16,1.0625,1.0
+berry bolt & ver,42,1.1428571428571428,1.0
+berry bolt & very berry wtrmln,1,1.0,1.0
+berry parfait/granola,1,1.0,1.0
+berry pomegranate,5,1.0,1.0
+bgcs&bas,7,1.0,1.0
+birchermuesli,2,1.0,1.0
+birthday cake,13,1.3076923076923077,1.0
+black cherries,81,1.271604938271605,1.0
+black cherry,6944,1.6180875576036866,1.0
+black cherry & blackberry,12,1.0,1.0
+black cherry & pomegranate,214,1.1401869158878504,1.0
+black cherry bur,37,1.162162162162162,1.0
+black cherry burst,152,1.5460526315789473,1.0
+black cherry jubilee,196,1.489795918367347,1.0
+black cherry mss,222,1.3468468468468469,1.0
+black cherry ord,1,1.0,1.0
+black chjb,231,1.4891774891774892,1.0
+black currant,6,1.0,1.0
+black forest cak,845,1.2473372781065089,1.0
+blackberry,5771,1.4928088719459365,1.0
+blackberry & cream,4,1.25,1.0
+blackberry & rby,148,1.0810810810810811,1.0
+blackberry burst,32,1.6875,1.0
+blackberry creme,152,1.3289473684210527,1.0
+blackberry creme smoothie,2,1.0,1.0
+blackberry harve,1266,1.2812006319115323,1.0
+blackberry lime,5,1.0,1.0
+blackberry lingonberry,5,1.2,1.0
+blackberry pie,291,1.2714776632302405,1.0
+blackberry pomeg,1492,1.4684986595174263,1.0
+blackberry pomegranate,39,1.6153846153846154,1.0
+blackberry pomegranate/gdf,2,1.0,1.0
+blackberry rby,37,1.0810810810810811,1.0
+blackberry smoothie,1,2.0,2.0
+blazin berry,4,1.0,1.0
+blood orange,880,1.4318181818181819,1.0
+blue rby rage & st wtrmln rush,32,1.03125,1.0
+blueberries & cream,147,1.4761904761904763,1.0
+blueberry,411,1.8467153284671534,1.0
+blueberry pie,1,1.0,1.0
+blueberry pomegranate,1,1.0,1.0
+blueberry pomegranate smoothie,1,1.0,1.0
+blueberry smooth,14,1.2142857142857142,1.0
+blueberry smoothie,6,1.3333333333333333,1.0
+bn,1005,1.2358208955223882,1.0
+bn & dark chocolate,19,1.105263157894737,1.0
+bn & papaya,5,1.0,1.0
+bn & st,43,1.6511627906976745,1.0
+bn bread,47,1.0638297872340425,1.0
+bn caramel,35,1.0285714285714285,1.0
+bn cream,558,1.413978494623656,1.0
+bn cream pie,2271,1.4099515631880228,1.0
+bn creme,289,1.193771626297578,1.0
+bn creme pie,1,1.0,1.0
+bn foster,117,1.1282051282051282,1.0
+bn maple oat,147,1.2789115646258504,1.0
+bn pudding,30,1.2,1.0
+bn split,5,1.0,1.0
+bn split & st mi,53,1.1320754716981132,1.0
+bn st,10,2.7,1.0
+bn vanilla,21,1.7619047619047619,1.0
+bn/chocolate grahams,6,1.0,1.0
+bn/nabisco nilla wafers pieces,3,1.0,1.0
+bn/nilla wafers pieces,5,1.2,1.0
+boston cream pie,4136,1.5135396518375241,1.0
+bouncin banana&totally vanilla,4,1.0,1.0
+boysenberry,883,1.3465458663646659,1.0
+boysenberry bliss,37,1.3783783783783783,1.0
+bsb,3,1.0,1.0
+burstin'melonber,148,1.1891891891891893,1.0
+burstn bb & swirln st,1,1.0,1.0
+by banana,2,1.0,1.0
+by peach,2,1.0,1.0
+byp&bbp,146,1.226027397260274,1.0
+byp&cbyr,79,1.2151898734177216,1.0
+c-o cherry&st ki,44,1.1363636363636365,1.0
+cafe au lait,4,1.25,1.0
+cafe latte,382,1.5523560209424083,1.0
+cafe mocha,108,1.2592592592592593,1.0
+california nectarine,23,1.0434782608695652,1.0
+cappuccino,25,1.16,1.0
+caramel,465,1.1827956989247312,1.0
+caramel apple,26,1.2307692307692308,1.0
+caramel apple pie,142,1.3028169014084507,1.0
+caramel cheesecake,42,1.0714285714285714,1.0
+caramel macchiato,410,1.3219512195121952,1.0
+caramel macchiato coffee,20,1.05,1.0
+caramel spice cake,16,1.125,1.0
+carrot,1,1.0,1.0
+cbc,18,1.1666666666666667,1.0
+cby creme brulee,12,1.1666666666666667,1.0
+cdrs,6,1.3333333333333333,1.0
+cheesecake/gcp,117,1.170940170940171,1.0
+cherries & red berries,20,1.1,1.0
+cherry,9352,1.7385585970915312,1.0
+cherry & bb,146,1.3013698630136987,1.0
+cherry & berry p,14,1.0714285714285714,1.0
+cherry & dc,2,1.0,1.0
+cherry & vanilla,2050,1.4458536585365853,1.0
+cherry & vanilla & st,1,1.0,1.0
+cherry berry smoothie,28,1.0714285714285714,1.0
+cherry cheesecak,228,1.7105263157894737,1.0
+cherry cheesecake,139,1.4028776978417266,1.0
+cherry cheesecake mousse,217,1.5207373271889402,1.0
+cherry cheesecake parfait,55,1.3636363636363635,1.0
+cherry chiffon,40,1.2,1.0
+cherry chocolate,96,1.25,1.0
+cherry crisp,12,1.0833333333333333,1.0
+cherry fizz vanilla/c&pc,1,1.0,1.0
+cherry licious,33,1.0606060606060606,1.0
+cherry nut,7,1.1428571428571428,1.0
+cherry ord,25,1.12,1.0
+cherry ord & french vanilla,7,1.4285714285714286,1.0
+cherry pomegrana,564,1.2872340425531914,1.0
+cherry pomegranate,109,1.18348623853211,1.0
+cherry rush,2,1.0,1.0
+cherry smoothie,1,1.0,1.0
+cherry v-c,20,1.4,1.0
+cherry vanilla,201,1.3930348258706469,1.0
+cherry vanilla s,21,1.1904761904761905,1.0
+cherry vanilla smoothie,1,1.0,1.0
+cherry/granola,121,1.2231404958677685,1.0
+chia bb,4,1.0,1.0
+chia blackberry,1,1.0,1.0
+chia blood orange,2,1.0,1.0
+chia peach,1,1.0,1.0
+chia st,1,1.0,1.0
+chia st rby cranberry,11,1.1818181818181819,1.0
+chillin cherry,1,1.0,1.0
+chillin cherry &,13,1.1538461538461537,1.0
+chillin cherry & ssb,2,1.0,1.0
+chocolate,144,1.3819444444444444,1.0
+chocolate cherry mousse,242,1.5537190082644627,1.0
+chocolate chip,93,1.1827956989247312,1.0
+chocolate covered st,135,1.1851851851851851,1.0
+chocolate dust,6,1.0,1.0
+chocolate eclair parfait,144,1.0625,1.0
+chocolate haze craze/h&cc,110,1.3181818181818181,1.0
+chocolate mint,12,1.0,1.0
+chocolate mint mousse,232,1.3103448275862069,1.0
+chocolate mousse,2512,1.5788216560509554,1.0
+chocolate rby,3,2.3333333333333335,1.0
+chocolate rby mo,536,1.5764925373134329,1.0
+chocolate rby pa,723,1.197786998616874,1.0
+chocolate rby truffle,104,1.1826923076923077,1.0
+chocolate truffl,7,1.4285714285714286,1.0
+chocolate underg,377,1.4960212201591512,1.0
+cinnamon apple/granola,3,1.0,1.0
+cinnamon bun,4,1.0,1.0
+cinnamon hazelnut,9,1.0,1.0
+cinnamon maple,1,1.0,1.0
+cinnamon roll,22,1.0,1.0
+citrus blend,35,1.4285714285714286,1.0
+citrus green tea,1,1.0,1.0
+citrus mango smoothie,1,1.0,1.0
+ckncr,77,1.1818181818181819,1.0
+ckncr/nab oreo c,350,1.6885714285714286,1.0
+ckncr/nab oreo cke pieces,115,1.6695652173913043,1.0
+ckncr/nocp & van,5,1.0,1.0
+classic st,148,1.6283783783783783,1.0
+classic st & bb,31,1.4516129032258065,1.0
+classic st & pea,32,1.5,1.0
+classic st & peaches & cream,16,2.0,1.0
+classic st & peaches n cream,3,1.3333333333333333,1.0
+classic st & st bn split,11,1.2727272727272727,1.0
+coco,1,4.0,4.0
+coconut,1299,1.3656658968437259,1.0
+coconut caramel,5,1.4,1.0
+coconut caramel & st,1,1.0,1.0
+coconut chia smoothie,3,1.3333333333333333,1.0
+coconut cream,8,1.0,1.0
+coconut cream pi,7,1.0,1.0
+coconut cream pie,220,1.2636363636363637,1.0
+coconut cream pie/gc crumbles,2,1.0,1.0
+coconut creme,191,1.2984293193717278,1.0
+coconut creme pie,22,1.4545454545454546,1.0
+coconut flax seeds,2,1.0,1.0
+coconut macaroon mousse,40,1.575,1.0
+coconut pineapple,5,1.4,1.0
+coconut plus chia,1,1.0,1.0
+coconut smoothie,8,1.125,1.0
+coconut/blue diamond almond,1,1.0,1.0
+coffee,1222,1.934533551554828,1.0
+coffee break bliss/bp&c,58,1.1206896551724137,1.0
+coffee cardamom,1,1.0,1.0
+coffeehouse blend,12,1.8333333333333333,1.0
+cookies & cream/chocolate cc,1,1.0,1.0
+cool ctcdy & st,74,1.1756756756756757,1.0
+cosmopolitan,2,1.0,1.0
+cotton candy,1,1.0,1.0
+cotton candy smoothie,1,1.0,1.0
+country orange c,13,1.0769230769230769,1.0
+cranapple,11,1.0,1.0
+cranberry & boysenberry,3,1.0,1.0
+cranberry & rby,6,1.0,1.0
+cranberry apple,21,1.1428571428571428,1.0
+cranberry oat,79,1.0759493670886076,1.0
+cranberry rby,324,1.462962962962963,1.0
+creamy bb & cream,162,1.382716049382716,1.0
+creamy blackberry harve,474,1.459915611814346,1.0
+creamy classic st & pea,16,1.1875,1.0
+creamy creme caramel,65,1.5076923076923077,1.0
+creamy klp,295,1.2576271186440677,1.0
+creamy latte mousse,182,1.3516483516483517,1.0
+creamy peaches & cream,11,1.1818181818181819,1.0
+creamy peaches n cream,210,1.3857142857142857,1.0
+creamy royal rby,310,1.3774193548387097,1.0
+creamy st,913,1.3548740416210296,1.0
+creamy st & bn,414,1.328502415458937,1.0
+creamy st & st banana,9,1.6666666666666667,1.0
+creamy vanilla,1220,1.5795081967213114,1.0
+creme caramel pa,345,1.153623188405797,1.0
+ctcdy,52,1.0961538461538463,1.0
+ctcdy & st & kiw,111,1.1981981981981982,1.0
+ctcdy & wild berry blue,1,1.0,1.0
+ctcdy thrill,2,1.0,1.0
+cucumber garlic tzatziki,1,1.0,1.0
+dark cherry,15,1.4,1.0
+dark cherry chai,17,1.2352941176470589,1.0
+dark chocolate,25,1.2,1.0
+deep forest bb,2,1.0,1.0
+double berry cherry,30,1.1666666666666667,1.0
+double chocolate chunk,5,1.0,1.0
+double tp sherbert,2,1.0,1.0
+dulce de leche,12,1.25,1.0
+dulce de leche caramel & dc,12,1.0,1.0
+dulce de leche delight/ch&wcs,82,1.146341463414634,1.0
+dulce de leche m,278,1.3884892086330936,1.0
+e blueberry,700,1.5085714285714287,1.0
+e blueberry & strb,284,2.4049295774647885,1.0
+e klp,318,1.279874213836478,1.0
+e mx-bry,170,1.2470588235294118,1.0
+e natural smoothie,8,3.0,2.0
+e peach,443,1.3227990970654628,1.0
+e peach smoothie,1,1.0,1.0
+e st,601,1.3710482529118135,1.0
+e strb,1030,1.7728155339805824,1.0
+e strb & pomegrana,330,1.6848484848484848,1.0
+e strb banana,31,1.8709677419354838,1.0
+e strb smoothie,2,1.0,1.0
+e vanilla,813,1.7416974169741697,1.0
+eamery maple,3,1.0,1.0
+eamery plain,21,1.4761904761904763,1.0
+eamery vanilla,2,1.0,1.0
+eggnog smoothie,2,1.0,1.0
+english creme & st,8,1.25,1.0
+er power bb,4,1.0,1.0
+er power black cherry,4,1.0,1.0
+er power bn mango,6,1.0,1.0
+er power marionberry,1,1.0,1.0
+er power peach,3,1.0,1.0
+er power rby,1,1.0,1.0
+farms plain,3,1.3333333333333333,1.0
+farms vanilla bean,8,2.125,1.0
+fct,3,1.3333333333333333,1.0
+fig,87,1.2298850574712643,1.0
+flyin dragon fruit,2,1.0,1.0
+forest berry,3,1.6666666666666667,2.0
+free st,2,1.0,1.0
+free vanilla,1,1.0,1.0
+french roast coffee karma java,1,1.0,1.0
+french silk chocolate,13,1.3076923076923077,1.0
+french vanilla,3101,1.5891647855530473,1.0
+french vanilla & orange creme,3,1.0,1.0
+french vanilla mousse,51,1.3137254901960784,1.0
+french vanilla/ch-crnfk,22,1.5,1.0
+frosty french vanilla,1,1.0,1.0
+fruit parfait/granola,9,1.6666666666666667,1.0
+fruit punch charge & tbf,24,1.0833333333333333,1.0
+garden bb,348,1.4827586206896552,1.0
+georgia peach pie,1,1.0,1.0
+gingered pear,9,1.0,1.0
+goo berry pie smoothie,1,1.0,1.0
+grape & st,5,1.0,1.0
+grape & wtrmln,5,1.0,1.0
+grapefruit,1,1.0,1.0
+green apple,2,1.0,1.0
+green apple pie,1,1.0,1.0
+green tea & honey,4,1.0,1.0
+guava,118,1.1355932203389831,1.0
+guava papaya pna,3,1.6666666666666667,2.0
+guava papaya pnapl,5,1.4,1.0
+guava smoothie,1,1.0,1.0
+h-p,8142,1.5897813804961927,1.0
+h-p & cherry ord,23,1.0869565217391304,1.0
+h-p & st,447,1.4317673378076063,1.0
+harvest peach,3,1.0,1.0
+harvest peach & chocolate mint,1,1.0,1.0
+harvest peach & st,12,1.0833333333333333,1.0
+hazelnut coffee,8,1.125,1.0
+homemade apple pie,33,1.2424242424242424,1.0
+honey,2103,1.5539705183071801,1.0
+honey & lemon,9,1.3333333333333333,1.0
+honey & orange,8,2.0,1.0
+honey & st,2,1.0,1.0
+honey almond cre,3,1.0,1.0
+honey bb,10,1.7,1.0
+honey cinnamon creme brulee,19,1.3157894736842106,1.0
+honey fig,4,1.0,1.0
+honey nana,45,1.0666666666666667,1.0
+honey peach,48,1.3333333333333333,1.0
+honey pear,13,1.2307692307692308,1.0
+honey salted caramel,29,1.6206896551724137,1.0
+honey st,195,1.7128205128205127,1.0
+honey vanilla,934,1.1959314775160599,1.0
+honey/banana,30,1.0666666666666667,1.0
+honey/granola,29,1.0689655172413792,1.0
+huckleberry,323,1.4489164086687307,1.0
+ick & creamy bb pie,608,1.3470394736842106,1.0
+ick & creamy cherry cobbler,1080,1.3388888888888888,1.0
+ick & creamy cinnamon roll,785,1.370700636942675,1.0
+ick & creamy french vanilla,663,1.297134238310709,1.0
+ick & creamy klp,1352,1.5747041420118344,1.0
+ick & creamy lemon meringue,836,1.3301435406698565,1.0
+ick & creamy mixed berry,727,1.4209078404401652,1.0
+ick & creamy orange cream,365,1.4,1.0
+ick & creamy peaches n cream,902,1.2760532150776054,1.0
+ick & creamy st,1179,1.373197625106022,1.0
+ions chch,53,1.1886792452830188,1.0
+ions cherry chch,19,1.0526315789473684,1.0
+ions mint chch,48,1.2083333333333333,1.0
+ions st,23,1.0434782608695652,1.0
+ions vanilla bean,23,1.0,1.0
+isted vanilla parfait/,1,1.0,1.0
+it carb cntrl berry n cream sm,15,1.4,1.0
+it carb cntrl strb n cream smo,15,2.4,1.0
+it+0% fat plusmixed berry smoo,6,1.1666666666666667,1.0
+it+0% fat plusmx-bry smoothie,226,1.4380530973451326,1.0
+it+0% fat pluspeach passion fr,129,1.6356589147286822,1.0
+it+0% fat plusstrb & banana sm,173,1.3179190751445087,1.0
+it+0% fat plusstrb smoothie,99,1.505050505050505,1.0
+italian creme & peaches,11,1.0,1.0
+jammin st,20,1.05,1.0
+jammin st&rockin bb,6,1.0,1.0
+juicy peach,59,1.6101694915254237,1.0
+just peachy,64,1.125,1.0
+key lime,3813,1.5082612116443745,1.0
+key lime crumble/gc&wc,504,1.4583333333333333,1.0
+key lime pie,268,1.4850746268656716,1.0
+key lime pie mousse,2,1.0,1.0
+key lime pie smoothie,1,1.0,1.0
+key lime/gc pieces,16,1.3125,1.0
+kiwi passion fru,2,1.0,1.0
+kiwi passion fruit lime,8,1.25,1.0
+klp,7134,1.6627417998317915,1.0
+klp & very vanil,13,1.6923076923076923,1.0
+klp/gc crumbles,5,1.0,1.0
+kool key lime&ot,7,1.1428571428571428,1.0
+l-c,1112,1.4577338129496402,1.0
+l-c pie,1,1.0,1.0
+la vie en st,17,1.2941176470588236,1.0
+lemon,2287,1.4892872759073021,1.0
+lemon burst,1274,1.4434850863422293,1.0
+lemon cheesecake,34,1.1764705882352942,1.0
+lemon cream pie,3877,1.6069125612587052,1.0
+lemon ginger,1,1.0,1.0
+lemon meringue,1155,1.5523809523809524,1.0
+lemon meringue mss,176,1.25,1.0
+lemon meringue pie,6,1.0,1.0
+lemon rby,3,1.3333333333333333,1.0
+lemon squeeze,3,1.0,1.0
+lemon torte parf,594,1.404040404040404,1.0
+lemon tw,5,1.4,1.0
+lemon/shortbread cps,93,1.3763440860215055,1.0
+lime,46,1.0434782608695652,1.0
+liver,413,1.6731234866828086,1.0
+lmd & bb,1,3.0,3.0
+luscious lemon,175,1.72,1.0
+m apricot mango,1,1.0,1.0
+m bb,2,1.0,1.0
+m blueberry pomegr,1,1.0,1.0
+m plain,3,1.0,1.0
+m st,1,1.0,1.0
+madagascar vanilla bean,19,1.263157894736842,1.0
+madagascar vanilla smoothie,1,1.0,1.0
+mandarin orange,35,1.2285714285714286,1.0
+mango,1904,1.3797268907563025,1.0
+mango & coconut,3,1.0,1.0
+mango & guava,28,1.3214285714285714,1.0
+mango & peach,1,3.0,3.0
+mango banana smoothie,1,1.0,1.0
+mango lime,2,1.0,1.0
+mango mss,26,1.4615384615384615,1.0
+mango passionfruit,34,1.0294117647058822,1.0
+mango pineapple,12,1.0833333333333333,1.0
+mango pineapple & orange,21,1.0476190476190477,1.0
+mango pomegranate,13,1.6153846153846154,1.0
+mango smoothie,23,1.2608695652173914,1.0
+mango tangerine,11,1.2727272727272727,1.0
+mango/granola,3,1.0,1.0
+maple,154,1.8831168831168832,1.0
+maple & brown sugar,16,1.75,1.0
+maple & vanilla,9,1.1111111111111112,1.0
+maple buckwheat & qi,1,1.0,1.0
+maple ginger,21,1.2380952380952381,1.0
+maple/crispy waffle pieces,4,1.25,1.0
+maraschino cherr,60,1.1333333333333333,1.0
+maraschino cherry & vanilla,6,1.3333333333333333,1.0
+margarita,9,1.0,1.0
+marionberry,502,1.545816733067729,1.0
+marionberry cobbler,34,1.0588235294117647,1.0
+marionberry smoothie,15,2.7333333333333334,1.0
+mb pft/c-grn,26,1.2692307692307692,1.0
+mc-gpp,60,1.2333333333333334,1.0
+merry mx-bry smo,3,2.3333333333333335,1.0
+mighty fruit punch & ssr,10,1.0,1.0
+mint,35,1.4,1.0
+mint & dark chocolate,16,1.25,1.0
+mint chch,42,1.0714285714285714,1.0
+mixed berries,46,1.0869565217391304,1.0
+mixed berries st pft/granola,1,1.0,1.0
+mixed berry,6138,1.3887259693711307,1.0
+mixed berry & black cherry,131,1.5572519083969465,1.0
+mixed berry burst,6,1.1666666666666667,1.0
+mixed berry half pipe,1,1.0,1.0
+mixed berry medley,39,1.1538461538461537,1.0
+mixed berry smoothie,7,1.1428571428571428,1.0
+mixed berry/gran,9,1.1111111111111112,1.0
+mixed berry/granola,10,1.1,1.0
+mocha,39,1.1025641025641026,1.0
+mocha coffee,6,1.0,1.0
+mocha latte,15,1.0666666666666667,1.0
+mocha mint,12,1.0,1.0
+mon cherry amour,12,1.0,1.0
+ms peach,1,1.0,1.0
+mt bb,25,1.12,1.0
+mt berry,40,2.05,1.0
+mt huckleberry,11,1.0,1.0
+mx-bry,33,1.4848484848484849,1.0
+mx-bry smoothie,133,1.105263157894737,1.0
+n,34,1.0588235294117647,1.0
+n - ic str,52,1.1730769230769231,1.0
+n apple bread pudd,7,1.0,1.0
+n apple pie,24,1.0833333333333333,1.0
+n bb,37,1.1891891891891893,1.0
+n black cherry,59,1.728813559322034,1.0
+n bn vanilla,19,1.2105263157894737,1.0
+n cherry & vanilla,60,2.1333333333333333,1.0
+n clementine,50,1.32,1.0
+n french vanilla b,14,1.0714285714285714,1.0
+n lemon,17,1.2941176470588236,1.0
+n orange cream,59,1.4067796610169492,1.0
+n peach,47,4.0638297872340425,1.0
+n peach apricot va,37,1.4864864864864864,1.0
+n peach cobbler,29,1.5172413793103448,1.0
+n pina colada,17,1.8823529411764706,1.0
+n plain,73,1.4794520547945205,1.0
+n rby & vanilla,27,1.2592592592592593,1.0
+n rby white chocol,8,1.375,1.0
+n red rby,52,1.5384615384615385,1.0
+n st,44,1.6818181818181819,1.0
+n st & bn,34,4.676470588235294,1.0
+n st & vanilla,21,1.8571428571428572,1.0
+n st cheesecake,18,1.0,1.0
+n st rhubarb pie,19,1.3157894736842106,1.0
+n st shortcake,19,1.2105263157894737,1.0
+n st white chocola,15,1.3333333333333333,1.0
+n vanilla,56,1.25,1.0
+n vanilla latte,1,1.0,1.0
+n vanilla pear,31,5.838709677419355,1.0
+n yo-lite bb,25,1.28,1.0
+n yo-lite bb buckle,10,1.0,1.0
+n yo-lite bb cheesecake,8,1.125,1.0
+n yo-lite black cherry,35,2.0285714285714285,1.0
+n yo-lite cherry & vanilla,35,1.4,1.0
+n yo-lite cherry vanilla,4,1.0,1.0
+n yo-lite french vanilla b,26,1.6923076923076923,1.0
+n yo-lite key lime,24,1.125,1.0
+n yo-lite lemon,27,1.3333333333333333,1.0
+n yo-lite limon cream tort,3,1.0,1.0
+n yo-lite orange,52,1.6923076923076923,1.0
+n yo-lite orange grapefrui,1,1.0,1.0
+n yo-lite orange pomegrana,14,1.2142857142857142,1.0
+n yo-lite peach,40,1.6,1.0
+n yo-lite peach apricot va,13,1.9230769230769231,1.0
+n yo-lite rby,34,1.1764705882352942,1.0
+n yo-lite rby & vanilla,31,1.1935483870967742,1.0
+n yo-lite rby cheesecake,20,2.8,1.0
+n yo-lite st,29,1.3793103448275863,1.0
+n yo-lite st & bn,40,1.2,1.0
+n yo-lite st cheesecake,34,1.3529411764705883,1.0
+n yo-lite st rhubarb pie,21,2.380952380952381,1.0
+n yo-lite st vanilla,33,1.393939393939394,1.0
+n yo-lite vanilla,37,1.1081081081081081,1.0
+natural vanilla,2090,1.8789473684210527,1.0
+new york cherry cheesecake,4,1.25,1.0
+newbury bb,50,2.46,1.0
+northwest berry,42,1.0952380952380953,1.0
+northwest rby,34,1.4411764705882353,1.0
+ns peach & grains,3,1.0,1.0
+ns pear & grains,4,1.0,1.0
+ns rby & grains,4,1.25,1.0
+ns st & grains,2,1.0,1.0
+nutty for nana/dc&hra,141,1.1134751773049645,1.0
+old fashioned vanilla,55,1.3272727272727274,1.0
+onsin select bb,60,1.3,1.0
+onsin select bn cream pie,21,1.0952380952380953,1.0
+onsin select klp,64,1.265625,1.0
+onsin select lemon,13,1.1538461538461537,1.0
+onsin select peach,40,1.125,1.0
+onsin select pina colada,26,1.2692307692307692,1.0
+onsin select rby,23,1.173913043478261,1.0
+onsin select st,53,1.1886792452830188,1.0
+onsin select st & bn,38,1.1842105263157894,1.0
+ooh lala peach,5,1.0,1.0
+orange,25,1.4,1.0
+orange & creme,48,2.125,1.0
+orange & creme & st & creme,8,1.0,1.0
+orange & ginger,27,1.3333333333333333,1.0
+orange bliss,336,1.4285714285714286,1.0
+orange cranberry,3,1.0,1.0
+orange cranberry flax seeds,2,1.0,1.0
+orange cream,539,1.4211502782931353,1.0
+orange cream & s,1,1.0,1.0
+orange cream smoothie,3,1.0,1.0
+orange creamy crawler,1,1.0,1.0
+orange creme,6008,1.618508655126498,1.0
+orange mango,263,1.3346007604562737,1.0
+orange passion f,12,1.0833333333333333,1.0
+orange tango,6,1.0,1.0
+orange vanilla,61,1.4098360655737705,1.0
+orchard harvest smoothie,2,1.0,1.0
+ord harvest,4,1.0,1.0
+ord peach,74,1.054054054054054,1.0
+oregon bb,60,1.0333333333333334,1.0
+oregon black cherry,23,1.3043478260869565,1.0
+oregon marionberry,35,1.0571428571428572,1.0
+oregon st,102,1.2745098039215685,1.0
+oregon st shortcake,8,1.0,1.0
+oregon strb smoothie,13,1.0769230769230769,1.0
+original,3,3.0,1.0
+original smoothie,2,1.0,1.0
+osm,28,1.2857142857142858,1.0
+p-b,69,1.1159420289855073,1.0
+pacific coast st,23,1.1304347826086956,1.0
+pacific northwest honey,13,1.0,1.0
+papaya,28,1.0714285714285714,1.0
+papaya orange sm,1,1.0,1.0
+papaya orange smoothie,1,1.0,1.0
+paradise punch &,51,1.0980392156862746,1.0
+paradise punch smoothie,2,1.0,1.0
+parfait/granola,8,1.5,1.0
+passion fruit,542,1.2416974169741697,1.0
+passion fruit or,48,1.3541666666666667,1.0
+passionate mango,15,1.5333333333333334,1.0
+pch psn frt blen,23,1.565217391304348,1.0
+peach,15582,1.6157104351174432,1.0
+peach & apple pie,1,1.0,1.0
+peach & banana,1,1.0,1.0
+peach & cereal,250,1.288,1.0
+peach & ginger,1,1.0,1.0
+peach & mango,102,1.5686274509803921,1.0
+peach & orange &,5,1.2,1.0
+peach & passion fruit,73,1.1232876712328768,1.0
+peach & pina col,5,1.8,1.0
+peach & pina colada,8,1.125,1.0
+peach & st,229,1.5458515283842795,1.0
+peach & st & bn,192,1.34375,1.0
+peach & st & st,22,1.0909090909090908,1.0
+peach & st vanil,11,1.0,1.0
+peach & vanilla,131,1.2213740458015268,1.0
+peach apricot,16,1.1875,1.0
+peach banana smoothie,7,1.2857142857142858,1.0
+peach cobbler,319,1.1692789968652038,1.0
+peach cobbler/cpc,71,1.0704225352112675,1.0
+peach cream,7,1.1428571428571428,1.0
+peach green tea,5,1.0,1.0
+peach mango,41,1.1951219512195121,1.0
+peach parfait smoothie,60,1.1833333333333333,1.0
+peach parfait/crunchy granola,73,1.3013698630136987,1.0
+peach parfait/gr,51,1.0784313725490196,1.0
+peach passion,125,1.32,1.0
+peach passion fruit,159,1.20125786163522,1.0
+peach passion fruit smoothie,37,1.5405405405405406,1.0
+peach passion sm,1,1.0,1.0
+peach passion smoothie,228,1.530701754385965,1.0
+peach rby a la mode,4,1.0,1.0
+peach smoothie,249,1.3092369477911647,1.0
+peach sweet tea,3,1.0,1.0
+peach/granola,133,1.2105263157894737,1.0
+peaches,24,1.0416666666666667,1.0
+peaches & cream,451,1.419068736141907,1.0
+peaches & creme,7,1.4285714285714286,1.0
+peaches n cream,542,1.2084870848708487,1.0
+peaches/9wgg,6,1.1666666666666667,1.0
+peachy peach smo,4,1.0,1.0
+peachy pistachio/p&dc,227,1.2334801762114538,1.0
+peanut butter dream/hrpbcmc,63,1.3174603174603174,1.0
+pear,568,1.346830985915493,1.0
+pear & honey smoothie,4,1.0,1.0
+pear mango smoothie,5,1.2,1.0
+pecan,4,1.0,1.0
+pecan & cereal smoothie,4,1.0,1.0
+pecan cereal smoothie,3,1.0,1.0
+pecan smoothie,1,1.0,1.0
+peppermint bark,8,1.125,1.0
+per shots blueberry,65,1.353846153846154,1.0
+per shots mx-bry,31,1.096774193548387,1.0
+per shots peach,177,1.4463276836158192,1.0
+per shots strb & banana,36,1.25,1.0
+per shots vanilla,10,1.7,1.0
+perfectly peach,1,1.0,1.0
+pho&cb,17,1.0,1.0
+pina colada,1841,1.4904942965779469,1.0
+pina colada & gu,1,2.0,2.0
+pina colada blen,7,1.0,1.0
+pina colada blend smoothie,28,1.9642857142857142,1.0
+pina colada smoo,4,1.0,1.0
+pina colada smoothie,81,1.3950617283950617,1.0
+pineapple,4072,1.575638506876228,1.0
+pineapple & bn,12,1.1666666666666667,1.0
+pineapple & coco,565,1.3823008849557523,1.0
+pineapple & coconut,301,1.4252491694352158,1.0
+pineapple & mango,3,1.0,1.0
+pineapple & orange & bn,2,1.0,1.0
+pineapple mango,3,1.0,1.0
+pineapple passion fruit,19,1.1578947368421053,1.0
+pineapple upside,1848,1.4707792207792207,1.0
+pineapple/passion fruit,59,1.2203389830508475,1.0
+pineapple/toasted coconut,11,1.0,1.0
+pink grapefruit,6,1.5,1.0
+pink grapefruit lychee,7,1.0,1.0
+plain,8798,2.652193680381905,1.0
+plain & simple,9,1.0,1.0
+plain/acr,20,1.4,1.0
+plain/apple cranberry,21,1.1904761904761905,1.0
+plain/bb,694,1.2622478386167146,1.0
+plain/bb acai,469,1.2942430703624734,1.0
+plain/blackberry,2,1.0,1.0
+plain/blood orange,54,1.2222222222222223,1.0
+plain/c&dcc,14,1.2142857142857142,1.0
+plain/caramelized almonds,751,1.4234354194407457,1.0
+plain/cherry,159,1.2327044025157232,1.0
+plain/cherry pomegranate,335,1.2358208955223882,1.0
+plain/chocolate coconut cc,194,1.2164948453608246,1.0
+plain/clover honey,22,1.1363636363636365,1.0
+plain/crunchy granola,457,1.525164113785558,1.0
+plain/dcs/pg,83,1.1204819277108433,1.0
+plain/dcs/r,227,1.2731277533039647,1.0
+plain/granola,2,1.0,1.0
+plain/honey,490,1.4040816326530612,1.0
+plain/honeyed apricot,193,1.2901554404145077,1.0
+plain/key lime,63,1.126984126984127,1.0
+plain/kp-pft,2,1.0,1.0
+plain/mango,137,1.2627737226277371,1.0
+plain/mg-g,178,1.2303370786516854,1.0
+plain/mixed berries,17,1.1764705882352942,1.0
+plain/mp&ca,11,1.0909090909090908,1.0
+plain/orange cinnamon,6,1.0,1.0
+plain/passion fruit clementine,5,1.0,1.0
+plain/peach,359,1.275766016713092,1.0
+plain/raspberry,2,1.0,1.0
+plain/rby,313,1.2619808306709266,1.0
+plain/rby pomegranate,2,1.5,1.5
+plain/st,1052,1.2423954372623573,1.0
+plain/st goji,111,1.2072072072072073,1.0
+pln,244,2.1065573770491803,1.0
+plum & fig,4,1.5,1.0
+plum honey laven,35,1.1714285714285715,1.0
+pmg-acai bb smoo,2,1.0,1.0
+pnapl orange banana smoothie,1,1.0,1.0
+pomegranate,2046,1.3983382209188662,1.0
+pomegranate & cherry,8,1.125,1.0
+pomegranate & pa,15,1.2,1.0
+pomegranate & passion fruit,1,2.0,2.0
+pomegranate acai,58,1.1896551724137931,1.0
+pomegranate acai smoothie,2,1.0,1.0
+pomegranate bb,35,1.1428571428571428,1.0
+pomegranate berr,572,1.3513986013986015,1.0
+pomegranate berry,61,1.0655737704918034,1.0
+pomegranate cher,26,1.0,1.0
+pomegranate cherry,50,1.26,1.0
+pomegranate green tea,1,1.0,1.0
+pomegranate mang,1,1.0,1.0
+pomegranate pass,2,1.0,1.0
+pomegranate pear,1,1.0,1.0
+pomegranate rby,110,1.6727272727272726,1.0
+pomegranate smoo,228,1.4780701754385965,1.0
+pomegranate smoothie,1,1.0,1.0
+pomegranate st,6,1.0,1.0
+pomegranate vani,7,1.0,1.0
+pomegranate yumb,8,1.125,1.0
+pomegranite berr,22,1.1818181818181819,1.0
+ppf,131,1.1450381679389312,1.0
+prune,344,1.6133720930232558,1.0
+prune smoothie,1,1.0,1.0
+pumpkin,63,1.3333333333333333,1.0
+pumpkin & spice,8,1.125,1.0
+pumpkin cheesecake,5,1.0,1.0
+pumpkin cheesecake mousse,2,1.0,1.0
+pumpkin pie,83,1.1325301204819278,1.0
+pumpkin spice sm,12,1.1666666666666667,1.0
+purple berry & l,4,1.0,1.0
+radiant rby,33,1.4242424242424243,1.0
+rainbow sherbet,79,1.0632911392405062,1.0
+rainier rby,3,1.0,1.0
+raisin & brown sugar,22,1.3181818181818181,1.0
+raspberry & cran,11,1.0,1.0
+rbs/brownie bites,137,1.1313868613138687,1.0
+rby,10407,1.5249351398097435,1.0
+rby & bb,2,1.0,1.0
+rby & cream,167,1.4610778443113772,1.0
+rby & creme,22,1.4090909090909092,1.0
+rby & dark chocolate,32,1.1875,1.0
+rby & orange,4,1.0,1.0
+rby & st & bn,17,1.4705882352941178,1.0
+rby acai berry,48,1.0833333333333333,1.0
+rby blackberry,27,1.037037037037037,1.0
+rby cheesecake,2220,1.4792792792792793,1.0
+rby chocolate,357,1.4397759103641457,1.0
+rby chocolate chip,66,1.2121212121212122,1.0
+rby cranberry,30,1.4,1.0
+rby cream,7,1.2857142857142858,1.0
+rby currant,21,1.1428571428571428,1.0
+rby goji & bb acai,366,1.2404371584699454,1.0
+rby lemon,101,1.118811881188119,1.0
+rby lime,1,1.0,1.0
+rby lmd,275,1.298181818181818,1.0
+rby mousse,900,1.4555555555555555,1.0
+rby mss,102,1.4803921568627452,1.0
+rby n cream,94,1.446808510638298,1.0
+rby n cream & bcp,9,1.1111111111111112,1.0
+rby rainbow,13,1.0,1.0
+rby rhapsody,117,1.5897435897435896,1.0
+rby rush,2,1.0,1.0
+rby smoothie,71,1.1549295774647887,1.0
+rby white grape,7,1.2857142857142858,1.0
+rby white tea,1,1.0,1.0
+rby/c&dcc,10,1.0,1.0
+rby/dark chocolate pieces,3,1.0,1.0
+rby/granola,119,1.2436974789915967,1.0
+rby/t-a,26,1.1153846153846154,1.0
+red rby,3569,1.6119361165592603,1.0
+red velvet,4,1.0,1.0
+red velvet cake,1354,1.310192023633678,1.0
+rkn-rb-s & ot bg,3,1.6666666666666667,2.0
+roasted red pepper tzatziki,1,1.0,1.0
+rockin bb,8,1.125,1.0
+rockin rby,4,1.0,1.0
+rockin rby & swingin st bn,1,1.0,1.0
+rockin rby smoot,68,1.2352941176470589,1.0
+rockin rby&swingin strb banana,34,1.0588235294117647,1.0
+root beer float,1,1.0,1.0
+root beer float mousse,3,1.3333333333333333,1.0
+royal st & bn,35,1.1714285714285715,1.0
+rush crazy berry bolt,2,1.0,1.0
+s+ mx-bry,3,1.0,1.0
+s+ tropical fruit,3,1.0,1.0
+salted caramel,7,1.1428571428571428,1.0
+san juan st,2,1.0,1.0
+sc & bp,46,1.434782608695652,1.0
+sc cc/sp c&pp,217,1.271889400921659,1.0
+scaders acai smoothie,1,1.0,1.0
+scaders peach smoothie,3,1.0,1.0
+scaders rby smoothie,2,1.0,1.0
+scaders strb smoothie,2,1.0,1.0
+screamin green apple,13,1.3846153846153846,1.0
+sds & friendship berry,2,1.0,1.0
+seedless rby,45,1.3555555555555556,1.0
+sfpra,132,1.2348484848484849,1.0
+soaring st,2,1.0,1.0
+southern pecan cheesecake,7,1.0,1.0
+spiced apple,35,1.0,1.0
+splendid st,172,1.3488372093023255,1.0
+spooky st sundae,1,1.0,1.0
+sps&cdrs,11,1.0909090909090908,1.0
+ss-smt & pom berry smoothie,1,1.0,1.0
+ssb,2,1.0,1.0
+st,24175,1.7190486039296795,1.0
+st & bb,207,1.289855072463768,1.0
+st & bn,9233,1.5169500703996535,1.0
+st & bn & bb,12,1.0,1.0
+st & bn & peach,17,1.0588235294117647,1.0
+st & bn & peache,47,1.0851063829787233,1.0
+st & bn & rby,58,1.1896551724137931,1.0
+st & bn & st,10,1.7,1.0
+st & bn & very cherry,22,1.5,1.0
+st & bn menage,2,1.0,1.0
+st & bn slam,49,1.0816326530612246,1.0
+st & bn sprint,4,1.25,1.0
+st & bn supreme,61,1.1147540983606556,1.0
+st & bn/grape nuts cereal,9,1.4444444444444444,1.0
+st & cereal,455,1.3428571428571427,1.0
+st & cereal & pineapple,5,1.4,1.0
+st & cream,202,1.2475247524752475,1.0
+st & creme,30,1.4666666666666666,1.0
+st & guanabana,3,1.0,1.0
+st & guava,1,1.0,1.0
+st & h-p,478,1.4100418410041842,1.0
+st & key lime,8,1.0,1.0
+st & key lime pie,6,1.0,1.0
+st & kiwi,958,1.2286012526096033,1.0
+st & mango,12,1.4166666666666667,1.0
+st & mango tango,22,1.3181818181818181,1.0
+st & mixed berry,343,1.370262390670554,1.0
+st & peach,811,1.4463625154130704,1.0
+st & peach & van,2,1.0,1.0
+st & peach & vanilla,2,1.0,1.0
+st & pom,3,1.0,1.0
+st & pomegranate,57,1.1578947368421053,1.0
+st & rby,92,1.2934782608695652,1.0
+st & rhubarb,4,1.0,1.0
+st & st & bn,213,1.2347417840375587,1.0
+st & st & vanill,116,1.1982758620689655,1.0
+st & st banana,3,1.0,1.0
+st & vanilla,115,1.2695652173913043,1.0
+st & very berry,11,1.0,1.0
+st & veryberry,6,1.0,1.0
+st acai,2,1.0,1.0
+st blast,5,1.0,1.0
+st bn,125,1.464,1.0
+st bn & peach,484,1.3574380165289257,1.0
+st bn & vanilla,684,1.54093567251462,1.0
+st bn bash,53,1.2641509433962264,1.0
+st bn bash & rby,140,1.1357142857142857,1.0
+st bn bliss,19,1.263157894736842,1.0
+st bn burst & blue rby ice,25,1.12,1.0
+st bn split,69,1.1159420289855073,1.0
+st buckwheat & qi,1,1.0,1.0
+st cheesecake,3416,1.42096018735363,1.0
+st cheesecake & bb n cream,2,1.0,1.0
+st cheesecake bliss,19,1.2105263157894737,1.0
+st cheesecake mss,235,1.421276595744681,1.0
+st cheesecake/grm crumble,169,1.2485207100591715,1.0
+st cream,55,1.3454545454545455,1.0
+st creme,76,1.9210526315789473,1.0
+st crush,3,1.0,1.0
+st fruit cup,45,1.0444444444444445,1.0
+st fruit cup & s,5,1.6,1.0
+st fruit cup & st,3,1.0,1.0
+st goji berry,4,1.0,1.0
+st ice castle & vn flurries,8,1.0,1.0
+st lmd,124,1.1451612903225807,1.0
+st lmd jolt & wild cherry zing,19,1.0526315789473684,1.0
+st mango,729,1.3251028806584362,1.0
+st mist,1791,1.504745951982133,1.0
+st mousse,24,2.0416666666666665,1.0
+st mss,243,1.4197530864197532,1.0
+st n cream,207,1.357487922705314,1.0
+st orange sunris,1023,1.4027370478983383,1.0
+st parfait cc/granola,90,1.2666666666666666,1.0
+st parfait/grano,143,1.1538461538461537,1.0
+st parfait/granola,22,1.0,1.0
+st patch,324,1.345679012345679,1.0
+st punch,9,1.2222222222222223,1.0
+st rby,432,1.2939814814814814,1.0
+st rhubarb,230,1.3869565217391304,1.0
+st riptide & bik,242,1.1074380165289257,1.0
+st sensation,162,1.2222222222222223,1.0
+st shortcake,2011,1.4311287916459472,1.0
+st slide,10,1.0,1.0
+st smash,69,1.0724637681159421,1.0
+st splash & berr,323,1.1547987616099071,1.0
+st splash & berry blue blast,1,1.0,1.0
+st sundae,111,1.072072072072072,1.0
+st sunrise/c&hpg,22,1.0,1.0
+st sunrise/honey oats,32,1.09375,1.0
+st&bn/granola,7,1.0,1.0
+st-x,49,1.510204081632653,1.0
+st-x & banana split smoothie,46,1.3043478260869565,1.0
+st-x & grape inv,7,1.1428571428571428,1.0
+st-x & sst-kw sm,34,1.2058823529411764,1.0
+st-x & strikin strb kiwi,33,1.1818181818181819,1.0
+st-x & sw smoothie,5,1.4,1.0
+st-x & totally vanilla,2,1.0,1.0
+st-x & ww smoothie,12,1.0833333333333333,1.0
+st-x smoothie,195,1.1128205128205129,1.0
+st-x&stk st kiwi&swingin st bn,5,1.0,1.0
+st/blue diamond almonds,9,2.0,1.0
+st/candy pieces,50,1.5,1.0
+st/cereal,5,1.0,1.0
+st/cereal/phbooc,1,1.0,1.0
+st/chocolate graham,15,1.0,1.0
+st/dark chocolate chips,5,1.0,1.0
+st/dark chocolate pieces,4,1.0,1.0
+st/granola,921,1.4212812160694897,1.0
+st/kskc,3,1.0,1.0
+st/nab oreo cke,22,1.1363636363636365,1.0
+st/nestle cc pie,121,1.1735537190082646,1.0
+st/sprinkles,7,1.0,1.0
+st/zpddc,10,1.0,1.0
+stealthy st,4,1.25,1.0
+strawbana smoothie,4,1.0,1.0
+strawberries & c,2,1.0,1.0
+strb,859,1.550640279394645,1.0
+strb & banana,125,1.328,1.0
+strb & banana sm,208,1.1730769230769231,1.0
+strb & banana smoothie,54,1.3333333333333333,1.0
+strb & berry smoothie,5,1.0,1.0
+strb banana,41,1.3902439024390243,1.0
+strb banana & cereal smoothie,4,1.0,1.0
+strb banana bash,11,1.0909090909090908,1.0
+strb banana cream smoothie,7,1.0,1.0
+strb banana smoo,35,1.0857142857142856,1.0
+strb banana smoothie,29,1.3793103448275863,1.0
+strb banana split,4,1.0,1.0
+strb banana splsh smoothie,1,1.0,1.0
+strb beet berry,1,1.0,1.0
+strb blend smoot,6,1.5,1.0
+strb kiwi,56,1.125,1.0
+strb kiwi blend,3,1.0,1.0
+strb kiwi blend smoothie,19,1.105263157894737,1.0
+strb kiwi smoothie,117,1.4188034188034189,1.0
+strb milkshake,5,1.0,1.0
+strb parfait smoothie,144,1.3541666666666667,1.0
+strb smoothie,628,1.4347133757961783,1.0
+strb splsh smoothie,15,1.0666666666666667,1.0
+strikin strb kiwi,11,1.0,1.0
+summer fruit,1,1.0,1.0
+summer st,17,1.2352941176470589,1.0
+summer watermelon smoothie,18,1.0555555555555556,1.0
+summertime st,15,1.0,1.0
+super st & blazi,16,1.75,1.0
+super star st &,19,1.105263157894737,1.0
+surfin strb smoothie,1,1.0,1.0
+sweet strb smoot,4,1.0,1.0
+swingin strb ban,127,1.1181102362204725,1.0
+swiss creme & berries,9,1.1111111111111112,1.0
+t blue moon bb,6,1.3333333333333333,1.0
+t razzmatazz rby,1,1.0,1.0
+t st patch,8,1.25,1.0
+t vivacious vanill,1,1.0,1.0
+t-c-v,821,1.5213154689403168,1.0
+tangerine,242,1.3181818181818181,1.0
+tart cherry,137,1.2043795620437956,1.0
+tbp parfait/crunchy streusal,19,1.1578947368421053,1.0
+te/htc&g,182,1.3626373626373627,1.0
+tempting blackberry tart,6,1.0,1.0
+texas pecan pie,1,2.0,2.0
+tg tropical frui,8,1.25,1.0
+tiramisu,14,1.2142857142857142,1.0
+totally vanilla,1,1.0,1.0
+tp,104,1.3269230769230769,1.0
+tp apricot mango,27,1.0,1.0
+tp burst,9,1.0,1.0
+tp citrus,33,1.0606060606060606,1.0
+tp fruit,71,1.0704225352112675,1.0
+tp fruit pineapple mango,778,1.3020565552699228,1.0
+tp mss,20,1.0,1.0
+tp peach,162,1.2530864197530864,1.0
+tp pineapple,20,1.35,1.0
+triple berry,2,1.5,1.5
+triple berry cre,304,1.1875,1.0
+triple berry tor,653,1.4226646248085757,1.0
+triple cherry,17,1.0,1.0
+triple cherry &,137,1.0875912408759123,1.0
+triple mountain,10,2.4,2.0
+tropical fruit,14,2.0,1.0
+tropical mango s,2,1.0,1.0
+tzatziki,1,1.0,1.0
+unknown,540,1.3518518518518519,1.0
+ural bb,1,1.0,1.0
+ural peach,2,1.5,1.5
+ural plain,2,1.5,1.5
+ural st,4,1.25,1.0
+ural vanilla,1,1.0,1.0
+v-c,711,1.6483825597749648,1.0
+v-c & rby n crea,4,1.0,1.0
+vanill parfait/crunchy granola,60,1.3666666666666667,1.0
+vanilla,14067,2.0083884268145304,1.0
+vanilla & bn,24,1.3333333333333333,1.0
+vanilla & caramel,1,1.0,1.0
+vanilla & cereal,273,1.4102564102564104,1.0
+vanilla & key li,114,1.280701754385965,1.0
+vanilla & key lime pie,123,1.3414634146341464,1.0
+vanilla & peach,60,1.1,1.0
+vanilla & st & b,94,1.2127659574468086,1.0
+vanilla agave,9,1.0,1.0
+vanilla bean,666,1.6036036036036037,1.0
+vanilla bean smoothie,12,1.0,1.0
+vanilla buckwheat & qi,1,1.0,1.0
+vanilla chai,87,1.2528735632183907,1.0
+vanilla chch/rby,55,1.3454545454545455,1.0
+vanilla cherry,198,1.3636363636363635,1.0
+vanilla chocolate chunk,70,1.4857142857142858,1.0
+vanilla cinnamon,19,1.0,1.0
+vanilla cranberry,1,1.0,1.0
+vanilla creme mo,450,1.6133333333333333,1.0
+vanilla cupcake mss,126,1.6587301587301588,1.0
+vanilla golden cc/c&hpg,86,1.0930232558139534,1.0
+vanilla honey,195,1.7794871794871794,1.0
+vanilla latte coffee,12,1.25,1.0
+vanilla parfait/,10,1.1,1.0
+vanilla parfait/granola,6,1.0,1.0
+vanilla pear,12,1.0833333333333333,1.0
+vanilla pear smoothie,1,1.0,1.0
+vanilla rby acai/t-a,4,1.0,1.0
+vanilla smoothie,33,1.393939393939394,1.0
+vanilla sundae,13,1.0,1.0
+vanilla velvet,2,1.0,1.0
+vanilla/9wgg,7,1.5714285714285714,1.0
+vanilla/almond,218,1.385321100917431,1.0
+vanilla/assorted,2,1.0,1.0
+vanilla/bb granola,1,3.0,3.0
+vanilla/bn nut clusters,37,1.3243243243243243,1.0
+vanilla/candy pieces,4,4.0,2.0
+vanilla/candy pieces/m&mc,135,1.4370370370370371,1.0
+vanilla/cccp,71,1.1126760563380282,1.0
+vanilla/cck piec,41,2.048780487804878,1.0
+vanilla/cereal,261,1.3908045977011494,1.0
+vanilla/chc candies,7,1.1428571428571428,1.0
+vanilla/chch grahams,11,1.0,1.0
+vanilla/chocolate,36,1.0555555555555556,1.0
+vanilla/cps,22,1.2727272727272727,1.0
+vanilla/cps/nocp,16,1.0625,1.0
+vanilla/dark chocolate pieces,3,1.0,1.0
+vanilla/ddcp,103,1.4368932038834952,1.0
+vanilla/granola,1,1.0,1.0
+vanilla/hccps,6,1.0,1.0
+vanilla/hrsh res,161,1.4782608695652173,1.0
+vanilla/kelloggs f-flks cereal,8,1.0,1.0
+vanilla/kelloggs krave cereal,5,1.4,1.0
+vanilla/kflc,7,1.1428571428571428,1.0
+vanilla/m & m mars twix cookie,24,1.25,1.0
+vanilla/m&m mpbcc,1,1.0,1.0
+vanilla/m&mc,307,1.729641693811075,1.0
+vanilla/m&mcc,21,1.1428571428571428,1.0
+vanilla/m&mpc,3,1.3333333333333333,1.0
+vanilla/m&mscp,35,1.3714285714285714,1.0
+vanilla/nbpc,77,1.3766233766233766,1.0
+vanilla/ncacp,17,1.8823529411764706,1.0
+vanilla/ncpc,6,1.0,1.0
+vanilla/nestle c,224,1.40625,1.0
+vanilla/oreo cps,9,2.3333333333333335,1.0
+vanilla/pfpsc,7,1.0,1.0
+vanilla/phbooc,2,1.0,1.0
+vanilla/sprinkles,2,1.0,1.0
+vanilla/st granola,1,3.0,3.0
+vanilla/tm&ccd,7,2.5714285714285716,1.0
+vanilla/tt apple,23,1.0434782608695652,1.0
+vanilla/zpcpb,8,1.125,1.0
+vapp/cc,31,1.032258064516129,1.0
+vcpp/crunchy streusal,12,1.1666666666666667,1.0
+verry berry,74,1.1756756756756757,1.0
+vers bb & creme,1,1.0,1.0
+vers orange & creme,29,1.0689655172413792,1.0
+vers peaches & creme,1,1.0,1.0
+vers rby & creme,1,1.0,1.0
+vers st & creme,20,1.05,1.0
+vers st & creme & ora,11,1.0909090909090908,1.0
+very berry,4,3.75,3.5
+very berry smoothie,2,1.0,1.0
+very cherry,4501,1.6616307487225062,1.0
+very cherry & very vanilla,14,1.1428571428571428,1.0
+very vanilla,3095,1.644264943457189,1.0
+vivela vanilla,24,1.25,1.0
+vp/bb&granola,13,1.0,1.0
+vp/s&granola,22,1.0,1.0
+vpba parfait/t-a,9,1.2222222222222223,1.0
+vr&a parfait/t-a,5,1.6,1.0
+vroom vroom vanilla,7,1.2857142857142858,1.0
+w-m & st bn burs,80,1.1875,1.0
+washington rby,50,1.18,1.0
+wbb,38,1.131578947368421,1.0
+white chocolate,2840,1.5591549295774647,1.0
+white chocolate cheesecake,7,3.2857142857142856,1.0
+white chocolate rby,447,1.4809843400447427,1.0
+white cranberry,12,1.0833333333333333,1.0
+white cranberry st,28,1.0714285714285714,1.0
+wild bb,28,3.7857142857142856,1.0
+wild berries,200,1.305,1.0
+wild berry blend,27,1.2592592592592593,1.0
+wild berry blend smoothie,26,1.3846153846153846,1.0
+wild berry smoot,43,1.1395348837209303,1.0
+wild berry smoothie,73,1.1369863013698631,1.0
+wild blueberry,1,1.0,1.0
+wild quebec bb,19,1.3157894736842106,1.0
+willamette boyse,1,1.0,1.0
+wtrmln,20,1.0,1.0
+wtrmln burst,1,1.0,1.0
+wtrmln burst & s,50,1.06,1.0
+xl orange strb bana,1,1.0,1.0
+yakima peach,1,1.0,1.0

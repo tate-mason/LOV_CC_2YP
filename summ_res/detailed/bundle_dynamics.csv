@@ -1,0 +1,22 @@
+metric,value
+Households,15106.0
+Yogurt purchase weeks,282648.0
+Mixed-flavor purchase weeks (%),37.87608615663299
+Mean basket-set changes per household (successive purchase weeks),13.669601482854494
+Mean basket-set changes per household (adjacent calendar weeks),3.2095193962663844
+Successive purchase weeks: eligible pairs,267542.0
+Successive purchase weeks: basket flavor-set changes (%),77.18152663880812
+Successive purchase weeks: mean flavors added,1.168347399660614
+Successive purchase weeks: mean flavors dropped,1.1730943179014883
+Successive purchase weeks: mean flavor-set turnover (%),66.26226467908636
+Successive purchase weeks: flavor-presence spells,338608.0
+Successive purchase weeks: mean flavor-presence spell length,1.5651461276756604
+Successive purchase weeks: median flavor-presence spell length,1.0
+Adjacent calendar weeks: eligible pairs,67163.0
+Adjacent calendar weeks: basket flavor-set changes (%),72.1870672840701
+Adjacent calendar weeks: mean flavors added,1.0617155278948232
+Adjacent calendar weeks: mean flavors dropped,1.0758006640561024
+Adjacent calendar weeks: mean flavor-set turnover (%),59.149954425133075
+Adjacent calendar weeks: flavor-presence spells,472102.0
+Adjacent calendar weeks: mean flavor-presence spell length,1.1225773243917627
+Adjacent calendar weeks: median flavor-presence spell length,1.0

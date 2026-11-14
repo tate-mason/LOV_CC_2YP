@@ -1,0 +1,12 @@
+{
+  "basket": "set of flavors with positive quantity in a yogurt purchase week; mixed baskets included",
+  "change": "any addition or removal of a flavor; quantities alone do not change the set",
+  "turnover": "1 - intersection size / union size (Jaccard distance)",
+  "purchase_clock": "successive observed yogurt purchase weeks, allowing calendar gaps",
+  "calendar_clock": "adjacent calendar weeks only; gaps break spells and are excluded from pair rates",
+  "presence_spell": "a flavor appears in successive eligible baskets; other flavors may coexist",
+  "weighting": "pair rates pool pairs; spell lengths pool spells; household counts include zero changes",
+  "censoring": "first/last observed spells included; descriptive observed lengths, no censoring adjustment",
+  "sample": "inherits the saved summary sample and flavor grouping; no raw-data rebuild or demand refit",
+  "recovery": "all files in this output directory are aggregates; no household or weekly records"
+}

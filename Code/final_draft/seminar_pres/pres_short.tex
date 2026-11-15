@@ -105,8 +105,8 @@
 
 % Short-version navigation only. Original frame content is preserved verbatim.
 \newcommand{\shortbuttons}{}
-\newcommand{\shortmaincount}{29}
-\IfFileExists{assets/quantified_theory/plain/optimal_prices_by_gamma.pdf}{\renewcommand{\shortmaincount}{33}}{}
+\newcommand{\shortmaincount}{31}
+\IfFileExists{assets/quantified_theory/plain/optimal_prices_by_gamma.pdf}{\renewcommand{\shortmaincount}{32}}{}
 \newif\ifshortappendix
 \shortappendixfalse
 \setbeamertemplate{footline}{%
@@ -141,44 +141,52 @@
     \begin{itemize}
       \item[--] Groceries
       \item[--] Entertainment 
+      \item[--] Restaurants
     \end{itemize}
-    \item Novelty, habit, boredom can all contribute to their consumption choices 
-    \item Firms would want to dynamically price to different dynamic preferences
-    \item If consumers display heterogeneous dynamic preferences, the firm can price discriminate through targeted discounting
+    \item Consumers differ in how past purchases affect their current preferences.
+    \item Firms can use these differences to dynamically tailor prices.
   \end{itemize}
 \end{frame}
 
 % Original numbered slide 2
-\begin{frame}[label=short-novelty-definition]{Preferences for Novelty}
+\begin{frame}[label=short-novelty-definition]{Flavor Variety and Switching}
   \begin{columns}[T]
-    \begin{column}{0.48\textwidth}
-  \begin{itemize}
-    \item Some consumers gain utility from a purchase set made up of different varieties of the same product
-    \item In my yogurt market setting:
-    \begin{itemize}
-      \item[--] Households purchase $\approx 11$ distinct flavors over the observed sample
-      \item $\approx 38\%$ of weeks involve mixed purchases
-      \item[--] 0.32 mean household flavor concentration over observed sample
-    \end{itemize}
-  \end{itemize}
+    \begin{column}{0.53\textwidth}
+      \small
+      \textbf{Purchase patterns}
+      \begin{itemize}\setlength{\itemsep}{0pt}\setlength{\parsep}{0pt}
+        \item Households buy \textbf{10.76 distinct flavors} on average.
+        \item Average household flavor HHI is \textbf{0.32}.
+        \item \textbf{37.88\%} of purchase weeks include multiple flavors.
+        \item A flavor remains in the basket for \textbf{1.57 consecutive purchase weeks} on average.
+        \item Households change their basket's flavor composition \textbf{13.67 times} on average during the sample.
+        \item Flavor composition changes between \textbf{77.18\%} of successive purchase weeks.
+      \end{itemize}
     \end{column}
-    \begin{column}{0.48\textwidth}
-      \includegraphics[width=.95\textwidth,height=.74\textheight,keepaspectratio]{../writeup/1108_writeup/assets/results/summary_statistics/flavor_hhi_histogram.pdf}
+    \begin{column}{0.44\textwidth}
+      \includegraphics[width=\textwidth,height=.65\textheight,keepaspectratio]{../writeup/1108_writeup/assets/results/summary_statistics/flavor_hhi_histogram.pdf}
     \end{column}
   \end{columns}
 \end{frame}
 
-\begin{frame}[label=short-2]{Research Question and Preview of Results}
+\begin{frame}[label=short-2]{Research Question} 
   \begin{tcolorbox}
     How does price discrimination based on consumers' dynamic preferences affect firms and consumers?
   \end{tcolorbox}
-  \begin{itemize}
-    \item Access to information on consumer types adds up to 12.5\% in revenue.
-    \item On average, consumers resist switching and exhibit positive habit preferences.  
-    \item Consumer type and history have large effects on consumer surplus, seeing losses of up to \$0.10 per consumer.
-  \end{itemize}
+  \begin{enumerate}
+    \item Derive optimal prices in a two-period model.
+    \item Estimate distributions of novelty and habit preferences.
+    \item Use estimated switching preferences to quantify revenue and welfare effects.
+  \end{enumerate}
 \end{frame}
 
+\begin{frame}{Preview of Findings}
+  \begin{itemize}
+    \item Consumers favor recent repetition and longer-run habit on average.
+    \item Type-specific pricing raises revenue by 3.6\% for initial buyers and 12.5\% for initial nonbuyers.
+    \item Consumer surplus falls by 5.7\% and 10.0\%, respectively.
+  \end{itemize}
+\end{frame}
 % Original numbered slide 3
 \gdef\shortbuttons{}
 \begin{frame}[label=short-3]{Literature}
@@ -186,18 +194,18 @@
   \setbeamerfont{itemize/enumerate body}{size=\footnotesize}
   \textbf{Dynamic Targeting:}
     \begin{itemize}\setlength{\itemsep}{2pt}\setlength{\parsep}{0pt}\setlength{\parskip}{0pt}
-      \item Dub\'e (2008), Dub\'e et. al (2022), Anand \& Shachar (2009), Karle \& Reisinger (2024), Durrmeyer, Fournel, Samano (2026)
-      \item \textcolor{red}{Contribution:} Firm pricing based on novelty with varying levels of information on consumers.
+      \item Dub\'e (2008), Dub\'e et al. (2022), Anand \& Shachar (2009), Karle \& Reisinger (2024), Durrmeyer, Fournel, Samano (2026)
+      \item \textcolor{red}{Contribution:} Quantify the value of observing consumers' switching preferences for pricing.
     \end{itemize}
   \textbf{Estimating preferences for novelty:}
   \begin{itemize}\setlength{\itemsep}{2pt}\setlength{\parsep}{0pt}\setlength{\parskip}{0pt}
       \item McAllister (1982), Lattin (1987), Chintagunta (1999), Ackerberg (2003), Dub\'e (2004), Dub\'e et al. (2009), Dub\'e et al. (2021)
-      \item \textcolor{red}{Contribution:} Recovering a distribution for preferences over novelty in consumption to be used in pricing simulations. 
+      \item \textcolor{red}{Contribution:} Estimate distributions of preferences for short-run novelty and longer-run habit.
   \end{itemize}
   \textbf{Pricing with State Dependence}
   \begin{itemize}\setlength{\itemsep}{2pt}\setlength{\parsep}{0pt}\setlength{\parskip}{0pt}
     \item Klemperer (1987), Chen (1997), Osborne (2009), Dub\'e et al. (2022)
-    \item \textcolor{red}{Contribution:} Modeling both positive and negative utility from habit by adding channel for novelty. 
+    \item \textcolor{red}{Contribution:} Derive how switching preferences affect optimal prices and profits.
   \end{itemize}
 \end{frame}
 
@@ -211,20 +219,22 @@
     \item Each consumer enters the model with a type and an initial purchase history. 
     \[
     \begin{aligned}
-      \gamma_r &\in \{H, L\}
-        && \text{Switching preference} \\
+      r &\in \{H, L\}
+        && \text{Consumer type} \\
+      \gamma_r &\in \mathbb{R}
+        && \text{Switching coefficient} \\
       h_0 &\in \{0, j\}
         && \text{Initial purchase state} \\
       h_1 &\in \{0, j\}
-        && \text{First period choice}
+        && \text{First-period choice}
     \end{aligned}
     \]
     \item Consumers live for two periods, purchasing the inside good or opting for the outside good in each period
-    \item Baseline model: the firm knows purchase history and type $\gamma_r$, setting prices to individual consumers by type and history
+    \item Baseline model: the firm knows purchase history and switching type $\gamma_r$, setting prices to individual consumers by type and history
   \end{itemize}
 \end{frame}
 
-\begin{frame}{Timing of the Model}
+\begin{frame}{Model Timing}
 
 \begin{center}
 \begin{tikzpicture}[
@@ -245,10 +255,10 @@
         {\textbf{Firm:}};
     % Firm decisions (above)
     \node[above=0.5cm, align=center] at (1.5,0)
-        {Observe $h_0$ \\ Choose $p_1$};
+        {Observe $h_0$ \\ Choose $p_{1r}$};
 
     \node[above=0.5cm, align=center] at (7,0)
-        {Observe $h_1$ \\ Choose $p_2$};
+        {Observe $h_1$ \\ Choose $p_{2r}$};
 
     \node[below=0.5cm,align=left] at (0.25, 0)
         {\textbf{Consumer:}};
@@ -282,17 +292,18 @@
       + \varepsilon_{rjt},
       & U_{r0t} &= V_{r0t} 
       + \varepsilon_{r0t} \\
-      V_{rjt} &= \underbrace{\beta}_{\text{Constant}}
-        + \underbrace{\gamma_r\mathbbm{1}\{h_{t-1}=0\}}_{\text{Switching utility}}
-        - \underbrace{\alpha p_t(h_{t-1})}_{\text{Price disutility}},
+      V_{rjt} &= \underbrace{\beta}_{\text{Baseline taste}}
+        + \underbrace{\gamma_r\mathbbm{1}\{h_{t-1}=0\}}_{\text{Short-run switching utility}}
+        + \underbrace{\alpha p_{tr}(h_{t-1})}_{\text{Price disutility}},
         & V_{r0t} &= \gamma_r\mathbbm{1}\{h_{t-1}=j\}.
     \end{align*}
     \begin{gather*}
-      P_{rjt} = \frac{\exp\{V_{rjt}\}}{\exp\{V_{rjt}\} + \exp\{V_{r0t}\}}
+      s_{tr}(h_{t-1}) = \frac{\exp\{V_{rjt}\}}{\exp\{V_{rjt}\} + \exp\{V_{r0t}\}}
     \end{gather*}
   \endgroup
   \begin{itemize}\setlength{\itemsep}{2pt}
-    \item Consumers are myopic; the firm is dynamic.
+    \item $\gamma_r>0$: switching is rewarded; $\gamma_r<0$: repetition is rewarded.
+    \item $\alpha<0$. Consumers are myopic; the firm is dynamic.
   \end{itemize}
 \end{frame}
 
@@ -302,22 +313,20 @@
   \small
   \begin{columns}[T,onlytextwidth]
     \begin{column}{.48\textwidth}
-      \small\textbf{Household-specific: type observed}
+      \small\textbf{Type-specific}
       \begin{itemize}
-        \item Observe type $\gamma_r$ and initial history $h_0$.
-        \item Choose $p_{1r}(h_0)$ and then $p_{2r}(h_1)$.
+        \item Firm observes purchase history and preference type.
+        \item Prices vary by both type and history.
       \end{itemize}
     \end{column}
     \begin{column}{.48\textwidth}
-      \small\textbf{Uniform: type hidden}
+      \small\textbf{Uniform}
       \begin{itemize}
-        \item Observe history and know distribution of types.
+        \item Firm observes purchase history and knows the distribution of types.
         \item One offer across types with the same history.
-        \item Fixed beliefs restrict learning from purchases.
       \end{itemize}
     \end{column}
   \end{columns}
-  \smallskip
 \end{frame}
 
 
@@ -328,24 +337,25 @@
   \setlength{\jot}{7pt}
 
     \begin{gather*}
-      \pi_t(h_{t-1}) = \max_{p_t(h_{t-1})} s_t(h_{t-1})[p_t(h_{t-1}) - c] \\
-      \Pi(h_0) = s_1(h_0)(p_1(h_0) - c) + \delta\{s_1(h_0)\pi_2(j) + (1-s_1(h_0))\pi_2(0)\}
+      \pi_{1r}(h_0) = s_{1r}(h_0)[p_{1r}(h_0) - c] \\
+      \pi_{2r}(h_1) = \max_{p_{2r}(h_1)} s_{2r}(h_1)[p_{2r}(h_1) - c] \\
+      \Pi_r(h_0) = \pi_{1r}(h_0) + \delta\{s_{1r}(h_0)\pi_{2r}(j) + (1-s_{1r}(h_0))\pi_{2r}(0)\}
     \end{gather*}
   \endgroup
   \begin{itemize}
     \item Total profit combines the initial margin with expected continuation profit,
-      weighted by the consumer's first-period choice. Type subscripts are suppressed.
+      weighted by the consumer's first-period choice.
   \end{itemize}
 \end{frame}
 
 
 % Original numbered slide 10
 \gdef\shortbuttons{\hyperlink{short-9}{\beamergotobutton{Terminal FOC}}\hspace{.35em}\hyperlink{short-11}{\beamergotobutton{Comparative statics}}\hspace{.35em}\hyperlink{short-52}{\beamergotobutton{Elasticities}}}
-\begin{frame}[label=short-10]{First Period Optimization}
+\begin{frame}[label=short-10]{First-Period Optimization}
   \begin{align*}
-    \frac{d\Pi}{d p_1(h_0)} &= s_1 + \frac{\partial}{\partial p_1(h_0)}s_1(h_0)[p_1(h_0) - c + \delta(\pi_2^*(j) - \pi_2^*(0))] \\
-    p_1^*(h_0) &= c + \underbrace{\frac{1}{\alpha(1-s_1^*(h_0))}}_{\text{Static markup}} - \overbrace{\delta(\pi_2^*(j) - \pi_2^*(0))}^{\text{Tradeoff between profit states}} \\
-    \Pi^*(h_0) &= \delta\pi_2^*(0) + \frac{s_1^*(h_0)}{\alpha(1-s_1^*(h_0))}
+    \frac{d\Pi_r}{d p_{1r}(h_0)} &= s_{1r} + \frac{\partial}{\partial p_{1r}(h_0)}s_{1r}(h_0)[p_{1r}(h_0) - c + \delta(\pi_{2r}^*(j) - \pi_{2r}^*(0))] \\
+    p_{1r}^*(h_0) &= c - \underbrace{\frac{1}{\alpha(1-s_{1r}^*(h_0))}}_{\text{Static markup}} - \overbrace{\delta(\pi_{2r}^*(j) - \pi_{2r}^*(0))}^{\text{Tradeoff between profit states}} \\
+    \Pi_r^*(h_0) &= \delta\pi_{2r}^*(0) - \frac{s_{1r}^*(h_0)}{\alpha(1-s_{1r}^*(h_0))}
   \end{align*}
   \begin{itemize}
     \item When buying today raises future profit, the firm lowers its initial price to acquire the consumer.
@@ -355,17 +365,17 @@
 \gdef\shortbuttons{}
 \begin{frame}[label=short-comp-stat]{Comparative Statics}
   \begin{gather*}
-    \frac{d p_1^*(h_0)}{d\gamma}
-      = \frac{q(h_0)s_1^*+\delta(1-s_1^*)[s_2^*(j)+s_2^*(0)]}{\alpha},\\[6pt]
-    \frac{d\Pi^*(h_0)}{d\gamma}
-      = \frac{q(h_0)s_1^*-\delta s_1^*s_2^*(j)
-              +\delta(1-s_1^*)s_2^*(0)}{\alpha}.
+    \frac{d p_{1r}^*(h_0)}{d\gamma_r}
+      = \frac{q(h_0)s_{1r}^*+\delta(1-s_{1r}^*)[s_{2r}^*(j)+s_{2r}^*(0)]}{-\alpha},\\[6pt]
+    \frac{d\Pi_r^*(h_0)}{d\gamma_r}
+      = \frac{q(h_0)s_{1r}^*-\delta s_{1r}^*s_{2r}^*(j)
+              +\delta(1-s_{1r}^*)s_{2r}^*(0)}{-\alpha}.
   \end{gather*}
-  {\small $\alpha>0$, $0\leq\delta\leq1$;
-  $q(0)=1$, $q(j)=-1$; $s_1^*=s_1^*(h_0)$.}
+  {\small $\alpha<0$, $0\leq\delta\leq1$;
+  $q(0)=1$, $q(j)=-1$; $s_{1r}^*=s_{1r}^*(h_0)$.}
   \medskip
   \begin{itemize}
-    \item Initially outside: a higher $\gamma$ raises both the optimal first-period
+    \item Initially outside: a higher $\gamma_r$ raises both the optimal first-period
       price and total profit.
     \item Initially inside: both effects are ambiguous. Lower current willingness
       to pay competes with the changing value of future purchase histories.
@@ -393,22 +403,20 @@
       \includegraphics[width=\linewidth,height=.66\textheight,keepaspectratio]{assets/theory_delta1/all_state_realized_profit.pdf}
     \end{column}
   \end{columns}
-  \vspace{.3em}
-  \par\raggedright{\footnotesize $\delta=1$: no discounting. Flavor is $j$; outside is everything except that flavor.}
 \end{frame}
 
 
 
 % Original numbered slide 20
 \gdef\shortbuttons{\hyperlink{short-19}{\beamergotobutton{Profit levels}}\hspace{.35em}\hyperlink{short-53}{\beamergotobutton{Price paths}}\hspace{.35em}\hyperlink{short-54}{\beamergotobutton{Revenue evaluation}}}
-\begin{frame}[label=short-20]{Theory: Revenue Gain from Observing Type}
+\begin{frame}[label=short-20]{Revenue Gains}
   \centering
   \includegraphics[width=.98\textwidth,height=.66\textheight,keepaspectratio]{assets/theory_delta1/gamma_uncertainty/information_value.pdf}
 \end{frame}
 
 
 \gdef\shortbuttons{\hyperlink{short-theory-welfare-table}{\beamergotobutton{Welfare table}}}
-\begin{frame}[label=short-theory-welfare]{Theory: Higher Profit Can Lower Total Welfare}
+\begin{frame}[label=short-theory-welfare]{Welfare Effects}
   \centering
   \includegraphics[width=.98\textwidth,height=.59\textheight,keepaspectratio]{assets/theory_delta1/gamma_uncertainty/welfare_changes.pdf}
 \end{frame}
@@ -420,29 +428,28 @@
 \begin{frame}[label=short-21]{Data Sources}
   \textbf{Nielsen HomeScan}
   \begin{itemize}
-    \item Provides household level purchase data
+    \item Provides household-level purchase data
     \item Covers years 2006-2015
-    \item Products chosen, quantity chosen, timing of trips
+    \item Products purchased, quantities, and trip timing
   \end{itemize}
   \textbf{Nielsen RetailScan}
   \begin{itemize}
-    \item Provides store level product data
-    \item For specified product category: prices, markets, product attributes
+    \item Provides store-level product data
+    \item Prices, markets, and product attributes for the selected category
   \end{itemize}
   \textbf{Sample Selection}
   \begin{itemize}
-    \item Must be single-person household
-    \item Must be seen at least 2 times
-    \item Purchases must be made at Nielsen store (prices available)
-    \item Flavor attribute must be present
-    \item Flavor belongs to plain, berry, "other"
+    \item Single-person households.
+    \item At least two yogurt-purchase weeks.
+    \item Matched pricing data available.
+    \item Flavor information available.
   \end{itemize}
 \end{frame}
 
 
 % Original numbered slide 23
 \gdef\shortbuttons{}
-\begin{frame}[label=short-23]{Sample Statistics: Demographics}
+\begin{frame}[label=short-23]{Sample Statistics}
   \centering
   \begin{adjustbox}{max totalsize={\textwidth}{.83\textheight},center}
     \begin{minipage}{\textwidth}
@@ -478,33 +485,40 @@
   \par\smallskip
   \begin{minipage}{.96\textwidth}
     \scriptsize
-    A bundle is the set of flavors bought in a week; a change adds or removes a flavor.
-    Single-flavor switches require both weeks to contain exactly one flavor; bundle changes include mixed baskets.
-    Adjacent weeks exclude gaps; successive purchase weeks allow gaps.
-    Presence spells allow other flavors to coexist; calendar gaps break calendar spells.
-    Rates pool pairs; spell means pool observed spells.
+    Flavors grouped as plain, berry, or other.
   \end{minipage}
 \end{frame}
 
 % Original numbered slide 25
 \gdef\shortbuttons{}
-\begin{frame}[label=short-25]{Persistence Across Aggregated Flavor Groups}
+\begin{frame}[label=short-25]{Flavor Persistence}
   \centering
   \includegraphics[height=0.58\textheight]{../writeup/1108_writeup/assets/results/summary_statistics/aggregated_flavors/flavor_transitions.pdf}
   \par\small Plain repeats in approximately 80\% of eligible transitions, versus 53\% for berry.
-  \par\medskip\small Mean single-flavor spell: \textbf{1.22 consecutive calendar weeks}.
-  \par\smallskip\footnotesize Across plain, berry and other; gaps and mixed-flavor weeks break spells.
 \end{frame}
 
 
 \section{Demand Estimation}
 
-\gdef\shortbuttons{\hyperlink{short-average-history}{\beamergotobutton{Average-history specification}}}
+% Original numbered slide 26
+\gdef\shortbuttons{}
+\begin{frame}[label=short-26]{Demand Model Setup}
+  \begin{itemize}
+    \item Within observed purchase weeks, consumers choose among plain, berry, other yogurt, and an outside option.
+    \item Households differ in price sensitivity and responses to recent and
+    longer-run purchase histories.
+    \item Flavor intercepts $\beta_j$ are common across households; other yogurt is the reference category ($\beta_{\mathrm{other}}=0$).
+  \end{itemize}
+\end{frame}
+
 \begin{frame}[label=short-27]{Demand Model}
   \footnotesize
   \[
-    U_{ijt}=\beta_0+\beta_jX_{jt}+\gamma_iN_{ijt}+\phi_iH_{ijt}
-             +\alpha_i p_{jt}+\varepsilon_{ijt},
+    U_{ijt}=
+    \beta_0+\beta_j+
+    \gamma_iN_{ijt}+
+    \phi_iH_{ijt}
+    +\alpha_i p_{jt}+\varepsilon_{ijt},
     \qquad U_{i0t}=\varepsilon_{i0t}.
   \]
 
@@ -535,32 +549,18 @@
   \end{itemize}
 \end{frame}
 
-% Original numbered slide 26
-\gdef\shortbuttons{}
-\begin{frame}[label=short-26]{Demand Model Setup}
-  \begin{itemize}
-    \item Weekly choices: other yogurt, berry, plain, or nonpurchase.
-    \item Households differ in price sensitivity and responses to recent and
-    longer purchase histories.
-    \item Flavor intercepts are common across households and differ across flavors.
-  \end{itemize}
-  \begin{tcolorbox}
-    Recover the distribution of switching preferences, then use it in the
-    two-period pricing model.
-  \end{tcolorbox}
-\end{frame}
 
 
 % Original numbered slide 27
 \gdef\shortbuttons{}
-\begin{frame}[label=short-identification]{Separating Recent and Longer Purchase History}
+\begin{frame}[label=short-identification]{Identification}
+  \small
   \begin{itemize}
-    \item \textbf{Novelty:} changes in last week's basket.
-    \item \textbf{Habit:} differences in earlier purchase histories, even with the same last-week basket.
-    \item \textbf{Simplifying assumption:} common flavor tastes; heterogeneous novelty, habit, and price sensitivity.
+    \item \textbf{Baseline taste ($\beta_j$):} persistent differences in demand across flavors, common across households.
+    \item \textbf{Novelty ($\gamma_iN$):} changes in a flavor's share last week.
+    \item \textbf{Habit ($\phi_iH$):} differences in a flavor's longer-run purchase share.
   \end{itemize}
 \end{frame}
-\note{Common flavor intercepts keep the specification tractable and focus on differences in responses to purchase history. Persistent household flavor tastes could explain some observed repetition; interpretation of history coefficients is conditional on abstracting from that heterogeneity and on assumptions about utility shocks. The uncontrolled fit assumes prices are exogenous to omitted utility shocks. Histories start at zero at the first observed purchase, leaving unobserved pre-sample history as a limitation.}
 
 
 % Original numbered slide 29
@@ -569,8 +569,8 @@
   \small
   \textbf{Purchase occasions}
   \begin{itemize}
-    \item Count packages within observed yogurt-purchase weeks; calendar weeks without purchases are not added.
-    \item Impute outside choices as $\max(7-Q_{it},0)$, so each retained week contributes $\max(7,Q_{it})$ choices.
+    \item Count purchases within observed yogurt-purchase weeks; calendar weeks without purchases are not added.
+    \item Assume at least seven consumption occasions per retained week. For total yogurt quantity $Q_{it}$, impute $\max\{7-Q_{it}, 0\}$ outside choices.
   \end{itemize}
   \medskip
   \textbf{Persistent household heterogeneity}
@@ -588,26 +588,21 @@
 
 % Original numbered slide 32
 \gdef\shortbuttons{\hyperlink{short-30}{\beamergotobutton{Estimates}}\hspace{.35em}\hyperlink{short-33}{\beamergotobutton{Discussion}}}
-\begin{frame}[label=short-32]{Distributions}
+\begin{frame}[label=short-32]{Preference Distributions}
   \begin{center}
     \includegraphics[width=.96\textwidth,height=.56\textheight,keepaspectratio]{assets/demand_1111_three/history_distributions.pdf}
   \end{center}
   \begin{itemize}
-    \item Consumers generally resist switching, with substantial heterogeneity.
-    \item Habit preference also varies substantially across consumers.
+    \item The novelty coefficient is negative on average: recent repetition is rewarded.
+    \item The habit coefficient is positive on average: the longer-run pattern is reinforced. Both coefficients vary across consumers.
   \end{itemize}
 \end{frame}
 
 
 % Original numbered slide 31
-\gdef\shortbuttons{\hyperlink{short-wtp-interpretation}{\beamergotobutton{WTP interpretation}}}
 \begin{frame}[label=short-31]{Implied Willingness to Pay}
   \centering
   \input{assets/demand_1111_three/implied_wtp.tex}
-  \begin{itemize}
-    \item Novelty WTP refers to a one-unit increase in $N$, holding other utility terms fixed; it is not the total compensation for a switch.
-    \item Habit WTP refers to a one-unit increase in $H$. Population SD measures heterogeneity, not estimation uncertainty.
-  \end{itemize}
 \end{frame}
 
 
@@ -615,16 +610,16 @@
 
 % Original numbered slide 34
 \gdef\shortbuttons{\hyperlink{short-theory-mapping}{\beamergotobutton{Parameter mapping}}}
-\begin{frame}[label=short-34]{Bringing Estimated Preferences into the Pricing Model}
+\begin{frame}[label=short-34]{Pricing Model Inputs}
   \small
   \[
-    v_t=\beta_f-a p_t+\gamma\big[\mathbbm{1}\{h_{t-1}=0\}-\mathbbm{1}\{h_{t-1}=j\}\big].
+    v_{tr}=\beta_f+\alpha p_{tr}+\gamma_r\big[\mathbbm{1}\{h_{t-1}=0\}-\mathbbm{1}\{h_{t-1}=j\}\big].
   \]
   \begin{itemize}
+    \item Isolate the value of short-run switching preferences
     \item Inside good is plain, outside is all other choices
-    \item Use the fitted $\gamma_i$ distribution, $a=-E[\alpha_i]$, and $\beta_f=\beta_0+\beta_{\mathrm{plain}}$; set the habit predictor $H=0$.
-    \item Compare type-specific prices with uniform prices using the same estimated $\gamma$ distribution. Uniform prices depend on inside/outside history, not on $\gamma$.
-    \item Retain the supply exercise's two-period timing and fixed beliefs; impose no alternative distribution weights.
+    \item Use the fitted $\gamma_i$ distribution, $\alpha=E[\alpha_i]<0$, and $\beta_f=\beta_0+\beta_{\mathrm{plain}}$; set the habit predictor $H=0$.
+    \item Compare type-specific prices with uniform prices using the same estimated $\gamma_r$ distribution. Uniform prices depend only on inside/outside history.
   \end{itemize}
 \end{frame}
 
@@ -634,7 +629,7 @@
 % Revised empirical information comparison; populated by aggregate-only refresh.
 \IfFileExists{assets/quantified_theory/plain/optimal_prices_by_gamma.pdf}{%
 \gdef\shortbuttons{}
-\begin{frame}[label=short-revised-prices]{Optimal Prices by Novelty Preference}
+\begin{frame}[label=short-revised-prices]{Optimal Prices by Type}
   \centering
   \includegraphics[width=.98\textwidth,height=.74\textheight,keepaspectratio]{assets/quantified_theory/plain/optimal_prices_by_gamma.pdf}
 \end{frame}
@@ -644,15 +639,14 @@
 
 
 \gdef\shortbuttons{\hyperlink{short-berry-paths}{\beamergotobutton{Berry}}\hspace{.35em}\hyperlink{short-other-paths}{\beamergotobutton{Other}}}
-\begin{frame}[label=short-revised-paths]{Per-Period Prices With and Without Consumer Information}
+\begin{frame}[label=short-revised-paths]{Type-Specific and Uniform Prices}
   \centering
   \includegraphics[width=.98\textwidth,height=.68\textheight,keepaspectratio]{assets/quantified_theory/plain/information_price_paths_comparison.pdf}
-  \par\smallskip\raggedright\footnotesize Solid paths average informed prices within novelty groups; dashed paths show uniform prices.
-  Both regimes choose the terminal price after observing the first-period binary choice.
+  \par\smallskip\raggedright\footnotesize Solid paths average type-specific prices within novelty groups; dashed paths show uniform prices.
 \end{frame}
 
 \gdef\shortbuttons{\hyperlink{short-revised-table}{\beamergotobutton{Revenue table}}\hspace{.35em}\hyperlink{short-pricing-welfare-table}{\beamergotobutton{Welfare table}}}
-\begin{frame}[label=short-revised-gain]{Effects of Price Discrimination on Revenue and Welfare}
+\begin{frame}[label=short-revised-gain]{Revenue and Welfare Effects}
   \hypertarget{short-pricing-welfare}{}
   \centering
   \includegraphics[width=.98\textwidth,height=.73\textheight,keepaspectratio]{assets/quantified_theory/plain/discrimination_percent.pdf}
@@ -664,15 +658,15 @@
 
 % Original numbered slide 50
 \gdef\shortbuttons{}
-\begin{frame}[label=short-50]{Welfare and Revenue Effects of Price Discrimination}
+\begin{frame}[label=short-50]{Conclusions}
   \begin{tcolorbox}
     Consumer information raises firm revenue but lowers average consumer surplus;
     total welfare rises modestly.
   \end{tcolorbox}
   \begin{itemize}
-    \item \textbf{Consumer surplus:} falls by 5.7\% for initially inside consumers and 10.0\% for initially outside consumers.
+    \item \textbf{Consumer surplus:} falls by 5.7\% for initial buyers and 10.0\% for initial nonbuyers.
     \item \textbf{Total welfare:} rises by 1.6\% and 1.4\%, respectively, as profit gains exceed consumer surplus losses.
-    \item \textbf{Revenue:} rises by 3.6\% for initially inside consumers and 12.5\% for initially outside consumers.
+    \item \textbf{Revenue:} rises by 3.6\% for initial buyers and 12.5\% for initial nonbuyers.
   \end{itemize}
 \end{frame}
 
@@ -684,10 +678,10 @@
 \gdef\shortbuttons{}
 \begin{frame}[label=short-51]{Next Steps}
   \begin{itemize}
-    \item Add firm learning to supply side.
-    \item Extend market structure on supply.
-    \item Add more product attributes to empirical estimation.
-    \item Estimate unobserved quality in BLP fashion.
+    \item Allow the firm to learn about consumer preferences.
+    \item Extend the pricing model to competing firms.
+    \item Add product attributes to demand estimation.
+    \item Account for unobserved product quality and price endogeneity.
   \end{itemize}
 \end{frame}
 

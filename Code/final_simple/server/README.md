@@ -60,6 +60,44 @@ Local arithmetic checks use synthetic in-memory fixtures only:
 python3 Code/final_simple/server/test_bundle_statistics.py
 ```
 
+## Normalize detailed flavor labels without collapsing to three groups
+
+After syncing the code, submit from the server checkout:
+
+```bash
+sbatch Code/final_simple/server/run_flavor_family_statistics.sh \
+  /scratch/dtm63837/Kilts_Panel/PATH_TO_EXISTING_SUMMARY_OUTPUT
+```
+
+Use the same detailed summary folder as the bundle-statistics job: it must
+contain `yogurt_weekly_flavor_quantities.csv`. Do not pass `aggregated_flavors`.
+The job reuses this export; it does not rebuild raw data or refit demand.
+
+`flavor_families.py` merges recognizable abbreviations and naming variants
+(for example, `st`, `strb`, and `strawberry`). It retains ingredient blends,
+recognized dessert styles and toppings. Strawberry-banana and strawberry-orange
+remain distinct from strawberry; strawberry cheesecake also remains distinct.
+Unexplained descriptor text retains the original label rather than being guessed,
+dropped, or pooled into an other category. The mapping is a conservative
+normalization, not a validated new flavor taxonomy.
+
+Only recover
+`/scratch/dtm63837/Kilts_Panel/results/flavor_families_JOB_ID/RESULTS_ONLY`.
+It contains `summary_comparison.csv`/`.tex` (detailed versus normalized statistics),
+`flavor_family_mapping.csv` (labels and their mapping only, without counts),
+`mapping_coverage.csv`/`.tex`, pooled by-flavor spell tables, and `definitions.json`.
+Inspect mapping coverage and retained ambiguous labels before using the new
+statistics in the slides. Recoverable statistics contain only means, medians,
+and percentages. Sample counts, flavor totals, spell counts, household IDs and
+weekly records are not written to this output. Existing samples and results are
+preserved.
+
+Synthetic local checks:
+
+```bash
+python3 Code/final_simple/server/test_flavor_family_statistics.py
+```
+
 ## Change grouping or rerun summaries and estimates
 
 ```bash

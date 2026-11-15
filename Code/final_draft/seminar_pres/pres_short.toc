@@ -1,7 +1,7 @@
 \beamer@sectionintoc {1}{Introduction}{2}{0}{1}
-\beamer@sectionintoc {2}{Illustrative Model}{6}{0}{2}
-\beamer@sectionintoc {3}{Data}{17}{0}{3}
-\beamer@sectionintoc {4}{Demand Estimation}{21}{0}{4}
-\beamer@sectionintoc {5}{Pricing Exercise}{27}{0}{5}
-\beamer@sectionintoc {6}{Conclusion}{31}{0}{6}
-\beamer@sectionintoc {7}{Appendix}{33}{1}{7}
+\beamer@sectionintoc {2}{Illustrative Model}{7}{0}{2}
+\beamer@sectionintoc {3}{Data}{18}{0}{3}
+\beamer@sectionintoc {4}{Demand Estimation}{22}{0}{4}
+\beamer@sectionintoc {5}{Pricing Exercise}{28}{0}{5}
+\beamer@sectionintoc {6}{Conclusion}{32}{0}{6}
+\beamer@sectionintoc {7}{Appendix}{34}{1}{7}

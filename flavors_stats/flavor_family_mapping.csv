@@ -1,0 +1,1181 @@
+original_flavor,family,rule
+.go-gurt mixed berry,unresolved: .go-gurt mixed berry,retain_exact_label
+.go-gurt st,unresolved: .go-gurt st,retain_exact_label
+acai,acai,recognized_components
+acai mixed berry,acai + mixed_berry,recognized_components
+acai smoothie,acai + smoothie,recognized_components
+acl/h&dc,unresolved: acl/h&dc,retain_exact_label
+acl/ta&dcc,unresolved: acl/ta&dcc,retain_exact_label
+almond creme,almond,recognized_components
+alphonso mango,unresolved: alphonso mango,retain_exact_label
+amaretto cheesec,unresolved: amaretto cheesec,retain_exact_label
+ande! creamy st,unresolved: ande! creamy st,retain_exact_label
+ande! creamy vanilla,unresolved: ande! creamy vanilla,retain_exact_label
+anee apple crumble,unresolved: anee apple crumble,retain_exact_label
+anee coconut,unresolved: anee coconut,retain_exact_label
+anee date & fig,unresolved: anee date & fig,retain_exact_label
+anee french vanilla,unresolved: anee french vanilla,retain_exact_label
+anee lemon,unresolved: anee lemon,retain_exact_label
+anee peach passion fr,unresolved: anee peach passion fr,retain_exact_label
+anee plum walnut,unresolved: anee plum walnut,retain_exact_label
+anee st,unresolved: anee st,retain_exact_label
+anee wild blackberry,unresolved: anee wild blackberry,retain_exact_label
+anics bb,unresolved: anics bb,retain_exact_label
+anics blueberry pom,unresolved: anics blueberry pom,retain_exact_label
+anics plain,unresolved: anics plain,retain_exact_label
+anics st,unresolved: anics st,retain_exact_label
+anics vanilla,unresolved: anics vanilla,retain_exact_label
+apple,apple,recognized_components
+apple & cinnamon,apple + cinnamon,recognized_components
+apple blueberry smoothie,apple + blueberry + smoothie,recognized_components
+apple cinnamon,apple + cinnamon,recognized_components
+apple cinnamon oat,apple + cinnamon + oat,recognized_components
+apple cobbler,apple + cobbler,recognized_components
+apple crisp,unresolved: apple crisp,retain_exact_label
+apple pear cobbler smoothie,apple + cobbler + pear + smoothie,recognized_components
+apple pie,apple + pie,recognized_components
+apple pie a la m,unresolved: apple pie a la m,retain_exact_label
+apple turnover,unresolved: apple turnover,retain_exact_label
+apricot,apricot,recognized_components
+apricot mango,apricot + mango,recognized_components
+arms bb,unresolved: arms bb,retain_exact_label
+arms peach,unresolved: arms peach,retain_exact_label
+arms perfect blueberr,unresolved: arms perfect blueberr,retain_exact_label
+arms plain,unresolved: arms plain,retain_exact_label
+arms st,unresolved: arms st,retain_exact_label
+arms tp,unresolved: arms tp,retain_exact_label
+arms vanilla,unresolved: arms vanilla,retain_exact_label
+arms vanilla bean,unresolved: arms vanilla bean,retain_exact_label
+assorted,unresolved: assorted,retain_exact_label
+assorted/dccpwcc,unresolved: assorted/dccpwcc,retain_exact_label
+autumn carmel apple,unresolved: autumn carmel apple,retain_exact_label
+bacon,unresolved: bacon,retain_exact_label
+baked apple pie,unresolved: baked apple pie,retain_exact_label
+banana,banana,recognized_components
+banana & strb,banana + strawberry,recognized_components
+banana berry ble,unresolved: banana berry ble,retain_exact_label
+banana berry smo,unresolved: banana berry smo,retain_exact_label
+banana berry smoothie,banana + berry_unspecified + smoothie,recognized_components
+banana creme,banana,recognized_components
+banana smoothie,banana + smoothie,recognized_components
+banana split mousse,unresolved: banana split mousse,retain_exact_label
+banilla,unresolved: banilla,retain_exact_label
+bb,blueberry,recognized_components
+bb & acai,acai + blueberry,recognized_components
+bb & black cherry,black_cherry + blueberry,recognized_components
+bb & cream,blueberry,recognized_components
+bb & peach & st,blueberry + peach + strawberry,recognized_components
+bb & rby & st,blueberry + raspberry + strawberry,recognized_components
+bb & st,blueberry + strawberry,recognized_components
+bb & vanilla & s,unresolved: bb & vanilla & s,retain_exact_label
+bb acai,acai + blueberry,recognized_components
+bb blast,unresolved: bb blast,retain_exact_label
+bb bliss,blueberry,recognized_components
+bb bonanza,unresolved: bb bonanza,retain_exact_label
+bb cardamom,unresolved: bb cardamom,retain_exact_label
+bb cheesecake,blueberry + cheesecake,recognized_components
+bb cream,blueberry,recognized_components
+bb crumb pie,unresolved: bb crumb pie,retain_exact_label
+bb crumble,unresolved: bb crumble,retain_exact_label
+bb lemon,blueberry + lemon,recognized_components
+bb mss,blueberry + mousse,recognized_components
+bb oat,blueberry + oat,recognized_components
+bb parfait/grano,unresolved: bb parfait/grano,retain_exact_label
+bb patch,blueberry,recognized_components
+bb patch & st,blueberry + strawberry,recognized_components
+bb pomegranate,blueberry + pomegranate,recognized_components
+bb power/cp&ssw,unresolved: bb power/cp&ssw,retain_exact_label
+bb/chch cookie bites,unresolved: bb/chch cookie bites,retain_exact_label
+bb/granola,blueberry + granola,recognized_components
+bbl & berry extreme,unresolved: bbl & berry extreme,retain_exact_label
+bbp & st watermelonator,unresolved: bbp & st watermelonator,retain_exact_label
+bc&stbn&p,unresolved: bc&stbn&p,retain_exact_label
+bcp,unresolved: bcp,retain_exact_label
+bcp & rby n cream,unresolved: bcp & rby n cream,retain_exact_label
+bcp/cfc,unresolved: bcp/cfc,retain_exact_label
+beet,unresolved: beet,retain_exact_label
+belle bb,unresolved: belle bb,retain_exact_label
+bello st & bn & bello st,unresolved: bello st & bn & bello st,retain_exact_label
+berries,berry_unspecified,recognized_components
+berries & cream,berry_unspecified,recognized_components
+berries n cream,berry_unspecified,recognized_components
+berry,berry_unspecified,recognized_components
+berry & banana & beet smoothie,unresolved: berry & banana & beet smoothie,retain_exact_label
+berry bash,unresolved: berry bash,retain_exact_label
+berry bg bash & blue razzberry,unresolved: berry bg bash & blue razzberry,retain_exact_label
+berry blue blast,unresolved: berry blue blast,retain_exact_label
+berry bn,banana + berry_unspecified,recognized_components
+berry bn split,unresolved: berry bn split,retain_exact_label
+berry bolt & ver,unresolved: berry bolt & ver,retain_exact_label
+berry bolt & very berry wtrmln,unresolved: berry bolt & very berry wtrmln,retain_exact_label
+berry parfait/granola,unresolved: berry parfait/granola,retain_exact_label
+berry pomegranate,berry_unspecified + pomegranate,recognized_components
+bgcs&bas,unresolved: bgcs&bas,retain_exact_label
+birchermuesli,unresolved: birchermuesli,retain_exact_label
+birthday cake,unresolved: birthday cake,retain_exact_label
+black cherries,unresolved: black cherries,retain_exact_label
+black cherry,black_cherry,recognized_components
+black cherry & blackberry,black_cherry + blackberry,recognized_components
+black cherry & pomegranate,black_cherry + pomegranate,recognized_components
+black cherry bur,unresolved: black cherry bur,retain_exact_label
+black cherry burst,black_cherry,recognized_components
+black cherry jubilee,unresolved: black cherry jubilee,retain_exact_label
+black cherry mss,black_cherry + mousse,recognized_components
+black cherry ord,unresolved: black cherry ord,retain_exact_label
+black chjb,unresolved: black chjb,retain_exact_label
+black currant,unresolved: black currant,retain_exact_label
+black forest cak,unresolved: black forest cak,retain_exact_label
+blackberry,blackberry,recognized_components
+blackberry & cream,blackberry,recognized_components
+blackberry & rby,blackberry + raspberry,recognized_components
+blackberry burst,blackberry,recognized_components
+blackberry creme,blackberry,recognized_components
+blackberry creme smoothie,blackberry + smoothie,recognized_components
+blackberry harve,blackberry,recognized_components
+blackberry lime,blackberry + lime,recognized_components
+blackberry lingonberry,unresolved: blackberry lingonberry,retain_exact_label
+blackberry pie,blackberry + pie,recognized_components
+blackberry pomeg,blackberry + pomegranate,recognized_components
+blackberry pomegranate,blackberry + pomegranate,recognized_components
+blackberry pomegranate/gdf,unresolved: blackberry pomegranate/gdf,retain_exact_label
+blackberry rby,blackberry + raspberry,recognized_components
+blackberry smoothie,blackberry + smoothie,recognized_components
+blazin berry,unresolved: blazin berry,retain_exact_label
+blood orange,blood_orange,recognized_components
+blue rby rage & st wtrmln rush,unresolved: blue rby rage & st wtrmln rush,retain_exact_label
+blueberries & cream,blueberry,recognized_components
+blueberry,blueberry,recognized_components
+blueberry pie,blueberry + pie,recognized_components
+blueberry pomegranate,blueberry + pomegranate,recognized_components
+blueberry pomegranate smoothie,blueberry + pomegranate + smoothie,recognized_components
+blueberry smooth,unresolved: blueberry smooth,retain_exact_label
+blueberry smoothie,blueberry + smoothie,recognized_components
+bn,banana,recognized_components
+bn & dark chocolate,unresolved: bn & dark chocolate,retain_exact_label
+bn & papaya,unresolved: bn & papaya,retain_exact_label
+bn & st,banana + strawberry,recognized_components
+bn bread,unresolved: bn bread,retain_exact_label
+bn caramel,banana + caramel,recognized_components
+bn cream,banana,recognized_components
+bn cream pie,banana + pie,recognized_components
+bn creme,banana,recognized_components
+bn creme pie,banana + pie,recognized_components
+bn foster,unresolved: bn foster,retain_exact_label
+bn maple oat,banana + maple + oat,recognized_components
+bn pudding,unresolved: bn pudding,retain_exact_label
+bn split,unresolved: bn split,retain_exact_label
+bn split & st mi,unresolved: bn split & st mi,retain_exact_label
+bn st,banana + strawberry,recognized_components
+bn vanilla,banana + vanilla,recognized_components
+bn/chocolate grahams,unresolved: bn/chocolate grahams,retain_exact_label
+bn/nabisco nilla wafers pieces,unresolved: bn/nabisco nilla wafers pieces,retain_exact_label
+bn/nilla wafers pieces,unresolved: bn/nilla wafers pieces,retain_exact_label
+boston cream pie,unresolved: boston cream pie,retain_exact_label
+bouncin banana&totally vanilla,unresolved: bouncin banana&totally vanilla,retain_exact_label
+boysenberry,boysenberry,recognized_components
+boysenberry bliss,boysenberry,recognized_components
+bsb,unresolved: bsb,retain_exact_label
+burstin'melonber,unresolved: burstin'melonber,retain_exact_label
+burstn bb & swirln st,unresolved: burstn bb & swirln st,retain_exact_label
+by banana,unresolved: by banana,retain_exact_label
+by peach,unresolved: by peach,retain_exact_label
+byp&bbp,unresolved: byp&bbp,retain_exact_label
+byp&cbyr,unresolved: byp&cbyr,retain_exact_label
+c-o cherry&st ki,unresolved: c-o cherry&st ki,retain_exact_label
+cafe au lait,unresolved: cafe au lait,retain_exact_label
+cafe latte,unresolved: cafe latte,retain_exact_label
+cafe mocha,unresolved: cafe mocha,retain_exact_label
+california nectarine,unresolved: california nectarine,retain_exact_label
+cappuccino,unresolved: cappuccino,retain_exact_label
+caramel,caramel,recognized_components
+caramel apple,apple + caramel,recognized_components
+caramel apple pie,apple + caramel + pie,recognized_components
+caramel cheesecake,caramel + cheesecake,recognized_components
+caramel macchiato,unresolved: caramel macchiato,retain_exact_label
+caramel macchiato coffee,unresolved: caramel macchiato coffee,retain_exact_label
+caramel spice cake,unresolved: caramel spice cake,retain_exact_label
+carrot,unresolved: carrot,retain_exact_label
+cbc,unresolved: cbc,retain_exact_label
+cby creme brulee,unresolved: cby creme brulee,retain_exact_label
+cdrs,unresolved: cdrs,retain_exact_label
+cheesecake/gcp,unresolved: cheesecake/gcp,retain_exact_label
+cherries & red berries,berry_unspecified + cherry,recognized_components
+cherry,cherry,recognized_components
+cherry & bb,blueberry + cherry,recognized_components
+cherry & berry p,unresolved: cherry & berry p,retain_exact_label
+cherry & dc,unresolved: cherry & dc,retain_exact_label
+cherry & vanilla,cherry + vanilla,recognized_components
+cherry & vanilla & st,cherry + strawberry + vanilla,recognized_components
+cherry berry smoothie,berry_unspecified + cherry + smoothie,recognized_components
+cherry cheesecak,cheesecake + cherry,recognized_components
+cherry cheesecake,cheesecake + cherry,recognized_components
+cherry cheesecake mousse,cheesecake + cherry + mousse,recognized_components
+cherry cheesecake parfait,unresolved: cherry cheesecake parfait,retain_exact_label
+cherry chiffon,unresolved: cherry chiffon,retain_exact_label
+cherry chocolate,cherry + chocolate,recognized_components
+cherry crisp,unresolved: cherry crisp,retain_exact_label
+cherry fizz vanilla/c&pc,unresolved: cherry fizz vanilla/c&pc,retain_exact_label
+cherry licious,unresolved: cherry licious,retain_exact_label
+cherry nut,unresolved: cherry nut,retain_exact_label
+cherry ord,unresolved: cherry ord,retain_exact_label
+cherry ord & french vanilla,unresolved: cherry ord & french vanilla,retain_exact_label
+cherry pomegrana,cherry + pomegranate,recognized_components
+cherry pomegranate,cherry + pomegranate,recognized_components
+cherry rush,unresolved: cherry rush,retain_exact_label
+cherry smoothie,cherry + smoothie,recognized_components
+cherry v-c,unresolved: cherry v-c,retain_exact_label
+cherry vanilla,cherry + vanilla,recognized_components
+cherry vanilla s,unresolved: cherry vanilla s,retain_exact_label
+cherry vanilla smoothie,cherry + smoothie + vanilla,recognized_components
+cherry/granola,cherry + granola,recognized_components
+chia bb,unresolved: chia bb,retain_exact_label
+chia blackberry,unresolved: chia blackberry,retain_exact_label
+chia blood orange,unresolved: chia blood orange,retain_exact_label
+chia peach,unresolved: chia peach,retain_exact_label
+chia st,unresolved: chia st,retain_exact_label
+chia st rby cranberry,unresolved: chia st rby cranberry,retain_exact_label
+chillin cherry,unresolved: chillin cherry,retain_exact_label
+chillin cherry &,unresolved: chillin cherry &,retain_exact_label
+chillin cherry & ssb,unresolved: chillin cherry & ssb,retain_exact_label
+chocolate,chocolate,recognized_components
+chocolate cherry mousse,cherry + chocolate + mousse,recognized_components
+chocolate chip,unresolved: chocolate chip,retain_exact_label
+chocolate covered st,unresolved: chocolate covered st,retain_exact_label
+chocolate dust,unresolved: chocolate dust,retain_exact_label
+chocolate eclair parfait,unresolved: chocolate eclair parfait,retain_exact_label
+chocolate haze craze/h&cc,unresolved: chocolate haze craze/h&cc,retain_exact_label
+chocolate mint,chocolate + mint,recognized_components
+chocolate mint mousse,chocolate + mint + mousse,recognized_components
+chocolate mousse,chocolate + mousse,recognized_components
+chocolate rby,chocolate + raspberry,recognized_components
+chocolate rby mo,unresolved: chocolate rby mo,retain_exact_label
+chocolate rby pa,unresolved: chocolate rby pa,retain_exact_label
+chocolate rby truffle,unresolved: chocolate rby truffle,retain_exact_label
+chocolate truffl,unresolved: chocolate truffl,retain_exact_label
+chocolate underg,unresolved: chocolate underg,retain_exact_label
+cinnamon apple/granola,apple + cinnamon + granola,recognized_components
+cinnamon bun,unresolved: cinnamon bun,retain_exact_label
+cinnamon hazelnut,unresolved: cinnamon hazelnut,retain_exact_label
+cinnamon maple,cinnamon + maple,recognized_components
+cinnamon roll,unresolved: cinnamon roll,retain_exact_label
+citrus blend,unresolved: citrus blend,retain_exact_label
+citrus green tea,unresolved: citrus green tea,retain_exact_label
+citrus mango smoothie,unresolved: citrus mango smoothie,retain_exact_label
+ckncr,unresolved: ckncr,retain_exact_label
+ckncr/nab oreo c,unresolved: ckncr/nab oreo c,retain_exact_label
+ckncr/nab oreo cke pieces,unresolved: ckncr/nab oreo cke pieces,retain_exact_label
+ckncr/nocp & van,unresolved: ckncr/nocp & van,retain_exact_label
+classic st,strawberry,recognized_components
+classic st & bb,blueberry + strawberry,recognized_components
+classic st & pea,unresolved: classic st & pea,retain_exact_label
+classic st & peaches & cream,peach + strawberry,recognized_components
+classic st & peaches n cream,peach + strawberry,recognized_components
+classic st & st bn split,unresolved: classic st & st bn split,retain_exact_label
+coco,unresolved: coco,retain_exact_label
+coconut,coconut,recognized_components
+coconut caramel,caramel + coconut,recognized_components
+coconut caramel & st,caramel + coconut + strawberry,recognized_components
+coconut chia smoothie,unresolved: coconut chia smoothie,retain_exact_label
+coconut cream,coconut,recognized_components
+coconut cream pi,unresolved: coconut cream pi,retain_exact_label
+coconut cream pie,coconut + pie,recognized_components
+coconut cream pie/gc crumbles,unresolved: coconut cream pie/gc crumbles,retain_exact_label
+coconut creme,coconut,recognized_components
+coconut creme pie,coconut + pie,recognized_components
+coconut flax seeds,unresolved: coconut flax seeds,retain_exact_label
+coconut macaroon mousse,unresolved: coconut macaroon mousse,retain_exact_label
+coconut pineapple,coconut + pineapple,recognized_components
+coconut plus chia,unresolved: coconut plus chia,retain_exact_label
+coconut smoothie,coconut + smoothie,recognized_components
+coconut/blue diamond almond,unresolved: coconut/blue diamond almond,retain_exact_label
+coffee,coffee,recognized_components
+coffee break bliss/bp&c,unresolved: coffee break bliss/bp&c,retain_exact_label
+coffee cardamom,unresolved: coffee cardamom,retain_exact_label
+coffeehouse blend,unresolved: coffeehouse blend,retain_exact_label
+cookies & cream/chocolate cc,unresolved: cookies & cream/chocolate cc,retain_exact_label
+cool ctcdy & st,unresolved: cool ctcdy & st,retain_exact_label
+cosmopolitan,unresolved: cosmopolitan,retain_exact_label
+cotton candy,unresolved: cotton candy,retain_exact_label
+cotton candy smoothie,unresolved: cotton candy smoothie,retain_exact_label
+country orange c,unresolved: country orange c,retain_exact_label
+cranapple,unresolved: cranapple,retain_exact_label
+cranberry & boysenberry,boysenberry + cranberry,recognized_components
+cranberry & rby,cranberry + raspberry,recognized_components
+cranberry apple,apple + cranberry,recognized_components
+cranberry oat,cranberry + oat,recognized_components
+cranberry rby,cranberry + raspberry,recognized_components
+creamy bb & cream,blueberry,recognized_components
+creamy blackberry harve,blackberry,recognized_components
+creamy classic st & pea,unresolved: creamy classic st & pea,retain_exact_label
+creamy creme caramel,caramel,recognized_components
+creamy klp,key_lime + pie,recognized_components
+creamy latte mousse,unresolved: creamy latte mousse,retain_exact_label
+creamy peaches & cream,peach,recognized_components
+creamy peaches n cream,peach,recognized_components
+creamy royal rby,raspberry,recognized_components
+creamy st,strawberry,recognized_components
+creamy st & bn,banana + strawberry,recognized_components
+creamy st & st banana,banana + strawberry,recognized_components
+creamy vanilla,vanilla,recognized_components
+creme caramel pa,unresolved: creme caramel pa,retain_exact_label
+ctcdy,unresolved: ctcdy,retain_exact_label
+ctcdy & st & kiw,unresolved: ctcdy & st & kiw,retain_exact_label
+ctcdy & wild berry blue,unresolved: ctcdy & wild berry blue,retain_exact_label
+ctcdy thrill,unresolved: ctcdy thrill,retain_exact_label
+cucumber garlic tzatziki,unresolved: cucumber garlic tzatziki,retain_exact_label
+dark cherry,unresolved: dark cherry,retain_exact_label
+dark cherry chai,unresolved: dark cherry chai,retain_exact_label
+dark chocolate,unresolved: dark chocolate,retain_exact_label
+deep forest bb,unresolved: deep forest bb,retain_exact_label
+double berry cherry,unresolved: double berry cherry,retain_exact_label
+double chocolate chunk,unresolved: double chocolate chunk,retain_exact_label
+double tp sherbert,unresolved: double tp sherbert,retain_exact_label
+dulce de leche,unresolved: dulce de leche,retain_exact_label
+dulce de leche caramel & dc,unresolved: dulce de leche caramel & dc,retain_exact_label
+dulce de leche delight/ch&wcs,unresolved: dulce de leche delight/ch&wcs,retain_exact_label
+dulce de leche m,unresolved: dulce de leche m,retain_exact_label
+e blueberry,unresolved: e blueberry,retain_exact_label
+e blueberry & strb,unresolved: e blueberry & strb,retain_exact_label
+e klp,unresolved: e klp,retain_exact_label
+e mx-bry,unresolved: e mx-bry,retain_exact_label
+e natural smoothie,unresolved: e natural smoothie,retain_exact_label
+e peach,unresolved: e peach,retain_exact_label
+e peach smoothie,unresolved: e peach smoothie,retain_exact_label
+e st,unresolved: e st,retain_exact_label
+e strb,unresolved: e strb,retain_exact_label
+e strb & pomegrana,unresolved: e strb & pomegrana,retain_exact_label
+e strb banana,unresolved: e strb banana,retain_exact_label
+e strb smoothie,unresolved: e strb smoothie,retain_exact_label
+e vanilla,unresolved: e vanilla,retain_exact_label
+eamery maple,unresolved: eamery maple,retain_exact_label
+eamery plain,unresolved: eamery plain,retain_exact_label
+eamery vanilla,unresolved: eamery vanilla,retain_exact_label
+eggnog smoothie,unresolved: eggnog smoothie,retain_exact_label
+english creme & st,unresolved: english creme & st,retain_exact_label
+er power bb,unresolved: er power bb,retain_exact_label
+er power black cherry,unresolved: er power black cherry,retain_exact_label
+er power bn mango,unresolved: er power bn mango,retain_exact_label
+er power marionberry,unresolved: er power marionberry,retain_exact_label
+er power peach,unresolved: er power peach,retain_exact_label
+er power rby,unresolved: er power rby,retain_exact_label
+farms plain,unresolved: farms plain,retain_exact_label
+farms vanilla bean,unresolved: farms vanilla bean,retain_exact_label
+fct,unresolved: fct,retain_exact_label
+fig,unresolved: fig,retain_exact_label
+flyin dragon fruit,unresolved: flyin dragon fruit,retain_exact_label
+forest berry,unresolved: forest berry,retain_exact_label
+free st,unresolved: free st,retain_exact_label
+free vanilla,unresolved: free vanilla,retain_exact_label
+french roast coffee karma java,unresolved: french roast coffee karma java,retain_exact_label
+french silk chocolate,unresolved: french silk chocolate,retain_exact_label
+french vanilla,vanilla,recognized_components
+french vanilla & orange creme,orange + vanilla,recognized_components
+french vanilla mousse,mousse + vanilla,recognized_components
+french vanilla/ch-crnfk,unresolved: french vanilla/ch-crnfk,retain_exact_label
+frosty french vanilla,unresolved: frosty french vanilla,retain_exact_label
+fruit parfait/granola,unresolved: fruit parfait/granola,retain_exact_label
+fruit punch charge & tbf,unresolved: fruit punch charge & tbf,retain_exact_label
+garden bb,blueberry,recognized_components
+georgia peach pie,unresolved: georgia peach pie,retain_exact_label
+gingered pear,unresolved: gingered pear,retain_exact_label
+goo berry pie smoothie,unresolved: goo berry pie smoothie,retain_exact_label
+grape & st,unresolved: grape & st,retain_exact_label
+grape & wtrmln,unresolved: grape & wtrmln,retain_exact_label
+grapefruit,grapefruit,recognized_components
+green apple,unresolved: green apple,retain_exact_label
+green apple pie,unresolved: green apple pie,retain_exact_label
+green tea & honey,unresolved: green tea & honey,retain_exact_label
+guava,unresolved: guava,retain_exact_label
+guava papaya pna,unresolved: guava papaya pna,retain_exact_label
+guava papaya pnapl,unresolved: guava papaya pnapl,retain_exact_label
+guava smoothie,unresolved: guava smoothie,retain_exact_label
+h-p,unresolved: h-p,retain_exact_label
+h-p & cherry ord,unresolved: h-p & cherry ord,retain_exact_label
+h-p & st,unresolved: h-p & st,retain_exact_label
+harvest peach,peach,recognized_components
+harvest peach & chocolate mint,chocolate + mint + peach,recognized_components
+harvest peach & st,peach + strawberry,recognized_components
+hazelnut coffee,unresolved: hazelnut coffee,retain_exact_label
+homemade apple pie,unresolved: homemade apple pie,retain_exact_label
+honey,honey,recognized_components
+honey & lemon,honey + lemon,recognized_components
+honey & orange,honey + orange,recognized_components
+honey & st,honey + strawberry,recognized_components
+honey almond cre,unresolved: honey almond cre,retain_exact_label
+honey bb,blueberry + honey,recognized_components
+honey cinnamon creme brulee,unresolved: honey cinnamon creme brulee,retain_exact_label
+honey fig,unresolved: honey fig,retain_exact_label
+honey nana,unresolved: honey nana,retain_exact_label
+honey peach,honey + peach,recognized_components
+honey pear,honey + pear,recognized_components
+honey salted caramel,unresolved: honey salted caramel,retain_exact_label
+honey st,honey + strawberry,recognized_components
+honey vanilla,honey + vanilla,recognized_components
+honey/banana,banana + honey,recognized_components
+honey/granola,granola + honey,recognized_components
+huckleberry,huckleberry,recognized_components
+ick & creamy bb pie,blueberry + pie,recognized_components
+ick & creamy cherry cobbler,cherry + cobbler,recognized_components
+ick & creamy cinnamon roll,unresolved: ick & creamy cinnamon roll,retain_exact_label
+ick & creamy french vanilla,vanilla,recognized_components
+ick & creamy klp,key_lime + pie,recognized_components
+ick & creamy lemon meringue,lemon + meringue,recognized_components
+ick & creamy mixed berry,mixed_berry,recognized_components
+ick & creamy orange cream,orange,recognized_components
+ick & creamy peaches n cream,peach,recognized_components
+ick & creamy st,strawberry,recognized_components
+ions chch,unresolved: ions chch,retain_exact_label
+ions cherry chch,unresolved: ions cherry chch,retain_exact_label
+ions mint chch,unresolved: ions mint chch,retain_exact_label
+ions st,unresolved: ions st,retain_exact_label
+ions vanilla bean,unresolved: ions vanilla bean,retain_exact_label
+isted vanilla parfait/,unresolved: isted vanilla parfait/,retain_exact_label
+it carb cntrl berry n cream sm,unresolved: it carb cntrl berry n cream sm,retain_exact_label
+it carb cntrl strb n cream smo,unresolved: it carb cntrl strb n cream smo,retain_exact_label
+it+0% fat plusmixed berry smoo,unresolved: it+0% fat plusmixed berry smoo,retain_exact_label
+it+0% fat plusmx-bry smoothie,unresolved: it+0% fat plusmx-bry smoothie,retain_exact_label
+it+0% fat pluspeach passion fr,unresolved: it+0% fat pluspeach passion fr,retain_exact_label
+it+0% fat plusstrb & banana sm,unresolved: it+0% fat plusstrb & banana sm,retain_exact_label
+it+0% fat plusstrb smoothie,unresolved: it+0% fat plusstrb smoothie,retain_exact_label
+italian creme & peaches,unresolved: italian creme & peaches,retain_exact_label
+jammin st,unresolved: jammin st,retain_exact_label
+jammin st&rockin bb,unresolved: jammin st&rockin bb,retain_exact_label
+juicy peach,unresolved: juicy peach,retain_exact_label
+just peachy,unresolved: just peachy,retain_exact_label
+key lime,key_lime,recognized_components
+key lime crumble/gc&wc,unresolved: key lime crumble/gc&wc,retain_exact_label
+key lime pie,key_lime + pie,recognized_components
+key lime pie mousse,key_lime + mousse + pie,recognized_components
+key lime pie smoothie,key_lime + pie + smoothie,recognized_components
+key lime/gc pieces,unresolved: key lime/gc pieces,retain_exact_label
+kiwi passion fru,unresolved: kiwi passion fru,retain_exact_label
+kiwi passion fruit lime,kiwi + lime + passion_fruit,recognized_components
+klp,key_lime + pie,recognized_components
+klp & very vanil,unresolved: klp & very vanil,retain_exact_label
+klp/gc crumbles,unresolved: klp/gc crumbles,retain_exact_label
+kool key lime&ot,unresolved: kool key lime&ot,retain_exact_label
+l-c,unresolved: l-c,retain_exact_label
+l-c pie,unresolved: l-c pie,retain_exact_label
+la vie en st,unresolved: la vie en st,retain_exact_label
+lemon,lemon,recognized_components
+lemon burst,lemon,recognized_components
+lemon cheesecake,cheesecake + lemon,recognized_components
+lemon cream pie,lemon + pie,recognized_components
+lemon ginger,unresolved: lemon ginger,retain_exact_label
+lemon meringue,lemon + meringue,recognized_components
+lemon meringue mss,lemon + meringue + mousse,recognized_components
+lemon meringue pie,lemon + meringue + pie,recognized_components
+lemon rby,lemon + raspberry,recognized_components
+lemon squeeze,unresolved: lemon squeeze,retain_exact_label
+lemon torte parf,unresolved: lemon torte parf,retain_exact_label
+lemon tw,unresolved: lemon tw,retain_exact_label
+lemon/shortbread cps,unresolved: lemon/shortbread cps,retain_exact_label
+lime,lime,recognized_components
+liver,unresolved: liver,retain_exact_label
+lmd & bb,unresolved: lmd & bb,retain_exact_label
+luscious lemon,lemon,recognized_components
+m apricot mango,unresolved: m apricot mango,retain_exact_label
+m bb,unresolved: m bb,retain_exact_label
+m blueberry pomegr,unresolved: m blueberry pomegr,retain_exact_label
+m plain,unresolved: m plain,retain_exact_label
+m st,unresolved: m st,retain_exact_label
+madagascar vanilla bean,unresolved: madagascar vanilla bean,retain_exact_label
+madagascar vanilla smoothie,unresolved: madagascar vanilla smoothie,retain_exact_label
+mandarin orange,unresolved: mandarin orange,retain_exact_label
+mango,mango,recognized_components
+mango & coconut,coconut + mango,recognized_components
+mango & guava,unresolved: mango & guava,retain_exact_label
+mango & peach,mango + peach,recognized_components
+mango banana smoothie,banana + mango + smoothie,recognized_components
+mango lime,lime + mango,recognized_components
+mango mss,mango + mousse,recognized_components
+mango passionfruit,unresolved: mango passionfruit,retain_exact_label
+mango pineapple,mango + pineapple,recognized_components
+mango pineapple & orange,mango + orange + pineapple,recognized_components
+mango pomegranate,mango + pomegranate,recognized_components
+mango smoothie,mango + smoothie,recognized_components
+mango tangerine,mango + tangerine,recognized_components
+mango/granola,granola + mango,recognized_components
+maple,maple,recognized_components
+maple & brown sugar,unresolved: maple & brown sugar,retain_exact_label
+maple & vanilla,maple + vanilla,recognized_components
+maple buckwheat & qi,unresolved: maple buckwheat & qi,retain_exact_label
+maple ginger,unresolved: maple ginger,retain_exact_label
+maple/crispy waffle pieces,unresolved: maple/crispy waffle pieces,retain_exact_label
+maraschino cherr,unresolved: maraschino cherr,retain_exact_label
+maraschino cherry & vanilla,unresolved: maraschino cherry & vanilla,retain_exact_label
+margarita,unresolved: margarita,retain_exact_label
+marionberry,marionberry,recognized_components
+marionberry cobbler,cobbler + marionberry,recognized_components
+marionberry smoothie,marionberry + smoothie,recognized_components
+mb pft/c-grn,unresolved: mb pft/c-grn,retain_exact_label
+mc-gpp,unresolved: mc-gpp,retain_exact_label
+merry mx-bry smo,unresolved: merry mx-bry smo,retain_exact_label
+mighty fruit punch & ssr,unresolved: mighty fruit punch & ssr,retain_exact_label
+mint,mint,recognized_components
+mint & dark chocolate,unresolved: mint & dark chocolate,retain_exact_label
+mint chch,unresolved: mint chch,retain_exact_label
+mixed berries,mixed_berry,recognized_components
+mixed berries st pft/granola,unresolved: mixed berries st pft/granola,retain_exact_label
+mixed berry,mixed_berry,recognized_components
+mixed berry & black cherry,black_cherry + mixed_berry,recognized_components
+mixed berry burst,mixed_berry,recognized_components
+mixed berry half pipe,unresolved: mixed berry half pipe,retain_exact_label
+mixed berry medley,unresolved: mixed berry medley,retain_exact_label
+mixed berry smoothie,mixed_berry + smoothie,recognized_components
+mixed berry/gran,unresolved: mixed berry/gran,retain_exact_label
+mixed berry/granola,granola + mixed_berry,recognized_components
+mocha,unresolved: mocha,retain_exact_label
+mocha coffee,unresolved: mocha coffee,retain_exact_label
+mocha latte,unresolved: mocha latte,retain_exact_label
+mocha mint,unresolved: mocha mint,retain_exact_label
+mon cherry amour,unresolved: mon cherry amour,retain_exact_label
+ms peach,unresolved: ms peach,retain_exact_label
+mt bb,unresolved: mt bb,retain_exact_label
+mt berry,unresolved: mt berry,retain_exact_label
+mt huckleberry,unresolved: mt huckleberry,retain_exact_label
+mx-bry,unresolved: mx-bry,retain_exact_label
+mx-bry smoothie,unresolved: mx-bry smoothie,retain_exact_label
+n,unresolved: n,retain_exact_label
+n - ic str,unresolved: n - ic str,retain_exact_label
+n apple bread pudd,unresolved: n apple bread pudd,retain_exact_label
+n apple pie,apple + pie,recognized_components
+n bb,blueberry,recognized_components
+n black cherry,black_cherry,recognized_components
+n bn vanilla,banana + vanilla,recognized_components
+n cherry & vanilla,cherry + vanilla,recognized_components
+n clementine,unresolved: n clementine,retain_exact_label
+n french vanilla b,unresolved: n french vanilla b,retain_exact_label
+n lemon,lemon,recognized_components
+n orange cream,orange,recognized_components
+n peach,peach,recognized_components
+n peach apricot va,unresolved: n peach apricot va,retain_exact_label
+n peach cobbler,cobbler + peach,recognized_components
+n pina colada,unresolved: n pina colada,retain_exact_label
+n plain,plain,recognized_components
+n rby & vanilla,raspberry + vanilla,recognized_components
+n rby white chocol,unresolved: n rby white chocol,retain_exact_label
+n red rby,raspberry,recognized_components
+n st,strawberry,recognized_components
+n st & bn,banana + strawberry,recognized_components
+n st & vanilla,strawberry + vanilla,recognized_components
+n st cheesecake,cheesecake + strawberry,recognized_components
+n st rhubarb pie,pie + rhubarb + strawberry,recognized_components
+n st shortcake,shortcake + strawberry,recognized_components
+n st white chocola,unresolved: n st white chocola,retain_exact_label
+n vanilla,vanilla,recognized_components
+n vanilla latte,unresolved: n vanilla latte,retain_exact_label
+n vanilla pear,pear + vanilla,recognized_components
+n yo-lite bb,unresolved: n yo-lite bb,retain_exact_label
+n yo-lite bb buckle,unresolved: n yo-lite bb buckle,retain_exact_label
+n yo-lite bb cheesecake,unresolved: n yo-lite bb cheesecake,retain_exact_label
+n yo-lite black cherry,unresolved: n yo-lite black cherry,retain_exact_label
+n yo-lite cherry & vanilla,unresolved: n yo-lite cherry & vanilla,retain_exact_label
+n yo-lite cherry vanilla,unresolved: n yo-lite cherry vanilla,retain_exact_label
+n yo-lite french vanilla b,unresolved: n yo-lite french vanilla b,retain_exact_label
+n yo-lite key lime,unresolved: n yo-lite key lime,retain_exact_label
+n yo-lite lemon,unresolved: n yo-lite lemon,retain_exact_label
+n yo-lite limon cream tort,unresolved: n yo-lite limon cream tort,retain_exact_label
+n yo-lite orange,unresolved: n yo-lite orange,retain_exact_label
+n yo-lite orange grapefrui,unresolved: n yo-lite orange grapefrui,retain_exact_label
+n yo-lite orange pomegrana,unresolved: n yo-lite orange pomegrana,retain_exact_label
+n yo-lite peach,unresolved: n yo-lite peach,retain_exact_label
+n yo-lite peach apricot va,unresolved: n yo-lite peach apricot va,retain_exact_label
+n yo-lite rby,unresolved: n yo-lite rby,retain_exact_label
+n yo-lite rby & vanilla,unresolved: n yo-lite rby & vanilla,retain_exact_label
+n yo-lite rby cheesecake,unresolved: n yo-lite rby cheesecake,retain_exact_label
+n yo-lite st,unresolved: n yo-lite st,retain_exact_label
+n yo-lite st & bn,unresolved: n yo-lite st & bn,retain_exact_label
+n yo-lite st cheesecake,unresolved: n yo-lite st cheesecake,retain_exact_label
+n yo-lite st rhubarb pie,unresolved: n yo-lite st rhubarb pie,retain_exact_label
+n yo-lite st vanilla,unresolved: n yo-lite st vanilla,retain_exact_label
+n yo-lite vanilla,unresolved: n yo-lite vanilla,retain_exact_label
+natural vanilla,vanilla,recognized_components
+new york cherry cheesecake,unresolved: new york cherry cheesecake,retain_exact_label
+newbury bb,unresolved: newbury bb,retain_exact_label
+northwest berry,unresolved: northwest berry,retain_exact_label
+northwest rby,unresolved: northwest rby,retain_exact_label
+ns peach & grains,unresolved: ns peach & grains,retain_exact_label
+ns pear & grains,unresolved: ns pear & grains,retain_exact_label
+ns rby & grains,unresolved: ns rby & grains,retain_exact_label
+ns st & grains,unresolved: ns st & grains,retain_exact_label
+nutty for nana/dc&hra,unresolved: nutty for nana/dc&hra,retain_exact_label
+old fashioned vanilla,unresolved: old fashioned vanilla,retain_exact_label
+onsin select bb,unresolved: onsin select bb,retain_exact_label
+onsin select bn cream pie,unresolved: onsin select bn cream pie,retain_exact_label
+onsin select klp,unresolved: onsin select klp,retain_exact_label
+onsin select lemon,unresolved: onsin select lemon,retain_exact_label
+onsin select peach,unresolved: onsin select peach,retain_exact_label
+onsin select pina colada,unresolved: onsin select pina colada,retain_exact_label
+onsin select rby,unresolved: onsin select rby,retain_exact_label
+onsin select st,unresolved: onsin select st,retain_exact_label
+onsin select st & bn,unresolved: onsin select st & bn,retain_exact_label
+ooh lala peach,unresolved: ooh lala peach,retain_exact_label
+orange,orange,recognized_components
+orange & creme,orange,recognized_components
+orange & creme & st & creme,orange + strawberry,recognized_components
+orange & ginger,unresolved: orange & ginger,retain_exact_label
+orange bliss,orange,recognized_components
+orange cranberry,cranberry + orange,recognized_components
+orange cranberry flax seeds,unresolved: orange cranberry flax seeds,retain_exact_label
+orange cream,orange,recognized_components
+orange cream & s,unresolved: orange cream & s,retain_exact_label
+orange cream smoothie,orange + smoothie,recognized_components
+orange creamy crawler,unresolved: orange creamy crawler,retain_exact_label
+orange creme,orange,recognized_components
+orange mango,mango + orange,recognized_components
+orange passion f,unresolved: orange passion f,retain_exact_label
+orange tango,unresolved: orange tango,retain_exact_label
+orange vanilla,orange + vanilla,recognized_components
+orchard harvest smoothie,unresolved: orchard harvest smoothie,retain_exact_label
+ord harvest,unresolved: ord harvest,retain_exact_label
+ord peach,unresolved: ord peach,retain_exact_label
+oregon bb,unresolved: oregon bb,retain_exact_label
+oregon black cherry,unresolved: oregon black cherry,retain_exact_label
+oregon marionberry,unresolved: oregon marionberry,retain_exact_label
+oregon st,unresolved: oregon st,retain_exact_label
+oregon st shortcake,unresolved: oregon st shortcake,retain_exact_label
+oregon strb smoothie,unresolved: oregon strb smoothie,retain_exact_label
+original,unresolved: original,retain_exact_label
+original smoothie,unresolved: original smoothie,retain_exact_label
+osm,unresolved: osm,retain_exact_label
+p-b,unresolved: p-b,retain_exact_label
+pacific coast st,unresolved: pacific coast st,retain_exact_label
+pacific northwest honey,unresolved: pacific northwest honey,retain_exact_label
+papaya,unresolved: papaya,retain_exact_label
+papaya orange sm,unresolved: papaya orange sm,retain_exact_label
+papaya orange smoothie,unresolved: papaya orange smoothie,retain_exact_label
+paradise punch &,unresolved: paradise punch &,retain_exact_label
+paradise punch smoothie,unresolved: paradise punch smoothie,retain_exact_label
+parfait/granola,unresolved: parfait/granola,retain_exact_label
+passion fruit,passion_fruit,recognized_components
+passion fruit or,unresolved: passion fruit or,retain_exact_label
+passionate mango,unresolved: passionate mango,retain_exact_label
+pch psn frt blen,unresolved: pch psn frt blen,retain_exact_label
+peach,peach,recognized_components
+peach & apple pie,apple + peach + pie,recognized_components
+peach & banana,banana + peach,recognized_components
+peach & cereal,cereal + peach,recognized_components
+peach & ginger,unresolved: peach & ginger,retain_exact_label
+peach & mango,mango + peach,recognized_components
+peach & orange &,orange + peach,recognized_components
+peach & passion fruit,passion_fruit + peach,recognized_components
+peach & pina col,unresolved: peach & pina col,retain_exact_label
+peach & pina colada,unresolved: peach & pina colada,retain_exact_label
+peach & st,peach + strawberry,recognized_components
+peach & st & bn,banana + peach + strawberry,recognized_components
+peach & st & st,peach + strawberry,recognized_components
+peach & st vanil,unresolved: peach & st vanil,retain_exact_label
+peach & vanilla,peach + vanilla,recognized_components
+peach apricot,apricot + peach,recognized_components
+peach banana smoothie,banana + peach + smoothie,recognized_components
+peach cobbler,cobbler + peach,recognized_components
+peach cobbler/cpc,unresolved: peach cobbler/cpc,retain_exact_label
+peach cream,peach,recognized_components
+peach green tea,unresolved: peach green tea,retain_exact_label
+peach mango,mango + peach,recognized_components
+peach parfait smoothie,unresolved: peach parfait smoothie,retain_exact_label
+peach parfait/crunchy granola,unresolved: peach parfait/crunchy granola,retain_exact_label
+peach parfait/gr,unresolved: peach parfait/gr,retain_exact_label
+peach passion,unresolved: peach passion,retain_exact_label
+peach passion fruit,passion_fruit + peach,recognized_components
+peach passion fruit smoothie,passion_fruit + peach + smoothie,recognized_components
+peach passion sm,unresolved: peach passion sm,retain_exact_label
+peach passion smoothie,unresolved: peach passion smoothie,retain_exact_label
+peach rby a la mode,unresolved: peach rby a la mode,retain_exact_label
+peach smoothie,peach + smoothie,recognized_components
+peach sweet tea,unresolved: peach sweet tea,retain_exact_label
+peach/granola,granola + peach,recognized_components
+peaches,peach,recognized_components
+peaches & cream,peach,recognized_components
+peaches & creme,peach,recognized_components
+peaches n cream,peach,recognized_components
+peaches/9wgg,unresolved: peaches/9wgg,retain_exact_label
+peachy peach smo,unresolved: peachy peach smo,retain_exact_label
+peachy pistachio/p&dc,unresolved: peachy pistachio/p&dc,retain_exact_label
+peanut butter dream/hrpbcmc,unresolved: peanut butter dream/hrpbcmc,retain_exact_label
+pear,pear,recognized_components
+pear & honey smoothie,honey + pear + smoothie,recognized_components
+pear mango smoothie,mango + pear + smoothie,recognized_components
+pecan,unresolved: pecan,retain_exact_label
+pecan & cereal smoothie,unresolved: pecan & cereal smoothie,retain_exact_label
+pecan cereal smoothie,unresolved: pecan cereal smoothie,retain_exact_label
+pecan smoothie,unresolved: pecan smoothie,retain_exact_label
+peppermint bark,unresolved: peppermint bark,retain_exact_label
+per shots blueberry,unresolved: per shots blueberry,retain_exact_label
+per shots mx-bry,unresolved: per shots mx-bry,retain_exact_label
+per shots peach,unresolved: per shots peach,retain_exact_label
+per shots strb & banana,unresolved: per shots strb & banana,retain_exact_label
+per shots vanilla,unresolved: per shots vanilla,retain_exact_label
+perfectly peach,unresolved: perfectly peach,retain_exact_label
+pho&cb,unresolved: pho&cb,retain_exact_label
+pina colada,unresolved: pina colada,retain_exact_label
+pina colada & gu,unresolved: pina colada & gu,retain_exact_label
+pina colada blen,unresolved: pina colada blen,retain_exact_label
+pina colada blend smoothie,unresolved: pina colada blend smoothie,retain_exact_label
+pina colada smoo,unresolved: pina colada smoo,retain_exact_label
+pina colada smoothie,unresolved: pina colada smoothie,retain_exact_label
+pineapple,pineapple,recognized_components
+pineapple & bn,banana + pineapple,recognized_components
+pineapple & coco,unresolved: pineapple & coco,retain_exact_label
+pineapple & coconut,coconut + pineapple,recognized_components
+pineapple & mango,mango + pineapple,recognized_components
+pineapple & orange & bn,banana + orange + pineapple,recognized_components
+pineapple mango,mango + pineapple,recognized_components
+pineapple passion fruit,passion_fruit + pineapple,recognized_components
+pineapple upside,unresolved: pineapple upside,retain_exact_label
+pineapple/passion fruit,passion_fruit + pineapple,recognized_components
+pineapple/toasted coconut,unresolved: pineapple/toasted coconut,retain_exact_label
+pink grapefruit,unresolved: pink grapefruit,retain_exact_label
+pink grapefruit lychee,unresolved: pink grapefruit lychee,retain_exact_label
+plain,plain,recognized_components
+plain & simple,unresolved: plain & simple,retain_exact_label
+plain/acr,unresolved: plain/acr,retain_exact_label
+plain/apple cranberry,apple + cranberry + plain,recognized_components
+plain/bb,blueberry + plain,recognized_components
+plain/bb acai,acai + blueberry + plain,recognized_components
+plain/blackberry,blackberry + plain,recognized_components
+plain/blood orange,blood_orange + plain,recognized_components
+plain/c&dcc,unresolved: plain/c&dcc,retain_exact_label
+plain/caramelized almonds,unresolved: plain/caramelized almonds,retain_exact_label
+plain/cherry,cherry + plain,recognized_components
+plain/cherry pomegranate,cherry + plain + pomegranate,recognized_components
+plain/chocolate coconut cc,unresolved: plain/chocolate coconut cc,retain_exact_label
+plain/clover honey,unresolved: plain/clover honey,retain_exact_label
+plain/crunchy granola,unresolved: plain/crunchy granola,retain_exact_label
+plain/dcs/pg,unresolved: plain/dcs/pg,retain_exact_label
+plain/dcs/r,unresolved: plain/dcs/r,retain_exact_label
+plain/granola,granola + plain,recognized_components
+plain/honey,honey + plain,recognized_components
+plain/honeyed apricot,unresolved: plain/honeyed apricot,retain_exact_label
+plain/key lime,key_lime + plain,recognized_components
+plain/kp-pft,unresolved: plain/kp-pft,retain_exact_label
+plain/mango,mango + plain,recognized_components
+plain/mg-g,unresolved: plain/mg-g,retain_exact_label
+plain/mixed berries,mixed_berry + plain,recognized_components
+plain/mp&ca,unresolved: plain/mp&ca,retain_exact_label
+plain/orange cinnamon,cinnamon + orange + plain,recognized_components
+plain/passion fruit clementine,unresolved: plain/passion fruit clementine,retain_exact_label
+plain/peach,peach + plain,recognized_components
+plain/raspberry,plain + raspberry,recognized_components
+plain/rby,plain + raspberry,recognized_components
+plain/rby pomegranate,plain + pomegranate + raspberry,recognized_components
+plain/st,plain + strawberry,recognized_components
+plain/st goji,goji + plain + strawberry,recognized_components
+pln,plain,recognized_components
+plum & fig,unresolved: plum & fig,retain_exact_label
+plum honey laven,unresolved: plum honey laven,retain_exact_label
+pmg-acai bb smoo,unresolved: pmg-acai bb smoo,retain_exact_label
+pnapl orange banana smoothie,unresolved: pnapl orange banana smoothie,retain_exact_label
+pomegranate,pomegranate,recognized_components
+pomegranate & cherry,cherry + pomegranate,recognized_components
+pomegranate & pa,unresolved: pomegranate & pa,retain_exact_label
+pomegranate & passion fruit,passion_fruit + pomegranate,recognized_components
+pomegranate acai,acai + pomegranate,recognized_components
+pomegranate acai smoothie,acai + pomegranate + smoothie,recognized_components
+pomegranate bb,blueberry + pomegranate,recognized_components
+pomegranate berr,unresolved: pomegranate berr,retain_exact_label
+pomegranate berry,berry_unspecified + pomegranate,recognized_components
+pomegranate cher,unresolved: pomegranate cher,retain_exact_label
+pomegranate cherry,cherry + pomegranate,recognized_components
+pomegranate green tea,unresolved: pomegranate green tea,retain_exact_label
+pomegranate mang,unresolved: pomegranate mang,retain_exact_label
+pomegranate pass,unresolved: pomegranate pass,retain_exact_label
+pomegranate pear,pear + pomegranate,recognized_components
+pomegranate rby,pomegranate + raspberry,recognized_components
+pomegranate smoo,unresolved: pomegranate smoo,retain_exact_label
+pomegranate smoothie,pomegranate + smoothie,recognized_components
+pomegranate st,pomegranate + strawberry,recognized_components
+pomegranate vani,unresolved: pomegranate vani,retain_exact_label
+pomegranate yumb,unresolved: pomegranate yumb,retain_exact_label
+pomegranite berr,unresolved: pomegranite berr,retain_exact_label
+ppf,unresolved: ppf,retain_exact_label
+prune,prune,recognized_components
+prune smoothie,prune + smoothie,recognized_components
+pumpkin,unresolved: pumpkin,retain_exact_label
+pumpkin & spice,unresolved: pumpkin & spice,retain_exact_label
+pumpkin cheesecake,unresolved: pumpkin cheesecake,retain_exact_label
+pumpkin cheesecake mousse,unresolved: pumpkin cheesecake mousse,retain_exact_label
+pumpkin pie,unresolved: pumpkin pie,retain_exact_label
+pumpkin spice sm,unresolved: pumpkin spice sm,retain_exact_label
+purple berry & l,unresolved: purple berry & l,retain_exact_label
+radiant rby,unresolved: radiant rby,retain_exact_label
+rainbow sherbet,unresolved: rainbow sherbet,retain_exact_label
+rainier rby,unresolved: rainier rby,retain_exact_label
+raisin & brown sugar,unresolved: raisin & brown sugar,retain_exact_label
+raspberry & cran,unresolved: raspberry & cran,retain_exact_label
+rbs/brownie bites,unresolved: rbs/brownie bites,retain_exact_label
+rby,raspberry,recognized_components
+rby & bb,blueberry + raspberry,recognized_components
+rby & cream,raspberry,recognized_components
+rby & creme,raspberry,recognized_components
+rby & dark chocolate,unresolved: rby & dark chocolate,retain_exact_label
+rby & orange,orange + raspberry,recognized_components
+rby & st & bn,banana + raspberry + strawberry,recognized_components
+rby acai berry,acai + berry_unspecified + raspberry,recognized_components
+rby blackberry,blackberry + raspberry,recognized_components
+rby cheesecake,cheesecake + raspberry,recognized_components
+rby chocolate,chocolate + raspberry,recognized_components
+rby chocolate chip,unresolved: rby chocolate chip,retain_exact_label
+rby cranberry,cranberry + raspberry,recognized_components
+rby cream,raspberry,recognized_components
+rby currant,unresolved: rby currant,retain_exact_label
+rby goji & bb acai,acai + blueberry + goji + raspberry,recognized_components
+rby lemon,lemon + raspberry,recognized_components
+rby lime,lime + raspberry,recognized_components
+rby lmd,unresolved: rby lmd,retain_exact_label
+rby mousse,mousse + raspberry,recognized_components
+rby mss,mousse + raspberry,recognized_components
+rby n cream,raspberry,recognized_components
+rby n cream & bcp,unresolved: rby n cream & bcp,retain_exact_label
+rby rainbow,unresolved: rby rainbow,retain_exact_label
+rby rhapsody,unresolved: rby rhapsody,retain_exact_label
+rby rush,unresolved: rby rush,retain_exact_label
+rby smoothie,raspberry + smoothie,recognized_components
+rby white grape,unresolved: rby white grape,retain_exact_label
+rby white tea,unresolved: rby white tea,retain_exact_label
+rby/c&dcc,unresolved: rby/c&dcc,retain_exact_label
+rby/dark chocolate pieces,unresolved: rby/dark chocolate pieces,retain_exact_label
+rby/granola,granola + raspberry,recognized_components
+rby/t-a,unresolved: rby/t-a,retain_exact_label
+red rby,raspberry,recognized_components
+red velvet,unresolved: red velvet,retain_exact_label
+red velvet cake,unresolved: red velvet cake,retain_exact_label
+rkn-rb-s & ot bg,unresolved: rkn-rb-s & ot bg,retain_exact_label
+roasted red pepper tzatziki,unresolved: roasted red pepper tzatziki,retain_exact_label
+rockin bb,unresolved: rockin bb,retain_exact_label
+rockin rby,unresolved: rockin rby,retain_exact_label
+rockin rby & swingin st bn,unresolved: rockin rby & swingin st bn,retain_exact_label
+rockin rby smoot,unresolved: rockin rby smoot,retain_exact_label
+rockin rby&swingin strb banana,unresolved: rockin rby&swingin strb banana,retain_exact_label
+root beer float,unresolved: root beer float,retain_exact_label
+root beer float mousse,unresolved: root beer float mousse,retain_exact_label
+royal st & bn,banana + strawberry,recognized_components
+rush crazy berry bolt,unresolved: rush crazy berry bolt,retain_exact_label
+s+ mx-bry,unresolved: s+ mx-bry,retain_exact_label
+s+ tropical fruit,unresolved: s+ tropical fruit,retain_exact_label
+salted caramel,unresolved: salted caramel,retain_exact_label
+san juan st,unresolved: san juan st,retain_exact_label
+sc & bp,unresolved: sc & bp,retain_exact_label
+sc cc/sp c&pp,unresolved: sc cc/sp c&pp,retain_exact_label
+scaders acai smoothie,unresolved: scaders acai smoothie,retain_exact_label
+scaders peach smoothie,unresolved: scaders peach smoothie,retain_exact_label
+scaders rby smoothie,unresolved: scaders rby smoothie,retain_exact_label
+scaders strb smoothie,unresolved: scaders strb smoothie,retain_exact_label
+screamin green apple,unresolved: screamin green apple,retain_exact_label
+sds & friendship berry,unresolved: sds & friendship berry,retain_exact_label
+seedless rby,unresolved: seedless rby,retain_exact_label
+sfpra,unresolved: sfpra,retain_exact_label
+soaring st,unresolved: soaring st,retain_exact_label
+southern pecan cheesecake,unresolved: southern pecan cheesecake,retain_exact_label
+spiced apple,unresolved: spiced apple,retain_exact_label
+splendid st,unresolved: splendid st,retain_exact_label
+spooky st sundae,unresolved: spooky st sundae,retain_exact_label
+sps&cdrs,unresolved: sps&cdrs,retain_exact_label
+ss-smt & pom berry smoothie,unresolved: ss-smt & pom berry smoothie,retain_exact_label
+ssb,unresolved: ssb,retain_exact_label
+st,strawberry,recognized_components
+st & bb,blueberry + strawberry,recognized_components
+st & bn,banana + strawberry,recognized_components
+st & bn & bb,banana + blueberry + strawberry,recognized_components
+st & bn & peach,banana + peach + strawberry,recognized_components
+st & bn & peache,unresolved: st & bn & peache,retain_exact_label
+st & bn & rby,banana + raspberry + strawberry,recognized_components
+st & bn & st,banana + strawberry,recognized_components
+st & bn & very cherry,banana + cherry + strawberry,recognized_components
+st & bn menage,unresolved: st & bn menage,retain_exact_label
+st & bn slam,unresolved: st & bn slam,retain_exact_label
+st & bn sprint,unresolved: st & bn sprint,retain_exact_label
+st & bn supreme,unresolved: st & bn supreme,retain_exact_label
+st & bn/grape nuts cereal,unresolved: st & bn/grape nuts cereal,retain_exact_label
+st & cereal,cereal + strawberry,recognized_components
+st & cereal & pineapple,cereal + pineapple + strawberry,recognized_components
+st & cream,strawberry,recognized_components
+st & creme,strawberry,recognized_components
+st & guanabana,unresolved: st & guanabana,retain_exact_label
+st & guava,unresolved: st & guava,retain_exact_label
+st & h-p,unresolved: st & h-p,retain_exact_label
+st & key lime,key_lime + strawberry,recognized_components
+st & key lime pie,key_lime + pie + strawberry,recognized_components
+st & kiwi,kiwi + strawberry,recognized_components
+st & mango,mango + strawberry,recognized_components
+st & mango tango,unresolved: st & mango tango,retain_exact_label
+st & mixed berry,mixed_berry + strawberry,recognized_components
+st & peach,peach + strawberry,recognized_components
+st & peach & van,unresolved: st & peach & van,retain_exact_label
+st & peach & vanilla,peach + strawberry + vanilla,recognized_components
+st & pom,unresolved: st & pom,retain_exact_label
+st & pomegranate,pomegranate + strawberry,recognized_components
+st & rby,raspberry + strawberry,recognized_components
+st & rhubarb,rhubarb + strawberry,recognized_components
+st & st & bn,banana + strawberry,recognized_components
+st & st & vanill,unresolved: st & st & vanill,retain_exact_label
+st & st banana,banana + strawberry,recognized_components
+st & vanilla,strawberry + vanilla,recognized_components
+st & very berry,berry_unspecified + strawberry,recognized_components
+st & veryberry,unresolved: st & veryberry,retain_exact_label
+st acai,acai + strawberry,recognized_components
+st blast,unresolved: st blast,retain_exact_label
+st bn,banana + strawberry,recognized_components
+st bn & peach,banana + peach + strawberry,recognized_components
+st bn & vanilla,banana + strawberry + vanilla,recognized_components
+st bn bash,unresolved: st bn bash,retain_exact_label
+st bn bash & rby,unresolved: st bn bash & rby,retain_exact_label
+st bn bliss,banana + strawberry,recognized_components
+st bn burst & blue rby ice,unresolved: st bn burst & blue rby ice,retain_exact_label
+st bn split,unresolved: st bn split,retain_exact_label
+st buckwheat & qi,unresolved: st buckwheat & qi,retain_exact_label
+st cheesecake,cheesecake + strawberry,recognized_components
+st cheesecake & bb n cream,blueberry + cheesecake + strawberry,recognized_components
+st cheesecake bliss,cheesecake + strawberry,recognized_components
+st cheesecake mss,cheesecake + mousse + strawberry,recognized_components
+st cheesecake/grm crumble,unresolved: st cheesecake/grm crumble,retain_exact_label
+st cream,strawberry,recognized_components
+st creme,strawberry,recognized_components
+st crush,unresolved: st crush,retain_exact_label
+st fruit cup,unresolved: st fruit cup,retain_exact_label
+st fruit cup & s,unresolved: st fruit cup & s,retain_exact_label
+st fruit cup & st,unresolved: st fruit cup & st,retain_exact_label
+st goji berry,berry_unspecified + goji + strawberry,recognized_components
+st ice castle & vn flurries,unresolved: st ice castle & vn flurries,retain_exact_label
+st lmd,unresolved: st lmd,retain_exact_label
+st lmd jolt & wild cherry zing,unresolved: st lmd jolt & wild cherry zing,retain_exact_label
+st mango,mango + strawberry,recognized_components
+st mist,strawberry,recognized_components
+st mousse,mousse + strawberry,recognized_components
+st mss,mousse + strawberry,recognized_components
+st n cream,strawberry,recognized_components
+st orange sunris,orange + strawberry,recognized_components
+st parfait cc/granola,unresolved: st parfait cc/granola,retain_exact_label
+st parfait/grano,unresolved: st parfait/grano,retain_exact_label
+st parfait/granola,unresolved: st parfait/granola,retain_exact_label
+st patch,strawberry,recognized_components
+st punch,unresolved: st punch,retain_exact_label
+st rby,raspberry + strawberry,recognized_components
+st rhubarb,rhubarb + strawberry,recognized_components
+st riptide & bik,unresolved: st riptide & bik,retain_exact_label
+st sensation,strawberry,recognized_components
+st shortcake,shortcake + strawberry,recognized_components
+st slide,unresolved: st slide,retain_exact_label
+st smash,unresolved: st smash,retain_exact_label
+st splash & berr,unresolved: st splash & berr,retain_exact_label
+st splash & berry blue blast,unresolved: st splash & berry blue blast,retain_exact_label
+st sundae,unresolved: st sundae,retain_exact_label
+st sunrise/c&hpg,unresolved: st sunrise/c&hpg,retain_exact_label
+st sunrise/honey oats,honey + oat + strawberry,recognized_components
+st&bn/granola,banana + granola + strawberry,recognized_components
+st-x,unresolved: st-x,retain_exact_label
+st-x & banana split smoothie,unresolved: st-x & banana split smoothie,retain_exact_label
+st-x & grape inv,unresolved: st-x & grape inv,retain_exact_label
+st-x & sst-kw sm,unresolved: st-x & sst-kw sm,retain_exact_label
+st-x & strikin strb kiwi,unresolved: st-x & strikin strb kiwi,retain_exact_label
+st-x & sw smoothie,unresolved: st-x & sw smoothie,retain_exact_label
+st-x & totally vanilla,unresolved: st-x & totally vanilla,retain_exact_label
+st-x & ww smoothie,unresolved: st-x & ww smoothie,retain_exact_label
+st-x smoothie,unresolved: st-x smoothie,retain_exact_label
+st-x&stk st kiwi&swingin st bn,unresolved: st-x&stk st kiwi&swingin st bn,retain_exact_label
+st/blue diamond almonds,unresolved: st/blue diamond almonds,retain_exact_label
+st/candy pieces,unresolved: st/candy pieces,retain_exact_label
+st/cereal,cereal + strawberry,recognized_components
+st/cereal/phbooc,unresolved: st/cereal/phbooc,retain_exact_label
+st/chocolate graham,unresolved: st/chocolate graham,retain_exact_label
+st/dark chocolate chips,unresolved: st/dark chocolate chips,retain_exact_label
+st/dark chocolate pieces,unresolved: st/dark chocolate pieces,retain_exact_label
+st/granola,granola + strawberry,recognized_components
+st/kskc,unresolved: st/kskc,retain_exact_label
+st/nab oreo cke,unresolved: st/nab oreo cke,retain_exact_label
+st/nestle cc pie,unresolved: st/nestle cc pie,retain_exact_label
+st/sprinkles,unresolved: st/sprinkles,retain_exact_label
+st/zpddc,unresolved: st/zpddc,retain_exact_label
+stealthy st,unresolved: stealthy st,retain_exact_label
+strawbana smoothie,unresolved: strawbana smoothie,retain_exact_label
+strawberries & c,unresolved: strawberries & c,retain_exact_label
+strb,strawberry,recognized_components
+strb & banana,banana + strawberry,recognized_components
+strb & banana sm,unresolved: strb & banana sm,retain_exact_label
+strb & banana smoothie,banana + smoothie + strawberry,recognized_components
+strb & berry smoothie,berry_unspecified + smoothie + strawberry,recognized_components
+strb banana,banana + strawberry,recognized_components
+strb banana & cereal smoothie,banana + cereal + smoothie + strawberry,recognized_components
+strb banana bash,unresolved: strb banana bash,retain_exact_label
+strb banana cream smoothie,banana + smoothie + strawberry,recognized_components
+strb banana smoo,unresolved: strb banana smoo,retain_exact_label
+strb banana smoothie,banana + smoothie + strawberry,recognized_components
+strb banana split,unresolved: strb banana split,retain_exact_label
+strb banana splsh smoothie,unresolved: strb banana splsh smoothie,retain_exact_label
+strb beet berry,unresolved: strb beet berry,retain_exact_label
+strb blend smoot,unresolved: strb blend smoot,retain_exact_label
+strb kiwi,kiwi + strawberry,recognized_components
+strb kiwi blend,unresolved: strb kiwi blend,retain_exact_label
+strb kiwi blend smoothie,unresolved: strb kiwi blend smoothie,retain_exact_label
+strb kiwi smoothie,kiwi + smoothie + strawberry,recognized_components
+strb milkshake,unresolved: strb milkshake,retain_exact_label
+strb parfait smoothie,unresolved: strb parfait smoothie,retain_exact_label
+strb smoothie,smoothie + strawberry,recognized_components
+strb splsh smoothie,unresolved: strb splsh smoothie,retain_exact_label
+strikin strb kiwi,unresolved: strikin strb kiwi,retain_exact_label
+summer fruit,unresolved: summer fruit,retain_exact_label
+summer st,unresolved: summer st,retain_exact_label
+summer watermelon smoothie,unresolved: summer watermelon smoothie,retain_exact_label
+summertime st,unresolved: summertime st,retain_exact_label
+super st & blazi,unresolved: super st & blazi,retain_exact_label
+super star st &,unresolved: super star st &,retain_exact_label
+surfin strb smoothie,unresolved: surfin strb smoothie,retain_exact_label
+sweet strb smoot,unresolved: sweet strb smoot,retain_exact_label
+swingin strb ban,unresolved: swingin strb ban,retain_exact_label
+swiss creme & berries,unresolved: swiss creme & berries,retain_exact_label
+t blue moon bb,unresolved: t blue moon bb,retain_exact_label
+t razzmatazz rby,unresolved: t razzmatazz rby,retain_exact_label
+t st patch,unresolved: t st patch,retain_exact_label
+t vivacious vanill,unresolved: t vivacious vanill,retain_exact_label
+t-c-v,unresolved: t-c-v,retain_exact_label
+tangerine,tangerine,recognized_components
+tart cherry,unresolved: tart cherry,retain_exact_label
+tbp parfait/crunchy streusal,unresolved: tbp parfait/crunchy streusal,retain_exact_label
+te/htc&g,unresolved: te/htc&g,retain_exact_label
+tempting blackberry tart,unresolved: tempting blackberry tart,retain_exact_label
+texas pecan pie,unresolved: texas pecan pie,retain_exact_label
+tg tropical frui,unresolved: tg tropical frui,retain_exact_label
+tiramisu,unresolved: tiramisu,retain_exact_label
+totally vanilla,unresolved: totally vanilla,retain_exact_label
+tp,unresolved: tp,retain_exact_label
+tp apricot mango,unresolved: tp apricot mango,retain_exact_label
+tp burst,unresolved: tp burst,retain_exact_label
+tp citrus,unresolved: tp citrus,retain_exact_label
+tp fruit,unresolved: tp fruit,retain_exact_label
+tp fruit pineapple mango,unresolved: tp fruit pineapple mango,retain_exact_label
+tp mss,unresolved: tp mss,retain_exact_label
+tp peach,unresolved: tp peach,retain_exact_label
+tp pineapple,unresolved: tp pineapple,retain_exact_label
+triple berry,unresolved: triple berry,retain_exact_label
+triple berry cre,unresolved: triple berry cre,retain_exact_label
+triple berry tor,unresolved: triple berry tor,retain_exact_label
+triple cherry,unresolved: triple cherry,retain_exact_label
+triple cherry &,unresolved: triple cherry &,retain_exact_label
+triple mountain,unresolved: triple mountain,retain_exact_label
+tropical fruit,unresolved: tropical fruit,retain_exact_label
+tropical mango s,unresolved: tropical mango s,retain_exact_label
+tzatziki,unresolved: tzatziki,retain_exact_label
+unknown,unresolved: unknown,retain_exact_label
+ural bb,unresolved: ural bb,retain_exact_label
+ural peach,unresolved: ural peach,retain_exact_label
+ural plain,unresolved: ural plain,retain_exact_label
+ural st,unresolved: ural st,retain_exact_label
+ural vanilla,unresolved: ural vanilla,retain_exact_label
+v-c,unresolved: v-c,retain_exact_label
+v-c & rby n crea,unresolved: v-c & rby n crea,retain_exact_label
+vanill parfait/crunchy granola,unresolved: vanill parfait/crunchy granola,retain_exact_label
+vanilla,vanilla,recognized_components
+vanilla & bn,banana + vanilla,recognized_components
+vanilla & caramel,caramel + vanilla,recognized_components
+vanilla & cereal,cereal + vanilla,recognized_components
+vanilla & key li,unresolved: vanilla & key li,retain_exact_label
+vanilla & key lime pie,key_lime + pie + vanilla,recognized_components
+vanilla & peach,peach + vanilla,recognized_components
+vanilla & st & b,unresolved: vanilla & st & b,retain_exact_label
+vanilla agave,unresolved: vanilla agave,retain_exact_label
+vanilla bean,vanilla,recognized_components
+vanilla bean smoothie,smoothie + vanilla,recognized_components
+vanilla buckwheat & qi,unresolved: vanilla buckwheat & qi,retain_exact_label
+vanilla chai,unresolved: vanilla chai,retain_exact_label
+vanilla chch/rby,unresolved: vanilla chch/rby,retain_exact_label
+vanilla cherry,cherry + vanilla,recognized_components
+vanilla chocolate chunk,unresolved: vanilla chocolate chunk,retain_exact_label
+vanilla cinnamon,cinnamon + vanilla,recognized_components
+vanilla cranberry,cranberry + vanilla,recognized_components
+vanilla creme mo,unresolved: vanilla creme mo,retain_exact_label
+vanilla cupcake mss,unresolved: vanilla cupcake mss,retain_exact_label
+vanilla golden cc/c&hpg,unresolved: vanilla golden cc/c&hpg,retain_exact_label
+vanilla honey,honey + vanilla,recognized_components
+vanilla latte coffee,unresolved: vanilla latte coffee,retain_exact_label
+vanilla parfait/,unresolved: vanilla parfait/,retain_exact_label
+vanilla parfait/granola,unresolved: vanilla parfait/granola,retain_exact_label
+vanilla pear,pear + vanilla,recognized_components
+vanilla pear smoothie,pear + smoothie + vanilla,recognized_components
+vanilla rby acai/t-a,unresolved: vanilla rby acai/t-a,retain_exact_label
+vanilla smoothie,smoothie + vanilla,recognized_components
+vanilla sundae,unresolved: vanilla sundae,retain_exact_label
+vanilla velvet,unresolved: vanilla velvet,retain_exact_label
+vanilla/9wgg,unresolved: vanilla/9wgg,retain_exact_label
+vanilla/almond,almond + vanilla,recognized_components
+vanilla/assorted,unresolved: vanilla/assorted,retain_exact_label
+vanilla/bb granola,blueberry + granola + vanilla,recognized_components
+vanilla/bn nut clusters,unresolved: vanilla/bn nut clusters,retain_exact_label
+vanilla/candy pieces,unresolved: vanilla/candy pieces,retain_exact_label
+vanilla/candy pieces/m&mc,unresolved: vanilla/candy pieces/m&mc,retain_exact_label
+vanilla/cccp,unresolved: vanilla/cccp,retain_exact_label
+vanilla/cck piec,unresolved: vanilla/cck piec,retain_exact_label
+vanilla/cereal,cereal + vanilla,recognized_components
+vanilla/chc candies,unresolved: vanilla/chc candies,retain_exact_label
+vanilla/chch grahams,unresolved: vanilla/chch grahams,retain_exact_label
+vanilla/chocolate,chocolate + vanilla,recognized_components
+vanilla/cps,unresolved: vanilla/cps,retain_exact_label
+vanilla/cps/nocp,unresolved: vanilla/cps/nocp,retain_exact_label
+vanilla/dark chocolate pieces,unresolved: vanilla/dark chocolate pieces,retain_exact_label
+vanilla/ddcp,unresolved: vanilla/ddcp,retain_exact_label
+vanilla/granola,granola + vanilla,recognized_components
+vanilla/hccps,unresolved: vanilla/hccps,retain_exact_label
+vanilla/hrsh res,unresolved: vanilla/hrsh res,retain_exact_label
+vanilla/kelloggs f-flks cereal,unresolved: vanilla/kelloggs f-flks cereal,retain_exact_label
+vanilla/kelloggs krave cereal,unresolved: vanilla/kelloggs krave cereal,retain_exact_label
+vanilla/kflc,unresolved: vanilla/kflc,retain_exact_label
+vanilla/m & m mars twix cookie,unresolved: vanilla/m & m mars twix cookie,retain_exact_label
+vanilla/m&m mpbcc,unresolved: vanilla/m&m mpbcc,retain_exact_label
+vanilla/m&mc,unresolved: vanilla/m&mc,retain_exact_label
+vanilla/m&mcc,unresolved: vanilla/m&mcc,retain_exact_label
+vanilla/m&mpc,unresolved: vanilla/m&mpc,retain_exact_label
+vanilla/m&mscp,unresolved: vanilla/m&mscp,retain_exact_label
+vanilla/nbpc,unresolved: vanilla/nbpc,retain_exact_label
+vanilla/ncacp,unresolved: vanilla/ncacp,retain_exact_label
+vanilla/ncpc,unresolved: vanilla/ncpc,retain_exact_label
+vanilla/nestle c,unresolved: vanilla/nestle c,retain_exact_label
+vanilla/oreo cps,unresolved: vanilla/oreo cps,retain_exact_label
+vanilla/pfpsc,unresolved: vanilla/pfpsc,retain_exact_label
+vanilla/phbooc,unresolved: vanilla/phbooc,retain_exact_label
+vanilla/sprinkles,unresolved: vanilla/sprinkles,retain_exact_label
+vanilla/st granola,granola + strawberry + vanilla,recognized_components
+vanilla/tm&ccd,unresolved: vanilla/tm&ccd,retain_exact_label
+vanilla/tt apple,unresolved: vanilla/tt apple,retain_exact_label
+vanilla/zpcpb,unresolved: vanilla/zpcpb,retain_exact_label
+vapp/cc,unresolved: vapp/cc,retain_exact_label
+vcpp/crunchy streusal,unresolved: vcpp/crunchy streusal,retain_exact_label
+verry berry,unresolved: verry berry,retain_exact_label
+vers bb & creme,unresolved: vers bb & creme,retain_exact_label
+vers orange & creme,unresolved: vers orange & creme,retain_exact_label
+vers peaches & creme,unresolved: vers peaches & creme,retain_exact_label
+vers rby & creme,unresolved: vers rby & creme,retain_exact_label
+vers st & creme,unresolved: vers st & creme,retain_exact_label
+vers st & creme & ora,unresolved: vers st & creme & ora,retain_exact_label
+very berry,berry_unspecified,recognized_components
+very berry smoothie,berry_unspecified + smoothie,recognized_components
+very cherry,cherry,recognized_components
+very cherry & very vanilla,cherry + vanilla,recognized_components
+very vanilla,vanilla,recognized_components
+vivela vanilla,unresolved: vivela vanilla,retain_exact_label
+vp/bb&granola,unresolved: vp/bb&granola,retain_exact_label
+vp/s&granola,unresolved: vp/s&granola,retain_exact_label
+vpba parfait/t-a,unresolved: vpba parfait/t-a,retain_exact_label
+vr&a parfait/t-a,unresolved: vr&a parfait/t-a,retain_exact_label
+vroom vroom vanilla,unresolved: vroom vroom vanilla,retain_exact_label
+w-m & st bn burs,unresolved: w-m & st bn burs,retain_exact_label
+washington rby,unresolved: washington rby,retain_exact_label
+wbb,unresolved: wbb,retain_exact_label
+white chocolate,white_chocolate,recognized_components
+white chocolate cheesecake,cheesecake + white_chocolate,recognized_components
+white chocolate rby,raspberry + white_chocolate,recognized_components
+white cranberry,unresolved: white cranberry,retain_exact_label
+white cranberry st,unresolved: white cranberry st,retain_exact_label
+wild bb,unresolved: wild bb,retain_exact_label
+wild berries,wild_berry,recognized_components
+wild berry blend,unresolved: wild berry blend,retain_exact_label
+wild berry blend smoothie,unresolved: wild berry blend smoothie,retain_exact_label
+wild berry smoot,unresolved: wild berry smoot,retain_exact_label
+wild berry smoothie,smoothie + wild_berry,recognized_components
+wild blueberry,unresolved: wild blueberry,retain_exact_label
+wild quebec bb,unresolved: wild quebec bb,retain_exact_label
+willamette boyse,unresolved: willamette boyse,retain_exact_label
+wtrmln,unresolved: wtrmln,retain_exact_label
+wtrmln burst,unresolved: wtrmln burst,retain_exact_label
+wtrmln burst & s,unresolved: wtrmln burst & s,retain_exact_label
+xl orange strb bana,unresolved: xl orange strb bana,retain_exact_label
+yakima peach,unresolved: yakima peach,retain_exact_label

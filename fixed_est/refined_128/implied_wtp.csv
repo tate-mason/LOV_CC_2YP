@@ -1,0 +1,6 @@
+term,mean_wtp,population_sd,interpretation,provisional_fit
+inside_constant,-2.791809691244772,3.914479365691787,"Other flavor vs outside, at zero history and control residual",False
+beta_berry,-1.2390364985980689,1.7372899099503494,Flavor premium relative to other,False
+beta_plain,-1.2782889480560278,1.7923269362698369,Flavor premium relative to other,False
+novelty,-0.09357825368295974,4.05893001439511,"Per unit novelty, holding the other history measure fixed",False
+own_stock,3.1966007915232586,8.772804919139334,"Per unit own_stock, holding the other history measure fixed",False

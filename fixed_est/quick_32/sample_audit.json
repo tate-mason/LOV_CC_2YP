@@ -1,0 +1,13 @@
+{
+  "observed_panel_weeks": 3014425,
+  "unmatched_or_invalid_yogurt_weeks": 423281,
+  "zero_purchase_weeks": 2348144,
+  "matched_purchase_weeks": 243000,
+  "zero_weeks_using_market_prices": 2290746,
+  "retained_weeks": 2034618,
+  "retained_zero_purchase_weeks": 1792368,
+  "retained_households": 15752,
+  "zero_week_price_rule": "Observed trip store; missing flavors use same-week consumer-DMA means; require all flavors.",
+  "original_purchase_weeks": 281695,
+  "original_households": 15105
+}

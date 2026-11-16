@@ -1,0 +1,36 @@
+{
+  "model": "heterogeneous_history",
+  "price_control": false,
+  "flavor_spec": "three",
+  "flavor_categories": [
+    "other",
+    "berry",
+    "plain"
+  ],
+  "novelty_measure": "previous_share",
+  "stock_measure": "average",
+  "households": 15752,
+  "weeks": 2034618,
+  "capacity": 7,
+  "observation_mode": "observed_panel",
+  "calendar_audit": {
+    "observed_panel_weeks": 3014425,
+    "unmatched_or_invalid_yogurt_weeks": 423281,
+    "zero_purchase_weeks": 2348144,
+    "matched_purchase_weeks": 243000,
+    "zero_weeks_using_market_prices": 2290746,
+    "retained_weeks": 2034618,
+    "retained_zero_purchase_weeks": 1792368,
+    "retained_households": 15752,
+    "zero_week_price_rule": "Observed trip store; missing flavors use same-week consumer-DMA means; require all flavors."
+  },
+  "converged": true,
+  "message": "CONVERGENCE: RELATIVE REDUCTION OF F <= FACTR*EPSMCH",
+  "inference": {
+    "method": "none",
+    "status": "disabled"
+  },
+  "nll": 3489867.716537151,
+  "aic": 6979753.433074302,
+  "bic": 6979822.415577885
+}

@@ -12,8 +12,29 @@ sys.path.insert(0, str(_root / 'Code/privacy'))
 from server_data_policy import server_only, require_data_path
 
 
+def flag_yogurt_lines(source, known_yogurt_upcs=None):
+    """Retail-known yogurt UPCs supplement HMS module classifications.
+
+    The original match selects RMS modules, not HMS modules. HMS metadata alone
+    therefore cannot define the pre-match yogurt total used for reconciliation.
+    """
+    text = pl.col('upc').cast(pl.String).str.strip_chars()
+    canonical = text.str.replace(r'\.0+$', '').str.strip_chars_start('0')
+    source = source.with_columns(pl.when(text.str.contains(r'^[0-9]+(?:\.0+)?$'))
+        .then(pl.when(canonical == '').then(pl.lit('0')).otherwise(canonical))
+        .otherwise(text).alias('upc'))
+    if known_yogurt_upcs is not None:
+        known = known_yogurt_upcs.select('upc').unique().with_columns(pl.lit(True).alias('_retail_yogurt'))
+        source = source.join(known, on='upc', how='left', validate='m:1')
+        retail_known = pl.col('_retail_yogurt').fill_null(False)
+    else:
+        retail_known = pl.lit(False)
+    module_known = pl.col('product_module_code').cast(pl.Int64, strict=False).is_in([3603, 3612]).fill_null(False)
+    return source.with_columns((module_known | retail_known).alias('_is_yogurt'))
+
+
 @server_only
-def load_observed_weeks(panel, households, settings):
+def load_observed_weeks(panel, households, settings, known_yogurt_upcs=None):
     """Aggregate the full shopping panel, restricted to existing demand households.
 
     One observed week requires at least one recorded shopping trip. Exposure is
@@ -24,7 +45,7 @@ def load_observed_weeks(panel, households, settings):
     source = pl.scan_parquet(panel)
     dma = getattr(settings, 'household_dma_column', 'dma_cd')
     required = {'household_code', 'household_size', 'panel_year', 'purchase_date',
-                'trip_code_uc', 'store_code_uc', 'product_module_code', 'quantity', dma}
+                'trip_code_uc', 'store_code_uc', 'product_module_code', 'upc', 'quantity', dma}
     missing = required - set(source.collect_schema().names())
     if missing:
         raise ValueError(f'Full shopping panel is missing columns: {sorted(missing)}')
@@ -36,7 +57,8 @@ def load_observed_weeks(panel, households, settings):
         .with_columns(pl.col('purchase_date').cast(pl.String).str.slice(0, 10).str.to_date()))
     source = source.with_columns((pl.col('purchase_date') + pl.duration(
         days=(6 - pl.col('purchase_date').dt.weekday()) % 7)).alias('week'))
-    yogurt = pl.col('product_module_code').cast(pl.Int64, strict=False).is_in([3603, 3612])
+    source = flag_yogurt_lines(source, known_yogurt_upcs)
+    yogurt = pl.col('_is_yogurt')
     quantity = pl.col('quantity').cast(pl.Float64, strict=False)
     # Returns/invalid yogurt quantities cannot establish a true zero.
     invalid = yogurt & (quantity.is_null() | ~quantity.is_finite() | (quantity <= 0))
@@ -81,8 +103,18 @@ def include_observed_weeks(weekly, calendar, flavors):
             result[c] = result[c].fillna(result['calendar_' + c])
     result[flavors] = result[flavors].fillna(0.)
     matched = result[flavors].sum(axis=1)
-    if (matched > result['raw_yogurt'] + 1e-8).any():
-        raise ValueError('Matched yogurt quantity exceeds full-panel yogurt quantity.')
+    surplus = matched > result['raw_yogurt'] + 1e-8
+    if surplus.any():
+        # Aggregate diagnostics only: no household codes, UPCs or record contents.
+        diagnostic = dict(affected_weeks=int(surplus.sum()),
+                          affected_share=float(surplus.mean()),
+                          matched_total=float(matched.loc[surplus].sum()),
+                          panel_total=float(result.loc[surplus, 'raw_yogurt'].sum()),
+                          panel_zero_weeks=int((result.loc[surplus, 'raw_yogurt'] == 0).sum()))
+        raise ValueError('Matched yogurt quantity exceeds full-panel yogurt quantity. '
+                         'Check that the panel and prepared sample belong to the same build; '
+                         'possible duplicate matched lines or catalog disagreement. Aggregate diagnostic: '
+                         + str(diagnostic))
     incomplete = result['invalid_yogurt'] | ~np.isclose(matched, result['raw_yogurt'])
     audit = dict(observed_panel_weeks=len(result),
                  unmatched_or_invalid_yogurt_weeks=int(incomplete.sum()),

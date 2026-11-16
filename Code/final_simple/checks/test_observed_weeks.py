@@ -7,12 +7,20 @@ import numpy as np
 import pandas as pd
 import polars as pl
 
-from demand.observed_weeks import include_observed_weeks, fill_zero_week_prices
+from demand.observed_weeks import include_observed_weeks, fill_zero_week_prices, flag_yogurt_lines
 from demand import estimation as est
 from demand.parallel_score import partition_households, parallel_objective
 
 
 class ObservedWeekChecks(unittest.TestCase):
+    def test_retail_yogurt_upcs_supplement_hms_modules_without_duplicating_lines(self):
+        source = pl.DataFrame(dict(upc=['0001', '2', '3', '4'],
+                                  product_module_code=[9999, 3612, 9999, None])).lazy()
+        known = pl.DataFrame({'upc': ['1', '1', '4']}).lazy()
+        actual = flag_yogurt_lines(source, known).collect()
+        self.assertEqual(actual.height, 4)
+        self.assertEqual(actual['_is_yogurt'].to_list(), [True, True, False, True])
+
     def calendar(self):
         return pd.DataFrame(dict(
             household_code=[10]*5,

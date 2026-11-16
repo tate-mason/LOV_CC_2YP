@@ -413,7 +413,8 @@ def prepare_data(settings):
             from .observed_weeks import load_observed_weeks, include_observed_weeks, fill_zero_week_prices
         except ImportError:
             from observed_weeks import load_observed_weeks, include_observed_weeks, fill_zero_week_prices
-        calendar = load_observed_weeks(settings.panel, lines["household_code"].unique(), settings)
+        calendar = load_observed_weeks(settings.panel, lines["household_code"].unique(), settings,
+                                       known_yogurt_upcs=base.select("upc").unique())
         weekly, calendar_audit = include_observed_weeks(weekly, calendar, FLAVORS)
         weekly["dma_cd"] = check_dma(weekly["dma_cd"], "calendar consumer")
         print("Full-panel calendar: " + json.dumps(calendar_audit), flush=True)

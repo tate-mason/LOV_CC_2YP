@@ -1,0 +1,14 @@
+{
+  "source": "fixed_est/refined_128",
+  "observation_mode": "observed_panel",
+  "draws": 128,
+  "stock_measure": "average",
+  "inputs": {
+    "point_estimates.csv": "f7b0e0410d5110cb818aebf79e067c624414954dfa0560e5b42deb3beb048f8b",
+    "estimates.csv": "5794cb416f3298926d0fe50120ce4b665636cf288582fbf06912e9f6aa01a529",
+    "fit_summary.json": "9ecfdd989fec3159d6679d685715eefebf62cfe4f8643ea021940bbfa9946b90",
+    "implied_wtp.csv": "fc7f043da90613e7f0e1391cff4bd7ecd46299aa6a232a3d9a5c3705e046a986",
+    "history_distribution_summary.csv": "d599126face56b07eee848c4c9fcc17f67521d9223a4c2a1d06c5b4fbd6df292",
+    "history_distributions.pdf": "6bf29b59c46e179337094375a7dc264ffa3dcf55eebd6db7efd519a467804585"
+  }
+}

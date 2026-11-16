@@ -1,4 +1,4 @@
-"""Rebuild slide price figures with one y scale, using aggregates and theory only."""
+"""Rebuild slide price figures with one y scale per figure, using aggregates only."""
 from pathlib import Path
 import json
 import ast
@@ -70,7 +70,7 @@ def main():
     try:
         theory = HERE / 'assets/theory_delta1'
         curves = pd.read_csv(theory / 'solutions.csv')  # Pure theoretical solutions.
-        fig, axes = plt.subplots(1, 2, figsize=(10, 4.2))
+        fig, axes = plt.subplots(1, 2, figsize=(10, 4.2), sharey=True)
         for state, label in [('j', r'Initially inside ($x_0=j$)'), ('0', r'Initially outside ($x_0=0$)')]:
             rows = curves[curves.initial_state == state]
             axes[0].plot(rows.gamma, rows.p1, label=label, lw=2)
@@ -93,7 +93,7 @@ def main():
             folder, 'focal flavor')
         information_figures(pd.read_csv(folder / 'information_friction_aggregate.csv', dtype={'h0': str}), folder, delta=1.)
         for flavor in ['plain', 'berry', 'other']:
-            folder = HERE / 'assets/quantified_theory' / flavor
+            folder = HERE / 'assets/quantified_theory_observed_128' / flavor
             settings = json.loads((folder / 'settings.json').read_text())
             results = pd.read_csv(folder / 'type_results.csv', dtype={'h0': str})
             summary = pd.read_csv(folder / 'comparison.csv', dtype={'h0': str})
@@ -105,18 +105,20 @@ def main():
     finally:
         matplotlib.figure.Figure.savefig = original_save
 
-    values = np.concatenate([line.get_ydata() for path, (fig, _, _) in captured.items() if path.stem in price_names
-                             for ax in fig.axes for line in ax.lines])
-    assert np.isfinite(values).all()
-    span = np.ptp(values)
-    ticks = MaxNLocator(nbins=7).tick_values(values.min() - .04 * span, values.max() + .04 * span)
-    limits = (float(ticks[0]), float(ticks[-1]))
+    scales = {}
     for path, (fig, args, kwargs) in captured.items():
         if path.stem in price_names:
+            values = np.concatenate([line.get_ydata() for ax in fig.axes for line in ax.lines])
+            assert np.isfinite(values).all()
+            span = max(float(np.ptp(values)), 1e-6)
+            ticks = MaxNLocator(nbins=7).tick_values(values.min() - .04 * span, values.max() + .04 * span)
+            limits = (float(ticks[0]), float(ticks[-1]))
             for ax in fig.axes:
                 ax.set_ylim(*limits)
                 ax.set_yticks(ticks)
+                ax.tick_params(axis='y', labelleft=True)
                 assert ax.get_ylim() == limits
+            scales[str(path.relative_to(HERE))] = limits
         from matplotlib.text import Text
         for item in fig.findobj(Text):
             label = item.get_text()
@@ -127,7 +129,8 @@ def main():
             label = label.replace('type unobserved', 'uniform pricing')
             item.set_text(label)
         original_save(fig, path, *args, **kwargs)
-    print(f'Rebuilt {len(captured)//2} figures (PDF and PNG); shared y limits: {limits}; ticks: {ticks.tolist()}')
+    print(f'Rebuilt {len(captured)//2} figures (PDF and PNG); y limits shared within each figure only.')
+    print(json.dumps({name: limits for name, limits in scales.items() if name.endswith('.pdf')}, indent=2))
 
 
 if __name__ == '__main__':

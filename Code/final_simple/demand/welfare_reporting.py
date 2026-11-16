@@ -129,6 +129,7 @@ def plot_discrimination_percent(summary, output):
         ax.set(title=title, xticks=[0, 1], xticklabels=['Initially inside', 'Initially outside'],
                xlim=(-.55, 1.55), ylabel='Change from uniform pricing (%)')
         ax.yaxis.set_major_formatter(PercentFormatter(xmax=100))
+        ax.tick_params(axis='y', labelleft=True)
         ax.axhline(0, color='black', linewidth=.7)
         ax.grid(axis='y', alpha=.2)
     for ext in ['pdf', 'png']:

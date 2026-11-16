@@ -136,7 +136,7 @@ def figures(results, summary, alpha, beta, delta, support, output):
             fig.savefig(output/(name+'.'+ext), bbox_inches='tight', dpi=170)
         plt.close(fig)
     grid = np.unique(np.r_[np.linspace(min(-3.,support.min()), max(3.,support.max()),301),support])
-    fig, axes = plt.subplots(1,2,figsize=(10,4.2),layout='constrained')
+    fig, axes = plt.subplots(1,2,figsize=(10,4.2),sharey=True,layout='constrained')
     for h0, color in [('j','#2E6896'),('0','#B35C21')]:
         axes[0].plot(grid,[known_prices(g,h0,alpha,beta,delta)['expected_p1'] for g in grid],color=color,
                      label='Inside history' if h0=='j' else 'Outside history')
@@ -145,6 +145,7 @@ def figures(results, summary, alpha, beta, delta, support, output):
                      label='Inside history' if h0=='j' else 'Outside history')
     for ax,title in zip(axes,['Optimal period-1 prices','Optimal period-2 prices']):
         ax.set(xlabel=r'$\gamma$',ylabel='Price ($)',title=title);ax.legend(loc='upper center');ax.grid(alpha=.2)
+        ax.tick_params(axis='y', labelleft=True)
     save(fig,'optimal_prices_by_gamma')
     base=results[results.scenario=='Fitted distribution']
     fig,axes=plt.subplots(1,2,figsize=(10,4.2),sharey=True,layout='constrained')

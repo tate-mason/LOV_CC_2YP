@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.3.22)  16 NOV 2026 11:56
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.3.22)  16 NOV 2026 13:23
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -736,30 +736,30 @@ Package: threeparttable 2003/06/13  v 3.0
 \@tempboxb=\box98
 )
 Package hyperref Info: Option `colorlinks' set `true' on input line 103.
- (/usr/local/texlive/2026/texmf-dist/tex/latex/l3backend/l3backend-pdftex.def
+ (./assets/demand_observed_128/values.tex) (/usr/local/texlive/2026/texmf-dist/tex/latex/l3backend/l3backend-pdftex.def
 File: l3backend-pdftex.def 2025-10-09 L3 backend support: PDF output (pdfTeX)
 \l__color_backend_stack_int=\count381
 ) (./pres_short.aux)
 \openout1 = `pres_short.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 124.
-LaTeX Font Info:    ... okay on input line 124.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 124.
-LaTeX Font Info:    ... okay on input line 124.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 124.
-LaTeX Font Info:    ... okay on input line 124.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 124.
-LaTeX Font Info:    ... okay on input line 124.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 124.
-LaTeX Font Info:    ... okay on input line 124.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 124.
-LaTeX Font Info:    ... okay on input line 124.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 124.
-LaTeX Font Info:    ... okay on input line 124.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 124.
-LaTeX Font Info:    ... okay on input line 124.
-LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 124.
-LaTeX Font Info:    ... okay on input line 124.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 126.
+LaTeX Font Info:    ... okay on input line 126.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 126.
+LaTeX Font Info:    ... okay on input line 126.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 126.
+LaTeX Font Info:    ... okay on input line 126.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 126.
+LaTeX Font Info:    ... okay on input line 126.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 126.
+LaTeX Font Info:    ... okay on input line 126.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 126.
+LaTeX Font Info:    ... okay on input line 126.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 126.
+LaTeX Font Info:    ... okay on input line 126.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 126.
+LaTeX Font Info:    ... okay on input line 126.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 126.
+LaTeX Font Info:    ... okay on input line 126.
 
 *geometry* driver: auto-detecting
 *geometry* detected driver: pdftex
@@ -814,7 +814,7 @@ Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 48
  (/usr/local/texlive/2026/texmf-dist/tex/latex/latexconfig/epstopdf-sys.cfg
 File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Live
 ))
-Package hyperref Info: Link coloring ON on input line 124.
+Package hyperref Info: Link coloring ON on input line 126.
  (./pres_short.out) (./pres_short.out)
 \@outlinefile=\write5
 \openout5 = `pres_short.out'.
@@ -834,11 +834,11 @@ Dictionary: translator-theorem-dictionary, Language: English
 ) (./pres_short.nav) [1
 
 {/usr/local/texlive/2026/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
-LaTeX Font Info:    Trying to load font information for U+msa on input line 149.
+LaTeX Font Info:    Trying to load font information for U+msa on input line 151.
  (/usr/local/texlive/2026/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Trying to load font information for U+msb on input line 149.
+LaTeX Font Info:    Trying to load font information for U+msb on input line 151.
  (/usr/local/texlive/2026/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 ) [2
@@ -847,7 +847,7 @@ File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 <../writeup/1108_writeup/assets/results/summary_statistics/flavor_hhi_histogram.pdf, id=285, 505.89pt x 361.35pt>
 File: ../writeup/1108_writeup/assets/results/summary_statistics/flavor_hhi_histogram.pdf Graphic file (type pdf)
 <use ../writeup/1108_writeup/assets/results/summary_statistics/flavor_hhi_histogram.pdf>
-Package pdftex.def Info: ../writeup/1108_writeup/assets/results/summary_statistics/flavor_hhi_histogram.pdf  used on input line 170.
+Package pdftex.def Info: ../writeup/1108_writeup/assets/results/summary_statistics/flavor_hhi_histogram.pdf  used on input line 172.
 (pdftex.def)             Requested size: 175.27327pt x 125.1952pt.
  [3
 
@@ -862,7 +862,7 @@ Package pdftex.def Info: ../writeup/1108_writeup/assets/results/summary_statisti
 ] [8
 
 ]
-LaTeX Font Info:    Trying to load font information for U+bbm on input line 308.
+LaTeX Font Info:    Trying to load font information for U+bbm on input line 310.
  (/usr/local/texlive/2026/texmf-dist/tex/latex/bbm-macros/ubbm.fd
 File: ubbm.fd 1999/03/15 V 1.2 Font definition for bbm font - TH
 ) [9
@@ -879,7 +879,7 @@ File: ubbm.fd 1999/03/15 V 1.2 Font definition for bbm font - TH
 <assets/theory_delta1/optimal_prices_by_gamma.pdf, id=1258, 722.7pt x 303.534pt>
 File: assets/theory_delta1/optimal_prices_by_gamma.pdf Graphic file (type pdf)
 <use assets/theory_delta1/optimal_prices_by_gamma.pdf>
-Package pdftex.def Info: assets/theory_delta1/optimal_prices_by_gamma.pdf  used on input line 391.
+Package pdftex.def Info: assets/theory_delta1/optimal_prices_by_gamma.pdf  used on input line 393.
 (pdftex.def)             Requested size: 338.59023pt x 142.20709pt.
  [14
 
@@ -887,12 +887,12 @@ Package pdftex.def Info: assets/theory_delta1/optimal_prices_by_gamma.pdf  used 
 <assets/theory_delta1/all_state_price_ratios.pdf, id=1395, 578.16pt x 361.35pt>
 File: assets/theory_delta1/all_state_price_ratios.pdf Graphic file (type pdf)
 <use assets/theory_delta1/all_state_price_ratios.pdf>
-Package pdftex.def Info: assets/theory_delta1/all_state_price_ratios.pdf  used on input line 406.
+Package pdftex.def Info: assets/theory_delta1/all_state_price_ratios.pdf  used on input line 408.
 (pdftex.def)             Requested size: 195.18674pt x 121.99171pt.
 <assets/theory_delta1/all_state_realized_profit.pdf, id=1396, 578.16pt x 361.35pt>
 File: assets/theory_delta1/all_state_realized_profit.pdf Graphic file (type pdf)
 <use assets/theory_delta1/all_state_realized_profit.pdf>
-Package pdftex.def Info: assets/theory_delta1/all_state_realized_profit.pdf  used on input line 406.
+Package pdftex.def Info: assets/theory_delta1/all_state_realized_profit.pdf  used on input line 408.
 (pdftex.def)             Requested size: 195.18674pt x 121.99171pt.
  [15
 
@@ -900,7 +900,7 @@ Package pdftex.def Info: assets/theory_delta1/all_state_realized_profit.pdf  use
 <assets/theory_delta1/gamma_uncertainty/information_value.pdf, id=1574, 794.97pt x 289.08pt>
 File: assets/theory_delta1/gamma_uncertainty/information_value.pdf Graphic file (type pdf)
 <use assets/theory_delta1/gamma_uncertainty/information_value.pdf>
-Package pdftex.def Info: assets/theory_delta1/gamma_uncertainty/information_value.pdf  used on input line 415.
+Package pdftex.def Info: assets/theory_delta1/gamma_uncertainty/information_value.pdf  used on input line 417.
 (pdftex.def)             Requested size: 374.6185pt x 136.2249pt.
  [16
 
@@ -908,7 +908,7 @@ Package pdftex.def Info: assets/theory_delta1/gamma_uncertainty/information_valu
 <assets/theory_delta1/gamma_uncertainty/welfare_changes.pdf, id=1721, 731.13103pt x 304.73802pt>
 File: assets/theory_delta1/gamma_uncertainty/welfare_changes.pdf Graphic file (type pdf)
 <use assets/theory_delta1/gamma_uncertainty/welfare_changes.pdf>
-Package pdftex.def Info: assets/theory_delta1/gamma_uncertainty/welfare_changes.pdf  used on input line 422.
+Package pdftex.def Info: assets/theory_delta1/gamma_uncertainty/welfare_changes.pdf  used on input line 424.
 (pdftex.def)             Requested size: 292.15717pt x 121.77214pt.
  [17
 
@@ -922,7 +922,7 @@ Package pdftex.def Info: assets/theory_delta1/gamma_uncertainty/welfare_changes.
 <../writeup/1108_writeup/assets/results/summary_statistics/aggregated_flavors/flavor_transitions.pdf, id=2112, 433.62pt x 433.62pt>
 File: ../writeup/1108_writeup/assets/results/summary_statistics/aggregated_flavors/flavor_transitions.pdf Graphic file (type pdf)
 <use ../writeup/1108_writeup/assets/results/summary_statistics/aggregated_flavors/flavor_transitions.pdf>
-Package pdftex.def Info: ../writeup/1108_writeup/assets/results/summary_statistics/aggregated_flavors/flavor_transitions.pdf  used on input line 498.
+Package pdftex.def Info: ../writeup/1108_writeup/assets/results/summary_statistics/aggregated_flavors/flavor_transitions.pdf  used on input line 501.
 (pdftex.def)             Requested size: 119.71233pt x 119.71216pt.
  [21
 
@@ -935,71 +935,71 @@ Package pdftex.def Info: ../writeup/1108_writeup/assets/results/summary_statisti
 ] [25
 
 ]
-<assets/demand_1111_three/history_distributions.pdf, id=2591, 722.7pt x 289.08pt>
-File: assets/demand_1111_three/history_distributions.pdf Graphic file (type pdf)
-<use assets/demand_1111_three/history_distributions.pdf>
-Package pdftex.def Info: assets/demand_1111_three/history_distributions.pdf  used on input line 599.
+<assets/demand_observed_128/history_distributions.pdf, id=2591, 722.7pt x 289.08pt>
+File: assets/demand_observed_128/history_distributions.pdf Graphic file (type pdf)
+<use assets/demand_observed_128/history_distributions.pdf>
+Package pdftex.def Info: assets/demand_observed_128/history_distributions.pdf  used on input line 603.
 (pdftex.def)             Requested size: 288.95357pt x 115.58142pt.
  [26
 
- <./assets/demand_1111_three/history_distributions.pdf>] (./assets/demand_1111_three/implied_wtp.tex) [27
+ <./assets/demand_observed_128/history_distributions.pdf>] (./assets/demand_observed_128/implied_wtp.tex) [27
 
 ] [28
 
 ]
-<assets/quantified_theory/plain/optimal_prices_by_gamma.pdf, id=2901, 731.13103pt x 311.96503pt>
-File: assets/quantified_theory/plain/optimal_prices_by_gamma.pdf Graphic file (type pdf)
-<use assets/quantified_theory/plain/optimal_prices_by_gamma.pdf>
-Package pdftex.def Info: assets/quantified_theory/plain/optimal_prices_by_gamma.pdf  used on input line 637.
+<assets/quantified_theory_observed_128/plain/optimal_prices_by_gamma.pdf, id=2901, 731.13103pt x 311.96503pt>
+File: assets/quantified_theory_observed_128/plain/optimal_prices_by_gamma.pdf Graphic file (type pdf)
+<use assets/quantified_theory_observed_128/plain/optimal_prices_by_gamma.pdf>
+Package pdftex.def Info: assets/quantified_theory_observed_128/plain/optimal_prices_by_gamma.pdf  used on input line 641.
 (pdftex.def)             Requested size: 357.96727pt x 152.74042pt.
  [29
 
- <./assets/quantified_theory/plain/optimal_prices_by_gamma.pdf>]
-<assets/quantified_theory/plain/information_price_paths_comparison.pdf, id=3027, 731.13103pt x 311.96503pt>
-File: assets/quantified_theory/plain/information_price_paths_comparison.pdf Graphic file (type pdf)
-<use assets/quantified_theory/plain/information_price_paths_comparison.pdf>
-Package pdftex.def Info: assets/quantified_theory/plain/information_price_paths_comparison.pdf  used on input line 646.
+ <./assets/quantified_theory_observed_128/plain/optimal_prices_by_gamma.pdf>]
+<assets/quantified_theory_observed_128/plain/information_price_paths_comparison.pdf, id=3028, 731.13103pt x 311.96503pt>
+File: assets/quantified_theory_observed_128/plain/information_price_paths_comparison.pdf Graphic file (type pdf)
+<use assets/quantified_theory_observed_128/plain/information_price_paths_comparison.pdf>
+Package pdftex.def Info: assets/quantified_theory_observed_128/plain/information_price_paths_comparison.pdf  used on input line 650.
 (pdftex.def)             Requested size: 328.93898pt x 140.35439pt.
  [30
 
- <./assets/quantified_theory/plain/information_price_paths_comparison.pdf>]
-<assets/quantified_theory/plain/discrimination_percent.pdf, id=3177, 803.40103pt x 326.78581pt>
-File: assets/quantified_theory/plain/discrimination_percent.pdf Graphic file (type pdf)
-<use assets/quantified_theory/plain/discrimination_percent.pdf>
-Package pdftex.def Info: assets/quantified_theory/plain/discrimination_percent.pdf  used on input line 653.
+ <./assets/quantified_theory_observed_128/plain/information_price_paths_comparison.pdf>]
+<assets/quantified_theory_observed_128/plain/discrimination_percent.pdf, id=3180, 803.40103pt x 326.78581pt>
+File: assets/quantified_theory_observed_128/plain/discrimination_percent.pdf Graphic file (type pdf)
+<use assets/quantified_theory_observed_128/plain/discrimination_percent.pdf>
+Package pdftex.def Info: assets/quantified_theory_observed_128/plain/discrimination_percent.pdf  used on input line 657.
 (pdftex.def)             Requested size: 370.42708pt x 150.67233pt.
  [31
 
- <./assets/quantified_theory/plain/discrimination_percent.pdf>] [32
+ <./assets/quantified_theory_observed_128/plain/discrimination_percent.pdf>] [32
 
 ] [33
 
 ]
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                removing `\translate ' on input line 689.
+(hyperref)                removing `\translate ' on input line 693.
 
 (./appendix_current.tex [34
 
 ]
-<../writeup/1108_writeup/assets/results/summary_statistics/flavor_shares.pdf, id=3566, 505.89pt x 361.35pt>
+<../writeup/1108_writeup/assets/results/summary_statistics/flavor_shares.pdf, id=3578, 505.89pt x 361.35pt>
 File: ../writeup/1108_writeup/assets/results/summary_statistics/flavor_shares.pdf Graphic file (type pdf)
 <use ../writeup/1108_writeup/assets/results/summary_statistics/flavor_shares.pdf>
 Package pdftex.def Info: ../writeup/1108_writeup/assets/results/summary_statistics/flavor_shares.pdf  used on input line 36.
 (pdftex.def)             Requested size: 213.83093pt x 152.73639pt.
  [35
 
- <../writeup/1108_writeup/assets/results/summary_statistics/flavor_shares.pdf>] (./assets/demand_1111_three/fit_summary.tex) [36
+ <../writeup/1108_writeup/assets/results/summary_statistics/flavor_shares.pdf>] (./assets/demand_observed_128/fit_summary.tex) [36
 
-] (./assets/demand_1111_three/estimates_intervals.tex) [37
+] [37
 
-] (./assets/demand_1111_three/heterogeneity.tex) [38
+] (./assets/demand_observed_128/draw_sensitivity.tex) [38
 
-] (./assets/demand_1111_three/price_moments.tex) [39
+] (./assets/demand_observed_128/estimates_intervals.tex) [39
 
-] [40
+] (./assets/demand_observed_128/heterogeneity.tex) [40
 
-] [41
+] (./assets/demand_observed_128/price_moments.tex) [41
 
 ] [42
 
@@ -1017,65 +1017,65 @@ Package pdftex.def Info: ../writeup/1108_writeup/assets/results/summary_statisti
 
 ] [49
 
+] [50
+
+] [51
+
 ]
-<assets/theory_delta1/gamma_uncertainty/profits.pdf, id=4628, 794.97pt x 289.08pt>
+<assets/theory_delta1/gamma_uncertainty/profits.pdf, id=4849, 794.97pt x 289.08pt>
 File: assets/theory_delta1/gamma_uncertainty/profits.pdf Graphic file (type pdf)
 <use assets/theory_delta1/gamma_uncertainty/profits.pdf>
-Package pdftex.def Info: assets/theory_delta1/gamma_uncertainty/profits.pdf  used on input line 309.
+Package pdftex.def Info: assets/theory_delta1/gamma_uncertainty/profits.pdf  used on input line 336.
 (pdftex.def)             Requested size: 390.3757pt x 141.95479pt.
- [50
+ [52
 
  <./assets/theory_delta1/gamma_uncertainty/profits.pdf>]
-<assets/theory_delta1/gamma_uncertainty/information_price_paths_comparison.pdf, id=4749, 708.24597pt x 303.534pt>
+<assets/theory_delta1/gamma_uncertainty/information_price_paths_comparison.pdf, id=4975, 708.24597pt x 303.534pt>
 File: assets/theory_delta1/gamma_uncertainty/information_price_paths_comparison.pdf Graphic file (type pdf)
 <use assets/theory_delta1/gamma_uncertainty/information_price_paths_comparison.pdf>
-Package pdftex.def Info: assets/theory_delta1/gamma_uncertainty/information_price_paths_comparison.pdf  used on input line 316.
+Package pdftex.def Info: assets/theory_delta1/gamma_uncertainty/information_price_paths_comparison.pdf  used on input line 343.
 (pdftex.def)             Requested size: 337.11197pt x 144.47656pt.
- [51
+ [53
 
- <./assets/theory_delta1/gamma_uncertainty/information_price_paths_comparison.pdf>] [52
+ <./assets/theory_delta1/gamma_uncertainty/information_price_paths_comparison.pdf>] [54
 
-]
-Overfull \vbox (0.75427pt too high) detected at line 354
- []
+] (./assets/demand_observed_128/parameter_mapping.tex) [55
 
-[53
-
-] [54
+] [56
 
 ]
-<assets/quantified_theory/berry/information_price_paths_comparison.pdf, id=5086, 731.13103pt x 311.96503pt>
-File: assets/quantified_theory/berry/information_price_paths_comparison.pdf Graphic file (type pdf)
-<use assets/quantified_theory/berry/information_price_paths_comparison.pdf>
-Package pdftex.def Info: assets/quantified_theory/berry/information_price_paths_comparison.pdf  used on input line 373.
+<assets/quantified_theory_observed_128/berry/information_price_paths_comparison.pdf, id=5329, 731.13103pt x 311.96503pt>
+File: assets/quantified_theory_observed_128/berry/information_price_paths_comparison.pdf Graphic file (type pdf)
+<use assets/quantified_theory_observed_128/berry/information_price_paths_comparison.pdf>
+Package pdftex.def Info: assets/quantified_theory_observed_128/berry/information_price_paths_comparison.pdf  used on input line 394.
 (pdftex.def)             Requested size: 328.93898pt x 140.35439pt.
- [55
+ [57
 
- <./assets/quantified_theory/berry/information_price_paths_comparison.pdf>]
-<assets/quantified_theory/other/information_price_paths_comparison.pdf, id=5216, 731.13103pt x 311.96503pt>
-File: assets/quantified_theory/other/information_price_paths_comparison.pdf Graphic file (type pdf)
-<use assets/quantified_theory/other/information_price_paths_comparison.pdf>
-Package pdftex.def Info: assets/quantified_theory/other/information_price_paths_comparison.pdf  used on input line 381.
-(pdftex.def)             Requested size: 328.93898pt x 140.35439pt.
- [56
-
- <./assets/quantified_theory/other/information_price_paths_comparison.pdf>] (./assets/quantified_theory/all_flavors_revenue.tex) [57
-
-]
-<assets/quantified_theory/plain/information_revenues.pdf, id=5413, 731.13103pt x 311.96503pt>
-File: assets/quantified_theory/plain/information_revenues.pdf Graphic file (type pdf)
-<use assets/quantified_theory/plain/information_revenues.pdf>
-Package pdftex.def Info: assets/quantified_theory/plain/information_revenues.pdf  used on input line 400.
+ <./assets/quantified_theory_observed_128/berry/information_price_paths_comparison.pdf>]
+<assets/quantified_theory_observed_128/other/information_price_paths_comparison.pdf, id=5463, 731.13103pt x 311.96503pt>
+File: assets/quantified_theory_observed_128/other/information_price_paths_comparison.pdf Graphic file (type pdf)
+<use assets/quantified_theory_observed_128/other/information_price_paths_comparison.pdf>
+Package pdftex.def Info: assets/quantified_theory_observed_128/other/information_price_paths_comparison.pdf  used on input line 402.
 (pdftex.def)             Requested size: 328.93898pt x 140.35439pt.
  [58
 
- <./assets/quantified_theory/plain/information_revenues.pdf>] (./assets/quantified_theory/plain/revenue_table.tex) [59
+ <./assets/quantified_theory_observed_128/other/information_price_paths_comparison.pdf>] (./assets/quantified_theory_observed_128/all_flavors_revenue.tex) [59
 
-] [60
+]
+<assets/quantified_theory_observed_128/plain/information_revenues.pdf, id=5672, 731.13103pt x 311.96503pt>
+File: assets/quantified_theory_observed_128/plain/information_revenues.pdf Graphic file (type pdf)
+<use assets/quantified_theory_observed_128/plain/information_revenues.pdf>
+Package pdftex.def Info: assets/quantified_theory_observed_128/plain/information_revenues.pdf  used on input line 421.
+(pdftex.def)             Requested size: 328.93898pt x 140.35439pt.
+ [60
 
-] (./assets/theory_delta1/gamma_uncertainty/welfare_table_percent.tex) [61
+ <./assets/quantified_theory_observed_128/plain/information_revenues.pdf>] (./assets/quantified_theory_observed_128/plain/revenue_table.tex) [61
 
-] (./assets/quantified_theory/plain/welfare_table_percent.tex) [62
+] [62
+
+] (./assets/theory_delta1/gamma_uncertainty/welfare_table_percent.tex) [63
+
+] (./assets/quantified_theory_observed_128/plain/welfare_table_percent.tex) [64
 
 ])
 \tf@nav=\write6
@@ -1096,19 +1096,19 @@ Package rerunfilecheck Info: File `pres_short.out' has not changed.
 (rerunfilecheck)             Checksum: 51784B8285C80F21CF6D759CA1DEF99B;824.
  ) 
 Here is how much of TeX's memory you used:
- 30526 strings out of 467525
- 629519 string characters out of 5418982
- 1032943 words of memory out of 5000000
- 58564 multiletter control sequences out of 15000+600000
+ 30595 strings out of 467525
+ 632567 string characters out of 5418982
+ 1036146 words of memory out of 5000000
+ 58616 multiletter control sequences out of 15000+600000
  641247 words of font info for 94 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  128i,19n,123p,385b,1012s stack positions out of 10000i,1000n,20000p,200000b,200000s
  </Users/tate/Library/texlive/2026/texmf-var/fonts/pk/ljfour/public/bbm/bbm9.600pk> </Users/tate/Library/texlive/2026/texmf-var/fonts/pk/ljfour/public/bbm/bbm10.600pk> </Users/tate/Library/texlive/2026/texmf-var/fonts/pk/ljfour/public/bbm/bbm10.657pk></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmex9.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi5.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi9.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmss10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmss12.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmss8.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmss9.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmssbx10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmssi10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmssi8.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmssi9.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2026/texmf-dist/font
 s/type1/public/amsfonts/cm/cmsy6.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy9.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/cm-super/sfss1000.pfb>
-Output written on pres_short.pdf (62 pages, 716019 bytes).
+Output written on pres_short.pdf (64 pages, 728398 bytes).
 PDF statistics:
- 5955 PDF objects out of 6186 (max. 8388607)
- 2869 compressed objects within 29 object streams
- 256 named destinations out of 1000 (max. 500000)
+ 6236 PDF objects out of 7423 (max. 8388607)
+ 3008 compressed objects within 31 object streams
+ 264 named destinations out of 1000 (max. 500000)
  192 words of extra memory for PDF output out of 10000 (max. 10000000)
 

@@ -5,12 +5,21 @@ total welfare, and expected binary purchases. Run:
 
 ```bash
 python3 Code/final_simple/demand/quantified_theory.py \
-  --estimates estimates_1111/three/no_control_fit/point_estimates.csv \
-  --output Code/final_draft/seminar_pres/assets/quantified_theory
+  --estimates fixed_est/refined_128/point_estimates.csv \
+  --output Code/final_draft/seminar_pres/assets/quantified_theory_observed_128
 ```
 
 This reads aggregate parameter estimates only and can run locally. It runs plain,
 berry and other separately. The slides use plain.
+
+The current inputs are the corrected 128-draw observed-shopping-week fit,
+including genuine zero-yogurt-purchase weeks. The original November 11 outputs
+are preserved separately. Run
+`python3 Code/final_draft/seminar_pres/refresh_observed_week_assets.py` afterward
+to generate the presentation's demand tables, pricing summary tables and macros.
+Then run `python3 Code/final_draft/seminar_pres/rebuild_price_scales.py` to apply
+price-axis limits shared within each figure in the presentation. Separate
+figures choose their own ranges.
 
 The utility is the original theory's `beta_f + alpha*p + gamma*history_sign`.
 `beta_f` is the estimated inside constant plus the flavor coefficient; other is

@@ -1,8 +1,10 @@
 # Short presentation: current specification
 
-Demand results use `estimates_1111/three/no_control_fit`: the November 11
-three-flavor uncontrolled fit with average habit history. The presentation
-assets are in `assets/demand_1111_three/`.
+Demand results use `fixed_est/refined_128`: the corrected three-flavor
+observed-shopping-week fit, including zero-yogurt-purchase weeks. Presentation
+assets are in `assets/demand_observed_128/`; recomputed pricing assets are in
+`assets/quantified_theory_observed_128/`. See the canonical seminar README for
+rebuild commands and corrected sample, revenue and welfare figures.
 
 The pricing exercise quantifies the original binary theory with the new
 estimated gamma distribution, population mean price sensitivity and flavor

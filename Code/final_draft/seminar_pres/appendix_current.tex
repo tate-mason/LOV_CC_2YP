@@ -24,7 +24,7 @@
   \end{tabular}
 
   \medskip
-  \par\raggedright{\footnotesize All statistics except household counts are means.}
+  \par\raggedright{\footnotesize All statistics except household counts are means. Original descriptive samples; demand uses the corrected observed-week sample.}
 \end{frame}
 
 
@@ -37,19 +37,46 @@
 
 
 
-\gdef\shortbuttons{\hyperlink{short-29}{\beamergotobutton{Back to Estimation}}}
+\gdef\shortbuttons{\hyperlink{short-29}{\beamergotobutton{Back to Estimation}}\hspace{.35em}\hyperlink{short-calendar-coverage}{\beamergotobutton{Coverage}}\hspace{.35em}\hyperlink{short-draw-sensitivity}{\beamergotobutton{Draw sensitivity}}}
 \begin{frame}[label=short-demand-fit,noframenumbering]{Demand Fit}
   \centering\small
-  \input{assets/demand_1111_three/fit_summary.tex}
-  \par\medskip\raggedright\footnotesize November 11 fit without price controls; outside count $\max(7-Q,0)$ within retained purchase weeks.
+  \input{assets/demand_observed_128/fit_summary.tex}
+  \par\medskip\raggedright\footnotesize Corrected observed-week fit without price controls; outside count $\max(7-Q,0)$, including seven outside choices in zero-purchase weeks.
   Novelty uses the preceding calendar week's flavor shares; zero when no yogurt was purchased.
+\end{frame}
+
+\gdef\shortbuttons{\hyperlink{short-demand-fit}{\beamergotobutton{Back to Fit}}}
+\begin{frame}[label=short-calendar-coverage,noframenumbering]{Observed Weeks and Price Coverage}
+  \centering\small
+  \begin{tabular}{lr}\toprule
+    Full-panel shopping weeks for selected households & 3,014,425\\
+    Excluded: unmatched or invalid yogurt purchases & 423,281\\
+    Eligible weeks before price coverage & 2,591,144\\
+    Retained estimation weeks & 2,034,618\\
+    Retained zero-purchase weeks & 1,792,368\\\bottomrule
+  \end{tabular}
+  \begin{itemize}
+    \item Zero weeks: observed shopping store with most trips; missing flavor prices use same-week consumer-DMA means.
+    \item Require covered prices for all flavors in a zero week. Unmatched purchases are not recoded as nonpurchase.
+  \end{itemize}
+\end{frame}
+
+\gdef\shortbuttons{\hyperlink{short-demand-fit}{\beamergotobutton{Back to Fit}}}
+\begin{frame}[label=short-draw-sensitivity,noframenumbering]{Simulation-Draw Sensitivity}
+  \centering\small
+  \input{assets/demand_observed_128/draw_sensitivity.tex}
+  \begin{itemize}
+    \item Both fits converged without bound estimates; the displayed results use 128 draws.
+    \item Estimates change with draw count. Further integration and starting-value checks remain.
+    \item Hessian intervals condition on the fixed simulation draws.
+  \end{itemize}
 \end{frame}
 
 \gdef\shortbuttons{\hyperlink{short-32}{\beamergotobutton{Back to Distributions}}}
 \begin{frame}[label=short-30,noframenumbering]{Demand Estimates}
   \centering\small
   \begin{adjustbox}{max width=\linewidth}
-    \input{assets/demand_1111_three/estimates_intervals.tex}
+    \input{assets/demand_observed_128/estimates_intervals.tex}
   \end{adjustbox}
   \par\medskip\raggedright\footnotesize Standard errors from the observed-information Hessian; normal 95\% intervals.
   Standard deviations describe population heterogeneity, not estimation uncertainty.
@@ -58,11 +85,11 @@
 \gdef\shortbuttons{\hyperlink{short-32}{\beamergotobutton{Back to Distributions}}}
 \begin{frame}[label=short-33,noframenumbering]{Preference Heterogeneity}
   \centering
-  \input{assets/demand_1111_three/heterogeneity.tex}
+  \input{assets/demand_observed_128/heterogeneity.tex}
   \begin{itemize}
-    \item The novelty coefficient is negative for most consumers; a substantial minority have a positive coefficient.
+    \item Novelty is negative for 51.6\% and positive for 48.4\% of the fitted distribution.
     \item Habit preference is positive on average, with wide variation across consumers.
-    \item Berry has a negative flavor intercept relative to other. Plain's interval includes zero.
+    \item Both berry and plain have negative flavor intercepts relative to other; both intervals exclude zero.
   \end{itemize}
   \par\smallskip\raggedright\footnotesize Shares are implied by fitted population normal distributions, not counts of classified households.
 \end{frame}
@@ -76,7 +103,7 @@
     E[\alpha_i]=-\exp(\mu_{\log a}+\tfrac12\sigma_{\log a}^2).
   \]
   \begin{tcolorbox}
-    \input{assets/demand_1111_three/price_moments.tex}
+    \input{assets/demand_observed_128/price_moments.tex}
   \end{tcolorbox}
   \begin{itemize}
     \item All consumers have a negative price coefficient.
@@ -91,9 +118,9 @@
     \mathrm{WTP}_{\phi,i}=\frac{\phi_i}{-\alpha_i}.
   \]
   \begin{itemize}
-    \item Novelty: mean WTP is $-\$0.84$ per unit of the novelty predictor.
-    \item Habit: mean WTP is $\$1.73$ for a unit increase in the prior average flavor share.
-    \item A 10-percentage-point increase in average share corresponds to $\$0.17$ at the mean WTP.
+    \item Novelty: mean WTP is $\correctedNoveltyWTP$ per unit of the novelty predictor.
+    \item Habit: mean WTP is $\$\correctedHabitWTP$ for a unit increase in the prior average flavor share.
+    \item A 10-percentage-point increase in average share corresponds to $\$\correctedHabitTenWTP$ at the mean WTP.
   \end{itemize}
   \begin{tcolorbox}
     Average individual WTP ratios. They need not equal a ratio of mean coefficients.
@@ -110,11 +137,11 @@
   \]
   \begin{itemize}
     \item $\mathcal{O}_i$: observed yogurt-purchase weeks; $n_{it}$ counts prior purchase weeks.
-    \item Empty history gives zero. Unobserved calendar weeks do not enter the denominator.
+    \item Empty history gives zero. Zero-purchase weeks enter the likelihood but leave the purchase-share average unchanged.
     \item Current purchases affect the next state only.
   \end{itemize}
   \begin{tcolorbox}
-    Displayed demand estimates use the November 11 three-group average-history fit.
+    Displayed estimates use the corrected 128-draw observed-week average-history fit.
     The pricing illustration holds habit at its reference level.
   \end{tcolorbox}
 \end{frame}
@@ -334,19 +361,13 @@
 
 \gdef\shortbuttons{\hyperlink{short-34}{\beamergotobutton{Back to Pricing Exercise}}}
 \begin{frame}[label=short-theory-mapping,noframenumbering]{Parameter Mapping}
+  \small
   \[
-    v_{tr}=\beta_f+\alpha p_{tr}+\gamma_r q(h_{t-1}),\qquad \alpha=E[\alpha_i]=-0.803.
+    v_{tr}=\beta_f+\alpha p_{tr}+\gamma_r q(h_{t-1}),\qquad \alpha=E[\alpha_i]=\correctedPriceMean.
   \]
   {\small $q(0)=1$, $q(j)=-1$; $\beta_f$ includes the common inside intercept.}
   \centering
-  \begin{tabular}{lr}\toprule
-    Input & November 11 estimate\\\midrule
-    Plain intercept $\beta_0+\beta_{\mathrm{plain}}$ & 0.699\\
-    Berry intercept $\beta_0+\beta_{\mathrm{berry}}$ & 0.403\\
-    Other intercept $\beta_0$ & 0.693\\
-    Mean novelty $\mu_\gamma$ & $-0.358$\\
-    SD novelty $\sigma_\gamma$ & 1.131\\\bottomrule
-  \end{tabular}
+  \input{assets/demand_observed_128/parameter_mapping.tex}
   \par\raggedright\footnotesize Same gamma distribution and mean price sensitivity across flavors.
   The habit predictor is fixed at $H=0$, a zero-history reference, not average habit; the choice index subtracts outside utility.
   Welfare restores $V_0=\gamma_r\mathbbm{1}\{h=j\}$, as in the original theory.
@@ -367,7 +388,7 @@
 \gdef\shortbuttons{\hyperlink{short-revised-paths}{\beamergotobutton{Back to Plain Price Paths}}}
 \begin{frame}[label=short-berry-paths,noframenumbering]{Berry Price Paths}
   \centering
-  \includegraphics[width=.98\textwidth,height=.68\textheight,keepaspectratio]{assets/quantified_theory/berry/information_price_paths_comparison.pdf}
+  \includegraphics[width=.98\textwidth,height=.68\textheight,keepaspectratio]{assets/quantified_theory_observed_128/berry/information_price_paths_comparison.pdf}
   \par\smallskip\raggedright\footnotesize Berry versus not berry. Fitted-distribution baseline;
   solid paths average type-specific prices within novelty groups.
 \end{frame}
@@ -375,7 +396,7 @@
 \gdef\shortbuttons{\hyperlink{short-revised-paths}{\beamergotobutton{Back to Plain Price Paths}}}
 \begin{frame}[label=short-other-paths,noframenumbering]{Other Yogurt Price Paths}
   \centering
-  \includegraphics[width=.98\textwidth,height=.68\textheight,keepaspectratio]{assets/quantified_theory/other/information_price_paths_comparison.pdf}
+  \includegraphics[width=.98\textwidth,height=.68\textheight,keepaspectratio]{assets/quantified_theory_observed_128/other/information_price_paths_comparison.pdf}
   \par\smallskip\raggedright\footnotesize Other versus plain, berry or nonpurchase.
   Fitted-distribution baseline; ``other'' is the residual flavor category.
 \end{frame}
@@ -383,7 +404,7 @@
 \gdef\shortbuttons{\hyperlink{short-revised-revenue}{\beamergotobutton{Back to Plain Revenue}}}
 \begin{frame}[label=short-all-flavors,noframenumbering]{Revenue by Flavor}
   \centering\small
-  \input{assets/quantified_theory/all_flavors_revenue.tex}
+  \input{assets/quantified_theory_observed_128/all_flavors_revenue.tex}
   \par\medskip\raggedright\footnotesize Fitted-distribution baseline. Dollars per model consumer over two periods.
   Inside/outside is relative to each focal flavor; the two policies use the same persistent types.
 \end{frame}
@@ -394,7 +415,7 @@
 \gdef\shortbuttons{\hyperlink{short-revised-gain}{\beamergotobutton{Back to Revenue Gains}}}
 \begin{frame}[label=short-revised-revenue,noframenumbering]{Revenue Comparison}
   \centering
-  \includegraphics[width=.98\textwidth,height=.68\textheight,keepaspectratio]{assets/quantified_theory/plain/information_revenues.pdf}
+  \includegraphics[width=.98\textwidth,height=.68\textheight,keepaspectratio]{assets/quantified_theory_observed_128/plain/information_revenues.pdf}
   \par\smallskip\raggedright\footnotesize Expected two-period revenue per model consumer; zero marginal cost.
   Uniform prices are history-adaptive, with novelty hidden and fixed beliefs.
 \end{frame}
@@ -403,7 +424,7 @@
 \begin{frame}[label=short-revised-table,noframenumbering]{Revenue Results}
   \centering\small
   \begin{adjustbox}{max width=\linewidth}
-    \input{assets/quantified_theory/plain/revenue_table.tex}
+    \input{assets/quantified_theory_observed_128/plain/revenue_table.tex}
   \end{adjustbox}
   \par\smallskip\raggedright\footnotesize Dollars per model consumer over two periods.
   Both regimes adapt second-period prices to history; only novelty information differs.
@@ -449,10 +470,10 @@
 \begin{frame}[label=short-pricing-welfare-table,noframenumbering]{Welfare and Purchase Results}
   \centering\small
   \begin{adjustbox}{max width=\linewidth}
-    \input{assets/quantified_theory/plain/welfare_table_percent.tex}
+    \input{assets/quantified_theory_observed_128/plain/welfare_table_percent.tex}
   \end{adjustbox}
   \par\medskip\raggedright\footnotesize Plain binary illustration; type-specific minus uniform.
-  Dollar changes per model consumer; $\Delta Q$ counts expected purchases.
-  Percentage changes divide by the absolute uniform-pricing baseline.
+  All entries are percentage changes, dividing by the absolute uniform-pricing baseline.
+  $\Delta Q$ is the percentage change in expected purchases.
   Same persistent novelty distribution in both regimes; $\delta=1$, $c=0$.
 \end{frame}

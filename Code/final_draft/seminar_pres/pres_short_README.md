@@ -1,8 +1,30 @@
 # Short presentation: current specification
 
-Demand results use `estimates_1111/three/no_control_fit`: the November 11
-three-flavor uncontrolled fit with average habit history. The presentation
-assets are in `assets/demand_1111_three/`.
+Demand results use `fixed_est/refined_128`: the corrected observed-shopping-week
+three-flavor uncontrolled fit with average purchase-share habit history. It
+includes 15,752 households and 2,034,618 weeks, of which 1,792,368 have zero yogurt
+purchases. The presentation assets are in `assets/demand_observed_128/`.
+
+Pricing assets are in `assets/quantified_theory_observed_128/`. Rebuild them and
+the aggregate-only demand tables from the repository root with:
+
+```bash
+python3 Code/final_simple/demand/quantified_theory.py \
+  --estimates fixed_est/refined_128/point_estimates.csv \
+  --output Code/final_draft/seminar_pres/assets/quantified_theory_observed_128
+python3 Code/final_draft/seminar_pres/refresh_observed_week_assets.py
+python3 Code/final_draft/seminar_pres/rebuild_price_scales.py
+```
+
+For plain, the corrected plug-in exercise gives revenue changes of +1.9% / +3.4%,
+consumer-surplus changes of -7.3% / -11.4%, and total-welfare changes of +0.6% /
+-5.9%, for initially inside / outside consumers. Percentage denominators use
+absolute uniform-pricing baselines. The 32-to-128-draw sensitivity is reported
+in the appendix; convergence alone does not establish integration stability.
+Original descriptive purchase-sample tables are labeled separately from demand.
+The old November 11 assets remain in their existing directories.
+Panels within each price figure share y-axis limits; separate figures choose
+their own ranges. Welfare panels may use independent y-axis ranges.
 
 The pricing exercise quantifies the original binary theory with the new
 estimated gamma distribution, population mean price sensitivity and flavor

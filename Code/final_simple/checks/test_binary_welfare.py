@@ -8,12 +8,42 @@ from scipy.special import expit, xlogy
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]/'demand'))
 from binary_welfare import evaluate_policy
-from quantified_theory import compare
+from quantified_theory import compare, discrete_gamma, gamma_bin_distribution, compare_bins
 from gamma_calibration import known_prices
 from scipy.special import wrightomega
 
 
 class WelfareChecks(unittest.TestCase):
+    def test_within_bin_integration_and_shared_prices(self):
+        gamma, weights, labels = gamma_bin_distribution(-.35, 1.13, nodes=5)
+        self.assertEqual(len(gamma), 25)
+        self.assertAlmostEqual(weights @ gamma, -.35, places=13)
+        policies, common = compare_bins(gamma, weights, labels, -1.3, 1., 1., 'j')
+        for group in set(labels):
+            indices = np.flatnonzero(labels == group)
+            self.assertAlmostEqual(weights[indices].sum(), .2)
+            self.assertGreater(np.ptp(gamma[indices]), 0.)
+            for key in ['expected_p1', 'p2j', 'p20']:
+                np.testing.assert_allclose([policies[k][key] for k in indices], policies[indices[0]][key])
+        # A degenerate within-bin distribution agrees with exact-type pricing.
+        g = np.array([-1., .7])
+        policies, _ = compare_bins(g, np.array([.5,.5]), np.array(['a','b']), -1.3, 1., 1., 'j')
+        for gamma_value, policy in zip(g, policies):
+            exact = known_prices(gamma_value, 'j', -1.3, 1., 1.)
+            self.assertAlmostEqual(policy['expected_p1'], exact['expected_p1'], places=5)
+
+    def test_five_bin_distribution(self):
+        gamma, weights, labels = discrete_gamma(-.35, 1.13)
+        np.testing.assert_allclose(weights, .2)
+        self.assertEqual(len(set(labels)), 5)
+        self.assertTrue(np.all(np.diff(gamma) > 0))
+        self.assertAlmostEqual(weights @ gamma, -.35, places=13)
+        # Conditional means preserve symmetry and reduce within-bin variance.
+        np.testing.assert_allclose(gamma + gamma[::-1], -.7, atol=1e-13)
+        self.assertLess(weights @ (gamma+.35)**2, 1.13**2)
+        with self.assertRaises(ValueError):
+            discrete_gamma(0., 1., bins=1)
+
     def test_total_comparative_statics(self):
         inside_price_signs, inside_profit_signs = set(), set()
         for beta in [-2., 0., 2., 5.]:

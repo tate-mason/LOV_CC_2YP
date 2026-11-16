@@ -87,7 +87,7 @@ def plot_welfare_changes(summary, output):
                xticklabels=prior_labels(scenarios),
                ylabel='Change from uniform pricing (%)')
         ax.tick_params(axis='x', labelsize=8)
-        ax.grid(axis='y', alpha=.2)
+        ax.grid(False)
     from matplotlib.ticker import PercentFormatter
     axes[0].yaxis.set_major_formatter(PercentFormatter(xmax=100))
     axes[0].legend(fontsize=8)
@@ -131,7 +131,7 @@ def plot_discrimination_percent(summary, output):
         ax.yaxis.set_major_formatter(PercentFormatter(xmax=100))
         ax.tick_params(axis='y', labelleft=True)
         ax.axhline(0, color='black', linewidth=.7)
-        ax.grid(axis='y', alpha=.2)
+        ax.grid(False)
     for ext in ['pdf', 'png']:
         fig.savefig(Path(output)/('discrimination_percent.'+ext), dpi=170, bbox_inches='tight')
     plt.close(fig)

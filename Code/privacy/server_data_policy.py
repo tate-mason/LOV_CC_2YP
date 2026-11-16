@@ -40,7 +40,7 @@ def server_only(function):
         path_names = {'sample', 'data_dir', 'output', 'output_path', 'directory', 'work',
                       'household_input', 'weekly_output', 'input_path', 'path', 'retail_path',
                       'reference_path', 'products_path', 'flavors', 'products_extra',
-                      'raw_dir', 'output_dir', 'panel_raw', 'retail_raw', 'retail_merged_input',
+                      'raw_dir', 'output_dir', 'panel', 'initial_estimates', 'panel_raw', 'retail_raw', 'retail_merged_input',
                       'recovery_output', 'destination'}
         for name, value in bound.arguments.items():
             if name in path_names and isinstance(value, (str, Path)):

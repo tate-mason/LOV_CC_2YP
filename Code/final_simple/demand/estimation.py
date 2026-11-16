@@ -349,6 +349,10 @@ def prepare_data(settings):
     consumer's DMA. Repeated purchases do not duplicate store/UPC price quotes.
     """
     FLAVORS[:] = categories(getattr(settings, "flavor_spec", "three"))
+    observed_calendar = (settings.capacity > 0 and
+                         getattr(settings, "observation_mode", "observed_panel") == "observed_panel")
+    if observed_calendar and not getattr(settings, "panel", None):
+        raise ValueError("Weekly outside-option estimation requires --panel FULL_SHOPPING_PANEL.parquet.")
     base = pl.scan_parquet(settings.sample)
     names = base.collect_schema().names()
     if "household_size" not in names:
@@ -366,7 +370,7 @@ def prepare_data(settings):
     consumer_dma = getattr(settings, "household_dma_column", "dma_cd")
     columns = ["household_code", "household_size", "panel_year", "purchase_date", "trip_code_uc", "upc",
                "store_code_uc", "quantity", "flavor", pl.col(price_column).cast(pl.Float64).alias("price")]
-    if not settings.no_price_control:
+    if not settings.no_price_control or observed_calendar:
         columns.append(pl.col(consumer_dma).alias("dma_cd"))
     base = base.select(columns).with_columns(
         pl.col("purchase_date").cast(pl.String).str.slice(0, 10).str.to_date())
@@ -397,15 +401,26 @@ def prepare_data(settings):
     stores = stores.sort_values(keys + ["quantity", "store_code_uc"], ascending=[True, True, False, True])
     stores = stores.drop_duplicates(keys)[keys + ["store_code_uc"]]
     weekly = weekly.merge(stores, on=keys, validate="one_to_one")
-    if not settings.no_price_control:
+    if not settings.no_price_control or observed_calendar:
         lines["dma_cd"] = check_dma(lines["dma_cd"], "consumer")
         if (lines.groupby(keys)["dma_cd"].nunique() > 1).any():
             raise ValueError("Multiple consumer DMAs within a household-week.")
         weekly = weekly.merge(lines[keys + ["dma_cd"]].drop_duplicates(), on=keys, validate="one_to_one")
 
+    calendar_audit = None
+    if observed_calendar:
+        try:
+            from .observed_weeks import load_observed_weeks, include_observed_weeks, fill_zero_week_prices
+        except ImportError:
+            from observed_weeks import load_observed_weeks, include_observed_weeks, fill_zero_week_prices
+        calendar = load_observed_weeks(settings.panel, lines["household_code"].unique(), settings)
+        weekly, calendar_audit = include_observed_weeks(weekly, calendar, FLAVORS)
+        weekly["dma_cd"] = check_dma(weekly["dma_cd"], "calendar consumer")
+        print("Full-panel calendar: " + json.dumps(calendar_audit), flush=True)
+
     quote_keys = ["store_code_uc", "week", "upc"]
     price_columns = quote_keys + ["flavor", "price"]
-    if not settings.no_price_control:
+    if not settings.no_price_control or observed_calendar:
         price_columns.append("dma_cd")
     quotes = (base.filter(pl.col("price").is_finite() & (pl.col("price") > 0))
               .select(price_columns).unique())
@@ -422,6 +437,17 @@ def prepare_data(settings):
     menus = (menus.pivot(index=["store_code_uc", "week"], columns="flavor", values="price")
              .reindex(columns=FLAVORS).rename(columns={f: "price_" + f for f in FLAVORS}).reset_index())
     weekly = weekly.merge(menus, on=["store_code_uc", "week"], how="left", validate="many_to_one")
+    if observed_calendar:
+        # The full-panel store can have no matched yogurt quotes in a zero week.
+        # Fill those missing flavor quotes from the same consumer-DMA/week only.
+        market = (quotes.with_columns(pl.col("dma_cd").cast(pl.Float64).cast(pl.Int64))
+                  .group_by(["week", "dma_cd", "flavor"]).agg(pl.col("price").mean())
+                  .collect(engine="streaming").to_pandas())
+        market["week"] = pd.to_datetime(market["week"])
+        market = (market.pivot(index=["week", "dma_cd"], columns="flavor", values="price")
+                  .reindex(columns=FLAVORS).reset_index())
+        weekly = fill_zero_week_prices(weekly, market, FLAVORS)
+        calendar_audit["zero_weeks_using_market_prices"] = int(weekly["zero_week_market_price"].sum())
     print("Using merged prices directly; no separate RMS data are loaded.", flush=True)
     if not settings.no_price_control:
         invalid_dma = quotes.select(
@@ -456,6 +482,9 @@ def prepare_data(settings):
     available = np.isfinite(weekly[price_cols].to_numpy(float)) & (weekly[price_cols].to_numpy(float) > 0)
     counts = weekly[FLAVORS].to_numpy(float)
     complete = available.any(axis=1) & ((counts == 0) | available).all(axis=1)
+    if observed_calendar:
+        # Missing prices are not evidence that a flavor is unavailable in a zero week.
+        complete &= ~weekly["zero_purchase_week"].to_numpy() | available.all(axis=1)
     for j, f in enumerate(FLAVORS):
         weekly["available_" + f] = available[:, j]
     print(f"Weeks excluded for purchased flavors without a covered price: {(~complete).sum():,}", flush=True)
@@ -469,6 +498,15 @@ def prepare_data(settings):
     print(f"Households excluded for fewer than two usable weeks: {weekly.loc[~repeated, 'household_code'].nunique():,}", flush=True)
     weekly = weekly.loc[repeated].reset_index(drop=True)
     weekly["outside"] = np.maximum(settings.capacity - weekly[FLAVORS].sum(axis=1), 0)
+    if observed_calendar:
+        calendar_audit["retained_weeks"] = len(weekly)
+        calendar_audit["retained_zero_purchase_weeks"] = int(weekly["zero_purchase_week"].sum())
+        calendar_audit["retained_households"] = int(weekly["household_code"].nunique())
+        calendar_audit["zero_week_price_rule"] = "Observed trip store; missing flavors use same-week consumer-DMA means; require all flavors."
+        if calendar_audit["retained_zero_purchase_weeks"] == 0:
+            raise ValueError("Corrected calendar retained no zero-purchase weeks; refusing purchase-week-only fit.")
+        weekly.attrs["calendar_audit"] = calendar_audit
+        print("Retained calendar: " + json.dumps(calendar_audit), flush=True)
     if weekly.empty:
         raise ValueError("No households with at least two usable purchase weeks.")
     return weekly
@@ -527,7 +565,7 @@ def add_stocks(weekly, habit_weight=0.7, novelty_measure="previous_share",
                 novelty[index] = (previous_share.sum() - previous_share
                                   if novelty_measure == "previous_share" else previous_event)
             counts = row[FLAVORS].to_numpy(float)
-            current_share = counts / counts.sum()
+            current_share = counts / counts.sum() if counts.sum() > 0 else np.zeros(len(FLAVORS))
             previous_event = (switch_away_event(previous_share, current_share)
                               if adjacent else np.zeros(len(FLAVORS)))
             previous_share = current_share
@@ -810,6 +848,13 @@ def optimize_demand(data, settings, initial=None, number_starts=None, quiet=Fals
             iterations[0] += 1
             if not quiet and iterations[0] % 10 == 0:
                 print(f"Start {s + 1}: iteration {iterations[0]}, elapsed {time.monotonic() - began:.0f}s", flush=True)
+                settings.output.mkdir(parents=True, exist_ok=True)
+                checkpoint = settings.output / "iteration_checkpoint.json"
+                temporary = checkpoint.with_suffix(".tmp")
+                temporary.write_text(json.dumps(dict(
+                    parameters=names, theta=np.asarray(theta).tolist(), start=s + 1,
+                    iteration=iterations[0], draws=settings.draws, converged=False)))
+                temporary.replace(checkpoint)
 
         fit = minimize(
             objective,
@@ -1129,7 +1174,17 @@ def write_run_notes(output, information):
 @server_only
 def fit_model(data, settings, frame=None):
     """Estimate demand, compute requested inference, and save readable outputs."""
-    best, results, bounds = optimize_demand(data, settings)
+    initial = None
+    if getattr(settings, "initial_estimates", None):
+        from server_data_policy import require_data_path
+        require_data_path(settings.initial_estimates)
+        saved = pd.read_csv(settings.initial_estimates).set_index("parameter")["estimate"]
+        order = parameter_names(settings.model, data["outside"], data["control"])
+        initial = saved.reindex(order).to_numpy(float)
+        if not np.isfinite(initial).all():
+            raise ValueError("Starting estimates must match all model parameters.")
+        print("Warm start: " + str(settings.initial_estimates), flush=True)
+    best, results, bounds = optimize_demand(data, settings, initial=initial)
     names = parameter_names(settings.model, data["outside"], data["control"])
     table = pd.DataFrame({"parameter": names, "estimate": best.x})
     table["at_bound"] = [
@@ -1188,10 +1243,12 @@ def fit_model(data, settings, frame=None):
         stock_retention=getattr(settings, "stock_retention", DEFAULT_STOCK_RETENTION),
         stock_measure=getattr(settings, "stock_measure", DEFAULT_STOCK_MEASURE),
         history_specification="separate" if settings.model in ("separate_history", "heterogeneous_history") else "combined_or_none",
-        sample_restriction="household_size == 1 on each purchase record",
+        sample_restriction="household_size == 1; existing matched-purchase households; observed full-panel weeks" if getattr(settings, "observation_mode", "observed_panel") == "observed_panel" and settings.capacity else "household_size == 1 on each purchase record",
         households=data["n_households"],
         weeks=len(data["hh"]),
         capacity=settings.capacity,
+        observation_mode=getattr(settings, "observation_mode", "observed_panel") if settings.capacity else "purchase_weeks",
+        calendar_audit=frame.attrs.get("calendar_audit") if frame is not None else None,
         inference=inference,
         converged=bool(best.success),
         message=str(best.message),
@@ -1238,6 +1295,10 @@ def read_command_line(settings):
         default=DATA_DIR / "summary_outputs/yogurt_estimation_sample.parquet",
     )
     parser.add_argument("--flavors", type=Path, default=FLAVOR_FILE)
+    parser.add_argument("--panel", type=Path, help="Full shopping merged_panel.parquet; required with weekly outside choices.")
+    parser.add_argument("--observation-mode", choices=["observed_panel", "purchase_weeks"], default="observed_panel",
+                        help="Use observed_panel for new weekly fits; purchase_weeks only reproduces legacy fits.")
+    parser.add_argument("--initial-estimates", type=Path, help="Warm-start parameter CSV on the server.")
     parser.add_argument(
         "--products-extra",
         type=Path,

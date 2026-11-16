@@ -33,6 +33,7 @@ def regenerate(fit_dir, sample=None, flavors=None, weekly_output=None):
     fit_dir = Path(fit_dir)
     fit = json.loads((fit_dir / 'fit.json').read_text())
     settings = dict(fit['settings'])
+    settings.setdefault('observation_mode', 'purchase_weeks')
     settings.setdefault('flavor_spec', 'three')
     settings.setdefault('novelty_measure', 'previous_share')
     # Fits predating the retention setting used cumulative stock.
@@ -45,7 +46,7 @@ def regenerate(fit_dir, sample=None, flavors=None, weekly_output=None):
         raise ValueError(f'Saved fit lacks reconstruction settings: {sorted(missing)}')
     settings['model'] = fit['model']
     settings['output'] = Path(weekly_output).parent if weekly_output is not None else Path('/scratch/dtm63837/Kilts_Panel/Data/temporary') / fit_dir.name
-    for key in ['sample', 'flavors', 'products_extra']:
+    for key in ['sample', 'flavors', 'products_extra', 'panel', 'initial_estimates']:
         if settings.get(key) is not None:
             settings[key] = Path(settings[key])
         else:

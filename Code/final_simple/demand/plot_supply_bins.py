@@ -70,19 +70,28 @@ def plot_bins(results, output, individual=True):
     pd.DataFrame(uniform_paths).to_csv(output/'uniform_population_price_path.csv', index=False)
 
     welfare = [('consumer_surplus', 'CS'), ('revenue', 'Revenue'), ('total_welfare', 'TS')]
+    def welfare_change(h0, group, metric):
+        baseline = grouped.loc[(h0, 'common', group), metric]
+        if baseline == 0:
+            raise ValueError(f'Undefined percentage change: zero {metric} baseline for {h0}/{group}.')
+        return 100*(grouped.loc[(h0, 'informed', group), metric]-baseline)/abs(baseline)
+
+    changes = [dict(h0=h0, group=group,
+                    **{metric+'_pct_change': welfare_change(h0, group, metric)
+                       for metric, _ in welfare})
+               for h0 in ['j', '0'] for group in bins]
+    pd.DataFrame(changes).to_csv(output/'welfare_percentage_changes_by_bin.csv', index=False)
     fig, axes = plt.subplots(2, 3, figsize=(13, 7), layout='constrained')
+    fig.suptitle('Quintile-informed pricing: change as % of |uniform baseline| within each quintile')
     for row_axes, h0 in zip(axes, ['j', '0']):
         for ax, (metric, label) in zip(row_axes, welfare):
             positions = np.arange(len(bins))
-            for offset, regime, name, color in [
-                    (-.19, 'common', 'Uniform across population', '#777777'),
-                    (.19, 'informed', 'Quintile known', '#2E6896')]:
-                values = [grouped.loc[(h0, regime, group), metric] for group in bins]
-                ax.bar(positions+offset, values, width=.36, label=name, color=color)
+            values = [welfare_change(h0, group, metric) for group in bins]
+            ax.bar(positions, values, width=.6, label='Informed', color='#2E6896')
             ax.set(title=label+' / initially '+('inside' if h0 == 'j' else 'outside'),
                    xticks=positions, xticklabels=[f'Q{k+1}' for k in positions],
-                   xlabel='Gamma quintile (20% each)', ylabel='Two-period value ($)')
-            ax.axhline(0, color='black', linewidth=.6)
+                   xlabel='Gamma quintile (20% each)', ylabel='Change / |uniform baseline| (%)')
+            ax.axhline(0, color='black', linewidth=.6, label='Uniform')
             ax.grid(axis='y', alpha=.2)
             ax.legend(fontsize=7)
     save(fig, 'welfare_all_bins')
@@ -110,10 +119,10 @@ def plot_bins(results, output, individual=True):
         fig.suptitle(f'Gamma percentile bin: {100*k/len(bins):g}–{100*(k+1)/len(bins):g}%')
         for row_axes, h0 in zip(axes, ['j', '0']):
             for ax, (metric, label) in zip(row_axes, welfare):
-                values = [grouped.loc[(h0, regime, group), metric] for regime in ['common', 'informed']]
-                ax.bar(['Common', 'Bin-informed'], values, color=['#777777', '#2E6896'])
+                values = [0., welfare_change(h0, group, metric)]
+                ax.bar(['Uniform', 'Informed'], values, color=['#777777', '#2E6896'])
                 ax.set(title=label+' / initially '+('inside' if h0 == 'j' else 'outside'),
-                       ylabel='Two-period value ($)')
+                       ylabel='Change / |uniform baseline| (%)')
                 ax.axhline(0, color='black', linewidth=.6)
                 ax.grid(axis='y', alpha=.2)
         save(fig, 'welfare_'+group)

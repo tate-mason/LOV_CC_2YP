@@ -1,0 +1,453 @@
+\documentclass[11pt]{article}
+\usepackage[margin=0.9in]{geometry}
+\usepackage{amsmath,amssymb,booktabs,array,hyperref,fancyhdr}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\hypersetup{colorlinks=true,linkcolor=black,urlcolor=blue}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt}
+\allowdisplaybreaks
+\pagestyle{fancy}\fancyhf{}\fancyhead[L]{Distribution-based pricing: mathematical specification}
+\fancyfoot[C]{\thepage}\setlength{\headheight}{14pt}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\ind}{\mathbf{1}}
+\newcommand{\dd}{\,\mathrm{d}}
+\newcommand{\Cov}{\operatorname{Cov}}
+\title{Distribution-Based Pricing\\\large Information, pricing paths, and welfare accounting}
+\author{}\date{November 2026}
+\begin{document}
+\maketitle
+\vspace{-2em}
+This note records the mathematical objects behind \texttt{supply\_review.pdf}.
+The price-setting equations include the corrected persistent-type introductory
+objective. Terminal prices retain fixed beliefs: there is no learning.
+Outcome accounting and the introductory objective use the same joint
+type--history probabilities. No numerical
+optima or interpretation of the quintile comparisons are supplied.
+
+\section{Primitives and information}
+There are two periods, $t=1,2$, one inside product $j$, and an outside option
+$0$. Let $y_t\in\{j,0\}$ denote the choice in period $t$ and let
+$h_0\in\{j,0\}$ denote the given pre-period-1 choice. The state entering
+period 2 is $h_1=y_1$. A consumer's type $\gamma$ is persistent.
+Parameters satisfy $\alpha<0$, $\delta\in[0,1]$; $\beta$ is the inside
+intercept. Marginal cost is zero in the current packet. Habit stocks and
+other estimated heterogeneity are not advanced in this two-period exercise.
+
+Let $F$ be the known population distribution of $\gamma$ and define
+\begin{align}
+ b_k&=F^{-1}(k/5),\qquad k=0,\ldots,5,\\
+ B_k&=(b_{k-1},b_k],\qquad
+ \pi_k=\Pr(\gamma\in B_k)=\tfrac15,\\
+ F_k(A)&=\Pr(\gamma\in A\mid\gamma\in B_k).
+\end{align}
+Endpoints have zero probability for the continuous distributions here.
+The uniform firm knows $F$, every $F_k$, and every $\pi_k$; it cannot place
+the individual in a quintile. The informed firm additionally observes the
+individual's quintile $k$, but not their exact $\gamma$.
+Thus, for any integrable $g$,
+\begin{equation}
+ \boxed{\E_F[g(\gamma)]
+ =\sum_{k=1}^5\pi_k\E_{F_k}[g(\gamma)].}
+ \label{eq:mixture}
+\end{equation}
+Write $G=F$ for uniform pricing and $G=F_k$ for quintile-informed pricing.
+Uniform means common across unobserved quintiles at a given observed
+history; it does not mean a price constant across time or histories.
+
+\section{Utility and purchase probabilities}
+The deterministic utility levels used in welfare accounting are
+\begin{align}
+ V_j(p,\gamma,h)&=\beta+\alpha p+\gamma\ind\{h=0\},\\
+ V_0(\gamma,h)&=\gamma\ind\{h=j\}.
+\end{align}
+Add independent type-I extreme-value choice shocks with unit scale.
+Consumers choose myopically. Define $a_j=-1$, $a_0=1$, and
+\begin{align}
+ z_h(p,\gamma)&=V_j-V_0=\beta+\alpha p+a_h\gamma,\\
+ \Lambda(z)&=\frac{1}{1+e^{-z}},\\
+ q_h(p,\gamma)&=\Pr(y_t=j\mid p,\gamma,h)
+ =\Lambda(z_h(p,\gamma)).
+\end{align}
+The type-level price derivatives are
+\begin{align}
+ q_h'(p,\gamma)&=\alpha q_h(p,\gamma)[1-q_h(p,\gamma)],\\
+ q_h''(p,\gamma)&=\alpha^2q_h(p,\gamma)[1-q_h(p,\gamma)]
+ [1-2q_h(p,\gamma)].
+\end{align}
+For a belief distribution $G$, aggregate demand and its derivatives are
+\begin{align}
+ S_h^G(p)&=\int q_h(p,\gamma)\dd G(\gamma),\\
+ (S_h^G)'(p)&=\alpha\int q_h(p,\gamma)[1-q_h(p,\gamma)]\dd G(\gamma),\\
+ (S_h^G)''(p)&=\alpha^2\int q_h(p,\gamma)[1-q_h(p,\gamma)]
+ [1-2q_h(p,\gamma)]\dd G(\gamma).
+\end{align}
+In particular,
+\begin{align}
+ S_h^F(p)&=\sum_k\pi_k S_h^{F_k}(p),&
+ (S_h^F)'(p)&=\sum_k\pi_k(S_h^{F_k})'(p).
+\end{align}
+These are integrals of demand, not demand evaluated at mean gamma:
+\begin{equation}
+ S_h^G(p)=\E_G[\Lambda(\beta+\alpha p+a_h\gamma)],
+ \qquad
+ \widetilde S_h^G(p)=\Lambda(\beta+\alpha p+a_h\E_G[\gamma]).
+\end{equation}
+The code uses $S$, not $\widetilde S$.
+
+\section{Second-period pricing under the implemented beliefs}
+The current solver holds $G$ fixed after either purchase history. For
+$h\in\{j,0\}$ it solves
+\begin{align}
+ R_h^G(p)&=pS_h^G(p),\\
+ p_{2h}^G&\in\arg\max_{p\geq0}R_h^G(p),\\
+ W_h^G&=R_h^G(p_{2h}^G).
+\end{align}
+An interior solution satisfies
+\begin{align}
+ 0&=S_h^G(p_{2h}^G)+p_{2h}^G(S_h^G)'(p_{2h}^G),\label{eq:terminalfoc}\\
+ p_{2h}^G
+ &=\frac{\E_G[q_h]}{(-\alpha)\E_G[q_h(1-q_h)]},\label{eq:markup}
+\end{align}
+where the probabilities in \eqref{eq:markup} are evaluated at the optimum.
+Equivalently, the absolute price elasticity
+$-p(S_h^G)'(p)/S_h^G(p)$ equals one there. A local maximum also requires
+\begin{equation}
+ 2(S_h^G)'(p)+p(S_h^G)''(p)\leq0.
+\end{equation}
+For mixtures, stationary points must be compared with one another and the
+search boundaries; the first-order condition alone does not select a global optimum.
+
+For any candidate price, define the quintile contribution
+\begin{equation}
+ D_{kh}(p)=S_h^{F_k}(p)+p(S_h^{F_k})'(p).
+\end{equation}
+The uniform revenue derivative is exactly
+\begin{equation}
+ (R_h^F)'(p)=\sum_{k=1}^5\pi_k D_{kh}(p).\label{eq:contrib}
+\end{equation}
+At a Q3 interior optimum $\widehat p=p_{2h}^{F_3}$, the condition for the
+same price also to be a uniform stationary point is
+\begin{equation}
+ \sum_{k\ne3}\pi_k D_{kh}(\widehat p)=0.
+\end{equation}
+This is the marginal-revenue comparison relevant to the proposed proximity
+of the uniform and 40--60\% prices. Equality of mean gamma is a separate condition.
+
+Another exact expression for the markup denominator is
+\begin{equation}
+ \E_G[q_h(1-q_h)]
+ =S_h^G(p)[1-S_h^G(p)]-\operatorname{Var}_G(q_h(p,\gamma)).
+\end{equation}
+All objects here depend on the candidate price.
+
+\section{First-period pricing in the current solver}
+Given the no-learning terminal prices $p_{2j}^G,p_{20}^G$, define
+\begin{align}
+ r_j^G(\gamma)&=p_{2j}^Gq_j(p_{2j}^G,\gamma),\\
+ r_0^G(\gamma)&=p_{20}^Gq_0(p_{20}^G,\gamma),\\
+ \Delta r^G(\gamma)&=r_j^G(\gamma)-r_0^G(\gamma).
+\end{align}
+The corrected first-period objective is
+\begin{align}
+ J_{h_0}^G(p)&=\E_G\!\left[pq_{h_0}(p,\gamma)+\delta\{
+ q_{h_0}(p,\gamma)r_j^G(\gamma)
+ +[1-q_{h_0}(p,\gamma)]r_0^G(\gamma)\}\right],\\
+ p_1^G(h_0)&\in\arg\max_p J_{h_0}^G(p).
+\end{align}
+The first-period search permits a negative introductory price. Terminal prices
+are fixed while choosing $p$ and do not use posterior type weights. Thus
+\begin{align}
+ J_{h_0}^G(p)&=\delta\E_G[r_0^G]
+ +\E_G[q_{h_0}(p,\gamma)(p+\delta\Delta r^G(\gamma))],\\
+ (J_{h_0}^G)'(p)&=\E_G[q_{h_0}+q_{h_0}'(p+\delta\Delta r^G)],\\
+ (J_{h_0}^G)''(p)&=\E_G[2q_{h_0}'+q_{h_0}''(p+\delta\Delta r^G)].
+\end{align}
+Writing $q=q_{h_0}(p_1^G,\gamma)$, an interior optimum satisfies
+\begin{equation}
+ \boxed{p_1^G(h_0)=\frac{\E_G[q]}{(-\alpha)\E_G[q(1-q)]}
+ -\delta\frac{\E_G[q(1-q)\Delta r^G]}{\E_G[q(1-q)]}.}
+\end{equation}
+The continuation adjustment is type-specific and enters with weights
+proportional to $q(1-q)$. It is not replaced by the unweighted mean
+$\E_G[\Delta r^G]$. The price and probabilities on the right depend on one
+another; this is an implicit condition. Global candidate checks remain necessary.
+
+The uniform derivative decomposes by quintile as
+\begin{align}
+ (J_{h_0}^F)'(p)
+ &=\sum_k\pi_k\E_{F_k}[q_{h_0}+q_{h_0}'(p+\delta\Delta r^F)].
+\end{align}
+At an interior Q3 optimum $\widehat p=p_1^{F_3}(h_0)$, its Q3 summand equals
+\begin{equation}
+ \pi_3\delta\E_{F_3}[q_{h_0}'(\widehat p,\gamma)
+ (\Delta r^F(\gamma)-\Delta r^{F_3}(\gamma))].
+\end{equation}
+Uniform and informed continuation policies differ, even when evaluated on
+the same quintile. This decomposition uses each policy's actual terminal offers.
+
+\section{Normal distributions and numerical integration}
+In the packet $F=N(\mu,\sigma^2)$. The quintile boundaries are
+$b_k=\mu+\sigma\Phi^{-1}(k/5)$.
+For $0<k<5$, $\Phi$ is the standard normal CDF and $\phi$ its density;
+$b_0=-\infty$, $b_5=+\infty$. Conditional means are
+\begin{equation}
+ \E[\gamma\mid B_k]=\mu+5\sigma\left[
+ \phi(\Phi^{-1}((k-1)/5))-\phi(\Phi^{-1}(k/5))\right].
+\end{equation}
+This formula describes a mean; the solver retains the within-bin distribution.
+For integration, let $(x_\ell,w_\ell)_{\ell=1}^L$ be Gauss--Legendre nodes
+and weights on $[-1,1]$, with $L=21$ and $\sum_\ell w_\ell=2$. Define
+\begin{align}
+ u_{k\ell}&=\frac{k-1+(x_\ell+1)/2}{5},\\
+ \gamma_{k\ell}&=\mu+\sigma\Phi^{-1}(u_{k\ell}),\\
+ \omega_{k\ell}&=\frac{w_\ell}{10},&
+ \widetilde\omega_{k\ell}&=5\omega_{k\ell}=\frac{w_\ell}{2}.
+\end{align}
+Thus
+\begin{align}
+ \E_F[g]&\approx\sum_{k,\ell}\omega_{k\ell}g(\gamma_{k\ell}),\\
+ \E_{F_k}[g]&\approx\sum_\ell\widetilde\omega_{k\ell}g(\gamma_{k\ell}),\\
+ \sum_\ell\omega_{k\ell}&=\tfrac15,&
+ \sum_\ell\widetilde\omega_{k\ell}&=1.
+\end{align}
+Each candidate price is evaluated at every integration node before summing.
+The uniform solver uses all five bins with their known weights.
+
+\section{Histories and the information set}
+For the empirical analogue, let $t_i^0$ denote household $i$'s first actual
+observed yogurt basket. Zero-yogurt weeks do not define the initial basket.
+For focal flavor $f$, its observed initial state is
+\begin{equation}
+ h_{i0}^f=\begin{cases}j,&\text{positive focal-flavor purchases at }t_i^0,\\
+ 0,&\text{no focal-flavor purchases at }t_i^0.\end{cases}
+\end{equation}
+Index the first observed basket by purchase occasion 0. The counterfactual
+pricing periods are purchase occasions 1 and 2: the next two consecutive
+purchase weeks, which need not be consecutive calendar weeks. Calendar gaps
+and zero-yogurt weeks do not advance this time index. Discounting uses $\delta$
+per pricing period, not per elapsed calendar week.
+Their offers are optimized and their purchases are endogenous. Later observed
+choices are not imposed as counterfactual outcomes. An initial basket with
+unknown focal status is excluded and audited; a later usable occasion does
+not replace the first occasion.
+
+The maintained type belief is the same population $G$ under both initial
+histories. Initial history affects utility, not the distribution of types
+used to choose the price. Write $N_h^f=\sum_i\ind\{h_{i0}^f=h\}$ and
+$N^f=N_j^f+N_0^f$. For any outcome $M$ and policy $r$, the observed-initialized
+population average is
+\begin{equation}
+ \overline M_f^r=\sum_{h\in\{j,0\}}\frac{N_h^f}{N^f}
+ \E_F[M_f^r(\gamma,h)].
+\end{equation}
+The informed expression uses the appropriate quintile-specific policy inside
+the integral. Observed initial frequencies weight the combined population;
+they do not change the optimum conditional on a given $h_0$ when all primitives
+and type beliefs conditional on that state are held fixed. Quintiles are
+population probability bins, not recovered household posterior ranks.
+
+The local population-input figures evaluate the two conditional states but do
+not read $t_i^0$ or $N_h^f$. The observed-initialization version is generated
+on the research server by \texttt{run\_observed\_state\_theory.py}.
+
+For a fixed first-period policy, write
+$q_1(\gamma)=q_{h_0}(p_1,\gamma)$ and $s_1=\E_G[q_1]$.
+The actual conditional composition of the two outcome branches is
+\begin{align}
+ \dd G_j(\gamma;p_1,h_0)&=\frac{q_1(\gamma)\dd G(\gamma)}{s_1},\\
+ \dd G_0(\gamma;p_1,h_0)&=\frac{[1-q_1(\gamma)]\dd G(\gamma)}{1-s_1}.
+\end{align}
+For the uniform population the actual branch-specific quintile shares are
+\begin{align}
+ \Pr(B_k\mid y_1=j,h_0,p_1)
+ &=\frac{\pi_k\E_{F_k}[q_1]}{\sum_m\pi_m\E_{F_m}[q_1]},\\
+ \Pr(B_k\mid y_1=0,h_0,p_1)
+ &=\frac{\pi_k\E_{F_k}[1-q_1]}{\sum_m\pi_m\E_{F_m}[1-q_1]}.
+\end{align}
+These conditional compositions are accounting identities, not beliefs used
+to choose the terminal offers. The maintained no-learning restriction is
+\begin{equation}
+ G_{\mathrm{price},j}=G_{\mathrm{price},0}=G.
+\end{equation}
+The introductory objective anticipates persistent-type outcomes under that
+fixed terminal rule. Terminal prices do not use the conditional compositions
+above, depend on the initial offer, or acquire additional information about
+quintile membership. This is the specified fixed-belief policy restriction,
+not Bayesian backward induction.
+
+\section{Persistent-type outcome accounting}
+For a given price triple $(p_1,p_{2j},p_{20})$, define
+\begin{align}
+ q_1(\gamma)&=q_{h_0}(p_1,\gamma),&
+ q_{2j}(\gamma)&=q_j(p_{2j},\gamma),&
+ q_{20}(\gamma)&=q_0(p_{20},\gamma),\\
+ q_2(\gamma)&=q_1q_{2j}+(1-q_1)q_{20},\\
+ r_j(\gamma)&=p_{2j}q_{2j}(\gamma),&
+ r_0(\gamma)&=p_{20}q_{20}(\gamma).
+\end{align}
+Actual expected revenue for persistent types is
+\begin{align}
+ R_{\mathrm{act}}^G
+ &=\E_G\!\left[p_1q_1+\delta\{q_1r_j+(1-q_1)r_0\}\right].\label{eq:actual}
+\end{align}
+The corrected introductory objective is exactly
+\begin{equation}
+ J_{h_0}^G(p_1)=R_{\mathrm{act}}^G.
+\end{equation}
+The implementation verifies this equality for each solved policy. Terminal
+prices still maximize static revenue using the unchanged distribution $G$;
+the correction does not introduce learning or jointly reoptimize terminal
+prices for the selected consumers in each branch.
+
+For reference, the superseded product-of-means objective was
+\begin{equation}
+ J_{\mathrm{old}}^G=p_1\E_G[q_1]+\delta\{\E_G[q_1]\E_G[r_j]
+ +[1-\E_G[q_1]]\E_G[r_0]\}.
+\end{equation}
+Consequently,
+\begin{equation}
+ \boxed{R_{\mathrm{act}}^G-J_{\mathrm{old}}^G
+ =\delta\Cov_G(q_1,r_j-r_0).}\label{eq:cov}
+\end{equation}
+Equation \eqref{eq:cov} is an accounting identity for any such fixed policy.
+The current solver integrates products before averaging; it no longer uses
+$J_{\mathrm{old}}^G$ to select the introductory price.
+
+Even retaining the fixed terminal prices, the derivative of actual revenue
+with respect to the introductory price is
+\begin{equation}
+ \frac{\partial R_{\mathrm{act}}^G}{\partial p_1}
+ =\E_G[q_1]+p_1\E_G[q_1']
+ +\delta\E_G[q_1'(r_j-r_0)].
+\end{equation}
+This is a derivative holding the no-learning terminal policy fixed.
+Conditional terminal revenue for the buyer
+branch can equivalently be written
+\begin{equation}
+ \E_G[q_1r_j]=s_1\E_{G_j}[r_j],
+\end{equation}
+with the analogous nonbuyer expression.
+
+\section{What the displayed price paths average}
+The main no-habit results packet now displays four decision panels:
+$p_1^r(j)$, $p_1^r(0)$, $p_{2j}^r$, and $p_{20}^r$, each against quintile.
+These are optimized offers without history averaging. The following
+definitions describe the supplemental expected-price figures and saved tables.
+For policy $r\in\{U,I_k\}$ and initial history $h_0$, the individual-type
+expected second-period offer is
+\begin{equation}
+ e_2^r(\gamma\mid h_0)=q_{h_0}(p_1^r,\gamma)p_{2j}^r
+ +[1-q_{h_0}(p_1^r,\gamma)]p_{20}^r.
+\end{equation}
+This averages offers over purchase histories, not transaction prices
+conditional on purchasing in period 2. It is not discounted.
+The informed quintile path is
+\begin{equation}
+ \left(p_1^{I_k}(h_0),\;\E_{F_k}[e_2^{I_k}(\gamma\mid h_0)]\right).
+\end{equation}
+The single uniform line displayed in each panel is
+\begin{equation}
+ \left(p_1^U(h_0),\;\E_F[e_2^U(\gamma\mid h_0)]\right).
+\end{equation}
+The uniform-policy expectation specifically for quintile $k$ is instead
+\begin{equation}
+ \E_{F_k}[e_2^U]=\E_{F_k}[q_1^U]p_{2j}^U
+ +[1-\E_{F_k}[q_1^U]]p_{20}^U,
+\end{equation}
+and the plotted population expectation satisfies
+\begin{equation}
+ \E_F[e_2^U]=\sum_k\pi_k\E_{F_k}[e_2^U].
+\end{equation}
+Welfare comparisons use the same quintile under both policies, even though
+the price-path panel displays one population-averaged uniform line.
+
+\section{Consumer surplus and total welfare}
+The expected maximum utility, in dollars and omitting the common shock
+constant, is
+\begin{align}
+ L_h(p,\gamma)
+ &=\frac{\log(e^{V_j}+e^{V_0})}{-\alpha}\\
+ &=\frac{\log(1+e^{z_h(p,\gamma)})+\gamma\ind\{h=j\}}{-\alpha}.
+\end{align}
+Thus the period-specific and total type-level quantities are
+\begin{align}
+ CS_1^r(\gamma,h_0)&=L_{h_0}(p_1^r,\gamma),\\
+ CS_2^r(\gamma,h_0)&=q_1^r(\gamma)L_j(p_{2j}^r,\gamma)
+ +[1-q_1^r(\gamma)]L_0(p_{20}^r,\gamma),\\
+ CS^r(\gamma,h_0)&=CS_1^r+\delta CS_2^r,\\
+ R^r(\gamma,h_0)&=p_1^rq_1^r+\delta\{q_1^rp_{2j}^rq_{2j}^r
+ +(1-q_1^r)p_{20}^rq_{20}^r\},\\
+ TS^r(\gamma,h_0)&=CS^r(\gamma,h_0)+R^r(\gamma,h_0).
+\end{align}
+These use the same persistent $\gamma$ inside every history probability and
+utility term. Surplus is experienced utility under myopic choices, not the
+value function of a forward-looking consumer.
+
+For comparison, deleting the outside utility level from both alternatives
+leaves choice probabilities unchanged and gives
+\begin{align}
+ \widetilde L_h(p,\gamma)&=\frac{\log(1+e^{z_h(p,\gamma)})}{-\alpha},\\
+ CS^r-\widetilde{CS}^r
+ &=\frac{\gamma}{-\alpha}\{\ind\{h_0=j\}+\delta q_1^r(\gamma)\}.
+\end{align}
+For the same initial history, the difference between policy comparisons is
+\begin{equation}
+ (CS^I-CS^U)-(\widetilde{CS}^I-\widetilde{CS}^U)
+ =\frac{\delta\gamma}{-\alpha}(q_1^I-q_1^U).
+\end{equation}
+The packet retains $L_h$, including the outside utility level.
+
+For $M\in\{CS,R,TS\}$, its conditional quintile mean and plotted change are
+\begin{align}
+ \overline M_k^r(h_0)&=\int M^r(\gamma,h_0)\dd F_k(\gamma),\\
+ \Delta\overline M_k(h_0)&=\overline M_k^{I_k}(h_0)-\overline M_k^U(h_0),\\
+ P_{M,k}(h_0)&=100\frac{\Delta\overline M_k(h_0)}{|\overline M_k^U(h_0)|}.
+\end{align}
+The denominator is the absolute baseline of the same metric, quintile, and
+initial history. A zero baseline makes the percentage undefined. This is
+a ratio of conditional means, not a mean of type-level percentage changes.
+
+\section{Parameter inputs and implementation references}
+The following are inputs, not optimized prices. All exercises use
+$\delta=1$, zero marginal cost, five equally probable quintiles, and
+21 probability-space integration nodes per quintile.
+\begin{center}\small
+\begin{tabular}{lrrrr}\toprule
+Exercise & $\mu$ & $\sigma$ & $\alpha$ & $\beta$\\\midrule
+Pure theory & 0 & 1.25 & $-1$ & 2\\
+Earlier plain & $-0.357612$ & 1.130644 & $-0.802523$ & 0.698627\\
+Earlier berry & $-0.357612$ & 1.130644 & $-0.802523$ & 0.402734\\
+Earlier other & $-0.357612$ & 1.130644 & $-0.802523$ & 0.692726\\
+Observed-week plain & $-0.058010$ & 1.460255 & $-1.838628$ & $-2.523088$\\
+Observed-week berry & $-0.058010$ & 1.460255 & $-1.838628$ & $-2.498755$\\
+Observed-week other & $-0.058010$ & 1.460255 & $-1.838628$ & $-1.730666$\\
+No-habit plain & $-0.838193$ & 2.099165 & $-3.530427$ & $-1.285109$\\
+No-habit berry & $-0.838193$ & 2.099165 & $-3.530427$ & $-1.619406$\\
+No-habit other & $-0.838193$ & 2.099165 & $-3.530427$ & 0.016210\\
+\bottomrule\end{tabular}
+\end{center}
+Full-precision inputs are saved in each exercise's \texttt{settings.json}.
+The current empirical analogue uses the no-habit rows. Its source is
+\par{\small\path{separate_experiments_50281568/novelty_only/point_estimates.csv}.}\par
+For the earlier-fit exercises the packet imports saved theoretical-node
+outcomes. Pure theory and observed-week exercises are solved by
+\texttt{quintile\_theory.run}. No empirical records are needed for this note.
+
+\begin{description}
+\item[Pricing solver:]
+\path{Code/final_simple/supply/quintile_theory.py},\\
+functions \texttt{run}
+and \texttt{solve\_distribution}.
+\item[Earlier-fit pricing:]
+\path{Code/final_simple/demand/quantified_theory.py},\\
+\texttt{gamma\_bin\_distribution} and \texttt{compare\_bins};\\
+\path{Code/final_simple/demand/gamma_calibration.py}, \texttt{uncertainty}.
+\item[Outcome accounting:]
+\path{Code/final_simple/demand/binary_welfare.py}, \texttt{evaluate\_policy}.
+\item[Displayed averaging:]
+\path{Code/final_simple/demand/plot_supply_bins.py}, \texttt{plot\_bins}.
+\item[Packet assembly:]
+\path{Code/final_simple/supply/build_supply_review.py}, \texttt{build}.
+\end{description}
+\end{document}

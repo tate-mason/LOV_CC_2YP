@@ -1,0 +1,19 @@
+{
+  "exercise": "No-habit estimated inputs, plain",
+  "mean_gamma": -0.8381932930886082,
+  "sd_gamma": 2.099164565819562,
+  "beta": -1.2851092533244672,
+  "alpha": -3.5304270604508092,
+  "delta": 1.0,
+  "bins": 5,
+  "nodes_per_bin": 21,
+  "bin_probability": 0.2,
+  "information": "quintile known versus full-population uniform",
+  "beliefs": "fixed within each observed bin or full population, in both histories",
+  "learning": false,
+  "introductory_objective": "integral of type-specific purchase probability times continuation revenue",
+  "terminal_objective": "static revenue under unchanged distribution; no history-based updating",
+  "evaluation": "same persistent-type revenue as introductory objective",
+  "uniform_path": "one population-weighted p1 to E[p2] per initial history",
+  "welfare": "persistent gamma; policy-specific histories; zero marginal cost"
+}

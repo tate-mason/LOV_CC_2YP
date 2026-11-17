@@ -342,7 +342,7 @@ def week_dates(values):
 # Build one row per household-week. Counts come from all stores; prices use the exposure
 # store. History is built before unusable weeks are removed.
 @server_only
-def prepare_data(settings):
+def prepare_data(settings, initial_state_collector=None):
     """Use only the merged purchase table, including its existing prices.
 
     The IV pools all flavors: the same-week average observed price outside the
@@ -418,6 +418,17 @@ def prepare_data(settings):
         weekly, calendar_audit = include_observed_weeks(weekly, calendar, FLAVORS)
         weekly["dma_cd"] = check_dma(weekly["dma_cd"], "calendar consumer")
         print("Full-panel calendar: " + json.dumps(calendar_audit), flush=True)
+
+    if initial_state_collector is not None:
+        # Server-memory-only initialization at the first observed yogurt basket,
+        # before price-based likelihood exclusions. Skip zero-yogurt calendar
+        # weeks. An unmatched first basket is unknown, never replaced by a later one.
+        try:
+            from .initial_states import first_observed_baskets
+        except ImportError:
+            from initial_states import first_observed_baskets
+        initial_state_collector['states'] = first_observed_baskets(
+            weekly, FLAVORS, calendar if observed_calendar else None)
 
     quote_keys = ["store_code_uc", "week", "upc"]
     price_columns = quote_keys + ["flavor", "price"]

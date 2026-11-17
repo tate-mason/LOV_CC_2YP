@@ -85,7 +85,7 @@ def plot_welfare_changes(summary, output):
         ax.axhline(0., color='black', linewidth=.7)
         ax.set(title='Initially '+('inside' if h0=='j' else 'outside'), xticks=x,
                xticklabels=prior_labels(scenarios),
-               ylabel='Change from uniform pricing (%)')
+               ylabel='Change / |uniform baseline| (%)')
         ax.tick_params(axis='x', labelsize=8)
         ax.grid(False)
     from matplotlib.ticker import PercentFormatter
@@ -127,7 +127,7 @@ def plot_discrimination_percent(summary, output):
         columnspacing=1, handlelength=1.3, frameon=False)
     for ax, title in zip(axes, ['Revenue', 'Welfare']):
         ax.set(title=title, xticks=[0, 1], xticklabels=['Initially inside', 'Initially outside'],
-               xlim=(-.55, 1.55), ylabel='Change from uniform pricing (%)')
+               xlim=(-.55, 1.55), ylabel='Change / |uniform baseline| (%)')
         ax.yaxis.set_major_formatter(PercentFormatter(xmax=100))
         ax.tick_params(axis='y', labelleft=True)
         ax.axhline(0, color='black', linewidth=.7)

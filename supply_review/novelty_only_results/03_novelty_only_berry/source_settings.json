@@ -1,0 +1,22 @@
+{
+  "source": "/Users/tate/LOV_CC_2YP/separate_experiments_50281568/novelty_only/point_estimates.csv",
+  "source_sha256": "c5a940c985aeab8f048779cb90dd10c912ae4e64693e18711eb8cf75e5bf1cda",
+  "spec": "novelty_only",
+  "habit": false,
+  "converged": true,
+  "parameter_estimates": {
+    "inside_constant": 0.0162095324693126,
+    "beta_berry": -1.635615222798599,
+    "beta_plain": -1.3013187857937798,
+    "mu_log_minus_alpha": 0.4834008165709201,
+    "mean_novelty": -0.8381932930886082,
+    "sd_novelty": 2.099164565819562,
+    "sd_log_minus_alpha": 1.2474117422522837
+  },
+  "alpha_mapping": "-exp(mu_log_minus_alpha + sd_log_minus_alpha^2/2)",
+  "beta_mapping": "inside_constant + beta_flavor; other is reference",
+  "demand_refitted": false,
+  "pricing": "existing fixed-belief binary quintile model",
+  "evaluation": "persistent-type history integration; matches introductory objective",
+  "learning": false
+}

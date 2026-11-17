@@ -56,9 +56,10 @@ def uncertainty(gamma, prior, h0, alpha, beta, delta):
         return expit(beta+alpha*p+(-gamma if h == 'j' else gamma))
     p2j, wj = maximize(lambda p: float(prior @ shares(p, 'j'))*p, (0., scale))
     p20, w0 = maximize(lambda p: float(prior @ shares(p, '0'))*p, (0., scale))
+    rj, r0 = p2j*shares(p2j, 'j'), p20*shares(p20, '0')
     def objective(p):
-        s = float(prior @ shares(p, h0))
-        return s*p+delta*(s*wj+(1-s)*w0)
+        q = shares(p, h0)
+        return float(prior @ (p*q+delta*(q*rj+(1-q)*r0)))
     p1, value = maximize(objective, (-scale, scale))
     _, wide_value = maximize(objective, (-2*scale, 2*scale), 321)
     if not np.isclose(value, wide_value, atol=1e-7, rtol=1e-8):
@@ -192,7 +193,7 @@ def run_calibration(frame, households, delta, output):
         observed_prices='actual weekly prices at t0+7 and t0+14 days',
         outcome_units='per model consumer, not population revenue totals',
         revenue_evaluation='same persistent consumer types under both policies',
-        profit_column='fixed-belief optimization objective; use persistent_type_revenue for policy comparisons',
+        profit_column='persistent-type revenue objective; equals persistent_type_revenue',
         assumption='observed mean offered prices target known-type optimal supply prices',
         gamma_mapping='fitted novelty group means used as symmetric binary theory gamma')
     (output / 'information_friction_settings.json').write_text(json.dumps(settings, indent=2)+'\n')

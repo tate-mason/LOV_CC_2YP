@@ -1,0 +1,36 @@
+{
+  "equations": [
+    "Q_berry ~ p_berry + p_plain",
+    "Q_other ~ p_other + p_plain"
+  ],
+  "effects": [
+    "household",
+    "week"
+  ],
+  "clusters": [
+    "DMA",
+    "week"
+  ],
+  "instruments": "Separate same-week flavor quote means outside own DMA; both IVs in both first stages; quote mix is not fixed",
+  "interpretation": "Positive plain-price coefficient supports substitution; contemporaneous levels, not a lagged response",
+  "inference": "Asymptotic clustered IV covariance; no finite-sample FE degrees-of-freedom correction",
+  "quantity": "Prepared weekly flavor purchase count, including zero purchases",
+  "samples": [
+    {
+      "outcome": "berry",
+      "weeks": 1802212,
+      "households": 15561,
+      "dma_clusters": 186,
+      "week_clusters": 521,
+      "zero_quantity_share": 0.9974564590625298
+    },
+    {
+      "outcome": "other",
+      "weeks": 1815790,
+      "households": 15572,
+      "dma_clusters": 185,
+      "week_clusters": 521,
+      "zero_quantity_share": 0.9915287560786215
+    }
+  ]
+}

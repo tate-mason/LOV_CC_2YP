@@ -1,0 +1,41 @@
+{
+  "spec": "random_beta_common_alpha",
+  "flavors": [
+    "other",
+    "berry",
+    "plain"
+  ],
+  "converged": true,
+  "nll": 3462272.086930785,
+  "households": 15752,
+  "weeks": 2034618,
+  "habit": true,
+  "alpha": "common",
+  "beta": "independent normal for every flavor",
+  "gamma": "heterogeneous normal novelty",
+  "inference": {
+    "method": "observed-information Hessian",
+    "conditional_on": "estimated price controls, retail instruments, and fixed integration draws",
+    "first_stage_uncertainty": "not included",
+    "robust": false,
+    "status": "parameter at or near bounds; normal inference withheld"
+  },
+  "settings": {
+    "spec": "random_beta_common_alpha",
+    "sample": "/scratch/dtm63837/Kilts_Panel/rebuilds/run_49942107/data/summary_outputs/yogurt_estimation_sample.parquet",
+    "flavors": "/scratch/dtm63837/Kilts_Panel/rebuilds/run_49942107/data/summary_outputs/estimation_flavor_reference.csv",
+    "output": "/scratch/dtm63837/Kilts_Panel/rebuilds/run_49942107/fits/separate_experiments_50281568/random_beta_common_alpha",
+    "panel": "/scratch/dtm63837/Kilts_Panel/Data/merged_panel.parquet",
+    "flavor_spec": "three",
+    "observation_mode": "observed_panel",
+    "novelty_measure": "previous_share",
+    "first_year": 2006,
+    "last_year": 2015,
+    "capacity": 7,
+    "draws": 128,
+    "starts": 3,
+    "maxiter": 600,
+    "seed": 306,
+    "no_price_control": true
+  }
+}

@@ -83,6 +83,28 @@ Outputs per flavor: `welfare_comparison.csv` (levels), `welfare_changes.csv`
 theoretical quadrature support points, not household records. No standard errors
 are attached: these are plug-in results conditional on the estimated parameters.
 
+With percentile bins, `expected_price_paths_by_bin.pdf/png` shows period 1 to
+expected period 2 for five bin-informed policies and one population-uniform
+policy per initial-history panel. Each policy uses its own first-purchase
+probabilities in `E[p2] = q1*p2j + (1-q1)*p20`. Informed paths integrate within
+the bin; the uniform path integrates over the entire population.
+Quintiles are equal population groups (20% each), not equal-width gamma ranges.
+`expected_price_paths_bin_1.pdf/png` through `expected_price_paths_bin_5.pdf/png`
+also show each bin separately against uniform pricing across the full population.
+Here the informed firm knows the bin, while integrating uncertainty within it;
+it does not observe the exact gamma at each integration node.
+`welfare_bin_1.pdf/png` through `welfare_bin_5.pdf/png` compare CS, revenue and TS
+levels in each bin, with separate rows for initially inside and outside consumers.
+`expected_paths_and_welfare_by_bin.csv` records the conditional means and bin mass.
+These are per-consumer two-period levels; TS equals CS plus profit (revenue at
+zero cost). To plot saved theory aggregates without refitting or optimizing:
+
+```bash
+python3 Code/final_simple/demand/plot_supply_bins.py \
+  --source Code/final_simple/results/quantified_theory_five_bins_integrated \
+  --output Code/final_simple/results/quantified_theory_five_bins_integrated/supply_bin_plots
+```
+
 Recover the matching pure-theory welfare figures from its saved policies:
 
 ```bash
@@ -90,6 +112,11 @@ python3 Code/final_simple/demand/welfare_reporting.py \
   --theory-output Code/final_draft/seminar_pres/assets/theory_delta1/gamma_uncertainty
 python3 Code/final_simple/checks/test_binary_welfare.py
 ```
+
+Pure-theory `theory_report` also generates `expected_price_paths_prior_*.pdf/png`,
+showing every discrete known gamma type against uniform pricing under each prior,
+with initially inside and outside panels. Recover paths from existing theoretical
+outcomes alone with `plot_theory_paths.py --source THEORY_OUTPUT --output OUTPUT`.
 
 Third-degree discrimination raises optimized informed profit relative to the
 common policy; the signs of consumer-surplus and total-welfare changes are

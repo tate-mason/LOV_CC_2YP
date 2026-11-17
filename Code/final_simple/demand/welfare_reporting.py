@@ -158,6 +158,8 @@ def theory_report(output):
                     **{key:float(value) for key,value in values.items()}))
     types = pd.DataFrame(rows)
     types.to_csv(output/'welfare_type_results.csv', index=False)
+    from plot_theory_paths import plot_paths
+    plot_paths(types, output)
     metrics = list(values)
     summary = types.assign(**{key:types[key]*types.weight for key in metrics})
     summary = summary.groupby(['scenario','h0','regime'], sort=False)[metrics].sum().reset_index()

@@ -14,7 +14,7 @@ sys.path.insert(0, str(ROOT.parents[1]/'Code/privacy'))
 from server_data_policy import server_only, require_data_path
 import estimation as base
 from flavor_specs import categories
-from demand_models import SPECS, names, draws, objective
+from demand_models import SPECS, names, draws, objective, alpha_moments
 
 
 @server_only
@@ -65,6 +65,8 @@ def run(args):
         if errors is not None:
             table = table.merge(errors,on='parameter',validate='one_to_one')
     table.to_csv(args.output/'estimates.csv',index=False)
+    pd.DataFrame([alpha_moments(dict(zip(parameters, best.x)))]).to_csv(
+        args.output/'transformed_alpha.csv', index=False)
     if first_stage is not None:
         first_stage.to_csv(args.output/'first_stage.csv',index=False)
     metadata = dict(spec=args.spec, flavors=flavors, converged=bool(best.success),

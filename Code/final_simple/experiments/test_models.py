@@ -2,7 +2,7 @@
 import unittest
 import numpy as np
 from scipy.optimize._numdiff import approx_derivative
-from demand_models import names, draws, objective, SPECS
+from demand_models import names, draws, objective, SPECS, alpha_moments
 from cross_price import fit_iv
 from types import SimpleNamespace
 from unittest.mock import patch
@@ -11,6 +11,15 @@ import estimate
 
 
 class Models(unittest.TestCase):
+    def test_transformed_alpha_is_negative(self):
+        moments = alpha_moments(dict(mu_log_minus_alpha=1., sd_log_minus_alpha=.5))
+        self.assertAlmostEqual(moments['mean_alpha'], -np.exp(1.125))
+        self.assertAlmostEqual(moments['population_sd_alpha']**2,
+                               np.exp(2.25)*np.expm1(.25))
+        common = alpha_moments(dict(mu_log_minus_alpha=1.))
+        self.assertAlmostEqual(common['mean_alpha'], -np.exp(1.))
+        self.assertEqual(common['population_sd_alpha'], 0.)
+
     def data(self):
         rng = np.random.default_rng(11)
         return dict(outside=True, control=True, n_households=4, hh=np.repeat(np.arange(4),3),

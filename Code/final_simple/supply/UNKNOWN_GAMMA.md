@@ -2,6 +2,26 @@
 
 # Optimal pricing when gamma is unknown and h0 is known
 
+## Quintile comparison
+
+For five equal-population groups matching the pricing exercise's layout, run:
+
+```bash
+python3 Code/final_simple/supply/quintile_theory.py \
+  --output Code/final_draft/seminar_pres/assets/theory_delta1/quintiles
+```
+
+This pure-theory variant assumes normal gamma with mean 0 and SD 1.25,
+beta 2, alpha -1 and delta 1. `--mean` and `--sd` change the theoretical
+distribution; no estimated inputs are read. Each quintile has mass .2 and
+21 integration nodes. The informed firm observes the quintile. The uniform
+firm uses the entire distribution. Both retain fixed beliefs after history.
+`expected_price_paths_by_bin.png/pdf` overlays five quintile-informed paths
+and exactly one uniform path per initial-history panel. The latter integrates
+second-period history probabilities over the whole population. Files include
+the uniform population path CSV and separate CS, revenue and TS plots per bin.
+The older three-point prior exercise below remains available separately.
+
 ```bash
 python3 supply/unknown_type.py
 python3 supply/unknown_type.py --self-test

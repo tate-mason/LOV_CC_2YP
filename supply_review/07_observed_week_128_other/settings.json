@@ -1,0 +1,15 @@
+{
+  "exercise": "Applied observed_week_128, other; aggregate fitted inputs",
+  "mean_gamma": -0.0580099463433328,
+  "sd_gamma": 1.4602554833520174,
+  "beta": -1.7306663035046226,
+  "alpha": -1.8386283652291118,
+  "delta": 1.0,
+  "bins": 5,
+  "nodes_per_bin": 21,
+  "bin_probability": 0.2,
+  "information": "quintile known versus full-population uniform",
+  "beliefs": "fixed within each observed bin or full population, in both histories",
+  "uniform_path": "one population-weighted p1 to E[p2] per initial history",
+  "welfare": "persistent gamma; policy-specific histories; zero marginal cost"
+}

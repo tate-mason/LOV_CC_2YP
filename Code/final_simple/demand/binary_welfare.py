@@ -5,7 +5,11 @@ CS is expected experienced utility in dollars, with a common shock constant
 omitted. Preserve V0(h)=gamma*1{h=j}: normalizing it away changes dynamic welfare.
 """
 import numpy as np
-from scipy.special import expit
+
+
+def expit(x):
+    """Stable logistic probability using NumPy alone."""
+    return np.exp(-np.logaddexp(0., -np.asarray(x)))
 
 
 def evaluate_policy(gamma, h0, alpha, beta, delta, p1, p2j, p20, cost=0.):

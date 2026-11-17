@@ -5,6 +5,15 @@ from scipy.special import logsumexp
 SPECS = ('novelty_only', 'random_beta_common_alpha')
 
 
+def alpha_moments(parameters):
+    """Population moments of signed alpha, not of its positive magnitude."""
+    mu = parameters['mu_log_minus_alpha']
+    variance = parameters.get('sd_log_minus_alpha', 0.)**2
+    mean = -np.exp(mu + variance/2)
+    sd = np.exp(mu + variance/2)*np.sqrt(np.expm1(variance))
+    return dict(mean_alpha=float(mean), population_sd_alpha=float(sd))
+
+
 def names(spec, flavors, control=False):
     if spec not in SPECS:
         raise ValueError('Unknown experimental specification')

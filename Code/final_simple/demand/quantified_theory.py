@@ -21,6 +21,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from gamma_calibration import known_prices, uncertainty
 from binary_welfare import evaluate_policy
 from welfare_reporting import write_welfare_report, prior_labels, plot_discrimination_percent
+from plot_supply_bins import plot_bins
 
 os.environ.setdefault('MPLCONFIGDIR', str(Path(tempfile.gettempdir())/'quantified-theory-mpl'))
 
@@ -172,6 +173,8 @@ def run(estimates, output, nodes=21, delta=1., bins=5):
         pd.DataFrame(dict(gamma=gamma, weight=weights, group=labels)).to_csv(folder/'gamma_distribution.csv', index=False)
         (folder/'settings.json').write_text(json.dumps(dict(metadata, flavor=flavor, beta=beta), indent=2)+'\n')
         figures(results, summary, alpha, beta, delta, gamma, folder)
+        if bins is not None:
+            plot_bins(results, folder)
         write_welfare_report(results, summary, folder)
         plot_discrimination_percent(summary, folder)
         lines = [r'\begin{tabular}{llrrr}\toprule',r'Initial state & Distribution & Informed & Uniform & Gain\\\midrule']

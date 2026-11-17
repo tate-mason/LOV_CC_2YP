@@ -1,0 +1,8 @@
+exercise,directory,quintiles,population_mass_per_quintile,checks
+"Pure theory: normal gamma, mean 0, SD 1.25",01_pure_theory,5,0.2,passed
+Applied / earlier fit / plain,02_earlier_fit_plain,5,0.2,passed
+Applied / earlier fit / berry,03_earlier_fit_berry,5,0.2,passed
+Applied / earlier fit / other,04_earlier_fit_other,5,0.2,passed
+Applied / observed week 128 / plain,05_observed_week_128_plain,5,0.2,passed
+Applied / observed week 128 / berry,06_observed_week_128_berry,5,0.2,passed
+Applied / observed week 128 / other,07_observed_week_128_other,5,0.2,passed

@@ -10,6 +10,11 @@ output directory for each run. No household histories or policies are exported.
 `estimate.py --spec novelty_only` removes the own-stock habit coefficient and
 its dispersion. Flavor intercepts remain common; price sensitivity is lognormal
 and novelty gamma is normal, independent and persistent across household weeks.
+The signed price coefficient is `alpha = -exp(mu_log_minus_alpha + sd_log_minus_alpha*z)`;
+the log-scale parameter itself need not be negative. `transformed_alpha.csv`
+reports its negative population mean `-exp(mu + sd**2/2)` and nonnegative
+population SD (heterogeneity, not a sampling standard error). For the common-alpha
+specification the mean is `-exp(mu)` and the population SD is zero.
 The price-control first stage uses novelty, with habit weight set to zero.
 
 `estimate.py --spec random_beta_common_alpha` gives **every flavor**, including

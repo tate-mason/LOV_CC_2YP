@@ -1,0 +1,49 @@
+scenario,h0,gamma,regime,p1,expected_p2
+Equal types,j,-1.25,informed,2.3153633539313088,2.365110903709423
+Equal types,j,-1.25,common,2.2677316429127283,2.2677315734226893
+Equal types,j,0.0,informed,2.0,2.0
+Equal types,j,0.0,common,2.2677316429127283,2.2677315734226893
+Equal types,j,1.25,informed,2.419303043330536,2.517090550705641
+Equal types,j,1.25,common,2.2677316429127283,2.2677315734226893
+Equal types,0,-1.25,informed,0.7595604117659109,2.0938088179402174
+Equal types,0,-1.25,common,2.2677315782042773,2.2677315734226893
+Equal types,0,0.0,informed,2.0,2.0
+Equal types,0,0.0,common,2.2677315782042773,2.2677315734226893
+Equal types,0,1.25,informed,3.2404850713794637,2.093822814204046
+Equal types,0,1.25,common,2.2677315782042773,2.2677315734226893
+Habit type more likely,j,-1.25,informed,2.3153633539313088,2.365110903709423
+Habit type more likely,j,-1.25,common,2.285417001243262,2.352915697369131
+Habit type more likely,j,0.0,informed,2.0,2.0
+Habit type more likely,j,0.0,common,2.285417001243262,2.2666355888991303
+Habit type more likely,j,1.25,informed,2.419303043330536,2.517090550705641
+Habit type more likely,j,1.25,common,2.285417001243262,2.1929322803087947
+Habit type more likely,0,-1.25,informed,0.7595604117659109,2.0938088179402174
+Habit type more likely,0,-1.25,common,1.9568787623999395,2.208453070646776
+Habit type more likely,0,0.0,informed,2.0,2.0
+Habit type more likely,0,0.0,common,1.9568787623999395,2.2905239803419475
+Habit type more likely,0,1.25,informed,3.2404850713794637,2.093822814204046
+Habit type more likely,0,1.25,common,1.9568787623999395,2.370655651023581
+Neutral type more likely,j,-1.25,informed,2.3153633539313088,2.365110903709423
+Neutral type more likely,j,-1.25,common,2.187903285718903,2.187903259157493
+Neutral type more likely,j,0.0,informed,2.0,2.0
+Neutral type more likely,j,0.0,common,2.187903285718903,2.187903259157493
+Neutral type more likely,j,1.25,informed,2.419303043330536,2.517090550705641
+Neutral type more likely,j,1.25,common,2.187903285718903,2.187903259157493
+Neutral type more likely,0,-1.25,informed,0.7595604117659109,2.0938088179402174
+Neutral type more likely,0,-1.25,common,2.1879032908395133,2.187903259157493
+Neutral type more likely,0,0.0,informed,2.0,2.0
+Neutral type more likely,0,0.0,common,2.1879032908395133,2.187903259157493
+Neutral type more likely,0,1.25,informed,3.2404850713794637,2.093822814204046
+Neutral type more likely,0,1.25,common,2.1879032908395133,2.187903259157493
+Novelty type more likely,j,-1.25,informed,2.3153633539313088,2.365110903709423
+Novelty type more likely,j,-1.25,common,2.3320372042256476,2.224578908037211
+Novelty type more likely,j,0.0,informed,2.0,2.0
+Novelty type more likely,j,0.0,common,2.3320372042256476,2.311435239970418
+Novelty type more likely,j,1.25,informed,2.419303043330536,2.517090550705641
+Novelty type more likely,j,1.25,common,2.3320372042256476,2.383767641544784
+Novelty type more likely,0,-1.25,informed,0.7595604117659109,2.0938088179402174
+Novelty type more likely,0,-1.25,common,2.588799982490928,2.3935140163495485
+Novelty type more likely,0,0.0,informed,2.0,2.0
+Novelty type more likely,0,0.0,common,2.588799982490928,2.3292331846003194
+Novelty type more likely,0,1.25,informed,3.2404850713794637,2.093822814204046
+Novelty type more likely,0,1.25,common,2.588799982490928,2.2406981741024543

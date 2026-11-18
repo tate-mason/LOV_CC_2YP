@@ -1,0 +1,5 @@
+exercise,directory,quintiles,population_mass_per_quintile,checks
+"Pure theory: normal gamma, mean 0, SD 1.25",01_pure_theory,5,0.2,passed
+No-habit estimates / plain,02_novelty_only_plain,5,0.2,passed
+No-habit estimates / berry,03_novelty_only_berry,5,0.2,passed
+No-habit estimates / other,04_novelty_only_other,5,0.2,passed

@@ -19,12 +19,19 @@ when baseline welfare is negative. Flag zero baselines as undefined.
 
 # Empirical theory analogue
 
-Initialize each household at its first observed yogurt basket h0, then model
-the next two consecutive purchase weeks, skipping calendar gaps and zero-yogurt
-weeks. These are purchase-occasion periods, not necessarily consecutive calendar
-weeks. Do not substitute hypothetical initial
-states and describe the result as observed-household initialized. Use the new
-no-habit estimates in the binary theory, with fixed empirical alpha and beta.
+The current option-1 experiment is yogurt versus no yogurt on consecutive
+observed shopping weeks, including weeks with no yogurt; calendar gaps
+do not advance time. Observations are weekly, not daily or trip-level.
+Initialize at the first observed shopping week, then model two further observed
+shopping weeks. Reestimate no-habit category switching while
+retaining plain/berry/other flavor tastes. Report both a common yogurt price
+and separate flavor prices in separate figures/tables, using fixed empirical
+alpha and flavor beta in pricing. Equal optima are acceptable under the simplified
+model. Do not present population-input benchmarks as observed-household initialized.
+The proposed pooled-category likelihood is binary at the weekly level: any yogurt
+versus no yogurt, regardless of flavor or package quantity. Do not introduce the
+old seven-opportunity outside-count construction or a within-week consumption
+sequence into this new specification. Gamma is shared across flavors.
 The uniform firm knows the population gamma distribution and individual history,
 but not individual type or quintile. The informed firm additionally knows the
 quintile. The population type distribution is assumed identical across initial

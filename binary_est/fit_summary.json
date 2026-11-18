@@ -1,0 +1,22 @@
+{
+  "model": "category_switching_with_flavor_tastes",
+  "converged": true,
+  "habit": false,
+  "nll": 1029829.4706833132,
+  "draws": 128,
+  "seed": 306,
+  "gradient_max": 6.119960322228075e-06,
+  "flavors": [
+    "other",
+    "berry",
+    "plain"
+  ],
+  "likelihood": "one Bernoulli yogurt/no-yogurt outcome per observed shopping week",
+  "package_counts_used_as_choices": false,
+  "category_history": "yogurt versus no yogurt, not flavor switching",
+  "price_control": false,
+  "observation_unit": "observed shopping week",
+  "learning": false,
+  "population_distribution_same_across_initial_states": true,
+  "input_parameter_sha256": "c5a940c985aeab8f048779cb90dd10c912ae4e64693e18711eb8cf75e5bf1cda"
+}

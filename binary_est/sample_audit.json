@@ -1,0 +1,18 @@
+{
+  "observation_unit": "observed shopping week; all trips within week pooled",
+  "timing": "consecutive observed shopping weeks; no adjacency requirement",
+  "observed_weeks": 3014425,
+  "scoring_weeks": 2298464,
+  "cohort_households": 15808,
+  "fitted_households": 15524,
+  "initial_inside": 3260,
+  "initial_outside": 12264,
+  "excluded_unknown_initial": 0,
+  "zero_yogurt_scoring_weeks": 1784019,
+  "category_only_scoring_weeks": 312471,
+  "market_price_fallback_cells": 7627545,
+  "excluded_price_coverage_weeks": 705279,
+  "cohort": "existing single-person matched-yogurt cohort; not expanded to never-yogurt households",
+  "price_exposure": "mean quoted UPC price per flavor/store/week; same-week DMA fallback",
+  "history": "previous actual observed shopping week, constructed before price exclusions"
+}

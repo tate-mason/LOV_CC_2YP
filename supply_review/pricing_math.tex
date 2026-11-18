@@ -153,9 +153,12 @@ The corrected first-period objective is
  J_{h_0}^G(p)&=\E_G\!\left[pq_{h_0}(p,\gamma)+\delta\{
  q_{h_0}(p,\gamma)r_j^G(\gamma)
  +[1-q_{h_0}(p,\gamma)]r_0^G(\gamma)\}\right],\\
- p_1^G(h_0)&\in\arg\max_p J_{h_0}^G(p).
+ p_1^G(h_0)&\in\arg\max_{p\geq0} J_{h_0}^G(p).
 \end{align}
-The first-period search permits a negative introductory price. Terminal prices
+All offered prices are constrained to be nonnegative; introductory subsidies
+are not permitted. At an interior optimum, $(J_{h_0}^G)'(p_1)=0$; at the
+lower bound $p_1=0$, the maximizing condition is $(J_{h_0}^G)'(0)\leq0$.
+Terminal prices
 are fixed while choosing $p$ and do not use posterior type weights. Thus
 \begin{align}
  J_{h_0}^G(p)&=\delta\E_G[r_0^G]

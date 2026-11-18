@@ -37,3 +37,5 @@ but not individual type or quintile. The informed firm additionally knows the
 quintile. The population type distribution is assumed identical across initial
 histories. No learning or posterior updating occurs in the pricing periods.
 The coupon model is outside this exercise.
+Offered prices must be nonnegative in every pricing period and history. Optimize
+subject to this constraint; do not merely clip plotted prices after solving.

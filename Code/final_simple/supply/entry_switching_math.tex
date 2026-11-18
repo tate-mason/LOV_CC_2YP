@@ -1,0 +1,64 @@
+\newpage
+\titleline{Utility and assumptions: switching into plain}
+Let $j$ denote plain yogurt and $0$ denote not plain (berry, other yogurt, or no yogurt).
+History $h$ is the previous modeled occasion's choice. Set $a=-\alpha>0$.
+\[
+s_j=0,\quad s_0=1,\qquad
+u_j=\beta-ap+s_h\gamma+\varepsilon_j,\qquad u_0=\varepsilon_0.
+\]
+Repeating plain has no switching term. Entering plain has the signed utility shift $\gamma$:
+negative gamma penalizes entry; positive gamma rewards it.
+\[
+v_j=\beta-ap,\quad v_0=\beta-ap+\gamma,\qquad
+WTP_j=\frac{\beta}{a},\quad WTP_0=\frac{\beta+\gamma}{a}.
+\]
+The subscript on $v_h$ indexes history, not the outside alternative's utility.
+\[
+q_h(p,\gamma)=\frac{e^{v_h(p,\gamma)}}{1+e^{v_h(p,\gamma)}},\qquad
+C_h(p,\gamma)=\frac{\log(1+e^{v_h(p,\gamma)})}{a}.
+\]
+Shocks are independent Type-I extreme value; their common location constant is omitted.
+Consumers choose myopically. Gamma persists across the two pricing periods.
+The outside utility level is fixed at zero. Prices are nonnegative, cost is zero and $\delta=1$.
+
+Uniform knows history and the population gamma distribution $G$ but not quintile.
+Informed additionally knows quintile and uses its conditional distribution $G_k$.
+There is no learning or updating after either choice; the maintained population distribution
+is identical across initial histories. Results are conditional on initial history, without household records.
+
+Applied calibration retains the earlier flavor-switching estimates:
+$\alpha=-3.530427$, $\beta_{plain}=-1.285109$, original gamma mean $-0.838193$,
+SD $2.099165$. The middle 90\% is retained and renormalized; each new quintile has
+20\% of retained mass. These estimates are not refitted to the entry-only utility.
+The theory calibration is $\alpha=-1$, $\beta=2$, $\gamma\sim N(0,1.25^2)$.
+\newpage
+\titleline{Pricing and welfare under entry-only switching}
+For either information set, let $F$ be its fixed distribution. Terminal prices solve
+\[
+p_{2h}\in\arg\max_{p\geq0}\int p q_h(p,\gamma)\,dF(\gamma),\qquad
+r_h(\gamma)=p_{2h}q_h(p_{2h},\gamma).
+\]
+Since $q_j$ does not depend on gamma, $p_{2j}$ is identical across all quintiles and regimes.
+For initial history $h_0$, the firm chooses
+\[
+p_1\in\arg\max_{p\geq0}\int\left[pq_{h_0}(p,\gamma)
++\delta\{q_{h_0}(p,\gamma)r_j(\gamma)
++(1-q_{h_0}(p,\gamma))r_0(\gamma)\}\right]dF(\gamma).
+\]
+Writing $q_1=q_{h_0}(p_1,\gamma)$, an interior optimum satisfies
+\[
+\int\left[q_1+\alpha q_1(1-q_1)
+\{p_1+\delta[r_j(\gamma)-r_0(\gamma)]\}\right]dF(\gamma)=0.
+\]
+At $p_1=0$, the derivative must be nonpositive. Initial-inside prices can still differ
+across quintiles because future outside-state revenues differ, even though current inside demand does not.
+\begin{align*}
+CS(\gamma,h_0)&=C_{h_0}(p_1,\gamma)+\delta\{q_1 C_j(p_{2j},\gamma)+(1-q_1)C_0(p_{20},\gamma)\},\\
+R(\gamma,h_0)&=p_1q_1+\delta\{q_1r_j(\gamma)+(1-q_1)r_0(\gamma)\},\\
+TW(\gamma,h_0)&=CS(\gamma,h_0)+R(\gamma,h_0).
+\end{align*}
+Quintile outcomes integrate these expressions over $G_k$ using the appropriate regime's policy.
+All welfare and revenue figures report $100(X^{I}-X^{U})/|X^{U}|$; a zero baseline is undefined.
+
+This specification changes demand relative to the earlier $s_j=-1$, $s_0=1$ model.
+Prices, probabilities, revenue and welfare are therefore recomputed, rather than only shifting a welfare baseline.

@@ -44,6 +44,8 @@ Both common and separate flavor prices are reported. With one owner, common
 alpha, equal zero costs, and category-only histories, the separate-price optimum
 has equal flavor prices. The solver uses the exact common-markup reduction and
 checks all three individual price derivatives and reported revenue accounting.
+Every offered price is constrained to be nonnegative. Boundary optima at zero
+use the appropriate one-sided optimality conditions; subsidies are not allowed.
 
 The maintained utility levels for welfare are
 `V_j=beta0+beta_j+alpha*p_j+gamma*1{previous no yogurt}` and

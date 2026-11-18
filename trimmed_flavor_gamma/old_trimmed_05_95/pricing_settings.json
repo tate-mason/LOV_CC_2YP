@@ -1,0 +1,27 @@
+{
+  "alpha": -3.5304270604508092,
+  "beta_flavor": [
+    0.0162095324693126,
+    -1.6194056903292864,
+    -1.2851092533244672
+  ],
+  "gamma_mean": -0.8381932930886082,
+  "gamma_sd": 2.099164565819562,
+  "delta": 1.0,
+  "cost": 0.0,
+  "gamma_retained_quantiles": [
+    0.05,
+    0.95
+  ],
+  "gamma_quintiles": "equal probability within retained distribution",
+  "gamma_quadrature_mean": -0.8381932930886082,
+  "gamma_quadrature_sd": 1.6568985087989399,
+  "learning": false,
+  "initial_state_counts": {
+    "j": 0.20999742334449883,
+    "0": 0.7900025766555011
+  },
+  "one_owner_of_all_flavors": true,
+  "observation_unit": "observed shopping week, including no yogurt",
+  "price_structure_equality": "exact common-markup reduction; independent flavor FOCs checked"
+}

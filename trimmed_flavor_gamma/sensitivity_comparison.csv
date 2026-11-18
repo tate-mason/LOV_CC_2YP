@@ -1,0 +1,19 @@
+scenario,label,mode,metric,informed_vs_uniform_pct
+old_uncut,Old gamma: full distribution,common_price,consumer_surplus,-12.093036644789548
+old_uncut,Old gamma: full distribution,common_price,revenue,13.8657800547402
+old_uncut,Old gamma: full distribution,common_price,total_welfare,4.748583711538039
+old_uncut,Old gamma: full distribution,separate_flavor_prices,consumer_surplus,-12.093036644789548
+old_uncut,Old gamma: full distribution,separate_flavor_prices,revenue,13.8657800547402
+old_uncut,Old gamma: full distribution,separate_flavor_prices,total_welfare,4.748583711538039
+old_trimmed_05_95,Old gamma: middle 90%,common_price,consumer_surplus,-10.297615697243934
+old_trimmed_05_95,Old gamma: middle 90%,common_price,revenue,10.760230306306145
+old_trimmed_05_95,Old gamma: middle 90%,common_price,total_welfare,4.110703457662409
+old_trimmed_05_95,Old gamma: middle 90%,separate_flavor_prices,consumer_surplus,-10.297615697243934
+old_trimmed_05_95,Old gamma: middle 90%,separate_flavor_prices,revenue,10.760230306306145
+old_trimmed_05_95,Old gamma: middle 90%,separate_flavor_prices,total_welfare,4.110703457662409
+binary_reference,New binary gamma,common_price,consumer_surplus,-1.1636698333240354
+binary_reference,New binary gamma,common_price,revenue,1.419716983350496
+binary_reference,New binary gamma,common_price,total_welfare,0.3873162249273045
+binary_reference,New binary gamma,separate_flavor_prices,consumer_surplus,-1.1636698333240354
+binary_reference,New binary gamma,separate_flavor_prices,revenue,1.419716983350496
+binary_reference,New binary gamma,separate_flavor_prices,total_welfare,0.3873162249273045

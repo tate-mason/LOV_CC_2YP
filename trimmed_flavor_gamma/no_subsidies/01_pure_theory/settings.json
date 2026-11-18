@@ -1,0 +1,21 @@
+{
+  "exercise": "pure theory; no estimated inputs",
+  "mean_gamma": 0.0,
+  "sd_gamma": 1.25,
+  "beta": 2.0,
+  "alpha": -1.0,
+  "delta": 1.0,
+  "bins": 5,
+  "nodes_per_bin": 21,
+  "bin_probability": 0.2,
+  "information": "quintile known versus full-population uniform",
+  "beliefs": "fixed within each observed bin or full population, in both histories",
+  "learning": false,
+  "price_floor": 0.0,
+  "subsidies_allowed": false,
+  "introductory_objective": "integral of type-specific purchase probability times continuation revenue",
+  "terminal_objective": "static revenue under unchanged distribution; no history-based updating",
+  "evaluation": "same persistent-type revenue as introductory objective",
+  "uniform_path": "one population-weighted p1 to E[p2] per initial history",
+  "welfare": "persistent gamma; policy-specific histories; zero marginal cost"
+}

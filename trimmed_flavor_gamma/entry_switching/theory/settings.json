@@ -1,0 +1,20 @@
+{
+  "mean_gamma": 0.0,
+  "sd_gamma": 1.25,
+  "alpha": -1.0,
+  "beta": 2.0,
+  "retained_quantiles": [
+    0.0,
+    1.0
+  ],
+  "s_j": 0,
+  "s_0": 1,
+  "outside_utility": 0,
+  "learning": false,
+  "price_floor": 0,
+  "delta": 1,
+  "demand_refitted": false,
+  "initial_history": "conditional plain versus not plain",
+  "distribution_across_initial_histories": "identical",
+  "integration_nodes_per_quintile": 21
+}

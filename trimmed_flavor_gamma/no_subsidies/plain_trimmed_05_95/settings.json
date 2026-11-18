@@ -1,0 +1,18 @@
+{
+  "source": "/Users/tate/LOV_CC_2YP/separate_experiments_50281568/novelty_only/point_estimates.csv",
+  "specification": "plain-specific trimmed flavor switching",
+  "alpha": -3.5304270604508092,
+  "beta_plain": -1.2851092533244672,
+  "gamma_mean": -0.8381932930886082,
+  "gamma_original_sd": 2.099164565819562,
+  "retained_percentiles": [
+    5,
+    95
+  ],
+  "price_floor": 0.0,
+  "learning": false,
+  "inside": "plain yogurt",
+  "outside": "not plain: berry, other yogurt, or no yogurt",
+  "pooled_yogurt_inclusive_value": false,
+  "demand_refitted": false
+}

@@ -43,7 +43,7 @@ def outcomes(gamma, h0, alpha, beta, delta, p1, p2j, p20):
                     +(1-any_yogurt)*probability0[..., :3].sum(axis=-1))
 
 
-def solve(gamma, weights, h0, alpha, beta, delta=1., mode='common_price'):
+def solve(gamma, weights, h0, alpha, beta, delta=1., mode='common_price', price_floor=0.):
     """Exact common-markup reduction, with separate-price FOC certification.
 
     One owner, common fixed alpha, equal zero costs, and category-only transitions
@@ -65,7 +65,7 @@ def solve(gamma, weights, h0, alpha, beta, delta=1., mode='common_price'):
             or not 0 <= delta <= 1):
         raise ValueError('Invalid pricing distribution or parameters.')
     effective_beta = float(logsumexp(beta))
-    result=solve_distribution(gamma,weights,h0,alpha,effective_beta,delta)
+    result=solve_distribution(gamma,weights,h0,alpha,effective_beta,delta,price_floor)
     for key in ['p1', 'p2j', 'p20']:
         result[key] = np.full(3, result[key])
     full = outcomes(gamma, h0, alpha, beta, delta,
@@ -82,7 +82,11 @@ def solve(gamma, weights, h0, alpha, beta, delta=1., mode='common_price'):
         minus = outcomes(gamma, h0, alpha, beta, delta,
                          result['p1']-bump, result['p2j'], result['p20'])
         derivatives.append(float(np.asarray(weights)@(plus['revenue']-minus['revenue']))/(2*epsilon))
-    result['flavor_first_order_residual'] = max(abs(np.asarray(derivatives)))
+    gradients=np.asarray(derivatives)
+    result['flavor_first_order_residual'] = float(np.max(np.where(
+        result['p1'] <= (price_floor if price_floor is not None else -np.inf)+1e-7,
+        np.maximum(gradients,0.),np.abs(gradients))))
+    result['flavor_first_derivatives'] = gradients
     result['mode'] = mode
     result['effective_beta'] = effective_beta
     return result

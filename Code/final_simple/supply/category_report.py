@@ -22,7 +22,7 @@ def percentage(new, baseline):
     return np.nan if abs(baseline) <= 1e-12 else 100*(new-baseline)/abs(baseline)
 
 
-def build(output, audit, previous_results=None):
+def build(output, audit, previous_results=None, gamma_quantiles=(0.,1.), label=None, price_floor=0.):
     output = Path(output)
     table = pd.read_csv(output/'point_estimates.csv')
     if set(table)-{'parameter','estimate','at_bound'}:
@@ -32,10 +32,17 @@ def build(output, audit, previous_results=None):
     beta = p.inside_constant+np.array([0.,p.beta_berry,p.beta_plain])
     flavor_names = ['other','berry','plain']
     x,w = np.polynomial.legendre.leggauss(21)
-    probability = ((np.arange(5)[:,None]+(x+1)/2)/5).ravel()
+    lower,upper=gamma_quantiles
+    if not 0 <= lower < upper <= 1:
+        raise ValueError('Need 0 <= lower < upper <= 1 for gamma truncation.')
+    # Equal-probability quintiles of the retained distribution, not clipping.
+    probability = lower+(upper-lower)*((np.arange(5)[:,None]+(x+1)/2)/5).ravel()
     gamma = np.array([NormalDist(p.mean_novelty,p.sd_novelty).inv_cdf(float(u)) for u in probability])
     mass = np.tile(w/10,5)
     bins = np.repeat(np.arange(1,6),21)
+    pd.DataFrame(dict(gamma=gamma,weight=mass,quintile=bins,
+                     original_population_percentile=100*probability)).to_csv(
+                         output/'gamma_distribution.csv',index=False)
     initial_total = audit['initial_inside']+audit['initial_outside']
     if initial_total != audit['fitted_households'] or initial_total <= 0:
         raise ValueError('Initial counts do not match the fitted sample.')
@@ -44,17 +51,19 @@ def build(output, audit, previous_results=None):
     all_policy = []
     for mode,mode_title in [('common_price','One common yogurt price'),
                             ('separate_flavor_prices','Separate flavor prices')]:
+        if label:
+            mode_title=label+' / '+mode_title
         folder = output/mode;folder.mkdir(exist_ok=True)
         policy_rows, summary, checks = [],[],[]
         for h0 in ['j','0']:
-            uniform = solve(gamma,mass,h0,alpha,beta,mode=mode)
+            uniform = solve(gamma,mass,h0,alpha,beta,mode=mode,price_floor=price_floor)
             checks.append(dict(h0=h0,regime='Uniform',group='population',
                 objective=uniform['objective'],revenue=uniform['reported_revenue'],
                 residual=uniform['flavor_first_order_residual']))
             for k in range(1,6):
                 selected = bins==k
                 conditional = mass[selected]/mass[selected].sum()
-                informed = solve(gamma[selected],conditional,h0,alpha,beta,mode=mode)
+                informed = solve(gamma[selected],conditional,h0,alpha,beta,mode=mode,price_floor=price_floor)
                 checks.append(dict(h0=h0,regime='Informed',group=f'Q{k}',
                     objective=informed['objective'],revenue=informed['reported_revenue'],
                     residual=informed['flavor_first_order_residual']))
@@ -102,6 +111,9 @@ def build(output, audit, previous_results=None):
                     ax.set(title=label,xticks=range(1,6),xticklabels=[f'Q{k}' for k in range(1,6)],
                            xlabel='Category-switching gamma quintile',ylabel='Optimized price ($)')
                     ax.grid(axis='y',alpha=.2);ax.legend(fontsize=8)
+                if price_floor is not None:
+                    display=policy[policy.flavor==flavor][['p1','p2_after_yogurt','p2_after_no_yogurt']]
+                    axes[0,0].set_ylim(price_floor,max(float(display.max().max())*1.08,price_floor+.1))
                 fig.supxlabel('Observed shopping weeks, including no yogurt. No learning; fixed empirical alpha and flavor tastes.',fontsize=9)
                 stem='prices' if mode=='common_price' else 'prices_'+flavor
                 fig.savefig(folder/(stem+'.png'),dpi=180,bbox_inches='tight')
@@ -147,12 +159,18 @@ def build(output, audit, previous_results=None):
         old.to_csv(output/'previous_flavor_model_percentage_changes.csv',index=False)
     (output/'pricing_settings.json').write_text(json.dumps(dict(alpha=alpha,beta_flavor=beta.tolist(),
         gamma_mean=float(p.mean_novelty),gamma_sd=float(p.sd_novelty),delta=1.,cost=0.,
+        gamma_retained_quantiles=[lower,upper],
+        gamma_quintiles='equal probability within retained distribution',
+        gamma_quadrature_mean=float(mass@gamma),
+        gamma_quadrature_sd=float(np.sqrt(mass@((gamma-mass@gamma)**2))),
+        price_floor=price_floor, subsidies_allowed=price_floor is None,
         learning=False,initial_state_counts=state_weights,one_owner_of_all_flavors=True,
         observation_unit='observed shopping week, including no yogurt',
         price_structure_equality='exact common-markup reduction; independent flavor FOCs checked'),indent=2)+'\n')
     (output/'README.md').write_text(
-        '# Category switching with flavor tastes\n\n'
-        'Newly estimated yogurt-versus-no-yogurt switching on observed shopping weeks, including zeros. '
+        '# Category switching with flavor tastes\n\n'+
+        ('Scenario: '+label+'.\n\n' if label else '')+
+        'Yogurt-versus-no-yogurt switching on observed shopping weeks, including zeros. '
         'Initial state is the first actual shopping week. Both priced periods are further observed '
         'shopping occasions, not necessarily adjacent calendar weeks. Future choices are endogenous.\n\n'
         'Open common_price/pricing_results.pdf and separate_flavor_prices/pricing_results.pdf. '
@@ -167,3 +185,9 @@ def build(output, audit, previous_results=None):
         'Gamma now describes category switching, so the two estimates have different meanings. '
         'Any previous flavor-seller results also have different product scope and are not a '
         'matched causal counterfactual. No empirical records or household identifiers are exported.\n')
+    if gamma_quantiles != (0.,1.):
+        with (output/'README.md').open('a') as stream:
+            stream.write(f'\nGamma retains original percentiles {100*lower:g}–{100*upper:g}, '
+                'with the retained mass renormalized to one. Tails are removed, not capped. '
+                'Each new quintile has 20% of retained probability. Initial-state weights '
+                'are held fixed; actual household records are not trimmed locally.\n')

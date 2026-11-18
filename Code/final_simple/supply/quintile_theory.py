@@ -14,7 +14,7 @@ from binary_welfare import evaluate_policy
 from plot_supply_bins import plot_bins
 
 
-def solve_distribution(gamma, weights, h0, alpha, beta, delta):
+def solve_distribution(gamma, weights, h0, alpha, beta, delta, price_floor=0.):
     """Fixed-belief terminal offers; persistent-type introductory objective.
 
     No posterior updating occurs after either outcome. Terminal offers maximize
@@ -26,31 +26,39 @@ def solve_distribution(gamma, weights, h0, alpha, beta, delta):
             or not np.isfinite(g).all() or not np.isfinite(mass).all()
             or (mass <= 0).any() or not np.isclose(mass.sum(), 1.)
             or h0 not in ['j', '0'] or alpha >= 0 or not 0 <= delta <= 1
-            or not np.isfinite([alpha, beta, delta]).all()):
+            or not np.isfinite([alpha, beta, delta]).all()
+            or (price_floor is not None and (not np.isfinite(price_floor) or price_floor < 0))):
         raise ValueError('Need finite types, positive normalized weights and valid pricing parameters.')
     scale = (30+abs(beta)+np.max(abs(g)))/abs(alpha)
     def share(p, h):
         return expit(beta+alpha*p+(-g if h == 'j' else g))
-    terminal = [scalar_maximum(lambda p: p*float(mass@share(p, h)), (0., scale))
+    terminal_floor = 0. if price_floor is None else price_floor
+    scale = max(scale, terminal_floor+1.)
+    terminal = [scalar_maximum(lambda p: p*float(mass@share(p, h)), (terminal_floor, scale))
                 for h in ['j', '0']]
     pj, p0 = terminal[0][0], terminal[1][0]
     rj, r0 = pj*share(pj, 'j'), p0*share(p0, '0')
     def objective(p):
         q = share(p, h0)
         return float(mass@(p*q+delta*(q*rj+(1-q)*r0)))
-    p1, value = scalar_maximum(objective, (-scale, scale))
-    _, wide = scalar_maximum(objective, (-2*scale, 2*scale), 321)
+    lower = -scale if price_floor is None else price_floor
+    wider_lower = -2*scale if price_floor is None else price_floor
+    p1, value = scalar_maximum(objective, (lower, scale))
+    _, wide = scalar_maximum(objective, (wider_lower, 2*scale), 321)
     np.testing.assert_allclose(value, wide, atol=1e-7)
     actual = evaluate_policy(g, h0, alpha, beta, delta, p1, pj, p0)
     np.testing.assert_allclose(value, mass@actual['revenue'], rtol=1e-11, atol=1e-12)
     q = share(p1, h0)
     derivative = float(mass@(q+alpha*q*(1-q)*(p1+delta*(rj-r0))))
+    at_floor = price_floor is not None and abs(p1-price_floor) < 1e-7
+    kkt_residual = max(derivative,0.) if at_floor else abs(derivative)
     return dict(p1=p1, p2j=pj, p20=p0, objective=value,
-                reported_revenue=float(mass@actual['revenue']), first_order_residual=derivative)
+                reported_revenue=float(mass@actual['revenue']), first_order_residual=derivative,
+                kkt_residual=kkt_residual, at_price_floor=at_floor)
 
 
 def run(output, mean=0., sd=1.25, nodes=21, beta=2., alpha=-1., delta=1.,
-        exercise='pure theory; no estimated inputs', individual=True):
+        exercise='pure theory; no estimated inputs', individual=True, price_floor=0.):
     if sd <= 0 or nodes < 2 or alpha >= 0 or not 0 <= delta <= 1:
         raise ValueError('Need positive SD, >=2 nodes, negative alpha and delta in [0,1].')
     x, w = np.polynomial.legendre.leggauss(nodes)
@@ -64,12 +72,12 @@ def run(output, mean=0., sd=1.25, nodes=21, beta=2., alpha=-1., delta=1.,
     rows = []
     diagnostics = []
     for h0 in ['j', '0']:
-        common = solve_distribution(gamma, weights, h0, alpha, beta, delta)
+        common = solve_distribution(gamma, weights, h0, alpha, beta, delta, price_floor)
         diagnostics.append(dict(h0=h0, regime='common', group='population', **common))
         for group in dict.fromkeys(labels):
             mask = labels == group
             conditional = weights[mask]/weights[mask].sum()
-            informed = solve_distribution(gamma[mask], conditional, h0, alpha, beta, delta)
+            informed = solve_distribution(gamma[mask], conditional, h0, alpha, beta, delta, price_floor)
             diagnostics.append(dict(h0=h0, regime='informed', group=group, **informed))
             for regime, policy in [('informed', informed), ('common', common)]:
                 outcomes = evaluate_policy(gamma[mask], h0, alpha, beta, delta,
@@ -91,6 +99,7 @@ def run(output, mean=0., sd=1.25, nodes=21, beta=2., alpha=-1., delta=1.,
         bin_probability=.2, information='quintile known versus full-population uniform',
         beliefs='fixed within each observed bin or full population, in both histories',
         learning=False,
+        price_floor=price_floor, subsidies_allowed=price_floor is None,
         introductory_objective='integral of type-specific purchase probability times continuation revenue',
         terminal_objective='static revenue under unchanged distribution; no history-based updating',
         evaluation='same persistent-type revenue as introductory objective',

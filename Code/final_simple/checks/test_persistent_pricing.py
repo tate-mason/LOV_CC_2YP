@@ -15,6 +15,21 @@ def expit(z):
 
 
 class PersistentPricingChecks(unittest.TestCase):
+    def test_subsidy_optimum_is_resolved_at_zero_with_boundary_kkt(self):
+        gamma,weights=np.array([-4.]),np.ones(1)
+        free=solve_distribution(gamma,weights,'0',-1.,2.,1.,price_floor=None)
+        constrained=solve_distribution(gamma,weights,'0',-1.,2.,1.)
+        self.assertLess(free['p1'],0.)
+        self.assertEqual(constrained['p1'],0.)
+        self.assertTrue(constrained['at_price_floor'])
+        self.assertLessEqual(constrained['first_order_residual'],0.)
+        self.assertLess(constrained['kkt_residual'],1e-7)
+        self.assertLessEqual(constrained['objective'],free['objective']+1e-10)
+        grid=np.linspace(0.,15.,15001)
+        alternatives=evaluate_policy(gamma,'0',-1.,2.,1.,grid,
+                                     constrained['p2j'],constrained['p20'])
+        self.assertGreaterEqual(constrained['objective']+1e-10,alternatives['revenue'].max())
+
     def test_joint_revenue_optimum_and_unchanged_terminal_beliefs(self):
         g, w = np.array([-3., -.4, 1.5]), np.array([.2, .5, .3])
         alpha, beta, delta = -1.3, .7, .9

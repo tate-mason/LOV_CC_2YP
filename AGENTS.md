@@ -1,3 +1,12 @@
+# Preserve user-authored work
+
+Never delete, overwrite, truncate, or replace user-authored files or content
+unless the user explicitly asks to delete or replace that specific material in
+the current task. A request to update, correct, or rebuild something authorizes
+only the requested changes. Preserve all other material, including comments
+and unpublished drafts. Before editing an untracked user-authored file, save a
+verified copy of its exact contents so the edit can be undone.
+
 # Research data boundary
 
 Never open, copy, download, generate or persist raw research records, household
